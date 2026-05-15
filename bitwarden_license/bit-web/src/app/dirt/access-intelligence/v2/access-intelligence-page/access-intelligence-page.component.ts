@@ -147,6 +147,14 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
+  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
+    initialValue: [],
+  });
+
+  protected readonly hasCiphers = computed(() => this.ciphers().length > 0);
+
+  protected readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -157,11 +165,14 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex.set(
-        !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
-      );
-    });
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ tabIndex, source, status }) => {
+        this.tabIndex.set(
+          !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
+        );
+        this.invokedFrom.set({ source, status });
+      });
 
     // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time.
     // - skip(1): Skip initial BehaviorSubject emission (stale Complete from previous run would
@@ -212,6 +223,10 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
     // Close any open dialogs (happens when navigating between orgs)
     void this.currentDialogRef()?.close();
+
+    if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
+      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+    }
   }
 
   ngOnDestroy(): void {
@@ -234,6 +249,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         });
     }
   }
+
+  protected readonly goToImportPage = (): void => {
+    void this.router.navigate(
+      ["/organizations", this.organizationId(), "settings", "tools", "import"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
+  };
 
   protected async onTabChange(newIndex: number): Promise<void> {
     this.tabIndex.set(newIndex);
@@ -347,9 +369,15 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    * Derives critical applications' at-risk members drawer content.
    */
   private getCriticalAtRiskMembersContent(report: AccessReportView): CriticalAtRiskMembersData {
+    const members = report.getCriticalAtRiskMembers();
     return {
       type: DrawerType.CriticalAtRiskMembers,
-      members: this.mapMembersToDrawerData(report.getCriticalAtRiskMembers(), report),
+      members: members.map((member) => ({
+        email: member.email,
+        userName: member.userName ?? "",
+        userGuid: member.id,
+        atRiskPasswordCount: report.getCriticalAtRiskPasswordCountForMember(member.id),
+      })),
     };
   }
 
@@ -378,7 +406,27 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       email: member.email,
       userName: member.userName ?? "",
       userGuid: member.id,
-      atRiskPasswordCount: report.getAtRiskPasswordCountForMember(member.id, app?.applicationName),
+      atRiskPasswordCount:
+        app?.getAtRiskPasswordCountForMember(member.id) ??
+        report.getAtRiskPasswordCountForMember(member.id),
     }));
+  }
+
+  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+    if (source === "import" && status === "success") {
+      this.generateReport();
+    }
+
+    this.clearQueryParams(this.router, this.route, ["source", "status"]);
+  }
+
+  private clearQueryParams(router: Router, route: ActivatedRoute, params: string[]) {
+    // we don't want these params to persist in the URL after handling them, so we remove them
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: null, status: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
   }
 }

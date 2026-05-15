@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -20,6 +20,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
@@ -42,6 +43,8 @@ type MockAccessIntelligenceDataService = {
   loading$: BehaviorSubject<boolean>;
   error$: BehaviorSubject<string | null>;
   reportProgress$: BehaviorSubject<ReportProgress | null>;
+  ciphers$: BehaviorSubject<CipherView[]>;
+  hasCiphers$: Observable<boolean>;
   initializeForOrganization$: jest.Mock;
   generateNewReport$: jest.Mock;
 };
@@ -60,6 +63,7 @@ describe("AccessIntelligencePageComponent", () => {
     paramMap: BehaviorSubject<any>;
     queryParams: BehaviorSubject<any>;
   };
+  let hasCiphersSubject: BehaviorSubject<boolean>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -84,6 +88,8 @@ describe("AccessIntelligencePageComponent", () => {
   });
 
   beforeEach(async () => {
+    hasCiphersSubject = new BehaviorSubject<boolean>(false);
+
     // Create mock services
     mockAccessIntelligenceService = {
       report$: new BehaviorSubject<AccessReportView | null>(null),
@@ -92,6 +98,8 @@ describe("AccessIntelligencePageComponent", () => {
       reportProgress$: new BehaviorSubject<ReportProgress | null>(null),
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
+      ciphers$: new BehaviorSubject<CipherView[]>([]),
+      hasCiphers$: hasCiphersSubject.asObservable(),
     };
 
     mockDrawerStateService = {
@@ -404,6 +412,37 @@ describe("AccessIntelligencePageComponent", () => {
       await component.ngOnInit();
       fixture.detectChanges();
 
+      expect(testAccess(component).hasReportData()).toBe(false);
+    });
+
+    it("should report no ciphers when vault is empty", async () => {
+      mockAccessIntelligenceService.ciphers$.next([]);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(testAccess(component).hasCiphers()).toBe(false);
+    });
+
+    it("should report ciphers present when vault has items", async () => {
+      mockAccessIntelligenceService.ciphers$.next([
+        { id: "c1", name: "Test Cipher", type: 1 } as CipherView,
+      ]);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(testAccess(component).hasCiphers()).toBe(true);
+    });
+
+    it("should show full empty state when vault is empty and no report data", async () => {
+      mockAccessIntelligenceService.ciphers$.next([]);
+      mockAccessIntelligenceService.report$.next(null);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(testAccess(component).hasCiphers()).toBe(false);
       expect(testAccess(component).hasReportData()).toBe(false);
     });
 
