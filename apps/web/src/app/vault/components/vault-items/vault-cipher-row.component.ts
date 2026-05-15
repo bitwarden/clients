@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  input,
 } from "@angular/core";
 import { firstValueFrom, Observable } from "rxjs";
 
@@ -27,6 +28,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+import { GatedState } from "@bitwarden/pam";
 
 import {
   convertToPermission,
@@ -128,6 +130,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() checkedToggled = new EventEmitter<void>();
 
+  // TODO(PM-XXXXX): pipe real GatedState from a leasing-state service once
+  // sync ships requireLease + active leases. Until then every row is "gated_no_lease".
+  readonly leaseState = input<GatedState>("gated_no_lease");
+  readonly leaseExpiresAt = input<Date | null>(null);
+
+  protected showLeaseBadge$: Observable<boolean>;
+
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [
@@ -151,6 +160,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
+    this.showLeaseBadge$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
   }
 
   /**

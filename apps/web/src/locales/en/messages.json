@@ -13874,5 +13874,17 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to view"
+  },
+  "cipherLeaseExpiresIn": {
+    "message": "Leased — expires in $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "47m"
+      }
+    }
   }
 }
