@@ -1,5 +1,4 @@
 import { FocusableOption } from "@angular/cdk/a11y";
-import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -32,7 +31,7 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
   host: {
     class: "tw-inline-flex tw-items-center",
   },
-  imports: [TabListItemDirective, RouterModule, BerryComponent, IconModule, NgTemplateOutlet],
+  imports: [TabListItemDirective, RouterModule, BerryComponent, IconModule],
 })
 export class TabLinkComponent implements FocusableOption, AfterViewInit {
   protected readonly tabLabelContentClasses = TAB_LABEL_CONTENT_CLASSES;

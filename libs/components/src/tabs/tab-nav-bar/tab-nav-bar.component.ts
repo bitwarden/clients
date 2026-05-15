@@ -1,5 +1,4 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
-import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -44,7 +43,6 @@ import { TabLinkComponent } from "./tab-link.component";
     class: "tw-block",
   },
   imports: [
-    NgTemplateOutlet,
     RouterModule,
     TabHeaderComponent,
     TabListContainerDirective,
