@@ -1216,6 +1216,18 @@ describe("InlineMenuFieldQualificationService", () => {
 
       expect(inlineMenuFieldQualificationService.isEmailField(field)).toBe(true);
     });
+
+    it("returns false if the field qualifies as a TOTP field", () => {
+      const field = mock<AutofillField>({
+        placeholder: "Security code",
+        autoCompleteType: "on",
+        type: "text",
+        htmlName: "otp",
+        htmlID: "otp",
+      });
+
+      expect(inlineMenuFieldQualificationService.isEmailField(field)).toBe(false);
+    });
   });
 
   describe("hasCurrentPasswordAutocomplete", () => {

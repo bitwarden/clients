@@ -61,6 +61,7 @@ export enum FeatureFlag {
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
+  SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -81,7 +82,6 @@ export enum FeatureFlag {
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
-  PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
@@ -138,6 +138,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
+  [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
@@ -158,7 +159,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
-  [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
