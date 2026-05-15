@@ -3,7 +3,6 @@
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { StorageRequest } from "@bitwarden/common/models/request/storage.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,7 +18,7 @@ export interface AdjustStorageDialogParams {
   price: number;
   cadence: "month" | "year";
   type: "Add" | "Remove";
-  organizationId?: string;
+  organizationId: string;
 }
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -44,7 +43,6 @@ export class AdjustStorageDialogComponent {
     ]),
   });
 
-  protected organizationId?: string;
   protected price: number;
   protected cadence: "month" | "year";
 
@@ -55,7 +53,6 @@ export class AdjustStorageDialogComponent {
   protected ResultType = AdjustStorageDialogResultType;
 
   constructor(
-    private apiService: ApiService,
     @Inject(DIALOG_DATA) protected dialogParams: AdjustStorageDialogParams,
     private dialogRef: DialogRef<AdjustStorageDialogResultType>,
     private i18nService: I18nService,
@@ -64,7 +61,6 @@ export class AdjustStorageDialogComponent {
   ) {
     this.price = this.dialogParams.price;
     this.cadence = this.dialogParams.cadence;
-    this.organizationId = this.dialogParams.organizationId;
     switch (this.dialogParams.type) {
       case "Add":
         this.title = this.i18nService.t("addStorage");
@@ -90,11 +86,7 @@ export class AdjustStorageDialogComponent {
         break;
     }
 
-    if (this.organizationId) {
-      await this.organizationApiService.updateStorage(this.organizationId, request);
-    } else {
-      await this.apiService.postAccountStorage(request);
-    }
+    await this.organizationApiService.updateStorage(this.dialogParams.organizationId, request);
 
     this.toastService.showToast({
       variant: "success",

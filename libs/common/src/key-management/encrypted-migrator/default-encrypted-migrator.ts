@@ -1,5 +1,4 @@
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-// eslint-disable-next-line
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
   BiometricsService,
@@ -37,7 +36,6 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     biometricsService: BiometricsService,
     biometricStateService: BiometricStateService,
     platformUtilsService: PlatformUtilsService,
-    sdkService: SdkService,
   ) {
     // Register migrations here
     this.migrations.push({
@@ -61,7 +59,6 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
           biometricsService,
           biometricStateService,
           logService,
-          sdkService,
         ),
       });
     }

@@ -90,8 +90,7 @@ describe("DesktopSetInitialPasswordService", () => {
   });
 
   /**
-   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
-   * in the test setup above that are now un-used and can also be removed.
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    */
   describe("setInitialPassword(...)", () => {
     // Mock function parameters

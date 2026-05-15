@@ -113,7 +113,7 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
     expect(bitLabelElement.nativeElement.textContent.trim()).toBe("Turn on");
   });
 
-  it("buildVNextRequest should delegate to buildRequest and wrap with null metadata", async () => {
+  it("buildRequest should return the policy wrapped with null metadata", async () => {
     fixture.componentRef.setInput("policy", new RemoveUnlockWithPinPolicy());
     fixture.componentRef.setInput(
       "policyResponse",
@@ -125,11 +125,8 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
     );
     component.ngOnInit();
 
-    const buildRequestSpy = jest.spyOn(component, "buildRequest");
+    const result = await component.buildRequest(mock<OrgKey>());
 
-    const result = await component.buildVNextRequest(mock<OrgKey>());
-
-    expect(buildRequestSpy).toHaveBeenCalled();
     expect(result).toEqual({
       policy: {
         enabled: true,

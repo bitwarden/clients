@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "Khóa SSH"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -1011,6 +1017,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -1029,6 +1038,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Ghi chú"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "folders": {
     "message": "Thư mục"
@@ -1116,12 +1128,24 @@
     "message": "Khóa SSH mới",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Send văn bản mới",
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Send tập tin mới",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1144,12 +1168,24 @@
     "message": "Sửa khóa SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Sửa Send văn bản",
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Sửa Send tập tin",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1171,6 +1207,18 @@
   "viewItemHeaderSshKey": {
     "message": "Xem khóa SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Mới",
@@ -1275,6 +1323,15 @@
   "copyPassportNumber": {
     "message": "Sao chép số hộ chiếu"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Sao chép số giấy phép"
   },
@@ -1304,6 +1361,38 @@
       "ciphername": {
         "content": "$2",
         "example": "Login Item"
+      }
+    }
+  },
+  "copyInfoTitle": {
+    "message": "Copy info - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "No values to copy"
+  },
+  "launchWebsiteName": {
+    "message": "Launch website $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
       }
     }
   },
@@ -1415,6 +1504,24 @@
   },
   "deleteAttachment": {
     "message": "Xóa tập tin đính kèm"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Bạn có chắc muốn xóa mục này?"
@@ -2163,6 +2270,18 @@
   "exportError": {
     "message": "An error occurred while exporting your vault data"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "passwordGenerator": {
     "message": "Trình tạo mật khẩu"
   },
@@ -2539,6 +2658,9 @@
   },
   "chooseFile": {
     "message": "Chọn tập tin"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
@@ -3949,8 +4071,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Invite"
+  },
   "inviteUserDesc": {
     "message": "Mời một người dùng mới tham gia tổ chức của bạn bằng cách nhập địa chỉ email tài khoản Bitwarden của họ vào ô bên dưới. Nếu họ chưa có tài khoản Bitwarden, họ sẽ được yêu cầu tạo tài khoản mới."
+  },
+  "inviteUserDescription": {
+    "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
@@ -4242,6 +4379,60 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Viewed account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Viewed PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Copied account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Copied PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Viewed license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Tự động điền cho $ID$.",
     "placeholders": {
@@ -4280,6 +4471,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "keepEditing": {
+    "message": "Keep editing"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
   },
   "editedPolicyId": {
     "message": "Đã chỉnh sửa chính sách $ID$.",
@@ -4355,6 +4561,45 @@
   },
   "revokedEmailError": {
     "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
+  "revocationReasonUnknown": {
+    "message": "Unknown reason"
+  },
+  "revocationReasonManual": {
+    "message": "Revoked by an admin"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Not in compliance with two-step login policy"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Not in compliance with single organization policy"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Revoked organization access for $ID$ for declining transfer to organization ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Đã khôi phục quyền truy cập tổ chức của $ID$.",
@@ -4732,8 +4977,14 @@
   "reportGenerationDone": {
     "message": "Done!"
   },
+  "reportGenerationFailed": {
+    "message": "An error occurred while generating the report. Try again."
+  },
   "riskInsightsRunReport": {
     "message": "Chạy báo cáo"
+  },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
   },
   "updateBrowserDesc": {
     "message": "Bạn đang sử dụng trình duyệt web không được hỗ trợ. Kho lưu trữ web có thể không hoạt động đúng cách."
@@ -5255,6 +5506,41 @@
   },
   "byLink": {
     "message": "By link"
+  },
+  "allowedDomains": {
+    "message": "Allowed domains"
+  },
+  "allowedDomainsHint": {
+    "message": "If entering multiple domains, separate with commas"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Enter allowed domains to generate an invite link"
+  },
+  "domainsEdited": {
+    "message": "Domains edited"
+  },
+  "inviteLink": {
+    "message": "Invite link"
+  },
+  "lastGenerated": {
+    "message": "Last generated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Invite link copied"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Invite link regenerated"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerate invite link"
+  },
+  "inviteByLinkDesc": {
+    "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Bằng cách tiếp tục, bạn đồng ý với"
@@ -5869,14 +6155,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "Send văn bản mới",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Send tập tin mới",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "Đã lưu Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5969,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Tải xuống tập tin đính kèm"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Experiencing an issue? Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "sendAccessPasswordTitle": {
     "message": "Nhập mật khẩu để xem Send này",
@@ -6680,8 +6971,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "Mật khẩu chính đã được đặt lại cho người dùng $ID$.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Account recovery with master password initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6689,8 +6980,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7851,26 +8142,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Xuất kho của tổ chức"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Chỉ dữ liệu trong kho cá nhân liên kết với $EMAIL$ mới được xuất. Không bao gồm các dữ liệu trong kho tổ chức. Chỉ thông tin về các mục trong kho mới được xuất, sẽ không có các tệp đính kèm.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Chỉ các mục trong kho cá nhân, bao gồm tệp đính kèm liên kết với $EMAIL$, sẽ được xuất. Các mục trong kho của tổ chức sẽ không được bao gồm",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Chỉ kho của tổ chức liên kết với $ORGANIZATION$ sẽ được xuất. Các mục trong kho cá nhân hoặc tổ chức khác sẽ không được bao gồm.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8281,9 +8557,19 @@
     "message": "Cung cấp SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Tự động cung cấp người dùng và nhóm với nhà cung cấp định danh ưa thích của bạn thông qua cung cấp SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
+  },
+  "scimLearnMore": {
+    "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Tự động cung cấp người dùng và nhóm với nhà cung cấp danh tính bạn chọn thông qua SCIM provisioning. Tìm các tích hợp được hỗ trợ",
@@ -8363,6 +8649,21 @@
   },
   "inputRequired": {
     "message": "Trường này là bắt buộc."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "inputEmail": {
     "message": "Dữ liệu nhập vào không phải là địa chỉ email."
@@ -9163,6 +9464,9 @@
   "inviteMember": {
     "message": "Mời thành viên"
   },
+  "inviteMembers": {
+    "message": "Invite members"
+  },
   "addSponsorship": {
     "message": "Thêm tài trợ"
   },
@@ -9171,6 +9475,9 @@
   },
   "memberRole": {
     "message": "Vai trò thành viên"
+  },
+  "moreSettings": {
+    "message": "More settings"
   },
   "moreFromBitwarden": {
     "message": "Thêm từ Bitwarden"
@@ -9354,6 +9661,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Kích hoạt quyền truy cập Trình quản lý Bí mật cho người dùng."
+  },
+  "grantSecretsManager": {
+    "message": "Grant access to Secrets Manager"
   },
   "userAccessSecretsManagerGA": {
     "message": "Người dùng này có thể truy cập Trình quản lý Bí mật"
@@ -9860,8 +10170,8 @@
   "recoverAccountSuccess": {
     "message": "Account recovery success!"
   },
-  "updatedTempPassword": {
-    "message": "Người dùng đã cập nhật mật khẩu được cấp thông qua khôi phục tài khoản."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "Đã kích hoạt quyền truy cập Trình quản lý Bí mật",
@@ -13329,6 +13639,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "sendsTitleNoSearchResults": {
     "message": "No search results returned"
   },
@@ -13396,14 +13770,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -13412,6 +13780,31 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -13426,5 +13819,53 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
+  "copy": {
+    "message": "Copy"
   }
 }

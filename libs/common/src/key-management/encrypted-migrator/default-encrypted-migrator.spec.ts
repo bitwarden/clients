@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-// eslint-disable-next-line
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
   BiometricsService,
@@ -37,7 +36,6 @@ describe("EncryptedMigrator", () => {
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
-  const mockSdkService = mock<SdkService>();
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
@@ -74,7 +72,6 @@ describe("EncryptedMigrator", () => {
       mockBiometricsService,
       mockBiometricStateService,
       mockPlatformUtilsService,
-      mockSdkService,
     );
   });
 

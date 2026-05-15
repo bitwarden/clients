@@ -11,26 +11,15 @@ export interface PasswordInputResult {
   rotateUserKey?: boolean;
 
   /**
-   * Temporary property that persists the flag state through the entire set/change password process.
-   * This allows flows to consume this value instead of re-checking the flag state via ConfigService themselves.
-   *
-   * The ChangePasswordDelegation flows (Emergency Access Takeover and Account Recovery), however, only ever
-   * require a raw newPassword from the InputPasswordComponent regardless of whether the flag is on or off.
-   * Flagging for those 2 flows will be done via the ConfigService in their respective services.
-   *
-   * To be removed in PM-28143
+   * @deprecated Still required by the JIT_PROVISIONED_MP_ORG_USER flow in SetInitialPasswordComponent.
+   * Will be removed when that flow is updated to use MasterPasswordAuthenticationData and
+   * MasterPasswordUnlockData as part of https://bitwarden.atlassian.net/browse/PM-32526
    */
-  newApisWithInputPasswordFlagEnabled?: boolean;
-
-  // The deprecated properties below will be removed in PM-28143: https://bitwarden.atlassian.net/browse/PM-28143
-
-  /** @deprecated This low-level cryptographic state will be removed. It will be replaced by high level calls to masterpassword service, in the consumers of this interface. */
-  currentMasterKey?: MasterKey;
-  /** @deprecated */
-  currentServerMasterKeyHash?: string;
-
-  /** @deprecated */
   newMasterKey?: MasterKey;
-  /** @deprecated */
+  /**
+   * @deprecated Still required by the JIT_PROVISIONED_MP_ORG_USER flow in SetInitialPasswordComponent.
+   * Will be removed when that flow is updated to use MasterPasswordAuthenticationData and
+   * MasterPasswordUnlockData as part of https://bitwarden.atlassian.net/browse/PM-32526
+   */
   newServerMasterKeyHash?: string;
 }
