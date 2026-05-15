@@ -1,7 +1,8 @@
+import { QualificationEngine } from "../../qualification/abstractions/qualification-engine";
+import { ScoringQualificationEngine } from "../../qualification/engine";
 import { InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface } from "../abstractions/inline-menu-field-qualifications.service";
 import { InlineMenuFieldQualificationService } from "../inline-menu-field-qualification.service";
 
-import { QualificationEngine } from "./abstractions/qualification-engine";
 import { LegacyBridgeEngine } from "./engines/legacy-bridge.engine";
 import { MemoizingQualificationEngine } from "./engines/memoizing.engine";
 import { QualificationEngineAdapter } from "./qualification-engine.adapter";
@@ -38,14 +39,19 @@ export interface QualificationStack {
  * flag state.
  *
  * With `useEngine=true`, returns a {@link QualificationEngineAdapter} as
- * `service` that routes boolean queries through the same engine the
- * direct-engine consumers hold. Both go through one
- * {@link MemoizingQualificationEngine}, so consumers share a single classify
- * pass per pageDetails snapshot.
+ * `service` backed by the {@link ScoringQualificationEngine}. The adapter
+ * routes role and form-category predicates through the scoring engine when
+ * the engine declares them covered (credential roles + login/account-creation
+ * categories today), and falls through to the held legacy service for the
+ * uncovered remainder (card and identity roles, credit-card and identity
+ * categories). Both go through one {@link MemoizingQualificationEngine}, so
+ * adapter-mediated and direct-engine consumers share a single classify pass
+ * per pageDetails snapshot.
  */
 export function buildQualificationStack(useEngine: boolean): QualificationStack {
   const legacy = new InlineMenuFieldQualificationService();
-  const engine = new MemoizingQualificationEngine(new LegacyBridgeEngine(legacy));
+  const inner = useEngine ? new ScoringQualificationEngine() : new LegacyBridgeEngine(legacy);
+  const engine = new MemoizingQualificationEngine(inner);
   const service = useEngine ? new QualificationEngineAdapter(engine, legacy) : legacy;
   return { engine, service };
 }

@@ -1,5 +1,8 @@
 import AutofillPageDetails from "../../../models/autofill-page-details";
-import { PageQualification, QualificationEngine } from "../abstractions/qualification-engine";
+import {
+  PageQualification,
+  QualificationEngine,
+} from "../../../qualification/abstractions/qualification-engine";
 
 /**
  * Wraps any {@link QualificationEngine} with `WeakMap`-keyed memoization so

@@ -3,9 +3,9 @@ import { mock, MockProxy } from "jest-mock-extended";
 import AutofillField from "../../../models/autofill-field";
 import AutofillForm from "../../../models/autofill-form";
 import AutofillPageDetails from "../../../models/autofill-page-details";
+import { FieldRole } from "../../../qualification/types/field-role";
+import { FormCategory } from "../../../qualification/types/form-category";
 import { InlineMenuFieldQualificationService } from "../../abstractions/inline-menu-field-qualifications.service";
-import { FieldRole } from "../types/field-role";
-import { FormCategory } from "../types/form-category";
 
 import { LegacyBridgeEngine } from "./legacy-bridge.engine";
 

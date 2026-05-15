@@ -1,23 +1,43 @@
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { QualificationEngine } from "../../qualification/abstractions/qualification-engine";
+import { FieldRole } from "../../qualification/types/field-role";
+import { FormCategory } from "../../qualification/types/form-category";
 import { InlineMenuFieldQualificationService } from "../abstractions/inline-menu-field-qualifications.service";
 
-import { PageQualification, QualificationEngine } from "./abstractions/qualification-engine";
-import { FieldRole } from "./types/field-role";
-import { FormCategory } from "./types/form-category";
+import { CATEGORY_PREDICATES, ROLE_PREDICATES } from "./role-predicates";
 
 /**
  * Implements the legacy 35-method {@link InlineMenuFieldQualificationService}
- * interface by delegating classification to a {@link QualificationEngine}.
+ * interface by delegating classification to a {@link QualificationEngine},
+ * with fall-through to a held legacy service for roles and categories the
+ * engine declares it doesn't cover.
  *
- * The adapter caches engine results by `AutofillPageDetails` reference and
- * maintains reverse lookups so the field-only boolean methods can resolve a
- * field's classification without needing `pageDetails` passed at each call
- * site. Form-context boolean methods (`isFieldFor*Form`) auto-enroll because
- * they already receive `pageDetails`.
+ * The adapter holds a reverse-lookup map from `AutofillField` to the
+ * `AutofillPageDetails` snapshot that owns it, so field-only boolean methods
+ * can resolve a field's classification without needing `pageDetails` passed
+ * at each call site. Form-context boolean methods (`isFieldFor*Form`)
+ * auto-enroll because they already receive `pageDetails`. Caching of
+ * classification results is delegated to the engine — wrap the engine in
+ * {@link MemoizingQualificationEngine} when one classify-per-snapshot is
+ * desired.
+ *
+ * **Routing.** For each role-based or form-context predicate, the adapter
+ * checks whether the engine declared coverage for that role/category. If
+ * yes, the answer comes from `matchedRoles.has(...)` / `matchedFormContexts.has(...)`
+ * against the engine's classification. If no, the call falls through to
+ * the held legacy service via {@link ROLE_PREDICATES} / {@link CATEGORY_PREDICATES}.
+ * An engine that omits `coveredRoles` / `coveredCategories` is treated as
+ * covering everything (no fall-through).
+ *
+ * **Un-enrolled fields.** A field-only role query for a field whose page has
+ * not been enrolled falls through to the legacy service rather than returning
+ * `false`. A forgotten `enroll()` call surfaces as a legacy answer rather
+ * than a silent regression to "not a username, not a password, not an email"
+ * across every field on the page.
  *
  * Element-typed predicates (submit buttons) and the `hasCurrentPasswordAutocomplete`
- * attribute check are delegated to a held legacy service instance — the engine
+ * attribute check are always delegated to the legacy service — the engine
  * port does not accept live DOM elements, and the autocomplete check is a
  * simple attribute test that does not benefit from running through an engine.
  *
@@ -26,7 +46,6 @@ import { FormCategory } from "./types/form-category";
  * into qualifier maps and invokes them as bare functions) keeps working.
  */
 export class QualificationEngineAdapter implements InlineMenuFieldQualificationService {
-  private readonly pageQualifications = new WeakMap<AutofillPageDetails, PageQualification>();
   private readonly fieldToPage = new WeakMap<AutofillField, AutofillPageDetails>();
 
   constructor(
@@ -37,23 +56,32 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
   /**
    * Registers a freshly collected `AutofillPageDetails` snapshot with the
    * adapter. Subsequent field-only boolean queries that reference fields in
-   * this snapshot will resolve through the engine. Calling enroll more than
-   * once for the same snapshot is a no-op.
+   * this snapshot will resolve through the engine. Re-enrolling the same
+   * snapshot re-populates the reverse-lookup map idempotently.
    */
   enroll(pageDetails: AutofillPageDetails): void {
-    if (this.pageQualifications.has(pageDetails)) {
-      return;
-    }
-    this.pageQualifications.set(pageDetails, this.engine.classify(pageDetails));
     for (const field of pageDetails.fields) {
       this.fieldToPage.set(field, pageDetails);
     }
   }
 
+  private engineCoversRole(role: FieldRole): boolean {
+    return this.engine.coveredRoles?.has(role) ?? true;
+  }
+
+  private engineCoversCategory(category: FormCategory): boolean {
+    return this.engine.coveredCategories?.has(category) ?? true;
+  }
+
   private fieldHasRole(field: AutofillField, role: FieldRole): boolean {
+    if (!this.engineCoversRole(role)) {
+      return ROLE_PREDICATES[role](this.legacy, field);
+    }
     const pd = this.fieldToPage.get(field);
-    if (!pd) {return false;}
-    return this.pageQualifications.get(pd)?.fieldFor(field.opid)?.matchedRoles.has(role) ?? false;
+    if (!pd) {
+      return ROLE_PREDICATES[role](this.legacy, field);
+    }
+    return this.engine.classify(pd).fieldFor(field.opid)?.matchedRoles.has(role) ?? false;
   }
 
   private fieldHasFormContext(
@@ -61,12 +89,13 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
     pageDetails: AutofillPageDetails,
     category: FormCategory,
   ): boolean {
+    if (!this.engineCoversCategory(category)) {
+      return CATEGORY_PREDICATES[category](this.legacy, field, pageDetails);
+    }
     this.enroll(pageDetails);
     return (
-      this.pageQualifications
-        .get(pageDetails)
-        ?.fieldFor(field.opid)
-        ?.matchedFormContexts.has(category) ?? false
+      this.engine.classify(pageDetails).fieldFor(field.opid)?.matchedFormContexts.has(category) ??
+      false
     );
   }
 

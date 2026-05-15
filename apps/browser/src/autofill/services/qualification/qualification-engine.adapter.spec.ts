@@ -3,14 +3,16 @@ import { mock, MockProxy } from "jest-mock-extended";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
+import {
+  PageQualification,
+  QualificationEngine,
+} from "../../qualification/abstractions/qualification-engine";
+import { FieldClassification } from "../../qualification/types/classification";
+import { FieldRole } from "../../qualification/types/field-role";
+import { FormCategory } from "../../qualification/types/form-category";
 import { InlineMenuFieldQualificationService } from "../abstractions/inline-menu-field-qualifications.service";
 
-import { PageQualification, QualificationEngine } from "./abstractions/qualification-engine";
 import { QualificationEngineAdapter } from "./qualification-engine.adapter";
-import { FieldClassification } from "./types/classification";
-import { FieldRole } from "./types/field-role";
-import { FormCategory } from "./types/form-category";
-
 
 function fieldClassification(
   roles: FieldRole[],
@@ -37,6 +39,13 @@ describe("QualificationEngineAdapter", () => {
 
   beforeEach(() => {
     engine = mock<QualificationEngine>();
+    // The mock proxy auto-mocks every property including the optional readonly
+    // Sets, but tests in this file exercise the "engine covers everything"
+    // branch where the adapter routes every predicate through the engine.
+    // Setting these to undefined makes `engine.coveredRoles?.has(...)` short-
+    // circuit on the optional chain and trigger the `?? true` default.
+    Object.defineProperty(engine, "coveredRoles", { value: undefined });
+    Object.defineProperty(engine, "coveredCategories", { value: undefined });
     legacy = mock<InlineMenuFieldQualificationService>();
     adapter = new QualificationEngineAdapter(engine, legacy);
 
@@ -52,10 +61,14 @@ describe("QualificationEngineAdapter", () => {
   });
 
   describe("before enroll()", () => {
-    it("returns false from field-only methods when the field is unknown", () => {
-      expect(adapter.isUsernameField(field)).toBe(false);
+    it("falls through to legacy for field-only methods when the field is unknown", () => {
+      legacy.isUsernameField.mockReturnValue(true);
+      legacy.isCurrentPasswordField.mockReturnValue(false);
+
+      expect(adapter.isUsernameField(field)).toBe(true);
       expect(adapter.isCurrentPasswordField(field)).toBe(false);
-      expect(adapter.isFieldForCardCvv(field)).toBe(false);
+      expect(legacy.isUsernameField).toHaveBeenCalledWith(field);
+      expect(legacy.isCurrentPasswordField).toHaveBeenCalledWith(field);
     });
   });
 
@@ -67,12 +80,6 @@ describe("QualificationEngineAdapter", () => {
       adapter.enroll(pageDetails);
     });
 
-    it("classifies the page once per pageDetails snapshot", () => {
-      adapter.enroll(pageDetails);
-      adapter.enroll(pageDetails);
-      expect(engine.classify).toHaveBeenCalledTimes(1);
-    });
-
     it("returns true for roles in the field's matchedRoles", () => {
       expect(adapter.isUsernameField(field)).toBe(true);
       expect(adapter.isEmailField(field)).toBe(true);
@@ -81,6 +88,13 @@ describe("QualificationEngineAdapter", () => {
     it("returns false for roles not in the field's matchedRoles", () => {
       expect(adapter.isCurrentPasswordField(field)).toBe(false);
       expect(adapter.isFieldForCardCvv(field)).toBe(false);
+    });
+
+    it("does not call the legacy service for covered roles on enrolled fields", () => {
+      adapter.isUsernameField(field);
+      adapter.isCurrentPasswordField(field);
+      expect(legacy.isUsernameField).not.toHaveBeenCalled();
+      expect(legacy.isCurrentPasswordField).not.toHaveBeenCalled();
     });
   });
 
@@ -131,6 +145,63 @@ describe("QualificationEngineAdapter", () => {
       legacy.hasCurrentPasswordAutocomplete.mockReturnValue(true);
       expect(adapter.hasCurrentPasswordAutocomplete(field)).toBe(true);
       expect(legacy.hasCurrentPasswordAutocomplete).toHaveBeenCalledWith(field);
+    });
+  });
+
+  describe("split-routing on declared coverage", () => {
+    let coveredEngine: MockProxy<QualificationEngine>;
+    let coveredAdapter: QualificationEngineAdapter;
+
+    beforeEach(() => {
+      coveredEngine = mock<QualificationEngine>();
+      // Engine declares it covers only the credential roles + login category.
+      // Everything else must fall through to the legacy service.
+      Object.defineProperty(coveredEngine, "coveredRoles", {
+        value: new Set<FieldRole>([
+          FieldRole.Username,
+          FieldRole.CurrentPassword,
+          FieldRole.NewPassword,
+          FieldRole.Email,
+          FieldRole.Totp,
+        ]),
+      });
+      Object.defineProperty(coveredEngine, "coveredCategories", {
+        value: new Set<FormCategory>([FormCategory.Login]),
+      });
+      coveredEngine.classify.mockReturnValue(pageQualification);
+      coveredAdapter = new QualificationEngineAdapter(coveredEngine, legacy);
+      pageQualification.fieldFor.mockImplementation((opid) =>
+        opid === "field-1" ? fieldClassification([FieldRole.Username], [FormCategory.Login]) : null,
+      );
+      coveredAdapter.enroll(pageDetails);
+    });
+
+    it("routes covered role predicates through the engine", () => {
+      expect(coveredAdapter.isUsernameField(field)).toBe(true);
+      expect(legacy.isUsernameField).not.toHaveBeenCalled();
+    });
+
+    it("falls through to legacy for uncovered role predicates", () => {
+      legacy.isFieldForCardNumber.mockReturnValue(true);
+      expect(coveredAdapter.isFieldForCardNumber(field)).toBe(true);
+      expect(legacy.isFieldForCardNumber).toHaveBeenCalledWith(field);
+    });
+
+    it("falls through to legacy for uncovered identity predicates", () => {
+      legacy.isFieldForIdentityEmail.mockReturnValue(true);
+      expect(coveredAdapter.isFieldForIdentityEmail(field)).toBe(true);
+      expect(legacy.isFieldForIdentityEmail).toHaveBeenCalledWith(field);
+    });
+
+    it("routes covered form-context predicates through the engine", () => {
+      expect(coveredAdapter.isFieldForLoginForm(field, pageDetails)).toBe(true);
+      expect(legacy.isFieldForLoginForm).not.toHaveBeenCalled();
+    });
+
+    it("falls through to legacy for uncovered form-context predicates", () => {
+      legacy.isFieldForCreditCardForm.mockReturnValue(true);
+      expect(coveredAdapter.isFieldForCreditCardForm(field, pageDetails)).toBe(true);
+      expect(legacy.isFieldForCreditCardForm).toHaveBeenCalledWith(field, pageDetails);
     });
   });
 

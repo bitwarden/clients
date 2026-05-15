@@ -1,16 +1,25 @@
 import AutofillField from "../../../models/autofill-field";
 import AutofillForm from "../../../models/autofill-form";
 import AutofillPageDetails from "../../../models/autofill-page-details";
-import { InlineMenuFieldQualificationService } from "../../abstractions/inline-menu-field-qualifications.service";
-import { PageQualification, QualificationEngine } from "../abstractions/qualification-engine";
+import {
+  PageQualification,
+  QualificationEngine,
+} from "../../../qualification/abstractions/qualification-engine";
 import {
   CategoryScore,
   FieldClassification,
   FormClassification,
   RoleScore,
-} from "../types/classification";
-import { FieldRole } from "../types/field-role";
-import { FormCategory } from "../types/form-category";
+} from "../../../qualification/types/classification";
+import { FieldRole } from "../../../qualification/types/field-role";
+import { FormCategory } from "../../../qualification/types/form-category";
+import { InlineMenuFieldQualificationService } from "../../abstractions/inline-menu-field-qualifications.service";
+import {
+  ALL_FIELD_ROLES,
+  ALL_FORM_CATEGORIES,
+  CATEGORY_PREDICATES,
+  ROLE_PREDICATES,
+} from "../role-predicates";
 
 const emptyRoleScores: ReadonlyArray<RoleScore> = Object.freeze([]);
 const emptyCategoryScores: ReadonlyArray<CategoryScore> = Object.freeze([]);
@@ -18,9 +27,9 @@ const emptyCategoryScores: ReadonlyArray<CategoryScore> = Object.freeze([]);
 /**
  * Bridges the legacy {@link InlineMenuFieldQualificationService} boolean
  * methods into a {@link QualificationEngine}. Each field's matched roles
- * are computed by calling every legacy predicate; each form's matched
- * categories are computed by checking every form-level predicate against
- * every field in the form.
+ * are computed by calling every legacy predicate from {@link ROLE_PREDICATES};
+ * each form's matched categories are computed by checking every form-level
+ * predicate from {@link CATEGORY_PREDICATES} against every field in the form.
  *
  * Confidence is always "high" when a predicate matches and "none" when
  * nothing matches — no scoring, no mutual-exclusion dispatch. This engine
@@ -68,60 +77,16 @@ export class LegacyBridgeEngine implements QualificationEngine {
     const matched = new Set<FieldRole>();
     const matchedFormContexts = new Set<FormCategory>();
 
-    if (this.legacy.isUsernameField(field)) {matched.add(FieldRole.Username);}
-    if (this.legacy.isCurrentPasswordField(field)) {matched.add(FieldRole.CurrentPassword);}
-    if (this.legacy.isUpdateCurrentPasswordField(field)) {
-      matched.add(FieldRole.UpdateCurrentPassword);
+    for (const role of ALL_FIELD_ROLES) {
+      if (ROLE_PREDICATES[role](this.legacy, field)) {
+        matched.add(role);
+      }
     }
-    if (this.legacy.isNewPasswordField(field)) {matched.add(FieldRole.NewPassword);}
-    if (this.legacy.isEmailField(field)) {matched.add(FieldRole.Email);}
-    if (this.legacy.isTotpField(field)) {matched.add(FieldRole.Totp);}
 
-    if (this.legacy.isFieldForCardholderName(field)) {matched.add(FieldRole.CardholderName);}
-    if (this.legacy.isFieldForCardNumber(field)) {matched.add(FieldRole.CardNumber);}
-    if (this.legacy.isFieldForCardExpirationDate(field)) {
-      matched.add(FieldRole.CardExpirationDate);
-    }
-    if (this.legacy.isFieldForCardExpirationMonth(field)) {
-      matched.add(FieldRole.CardExpirationMonth);
-    }
-    if (this.legacy.isFieldForCardExpirationYear(field)) {
-      matched.add(FieldRole.CardExpirationYear);
-    }
-    if (this.legacy.isFieldForCardCvv(field)) {matched.add(FieldRole.CardCvv);}
-
-    if (this.legacy.isFieldForIdentityTitle(field)) {matched.add(FieldRole.IdentityTitle);}
-    if (this.legacy.isFieldForIdentityFirstName(field)) {matched.add(FieldRole.IdentityFirstName);}
-    if (this.legacy.isFieldForIdentityMiddleName(field)) {
-      matched.add(FieldRole.IdentityMiddleName);
-    }
-    if (this.legacy.isFieldForIdentityLastName(field)) {matched.add(FieldRole.IdentityLastName);}
-    if (this.legacy.isFieldForIdentityFullName(field)) {matched.add(FieldRole.IdentityFullName);}
-    if (this.legacy.isFieldForIdentityAddress1(field)) {matched.add(FieldRole.IdentityAddress1);}
-    if (this.legacy.isFieldForIdentityAddress2(field)) {matched.add(FieldRole.IdentityAddress2);}
-    if (this.legacy.isFieldForIdentityAddress3(field)) {matched.add(FieldRole.IdentityAddress3);}
-    if (this.legacy.isFieldForIdentityCity(field)) {matched.add(FieldRole.IdentityCity);}
-    if (this.legacy.isFieldForIdentityState(field)) {matched.add(FieldRole.IdentityState);}
-    if (this.legacy.isFieldForIdentityPostalCode(field)) {
-      matched.add(FieldRole.IdentityPostalCode);
-    }
-    if (this.legacy.isFieldForIdentityCountry(field)) {matched.add(FieldRole.IdentityCountry);}
-    if (this.legacy.isFieldForIdentityCompany(field)) {matched.add(FieldRole.IdentityCompany);}
-    if (this.legacy.isFieldForIdentityPhone(field)) {matched.add(FieldRole.IdentityPhone);}
-    if (this.legacy.isFieldForIdentityEmail(field)) {matched.add(FieldRole.IdentityEmail);}
-    if (this.legacy.isFieldForIdentityUsername(field)) {matched.add(FieldRole.IdentityUsername);}
-
-    if (this.legacy.isFieldForLoginForm(field, pageDetails)) {
-      matchedFormContexts.add(FormCategory.Login);
-    }
-    if (this.legacy.isFieldForAccountCreationForm(field, pageDetails)) {
-      matchedFormContexts.add(FormCategory.AccountCreation);
-    }
-    if (this.legacy.isFieldForCreditCardForm(field, pageDetails)) {
-      matchedFormContexts.add(FormCategory.CreditCard);
-    }
-    if (this.legacy.isFieldForIdentityForm(field, pageDetails)) {
-      matchedFormContexts.add(FormCategory.Identity);
+    for (const category of ALL_FORM_CATEGORIES) {
+      if (CATEGORY_PREDICATES[category](this.legacy, field, pageDetails)) {
+        matchedFormContexts.add(category);
+      }
     }
 
     const [topRole = null] = matched;
@@ -141,15 +106,10 @@ export class LegacyBridgeEngine implements QualificationEngine {
     const fieldsInForm = pageDetails.fields.filter((f) => f.form === form.opid);
 
     for (const field of fieldsInForm) {
-      if (this.legacy.isFieldForLoginForm(field, pageDetails)) {matched.add(FormCategory.Login);}
-      if (this.legacy.isFieldForAccountCreationForm(field, pageDetails)) {
-        matched.add(FormCategory.AccountCreation);
-      }
-      if (this.legacy.isFieldForCreditCardForm(field, pageDetails)) {
-        matched.add(FormCategory.CreditCard);
-      }
-      if (this.legacy.isFieldForIdentityForm(field, pageDetails)) {
-        matched.add(FormCategory.Identity);
+      for (const category of ALL_FORM_CATEGORIES) {
+        if (CATEGORY_PREDICATES[category](this.legacy, field, pageDetails)) {
+          matched.add(category);
+        }
       }
     }
 

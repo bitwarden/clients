@@ -1,4 +1,4 @@
-const _FieldRole = Object.freeze({
+export const FieldRole = Object.freeze({
   Username: "username",
   CurrentPassword: "currentPassword",
   UpdateCurrentPassword: "updateCurrentPassword",
@@ -28,10 +28,4 @@ const _FieldRole = Object.freeze({
   IdentityEmail: "identityEmail",
   IdentityUsername: "identityUsername",
 } as const);
-
-type _FieldRole = typeof _FieldRole;
-
-export type FieldRole = _FieldRole[keyof _FieldRole];
-
-// FIXME: Update typing of `FieldRole` to be `Record<keyof _FieldRole, FieldRole>` which is ADR-0025 compliant when the TypeScript version is at least 5.8.
-export const FieldRole: typeof _FieldRole = _FieldRole;
+export type FieldRole = (typeof FieldRole)[keyof typeof FieldRole];

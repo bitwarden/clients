@@ -1,5 +1,7 @@
-import AutofillPageDetails from "../../../models/autofill-page-details";
+import AutofillPageDetails from "../../models/autofill-page-details";
 import { FieldClassification, FormClassification } from "../types/classification";
+import { FieldRole } from "../types/field-role";
+import { FormCategory } from "../types/form-category";
 import { PageScenario } from "../types/page-scenario";
 
 /**
@@ -46,7 +48,29 @@ export interface PageQualification {
  * `MemoizingQualificationEngine` (see `engines/memoizing.engine.ts`) so
  * adapter-mediated and direct consumers share one classify pass per
  * `AutofillPageDetails` snapshot.
+ *
+ * **Coverage declaration.** An engine may optionally declare a subset of
+ * roles and categories it knows how to emit. The adapter uses this to
+ * route predicates for uncovered roles/categories through a fallback
+ * qualification source (typically the legacy service) instead of returning
+ * a false negative. Engines that cover the full vocabulary omit both
+ * fields; the adapter treats absence as "covers everything."
  */
 export interface QualificationEngine {
   classify(pageDetails: AutofillPageDetails): PageQualification;
+
+  /**
+   * FieldRoles this engine knows how to emit on `FieldClassification.matchedRoles`.
+   * When omitted, consumers may route every role-based predicate through this engine.
+   * When present, predicates for roles outside the set must fall through to another
+   * qualification source to avoid silent regression.
+   */
+  readonly coveredRoles?: ReadonlySet<FieldRole>;
+
+  /**
+   * FormCategories this engine knows how to emit on `FormClassification.matchedCategories`
+   * (and on each field's `matchedFormContexts`). Same routing principle as
+   * {@link coveredRoles}.
+   */
+  readonly coveredCategories?: ReadonlySet<FormCategory>;
 }
