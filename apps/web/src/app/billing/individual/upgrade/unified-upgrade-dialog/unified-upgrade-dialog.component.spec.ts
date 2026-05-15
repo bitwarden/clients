@@ -351,7 +351,9 @@ describe("UnifiedUpgradeDialogComponent", () => {
       await customComponent["onComplete"](result);
 
       // Should use standard redirect because hasPremiumInterest signal is false
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/premium/checkout/success"]);
+      expect(mockRouter.navigate).toHaveBeenCalledWith([
+        "/settings/subscription/user-subscription",
+      ]);
       expect(mockDialogRef.close).toHaveBeenCalledWith({
         status: "upgradedToPremium",
         organizationId: null,

@@ -13886,23 +13886,5 @@
   },
   "renewalDate": {
     "message": "Renewal date"
-  },
-  "upgradeStatus": {
-    "message": "Upgrade status"
-  },
-  "managePlanInWebApp": {
-    "message": "Manage plan in web app"
-  },
-  "subscriptionStatusProcessing": {
-    "message": "Processing"
-  },
-  "checkoutCanceled": {
-    "message": "Checkout canceled"
-  },
-  "checkoutCanceledMessage": {
-    "message": "Your checkout was canceled and you have not been charged. You can return to Bitwarden and try again whenever you're ready."
-  },
-  "returnToBitwarden": {
-    "message": "Return to Bitwarden"
   }
 }
