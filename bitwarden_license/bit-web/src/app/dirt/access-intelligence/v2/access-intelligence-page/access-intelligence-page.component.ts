@@ -214,7 +214,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -236,7 +236,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     void this.currentDialogRef()?.close();
 
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
-      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+      await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
     }
   }
 
@@ -423,9 +423,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+  private async handleReturnParams(
+    source: string | undefined,
+    status: string | undefined,
+  ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
+      await this.beginOnboardingTour();
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
