@@ -96,6 +96,11 @@
     ></app-drivers-license-view>
   }
 
+  <!-- PASSPORT SECTIONS -->
+  @if (hasPassport()) {
+    <app-passport-view [passport]="cipher()!.passport" [cipher]="cipher()!"></app-passport-view>
+  }
+
   <!-- ADDITIONAL OPTIONS -->
   @if (cipher()?.notes) {
     <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>

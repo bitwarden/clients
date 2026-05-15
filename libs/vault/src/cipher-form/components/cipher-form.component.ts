@@ -48,6 +48,7 @@ import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
 import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
+import { PassportSectionComponent } from "./passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -77,6 +78,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     SshKeySectionComponent,
     BankAccountSectionComponent,
     DriversLicenseSectionComponent,
+    PassportSectionComponent,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
     NewItemNudgeComponent,

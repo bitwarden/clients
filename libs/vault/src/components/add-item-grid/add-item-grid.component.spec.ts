@@ -50,7 +50,7 @@ describe("AddItemGridComponent", () => {
     });
 
     const items = component["items"]();
-    expect(items.length).toBe(7);
+    expect(items.length).toBe(8);
     expect(items.map((i) => i.labelKey)).toEqual(
       expect.arrayContaining([
         "typeLogin",
@@ -58,6 +58,7 @@ describe("AddItemGridComponent", () => {
         "typeBankAccount",
         "typeIdentity",
         "typeDriversLicense",
+        "typePassport",
         "typeNote",
         "typeSshKey",
       ]),

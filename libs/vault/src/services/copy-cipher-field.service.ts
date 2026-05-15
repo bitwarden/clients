@@ -40,7 +40,9 @@ export type CopyAction =
   | "firstName"
   | "middleName"
   | "lastName"
-  | "licenseNumber";
+  | "licenseNumber"
+  | "passportNumber"
+  | "nationalIdentificationNumber";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
@@ -101,6 +103,15 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     typeI18nKey: "licenseNumber",
     protected: true,
     event: EventType.Cipher_ClientCopiedLicenseNumber,
+  },
+  passportNumber: {
+    typeI18nKey: "passportNumber",
+    protected: true,
+    event: EventType.Cipher_ClientCopiedPassportNumber,
+  },
+  nationalIdentificationNumber: {
+    typeI18nKey: "nationalIdentificationNumber",
+    protected: true,
   },
   hiddenField: {
     typeI18nKey: "value",

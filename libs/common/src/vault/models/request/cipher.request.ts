@@ -12,6 +12,7 @@ import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
+import { PassportApi } from "../api/passport.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
 
@@ -33,6 +34,7 @@ export class CipherRequest {
   sshKey: SshKeyApi;
   bankAccount: BankAccountApi;
   driversLicense: DriversLicenseApi;
+  passport: PassportApi;
   fields: FieldApi[];
   passwordHistory: PasswordHistoryRequest[];
   // Deprecated, remove at some point and rename attachments2 to attachments
@@ -254,6 +256,47 @@ export class CipherRequest {
         this.driversLicense.licenseClass =
           cipher.driversLicense.licenseClass != null
             ? cipher.driversLicense.licenseClass.encryptedString
+            : null;
+        break;
+      case CipherType.Passport:
+        this.passport = new PassportApi();
+        this.passport.surname =
+          cipher.passport.surname != null ? cipher.passport.surname.encryptedString : null;
+        this.passport.givenName =
+          cipher.passport.givenName != null ? cipher.passport.givenName.encryptedString : null;
+        this.passport.dateOfBirth =
+          cipher.passport.dateOfBirth != null ? cipher.passport.dateOfBirth.encryptedString : null;
+        this.passport.sex =
+          cipher.passport.sex != null ? cipher.passport.sex.encryptedString : null;
+        this.passport.birthPlace =
+          cipher.passport.birthPlace != null ? cipher.passport.birthPlace.encryptedString : null;
+        this.passport.nationality =
+          cipher.passport.nationality != null ? cipher.passport.nationality.encryptedString : null;
+        this.passport.issuingCountry =
+          cipher.passport.issuingCountry != null
+            ? cipher.passport.issuingCountry.encryptedString
+            : null;
+        this.passport.passportNumber =
+          cipher.passport.passportNumber != null
+            ? cipher.passport.passportNumber.encryptedString
+            : null;
+        this.passport.passportType =
+          cipher.passport.passportType != null
+            ? cipher.passport.passportType.encryptedString
+            : null;
+        this.passport.nationalIdentificationNumber =
+          cipher.passport.nationalIdentificationNumber != null
+            ? cipher.passport.nationalIdentificationNumber.encryptedString
+            : null;
+        this.passport.issuingAuthority =
+          cipher.passport.issuingAuthority != null
+            ? cipher.passport.issuingAuthority.encryptedString
+            : null;
+        this.passport.issueDate =
+          cipher.passport.issueDate != null ? cipher.passport.issueDate.encryptedString : null;
+        this.passport.expirationDate =
+          cipher.passport.expirationDate != null
+            ? cipher.passport.expirationDate.encryptedString
             : null;
         break;
       default:

@@ -12,6 +12,7 @@ import { DriversLicenseData } from "./drivers-license.data";
 import { FieldData } from "./field.data";
 import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
+import { PassportData } from "./passport.data";
 import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
 import { SshKeyData } from "./ssh-key.data";
@@ -36,6 +37,7 @@ export class CipherData {
   sshKey?: SshKeyData;
   bankAccount?: BankAccountData;
   driversLicense?: DriversLicenseData;
+  passport?: PassportData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
@@ -92,6 +94,9 @@ export class CipherData {
         break;
       case CipherType.DriversLicense:
         this.driversLicense = new DriversLicenseData(response.driversLicense);
+        break;
+      case CipherType.Passport:
+        this.passport = new PassportData(response.passport);
         break;
       default:
         break;

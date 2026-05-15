@@ -416,6 +416,7 @@ describe("vault filter service", () => {
           "bankAccount",
           "identity",
           "driversLicense",
+          "passport",
           "note",
           "sshKey",
         ]);

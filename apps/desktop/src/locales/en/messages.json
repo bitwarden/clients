@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "View bank account",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "View license",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "View license",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Passport number"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "License number"
@@ -5090,6 +5134,9 @@
   },
   "searchBankAccount": {
     "message": "Search bank account"
+  },
+  "searchPassport": {
+    "message": "Search passports"
   },
   "copyAccountNumber": {
     "message": "Copy account number"

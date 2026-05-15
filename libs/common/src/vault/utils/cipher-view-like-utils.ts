@@ -132,6 +132,8 @@ export class CipherViewLikeUtils {
         return CipherType.SshKey;
       case cipher.type === "bankAccount":
         return CipherType.BankAccount;
+      case cipher.type === "passport":
+        return CipherType.Passport;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
@@ -300,6 +302,10 @@ export class CipherViewLikeUtils {
         return !!cipher.driversLicense?.lastName;
       case "licenseNumber":
         return !!cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
       default:
         return false;
     }
@@ -408,6 +414,7 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   pin: "BankAccountPin",
   iban: "BankAccountIban",
   licenseNumber: "DriversLicenseLicenseNumber",
+  passportNumber: "PassportPassportNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

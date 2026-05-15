@@ -245,6 +245,21 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientCopiedPassportNumber:
+        msg = this.i18nService.t("copiedPassportNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedPassportNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledPassportNumberVisible:
+        msg = this.i18nService.t("viewedPassportNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedPassportNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+
       // Collection
       case EventType.Collection_Created:
         msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));

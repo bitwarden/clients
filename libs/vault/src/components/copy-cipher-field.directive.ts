@@ -156,6 +156,10 @@ export class CopyCipherFieldDirective implements OnChanges {
         return _cipher.driversLicense?.lastName;
       case "licenseNumber":
         return _cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return _cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return _cipher.passport?.nationalIdentificationNumber;
       default:
         return null;
     }

@@ -94,6 +94,24 @@ describe("createFilter", () => {
       expect(result).toBe(true);
     });
 
+    it("should return true when filter matches passport cipher type", () => {
+      const cipher = createCipher({ type: CipherType.Passport });
+      const filterFunction = createFilterFunction({ type: "passport" });
+
+      const result = filterFunction(cipher);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false when passport cipher does not match filter type", () => {
+      const cipher = createCipher({ type: CipherType.Passport });
+      const filterFunction = createFilterFunction({ type: "identity" });
+
+      const result = filterFunction(cipher);
+
+      expect(result).toBe(false);
+    });
+
     it("should return false when filter is driversLicense but cipher is a different type", () => {
       const cipher = createCipher({ type: CipherType.Login });
       const filterFunction = createFilterFunction({ type: "driversLicense" });
