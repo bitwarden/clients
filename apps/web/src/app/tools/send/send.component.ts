@@ -7,11 +7,13 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom, Observable, switchMap, combineLatest, map, firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { StopClickDirective } from "@bitwarden/angular/directives/stop-click.directive";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -27,6 +29,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  AutofocusDirective,
   CalloutComponent,
   DialogRef,
   DialogService,
@@ -62,11 +65,12 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
   imports: [
     I18nPipe,
     AsyncPipe,
+    AutofocusDirective,
     CalloutComponent,
     CommonModule,
     AsyncActionsModule,
     FormsModule,
-    JslibModule,
+    StopClickDirective,
     IconComponent,
     SearchModule,
     NoItemsModule,
@@ -81,6 +85,14 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
 })
 export class SendComponent implements OnDestroy {
   /**
+   * Flipped to true once a lock or logout message is observed. While set, the
+   * `beforeunload` handler stands down so that `window.location.reload()` from
+   * `processReloadService` can complete without the browser surfacing its
+   * native "Reload site?" prompt. Lock/logout always wins over unsaved edits.
+   */
+  private lockOrLogoutInFlight = false;
+
+  /**
    * Prevent browser tab from closing/refreshing if the Send form has unsaved edits.
    * Shows a confirmation dialog if user tries to leave.
    * This provides additional protection beyond dialogRef.disableClose.
@@ -88,6 +100,9 @@ export class SendComponent implements OnDestroy {
    */
   @HostListener("window:beforeunload", ["$event"])
   private handleBeforeUnloadEvent = (event: BeforeUnloadEvent): string | undefined => {
+    if (this.lockOrLogoutInFlight) {
+      return undefined;
+    }
     if (this.sendFormService.sendFormHasEdits()) {
       event.preventDefault();
       // The custom message is not displayed in modern browsers, but MDN docs still recommend setting it for legacy support.
@@ -167,8 +182,23 @@ export class SendComponent implements OnDestroy {
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
     private validationService: ValidationService,
+    authService: AuthService,
   ) {
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
+
+    // Lock/logout always wins over the unsaved-edits guard. We listen for the
+    // active account's auth status leaving `Unlocked` — `lockService.lock`
+    // flips this during `wipeDecryptedState` / `waitForLockedStatus`, well
+    // before it sends the `"locked"` message or starts the process reload.
+    // Listening here (rather than on the `"locked"` message) avoids a race
+    // where Chrome fires `beforeunload` synchronously inside
+    // `window.location.reload()`, before our message subscriber gets its turn
+    // in the Subject emission order. Same applies for logout.
+    authService.activeAccountStatus$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      if (status !== AuthenticationStatus.Unlocked) {
+        this.lockOrLogoutInFlight = true;
+      }
+    });
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const typeParam = params.get("type");
