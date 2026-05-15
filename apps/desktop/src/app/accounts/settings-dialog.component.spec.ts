@@ -195,7 +195,6 @@ describe("SettingsDialogComponent", () => {
     desktopSettingsService.openAtLogin$ = of(false);
     desktopSettingsService.alwaysShowDock$ = of(false);
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
-    desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);

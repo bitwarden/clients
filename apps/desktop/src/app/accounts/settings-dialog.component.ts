@@ -61,9 +61,9 @@ import { AutotypeShortcutComponent } from "../../autofill/components/autotype-sh
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -187,10 +187,6 @@ export class SettingsDialogComponent implements OnInit {
     openAtLogin: false,
     alwaysShowDock: false,
     enableBrowserIntegration: false,
-    enableBrowserIntegrationFingerprint: this.formBuilder.control<boolean>({
-      value: false,
-      disabled: true,
-    }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
@@ -305,9 +301,6 @@ export class SettingsDialogComponent implements OnInit {
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,
       ),
-      enableBrowserIntegrationFingerprint: await firstValueFrom(
-        this.desktopSettingsService.browserIntegrationFingerprintEnabled$,
-      ),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -327,10 +320,6 @@ export class SettingsDialogComponent implements OnInit {
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
-
-    if (this.form.value.enableBrowserIntegration) {
-      this.form.controls.enableBrowserIntegrationFingerprint.enable();
-    }
 
     if (this.isWindows) {
       this.billingAccountProfileStateService
@@ -372,16 +361,6 @@ export class SettingsDialogComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-
-    this.form.controls.enableBrowserIntegration.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((enabled) => {
-        if (enabled) {
-          this.form.controls.enableBrowserIntegrationFingerprint.enable();
-        } else {
-          this.form.controls.enableBrowserIntegrationFingerprint.disable();
-        }
-      });
 
     this.form.controls.clearClipboard.valueChanges
       .pipe(
@@ -671,19 +650,6 @@ export class SettingsDialogComponent implements OnInit {
         this.form.controls.enableBrowserIntegration.setValue(false);
         return;
       }
-
-      if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationLinuxDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
     }
 
     await this.desktopSettingsService.setBrowserIntegrationEnabled(
@@ -702,11 +668,6 @@ export class SettingsDialogComponent implements OnInit {
         cancelButtonText: null,
         type: "danger",
       });
-    }
-
-    if (!this.form.value.enableBrowserIntegration) {
-      this.form.controls.enableBrowserIntegrationFingerprint.setValue(false);
-      await this.saveBrowserIntegrationFingerprint();
     }
   }
 
@@ -730,12 +691,6 @@ export class SettingsDialogComponent implements OnInit {
     if (errorResult !== null) {
       this.logService.error("Error in DDG browser integration: " + errorResult);
     }
-  }
-
-  protected async saveBrowserIntegrationFingerprint() {
-    await this.desktopSettingsService.setBrowserIntegrationFingerprintEnabled(
-      this.form.value.enableBrowserIntegrationFingerprint,
-    );
   }
 
   protected async saveHardwareAcceleration() {

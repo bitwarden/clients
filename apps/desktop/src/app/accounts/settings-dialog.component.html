@@ -168,17 +168,6 @@
           <bit-hint>{{ "enableBrowserIntegrationDesc1" | i18n }}</bit-hint>
         </bit-form-control>
 
-        <bit-form-control>
-          <input
-            type="checkbox"
-            bitCheckbox
-            formControlName="enableBrowserIntegrationFingerprint"
-            (change)="saveBrowserIntegrationFingerprint()"
-          />
-          <bit-label>{{ "enableBrowserIntegrationFingerprint" | i18n }}</bit-label>
-          <bit-hint>{{ "enableBrowserIntegrationFingerprintDesc" | i18n }}</bit-hint>
-        </bit-form-control>
-
         @if (showEnableAutotype()) {
           <bit-form-control>
             <input
