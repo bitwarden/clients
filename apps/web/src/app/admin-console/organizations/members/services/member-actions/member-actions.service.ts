@@ -215,6 +215,7 @@ export class MemberActionsService {
     orgUser: OrganizationUserView,
     organization: Organization,
     resetPasswordEnabled: boolean,
+    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     let callingUserHasPermission = false;
 
@@ -232,6 +233,11 @@ export class MemberActionsService {
         break;
     }
 
+    const statusAllowed =
+      orgUser.status === OrganizationUserStatusType.Confirmed ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Revoked) ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Accepted);
+
     return (
       organization.canManageUsersPassword &&
       callingUserHasPermission &&
@@ -239,7 +245,7 @@ export class MemberActionsService {
       organization.hasPublicAndPrivateKeys &&
       orgUser.resetPasswordEnrolled &&
       resetPasswordEnabled &&
-      orgUser.status === OrganizationUserStatusType.Confirmed
+      statusAllowed
     );
   }
 

@@ -160,4 +160,12 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
     return statusAllowsBiometric || isBiometricsAlreadyEnabled;
   }
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {}
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
 }

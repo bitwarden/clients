@@ -262,10 +262,9 @@ export class AppComponent implements OnDestroy, OnInit {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
-      await this.tokenService.clearAccessToken(userId);
+      await this.tokenService.clearTokens(userId);
       await this.accountService.clean(userId);
       await this.accountService.switchAccount(null);
 

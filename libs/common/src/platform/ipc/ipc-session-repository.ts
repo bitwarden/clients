@@ -1,6 +1,10 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { Endpoint, IpcSessionRepository as SdkIpcSessionRepository } from "@bitwarden/sdk-internal";
+import {
+  Endpoint,
+  HostId,
+  IpcSessionRepository as SdkIpcSessionRepository,
+} from "@bitwarden/sdk-internal";
 
 import { GlobalState, IPC_MEMORY, KeyDefinition, StateProvider } from "../state";
 
@@ -42,10 +46,33 @@ export class IpcSessionRepository implements SdkIpcSessionRepository {
   }
 }
 
+function hostIdToString(id: HostId): string {
+  if (id === "Own") {
+    return "Own";
+  }
+  return `Id(${id.Id})`;
+}
+
 function endpointToString(endpoint: Endpoint): string {
-  if (typeof endpoint === "object" && "Web" in endpoint) {
-    return `Web(${endpoint.Web.id})`;
+  if (typeof endpoint === "string") {
+    return endpoint;
   }
 
-  return endpoint;
+  if ("Web" in endpoint) {
+    return `Web(${endpoint.Web.tab_id},${endpoint.Web.document_id})`;
+  }
+
+  if ("BrowserForeground" in endpoint) {
+    return `BrowserForeground(${endpoint.BrowserForeground.id})`;
+  }
+
+  if ("BrowserBackground" in endpoint) {
+    return `BrowserBackground(${hostIdToString(endpoint.BrowserBackground.id)})`;
+  }
+
+  if (endpoint === "DesktopRenderer") {
+    return "DesktopRenderer";
+  }
+
+  return JSON.stringify(endpoint);
 }

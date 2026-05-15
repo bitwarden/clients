@@ -65,6 +65,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSelfHost = false;
   organizationIsManagedByConsolidatedBillingMSP = false;
   resellerSeatsRemainingMessage: string;
+  isResellerOrganizationOwnerExempt: boolean;
 
   protected readonly gearIcon = GearIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
@@ -204,6 +205,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       !this.subscription.cancelled &&
       !this.subscriptionMarkedForCancel;
 
+    this.isResellerOrganizationOwnerExempt =
+      this.userOrg.hasReseller && !!this.sub?.exemptFromBillingAutomation;
+
     this.loading = false;
   }
 
@@ -331,9 +335,12 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   get subscriptionMarkedForCancel() {
-    return (
-      this.subscription != null && !this.subscription.cancelled && this.subscription.cancelAtEndDate
-    );
+    if (!this.subscription || this.subscription.cancelled) {
+      return false;
+    }
+
+    const { status, cancelAtEndDate, cancelledDate } = this.subscription;
+    return cancelAtEndDate || (status === "active" && !!cancelledDate);
   }
 
   cancelSubscription = async () => {
@@ -342,6 +349,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         type: "Organization",
         id: this.organizationId,
         plan: this.sub.plan.type,
+        productTier: this.sub.plan.productTier,
       },
     });
 

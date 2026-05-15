@@ -4,7 +4,9 @@ import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
 import { CipherView } from "../../vault/models/view/cipher.view";
 
+import { BankAccountExport } from "./bank-account.export";
 import { CardExport } from "./card.export";
+import { DriversLicenseExport } from "./drivers-license.export";
 import { FieldExport } from "./field.export";
 import { IdentityExport } from "./identity.export";
 import { LoginExport } from "./login.export";
@@ -73,6 +75,16 @@ export class CipherExport {
           view.sshKey = SshKeyExport.toView(req.sshKey)!;
         }
         break;
+      case CipherType.BankAccount:
+        if (req.bankAccount != null) {
+          view.bankAccount = BankAccountExport.toView(req.bankAccount)!;
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (req.driversLicense != null) {
+          view.driversLicense = DriversLicenseExport.toView(req.driversLicense)!;
+        }
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -128,6 +140,16 @@ export class CipherExport {
           domain.sshKey = SshKeyExport.toDomain(req.sshKey);
         }
         break;
+      case CipherType.BankAccount:
+        if (req.bankAccount != null) {
+          domain.bankAccount = BankAccountExport.toDomain(req.bankAccount);
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (req.driversLicense != null) {
+          domain.driversLicense = DriversLicenseExport.toDomain(req.driversLicense);
+        }
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -154,6 +176,8 @@ export class CipherExport {
   card?: CardExport;
   identity?: IdentityExport;
   sshKey?: SshKeyExport;
+  bankAccount?: BankAccountExport;
+  driversLicense?: DriversLicenseExport;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   passwordHistory?: PasswordHistoryExport[];
   revisionDate?: Date;
@@ -196,6 +220,12 @@ export class CipherExport {
         break;
       case CipherType.SshKey:
         this.sshKey = new SshKeyExport(o.sshKey);
+        break;
+      case CipherType.BankAccount:
+        this.bankAccount = new BankAccountExport(o.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense = new DriversLicenseExport(o.driversLicense);
         break;
     }
 

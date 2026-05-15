@@ -23,7 +23,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "39.2.6",
+  "electronVersion": "39.8.5",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -274,6 +274,17 @@
       {
         "polkit": {
           "action-prefix": "com.bitwarden.Bitwarden"
+        }
+      },
+      {
+        "personal-files": {
+          "read": [],
+          "write": [
+            "$HOME/.config/chromium/NativeMessagingHosts",
+            "$HOME/.config/microsoft-edge/NativeMessagingHosts",
+            "$HOME/.config/google-chrome/NativeMessagingHosts",
+            "$HOME/.mozilla"
+          ]
         }
       },
       "u2f-devices"

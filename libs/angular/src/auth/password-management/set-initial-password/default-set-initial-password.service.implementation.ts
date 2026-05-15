@@ -46,7 +46,6 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
-  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordTdeUserWithPermissionCredentials,
 } from "./set-initial-password.service.abstraction";
@@ -68,8 +67,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   ) {}
 
   /**
-   * @deprecated To be removed in PM-28143. When you remove this, also check for any objects/methods
-   * in this default service that are now un-used and can also be removed.
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
@@ -79,7 +77,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const {
       newMasterKey,
       newServerMasterKeyHash,
-      newLocalMasterKeyHash,
       newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
@@ -212,9 +209,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
-
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
     }
@@ -265,49 +259,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 
     // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
-  }
-
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  async setInitialPasswordTdeOffboardingOld(
-    credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
-    userId: UserId,
-  ) {
-    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
-
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not set password.");
-    }
-
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      userKey,
-    );
-
-    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
-    }
-
-    const request = new UpdateTdeOffboardingPasswordRequest();
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-    request.newMasterPasswordHash = newServerMasterKeyHash;
-    request.masterPasswordHint = newPasswordHint;
-
-    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
@@ -473,7 +424,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated along with `setInitialPassword()` deprecation
    */
   private async makeMasterKeyEncryptedUserKey(
     masterKey: MasterKey,
@@ -495,6 +446,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     return masterKeyEncryptedUserKey;
   }
 
+  /**
+   * @deprecated along with `setInitialPassword()` deprecation
+   */
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
     kdfConfig: KdfConfig,
@@ -552,7 +506,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated along with `setInitialPassword()` deprecation
    *
    * As part of [PM-28494], adding this setting path to accommodate the changes that are
    * emerging with pm-23246-unlock-with-master-password-unlock-data.
@@ -578,7 +532,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated
    *
    * This method is now deprecated because it is used with the deprecated `setInitialPassword()` method,
    * which handles both JIT MP and TDE + Permission user flows.

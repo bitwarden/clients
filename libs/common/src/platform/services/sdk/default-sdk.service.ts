@@ -255,7 +255,6 @@ export class DefaultSdkService implements SdkService {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
     await this.loadFeatureFlags(client);
-
     if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
       await client.crypto().initialize_user_crypto({
         userId: asUuid(userId),
@@ -296,7 +295,7 @@ export class DefaultSdkService implements SdkService {
         .map(([key, value]) => [key, value] as [string, boolean]),
     );
 
-    client.platform().load_flags(featureFlagMap);
+    await client.platform().load_flags(featureFlagMap);
   }
 
   private async toSettings(env: Environment): Promise<ClientSettings> {

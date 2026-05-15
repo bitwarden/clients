@@ -1,3 +1,52 @@
+import { AutofillTargetingRuleTypes } from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
+
+export const loginQualifiers: AutofillTargetingRuleType[] = [
+  AutofillTargetingRuleTypes.username,
+  AutofillTargetingRuleTypes.password,
+  AutofillTargetingRuleTypes.newPassword,
+];
+
+export const cardQualifiers: AutofillTargetingRuleType[] = [
+  AutofillTargetingRuleTypes.cardholderName,
+  AutofillTargetingRuleTypes.cardNumber,
+  AutofillTargetingRuleTypes.cardExpirationMonth,
+  AutofillTargetingRuleTypes.cardExpirationYear,
+  AutofillTargetingRuleTypes.cardExpirationDate,
+  AutofillTargetingRuleTypes.cardCvv,
+  AutofillTargetingRuleTypes.cardType,
+];
+
+export const identityQualifiers: AutofillTargetingRuleType[] = [
+  AutofillTargetingRuleTypes.fullName,
+  AutofillTargetingRuleTypes.honorificPrefix,
+  AutofillTargetingRuleTypes.firstName,
+  AutofillTargetingRuleTypes.middleName,
+  AutofillTargetingRuleTypes.lastName,
+  AutofillTargetingRuleTypes.honorificSuffix,
+  AutofillTargetingRuleTypes.email,
+  AutofillTargetingRuleTypes.phone,
+  AutofillTargetingRuleTypes.phoneCountryCode,
+  AutofillTargetingRuleTypes.phoneAreaCode,
+  AutofillTargetingRuleTypes.phoneLocal,
+  AutofillTargetingRuleTypes.phoneExtension,
+  AutofillTargetingRuleTypes.organization,
+  AutofillTargetingRuleTypes.streetAddress,
+  AutofillTargetingRuleTypes.addressLine1,
+  AutofillTargetingRuleTypes.addressLine2,
+  AutofillTargetingRuleTypes.addressLine3,
+  AutofillTargetingRuleTypes.addressLevel1,
+  AutofillTargetingRuleTypes.addressLevel2,
+  AutofillTargetingRuleTypes.addressLevel3,
+  AutofillTargetingRuleTypes.addressLevel4,
+  AutofillTargetingRuleTypes.postalCode,
+  AutofillTargetingRuleTypes.country,
+  AutofillTargetingRuleTypes.birthdate,
+  AutofillTargetingRuleTypes.birthdateDay,
+  AutofillTargetingRuleTypes.birthdateMonth,
+  AutofillTargetingRuleTypes.birthdateYear,
+];
+
 export class AutoFillConstants {
   static readonly EmailFieldNames: string[] = [
     // English
@@ -106,18 +155,29 @@ export class AutoFillConstants {
   ];
 
   /**
-   * Form-level keywords indicating a non-login context such as newsletter signup or
-   * subscription forms. Used to exclude fields within these forms from login autofill.
+   * Non-login keywords with high enough confidence to disqualify a form for login on their own.
+   * Included by default in {@link ComprehensiveNonLoginKeywords}.
    */
-  static readonly NonLoginFormKeywords: string[] = [
-    "newsletter",
-    // @TODO expand list thoughtfully
-    // consider possible collisions with login forms
-    // consider using a "maybe" check
-    // "subscribe",
-    // "subscription",
-    // "unsubscribe",
-  ];
+  static readonly StrongNonLoginKeywords = ["newsletter"] as const;
+
+  /** Full lexicon of non-login keywords. */
+  static readonly ComprehensiveNonLoginKeywords = [
+    ...AutoFillConstants.StrongNonLoginKeywords,
+    "mailing list",
+    "subscribe",
+    "subscription",
+    "unsubscribe",
+  ] as const;
+
+  /** Login-positive heading text used to short-circuit ambiguous-case disqualification. */
+  static readonly StrongLoginHeadingKeywords = [
+    "sign in",
+    "signin",
+    "log in",
+    "login",
+    "log on",
+    "logon",
+  ] as const;
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
@@ -150,9 +210,12 @@ export class AutoFillConstants {
   /** HTML elements for form fields */
   static readonly FieldElements: string[] = ["input", "select", "textarea"];
 
+  static readonly AutocompleteCurrentPassword = "current-password";
+  static readonly AutocompleteNewPassword = "new-password";
+
   static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
-    "current-password",
-    "new-password",
+    AutoFillConstants.AutocompleteCurrentPassword,
+    AutoFillConstants.AutocompleteNewPassword,
   ]);
 }
 

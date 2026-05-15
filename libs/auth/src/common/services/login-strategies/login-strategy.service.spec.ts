@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -33,10 +34,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import {
   FakeAccountService,
-  FakeGlobalState,
   FakeGlobalStateProvider,
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
@@ -55,11 +54,13 @@ import {
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../../abstractions";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { PasswordLoginCredentials } from "../../models";
 import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
 import { LoginStrategyService } from "./login-strategy.service";
-import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
+import { CacheData } from "./login-strategy.state";
 
 const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1));
 
@@ -68,7 +69,6 @@ describe("LoginStrategyService", () => {
 
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
-  let unlockService: MockProxy<UnlockService>;
   let keyService: MockProxy<KeyService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -77,6 +77,7 @@ describe("LoginStrategyService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
+  let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
@@ -90,13 +91,13 @@ describe("LoginStrategyService", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
-  let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
+  let loginStrategyCacheService: MockProxy<LoginStrategyCacheService>;
+  let loginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
 
   let stateProvider: FakeGlobalStateProvider;
-  let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
 
   const userId = "USER_ID" as UserId;
 
@@ -112,6 +113,7 @@ describe("LoginStrategyService", () => {
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
     keyConnectorService = mock<KeyConnectorService>();
+    unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
     stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
@@ -126,20 +128,43 @@ describe("LoginStrategyService", () => {
     stateProvider = new FakeGlobalStateProvider();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
-    taskSchedulerService = mock<TaskSchedulerService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
     passwordPreloginService = mock<PasswordPreloginService>();
+    loginStrategyCacheService = mock<LoginStrategyCacheService>();
+    loginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
+
+    const currentAuthTypeSubject = new BehaviorSubject<AuthenticationType | null>(null);
+    const cacheDataSubject = new BehaviorSubject<CacheData | null>(null);
+    const cacheExpirationSubject = new BehaviorSubject<Date | null>(null);
+
+    loginStrategyCacheService.currentAuthType$ = currentAuthTypeSubject.asObservable();
+    loginStrategyCacheService.cacheData$ = cacheDataSubject.asObservable();
+    loginStrategyCacheService.cacheExpiration$ = cacheExpirationSubject.asObservable();
+
+    loginStrategyCacheService.setCurrentAuthType.mockImplementation(async (type) => {
+      currentAuthTypeSubject.next(type);
+    });
+    loginStrategyCacheService.setCacheData.mockImplementation(async (data) => {
+      cacheDataSubject.next(data);
+    });
+    loginStrategyCacheService.setCacheExpiration.mockImplementation(async (date) => {
+      cacheExpirationSubject.next(date);
+    });
+    loginStrategyCacheService.clearCache.mockImplementation(async () => {
+      currentAuthTypeSubject.next(null);
+      cacheDataSubject.next(null);
+      cacheExpirationSubject.next(null);
+    });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
     keyService.makeMasterKey.mockResolvedValue({} as any);
 
     sut = new LoginStrategyService(
       accountService,
       masterPasswordService,
-      unlockService,
       keyService,
       apiService,
       tokenService,
@@ -162,13 +187,13 @@ describe("LoginStrategyService", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
-      taskSchedulerService,
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
+      unlockService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
     );
-
-    loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
     const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
@@ -283,7 +308,7 @@ describe("LoginStrategyService", () => {
     expect(result).toBeInstanceOf(AuthResult);
   });
 
-  it("should clear the cache if more than 2 mins have passed since expiration date", async () => {
+  it("should clear the cache if the session has expired (expiration date is in the past)", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValue(
       new IdentityTwoFactorResponse({
@@ -300,7 +325,43 @@ describe("LoginStrategyService", () => {
 
     await sut.logIn(credentials);
 
-    loginStrategyCacheExpirationState.stateSubject.next(new Date(Date.now() - 1000 * 60 * 5));
+    // Override cacheExpiration$ to return an expired date and cacheData$ to return non-null
+    loginStrategyCacheService.cacheExpiration$ = of(new Date(Date.now() - 1000 * 60 * 5));
+    loginStrategyCacheService.cacheData$ = of({ password: {} as any });
+
+    // Re-create sut so the expired observables take effect in isSessionValid
+    sut = new LoginStrategyService(
+      accountService,
+      masterPasswordService,
+      keyService,
+      apiService,
+      tokenService,
+      appIdService,
+      platformUtilsService,
+      messagingService,
+      logService,
+      keyConnectorService,
+      environmentService,
+      stateService,
+      twoFactorService,
+      i18nService,
+      encryptService,
+      passwordStrengthService,
+      policyService,
+      deviceTrustService,
+      authRequestService,
+      userDecryptionOptionsService,
+      stateProvider,
+      billingAccountProfileStateService,
+      vaultTimeoutSettingsService,
+      kdfConfigService,
+      configService,
+      accountCryptographicStateService,
+      passwordPreloginService,
+      unlockService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
+    );
 
     const twoFactorToken = new TokenTwoFactorRequest(
       TwoFactorProviderType.Authenticator,
@@ -371,5 +432,131 @@ describe("LoginStrategyService", () => {
         newDeviceOtp: deviceVerificationOtp,
       }),
     );
+  });
+
+  it("should start session timeout when logIn returns a 2FA challenge", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    apiService.postIdentityToken.mockResolvedValue(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+
+    await sut.logIn(credentials);
+
+    expect(loginStrategySessionTimeoutService.startSessionTimeout).toHaveBeenCalled();
+  });
+
+  it("should throw sessionTimeout when logInTwoFactor is called with no cached session", async () => {
+    // cacheData$ is null by default — no prior logIn call
+    const twoFactorToken = new TokenTwoFactorRequest(
+      TwoFactorProviderType.Authenticator,
+      "TWO_FACTOR_TOKEN",
+      true,
+    );
+
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow();
+  });
+
+  it("should clear cache when logInTwoFactor throws a non-API error", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    apiService.postIdentityToken.mockResolvedValueOnce(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    await sut.logIn(credentials);
+
+    apiService.postIdentityToken.mockRejectedValueOnce(new Error("Network error"));
+
+    const twoFactorToken = new TokenTwoFactorRequest(
+      TwoFactorProviderType.Authenticator,
+      "TWO_FACTOR_TOKEN",
+      true,
+    );
+
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow("Network error");
+    expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
+  });
+
+  it("should throw sessionTimeout when logInNewDeviceVerification is called with no cached session", async () => {
+    // cacheData$ is null by default — no prior logIn call
+    await expect(sut.logInNewDeviceVerification("123456")).rejects.toThrow();
+  });
+
+  it("should clear cache when logInNewDeviceVerification throws a non-API error", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    apiService.postIdentityToken.mockResolvedValueOnce(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    await sut.logIn(credentials);
+
+    apiService.postIdentityToken.mockRejectedValueOnce(new Error("Network error"));
+
+    await expect(sut.logInNewDeviceVerification("123456")).rejects.toThrow("Network error");
+    expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
+  });
+
+  it("should cancel session timeout when logIn succeeds without 2FA", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    apiService.postIdentityToken.mockResolvedValue(
+      new IdentityTokenResponse({
+        ForcePasswordReset: false,
+        Kdf: KdfType.Argon2id,
+        KdfIterations: 2,
+        KdfMemory: 16,
+        KdfParallelism: 1,
+        Key: "KEY",
+        PrivateKey: "PRIVATE_KEY",
+        AccountKeys: {
+          publicKeyEncryptionKeyPair: {
+            wrappedPrivateKey: "PRIVATE_KEY",
+            publicKey: "PUBLIC_KEY",
+          },
+        },
+        access_token: "ACCESS_TOKEN",
+        expires_in: 3600,
+        refresh_token: "REFRESH_TOKEN",
+        scope: "api offline_access",
+        token_type: "Bearer",
+        userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
+      }),
+    );
+
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+
+    tokenService.decodeAccessToken.calledWith("ACCESS_TOKEN").mockResolvedValue({
+      sub: "USER_ID",
+      name: "NAME",
+      email: "EMAIL",
+      premium: false,
+    });
+
+    await sut.logIn(credentials);
+
+    expect(loginStrategySessionTimeoutService.cancelSessionTimeout).toHaveBeenCalled();
   });
 });

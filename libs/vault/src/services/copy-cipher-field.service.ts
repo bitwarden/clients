@@ -32,7 +32,15 @@ export type CopyAction =
   | "hiddenField"
   | "privateKey"
   | "publicKey"
-  | "keyFingerprint";
+  | "keyFingerprint"
+  | "accountNumber"
+  | "routingNumber"
+  | "pin"
+  | "iban"
+  | "firstName"
+  | "middleName"
+  | "lastName"
+  | "licenseNumber";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
@@ -78,6 +86,22 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   privateKey: { typeI18nKey: "sshPrivateKey", protected: true },
   publicKey: { typeI18nKey: "sshPublicKey", protected: true },
   keyFingerprint: { typeI18nKey: "sshFingerprint", protected: true },
+  accountNumber: {
+    typeI18nKey: "accountNumber",
+    protected: true,
+    event: EventType.Cipher_ClientCopiedBankAccountNumber,
+  },
+  routingNumber: { typeI18nKey: "bankRoutingNumber", protected: false },
+  pin: { typeI18nKey: "pin", protected: true, event: EventType.Cipher_ClientCopiedBankAccountPin },
+  iban: { typeI18nKey: "iban", protected: true },
+  firstName: { typeI18nKey: "firstName", protected: true },
+  middleName: { typeI18nKey: "middleName", protected: true },
+  lastName: { typeI18nKey: "lastName", protected: true },
+  licenseNumber: {
+    typeI18nKey: "licenseNumber",
+    protected: true,
+    event: EventType.Cipher_ClientCopiedLicenseNumber,
+  },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,

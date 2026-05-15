@@ -1,3 +1,4 @@
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
@@ -25,6 +26,14 @@ export class CliBiometricsService extends BiometricsService {
 
   async setShouldAutopromptNow(value: boolean): Promise<void> {}
   async canEnableBiometricUnlock(): Promise<boolean> {
+    return false;
+  }
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {}
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
     return false;
   }
 }

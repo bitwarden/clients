@@ -139,4 +139,60 @@ describe("buildCipherIcon", () => {
       (cipher.login as { uri: string }).uri = uri;
     }
   });
+
+  describe("BankAccount cipher", () => {
+    const cipher = {
+      type: CipherType.BankAccount,
+    } as any as CipherView;
+
+    it("returns bwi-bank icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-bank",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-bank icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-bank",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
+
+  describe("DriversLicense cipher", () => {
+    const cipher = {
+      type: CipherType.DriversLicense,
+    } as any as CipherView;
+
+    it("returns bwi-id-card icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-id-card icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
 });

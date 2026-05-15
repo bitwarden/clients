@@ -35,6 +35,45 @@
   "typeSshKey": {
     "message": "SSH 密钥"
   },
+  "typeBankAccount": {
+    "message": "银行账户"
+  },
+  "typeLoginSubtitle": {
+    "message": "网站或 App"
+  },
+  "typeCardSubtitle": {
+    "message": "信用卡或借记卡"
+  },
+  "typeIdentitySubtitle": {
+    "message": "个人信息"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要的文本"
+  },
+  "typeSshKeySubtitle": {
+    "message": "服务器登录令牌"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "银行详细信息"
+  },
+  "folderSubtitle": {
+    "message": "组织您的项目"
+  },
+  "collectionSubtitle": {
+    "message": "组织共享的项目"
+  },
+  "typeDriversLicense": {
+    "message": "驾驶证"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "驾驶证或 ID"
+  },
+  "chooseItemToAdd": {
+    "message": "选择要添加的项目"
+  },
+  "chooseItemToAddDesc": {
+    "message": "选择要添加到您的密码库中的项目的类型。"
+  },
   "folders": {
     "message": "文件夹"
   },
@@ -86,6 +125,106 @@
   },
   "viewItem": {
     "message": "查看项目"
+  },
+  "viewItemHeaderLogin": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "查看 SSH 密钥",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "查看银行账户",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "查看驾驶证",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "查看许可证",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "查看护照",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "新增登录",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "新增支付卡",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "新增身份",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "新增笔记",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "新增 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "新增银行账户",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "新增驾驶证",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "新增护照",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "编辑 SSH 密钥",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "编辑银行账户",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "编辑许可证",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "编辑护照",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "名称"
@@ -143,19 +282,19 @@
   "sendTypeTextToShare": {
     "message": "要分享的文本"
   },
-  "newItemHeaderTextSend": {
+  "newItemHeaderTextSendV2": {
     "message": "新增文本 Send",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
+  "newItemHeaderFileSendV2": {
     "message": "新增文件 Send",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
+  "editItemHeaderTextSendV2": {
     "message": "编辑文本 Send",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
+  "editItemHeaderFileSendV2": {
     "message": "编辑文件 Send",
     "description": "Header for edit file send"
   },
@@ -447,13 +586,13 @@
     "message": "类型"
   },
   "firstName": {
-    "message": "名"
+    "message": "名字"
   },
   "middleName": {
     "message": "中间名"
   },
   "lastName": {
-    "message": "姓"
+    "message": "姓氏"
   },
   "fullName": {
     "message": "全名"
@@ -477,7 +616,7 @@
     "message": "ZIP / 邮政编码"
   },
   "country": {
-    "message": "国家/地区"
+    "message": "国家 / 地区"
   },
   "save": {
     "message": "保存"
@@ -620,8 +759,26 @@
   "deleteAttachment": {
     "message": "删除附件"
   },
+  "deleteAttachmentName": {
+    "message": "删除附件 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "下载 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
-    "message": "您确定要将其发送到回收站吗？"
+    "message": "确定要将其发送到回收站吗？"
   },
   "deletedItem": {
     "message": "项目已发送到回收站"
@@ -776,7 +933,7 @@
     "message": "搜索文件夹"
   },
   "searchFavorites": {
-    "message": "搜索收藏"
+    "message": "搜索收藏夹"
   },
   "searchType": {
     "message": "搜索类型",
@@ -1058,7 +1215,7 @@
     "message": "继续"
   },
   "verificationCodeEmailSent": {
-    "message": "验证邮件已发送到 $EMAIL$。",
+    "message": "验证电子邮件已发送到 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1338,7 +1495,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "转到网页版密码库"
+    "message": "前往网页版密码库"
   },
   "getMobileApp": {
     "message": "获取移动 App"
@@ -1502,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "始终在系统托盘中显示图标。"
   },
-  "startToTray": {
-    "message": "启动到托盘图标"
-  },
-  "startToTrayDesc": {
-    "message": "应用程序首次启动时，启动到系统托盘。"
-  },
-  "startToMenuBar": {
-    "message": "启动到菜单栏"
-  },
-  "startToMenuBarDesc": {
-    "message": "应用程序首次启动时，启动到菜单栏。"
-  },
   "openAtLogin": {
     "message": "登录时自动启动"
   },
@@ -1572,7 +1717,7 @@
     "message": "重启以更新"
   },
   "restartToUpdateDesc": {
-    "message": "版本 $VERSION_NUM$ 已准备好安装。您必须重新启动本应用程序才能完成安装。是否立即重新启动并更新？",
+    "message": "版本 $VERSION_NUM$ 已准备好安装。您必须重启应用程序以完成安装。要立即重启并更新吗？",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -1620,6 +1765,10 @@
     "message": "复制号码",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "复制名称",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "复制电子邮箱"
   },
@@ -1661,7 +1810,7 @@
     }
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
+    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
   },
   "premiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
@@ -1700,7 +1849,7 @@
     "message": "月"
   },
   "monthly": {
-    "message": "每月"
+    "message": "月"
   },
   "year": {
     "message": "年"
@@ -1875,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "默认匹配检测",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "显示匹配检测"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隐藏匹配检测"
   },
   "toggleOptions": {
     "message": "切换选项"
@@ -2102,7 +2257,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "premiumUpdated": {
-    "message": "您已升级到高级版。"
+    "message": "您已升级为高级版。"
   },
   "restore": {
     "message": "恢复"
@@ -2127,7 +2282,7 @@
     "message": "更改未保存"
   },
   "unsavedChangesUpdateBody": {
-    "message": "如果您现在离开，您的更改不会被保存。可以稍后安装更新，这样您就可以继续操作并保存更改。"
+    "message": "如果您现在离开，您的更改将不会被保存。稍后安装更新，以便您可以继续操作并保存您的更改。"
   },
   "installLater": {
     "message": "稍后安装"
@@ -2251,17 +2406,17 @@
     "message": "无缝两步验证"
   },
   "totpHelper": {
-    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。复制并粘贴密钥到此字段中。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或复制并粘贴密钥到此字段中。"
   },
   "premium": {
     "message": "高级版",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "免费组织无法使用附件"
+    "message": "免费版组织无法使用附件"
   },
   "singleFieldNeedsAttention": {
     "message": "有 1 个字段需要您注意。"
@@ -2387,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "很遗憾，Linux 版本目前不支持浏览器集成。"
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "要求浏览器集成验证"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "在您的桌面与浏览器间建立连接时，通过要求指纹短语确认，来增加一个额外的安全层。每次建立连接都需要用户操作和验证。"
-  },
   "enableHardwareAcceleration": {
     "message": "使用硬件加速"
   },
@@ -2401,12 +2550,6 @@
   },
   "approve": {
     "message": "批准"
-  },
-  "verifyBrowserTitle": {
-    "message": "验证浏览器连接"
-  },
-  "verifyBrowserDesc": {
-    "message": "请确保显示的指纹与浏览器扩展中显示的指纹相同。"
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ 想要连接到 Bitwarden",
@@ -2445,10 +2588,10 @@
     "message": "您的密码提示不能与您的密码相同。"
   },
   "personalOwnershipPolicyInEffect": {
-    "message": "一个组织策略正影响您的所有权选项。"
+    "message": "某个组织策略正影响您的所有权选项。"
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "组织策略已阻止将项目导入您的个人密码库。"
+    "message": "某个组织策略已阻止将项目导入您的个人密码库。"
   },
   "personalDetails": {
     "message": "个人详细信息"
@@ -2498,7 +2641,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
-    "message": "过期日期"
+    "message": "到期日期"
   },
   "expirationDateDesc": {
     "message": "设置后，对此 Send 的访问将在指定的日期和时间后过期。",
@@ -2639,7 +2782,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全密钥交互..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "对接收者隐藏我的电子邮箱地址。"
   },
   "sendOptionsPolicyInEffect": {
@@ -2688,7 +2831,7 @@
     "message": "您的主密码不符合本组织的要求。更改您的主密码以继续。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
   },
   "tryAgain": {
     "message": "重试"
@@ -2884,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "正在导出个人密码库"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目，不包括组织密码库项目。仅会导出密码库项目信息，不包括关联的附件。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目（包括附件）。不包括组织密码库项目。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "正在导出组织密码库"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库数据。不包括个人密码库和其他组织中的项目。",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "仅会导出您的个人密码库中的项目。"
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "仅会导出与 $ORGANIZATION$ 密码库关联的项目。不会导出个人密码库中的项目。",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3432,7 +3560,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码"
@@ -3465,7 +3593,7 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "Bitwarden 建议更新您的生物识别设置，以在首次解锁时要求输入您的主密码（或 PIN 码）。现在要更新您的设置吗？"
+    "message": "Bitwarden 建议更新您的生物识别设置，以在首次解锁时要求输入您的主密码（或 PIN 码）。您想现在更新您的设置吗？"
   },
   "windowsBiometricUpdateWarningTitle": {
     "message": "推荐的设置更新"
@@ -3514,7 +3642,7 @@
     "message": "自托管"
   },
   "accessDenied": {
-    "message": "访问被拒绝。您没有权限查看此页面。"
+    "message": "访问被拒绝。您没有查看此页面的权限。"
   },
   "accountSuccessfullyCreated": {
     "message": "账户已成功创建！"
@@ -3539,6 +3667,63 @@
   },
   "deviceTrusted": {
     "message": "设备已信任"
+  },
+  "device": {
+    "message": "设备"
+  },
+  "devices": {
+    "message": "设备"
+  },
+  "whatIsADevice": {
+    "message": "什么是设备？"
+  },
+  "aDeviceIs": {
+    "message": "设备是您登录过的 Bitwarden App 的独立安装。重新安装、清除 App 数据或清除 Cookie，可能会导致设备多次出现。"
+  },
+  "deviceListDescriptionTemp": {
+    "message": "您的账户在以下设备上登录过。"
+  },
+  "loginStatus": {
+    "message": "登录状态"
+  },
+  "recentlyActive": {
+    "message": "最近活跃"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "过去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "过去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "过去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天以前"
+  },
+  "firstLogin": {
+    "message": "首次登录"
+  },
+  "trusted": {
+    "message": "已信任"
+  },
+  "currentSession": {
+    "message": "当前会话"
+  },
+  "requestPending": {
+    "message": "请求待处理"
+  },
+  "deviceIdMissing": {
+    "message": "缺少设备 ID"
+  },
+  "deviceTypeMissing": {
+    "message": "缺少设备类型"
+  },
+  "deviceCreationDateMissing": {
+    "message": "缺少设备创建日期"
   },
   "trustOrganization": {
     "message": "信任组织"
@@ -3689,7 +3874,7 @@
     "message": "您尝试导入的数据有问题。请解决如下列出的源文件中的错误，然后重试。"
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "解决下面的错误，然后重试。"
+    "message": "请解决下面的错误，然后重试。"
   },
   "description": {
     "message": "描述"
@@ -3778,6 +3963,9 @@
   "chooseFile": {
     "message": "选择文件"
   },
+  "chooseFileSentenceCase": {
+    "message": "选择文件"
+  },
   "noFileChosen": {
     "message": "未选择文件"
   },
@@ -3808,6 +3996,18 @@
   },
   "exportError": {
     "message": "导出密码库数据时发生错误"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "导出过程中跳过了 1 个损坏的附件。其余所有密码库数据和附件均已成功导出。"
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "导出过程中跳过了 $COUNT$ 个损坏的附件。其余所有密码库数据和附件均已成功导出。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"
@@ -3922,6 +4122,22 @@
   "troubleshooting": {
     "message": "故障排除"
   },
+  "downloadDiagnosticReport": {
+    "message": "下载诊断报告"
+  },
+  "experiencingAnIssue": {
+    "message": "遇到问题了吗？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "下载诊断报告然后将其分享给"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden 支持",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "下载"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "禁用硬件加速并重启"
   },
@@ -3998,7 +4214,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"
+    "message": "生物识别解锁不可用，因为需要先使用 PIN 码或密码解锁。"
   },
   "biometricsStatusHelptextHardwareUnavailable": {
     "message": "生物识别解锁当前不可用。"
@@ -4037,7 +4253,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "最后编辑于"
+    "message": "上次编辑"
   },
   "upload": {
     "message": "上传"
@@ -4139,7 +4355,7 @@
     "message": "将通行密钥保存为新的登录"
   },
   "noMatchingLoginsForSite": {
-    "message": "此站点没有匹配的登录"
+    "message": "没有匹配此站点的登录"
   },
   "overwritePasskey": {
     "message": "覆盖通行密钥吗？"
@@ -4278,7 +4494,7 @@
     "message": "使用身份，快速自动填充冗长的注册或联系表单。"
   },
   "newNoteNudgeTitle": {
-    "message": "保持您的敏感数据的安全"
+    "message": "确保您的敏感数据的安全"
   },
   "newNoteNudgeBody": {
     "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
@@ -4324,7 +4540,7 @@
     "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，您将无法更新它们。",
+    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -4449,7 +4665,7 @@
     "message": "输入快捷键"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "包含以下修饰键中的一个或两个：Ctrl、Alt、Win，以及一个字母键。"
+    "message": "包含一个或两个以下修饰键：Ctrl、Alt、Win，以及一个字母键。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
@@ -4604,6 +4820,9 @@
   "sessionTimeoutHeader": {
     "message": "会话超时"
   },
+  "browserAccessDenied": {
+    "message": "选择的浏览器目录无效或访问被拒绝"
+  },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
   },
@@ -4647,6 +4866,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "设置一个解锁方式以更改您的超时动作"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ 未安装。从中导入密码之前，请先安装 $BROWSER$。",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "请选择您的 $BROWSER$ 数据文件夹",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "预期位置："
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "授予访问权限"
   },
   "upgrade": {
     "message": "升级"
@@ -4708,6 +4951,15 @@
   "organizationIsSuspendedDesc": {
     "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
+  "percentageCompleted": {
+    "message": "完成 $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "回收站中没有项目"
   },
@@ -4740,7 +4992,7 @@
     "message": "电子邮箱保护"
   },
   "emails": {
-    "message": "电子邮件"
+    "message": "电子邮箱"
   },
   "noAuth": {
     "message": "拥有链接的任何人"
@@ -4758,12 +5010,225 @@
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "输入多个电子邮箱（使用逗号分隔）。"
+    "message": "使用逗号分隔输入多个电子邮箱。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "重新排序 $LABEL$。使用方向键向上或向下移动项目。",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "用户验证失败。"
+  },
+  "enterMonth": {
+    "message": "输入月份。"
+  },
+  "enterDay": {
+    "message": "输入日期。"
+  },
+  "enterYear": {
+    "message": "输入年份。"
+  },
+  "invalidDay": {
+    "message": "请输入有效的日期。"
+  },
+  "invalidYear": {
+    "message": "请输入有效的年份。"
+  },
+  "searchDriversLicense": {
+    "message": "搜索许可证"
+  },
+  "bankAccount": {
+    "message": "银行账户"
+  },
+  "bankName": {
+    "message": "银行名称"
+  },
+  "nameOnAccount": {
+    "message": "账户名称"
+  },
+  "bankAccountType": {
+    "message": "账户类型"
+  },
+  "bankAccountTypeCompany": {
+    "message": "公司"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "个人"
+  },
+  "accountNumber": {
+    "message": "账户号码"
+  },
+  "bankRoutingNumber": {
+    "message": "路由号码",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "分行/机构号码"
+  },
+  "swiftCode": {
+    "message": "SWIFT 代码"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "银行联系电话"
+  },
+  "searchBankAccount": {
+    "message": "搜索银行账户"
+  },
+  "copyAccountNumber": {
+    "message": "复制账户号码"
+  },
+  "copyRoutingNumber": {
+    "message": "复制路由号码"
+  },
+  "copyPin": {
+    "message": "复制 PIN 码"
+  },
+  "copyIban": {
+    "message": "复制 IBAN"
+  },
+  "copyFirstName": {
+    "message": "复制名字"
+  },
+  "copyMiddleName": {
+    "message": "复制中间名"
+  },
+  "copyLastName": {
+    "message": "复制姓氏"
+  },
+  "copyLicenseNumber": {
+    "message": "复制驾驶证号码"
+  },
+  "bankAccountTypeChecking": {
+    "message": "活期"
+  },
+  "bankAccountTypeSavings": {
+    "message": "储蓄"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "定期存款"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "信用额度"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "投资/证券"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "货币市场"
+  },
+  "bankAccountTypeOther": {
+    "message": "其它"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "安全地存储您的银行详细信息"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "保存您的银行账户信息，以在您的所有设备上轻松且安全地访问。"
+  },
+  "discardEdits": {
+    "message": "放弃编辑"
+  },
+  "discardEditsMessage": {
+    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
+  },
+  "backToEditing": {
+    "message": "返回继续编辑"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send 有未保存的编辑内容。确定要离开吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "保存 Send 的编辑内容失败",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "查看文本 Send"
+  },
+  "viewFileSendHeader": {
+    "message": "查看文件 Send"
+  },
+  "sendCreated": {
+    "message": "Send 已创建",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "必须输入数字"
+  },
+  "integerInputError": {
+    "message": "请输入整数"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
+  },
+  "sideNavigation": {
+    "message": "侧边导航"
+  },
+  "skipLink": {
+    "message": "跳过链接"
+  },
+  "callout": {
+    "message": "提示框",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "进度条",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "驾驶证详细信息"
+  },
+  "dateOfBirth": {
+    "message": "出生日期"
+  },
+  "birthMonth": {
+    "message": "出生月份"
+  },
+  "birthDay": {
+    "message": "出生日期"
+  },
+  "birthYear": {
+    "message": "出生年份"
+  },
+  "issuingCountry": {
+    "message": "签发国家 / 地区"
+  },
+  "issuingState": {
+    "message": "签发州 / 省"
+  },
+  "issueDate": {
+    "message": "签发日期"
+  },
+  "issueMonth": {
+    "message": "签发月份"
+  },
+  "issueDay": {
+    "message": "签发日期"
+  },
+  "issueYear": {
+    "message": "签发年份"
+  },
+  "expirationDay": {
+    "message": "到期日期"
+  },
+  "issuingAuthority": {
+    "message": "签发机构 / 部门"
+  },
+  "licenseClass": {
+    "message": "许可证类型"
   }
 }

@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/autofill/globals.d.ts",
+    "src/platform/globals.d.ts",
+    "src/popup/polyfills.ts",
+    "src/popup/main.ts",
+    "src/autofill/content/trigger-autofill-script-injection.ts",
+    "src/autofill/content/bootstrap-autofill.ts",
+    "src/autofill/content/bootstrap-autofill-overlay.ts",
+    "src/autofill/content/bootstrap-autofill-overlay-menu.ts",
+    "src/autofill/content/bootstrap-autofill-overlay-notifications.ts",
+    "src/autofill/content/autofiller.ts",
+    "src/autofill/content/auto-submit-login.ts",
+    "src/autofill/content/context-menu-handler.ts",
+    "src/autofill/content/content-message-handler.ts",
+    "src/autofill/fido2/content/fido2-content-script.ts",
+    "src/autofill/fido2/content/fido2-page-script.ts",
+    "src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts",
+    "src/platform/background.ts",
+    "src/platform/ipc/content/ipc-content-script.ts",
+    "src/platform/offscreen-document/offscreen-document.ts",
+    "src/autofill/notification/bar.ts",
+    "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
+    "src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
+    "src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
+    "src/vault/content/send-on-installed-message.ts",
+    "src/vault/content/send-popup-open-message.ts",
+    "../../libs/common/src/autofill/constants"
+  ],
+  "exclude": ["**/*.spec.ts", "**/*.test.ts"]
+}
