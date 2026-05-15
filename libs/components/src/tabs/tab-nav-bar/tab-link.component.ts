@@ -82,6 +82,9 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   /** Reactive mirror of RouterLinkActive.isActive — used by TabNavBarComponent for overflow computation. */
   readonly isActive = signal(false);
 
+  /** Roving tabindex value — parent nav-bar sets one link to 0 and the rest to -1. */
+  readonly tabIndex = signal(-1);
+
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
     if (event.code === "Space") {
       this.tabItem().click();

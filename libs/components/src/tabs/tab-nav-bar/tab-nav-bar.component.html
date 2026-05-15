@@ -23,7 +23,7 @@
     class="tw-shrink-0"
     [class.tw-invisible]="ovf.overflow().length === 0"
     [attr.aria-hidden]="ovf.overflow().length === 0 ? 'true' : null"
-    [attr.tabindex]="ovf.overflow().length === 0 ? -1 : null"
+    tabindex="-1"
     [bitMenuTriggerFor]="overflowTabsMenu"
     [style.marginInlineStart.px]="TAB_LIST_CONTAINER_GAP"
   >

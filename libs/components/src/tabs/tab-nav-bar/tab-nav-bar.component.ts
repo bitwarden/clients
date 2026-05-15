@@ -60,7 +60,7 @@ export class TabNavBarComponent implements AfterViewInit {
     read: TabListItemDirective,
   });
 
-  readonly tabLabels = contentChildren(forwardRef(() => TabLinkComponent));
+  readonly tabLabels = contentChildren<TabLinkComponent>(forwardRef(() => TabLinkComponent));
   /** Map projected tab-links to their host OverflowItemDirective for the parent list. */
   protected readonly overflowItems = computed(() => this.tabLabels().map((t) => t.overflowItem));
   readonly label = input("");
@@ -93,15 +93,25 @@ export class TabNavBarComponent implements AfterViewInit {
       );
 
     this.keyManager.set(km);
+    // Seed roving tabindex now that tab-links have populated their isActive signals.
+    this.updateActiveLink();
   }
 
   updateActiveLink() {
-    // Keep the keyManager in sync with active tabs
     const items = this.tabLabels();
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].isActive()) {
-        this.keyManager()?.updateActiveItem(i);
-      }
+    if (items.length === 0) {
+      return;
+    }
+
+    // Roving tabindex: one link is the nav's tab stop, arrows move between the rest.
+    // Falls back to the first non-disabled link when no route is active (initial load,
+    // unmatched route) so the nav stays focusable.
+    const activeIdx = items.findIndex((l) => l.isActive() && !l.disabled);
+    const focusableIdx = activeIdx >= 0 ? activeIdx : items.findIndex((l) => !l.disabled);
+    items.forEach((link, i) => link.tabIndex.set(i === focusableIdx ? 0 : -1));
+
+    if (activeIdx >= 0) {
+      this.keyManager()?.updateActiveItem(activeIdx);
     }
   }
 }
