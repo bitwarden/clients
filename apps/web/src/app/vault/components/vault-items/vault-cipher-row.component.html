@@ -172,13 +172,8 @@
               {{ "copyVerificationCode" | i18n }}
             </button>
             @if (canLaunch) {
-              <button
-                type="button"
-                bitMenuItem
-                (click)="openUri(launchUri)"
-                bitIconButton="bwi-external-link"
-                [label]="'launchWebsiteName' | i18n: cipher.name"
-              >
+              <button type="button" bitMenuItem (click)="openUri(launchUri)">
+                <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
                 {{ "launch" | i18n }}
               </button>
             }
@@ -237,6 +232,13 @@
             <button type="button" bitMenuItem appCopyField="iban" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
               {{ "copyIban" | i18n }}
+            </button>
+          }
+
+          @if (isPassportCipher) {
+            <button type="button" bitMenuItem appCopyField="passportNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyPassportNumber" | i18n }}
             </button>
           }
 

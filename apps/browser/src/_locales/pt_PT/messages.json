@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Copiar número do passaporte"
   },
+  "copyFirstName": {
+    "message": "Copiar nome próprio"
+  },
+  "copyMiddleName": {
+    "message": "Copiar nome do meio"
+  },
+  "copyLastName": {
+    "message": "Copiar apelido"
+  },
   "copyLicenseNumber": {
     "message": "Copiar número da carta de condução"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Classificar a extensão"
+  },
+  "troubleshooting": {
+    "message": "Resolução de problemas"
+  },
+  "experiencingAnIssue": {
+    "message": "Está a ter algum problema?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Transfira e partilhe o relatório de diagnóstico com o"
+  },
+  "bitwardenSupport": {
+    "message": "suporte do Bitwarden⁠",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Transferir"
   },
   "browserNotSupportClipboard": {
     "message": "O seu navegador web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Dados bancários"
   },
+  "typeDriversLicense": {
+    "message": "Carta de condução"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Carta de condução ou CC"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
     "description": "Header for new login item type"
@@ -2229,8 +2302,8 @@
     "message": "Editar conta bancária",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Editar licença",
+  "editItemHeaderLicense": {
+    "message": "Editar carta de condução",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2342,8 @@
     "message": "Ver conta bancária",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Ver licença",
+  "viewItemHeaderLicense": {
+    "message": "Ver carta de condução",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "enterMonth": {
+    "message": "Introduza o mês."
+  },
+  "enterDay": {
+    "message": "Introduza o dia."
+  },
+  "enterYear": {
+    "message": "Introduza o ano."
+  },
+  "invalidDay": {
+    "message": "Introduza um dia válido."
+  },
+  "invalidYear": {
+    "message": "Introduza um ano válido."
+  },
+  "searchDriversLicense": {
+    "message": "Pesquisar cartas de condução"
+  },
   "bankName": {
     "message": "Nome do banco"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Outro"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Guarde os seus dados bancários em segurança"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Guarde as informações da sua conta bancária para as poder aceder de forma fácil e segura em todos os seus dispositivos."
   },
   "downloadFailed": {
     "message": "Falha na transferência."
