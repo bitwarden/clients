@@ -38,245 +38,260 @@ export type FormArchetype = {
 
 export const PER_SLOT_AMBIENT_BOOST = 0.2;
 export const ALL_REQUIRED_BONUS = 0.3;
-
-const LOGIN_AMBIENT_TOKENS: ReadonlyArray<string> = ["signin", "login", "loginform"];
-
-const CREATION_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "signup",
-  "register",
-  "createaccount",
-  "createyouraccount",
-  "newaccount",
-  "joinnow",
-  "getstarted",
-];
-
-const UPDATE_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "changepassword",
-  "updatepassword",
-  "setnewpassword",
-  "changeyourpassword",
-  "passwordsettings",
-];
-
-const RECOVERY_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "forgotpassword",
-  "forgotyourpassword",
-  "resetpassword",
-  "resetyourpassword",
-  "passwordreset",
-  "passwordrecovery",
-  "recoverpassword",
-  "recoveraccount",
-];
-
-// `payment-card` and `identity` overlap on checkout-style page hints by design.
-// A checkout flow is genuinely both a payment-card archetype (card number, expiry,
-// CVV) and an identity archetype (shipping name + address), and the engine should
-// match both via `matchedCategories` rather than forcing the page to pick a winner.
-// Tokens that read like "both" — "billing*", "checkout" — appear here intentionally.
-const PAYMENT_CARD_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "checkout",
-  "creditcard",
-  "billingdetails",
-  "billinginformation",
-  "paymentdetails",
-  "paymentinformation",
-  "paymentmethod",
-];
-
-const IDENTITY_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "profile",
-  "shippingaddress",
-  "billingaddress",
-  "contactinformation",
-  "contactdetails",
-  "personalinformation",
-  "personaldetails",
-  "yourdetails",
-  "shippinginformation",
-];
-
-const SIGNUP_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "subscribe",
-  "newsletter",
-  "joinourlist",
-  "joinmailing",
-  "stayintouch",
-  "stayinformed",
-  "getourupdates",
-  "joinnow",
-];
-
-const USERNAME_RECOVERY_AMBIENT_TOKENS: ReadonlyArray<string> = [
-  "forgotusername",
-  "forgotyourusername",
-  "recoverusername",
-  "findyouraccount",
-  "findaccount",
-  "lookupaccount",
-];
-
 const REQUIRED_SCORE_WEIGHT = 0.5;
 const OPTIONAL_SCORE_WEIGHT = 0.1;
 
-const accountLoginRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 1, max: 1 },
-  { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 1, max: 1 },
-];
+type ArchetypeConfig = {
+  readonly kind: FormKind;
+  readonly required: ReadonlyArray<RoleArityMatcher>;
+  readonly optional: ReadonlyArray<RoleArityMatcher>;
+  readonly forbidden: ReadonlyArray<RoleArityMatcher>;
+  readonly ambientTokens: ReadonlyArray<string>;
+};
 
-const accountLoginOptional: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-];
+function defineArchetype(config: ArchetypeConfig): FormArchetype {
+  return {
+    kind: config.kind,
+    required: config.required,
+    optional: config.optional,
+    forbidden: config.forbidden,
+    score: (cluster) =>
+      scoreArchetype(cluster, config.kind, config.required, config.optional, config.forbidden),
+    ambientPrior: (ambient) => ambientPriorFor(ambient, config.ambientTokens, config.kind),
+  };
+}
 
-const accountLoginForbidden: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 0, max: 0 },
-];
+export const ACCOUNT_LOGIN_ARCHETYPE = defineArchetype({
+  kind: "account-login",
+  required: [
+    { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 1, max: 1 },
+    { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 1, max: 1 },
+  ],
+  optional: [{ kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 }],
+  forbidden: [{ kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 0, max: 0 }],
+  ambientTokens: ["signin", "login", "loginform"],
+});
 
-const accountCreationRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 1, max: 2 },
-  { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 1, max: 2 },
-];
+export const ACCOUNT_CREATION_ARCHETYPE = defineArchetype({
+  kind: "account-creation",
+  required: [
+    { kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 1, max: 2 },
+    { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 1, max: 2 },
+  ],
+  optional: [{ kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 }],
+  forbidden: [
+    { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 0, max: 0 },
+  ],
+  ambientTokens: [
+    "signup",
+    "register",
+    "createaccount",
+    "createyouraccount",
+    "newaccount",
+    "joinnow",
+    "getstarted",
+  ],
+});
 
-const accountCreationOptional: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-];
+export const ACCOUNT_UPDATE_ARCHETYPE = defineArchetype({
+  kind: "account-update",
+  required: [
+    { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 1, max: 1 },
+    { kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 1, max: 2 },
+  ],
+  optional: [
+    { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+  ],
+  forbidden: [],
+  ambientTokens: [
+    "changepassword",
+    "updatepassword",
+    "setnewpassword",
+    "changeyourpassword",
+    "passwordsettings",
+  ],
+});
 
-const accountCreationForbidden: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 0, max: 0 },
-];
+export const ACCOUNT_RECOVERY_ARCHETYPE = defineArchetype({
+  kind: "account-recovery",
+  required: [{ kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 1, max: 2 }],
+  optional: [
+    { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+  ],
+  forbidden: [
+    { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 0, max: 0 },
+  ],
+  ambientTokens: [
+    "forgotpassword",
+    "forgotyourpassword",
+    "resetpassword",
+    "resetyourpassword",
+    "passwordreset",
+    "passwordrecovery",
+    "recoverpassword",
+    "recoveraccount",
+  ],
+});
 
-const accountUpdateRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 1, max: 1 },
-  { kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 1, max: 2 },
-];
+// `payment-card` and `identity` overlap on checkout-style ambient tokens
+// (billing*, checkout) by design. A checkout flow is genuinely both a
+// payment-card archetype (card number, expiry, CVV) and an identity archetype
+// (shipping name + address); the engine should match both via
+// `matchedCategories` rather than force the page to pick a winner.
+export const PAYMENT_CARD_ARCHETYPE = defineArchetype({
+  kind: "payment-card",
+  required: [
+    { kinds: ["cardNumber"], minBand: "high", requireViewable: true, min: 1, max: 1 },
+    {
+      kinds: ["cardExpirationDate", "cardExpirationMonth", "cardExpirationYear"],
+      minBand: "high",
+      requireViewable: true,
+      min: 1,
+      max: 3,
+    },
+  ],
+  optional: [
+    { kinds: ["cardholderName"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["cardCvv"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+  ],
+  // Intentionally empty: positive card evidence (cardNumber autocomplete, etc.)
+  // is decisive enough that we don't need to veto on the presence of password
+  // fields. A combined "create account + checkout" form genuinely is both
+  // AccountCreation *and* PaymentCard.
+  forbidden: [],
+  ambientTokens: [
+    "checkout",
+    "creditcard",
+    "billingdetails",
+    "billinginformation",
+    "paymentdetails",
+    "paymentinformation",
+    "paymentmethod",
+  ],
+});
 
-const accountUpdateOptional: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-];
+// `identity`: a profile / address / contact form. Requires at least one
+// name-shape field and one address-shape field. No forbidden — identity forms
+// coexist with checkout (shipping address + payment card on one page).
+export const IDENTITY_ARCHETYPE = defineArchetype({
+  kind: "identity",
+  required: [
+    {
+      kinds: ["identityFirstName", "identityLastName", "identityFullName"],
+      minBand: "high",
+      requireViewable: true,
+      min: 1,
+      max: 3,
+    },
+    {
+      kinds: [
+        "identityAddress1",
+        "identityCity",
+        "identityState",
+        "identityPostalCode",
+        "identityCountry",
+      ],
+      minBand: "high",
+      requireViewable: true,
+      min: 1,
+      max: 5,
+    },
+  ],
+  optional: [
+    { kinds: ["identityTitle"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["identityMiddleName"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["identityAddress2"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["identityAddress3"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["identityCompany"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["identityPhone"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+    { kinds: ["identityEmail", "email"], minBand: "high", requireViewable: true, min: 0, max: 1 },
+  ],
+  forbidden: [],
+  ambientTokens: [
+    "profile",
+    "shippingaddress",
+    "billingaddress",
+    "contactinformation",
+    "contactdetails",
+    "personalinformation",
+    "personaldetails",
+    "yourdetails",
+    "shippinginformation",
+  ],
+});
 
-const accountUpdateForbidden: ReadonlyArray<RoleArityMatcher> = [];
+// `signup` (newsletter / mailing-list): lightweight form with email and maybe
+// name(s). NOT account-creation — distinguished by the absence of password
+// fields.
+export const SIGNUP_ARCHETYPE = defineArchetype({
+  kind: "signup",
+  required: [{ kinds: ["email"], minBand: "high", requireViewable: true, min: 1, max: 1 }],
+  optional: [
+    {
+      kinds: ["identityFirstName", "identityLastName", "identityFullName"],
+      minBand: "high",
+      requireViewable: true,
+      min: 0,
+      max: 3,
+    },
+  ],
+  forbidden: [
+    {
+      kinds: ["currentPassword", "newPassword"],
+      minBand: "high",
+      requireViewable: true,
+      min: 0,
+      max: 0,
+    },
+  ],
+  ambientTokens: [
+    "subscribe",
+    "newsletter",
+    "joinourlist",
+    "joinmailing",
+    "stayintouch",
+    "stayinformed",
+    "getourupdates",
+    "joinnow",
+  ],
+});
 
-const accountRecoveryRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["newPassword"], minBand: "high", requireViewable: true, min: 1, max: 2 },
-];
+// `account-username-recovery`: a "forgot username" form — just email, no
+// password. Distinguishes from `signup` primarily by ambient signals.
+export const ACCOUNT_USERNAME_RECOVERY_ARCHETYPE = defineArchetype({
+  kind: "account-username-recovery",
+  required: [{ kinds: ["email"], minBand: "high", requireViewable: true, min: 1, max: 1 }],
+  optional: [],
+  forbidden: [
+    {
+      kinds: ["currentPassword", "newPassword"],
+      minBand: "high",
+      requireViewable: true,
+      min: 0,
+      max: 0,
+    },
+  ],
+  ambientTokens: [
+    "forgotusername",
+    "forgotyourusername",
+    "recoverusername",
+    "findyouraccount",
+    "findaccount",
+    "lookupaccount",
+  ],
+});
 
-const accountRecoveryOptional: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["username", "email"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["totp"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-];
-
-const accountRecoveryForbidden: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["currentPassword"], minBand: "high", requireViewable: true, min: 0, max: 0 },
-];
-
-const paymentCardRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["cardNumber"], minBand: "high", requireViewable: true, min: 1, max: 1 },
-  {
-    kinds: ["cardExpirationDate", "cardExpirationMonth", "cardExpirationYear"],
-    minBand: "high",
-    requireViewable: true,
-    min: 1,
-    max: 3,
-  },
-];
-
-const paymentCardOptional: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["cardholderName"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["cardCvv"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-];
-
-// Intentionally empty: positive card evidence (cardNumber autocomplete, etc.) is decisive
-// enough that we don't need to veto on the presence of password fields. A combined
-// "create account + checkout" form genuinely is both `AccountCreation` *and* `PaymentCard`;
-// allowing the payment-card archetype to match alongside an auth archetype is the right
-// shape for matchedCategories.
-const paymentCardForbidden: ReadonlyArray<RoleArityMatcher> = [];
-
-// `identity` archetype: a profile / address / contact form. Requires at least one
-// "name-shape" field (any of the name variants) and at least one "address-shape"
-// field (street address, city, state, postal code, country). Optional: phone,
-// email, company, etc. No forbidden — identity forms can coexist with checkout
-// (which is the common case: shipping address + payment card on one page).
-const identityRequired: ReadonlyArray<RoleArityMatcher> = [
-  {
-    kinds: ["identityFirstName", "identityLastName", "identityFullName"],
-    minBand: "high",
-    requireViewable: true,
-    min: 1,
-    max: 3,
-  },
-  {
-    kinds: [
-      "identityAddress1",
-      "identityCity",
-      "identityState",
-      "identityPostalCode",
-      "identityCountry",
-    ],
-    minBand: "high",
-    requireViewable: true,
-    min: 1,
-    max: 5,
-  },
-];
-
-const identityOptional: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["identityTitle"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["identityMiddleName"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["identityAddress2"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["identityAddress3"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["identityCompany"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["identityPhone"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-  { kinds: ["identityEmail", "email"], minBand: "high", requireViewable: true, min: 0, max: 1 },
-];
-
-const identityForbidden: ReadonlyArray<RoleArityMatcher> = [];
-
-// `signup` (newsletter / mailing-list) archetype: lightweight form with email
-// and maybe name(s). NOT account-creation — no password field involved.
-// Distinguishes from account-creation primarily by absence of password fields.
-const signupRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["email"], minBand: "high", requireViewable: true, min: 1, max: 1 },
-];
-
-const signupOptional: ReadonlyArray<RoleArityMatcher> = [
-  {
-    kinds: ["identityFirstName", "identityLastName", "identityFullName"],
-    minBand: "high",
-    requireViewable: true,
-    min: 0,
-    max: 3,
-  },
-];
-
-const signupForbidden: ReadonlyArray<RoleArityMatcher> = [
-  {
-    kinds: ["currentPassword", "newPassword"],
-    minBand: "high",
-    requireViewable: true,
-    min: 0,
-    max: 0,
-  },
-];
-
-// `account-username-recovery` archetype: a "forgot username" form. Just email,
-// no password. Distinguishes from `signup` archetype by ambient signals.
-const usernameRecoveryRequired: ReadonlyArray<RoleArityMatcher> = [
-  { kinds: ["email"], minBand: "high", requireViewable: true, min: 1, max: 1 },
-];
-
-const usernameRecoveryOptional: ReadonlyArray<RoleArityMatcher> = [];
-
-const usernameRecoveryForbidden: ReadonlyArray<RoleArityMatcher> = [
-  {
-    kinds: ["currentPassword", "newPassword"],
-    minBand: "high",
-    requireViewable: true,
-    min: 0,
-    max: 0,
-  },
+export const ARCHETYPES: ReadonlyArray<FormArchetype> = [
+  ACCOUNT_LOGIN_ARCHETYPE,
+  ACCOUNT_CREATION_ARCHETYPE,
+  ACCOUNT_UPDATE_ARCHETYPE,
+  ACCOUNT_RECOVERY_ARCHETYPE,
+  ACCOUNT_USERNAME_RECOVERY_ARCHETYPE,
+  PAYMENT_CARD_ARCHETYPE,
+  IDENTITY_ARCHETYPE,
+  SIGNUP_ARCHETYPE,
 ];
 
 function scoreArchetype(
@@ -424,131 +439,3 @@ function ambientPriorFor(
   }
   return { boost: matchedSlots * PER_SLOT_AMBIENT_BOOST, reasons };
 }
-
-export const ACCOUNT_LOGIN_ARCHETYPE: FormArchetype = {
-  kind: "account-login",
-  required: accountLoginRequired,
-  optional: accountLoginOptional,
-  forbidden: accountLoginForbidden,
-  score: (cluster) =>
-    scoreArchetype(
-      cluster,
-      "account-login",
-      accountLoginRequired,
-      accountLoginOptional,
-      accountLoginForbidden,
-    ),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, LOGIN_AMBIENT_TOKENS, "account-login"),
-};
-
-export const ACCOUNT_CREATION_ARCHETYPE: FormArchetype = {
-  kind: "account-creation",
-  required: accountCreationRequired,
-  optional: accountCreationOptional,
-  forbidden: accountCreationForbidden,
-  score: (cluster) =>
-    scoreArchetype(
-      cluster,
-      "account-creation",
-      accountCreationRequired,
-      accountCreationOptional,
-      accountCreationForbidden,
-    ),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, CREATION_AMBIENT_TOKENS, "account-creation"),
-};
-
-export const ACCOUNT_UPDATE_ARCHETYPE: FormArchetype = {
-  kind: "account-update",
-  required: accountUpdateRequired,
-  optional: accountUpdateOptional,
-  forbidden: accountUpdateForbidden,
-  score: (cluster) =>
-    scoreArchetype(
-      cluster,
-      "account-update",
-      accountUpdateRequired,
-      accountUpdateOptional,
-      accountUpdateForbidden,
-    ),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, UPDATE_AMBIENT_TOKENS, "account-update"),
-};
-
-export const ACCOUNT_RECOVERY_ARCHETYPE: FormArchetype = {
-  kind: "account-recovery",
-  required: accountRecoveryRequired,
-  optional: accountRecoveryOptional,
-  forbidden: accountRecoveryForbidden,
-  score: (cluster) =>
-    scoreArchetype(
-      cluster,
-      "account-recovery",
-      accountRecoveryRequired,
-      accountRecoveryOptional,
-      accountRecoveryForbidden,
-    ),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, RECOVERY_AMBIENT_TOKENS, "account-recovery"),
-};
-
-export const PAYMENT_CARD_ARCHETYPE: FormArchetype = {
-  kind: "payment-card",
-  required: paymentCardRequired,
-  optional: paymentCardOptional,
-  forbidden: paymentCardForbidden,
-  score: (cluster) =>
-    scoreArchetype(
-      cluster,
-      "payment-card",
-      paymentCardRequired,
-      paymentCardOptional,
-      paymentCardForbidden,
-    ),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, PAYMENT_CARD_AMBIENT_TOKENS, "payment-card"),
-};
-
-export const IDENTITY_ARCHETYPE: FormArchetype = {
-  kind: "identity",
-  required: identityRequired,
-  optional: identityOptional,
-  forbidden: identityForbidden,
-  score: (cluster) =>
-    scoreArchetype(cluster, "identity", identityRequired, identityOptional, identityForbidden),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, IDENTITY_AMBIENT_TOKENS, "identity"),
-};
-
-export const SIGNUP_ARCHETYPE: FormArchetype = {
-  kind: "signup",
-  required: signupRequired,
-  optional: signupOptional,
-  forbidden: signupForbidden,
-  score: (cluster) =>
-    scoreArchetype(cluster, "signup", signupRequired, signupOptional, signupForbidden),
-  ambientPrior: (ambient) => ambientPriorFor(ambient, SIGNUP_AMBIENT_TOKENS, "signup"),
-};
-
-export const ACCOUNT_USERNAME_RECOVERY_ARCHETYPE: FormArchetype = {
-  kind: "account-username-recovery",
-  required: usernameRecoveryRequired,
-  optional: usernameRecoveryOptional,
-  forbidden: usernameRecoveryForbidden,
-  score: (cluster) =>
-    scoreArchetype(
-      cluster,
-      "account-username-recovery",
-      usernameRecoveryRequired,
-      usernameRecoveryOptional,
-      usernameRecoveryForbidden,
-    ),
-  ambientPrior: (ambient) =>
-    ambientPriorFor(ambient, USERNAME_RECOVERY_AMBIENT_TOKENS, "account-username-recovery"),
-};
-
-export const ARCHETYPES: ReadonlyArray<FormArchetype> = [
-  ACCOUNT_LOGIN_ARCHETYPE,
-  ACCOUNT_CREATION_ARCHETYPE,
-  ACCOUNT_UPDATE_ARCHETYPE,
-  ACCOUNT_RECOVERY_ARCHETYPE,
-  ACCOUNT_USERNAME_RECOVERY_ARCHETYPE,
-  PAYMENT_CARD_ARCHETYPE,
-  IDENTITY_ARCHETYPE,
-  SIGNUP_ARCHETYPE,
-];
