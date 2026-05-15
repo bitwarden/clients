@@ -171,6 +171,7 @@ module.exports = {
         body: "var(--color-fg-body)",
         "body-subtle": "var(--color-fg-body-subtle)",
         disabled: "var(--color-fg-disabled)",
+        inactive: "var(--color-fg-inactive)",
         "brand-soft": "var(--color-fg-brand-soft)",
         brand: "var(--color-fg-brand)",
         "brand-strong": "var(--color-fg-brand-strong)",
@@ -271,6 +272,7 @@ module.exports = {
       "fg-body": "var(--color-fg-body)",
       "fg-body-subtle": "var(--color-fg-body-subtle)",
       "fg-disabled": "var(--color-fg-disabled)",
+      "fg-inactive": "var(--color-fg-inactive)",
       "fg-brand-soft": "var(--color-fg-brand-soft)",
       "fg-brand": "var(--color-fg-brand)",
       "fg-brand-strong": "var(--color-fg-brand-strong)",
@@ -353,6 +355,7 @@ module.exports = {
         xxs: [".5rem", "150%"],
       },
       container: {
+        "@3xl": "769px",
         "@5xl": "1100px",
       },
       keyframes: {

@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Kopírovať číslo pasu"
   },
+  "copyFirstName": {
+    "message": "Kopírovať krstné meno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovať stredné meno"
+  },
+  "copyLastName": {
+    "message": "Kopírovať priezvisko"
+  },
   "copyLicenseNumber": {
     "message": "Kopírovať číslo licencie"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Ohodnotiť rozšírenie"
+  },
+  "troubleshooting": {
+    "message": "Riešenie problémov"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte nejaký problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stiahnite si diagnostickú správu, a potom ju zdieľajte s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwardenu",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stiahnuť"
   },
   "browserNotSupportClipboard": {
     "message": "Váš webový prehliadač nepodporuje automatické kopírovanie do schránky. Kopírujte manuálne."
@@ -2132,8 +2157,14 @@
   "typeSshKey": {
     "message": "Kľúč SSH"
   },
+  "bankAccount": {
+    "message": "Bankový účet"
+  },
   "typeNote": {
     "message": "Poznámka"
+  },
+  "typeBankAccount": {
+    "message": "Bankový účet"
   },
   "typeLoginSubtitle": {
     "message": "Webová stránka alebo aplikácia"
@@ -2156,6 +2187,57 @@
   "collectionSubtitle": {
     "message": "Usporiadajte zdieľané položky"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankové údaje"
+  },
+  "typeDriversLicense": {
+    "message": "Vodičský preukaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Vodičský preukaz alebo občiansky preukaz"
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti o vodičskom preukaze"
+  },
+  "dateOfBirth": {
+    "message": "Dátum narodenia"
+  },
+  "birthMonth": {
+    "message": "Mesiac narodenia"
+  },
+  "birthDay": {
+    "message": "Deň narodenia"
+  },
+  "birthYear": {
+    "message": "Rok narodenia"
+  },
+  "issuingCountry": {
+    "message": "Vydávajúca krajina"
+  },
+  "issuingState": {
+    "message": "Vydávajúci štát/provincia"
+  },
+  "issuingAuthority": {
+    "message": "Vydávajúci orgán"
+  },
+  "issueDate": {
+    "message": "Dátum vydania"
+  },
+  "issueMonth": {
+    "message": "Mesiac vydania"
+  },
+  "issueDay": {
+    "message": "Deň vydania"
+  },
+  "issueYear": {
+    "message": "Rok vydania"
+  },
+  "expirationDay": {
+    "message": "Deň exspirácie"
+  },
+  "licenseClass": {
+    "message": "Skupina vodičského preukazu"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -2176,12 +2258,24 @@
     "message": "Nový kľúč SSH",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nový textový Send",
+  "newItemHeaderBankAccount": {
+    "message": "Nový bankový účet",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nový vodičský preukaz",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nový pas",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Nový text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nový súborový Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Nový súbor",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "Upraviť kľúč SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Upraviť textový Send",
+  "editItemHeaderBankAccount": {
+    "message": "Upraviť bankový účet",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Upraviť vodičský preukaz",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Upraviť pas",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Upraviť text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Upraviť súborový Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Upraviť súbor",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2337,18 @@
   "viewItemHeaderSshKey": {
     "message": "Zobraziť kľúč SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Zobraziť bankový účet",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Zobraziť vodičský preukaz",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Zobraziť pas",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Vyberte položku, ktorú chcete pridať"
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportovanie osobného trezora"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Exportované budú iba položky súvisiace s $EMAIL$. Položky z trezora organizácie nebudú zahrnuté v exporte. Export bude obsahovať iba informácie z položiek v trezore, súvisiace prílohy nebudú súčasťou exportu.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exportované budú iba položky osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté v exporte",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportovanie trezora organizácie"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exportované budú iba položky trezora organizácie spojené s $ORGANIZATION$. Položky osobného trezora a položky z iných organizácií nebudú zahrnuté.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Exportovať sa budú iba položky vo vašom osobnom trezore."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Exportovať sa budú iba položky spojené s trezorom $ORGANIZATION$. Položky v osobných trezoroch sa exportovať nebudú.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "Vybrať súbor"
   },
+  "chooseFileSentenceCase": {
+    "message": "Vybrať súbor"
+  },
   "noFileChosen": {
     "message": "Nebol vybratý žiadny súbor"
   },
@@ -4528,6 +4634,18 @@
   },
   "exportError": {
     "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "Pri exporte bola preskočená 1 poškodená príloha. Všetky ostatné údaje trezora a prílohy boli úspešne exportované."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "Pri exporte boli preskočené poškodené prílohy – $COUNT$. Všetky ostatné údaje trezora a prílohy boli úspešne exportované.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Prístupový kľúč"
@@ -6305,8 +6423,119 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "enterMonth": {
+    "message": "Zadajte mesiac."
+  },
+  "enterDay": {
+    "message": "Zadajte deň."
+  },
+  "enterYear": {
+    "message": "Zadajte rok."
+  },
+  "invalidDay": {
+    "message": "Zadajte platný deň."
+  },
+  "invalidYear": {
+    "message": "Zadajte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Vyhľadať vodičské preukazy"
+  },
+  "bankName": {
+    "message": "Názov banky"
+  },
+  "nameOnAccount": {
+    "message": "Meno na účte"
+  },
+  "bankAccountType": {
+    "message": "Typ účtu"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Spoločnosť (firma)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individuálny (osobný)"
+  },
+  "accountNumber": {
+    "message": "Číslo účtu"
+  },
+  "bankRoutingNumber": {
+    "message": "Smerové číslo",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Číslo pobočky/inštitúcie"
+  },
+  "swiftCode": {
+    "message": "SWIFT kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Kontaktný telefón banky"
+  },
+  "searchBankAccount": {
+    "message": "Vyhľadať bankový účet"
+  },
+  "copyAccountNumber": {
+    "message": "Kopírovať číslo účtu"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopírovať smerové číslo"
+  },
+  "copyPin": {
+    "message": "Kopírovať PIN"
+  },
+  "copyIban": {
+    "message": "Kopírovať IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Bežný účet"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Sporiaci účet"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Termínovaný účet"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Úverový rámec"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investičný/brokerský"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Peňažný trh"
+  },
+  "bankAccountTypeOther": {
+    "message": "Ostatné"
+  },
   "downloadFailed": {
     "message": "Sťahovanie zlyhalo."
+  },
+  "maxAccessCount": {
+    "message": "Maximálny počet prístupov",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Skryť moju e-mailovú adresu pred príjemcami."
+  },
+  "viewTextSendHeader": {
+    "message": "Zobraziť text"
+  },
+  "viewFileSendHeader": {
+    "message": "Zobraziť súbor"
+  },
+  "sendCreated": {
+    "message": "Send bol vytvorený",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Vstup musí byť číselný"
+  },
+  "integerInputError": {
+    "message": "Vstup musí byť celé číslo"
   },
   "sideNavigation": {
     "message": "Bočná navigácia"
@@ -6321,5 +6550,12 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Uloženie úprav Sendu zlyhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."
   }
 }

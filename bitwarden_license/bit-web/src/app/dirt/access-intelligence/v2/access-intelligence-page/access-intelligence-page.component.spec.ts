@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -16,9 +16,11 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
@@ -41,6 +43,8 @@ type MockAccessIntelligenceDataService = {
   loading$: BehaviorSubject<boolean>;
   error$: BehaviorSubject<string | null>;
   reportProgress$: BehaviorSubject<ReportProgress | null>;
+  ciphers$: BehaviorSubject<CipherView[]>;
+  hasCiphers$: Observable<boolean>;
   initializeForOrganization$: jest.Mock;
   generateNewReport$: jest.Mock;
 };
@@ -53,11 +57,13 @@ describe("AccessIntelligencePageComponent", () => {
   let mockI18nService: jest.Mocked<I18nService>;
   let mockDialogService: jest.Mocked<DialogService>;
   let mockLogService: jest.Mocked<LogService>;
+  let mockConfigService: jest.Mocked<ConfigService>;
   let mockRouter: jest.Mocked<Router>;
   let mockActivatedRoute: {
     paramMap: BehaviorSubject<any>;
     queryParams: BehaviorSubject<any>;
   };
+  let hasCiphersSubject: BehaviorSubject<boolean>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -82,6 +88,8 @@ describe("AccessIntelligencePageComponent", () => {
   });
 
   beforeEach(async () => {
+    hasCiphersSubject = new BehaviorSubject<boolean>(false);
+
     // Create mock services
     mockAccessIntelligenceService = {
       report$: new BehaviorSubject<AccessReportView | null>(null),
@@ -90,6 +98,8 @@ describe("AccessIntelligencePageComponent", () => {
       reportProgress$: new BehaviorSubject<ReportProgress | null>(null),
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
+      ciphers$: new BehaviorSubject<CipherView[]>([]),
+      hasCiphers$: hasCiphersSubject.asObservable(),
     };
 
     mockDrawerStateService = {
@@ -112,6 +122,10 @@ describe("AccessIntelligencePageComponent", () => {
       debug: jest.fn(),
     } as any;
 
+    mockConfigService = {
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+    } as any;
+
     mockRouter = {
       navigate: jest.fn().mockResolvedValue(true),
     } as any;
@@ -129,6 +143,7 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ConfigService, useValue: mockConfigService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
@@ -181,6 +196,32 @@ describe("AccessIntelligencePageComponent", () => {
         newOrgId,
       );
       expect(testAccess(component).organizationId()).toBe(newOrgId);
+    });
+
+    it("should start with initializing as true", () => {
+      expect(testAccess(component).initializing()).toBe(true);
+    });
+
+    it("should set initializing to false after initialization completes", async () => {
+      await component.ngOnInit();
+
+      expect(testAccess(component).initializing()).toBe(false);
+    });
+
+    it("should reset initializing to true when switching organizations", async () => {
+      const newOrgId = "org-456" as OrganizationId;
+      let initializingDuringSwitch: boolean | null = null;
+
+      mockAccessIntelligenceService.initializeForOrganization$.mockImplementation(() => {
+        initializingDuringSwitch = testAccess(component).initializing();
+        return of(undefined);
+      });
+
+      await component.ngOnInit();
+      mockActivatedRoute.paramMap.next(new Map([["organizationId", newOrgId]]) as any);
+
+      expect(initializingDuringSwitch).toBe(true);
+      expect(testAccess(component).initializing()).toBe(false);
     });
 
     it("should set default tab from query params", async () => {
@@ -371,6 +412,37 @@ describe("AccessIntelligencePageComponent", () => {
       await component.ngOnInit();
       fixture.detectChanges();
 
+      expect(testAccess(component).hasReportData()).toBe(false);
+    });
+
+    it("should report no ciphers when vault is empty", async () => {
+      mockAccessIntelligenceService.ciphers$.next([]);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(testAccess(component).hasCiphers()).toBe(false);
+    });
+
+    it("should report ciphers present when vault has items", async () => {
+      mockAccessIntelligenceService.ciphers$.next([
+        { id: "c1", name: "Test Cipher", type: 1 } as CipherView,
+      ]);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(testAccess(component).hasCiphers()).toBe(true);
+    });
+
+    it("should show full empty state when vault is empty and no report data", async () => {
+      mockAccessIntelligenceService.ciphers$.next([]);
+      mockAccessIntelligenceService.report$.next(null);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(testAccess(component).hasCiphers()).toBe(false);
       expect(testAccess(component).hasReportData()).toBe(false);
     });
 

@@ -1,13 +1,13 @@
 .bit-popover-arrow {
-  @apply tw-absolute tw-z-10 tw-size-4 tw-rotate-45 tw-bg-background tw-shadow-lg;
+  @apply tw-absolute tw-z-10 tw-size-3 tw-rotate-45 tw-bg-background tw-shadow-md tw-border-solid tw-border-border-base;
 }
 
 .bit-popover-right .bit-popover-arrow {
-  @apply tw-left-1 -tw-translate-x-3/4 tw-rounded-bl-sm;
+  @apply tw-left-1 -tw-translate-x-3/4 tw-rounded-bl-sm tw-border-l tw-border-b;
 }
 
 .bit-popover-left .bit-popover-arrow {
-  @apply tw-right-1 tw-translate-x-3/4 tw-rounded-tr-sm;
+  @apply tw-right-1 tw-translate-x-3/4 tw-rounded-tr-sm tw-border-r tw-border-t;
 }
 
 .bit-popover-right-start .bit-popover-arrow,
@@ -26,11 +26,11 @@
 }
 
 .bit-popover-below .bit-popover-arrow {
-  @apply tw-top-1 -tw-translate-y-3/4 tw-rounded-tl-sm;
+  @apply tw-top-1 -tw-translate-y-3/4 tw-rounded-tl-sm tw-border-t tw-border-l;
 }
 
 .bit-popover-above .bit-popover-arrow {
-  @apply tw-bottom-1 tw-translate-y-3/4 tw-rounded-br-sm;
+  @apply tw-bottom-1 tw-translate-y-3/4 tw-rounded-br-sm tw-border-b tw-border-r;
 }
 
 .bit-popover-below-start .bit-popover-arrow,
