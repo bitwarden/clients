@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Копиране на номера на паспорта"
   },
+  "copyFirstName": {
+    "message": "Копиране на първото име"
+  },
+  "copyMiddleName": {
+    "message": "Копиране на средното име"
+  },
+  "copyLastName": {
+    "message": "Копиране на последното име"
+  },
   "copyLicenseNumber": {
     "message": "Копиране на номера на свидетелството"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Оценяване на разширението"
+  },
+  "troubleshooting": {
+    "message": "Отстраняване на проблеми"
+  },
+  "experiencingAnIssue": {
+    "message": "Имате проблем?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Свалете и после споделете доклада от диагностиката чрез"
+  },
+  "bitwardenSupport": {
+    "message": "поддръжката на Битуорден",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Сваляне"
   },
   "browserNotSupportClipboard": {
     "message": "Браузърът не поддържа копиране в буфера, затова копирайте на ръка."
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Банкови данни"
   },
+  "typeDriversLicense": {
+    "message": "Шофьорска книжка"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Шофьорска книжка"
+  },
+  "driversLicenseDetails": {
+    "message": "Подробности за лиценза"
+  },
+  "dateOfBirth": {
+    "message": "Дата на раждане"
+  },
+  "birthMonth": {
+    "message": "Месец на раждане"
+  },
+  "birthDay": {
+    "message": "Ден на раждане"
+  },
+  "birthYear": {
+    "message": "Година на раждане"
+  },
+  "issuingCountry": {
+    "message": "Страна издател"
+  },
+  "issuingState": {
+    "message": "Щат/провинция издател"
+  },
+  "issuingAuthority": {
+    "message": "Институция издател"
+  },
+  "issueDate": {
+    "message": "Дата на издаване"
+  },
+  "issueMonth": {
+    "message": "Месец на издаване"
+  },
+  "issueDay": {
+    "message": "Ден на издаване"
+  },
+  "issueYear": {
+    "message": "Година на издаване"
+  },
+  "expirationDay": {
+    "message": "Ден на изтичане"
+  },
+  "licenseClass": {
+    "message": "Клас на лиценза"
+  },
   "newItemHeaderLogin": {
     "message": "Нов елемент за вписване",
     "description": "Header for new login item type"
@@ -2229,7 +2302,7 @@
     "message": "Редактиране на банковата сметка",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Редактиране на лиценза",
     "description": "Header for edit license item type"
   },
@@ -2269,7 +2342,7 @@
     "message": "Преглед на банковата сметка",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Преглед на лиценза",
     "description": "Header for view license item type"
   },
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "enterMonth": {
+    "message": "Въведете месец."
+  },
+  "enterDay": {
+    "message": "Въведете ден."
+  },
+  "enterYear": {
+    "message": "Въведете година."
+  },
+  "invalidDay": {
+    "message": "Въведете правилен ден."
+  },
+  "invalidYear": {
+    "message": "Въведете правилна година."
+  },
+  "searchDriversLicense": {
+    "message": "Търсене на лицензи"
+  },
   "bankName": {
     "message": "Име на банката"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Друга"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Съхранявайте сигурно банковите си данни"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Запазете данните за банковата си сметка, за да можете да ги преглеждате лесно и сигурно на различните си устройства."
   },
   "downloadFailed": {
     "message": "Неуспешно сваляне."

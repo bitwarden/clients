@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Kopírovať číslo pasu"
   },
+  "copyFirstName": {
+    "message": "Kopírovať krstné meno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovať stredné meno"
+  },
+  "copyLastName": {
+    "message": "Kopírovať priezvisko"
+  },
   "copyLicenseNumber": {
     "message": "Kopírovať číslo licencie"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Ohodnotiť rozšírenie"
+  },
+  "troubleshooting": {
+    "message": "Riešenie problémov"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte nejaký problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stiahnite si diagnostickú správu, a potom ju zdieľajte s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwardenu",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stiahnuť"
   },
   "browserNotSupportClipboard": {
     "message": "Váš webový prehliadač nepodporuje automatické kopírovanie do schránky. Kopírujte manuálne."
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Bankové údaje"
   },
+  "typeDriversLicense": {
+    "message": "Vodičský preukaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Vodičský preukaz alebo občiansky preukaz"
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti o vodičskom preukaze"
+  },
+  "dateOfBirth": {
+    "message": "Dátum narodenia"
+  },
+  "birthMonth": {
+    "message": "Mesiac narodenia"
+  },
+  "birthDay": {
+    "message": "Deň narodenia"
+  },
+  "birthYear": {
+    "message": "Rok narodenia"
+  },
+  "issuingCountry": {
+    "message": "Vydávajúca krajina"
+  },
+  "issuingState": {
+    "message": "Vydávajúci štát/provincia"
+  },
+  "issuingAuthority": {
+    "message": "Vydávajúci orgán"
+  },
+  "issueDate": {
+    "message": "Dátum vydania"
+  },
+  "issueMonth": {
+    "message": "Mesiac vydania"
+  },
+  "issueDay": {
+    "message": "Deň vydania"
+  },
+  "issueYear": {
+    "message": "Rok vydania"
+  },
+  "expirationDay": {
+    "message": "Deň exspirácie"
+  },
+  "licenseClass": {
+    "message": "Skupina vodičského preukazu"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -2229,8 +2302,8 @@
     "message": "Upraviť bankový účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
+  "editItemHeaderLicense": {
+    "message": "Upraviť vodičský preukaz",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,7 +2342,7 @@
     "message": "Zobraziť bankový účet",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Zobraziť vodičský preukaz",
     "description": "Header for view license item type"
   },
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "enterMonth": {
+    "message": "Zadajte mesiac."
+  },
+  "enterDay": {
+    "message": "Zadajte deň."
+  },
+  "enterYear": {
+    "message": "Zadajte rok."
+  },
+  "invalidDay": {
+    "message": "Zadajte platný deň."
+  },
+  "invalidYear": {
+    "message": "Zadajte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Vyhľadať vodičské preukazy"
+  },
   "bankName": {
     "message": "Názov banky"
   },
@@ -6400,13 +6491,13 @@
     "message": "Kopírovať IBAN"
   },
   "bankAccountTypeChecking": {
-    "message": "Kontroluje sa"
+    "message": "Bežný účet"
   },
   "bankAccountTypeSavings": {
-    "message": "Ukladá sa"
+    "message": "Sporiaci účet"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Depozitný certifikát"
+    "message": "Termínovaný účet"
   },
   "bankAccountTypeLineOfCredit": {
     "message": "Úverový rámec"
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Ostatné"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Bankové údaje uchovávajte na bezpečnom mieste"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Uložte si údaje o bankovom účte, aby ste k nim mali jednoduchý a bezpečný prístup na všetkých svojich zariadeniach."
   },
   "downloadFailed": {
     "message": "Sťahovanie zlyhalo."

@@ -167,8 +167,17 @@
   "copyPassportNumber": {
     "message": "Kopírovat číslo pasu"
   },
+  "copyFirstName": {
+    "message": "Kopírovat křestní jméno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovat prostřední jméno"
+  },
+  "copyLastName": {
+    "message": "Kopírovat příjmení"
+  },
   "copyLicenseNumber": {
-    "message": "Kopírovat číslo dokladu totožnosti"
+    "message": "Kopírovat číslo řidičského průkazu"
   },
   "copyPrivateKey": {
     "message": "Kopírovat soukromý klíč"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Ohodnotit rozšíření"
+  },
+  "troubleshooting": {
+    "message": "Řešení problémů"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stáhněte si a pak sdílejte diagnostický report s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stáhnout"
   },
   "browserNotSupportClipboard": {
     "message": "Váš webový prohlížeč nepodporuje automatické kopírování do schránky. Musíte ho zkopírovat ručně."
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Údaje o bance"
   },
+  "typeDriversLicense": {
+    "message": "Řidičský průkaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Řidičský nebo občanský průkaz"
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti řidičského průkazu"
+  },
+  "dateOfBirth": {
+    "message": "Datum narození"
+  },
+  "birthMonth": {
+    "message": "Měsíc narození"
+  },
+  "birthDay": {
+    "message": "Den narození"
+  },
+  "birthYear": {
+    "message": "Rok narození"
+  },
+  "issuingCountry": {
+    "message": "Země vydání průkazu"
+  },
+  "issuingState": {
+    "message": "Vydávající stát/Provincie"
+  },
+  "issuingAuthority": {
+    "message": "Vydávající orgán"
+  },
+  "issueDate": {
+    "message": "Datum vystavení"
+  },
+  "issueMonth": {
+    "message": "Měsíc vystavení"
+  },
+  "issueDay": {
+    "message": "Den vystavení"
+  },
+  "issueYear": {
+    "message": "Rok vystavení"
+  },
+  "expirationDay": {
+    "message": "Den vypršení platnosti"
+  },
+  "licenseClass": {
+    "message": "Skupina řidičského průkazu"
+  },
   "newItemHeaderLogin": {
     "message": "Nové přihlášení",
     "description": "Header for new login item type"
@@ -2229,8 +2302,8 @@
     "message": "Upravit bankovní účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Upravit licenci",
+  "editItemHeaderLicense": {
+    "message": "Upravit řidičský průkaz",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2342,8 @@
     "message": "Zobrazit bankovní účet",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Zobrazit licenci",
+  "viewItemHeaderLicense": {
+    "message": "Zobrazit řidičský průkaz",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
   },
+  "enterMonth": {
+    "message": "Zadejte měsíc."
+  },
+  "enterDay": {
+    "message": "Zadejte den."
+  },
+  "enterYear": {
+    "message": "Zadejte rok."
+  },
+  "invalidDay": {
+    "message": "Zadejte platný den."
+  },
+  "invalidYear": {
+    "message": "Zadejte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Hledat řidičské průkazy"
+  },
   "bankName": {
     "message": "Názov banky"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Ostatní"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Bezpečně uložte Vaše bankovní údaje"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
   },
   "downloadFailed": {
     "message": "Stažení se nezdařilo."

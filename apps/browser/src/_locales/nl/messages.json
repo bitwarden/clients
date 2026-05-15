@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Paspoortnummer kopiëren"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Kenteken kopiëren"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Deze extensie beoordelen"
+  },
+  "troubleshooting": {
+    "message": "Probleemoplossing"
+  },
+  "experiencingAnIssue": {
+    "message": "Ervaar je een probleem?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download het diagnostische rapport en deel het met"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden-ondersteuning",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Downloaden"
   },
   "browserNotSupportClipboard": {
     "message": "Je webbrowser ondersteunt kopiëren naar plakbord niet. Kopieer handmatig."
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdetails"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "Rijbewijsdetails"
+  },
+  "dateOfBirth": {
+    "message": "Geboortedatum"
+  },
+  "birthMonth": {
+    "message": "Geboortemaand"
+  },
+  "birthDay": {
+    "message": "Geboortedag"
+  },
+  "birthYear": {
+    "message": "Geboortejaar"
+  },
+  "issuingCountry": {
+    "message": "Land van uitgifte"
+  },
+  "issuingState": {
+    "message": "Provincie van uitgifte"
+  },
+  "issuingAuthority": {
+    "message": "Instantie van uitgifte"
+  },
+  "issueDate": {
+    "message": "Uitgiftedatum"
+  },
+  "issueMonth": {
+    "message": "Uitgavemaand"
+  },
+  "issueDay": {
+    "message": "Uitgiftedag"
+  },
+  "issueYear": {
+    "message": "Uitgiftejaar"
+  },
+  "expirationDay": {
+    "message": "Vervaldatum"
+  },
+  "licenseClass": {
+    "message": "Rijbewijsklasse"
+  },
   "newItemHeaderLogin": {
     "message": "Nieuwe login",
     "description": "Header for new login item type"
@@ -2229,8 +2302,8 @@
     "message": "Bankrekening bewerken",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Rijbewijs bewerken",
+  "editItemHeaderLicense": {
+    "message": "Edit license",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2342,8 @@
     "message": "Bankrekening weergeven",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Rijbewijs weergeven",
+  "viewItemHeaderLicense": {
+    "message": "View license",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankName": {
     "message": "Banknaam"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Overig"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Veilig je bankgegevens opslaan"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Sla je bankgegevens op om deze gemakkelijk en veilig op al je apparaten te benaderen."
   },
   "downloadFailed": {
     "message": "Downloaden mislukt."

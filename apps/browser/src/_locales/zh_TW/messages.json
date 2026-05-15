@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "複製護照號碼"
   },
+  "copyFirstName": {
+    "message": "複製名字"
+  },
+  "copyMiddleName": {
+    "message": "複製中間名"
+  },
+  "copyLastName": {
+    "message": "複製姓氏"
+  },
   "copyLicenseNumber": {
     "message": "複製證照號碼"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "評分此擴充功能"
+  },
+  "troubleshooting": {
+    "message": "疑難排解"
+  },
+  "experiencingAnIssue": {
+    "message": "遇到問題了嗎？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "下載後將診斷報告分享給"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden 支援團隊",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "下載"
   },
   "browserNotSupportClipboard": {
     "message": "您的瀏覽器不支援剪貼簿複製功能，請手動複製。"
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "銀行資料"
   },
+  "typeDriversLicense": {
+    "message": "駕照"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "駕照或身分證件"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "新增登入資料",
     "description": "Header for new login item type"
@@ -2229,7 +2302,7 @@
     "message": "編輯銀行帳戶",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "編輯駕照",
     "description": "Header for edit license item type"
   },
@@ -2269,7 +2342,7 @@
     "message": "檢視銀行帳戶",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "檢視駕照",
     "description": "Header for view license item type"
   },
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
   },
+  "enterMonth": {
+    "message": "請輸入月份。"
+  },
+  "enterDay": {
+    "message": "請輸入日期。"
+  },
+  "enterYear": {
+    "message": "請輸入年份。"
+  },
+  "invalidDay": {
+    "message": "請輸入有效的日期。"
+  },
+  "invalidYear": {
+    "message": "請輸入有效的年份。"
+  },
+  "searchDriversLicense": {
+    "message": "搜尋駕照"
+  },
   "bankName": {
     "message": "銀行名稱"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "其他"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "安全地儲存您的銀行資料"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "儲存您的銀行帳戶資訊，以便在各裝置間輕鬆且安全地存取。"
   },
   "downloadFailed": {
     "message": "下載失敗"
