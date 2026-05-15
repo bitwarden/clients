@@ -35,6 +35,7 @@ export class PasswordRepromptService {
       "SWIFT",
       "Passport Number",
       "National Identification Number",
+      "License Number",
     ];
   }
 

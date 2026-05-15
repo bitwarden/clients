@@ -231,6 +231,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
           { field: "passportNumber", title: "copyPassportNumber" },
           { field: "nationalIdentificationNumber", title: "copyNationalIdentificationNumber" },
         ];
+      case CipherType.DriversLicense:
+        return [
+          { field: "firstName", title: "copyFirstName" },
+          { field: "middleName", title: "copyMiddleName" },
+          { field: "lastName", title: "copyLastName" },
+          { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
       default:
         return [];
     }
