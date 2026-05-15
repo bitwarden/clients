@@ -48,10 +48,10 @@
     "message": "Dane osobowe"
   },
   "typeNoteSubtitle": {
-    "message": "Notatka"
+    "message": "Ważny tekst"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token serwera"
   },
   "typeBankAccountSubtitle": {
     "message": "Dane bankowe"
@@ -61,6 +61,12 @@
   },
   "collectionSubtitle": {
     "message": "Organizuj udostępnione elementy"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
   },
   "chooseItemToAdd": {
     "message": "Wybierz element do dodania"
@@ -148,6 +154,10 @@
     "message": "Pokaż dokument",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "Pokaż paszport",
     "description": "Header for view passport item type"
@@ -208,8 +218,8 @@
     "message": "Edytuj konto bankowe",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Edytuj dokument",
+  "editItemHeaderLicense": {
+    "message": "Edit license",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -273,19 +283,19 @@
     "message": "Tekst wysyłki"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Nowy tekst",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Nowy plik",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Edytuj tekst",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Edytuj plik",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -1755,6 +1765,10 @@
     "message": "Kopiuj numer",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Kopiuj adres e-mail"
   },
@@ -2057,19 +2071,19 @@
     "message": "Eksportuj z"
   },
   "exportNoun": {
-    "message": "Eksport",
+    "message": "Eksportowanie",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Eksport",
+    "message": "Eksportuj",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importowanie",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importuj",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Połączenie z przeglądarką nie jest obecnie obsługiwane w aplikacji na Linuksa."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Wymagaj weryfikacji połączenia z przeglądarką"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Dodaj dodatkową warstwę zabezpieczeń, weryfikując unikalny identyfikator konta podczas tworzenia linku między aplikacją a przeglądarką. Funkcja ta wymaga weryfikacji identyfikatora przy każdym nawiązaniu połączenia."
-  },
   "enableHardwareAcceleration": {
     "message": "Użyj przyśpieszenia sprzętowego"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Potwierdź"
-  },
-  "verifyBrowserTitle": {
-    "message": "Zweryfikuj połączenie z przeglądarką"
-  },
-  "verifyBrowserDesc": {
-    "message": "Upewnij się, że identyfikator jest zgodny."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "Aplikacja $APPID$ chce połączyć się z Bitwarden",
@@ -2781,7 +2783,7 @@
     "message": "Oczekiwanie na klucz bezpieczeństwa..."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Ukryj mój adres e-mail przed odbiorcami."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek."
@@ -3032,7 +3034,7 @@
     "message": "Tylko osobiste elementy sejfu zostaną wyeksportowane."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "Tylko elementy powiązane z sejfem organizacji $ORGANIZATION$ zostaną wyeksportowane. Elementy osobistego sejfu nie będą uwzględnione.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3996,7 +3998,7 @@
     "message": "Wystąpił błąd podczas eksportowania danych sejfu"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "Podczas eksportowania danych pominięto 1 uszkodzony załącznik. Wszystkie pozostałe dane zostały wyeksportowane."
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
@@ -4119,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Rozwiązywanie problemów"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Pobierz dane diagnostyczne"
+  },
+  "experiencingAnIssue": {
+    "message": "Doświadczasz problemów?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Pobierz, a następnie udostępnij dane diagnostyczne"
+  },
+  "bitwardenSupport": {
+    "message": "pomocy technicznej Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Pobierz"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Wyłącz akcelerację sprzętową i uruchom ponownie"
@@ -4352,7 +4370,7 @@
     "message": "Klucz dostępu dla tej aplikacji już istnieje."
   },
   "applicationDoesNotSupportDuplicates": {
-    "message": "This application does not support duplicates."
+    "message": "Aplikacja nie obsługuje duplikatów."
   },
   "closeThisWindow": {
     "message": "Zamknij okno"
@@ -4382,7 +4400,7 @@
     "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
   "vulnerablePassword": {
-    "message": "Słabe hasło."
+    "message": "Hasło jest słabe."
   },
   "changeNow": {
     "message": "Zmień teraz"
@@ -4686,7 +4704,7 @@
     "message": "Usuń z archiwum"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Zarchiwizowano"
   },
   "itemsInArchive": {
     "message": "Elementy w archiwum"
@@ -4698,7 +4716,7 @@
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Element został zarchiwizowany"
   },
   "itemUnarchivedToast": {
     "message": "Element został usunięty z archiwum"
@@ -4707,7 +4725,7 @@
     "message": "Archiwizuj element"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Zarchiwizowany element zostanie wykluczony z wyników wyszukiwania i sugestii autouzupełniania."
   },
   "unArchiveAndSave": {
     "message": "Usuń z archiwum i zapisz"
@@ -4746,7 +4764,7 @@
     "message": "Monitorowanie naruszeń"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "I jeszcze więcej!"
   },
   "advancedOnlineSecurity": {
     "message": "Zaawansowane bezpieczeństwo online"
@@ -4758,7 +4776,7 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Kontynuuj logowanie"
   },
   "doNotContinue": {
     "message": "Nie kontynuuj"
@@ -4767,10 +4785,10 @@
     "message": "Domena"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Domena będzie przechowywać klucze szyfrowania konta, więc upewnij się, że jest ona zaufana. Jeśli nie masz pewności, skontaktuj się z administratorem."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Zweryfikuj organizację, aby się zalogować"
   },
   "organizationVerified": {
     "message": "Organizacja została zweryfikowana"
@@ -4782,25 +4800,25 @@
     "message": "If you don't verify your organization, your access to the organization will be revoked."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Opuść teraz"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Zweryfikuj domenę, aby się zalogować"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Sprawdź domenę, aby kontynuować logowanie."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Sprawdź organizację i domenę, aby kontynuować logowanie."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Sposób blokady"
   },
   "errorCannotDecrypt": {
     "message": "Błąd: Nie można odszyfrować"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Blokada aplikacji"
   },
   "browserAccessDenied": {
     "message": "Either an invalid browser directory was selected, or access was denied"
@@ -4809,10 +4827,10 @@
     "message": "Zmień rozmiar nawigacji bocznej"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Ustawienie jest zarządzane przez Twoją organizację."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4825,13 +4843,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "Twoja organizacja włączyła domyślną blokadę aplikacji po zablokowaniu systemu."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
     "message": "Your organization has set the default session timeout to On restart."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "Maksymalny dozwolony czas nie może przekroczyć $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4847,7 +4865,7 @@
     "message": "On restart"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
@@ -4877,13 +4895,13 @@
     "message": "Ulepsz"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Czy na pewno chcesz opuścić organizację?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Odrzucenie spowoduje, że Twoje osobiste elementy pozostaną na koncie, ale stracisz dostęp do udostępnionych elementów oraz funkcji organizacji."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Skontaktuj się z administratorem, aby odzyskać dostęp."
   },
   "leaveConfirmationDialogConfirmButton": {
     "message": "Opuść organizację $ORGANIZATION$",
@@ -4946,13 +4964,13 @@
     "message": "Brak elementów w koszu"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Usunięte elementy pojawią się tutaj i zostaną trwale usunięte po 30 dniach"
   },
   "noItemsInVault": {
     "message": "Brak elementów w sejfie"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Sejf chroni nie tylko hasła. Przechowuj bezpiecznie dane logowania, identyfikatory, karty i notatki."
   },
   "emptyFavorites": {
     "message": "Brak ulubionych elementów"
@@ -4967,20 +4985,20 @@
     "message": "Wyczyść filtry lub użyj innej frazy"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Odbiorca będzie musiał wpisać hasło, aby zobaczyć tekst wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Dla wskazanych odbiorców"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Adresy e-mail"
   },
   "noAuth": {
     "message": "Każdy, kto ma link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Każdy, kto ma hasło wysyłki"
   },
   "whoCanView": {
     "message": "Kto może odczytać"
@@ -4989,10 +5007,10 @@
     "message": "Konkretni użytkownicy"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Aby wyświetlić wysyłkę, odbiorcy będą musieli zweryfikować adres e-mail za pomocą kodu."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Wpisz wiele adresów e-mail, oddzielając je przecinkami."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -5011,6 +5029,24 @@
   },
   "userVerificationFailed": {
     "message": "Weryfikacja użytkownika nie powiodła się."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
   },
   "bankAccount": {
     "message": "Konto bankowe"
@@ -5064,6 +5100,18 @@
   "copyIban": {
     "message": "Kopiuj numer IBAN"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
   "bankAccountTypeChecking": {
     "message": "Standardowe"
   },
@@ -5105,24 +5153,24 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+    "message": "Zapisanie wysyłki nie powidło się",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Pokaż tekst"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Pokaż plik"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Wysyłka została utworzona",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "Dane wejściowe muszą być liczbą"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "Dane wejściowe muszą być liczbą całkowitą"
   },
   "hideEmailPolicyInEffect": {
     "message": "Twoja organizacja wymaga widocznego adresu e-mail. Odznacz opcję „Ukryj mój adres e-mail przed odbiorcami”."
@@ -5134,11 +5182,53 @@
     "message": "Pomiń link"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Banner",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
     "message": "Pasek postępu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }

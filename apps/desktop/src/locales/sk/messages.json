@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Usporiadajte zdieľané položky"
   },
+  "typeDriversLicense": {
+    "message": "Vodičský preukaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Vodičský preukaz alebo občiansky preukaz"
+  },
   "chooseItemToAdd": {
     "message": "Vyberte položku, ktorú chcete pridať"
   },
@@ -148,6 +154,10 @@
     "message": "Zobraziť vodičský preukaz",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "Zobraziť vodičský preukaz",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "Zobraziť pas",
     "description": "Header for view passport item type"
@@ -208,8 +218,8 @@
     "message": "Upraviť bankový účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
+  "editItemHeaderLicense": {
+    "message": "Upraviť vodičský preukaz",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1755,6 +1765,10 @@
     "message": "Kopírovať číslo",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Kopírovať meno",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Kopírovať e-mail"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Bohužiaľ, integrácia prehliadača nie je v súčasnosti podporovaná vo verzii pre Linux."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Vyžadovať overenie pre integráciu v prehliadači"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Povoliť dodatočné zabezpečenie tým, že bude potrebné overenie odtlačku pri prepájaní desktopovej aplikácie a prehliadača. Ak je toto nastavenie zapnuté, pri každom pripojení bude od používateľa požadované overenie."
-  },
   "enableHardwareAcceleration": {
     "message": "Použiť hardvérové zrýchlenie"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Schváliť"
-  },
-  "verifyBrowserTitle": {
-    "message": "Overiť pripojenie prehliadača"
-  },
-  "verifyBrowserDesc": {
-    "message": "Uistite sa, že zobrazený odtlačok prsta je identický s odtlačkom prsta zobrazeným v rozšírení prehliadača."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ sa chce pripojiť k Bitwardenu",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "Riešenie problémov"
   },
+  "downloadDiagnosticReport": {
+    "message": "Stiahnuť diagnostickú správu"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte nejaký problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stiahnite si diagnostickú správu, a potom ju zdieľajte s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwardenu",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stiahnuť"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Zakázať hardvérové zrýchlenie a reštartovať"
   },
@@ -4934,7 +4952,7 @@
     "message": "K položkám v pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "Hotovo $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "enterMonth": {
+    "message": "Zadajte mesiac."
+  },
+  "enterDay": {
+    "message": "Zadajte deň."
+  },
+  "enterYear": {
+    "message": "Zadajte rok."
+  },
+  "invalidDay": {
+    "message": "Zadajte platný deň."
+  },
+  "invalidYear": {
+    "message": "Zadajte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Vyhľadať vodičské preukazy"
+  },
   "bankAccount": {
     "message": "Bankový účet"
   },
@@ -5064,14 +5100,26 @@
   "copyIban": {
     "message": "Kopírovať IBAN"
   },
+  "copyFirstName": {
+    "message": "Kopírovať krstné meno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovať stredné meno"
+  },
+  "copyLastName": {
+    "message": "Kopírovať priezvisko"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovať číslo vodičského preukazu"
+  },
   "bankAccountTypeChecking": {
-    "message": "Kontroluje sa"
+    "message": "Bežný účet"
   },
   "bankAccountTypeSavings": {
-    "message": "Ukladá sa"
+    "message": "Sporiaci účet"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Depozitný certifikát"
+    "message": "Termínovaný účet"
   },
   "bankAccountTypeLineOfCredit": {
     "message": "Úverový rámec"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti o vodičskom preukaze"
+  },
+  "dateOfBirth": {
+    "message": "Dátum narodenia"
+  },
+  "birthMonth": {
+    "message": "Mesiac narodenia"
+  },
+  "birthDay": {
+    "message": "Deň narodenia"
+  },
+  "birthYear": {
+    "message": "Rok narodenia"
+  },
+  "issuingCountry": {
+    "message": "Vydávajúca krajina"
+  },
+  "issuingState": {
+    "message": "Vydávajúci štát/provincia"
+  },
+  "issueDate": {
+    "message": "Dátum vydania"
+  },
+  "issueMonth": {
+    "message": "Mesiac vydania"
+  },
+  "issueDay": {
+    "message": "Deň vydania"
+  },
+  "issueYear": {
+    "message": "Rok vydania"
+  },
+  "expirationDay": {
+    "message": "Deň exspirácie"
+  },
+  "issuingAuthority": {
+    "message": "Vydávajúci orgán"
+  },
+  "licenseClass": {
+    "message": "Skupina vodičského preukazu"
   }
 }

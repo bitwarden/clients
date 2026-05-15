@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Organize itens partilhados"
   },
+  "typeDriversLicense": {
+    "message": "Carta de condução"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Carta de condução ou CC"
+  },
   "chooseItemToAdd": {
     "message": "Escolher item a adicionar"
   },
@@ -148,6 +154,10 @@
     "message": "Ver licença",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "Ver carta de condução",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "Ver passaporte",
     "description": "Header for view passport item type"
@@ -208,8 +218,8 @@
     "message": "Editar conta bancária",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Editar licença",
+  "editItemHeaderLicense": {
+    "message": "Editar carta de condução",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1755,6 +1765,10 @@
     "message": "Copiar número",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copiar nome",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Copiar e-mail"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Infelizmente, a integração com o navegador não é atualmente suportada na versão Linux."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Exigir verificação para a integração do navegador"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Adicione uma camada adicional de segurança, exigindo a confirmação da frase de impressão digital ao estabelecer uma ligação entre o computador e o navegador. Isto requer a ação e a verificação do utilizador sempre que é criada uma ligação."
-  },
   "enableHardwareAcceleration": {
     "message": "Utilizar a aceleração de hardware"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Aprovar"
-  },
-  "verifyBrowserTitle": {
-    "message": "Verificar a ligação do navegador"
-  },
-  "verifyBrowserDesc": {
-    "message": "Por favor, certifique-se de que a impressão digital apresentada é idêntica à impressão digital apresentada na extensão do navegador."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "O(A) $APPID$ quer ligar-se ao Bitwarden",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "Resolução de problemas"
   },
+  "downloadDiagnosticReport": {
+    "message": "Transferir relatório de diagnóstico"
+  },
+  "experiencingAnIssue": {
+    "message": "Está a ter algum problema?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Transfira e partilhe o relatório de diagnóstico com o"
+  },
+  "bitwardenSupport": {
+    "message": "suporte do Bitwarden⁠",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Transferir"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Desativar a aceleração de hardware e reiniciar"
   },
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "enterMonth": {
+    "message": "Introduza o mês."
+  },
+  "enterDay": {
+    "message": "Introduza o dia."
+  },
+  "enterYear": {
+    "message": "Introduza o ano."
+  },
+  "invalidDay": {
+    "message": "Introduza um dia válido."
+  },
+  "invalidYear": {
+    "message": "Introduza um ano válido."
+  },
+  "searchDriversLicense": {
+    "message": "Pesquisar cartas de condução"
+  },
   "bankAccount": {
     "message": "Conta bancária"
   },
@@ -5063,6 +5099,18 @@
   },
   "copyIban": {
     "message": "Copiar IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copiar nome próprio"
+  },
+  "copyMiddleName": {
+    "message": "Copiar nome do meio"
+  },
+  "copyLastName": {
+    "message": "Copiar apelido"
+  },
+  "copyLicenseNumber": {
+    "message": "Copiar número da carta de condução"
   },
   "bankAccountTypeChecking": {
     "message": "Conta à ordem"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Detalhes da carta de condução"
+  },
+  "dateOfBirth": {
+    "message": "Data de nascimento"
+  },
+  "birthMonth": {
+    "message": "Mês de nascimento"
+  },
+  "birthDay": {
+    "message": "Dia de nascimento"
+  },
+  "birthYear": {
+    "message": "Ano de nascimento"
+  },
+  "issuingCountry": {
+    "message": "País de emissão"
+  },
+  "issuingState": {
+    "message": "Estado / província de emissão"
+  },
+  "issueDate": {
+    "message": "Data de emissão"
+  },
+  "issueMonth": {
+    "message": "Mês de emissão"
+  },
+  "issueDay": {
+    "message": "Dia de emissão"
+  },
+  "issueYear": {
+    "message": "Ano de emissão"
+  },
+  "expirationDay": {
+    "message": "Dia de validade"
+  },
+  "issuingAuthority": {
+    "message": "Autoridade emissora"
+  },
+  "licenseClass": {
+    "message": "Categoria da carta de condução"
   }
 }

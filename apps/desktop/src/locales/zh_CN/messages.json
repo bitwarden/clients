@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "组织共享的项目"
   },
+  "typeDriversLicense": {
+    "message": "驾驶证"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "驾驶证或 ID"
+  },
   "chooseItemToAdd": {
     "message": "选择要添加的项目"
   },
@@ -145,6 +151,10 @@
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderDriversLicense": {
+    "message": "查看驾驶证",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
     "message": "查看许可证",
     "description": "Header for view license item type"
   },
@@ -177,7 +187,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "新增许可证",
+    "message": "新增驾驶证",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -208,7 +218,7 @@
     "message": "编辑银行账户",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "编辑许可证",
     "description": "Header for edit license item type"
   },
@@ -273,19 +283,19 @@
     "message": "要分享的文本"
   },
   "newItemHeaderTextSendV2": {
-    "message": "新建文本",
+    "message": "新增文本 Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "新建文件",
+    "message": "新增文件 Send",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "编辑文本",
+    "message": "编辑文本 Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "编辑文件",
+    "message": "编辑文件 Send",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -576,13 +586,13 @@
     "message": "类型"
   },
   "firstName": {
-    "message": "名"
+    "message": "名字"
   },
   "middleName": {
     "message": "中间名"
   },
   "lastName": {
-    "message": "姓"
+    "message": "姓氏"
   },
   "fullName": {
     "message": "全名"
@@ -606,7 +616,7 @@
     "message": "ZIP / 邮政编码"
   },
   "country": {
-    "message": "国家/地区"
+    "message": "国家 / 地区"
   },
   "save": {
     "message": "保存"
@@ -1755,6 +1765,10 @@
     "message": "复制号码",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "复制名称",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "复制电子邮箱"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "很遗憾，Linux 版本目前不支持浏览器集成。"
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "要求浏览器集成验证"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "在您的桌面与浏览器间建立连接时，通过要求指纹短语确认，来增加一个额外的安全层。每次建立连接都需要用户操作和验证。"
-  },
   "enableHardwareAcceleration": {
     "message": "使用硬件加速"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "批准"
-  },
-  "verifyBrowserTitle": {
-    "message": "验证浏览器连接"
-  },
-  "verifyBrowserDesc": {
-    "message": "请确保显示的指纹与浏览器扩展中显示的指纹相同。"
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ 想要连接到 Bitwarden",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "故障排除"
   },
+  "downloadDiagnosticReport": {
+    "message": "下载诊断报告"
+  },
+  "experiencingAnIssue": {
+    "message": "遇到问题了吗？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "下载诊断报告然后将其分享给"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden 支持",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "下载"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "禁用硬件加速并重启"
   },
@@ -4235,7 +4253,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "最后编辑于"
+    "message": "上次编辑"
   },
   "upload": {
     "message": "上传"
@@ -4850,7 +4868,7 @@
     "message": "设置一个解锁方式以更改您的超时动作"
   },
   "chromiumImporterBrowserNotInstalled": {
-    "message": "$BROWSER$ 未安装。请在导入密码前安装 $BROWSER$。",
+    "message": "$BROWSER$ 未安装。从中导入密码之前，请先安装 $BROWSER$。",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "enterMonth": {
+    "message": "输入月份。"
+  },
+  "enterDay": {
+    "message": "输入日期。"
+  },
+  "enterYear": {
+    "message": "输入年份。"
+  },
+  "invalidDay": {
+    "message": "请输入有效的日期。"
+  },
+  "invalidYear": {
+    "message": "请输入有效的年份。"
+  },
+  "searchDriversLicense": {
+    "message": "搜索许可证"
+  },
   "bankAccount": {
     "message": "银行账户"
   },
@@ -5064,17 +5100,29 @@
   "copyIban": {
     "message": "复制 IBAN"
   },
+  "copyFirstName": {
+    "message": "复制名字"
+  },
+  "copyMiddleName": {
+    "message": "复制中间名"
+  },
+  "copyLastName": {
+    "message": "复制姓氏"
+  },
+  "copyLicenseNumber": {
+    "message": "复制驾驶证号码"
+  },
   "bankAccountTypeChecking": {
-    "message": "正在检查"
+    "message": "活期"
   },
   "bankAccountTypeSavings": {
-    "message": "正在保存"
+    "message": "储蓄"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "定期存单"
+    "message": "定期存款"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "循环信用额度"
+    "message": "信用额度"
   },
   "bankAccountTypeInvestmentBrokerage": {
     "message": "投资/证券"
@@ -5109,17 +5157,17 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "查看文本"
+    "message": "查看文本 Send"
   },
   "viewFileSendHeader": {
-    "message": "查看文件"
+    "message": "查看文件 Send"
   },
   "sendCreated": {
     "message": "Send 已创建",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "请输入数字"
+    "message": "必须输入数字"
   },
   "integerInputError": {
     "message": "请输入整数"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "驾驶证详细信息"
+  },
+  "dateOfBirth": {
+    "message": "出生日期"
+  },
+  "birthMonth": {
+    "message": "出生月份"
+  },
+  "birthDay": {
+    "message": "出生日期"
+  },
+  "birthYear": {
+    "message": "出生年份"
+  },
+  "issuingCountry": {
+    "message": "签发国家 / 地区"
+  },
+  "issuingState": {
+    "message": "签发州 / 省"
+  },
+  "issueDate": {
+    "message": "签发日期"
+  },
+  "issueMonth": {
+    "message": "签发月份"
+  },
+  "issueDay": {
+    "message": "签发日期"
+  },
+  "issueYear": {
+    "message": "签发年份"
+  },
+  "expirationDay": {
+    "message": "到期日期"
+  },
+  "issuingAuthority": {
+    "message": "签发机构 / 部门"
+  },
+  "licenseClass": {
+    "message": "许可证类型"
   }
 }

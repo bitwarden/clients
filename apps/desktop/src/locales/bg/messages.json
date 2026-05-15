@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Организирайте споделените данни"
   },
+  "typeDriversLicense": {
+    "message": "Шофьорска книжка"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Шофьорска книжка"
+  },
   "chooseItemToAdd": {
     "message": "Изберете елемент за добавяне"
   },
@@ -148,6 +154,10 @@
     "message": "Преглед на лиценза",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "Преглед на лиценза",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "Преглед на паспорта",
     "description": "Header for view passport item type"
@@ -208,7 +218,7 @@
     "message": "Редактиране на банковата сметка",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Редактиране на лиценза",
     "description": "Header for edit license item type"
   },
@@ -1755,6 +1765,10 @@
     "message": "Копиране на но̀мера",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Копиране на името",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Копиране на е-пощата"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за Линукс."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Потвърждаване на интеграцията с браузър"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Допълнително ниво на сигурност, чрез изискване на потвърждаване на биометричните данни при създаване на връзка между самостоятелното приложение и браузъра. При включваното му потребителят трябва да потвърждава всяко установяване на връзка."
-  },
   "enableHardwareAcceleration": {
     "message": "Използване на хардуерно ускорение"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Одобряване"
-  },
-  "verifyBrowserTitle": {
-    "message": "Проверка на връзката с браузъра"
-  },
-  "verifyBrowserDesc": {
-    "message": "Уверете се, че идентификаторът в разширението съвпада с показания."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ иска де се свърже с Битуорден",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "Отстраняване на проблеми"
   },
+  "downloadDiagnosticReport": {
+    "message": "Сваляне на доклада от диагностиката"
+  },
+  "experiencingAnIssue": {
+    "message": "Имате проблем?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Свалете и после споделете доклада от диагностиката чрез"
+  },
+  "bitwardenSupport": {
+    "message": "поддръжката на Битуорден",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Сваляне"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Изключете хардуерното ускорение и рестартирайте"
   },
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "enterMonth": {
+    "message": "Въведете месец."
+  },
+  "enterDay": {
+    "message": "Въведете ден."
+  },
+  "enterYear": {
+    "message": "Въведете година."
+  },
+  "invalidDay": {
+    "message": "Въведете правилен ден."
+  },
+  "invalidYear": {
+    "message": "Въведете правилна година."
+  },
+  "searchDriversLicense": {
+    "message": "Търсене на лицензи"
+  },
   "bankAccount": {
     "message": "Банкова сметка"
   },
@@ -5063,6 +5099,18 @@
   },
   "copyIban": {
     "message": "Копиране на IBAN"
+  },
+  "copyFirstName": {
+    "message": "Копиране на първото име"
+  },
+  "copyMiddleName": {
+    "message": "Копиране на средното име"
+  },
+  "copyLastName": {
+    "message": "Копиране на последното име"
+  },
+  "copyLicenseNumber": {
+    "message": "Копиране на номера на свидетелството"
   },
   "bankAccountTypeChecking": {
     "message": "Разплащателна"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Подробности за лиценза"
+  },
+  "dateOfBirth": {
+    "message": "Дата на раждане"
+  },
+  "birthMonth": {
+    "message": "Месец на раждане"
+  },
+  "birthDay": {
+    "message": "Ден на раждане"
+  },
+  "birthYear": {
+    "message": "Година на раждане"
+  },
+  "issuingCountry": {
+    "message": "Страна издател"
+  },
+  "issuingState": {
+    "message": "Щат/провинция издател"
+  },
+  "issueDate": {
+    "message": "Дата на издаване"
+  },
+  "issueMonth": {
+    "message": "Месец на издаване"
+  },
+  "issueDay": {
+    "message": "Ден на издаване"
+  },
+  "issueYear": {
+    "message": "Година на издаване"
+  },
+  "expirationDay": {
+    "message": "Ден на изтичане"
+  },
+  "issuingAuthority": {
+    "message": "Институция издател"
+  },
+  "licenseClass": {
+    "message": "Клас на лиценза"
   }
 }
