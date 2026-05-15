@@ -228,10 +228,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return resubPlan ? [resubPlan] : [];
     }
 
+    const pmPlans = this.passwordManagerPlans() ?? [];
+    const familyPlanType = this._familyPlan();
+
     if (this.acceptingSponsorship()) {
-      const familyPlan = this.passwordManagerPlans()?.find(
-        (plan) => plan.type === this._familyPlan(),
-      );
+      const familyPlan = pmPlans.find((plan) => plan.type === familyPlanType);
       if (familyPlan) {
         this.discount.set(familyPlan.PasswordManager.basePrice);
         return [familyPlan];
@@ -240,38 +241,36 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const businessOwnedIsChecked = this.formValues()?.businessOwned ?? false;
+    const selectedInterval = this.selectedInterval();
+    const cp = this.currentPlan();
+    const org = this.organization();
 
-    const result = (this.passwordManagerPlans() ?? []).filter(
+    const result = pmPlans.filter(
       (plan) =>
         plan.type !== PlanType.Custom &&
         (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
         (this.showFree() || plan.productTier !== ProductTierType.Free) &&
         (plan.productTier === ProductTierType.Free ||
           plan.productTier === ProductTierType.TeamsStarter ||
-          (this.selectedInterval() === PlanInterval.Annually && plan.isAnnual) ||
-          (this.selectedInterval() === PlanInterval.Monthly && !plan.isAnnual)) &&
-        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan()) &&
-        (!this.currentPlan() || this.currentPlan().upgradeSortOrder < plan.upgradeSortOrder) &&
+          (selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
+          (selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === familyPlanType) &&
+        (!cp || cp.upgradeSortOrder < plan.upgradeSortOrder) &&
         this.planIsEnabled(plan),
     );
 
     if (
-      this.currentPlan()?.productTier === ProductTierType.Free &&
-      this.selectedInterval() === PlanInterval.Monthly &&
-      !this.organization()?.useSecretsManager
+      cp?.productTier === ProductTierType.Free &&
+      selectedInterval === PlanInterval.Monthly &&
+      !org?.useSecretsManager
     ) {
-      const familyPlan = this.passwordManagerPlans()?.find(
-        (plan) => plan.productTier == ProductTierType.Families,
-      );
+      const familyPlan = pmPlans.find((plan) => plan.productTier == ProductTierType.Families);
       if (familyPlan) {
         result.push(familyPlan);
       }
     }
 
-    if (
-      this.organization()?.useSecretsManager &&
-      this.currentPlan()?.productTier === ProductTierType.Free
-    ) {
+    if (org?.useSecretsManager && cp?.productTier === ProductTierType.Free) {
       const familyPlanIndex = result.findIndex(
         (plan) => plan.productTier === ProductTierType.Families,
       );
@@ -281,7 +280,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    const cp = this.currentPlan();
     if (cp && cp.productTier !== ProductTierType.Free) {
       result.push(cp);
     }
@@ -380,10 +378,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     // Cart-level discount
     const discountPct = this.discountPercentageFromSub();
     if (discountPct > 0 && !this.isSecretsManagerTrial()) {
-      cart.discount = {
-        type: DiscountTypes.PercentOff,
-        value: discountPct,
-      };
+      cart.discounts = [
+        {
+          type: DiscountTypes.PercentOff,
+          value: discountPct,
+        },
+      ];
     }
 
     return cart;
@@ -581,10 +581,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         value: PlanInterval.Monthly,
       },
     ];
-  }
-
-  optimizedNgForRender(index: number) {
-    return index;
   }
 
   protected getPlanCardContainerClasses(plan: PlanResponse) {
@@ -1125,10 +1121,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     return false;
-  }
-
-  manageSelectableProduct(index: number) {
-    return index;
   }
 
   private async refreshSalesTax(): Promise<void> {
