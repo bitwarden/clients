@@ -118,6 +118,58 @@ describe("DefaultPamApiService", () => {
     });
   });
 
+  describe("listActiveLeases", () => {
+    it("GETs /leasing/leases?status=active and unwraps the list response", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "lease-1",
+            RequestId: "req-1",
+            CipherId: "cipher-1",
+            CollectionId: "col-1",
+            GranteeUserId: "user-1",
+            NotBefore: "2026-01-01T00:00:00Z",
+            NotAfter: "2026-01-01T01:00:00Z",
+            Status: "active",
+          },
+          {
+            Id: "lease-2",
+            RequestId: "req-2",
+            CipherId: "cipher-2",
+            CollectionId: "col-2",
+            GranteeUserId: "user-2",
+            NotBefore: "2026-01-01T00:00:00Z",
+            NotAfter: "2026-01-01T00:15:00Z",
+            Status: "active",
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listActiveLeases();
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/leases?status=active",
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe("lease-1");
+      expect(result[0].status).toBe("active");
+      expect(result[1].id).toBe("lease-2");
+    });
+
+    it("returns an empty array when the API returns no data", async () => {
+      apiService.send.mockResolvedValue({ Data: null });
+
+      const result = await service.listActiveLeases();
+
+      expect(result).toEqual([]);
+    });
+  });
+
   describe("setCollectionLeasingConfig", () => {
     it("PUTs /collections/{id}/leasing and wraps the response", async () => {
       apiService.send.mockResolvedValue({

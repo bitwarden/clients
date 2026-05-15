@@ -7,6 +7,7 @@ import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
 import { CollectionLeasingConfigResponse } from "./responses/collection-leasing.response";
 import { LeaseRequestResponse } from "./responses/lease-request.response";
+import { LeaseResponse } from "./responses/lease.response";
 
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
@@ -25,4 +26,5 @@ export abstract class PamApiService {
     id: string,
     request: CollectionLeasingRequest,
   ): Promise<CollectionLeasingConfigResponse>;
+  abstract listActiveLeases(): Promise<LeaseResponse[]>;
 }

@@ -1,0 +1,114 @@
+@if (!featureEnabled()) {
+  <bit-callout type="info" title="{{ 'pamUnavailableTitle' | i18n }}">
+    {{ "pamUnavailableBody" | i18n }}
+  </bit-callout>
+} @else {
+  <header class="tw-mb-4 tw-flex tw-items-center tw-justify-between">
+    <h1 bitTypography="h1" class="tw-m-0">{{ "activeLeasesTitle" | i18n }}</h1>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [bitAction]="refresh"
+      [disabled]="loading()"
+    >
+      <bit-icon name="bwi-refresh" fixedWidth></bit-icon>
+      {{ "refresh" | i18n }}
+    </button>
+  </header>
+
+  @if (loadError()) {
+    <bit-callout type="danger" title="{{ 'errorOccurred' | i18n }}">
+      {{ loadError()! | i18n }}
+    </bit-callout>
+  }
+
+  @if (loading() && displayRows().length === 0) {
+    <p bitTypography="body1">{{ "loading" | i18n }}</p>
+  } @else if (displayRows().length === 0) {
+    <bit-no-items class="tw-mt-2 tw-block">
+      <span slot="title" class="tw-mt-4 tw-block">{{ "activeLeasesEmptyTitle" | i18n }}</span>
+      <span slot="description">{{ "activeLeasesEmptyBody" | i18n }}</span>
+    </bit-no-items>
+  } @else {
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "leaseCipherColumn" | i18n }}</th>
+          <th bitCell>{{ "collection" | i18n }}</th>
+          <th bitCell>{{ "requester" | i18n }}</th>
+          <th bitCell>{{ "window" | i18n }}</th>
+          <th bitCell class="tw-w-1">{{ "leaseActionsColumn" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (row of displayRows(); track row.id) {
+          <tr bitRow>
+            <td bitCell>{{ row.cipherName }}</td>
+            <td bitCell>{{ row.collectionName }}</td>
+            <td bitCell>{{ row.requesterName }}</td>
+            <td bitCell>
+              <span [bitTooltip]="windowTooltip(row)">{{ remainingLabel(row) }}</span>
+            </td>
+            <td bitCell>
+              @if (row.justRevoked) {
+                <span
+                  class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success"
+                  data-testid="revoked-badge"
+                >
+                  <bit-icon name="bwi-check" fixedWidth></bit-icon>
+                  {{ "revoked" | i18n }}
+                </span>
+              } @else if (isConfirming(row.id)) {
+                <div class="tw-flex tw-flex-col tw-gap-2">
+                  <bit-form-field>
+                    <bit-label>{{ "revokeReasonOptional" | i18n }}</bit-label>
+                    <input
+                      bitInput
+                      type="text"
+                      [formControl]="reasonControlFor(row.id)"
+                      [attr.aria-label]="'revokeReasonOptional' | i18n"
+                    />
+                  </bit-form-field>
+                  <div class="tw-flex tw-gap-2">
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="danger"
+                      [bitAction]="confirmRevoke.bind(this, row.id)"
+                      [disabled]="isRevoking(row.id)"
+                      [attr.data-testid]="'confirm-revoke-' + row.id"
+                    >
+                      {{ "confirmRevoke" | i18n }}
+                    </button>
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      (click)="cancelConfirm(row.id)"
+                      [disabled]="isRevoking(row.id)"
+                    >
+                      {{ "cancel" | i18n }}
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="danger"
+                  size="small"
+                  (click)="startConfirm(row.id)"
+                  [bitTooltip]="'revokeLeaseTooltip' | i18n"
+                  [attr.data-testid]="'revoke-' + row.id"
+                >
+                  {{ "revoke" | i18n }}
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  }
+}
