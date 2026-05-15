@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "typeDriversLicense": {
+    "message": "Ehliyet"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Ehliyet veya kimlik"
+  },
   "typeLoginSubtitle": {
     "message": "Web sitesi veya uygulama"
   },
@@ -1166,9 +1172,9 @@
     "message": "Banka hesabını düzenle",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Ehliyeti düzenle",
-    "description": "Header for edit driver's license item type"
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Pasaportu düzenle",
@@ -1206,9 +1212,9 @@
     "message": "Banka hesabını görüntüle",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Ehliyeti görüntüle",
-    "description": "Header for view driver's license item type"
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Pasaportu görüntüle",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "Pasaport numarasını kopyala"
+  },
+  "copyFirstName": {
+    "message": "Adı kopyala"
+  },
+  "copyMiddleName": {
+    "message": "Orta adı kopyala"
+  },
+  "copyLastName": {
+    "message": "Soyadı kopyala"
   },
   "copyLicenseNumber": {
     "message": "Ruhsat numarasını kopyala"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "$ID$ kaydının ehliyet numarası görüntülendi.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "$ID$ kaydının ehliyet numarası kopyalandı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "$ID$ kaydı otomatik dolduruldu.",
     "placeholders": {
@@ -5486,6 +5519,26 @@
   "domainsEdited": {
     "message": "Domains edited"
   },
+  "inviteLink": {
+    "message": "Davet bağlantısı"
+  },
+  "lastGenerated": {
+    "message": "Son oluşturulma: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Davet bağlantısı kopyalandı"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Davet bağlantısı yeniden oluşturuldu"
+  },
+  "regenerateInviteLink": {
+    "message": "Davet bağlantısını yeniden oluştur"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Ekleri indir"
+  },
+  "troubleshooting": {
+    "message": "Sorun giderme"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Sorun mu yaşıyorsunuz? Tanılama raporunuzu indirip"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden destek ekibiyle paylaşın",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "İndir"
   },
   "sendAccessPasswordTitle": {
     "message": "Bu Send'i görüntülemek için parolasını girin",
@@ -8584,6 +8650,21 @@
   "inputRequired": {
     "message": "Girdi gerekli."
   },
+  "enterMonth": {
+    "message": "Ay girin."
+  },
+  "enterDay": {
+    "message": "Gün girin."
+  },
+  "enterYear": {
+    "message": "Yıl girin."
+  },
+  "invalidDay": {
+    "message": "Geçerli bir gün girin."
+  },
+  "invalidYear": {
+    "message": "Geçerli bir yıl girin."
+  },
   "inputEmail": {
     "message": "Girdi bir e-posta adresi değil."
   },
@@ -9381,6 +9462,9 @@
     "message": "Üye durumu filtresi"
   },
   "inviteMember": {
+    "message": "Üye davet et"
+  },
+  "inviteMembers": {
     "message": "Üye davet et"
   },
   "addSponsorship": {
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Ehliyet ara"
+  },
+  "driversLicenseDetails": {
+    "message": "Ehliyet bilgileri"
+  },
+  "dateOfBirth": {
+    "message": "Doğum tarihi"
+  },
+  "birthMonth": {
+    "message": "Doğum ayı"
+  },
+  "birthDay": {
+    "message": "Doğum günü"
+  },
+  "birthYear": {
+    "message": "Doğum yılı"
+  },
+  "issuingCountry": {
+    "message": "Veren ülke"
+  },
+  "issuingState": {
+    "message": "Veren eyalet/şehir"
+  },
+  "issueDate": {
+    "message": "Veriliş tarihi"
+  },
+  "issueMonth": {
+    "message": "Veriliş ayı"
+  },
+  "issueDay": {
+    "message": "Veriliş günü"
+  },
+  "issueYear": {
+    "message": "Veriliş yılı"
+  },
+  "expirationDay": {
+    "message": "Son kullanma tarihi"
+  },
+  "issuingAuthority": {
+    "message": "Veren makam"
+  },
+  "licenseClass": {
+    "message": "Ehliyet sınıfı"
   },
   "copy": {
     "message": "Kopyala"

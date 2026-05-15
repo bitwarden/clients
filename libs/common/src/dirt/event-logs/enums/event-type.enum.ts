@@ -40,6 +40,8 @@ export enum EventType {
   Cipher_ClientToggledBankAccountPinVisible = 1122,
   Cipher_ClientCopiedLicenseNumber = 1123,
   Cipher_ClientToggledLicenseNumberVisible = 1124,
+  Cipher_ClientCopiedPassportNumber = 1125,
+  Cipher_ClientToggledPassportNumberVisible = 1126,
 
   Collection_Created = 1300,
   Collection_Updated = 1301,
@@ -136,4 +138,11 @@ export enum EventType {
   PhishingBlocker_SiteAccessed = 2400,
   PhishingBlocker_SiteExited = 2401,
   PhishingBlocker_Bypassed = 2402,
+
+  Send_Created_Text = 2500,
+  Send_Created_Text_WithEmailVerification = 2501,
+  Send_Created_Text_WithPasswordProtection = 2502,
+  Send_Created_File = 2503,
+  Send_Created_File_WithEmailVerification = 2504,
+  Send_Created_File_WithPasswordProtection = 2505,
 }

@@ -674,7 +674,7 @@
     "message": "Номер паспорта"
   },
   "licenseNumber": {
-    "message": "ИНН"
+    "message": "Номер водительского удостоверения"
   },
   "email": {
     "message": "Email"
@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeDriversLicense": {
+    "message": "Водительское удостоверение"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Водительское удостоверение или ID"
+  },
   "typeLoginSubtitle": {
     "message": "Веб-сайт или приложение"
   },
@@ -1127,7 +1133,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Новая лицензия",
+    "message": "Новое водительское удостоверение",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -1166,9 +1172,9 @@
     "message": "Изменить банковский счет",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Изменить данные водительского удостоверения",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "Изменить водительское удостоверение",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Изменить паспорт",
@@ -1206,9 +1212,9 @@
     "message": "Просмотреть банковский счет",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Просмотреть данные водительского удостоверения",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "Просмотреть водительское удостоверение",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Просмотреть паспорт",
@@ -1317,8 +1323,17 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyFirstName": {
+    "message": "Скопировать имя"
+  },
+  "copyMiddleName": {
+    "message": "Скопировать отчество"
+  },
+  "copyLastName": {
+    "message": "Скопировать фамилию"
+  },
   "copyLicenseNumber": {
-    "message": "Скопировать номер лицензии"
+    "message": "Скопировать номер водительского удостоверения"
   },
   "copyPrivateKey": {
     "message": "Скопировать приватный ключ"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "Просмотрен номер лицензии для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Скопирован номер лицензии для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Автоматически заполнен элемент $ID$.",
     "placeholders": {
@@ -5486,6 +5519,26 @@
   "domainsEdited": {
     "message": "Домены изменены"
   },
+  "inviteLink": {
+    "message": "Пригласительная ссылка"
+  },
+  "lastGenerated": {
+    "message": "Сгенерирована: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Пригласительная ссылка скопирована"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Пригласительная ссылка сгенерирована повторно"
+  },
+  "regenerateInviteLink": {
+    "message": "Сгенерировать пригласительную ссылку повторно"
+  },
   "inviteByLinkDesc": {
     "message": "Пригласите участников в вашу организацию с помощью ссылки. Если ни одна из ролей не указана, они будут добавлены в качестве пользователей по умолчанию."
   },
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Скачать вложения"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Возникли проблемы? Скачайте отчет о диагностике и отправьте его"
+  },
+  "bitwardenSupport": {
+    "message": "поддержке Bitwarden",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Скачать"
   },
   "sendAccessPasswordTitle": {
     "message": "Введите пароль для просмотра этой Send",
@@ -8584,6 +8650,21 @@
   "inputRequired": {
     "message": "Необходимо ввести данные."
   },
+  "enterMonth": {
+    "message": "Введите месяц."
+  },
+  "enterDay": {
+    "message": "Введите день."
+  },
+  "enterYear": {
+    "message": "Введите год."
+  },
+  "invalidDay": {
+    "message": "Введите правильный день."
+  },
+  "invalidYear": {
+    "message": "Введите правильный год."
+  },
   "inputEmail": {
     "message": "Введенные данные не являются адресом email."
   },
@@ -9382,6 +9463,9 @@
   },
   "inviteMember": {
     "message": "Пригласить участника"
+  },
+  "inviteMembers": {
+    "message": "Пригласить участников"
   },
   "addSponsorship": {
     "message": "Добавить спонсорство"
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Поиск водительских удостоверений"
+  },
+  "driversLicenseDetails": {
+    "message": "Детали водительского удостоверения"
+  },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "issuingState": {
+    "message": "Республика / область выдачи"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "licenseClass": {
+    "message": "Категории водительского удостоверения"
   },
   "copy": {
     "message": "Скопировать"
