@@ -29,6 +29,7 @@ export enum FeatureFlag {
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
 
   /* Autofill */
+  PM36385FillAfterSave = "pm-36385-fill-after-save",
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
@@ -125,6 +126,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
 
   /* Autofill */
+  [FeatureFlag.PM36385FillAfterSave]: FALSE,
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,

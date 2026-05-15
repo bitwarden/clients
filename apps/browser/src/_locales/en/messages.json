@@ -385,6 +385,9 @@
   "save": {
     "message": "Save"
   },
+  "saveAndFill": {
+    "message": "Save and fill"
+  },
   "move": {
     "message": "Move"
   },
