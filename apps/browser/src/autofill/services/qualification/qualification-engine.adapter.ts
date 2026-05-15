@@ -99,6 +99,11 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
     );
   }
 
+  // One delegate per legacy predicate. When the boolean
+  // InlineMenuFieldQualificationService interface dies, this block dies with it.
+  // The hand-rolled dispatch is intentional — it makes the temporary-scaffold
+  // nature of the adapter visible. Don't generate this from a table.
+
   isUsernameField = (field: AutofillField): boolean => this.fieldHasRole(field, FieldRole.Username);
 
   isCurrentPasswordField = (field: AutofillField): boolean =>

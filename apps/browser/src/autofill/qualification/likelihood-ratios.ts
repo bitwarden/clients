@@ -15,6 +15,11 @@ export type Cue = {
   readonly weight: number;
 };
 
+// Cues stack additively per kind. Tokens that share an input string (idName
+// "username" matches both `token: "user"` weight 1.5 and `token: "username"`
+// weight 2.5) sum their weights — calibration assumes the stack, not the
+// individual entries. Adding a new token without considering what else fires
+// on the same input will shift the resulting score.
 const USERNAME_CUES: ReadonlyArray<Cue> = [
   { signal: "autocomplete", token: "username", weight: 4.0 },
   { signal: "idName", token: "username", weight: 2.5 },
