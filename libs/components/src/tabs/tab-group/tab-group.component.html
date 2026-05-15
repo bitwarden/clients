@@ -1,9 +1,9 @@
-<ng-template #tabLabelContent let-tab="tab" let-truncate="truncate">
+<ng-template #tabLabelContent let-tab="tab">
   <span [class]="tabLabelContentClasses">
     @if (tab.startIcon()) {
       <bit-icon [name]="tab.startIcon()" class="tw-text-base" />
     }
-    <span [class]="truncate ? 'tw-min-w-0 tw-truncate' : ''">
+    <span class="tw-min-w-0 tw-truncate">
       {{ tab.textLabel() }}
     </span>
     @if (tab.berryValue()) {
@@ -15,18 +15,21 @@
   </span>
 </ng-template>
 
-<bit-tab-header>
+<bit-tab-header (keydown)="keyManager()?.onKeydown($event)">
   <div
+    bitOverflowList
+    [gap]="TAB_LIST_CONTAINER_GAP"
+    #ovf="bitOverflowList"
     bitTabListContainer
     role="tablist"
     [attr.aria-label]="label()"
-    (keydown)="keyManager()?.onKeydown($event)"
-    [class.tw-invisible]="!tabListRendered()"
+    [class.tw-invisible]="!ovf.ready()"
   >
-    @for (i of sortedTabs().displayed; track i) {
-      @let tab = tabs()[i];
-      @let truncate = sortedTabs().truncateTabIndex === i;
+    @for (tab of tabs(); track tab.id; let i = $index) {
       <button
+        bitOverflowItem
+        #ovfItem="bitOverflowItem"
+        [pinned]="selectedIndex() === i"
         bitTabListItem
         type="button"
         role="tab"
@@ -35,32 +38,38 @@
         [disabled]="tab.disabled()"
         [attr.aria-selected]="selectedIndex() === i"
         [attr.tabindex]="selectedIndex() === i ? 0 : -1"
-        [class.tw-flex-1]="truncate"
-        [class.tw-overflow-hidden]="truncate"
+        [class]="ovfItem.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'"
         (click)="selectTab(i)"
       >
         <ng-container
           [ngTemplateOutlet]="tabLabelContent"
-          [ngTemplateOutletContext]="{ tab: tab, truncate: truncate }"
+          [ngTemplateOutletContext]="{ tab: tab }"
         ></ng-container>
       </button>
     }
-    <button
-      #moreButton
-      bitTabListItem
-      type="button"
-      [hidden]="sortedTabs().overflow.length === 0"
-      [attr.aria-hidden]="sortedTabs().overflow.length === 0 ? 'true' : null"
-      [bitMenuTriggerFor]="overFlowTabsMenu"
-      [attr.tabindex]="sortedTabs().overflow.length === 0 ? null : -1"
-    >
-      <span [class]="tabLabelContentClasses">
-        {{ "more" | i18n }}
-        <bit-berry [value]="sortedTabs().overflow.length"></bit-berry>
-        <bit-icon name="bwi-angle-down" class="tw-text-base" />
-      </span>
-    </button>
   </div>
+  <!--
+    The More button lives outside the bitOverflowList so the directive only manages
+    its own row. It uses tw-invisible (not [hidden]) so its layout space is always
+    reserved — that keeps the directive's measured width stable across the
+    no-overflow / overflow transition and avoids a feedback loop.
+  -->
+  <button
+    bitTabListItem
+    type="button"
+    class="tw-shrink-0"
+    [class.tw-invisible]="ovf.overflow().length === 0"
+    [attr.aria-hidden]="ovf.overflow().length === 0 ? 'true' : null"
+    tabindex="-1"
+    [bitMenuTriggerFor]="overFlowTabsMenu"
+    [style.marginInlineStart.px]="TAB_LIST_CONTAINER_GAP"
+  >
+    <span [class]="tabLabelContentClasses">
+      {{ "more" | i18n }}
+      <bit-berry [value]="ovf.overflow().length"></bit-berry>
+      <bit-icon name="bwi-angle-down" class="tw-text-base" />
+    </span>
+  </button>
 </bit-tab-header>
 <div class="tw-pt-5">
   @for (tab of tabs(); track tab.id; let i = $index) {
@@ -78,7 +87,7 @@
 </div>
 
 <bit-menu #overFlowTabsMenu>
-  @for (i of sortedTabs().overflow; track i) {
+  @for (i of ovf.overflow(); track i) {
     @let tab = tabs()[i];
     <button bitMenuItem type="button" [disabled]="tab.disabled()" (click)="selectTab(i)">
       @if (tab.startIcon()) {
