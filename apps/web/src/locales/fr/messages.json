@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "Clé SSH"
   },
+  "typeDriversLicense": {
+    "message": "Permis de conduire"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Permis de conduire ou ID"
+  },
   "typeLoginSubtitle": {
     "message": "Site Web ou application"
   },
@@ -1166,9 +1172,9 @@
     "message": "Modifier le compte de banque",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Modifier le permis de conduire",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "Modifier le permis",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Modifier le passeport",
@@ -1206,9 +1212,9 @@
     "message": "Afficher le compte de banque",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Afficher le permis de conduire",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "Afficher le permis",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Afficher le passeport",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "Copier le numéro de passeport"
+  },
+  "copyFirstName": {
+    "message": "Copier le prénom"
+  },
+  "copyMiddleName": {
+    "message": "Copier le deuxième prénom"
+  },
+  "copyLastName": {
+    "message": "Copier le nom de famille"
   },
   "copyLicenseNumber": {
     "message": "Copier le numéro de permis de conduire"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "Numéro de permis affiché pour l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Numéro de permis copié pour l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Élément $ID$ saisi automatiquement.",
     "placeholders": {
@@ -5486,6 +5519,26 @@
   "domainsEdited": {
     "message": "Domaines modifiés"
   },
+  "inviteLink": {
+    "message": "Lien d'invitation"
+  },
+  "lastGenerated": {
+    "message": "Dernière génération : $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Le lien de l'invitation a été copié."
+  },
+  "inviteLinkRegenerated": {
+    "message": "Lien d'invitation régénéré"
+  },
+  "regenerateInviteLink": {
+    "message": "Regénérer le lien d'invitation"
+  },
   "inviteByLinkDesc": {
     "message": "Invitez des membres à rejoindre votre organisation avec un lien. Si aucun rôle n'a encore été spécifié, ils seront ajoutés en tant qu'utilisateur par défaut."
   },
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Télécharger les pièces jointes"
+  },
+  "troubleshooting": {
+    "message": "Dépannage"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Vous rencontrez un problème ? Téléchargez puis partagez le rapport de diagnostic avec"
+  },
+  "bitwardenSupport": {
+    "message": "Support Bitwarden",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Télécharger"
   },
   "sendAccessPasswordTitle": {
     "message": "Entrez le mot de passe pour afficher ce Send",
@@ -8584,6 +8650,21 @@
   "inputRequired": {
     "message": "Entrée requise."
   },
+  "enterMonth": {
+    "message": "Entrez le mois."
+  },
+  "enterDay": {
+    "message": "Entrez le jour."
+  },
+  "enterYear": {
+    "message": "Entrez l'année."
+  },
+  "invalidDay": {
+    "message": "Entrez un jour valide."
+  },
+  "invalidYear": {
+    "message": "Entrez une année valide."
+  },
   "inputEmail": {
     "message": "L'entrée n'est pas une adresse électronique."
   },
@@ -9382,6 +9463,9 @@
   },
   "inviteMember": {
     "message": "Inviter un membre"
+  },
+  "inviteMembers": {
+    "message": "Inviter des membres"
   },
   "addSponsorship": {
     "message": "Ajouter un parrainage"
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "Barre de progrès",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Rechercher des permis"
+  },
+  "driversLicenseDetails": {
+    "message": "Détails du permis"
+  },
+  "dateOfBirth": {
+    "message": "Date de naissance"
+  },
+  "birthMonth": {
+    "message": "Mois de naissance"
+  },
+  "birthDay": {
+    "message": "Jour de naissance"
+  },
+  "birthYear": {
+    "message": "Année de naissance"
+  },
+  "issuingCountry": {
+    "message": "Pays émetteur"
+  },
+  "issuingState": {
+    "message": "État / province éméteur"
+  },
+  "issueDate": {
+    "message": "Date d'émission"
+  },
+  "issueMonth": {
+    "message": "Mois d'émission"
+  },
+  "issueDay": {
+    "message": "Jour d'émission"
+  },
+  "issueYear": {
+    "message": "Année d'émission"
+  },
+  "expirationDay": {
+    "message": "Jours d'expiration"
+  },
+  "issuingAuthority": {
+    "message": "Autorité émettrice"
+  },
+  "licenseClass": {
+    "message": "Classe de permis"
   },
   "copy": {
     "message": "Copier"

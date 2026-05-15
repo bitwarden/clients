@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeDriversLicense": {
+    "message": "Carta de condução"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Carta de condução ou CC"
+  },
   "typeLoginSubtitle": {
     "message": "Site ou app"
   },
@@ -1166,9 +1172,9 @@
     "message": "Editar conta bancária",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Editar carta de condução",
-    "description": "Header for edit driver's license item type"
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Editar passaporte",
@@ -1206,9 +1212,9 @@
     "message": "Ver conta bancária",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Ver carta de condução",
-    "description": "Header for view driver's license item type"
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Ver passaporte",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "Copiar número do passaporte"
+  },
+  "copyFirstName": {
+    "message": "Copiar nome próprio"
+  },
+  "copyMiddleName": {
+    "message": "Copiar nome do meio"
+  },
+  "copyLastName": {
+    "message": "Copiar apelido"
   },
   "copyLicenseNumber": {
     "message": "Copiar número da carta de condução"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "Visualizou o número da carta de condução do item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Copiou o número da carta de condução do item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Item $ID$ preenchido automaticamente.",
     "placeholders": {
@@ -5486,6 +5519,26 @@
   "domainsEdited": {
     "message": "Domínios editados"
   },
+  "inviteLink": {
+    "message": "Link de convite"
+  },
+  "lastGenerated": {
+    "message": "Gerado pela última vez a $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Link de convite copiado"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Link de convite regenerado"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerar link de convite"
+  },
   "inviteByLinkDesc": {
     "message": "Convide membros para a sua organização com um link. Se ainda não tiver sido especificado nenhum papel, serão adicionados como utilizadores predefinidos."
   },
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Transferir anexos"
+  },
+  "troubleshooting": {
+    "message": "Resolução de problemas"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Está a ter algum problema? Transfira e partilhe o relatório de diagnóstico com o"
+  },
+  "bitwardenSupport": {
+    "message": "suporte do Bitwarden⁠",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Transferir"
   },
   "sendAccessPasswordTitle": {
     "message": "Introduza a palavra-passe para ver este Send",
@@ -8584,6 +8650,21 @@
   "inputRequired": {
     "message": "Campo obrigatório."
   },
+  "enterMonth": {
+    "message": "Introduza o mês."
+  },
+  "enterDay": {
+    "message": "Introduza o dia."
+  },
+  "enterYear": {
+    "message": "Introduza o ano."
+  },
+  "invalidDay": {
+    "message": "Introduza um dia válido."
+  },
+  "invalidYear": {
+    "message": "Introduza um ano válido."
+  },
   "inputEmail": {
     "message": "O campo não é um endereço de e-mail."
   },
@@ -9382,6 +9463,9 @@
   },
   "inviteMember": {
     "message": "Convidar membro"
+  },
+  "inviteMembers": {
+    "message": "Convidar membros"
   },
   "addSponsorship": {
     "message": "Adicionar patrocínio"
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Pesquisar cartas de condução"
+  },
+  "driversLicenseDetails": {
+    "message": "Detalhes da carta de condução"
+  },
+  "dateOfBirth": {
+    "message": "Data de nascimento"
+  },
+  "birthMonth": {
+    "message": "Mês de nascimento"
+  },
+  "birthDay": {
+    "message": "Dia de nascimento"
+  },
+  "birthYear": {
+    "message": "Ano de nascimento"
+  },
+  "issuingCountry": {
+    "message": "País de emissão"
+  },
+  "issuingState": {
+    "message": "Estado / província de emissão"
+  },
+  "issueDate": {
+    "message": "Data de emissão"
+  },
+  "issueMonth": {
+    "message": "Mês de emissão"
+  },
+  "issueDay": {
+    "message": "Dia de emissão"
+  },
+  "issueYear": {
+    "message": "Ano de emissão"
+  },
+  "expirationDay": {
+    "message": "Dia de validade"
+  },
+  "issuingAuthority": {
+    "message": "Autoridade emissora"
+  },
+  "licenseClass": {
+    "message": "Categoria da carta de condução"
   },
   "copy": {
     "message": "Copiar"
