@@ -64,7 +64,7 @@ pub(in crate::api) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(in crate::api) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+pub(in crate::api) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST<'a> {
     /// Version of this structure, to allow for modifications in the future.
     pub(in crate::api) dwVersion: u32,
     /// RP ID (after UTF-8 to Unicode conversion)
@@ -85,7 +85,7 @@ pub(in crate::api) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     /// CBOR extensions map data
     pub(in crate::api) pbCborExtensionsMap: *const u8,
     /// Authenticator Options (Optional)
-    pub(in crate::api) pAuthenticatorOptions: *const WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
+    pub(in crate::api) pAuthenticatorOptions: Option<&'a WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS>,
 
     // Pin Auth (Optional)
     /// Zero length PinAuth is included in the request

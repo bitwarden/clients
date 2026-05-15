@@ -81,6 +81,8 @@
                 bitPasswordInputToggle
                 (toggledChange)="toggleHiddenField($event, i)"
               ></button>
+            }
+            @if (canViewPassword) {
               <button
                 bitIconButton="bwi-clone"
                 bitSuffix

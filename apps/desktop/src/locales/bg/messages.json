@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeBankAccount": {
+    "message": "Банкова сметка"
+  },
   "typeLoginSubtitle": {
     "message": "Уеб сайт или приложение"
   },
@@ -50,11 +53,20 @@
   "typeSshKeySubtitle": {
     "message": "Идентификатор за вписване в сървъра"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Банкови данни"
+  },
   "folderSubtitle": {
     "message": "Организирайте данните си"
   },
   "collectionSubtitle": {
     "message": "Организирайте споделените данни"
+  },
+  "typeDriversLicense": {
+    "message": "Шофьорска книжка"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Шофьорска книжка"
   },
   "chooseItemToAdd": {
     "message": "Изберете елемент за добавяне"
@@ -134,6 +146,22 @@
     "message": "Преглед на SSH ключа",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Преглед на банковата сметка",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Преглед на лиценза",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Преглед на лиценза",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Преглед на паспорта",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Нов елемент за вписване",
     "description": "Header for new login item type"
@@ -154,6 +182,18 @@
     "message": "Нов SSH ключ",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Нова банкова сметка",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Нов лиценз",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Нов паспорт",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Редактиране на елемента за вписване",
     "description": "Header for edit login item type"
@@ -173,6 +213,18 @@
   "editItemHeaderSshKey": {
     "message": "Редактиране на SSH ключа",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Редактиране на банковата сметка",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Редактиране на лиценза",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Редактиране на паспорта",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Наименование"
@@ -230,20 +282,20 @@
   "sendTypeTextToShare": {
     "message": "Текст за споделяне"
   },
-  "newItemHeaderTextSend": {
-    "message": "Ново текстово Изпращане",
+  "newItemHeaderTextSendV2": {
+    "message": "Нов текст",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Ново файлово Изпращане",
+  "newItemHeaderFileSendV2": {
+    "message": "Нов файл",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Редактиране на текстовото Изпращане",
+  "editItemHeaderTextSendV2": {
+    "message": "Редактиране на текста",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Редактиране на файловото Изпращане",
+  "editItemHeaderFileSendV2": {
+    "message": "Редактиране на файла",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -706,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "Изтриване на прикачения файл"
+  },
+  "deleteAttachmentName": {
+    "message": "Изтриване на прикачения файл $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Сваляне на $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете елемента?"
@@ -1589,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "Постоянно показване на иконка в областта за уведомяване."
   },
-  "startToTray": {
-    "message": "Пускане с иконка в областта за уведомяване"
-  },
-  "startToTrayDesc": {
-    "message": "При пускането на програмата да се показва само иконка в областта за уведомяване."
-  },
-  "startToMenuBar": {
-    "message": "Стартиране в лентата за меню"
-  },
-  "startToMenuBarDesc": {
-    "message": "При пускането на програмата да се показва само иконка в лентата за меню."
-  },
   "openAtLogin": {
     "message": "Автоматично стартиране със системата"
   },
@@ -1706,6 +1764,10 @@
   "copyNumber": {
     "message": "Копиране на но̀мера",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Копиране на името",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "Копиране на е-пощата"
@@ -1962,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "Стандартно откриване на съвпадения",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показване на откриването на съвпадения"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скриване на откриването на съвпадения"
   },
   "toggleOptions": {
     "message": "Настройки на превключване"
@@ -2474,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за Линукс."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Потвърждаване на интеграцията с браузър"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Допълнително ниво на сигурност, чрез изискване на потвърждаване на биометричните данни при създаване на връзка между самостоятелното приложение и браузъра. При включваното му потребителят трябва да потвърждава всяко установяване на връзка."
-  },
   "enableHardwareAcceleration": {
     "message": "Използване на хардуерно ускорение"
   },
@@ -2488,12 +2550,6 @@
   },
   "approve": {
     "message": "Одобряване"
-  },
-  "verifyBrowserTitle": {
-    "message": "Проверка на връзката с браузъра"
-  },
-  "verifyBrowserDesc": {
-    "message": "Уверете се, че идентификаторът в разширението съвпада с показания."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ иска де се свърже с Битуорден",
@@ -2726,7 +2782,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Изчакване на действие с ключ за сигурност…"
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Скриване на е-пощата ми от получателите."
   },
   "sendOptionsPolicyInEffect": {
@@ -2971,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Изнасяне на личния трезор"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Ще бъдат изнесени само отделните записи в трезора, които са свързани с $EMAIL$. Записите от трезора на организацията няма да бъдат включени. Ще бъде изнесена само информацията за записите от трезора, а свързаните прикачени елементи няма да бъдат включени.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Ще бъдат изнесени само записите и прикачените файлове от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Изнасяне на трезора на организацията"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Записите в отделните лични трезори и тези в други организации няма да бъдат включени.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Само записите от личния трезор ще бъдат изнесени."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Само записите свързани с трезора на $ORGANIZATION$ ще бъдат изнесени. Тези в личните трезори – не.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3922,6 +3963,9 @@
   "chooseFile": {
     "message": "Изберете файл"
   },
+  "chooseFileSentenceCase": {
+    "message": "Изберете файл"
+  },
   "noFileChosen": {
     "message": "Не е избран файл"
   },
@@ -3952,6 +3996,18 @@
   },
   "exportError": {
     "message": "Възникна грешка при изнасянето на данните от трезора"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 повреден прикачен файл беше пропуснат при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ повредени прикачени файла бяха пропуснати при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Многостъпковото удостоверяване е отменено"
@@ -4065,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Отстраняване на проблеми"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Сваляне на доклада от диагностиката"
+  },
+  "experiencingAnIssue": {
+    "message": "Имате проблем?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Свалете и после споделете доклада от диагностиката чрез"
+  },
+  "bitwardenSupport": {
+    "message": "поддръжката на Битуорден",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Сваляне"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Изключете хардуерното ускорение и рестартирайте"
@@ -4748,6 +4820,9 @@
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
   },
+  "browserAccessDenied": {
+    "message": "Избрана е неправилна папка за браузъра, или достъпът е отказан"
+  },
   "resizeSideNavigation": {
     "message": "Преоразмеряване на страничната навигация"
   },
@@ -4791,6 +4866,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ не е инсталиран. Моля, инсталирайте $BROWSER$ преди да внасяте паролите от него.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Изберете папката за данни на $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Очаквано местоположение:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Предоставяне на достъп"
   },
   "upgrade": {
     "message": "Надграждане"
@@ -4919,8 +5018,126 @@
   "emailPlaceholderMultiple": {
     "message": "потребител@bitwarden.com, потребител@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Преместване на $LABEL$. Използвайте стрелките, за да преместите елемента нагоре или надолу.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "enterMonth": {
+    "message": "Въведете месец."
+  },
+  "enterDay": {
+    "message": "Въведете ден."
+  },
+  "enterYear": {
+    "message": "Въведете година."
+  },
+  "invalidDay": {
+    "message": "Въведете правилен ден."
+  },
+  "invalidYear": {
+    "message": "Въведете правилна година."
+  },
+  "searchDriversLicense": {
+    "message": "Търсене на лицензи"
+  },
+  "bankAccount": {
+    "message": "Банкова сметка"
+  },
+  "bankName": {
+    "message": "Име на банката"
+  },
+  "nameOnAccount": {
+    "message": "Име на титуляра"
+  },
+  "bankAccountType": {
+    "message": "Вид на сметката"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Фирмена"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Лична"
+  },
+  "accountNumber": {
+    "message": "Номер на сметката"
+  },
+  "bankRoutingNumber": {
+    "message": "Банков идентификационен номер за САЩ",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Номер на клон/институция"
+  },
+  "swiftCode": {
+    "message": "Код SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Телефон за връзка с банката"
+  },
+  "searchBankAccount": {
+    "message": "Търсене на банкова сметка"
+  },
+  "copyAccountNumber": {
+    "message": "Копиране на номера на сметката"
+  },
+  "copyRoutingNumber": {
+    "message": "Копиране на банковия идентификационен номер за САЩ"
+  },
+  "copyPin": {
+    "message": "Копиране на ПИН"
+  },
+  "copyIban": {
+    "message": "Копиране на IBAN"
+  },
+  "copyFirstName": {
+    "message": "Копиране на първото име"
+  },
+  "copyMiddleName": {
+    "message": "Копиране на средното име"
+  },
+  "copyLastName": {
+    "message": "Копиране на последното име"
+  },
+  "copyLicenseNumber": {
+    "message": "Копиране на номера на свидетелството"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Разплащателна"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Спестовна"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Депозит"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Кредитна"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Инвестиционна/брокерска"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Паричен пазар"
+  },
+  "bankAccountTypeOther": {
+    "message": "Друга"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Съхранявайте сигурно банковите си данни"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Запазете данните за банковата си сметка, за да можете да ги преглеждате лесно и сигурно на различните си устройства."
   },
   "discardEdits": {
     "message": "Отхвърляне на промените"
@@ -4939,6 +5156,25 @@
     "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "Преглед на текста"
+  },
+  "viewFileSendHeader": {
+    "message": "Преглед на файла"
+  },
+  "sendCreated": {
+    "message": "Изпращането е създадено",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Въведеното трябва да е число"
+  },
+  "integerInputError": {
+    "message": "Въведеното трябва да е цяло число"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
+  },
   "sideNavigation": {
     "message": "Странична навигация"
   },
@@ -4952,5 +5188,47 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Подробности за лиценза"
+  },
+  "dateOfBirth": {
+    "message": "Дата на раждане"
+  },
+  "birthMonth": {
+    "message": "Месец на раждане"
+  },
+  "birthDay": {
+    "message": "Ден на раждане"
+  },
+  "birthYear": {
+    "message": "Година на раждане"
+  },
+  "issuingCountry": {
+    "message": "Страна издател"
+  },
+  "issuingState": {
+    "message": "Щат/провинция издател"
+  },
+  "issueDate": {
+    "message": "Дата на издаване"
+  },
+  "issueMonth": {
+    "message": "Месец на издаване"
+  },
+  "issueDay": {
+    "message": "Ден на издаване"
+  },
+  "issueYear": {
+    "message": "Година на издаване"
+  },
+  "expirationDay": {
+    "message": "Ден на изтичане"
+  },
+  "issuingAuthority": {
+    "message": "Институция издател"
+  },
+  "licenseClass": {
+    "message": "Клас на лиценза"
   }
 }

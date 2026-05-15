@@ -76,6 +76,16 @@ export class VaultItemCopyActionsComponent {
     return this.findSingleCopyableItem(this.cipher(), identityItems);
   }
 
+  get singleCopyableDriversLicense() {
+    const driversLicenseItems: CipherItem[] = [
+      { key: "firstName", field: "firstName" },
+      { key: "middleName", field: "middleName" },
+      { key: "lastName", field: "lastName" },
+      { key: "licenseNumber", field: "licenseNumber" },
+    ];
+    return this.findSingleCopyableItem(this.cipher(), driversLicenseItems);
+  }
+
   /*
    * Given a list of CipherItems, if there is only one item with a value,
    * return it with the translated key. Otherwise return null.
@@ -108,6 +118,10 @@ export class VaultItemCopyActionsComponent {
 
   get hasSshKeyValues() {
     return this.getNumberOfSshKeyValues(this.cipher()) > 0;
+  }
+
+  get hasDriversLicenseValues() {
+    return this.getNumberOfDriversLicenseValues(this.cipher()) > 0;
   }
 
   /** Sets the number of populated login values for the cipher */
@@ -167,5 +181,22 @@ export class VaultItemCopyActionsComponent {
     return [cipher.sshKey.privateKey, cipher.sshKey.publicKey, cipher.sshKey.keyFingerprint].filter(
       Boolean,
     ).length;
+  }
+
+  /** Sets the number of populated drivers license values for the cipher */
+  private getNumberOfDriversLicenseValues(cipher: CipherViewLike) {
+    if (CipherViewLikeUtils.isCipherListView(cipher)) {
+      const copyableDriversLicenseFields: CopyableCipherFields[] = ["DriversLicenseLicenseNumber"];
+
+      return cipher.copyableFields.filter((field) => copyableDriversLicenseFields.includes(field))
+        .length;
+    }
+
+    return [
+      cipher.driversLicense?.firstName,
+      cipher.driversLicense?.middleName,
+      cipher.driversLicense?.lastName,
+      cipher.driversLicense?.licenseNumber,
+    ].filter(Boolean).length;
   }
 }

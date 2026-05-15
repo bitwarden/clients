@@ -78,13 +78,18 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
-      switchMap((result) => {
-        if (!result) {
+    return forkJoin({
+      reportResult: this.reportPersistenceService.loadLastReport$(orgId),
+      ciphers: this.loadCiphersOnly$(orgId),
+    }).pipe(
+      switchMap(({ reportResult, ciphers }) => {
+        this._ciphers.next(ciphers);
+
+        if (!reportResult) {
           return of(null);
         }
 
-        const { report, hadLegacyBlobs } = result;
+        const { report, hadLegacyBlobs } = reportResult;
 
         if (hadLegacyBlobs) {
           this.logService.info(
@@ -167,7 +172,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
 
         // Generate report
         return this.reportGenerationService
-          .generateReport(
+          .generateReport$(
             orgData.ciphers,
             members,
             collectionAccess,
@@ -227,7 +232,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
+    return this.reportPersistenceService.loadLastReport$(orgId).pipe(
       tap((result) => {
         this._report.next(result?.report ?? null);
         this._loading.next(false);
@@ -429,6 +434,14 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     );
   }
 
+  private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
+    return from(this.cipherService.getAllFromApiForOrganization(orgId)).pipe(
+      catchError((err: unknown) => {
+        this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
+        return of([] as CipherView[]);
+      }),
+    );
+  }
   /**
    * Load organization data in parallel (ciphers and users with collections/groups)
    */
