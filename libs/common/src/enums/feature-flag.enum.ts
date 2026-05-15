@@ -58,7 +58,6 @@ export enum FeatureFlag {
   UnlockViaSDK = "unlock-via-sdk",
 
   /* Tools */
-  UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
   SendEventLogging = "pm-36560-send-event-logging",
@@ -136,7 +135,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Tools */
-  [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,
