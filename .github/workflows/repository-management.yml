@@ -410,7 +410,7 @@ jobs:
           BRANCH_NAME="version-bump-${TIMESTAMP}"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Create branch and commit version bumps
+      - name: Create branch and commit version bump
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         env:
           BRANCH_NAME: ${{ steps.create-branch-name.outputs.branch_name }}
@@ -428,6 +428,7 @@ jobs:
           gh pr create \
             --title "Bump client version(s)" \
             --body "Automated version bump created by repository-management workflow" \
+            --label "version update" \
             --base main \
             --head "$BRANCH_NAME"
 

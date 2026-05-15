@@ -27,6 +27,11 @@ export class NewItemNudgeComponent {
         return of(false);
       }
       const nudgeType = this.mapToNudgeType(cipherType);
+
+      if (!nudgeType) {
+        return of(false);
+      }
+
       return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
     }),
   );
@@ -44,7 +49,7 @@ export class NewItemNudgeComponent {
     private nudgesService: NudgesService,
   ) {}
 
-  mapToNudgeType(cipherType: CipherType | null): NudgeType {
+  mapToNudgeType(cipherType: CipherType | null): NudgeType | null {
     this.nudgeBodyBold = "";
     this.nudgeBodySuffix = "";
     this.nudgeBodyLinkText = "";
@@ -84,14 +89,8 @@ export class NewItemNudgeComponent {
         this.nudgeBodyLinkUrl = "https://bitwarden.com/help/ssh-agent";
         return NudgeType.NewSshItemStatus;
       }
-      case CipherType.BankAccount:
-        this.dismissalNudgeType = NudgeType.NewBankAccountItemStatus;
-        this.nudgeTitle = this.i18nService.t("newBankAccountNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
-        return NudgeType.NewBankAccountItemStatus;
-
       default:
-        throw new Error("Unsupported cipher type");
+        return null;
     }
   }
 
