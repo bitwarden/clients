@@ -70,6 +70,11 @@ const RECOVERY_AMBIENT_TOKENS: ReadonlyArray<string> = [
   "recoveraccount",
 ];
 
+// `payment-card` and `identity` overlap on checkout-style page hints by design.
+// A checkout flow is genuinely both a payment-card archetype (card number, expiry,
+// CVV) and an identity archetype (shipping name + address), and the engine should
+// match both via `matchedCategories` rather than forcing the page to pick a winner.
+// Tokens that read like "both" — "billing*", "checkout" — appear here intentionally.
 const PAYMENT_CARD_AMBIENT_TOKENS: ReadonlyArray<string> = [
   "checkout",
   "creditcard",

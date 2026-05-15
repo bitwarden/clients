@@ -45,6 +45,12 @@ export const SCORING_ENGINE_COVERED_CATEGORIES: ReadonlySet<FormCategory> = Obje
   new Set(Object.values(formKindToCategory).filter((c): c is FormCategory => c !== null)),
 );
 
+// These thresholds are calibrated against `UNKNOWN_BASELINE_LOGIT = 1.0`
+// (see `likelihood-ratios.ts`). After softmax, an "unknown" cell of mass ~0.27
+// is the baseline; positive labels need to overcome that. If you move the
+// baseline, move these together — a higher baseline raises the bar for every
+// "is this a real classification?" check, and silently downgrades every
+// confidence band. Don't tune one constant in isolation.
 const NONE_FLOOR = 0.15;
 const CERTAIN_FLOOR = 1.0;
 const HIGH_FLOOR = 0.55;

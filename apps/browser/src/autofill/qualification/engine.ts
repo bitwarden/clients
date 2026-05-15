@@ -73,6 +73,10 @@ function classifyForm(cluster: FormClusterUnit): ClassifiedFormCluster {
     reasons.push(...scoreResult.reasons);
     let adjusted: number;
     if (scoreResult.score === 0) {
+      // Vetoed archetypes stay vetoed. A forbidden matcher firing collapses
+      // the structural score to zero, and ambient evidence ("subscribe",
+      // "checkout") must not revive it — a form with a password field is
+      // not a newsletter signup no matter what the page title says.
       adjusted = 0;
     } else {
       const ambient = archetype.ambientPrior(cluster.ambient);
