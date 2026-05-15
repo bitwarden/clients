@@ -36,6 +36,7 @@ export enum FeatureFlag {
   SSHAgentV2 = "ssh-agent-v2",
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  AutofillQualificationEngine = "autofill-qualification-engine",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -132,6 +133,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
+  [FeatureFlag.AutofillQualificationEngine]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Tools */
