@@ -26,3 +26,7 @@ export {
   deriveGatedState,
 } from "./helpers/derive-gated-state";
 export { LeaseRequestForApproval, UserForApproval, canApprove } from "./helpers/can-approve";
+
+export { LeaseEvent, LeaseEventKind } from "./abstractions/lease-event";
+export { LeaseEventService } from "./abstractions/lease-event.service";
+export { DefaultLeaseEventService } from "./services/default-lease-event.service";
