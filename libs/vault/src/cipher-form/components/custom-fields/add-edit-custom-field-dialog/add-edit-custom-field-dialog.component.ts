@@ -77,6 +77,7 @@ export class AddEditCustomFieldDialogComponent {
         CipherType.SecureNote,
         CipherType.SshKey,
         CipherType.DriversLicense,
+        CipherType.Passport,
       ];
       if (omitLinkedFieldTypeForCiphers.includes(this.data.cipherType)) {
         return option.value !== FieldType.Linked;

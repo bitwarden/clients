@@ -673,6 +673,27 @@
   "passportNumber": {
     "message": "Passport number"
   },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
   "licenseNumber": {
     "message": "License number"
   },
@@ -1021,6 +1042,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
@@ -1308,6 +1341,9 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "Copy phone"
   },
@@ -1322,6 +1358,12 @@
   },
   "copyPassportNumber": {
     "message": "Copy passport number"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
   },
   "copyFirstName": {
     "message": "Copy first name"
@@ -1343,6 +1385,12 @@
   },
   "copyFingerprint": {
     "message": "Copy fingerprint"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Copy name"
@@ -4438,7 +4486,25 @@
       }
     }
   },
-   "viewedLicenseNumberItemId": {
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
       "id": {
@@ -5556,7 +5622,7 @@
   "inviteLinkCopied": {
     "message": "Invite link copied"
   },
-"inviteLinkRegenerated": {
+  "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
   "regenerateInviteLink": {
@@ -13687,6 +13753,9 @@
   },
   "searchBankAccount": {
     "message": "Search bank account"
+  },
+  "searchPassport": {
+    "message": "Search passports"
   },
   "copyAccountNumber": {
     "message": "Copy account number"
