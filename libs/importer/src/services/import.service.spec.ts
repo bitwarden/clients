@@ -281,6 +281,47 @@ describe("ImportService", () => {
       expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
       expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
+
+    it("If importTarget is of type DefaultUserCollection throw an error if trying to import cipher with multiple collections", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.collectionRelationships.push([0, 0], [0, 1]);
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      const setImportTargetMethod = importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      await expect(setImportTargetMethod).rejects.toThrow();
+    });
+
+    it("If importTarget is of type DefaultUserCollection create any collections as folders", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(
+        createCipher({ name: "cipher1", collectionIds: [mockCollection1.id] }),
+      );
+      importResult.ciphers.push(
+        createCipher({ name: "cipher2", collectionIds: [mockCollection2.id] }),
+      );
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+
+      expect(importResult.collections.length).toEqual(1);
+      expect(importResult.collectionRelationships.length).toEqual(2);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+      expect(importResult.folders.length).toEqual(2);
+      expect(importResult.folders[0].name).toEqual(mockCollection1.name);
+      expect(importResult.folders[1].name).toEqual(mockCollection2.name);
+    });
   });
 
   describe("handleIndividualImport", () => {
