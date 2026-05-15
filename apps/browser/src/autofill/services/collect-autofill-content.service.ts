@@ -247,6 +247,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       title: document.title,
       url: (document.defaultView || globalThis).location.href,
       documentUrl: document.location.href,
+      htmlLang: document.documentElement.lang || null,
       forms: autofillFormsData,
       fields: autofillFieldsData,
       collectedTimestamp: Date.now(),
@@ -385,10 +386,35 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
         htmlAncestorHeadings: this.getAncestorHeadings(formElement),
+        submitButtonText: this.getFormSubmitButtonText(formElement),
       } as AutofillForm);
     }
 
     return this.getFormattedAutofillFormsData();
+  }
+
+  /**
+   * Text from the form's submit-style buttons: `button[type=submit]`, `input[type=submit]`,
+   * and untyped `button` elements (which default to submit). Returns trimmed, non-empty
+   * label strings in DOM order.
+   */
+  private getFormSubmitButtonText(formElement: HTMLFormElement): string[] {
+    const buttons = formElement.querySelectorAll(
+      'button[type="submit"], input[type="submit"], button:not([type])',
+    );
+    const out: string[] = [];
+    for (const btn of Array.from(buttons)) {
+      let text = "";
+      if (btn instanceof HTMLInputElement) {
+        text = (btn.value ?? "").trim();
+      } else {
+        text = (btn.textContent ?? "").trim();
+      }
+      if (text.length > 0) {
+        out.push(text);
+      }
+    }
+    return out;
   }
 
   /**
@@ -587,6 +613,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       title: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TITLE),
       tagName: this.getAttributeLowerCase(element, "tagName"),
       dataSetValues: this.getDataSetValues(element),
+      pattern: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.PATTERN) || null,
+      inputMode: this.getAttributeLowerCase(element, AUTOFILL_ATTRIBUTES.INPUTMODE) ?? null,
+      required: this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.REQUIRED),
     };
 
     if (!autofillFieldBase.viewable) {

@@ -1,7 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillPageDetails from "../../../models/autofill-page-details";
-import { PageQualification, QualificationEngine } from "../abstractions/qualification-engine";
+import {
+  PageQualification,
+  QualificationEngine,
+} from "../../../qualification/abstractions/qualification-engine";
 
 import { MemoizingQualificationEngine } from "./memoizing.engine";
 

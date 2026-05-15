@@ -3,7 +3,6 @@
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { firstValueFrom, merge, of, Subject } from "rxjs";
 
-
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
@@ -243,10 +242,42 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
 >("DISK_BACKUP_LOCAL_STORAGE");
 
-// Resolved by an APP_INITIALIZER below before the InlineMenuFieldQualificationService
-// provider is first injected. Angular factory providers cannot be async, so the
-// flag is awaited during bootstrap and stashed here for the sync factory to read.
-let autofillQualificationEngineEnabled = false;
+/**
+ * Holds the resolved `AutofillQualificationEngine` feature-flag value for the
+ * popup's `InlineMenuFieldQualificationService` factory. Angular factory
+ * providers can't be async, so the flag is awaited during bootstrap by an
+ * APP_INITIALIZER and stored here for the sync factory to read.
+ *
+ * The `enabled` getter throws when accessed before the initializer has run.
+ * That converts what used to be a silent regression — provider runs before
+ * initializer, factory reads `false`, popup gets the legacy service for the
+ * rest of its lifetime — into a loud bootstrap failure that points at the
+ * ordering bug.
+ */
+class AutofillQualificationEngineFlagHolder {
+  private resolved = false;
+  private value = false;
+
+  set(enabled: boolean): void {
+    this.resolved = true;
+    this.value = enabled;
+  }
+
+  get enabled(): boolean {
+    if (!this.resolved) {
+      throw new Error(
+        "AutofillQualificationEngine feature flag read before its APP_INITIALIZER " +
+          "resolved. The InlineMenuFieldQualificationService provider ran before " +
+          "the initializer that sets the flag — check provider ordering in " +
+          "services.module.ts (the initializer must be in the provider array " +
+          "ahead of any consumer that injects InlineMenuFieldQualificationService).",
+      );
+    }
+    return this.value;
+  }
+}
+
+const autofillQualificationEngineFlag = new AutofillQualificationEngineFlagHolder();
 
 /**
  * Provider definitions used in the ngModule.
@@ -261,8 +292,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
     useFactory: (configService: ConfigService) => async () => {
-      autofillQualificationEngineEnabled = await firstValueFrom(
-        configService.getFeatureFlag$(FeatureFlag.AutofillQualificationEngine),
+      autofillQualificationEngineFlag.set(
+        await firstValueFrom(
+          configService.getFeatureFlag$(FeatureFlag.AutofillQualificationEngine),
+        ),
       );
     },
     deps: [ConfigService],
@@ -270,7 +303,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InlineMenuFieldQualificationService,
-    useFactory: () => createInlineMenuFieldQualificationService(autofillQualificationEngineEnabled),
+    useFactory: () =>
+      createInlineMenuFieldQualificationService(autofillQualificationEngineFlag.enabled),
     deps: [],
   }),
   safeProvider({
