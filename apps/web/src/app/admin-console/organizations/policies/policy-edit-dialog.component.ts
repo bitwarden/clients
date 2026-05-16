@@ -211,7 +211,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     combineLatest([
       component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
       component.data?.valueChanges.pipe(startWith(policyResponse.data)) ?? of({}),
-      component.data?.statusChanges.pipe(startWith(policyResponse.data)) ?? of("VALID"),
+      component.data?.statusChanges.pipe(startWith("VALID")) ?? of("VALID"),
     ])
       .pipe(
         map(([enabledFormValue, _dataFormValue, dataFormStatus]) => {

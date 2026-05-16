@@ -40,11 +40,6 @@ export interface SendItemDialogParams {
   formConfig: SendFormConfig;
 
   /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
-
-  /**
    * A function that is called to determine whether the dialog is allowed
    * to close. Used to trigger the "unsaved edits" dialog.
    */
@@ -130,12 +125,6 @@ export class SendAddEditDialogComponent {
   config: SendFormConfig;
 
   /**
-   * Whether the form is disabled (e.g., the Send is disabled by policy).
-   * When true, the Save button is hidden.
-   */
-  disableForm = false;
-
-  /**
    * Whether the Send is actively being edited
    */
   protected readonly editing = signal(false);
@@ -174,7 +163,6 @@ export class SendAddEditDialogComponent {
 
   async init() {
     this.config = this.params.formConfig;
-    this.disableForm = this.params.disableForm ?? this.config.originalSend?.disabled ?? false;
     if (this.config.originalSend) {
       const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
         this.config.originalSend,

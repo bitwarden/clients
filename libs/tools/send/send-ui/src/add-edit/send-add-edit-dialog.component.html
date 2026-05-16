@@ -39,16 +39,18 @@
           }
         </bit-callout>
       }
-      <tools-send-form
-        formId="sendForm"
-        [config]="config"
-        (onSendCreated)="onSendCreated($event)"
-        (onSendUpdated)="onSendUpdated($event)"
-        (openPasswordGenerator)="openGenerator()"
-        [editing]="editing()"
-        [submitBtn]="submitBtn()"
-      >
-      </tools-send-form>
+      @if (config) {
+        <tools-send-form
+          formId="sendForm"
+          [config]="config"
+          (onSendCreated)="onSendCreated($event)"
+          (onSendUpdated)="onSendUpdated($event)"
+          (openPasswordGenerator)="openGenerator()"
+          [editing]="editing()"
+          [submitBtn]="submitBtn()"
+        >
+        </tools-send-form>
+      }
     </div>
   </span>
 

@@ -6,6 +6,7 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
@@ -68,10 +69,10 @@ export class NewSendDropdownV2Component {
    * Called when the type is restricted — directly creates the allowed type.
    */
   protected async onRestrictedClick(): Promise<void> {
-    const type = this.restrictedSendType();
-    if (type === SendType.File) {
+    const restriction = this.restrictedSendType();
+    if (restriction === SendTypeRestriction.FileOnly) {
       await this.onFileSendClick();
-    } else {
+    } else if (restriction === SendTypeRestriction.TextOnly) {
       this.onTextSendClick();
     }
   }
