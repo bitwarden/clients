@@ -53,7 +53,6 @@ const CONTEXT_MENU_POSITIONS: ConnectedPosition[] = [
 @Directive({
   selector: "[bitMenuTriggerFor]",
   exportAs: "menuTrigger",
-  standalone: true,
   host: { "[attr.role]": "this.role()" },
 })
 export class MenuTriggerForDirective implements OnDestroy {

@@ -16,11 +16,10 @@
       </bit-form-field>
 
       <button bitLink linkType="primary" type="button" (click)="showCustomEnv = !showCustomEnv">
-        <i
-          class="bwi bwi-fw bwi-sm"
-          [ngClass]="{ 'bwi-angle-right': !showCustomEnv, 'bwi-angle-down': showCustomEnv }"
-          aria-hidden="true"
-        ></i>
+        <bit-icon
+          [name]="showCustomEnv ? 'bwi-angle-down' : 'bwi-angle-right'"
+          class="bwi-fw bwi-sm"
+        ></bit-icon>
         {{ "customEnvironment" | i18n }}
       </button>
 
@@ -91,7 +90,7 @@
         aria-live="assertive"
         role="alert"
       >
-        <i class="bwi bwi-error"></i> {{ "selfHostedEnvFormInvalid" | i18n }}
+        <bit-icon name="bwi-error"></bit-icon> {{ "selfHostedEnvFormInvalid" | i18n }}
       </span>
     </ng-container>
     <ng-container bitDialogFooter>

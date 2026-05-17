@@ -42,10 +42,12 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
+/**
+ * @deprecated along with `setInitialPassword()` deprecation
+ */
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
-  newLocalMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
   orgSsoIdentifier: string;
@@ -55,9 +57,20 @@ export interface SetInitialPasswordCredentials {
   salt: MasterPasswordSalt;
 }
 
+export interface SetInitialPasswordTdeUserWithPermissionCredentials {
+  newPassword: string;
+  salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
+  newPasswordHint: string;
+  orgSsoIdentifier: string;
+  orgId: OrganizationId;
+  resetPasswordAutoEnroll: boolean;
+}
+
 export interface SetInitialPasswordTdeOffboardingCredentials {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
+  newPassword: string;
+  salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
   newPasswordHint: string;
 }
 
@@ -87,7 +100,7 @@ export interface InitializeJitPasswordCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
@@ -104,15 +117,15 @@ export abstract class SetInitialPasswordService {
   ) => Promise<void>;
 
   /**
-   * Sets an initial password for a user who logs in after their org offboarded from
-   * trusted device encryption and is now a master-password-encryption org:
-   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
+   * Sets an initial password for an existing authed TDE user who has been given the
+   * Manage Account Recovery permission:
+   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
    *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
-   * @param userId the account `userId`
+   * @param credentials An object of the credentials needed to set the initial password
+   * @throws If any property on the `credentials` object not found, or if userKey is not found
    */
-  abstract setInitialPasswordTdeOffboarding: (
-    credentials: SetInitialPasswordTdeOffboardingCredentials,
+  abstract setInitialPasswordTdeUserWithPermission: (
+    credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
     userId: UserId,
   ) => Promise<void>;
 
@@ -125,4 +138,18 @@ export abstract class SetInitialPasswordService {
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
   ): Promise<void>;
+
+  /**
+   * Sets an initial password for a user who logs in after their org offboarded from
+   * trusted device encryption and is now a master-password-encryption org:
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
+   *
+   * @param credentials An object of the credentials needed to set the initial password
+   * @param userId the account `userId`
+   * @throws if `userId`, `userKey`, or necessary credentials are not found
+   */
+  abstract setInitialPasswordTdeOffboarding: (
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) => Promise<void>;
 }

@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Sevimlilər"
   },
+  "unfavorite": {
+    "message": "Sevimlilərdən sil"
+  },
   "types": {
     "message": "Növlər"
   },
@@ -31,6 +34,45 @@
   },
   "typeSshKey": {
     "message": "SSH açarı"
+  },
+  "typeBankAccount": {
+    "message": "Bank hesabı"
+  },
+  "typeLoginSubtitle": {
+    "message": "Veb sayt və ya tətbiq"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit və ya debet kart"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Fərdi məlumatlar"
+  },
+  "typeNoteSubtitle": {
+    "message": "Mühüm mətn"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server giriş tokeni"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Bank məlumatları"
+  },
+  "folderSubtitle": {
+    "message": "Elementlərinizi təşkil edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan elementləri təşkil edin"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "chooseItemToAdd": {
+    "message": "Əlavə olunacaq elementi seç"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Seyfinizə əlavə etmək istədiyiniz element növünü seçin."
   },
   "folders": {
     "message": "Qovluqlar"
@@ -83,6 +125,106 @@
   },
   "viewItem": {
     "message": "Elementə bax"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Girişə bax",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karta bax",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Kimliyə bax",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Nota bax",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH açarına bax",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Yeni giriş",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Yeni kart",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Yeni not",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Yeni SSH açarı",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Girişə düzəliş et",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karta düzəliş et",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Kimliyə düzəliş et",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Nota düzəliş et",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH açarına düzəliş et",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Ad"
@@ -140,20 +282,20 @@
   "sendTypeTextToShare": {
     "message": "Paylaşılacaq mətn"
   },
-  "newItemHeaderTextSend": {
-    "message": "Yeni Send mətni",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Yeni Send faylı",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send mətninə düzəliş et",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send faylına düzəliş et",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -333,6 +475,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Bu özəlliyi istifadə etmək üçün premium üzvlük lazımdır."
+  },
+  "syncWithBrowser": {
+    "message": "Brauzerlə sinxronlaşdır"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "$VAULTURL$ ilə bağlantı qurmaq üçün, ilkin brauzerinizi Bitwarden tətbiqi ilə sinxronlaşdırmalısınız. Brauzeriniz sinxronlaşdırıldıqdan sonra bu tətbiqə geri yönləndiriləcəksiniz.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Brauzeri başlat"
   },
   "errorOccurred": {
     "message": "Bir xəta baş verdi."
@@ -586,6 +744,12 @@
   "editedItem": {
     "message": "Elementə düzəliş edildi"
   },
+  "itemAddedToFavorites": {
+    "message": "Element sevimlilərə əlavə edildi"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Element sevimlilərdən xaric edildi"
+  },
   "deleteItem": {
     "message": "Elementi sil"
   },
@@ -594,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "Qoşmanı sil"
+  },
+  "deleteAttachmentName": {
+    "message": "$NAME$ qoşmasını sil",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ endir",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Həqiqətən tullantı qutusuna göndərmək istəyirsiniz?"
@@ -896,6 +1078,9 @@
   "masterPassHintLabel": {
     "message": "Ana parol ipucusu"
   },
+  "masterPasswordChanged": {
+    "message": "Ana parol saxlanıldı"
+  },
   "passwordStrengthScore": {
     "message": "Parolun güc xalı: $SCORE$",
     "placeholders": {
@@ -1022,6 +1207,9 @@
   },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Yararsız e-poçt və ya doğrulama kodu"
   },
   "continue": {
     "message": "Davam"
@@ -1184,6 +1372,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
   },
+  "rotateAccountEncKey": {
+    "message": "Həmçinin hesabımın şifrələmə açarını da döndər"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Şifrələmə açarınızı döndərməyin təsiri"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Hesabınızın şifrələmə açarını döndərməzdən əvvəl, seyfinizdəki köhnə fayl qoşmalarını düzəltməlisiniz."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Şifrələmə açarını döndər"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Hesabınızın şifrələmə açarını döndərmək istədiyinizə əminsiniz?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Şifrələmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrələmə açarının endirilməsi prosesi) verilərin zədələnməsi ilə nəticələnə bilər. Sizi avtomatik olaraq çıxış etməyə çalışacağıq, ancaq burada gecikmə ola bilər."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Məhdudiyyətli hesablara aid saxladığınız xaricə köçürmələr yararsız olacaq."
+  },
   "confirmIdentityToContinue": {
     "message": "Davam etmək üçün kimliyinizi təsdiqləyin"
   },
@@ -1268,6 +1477,9 @@
   "changeMasterPass": {
     "message": "Ana parolu dəyişdir"
   },
+  "changeMasterPassword": {
+    "message": "Ana parolu dəyişdir"
+  },
   "continueToWebApp": {
     "message": "Veb tətbiqlə davam edilsin?"
   },
@@ -1346,17 +1558,11 @@
   "twoStepLogin": {
     "message": "İki mərhələli giriş"
   },
-  "vaultTimeoutHeader": {
-    "message": "Seyf vaxtının bitməsi"
-  },
   "vaultTimeout": {
     "message": "Seyf vaxtının bitməsi"
   },
   "vaultTimeout1": {
     "message": "Vaxt bitmə"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Vaxt bitmə əməliyyatı"
   },
   "vaultTimeoutDesc": {
     "message": "Seyfinizin vaxt bitmə əməliyyatını nə vaxt icra edəcəyini seçin."
@@ -1453,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "Bildiriş sahəsində həmişə bir ikon göstər."
   },
-  "startToTray": {
-    "message": "Bildiriş sahəsi ikonu kimi başlat"
-  },
-  "startToTrayDesc": {
-    "message": "Tətbiq ilk başladılanda, sistem bildiriş sahəsində yalnız ikon olaraq görünsün."
-  },
-  "startToMenuBar": {
-    "message": "Menyu çubuğunda başlat"
-  },
-  "startToMenuBarDesc": {
-    "message": "Tətbiq ilk başladılanda, menyu çubuğunda yalnız ikon olaraq görünsün."
-  },
   "openAtLogin": {
     "message": "Giriş ediləndə avtomatik başlat"
   },
@@ -1552,12 +1746,28 @@
   "unknown": {
     "message": "Bilinməyən"
   },
+  "copyAddress": {
+    "message": "Ünvanı kopyala"
+  },
+  "copyPhone": {
+    "message": "Telefonu kopyala"
+  },
+  "copyNote": {
+    "message": "Notu kopyala"
+  },
+  "copyVerificationCode": {
+    "message": "Doğrulama kodunu kopyala"
+  },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala"
   },
   "copyNumber": {
     "message": "Nömrəni kopyala",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "E-poçtu kopyala"
@@ -1634,6 +1844,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "ay"
+  },
+  "monthly": {
+    "message": "Aylıq"
+  },
+  "year": {
+    "message": "il"
+  },
+  "annually": {
+    "message": "İllik"
+  },
+  "annual": {
+    "message": "İllik"
   },
   "refreshComplete": {
     "message": "Təzələmə tamamlandı"
@@ -1799,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "İlkin uyuşma aşkarlaması",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını göstər"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını gizlət"
   },
   "toggleOptions": {
     "message": "Seçimləri aç/bağla"
@@ -2050,6 +2281,15 @@
   "unsavedChangesTitle": {
     "message": "Saxlanılmamış dəyişikliklər"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "İndi tərk etsəniz, dəyişiklikləriniz saxlanılmayacaq. Dəyişikliklərinizi saxlamaq üçün güncəlləməni daha sonra quraşdırın."
+  },
+  "installLater": {
+    "message": "Daha sonra quraşdır"
+  },
+  "continueWithInstall": {
+    "message": "Quraşdırmağa davam"
+  },
   "clone": {
     "message": "Klonla"
   },
@@ -2065,9 +2305,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Seyfinizə təkrar erişmək üçün təkrar kimlik doğrulama tələb olunur."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
-  },
   "lock": {
     "message": "Kilidlə",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2078,6 +2315,24 @@
   },
   "searchTrash": {
     "message": "Tullantı qutusunda axtar"
+  },
+  "searchArchive": {
+    "message": "Arxivdə axtar"
+  },
+  "searchLogin": {
+    "message": "Giriş axtar"
+  },
+  "searchCard": {
+    "message": "Kart axtar"
+  },
+  "searchIdentity": {
+    "message": "Kimlik axtar"
+  },
+  "searchSecureNote": {
+    "message": "Güvənli not axtar"
+  },
+  "searchSshKey": {
+    "message": "SSH açarını axtar"
   },
   "permanentlyDeleteItem": {
     "message": "Elementi birdəfəlik sil"
@@ -2143,6 +2398,9 @@
   },
   "copyTOTP": {
     "message": "Kimlik doğrulayıcı açarını kopyala (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Notları kopyala"
   },
   "totpHelperTitle": {
     "message": "2 addımlı doğrulamanı problemsiz edin"
@@ -2233,6 +2491,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolunuz siyasət tələblərini qarşılamır."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
   },
@@ -2281,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Təəssüf ki, brauzer inteqrasiyası hal-hazırda Linux versiyasında dəstəklənmir."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Brauzer inteqrasiyası üçün doğrulama tələb et"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Masaüstü tətbiqi ilə brauzer arasında bağlantı qurarkən barmaq izi ifadəsinin təsdiqlənməsini tələb edərək əlavə bir güvənlik qatını fəallaşdıra bilərsiniz. Bu, hər bağlantı qurulanda istifadəçi müdaxiləsi və doğrulama tələb edir."
-  },
   "enableHardwareAcceleration": {
     "message": "Donanım sürətləndirməsini istifadə et"
   },
@@ -2295,12 +2550,6 @@
   },
   "approve": {
     "message": "Təsdiqlə"
-  },
-  "verifyBrowserTitle": {
-    "message": "Brauzer bağlantısını doğrula"
-  },
-  "verifyBrowserDesc": {
-    "message": "Lütfən göstərilən barmaq izinin brauzer uzantısında göstərilən barmaq izi ilə eyni olduğuna əmin olun."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$, Bitwarden ilə bağlantı qurmaq istəyir",
@@ -2374,6 +2623,9 @@
   "editSend": {
     "message": "\"Send\"ə düzəliş et",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Mən"
   },
   "myVault": {
     "message": "Seyfim"
@@ -2530,8 +2782,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
-  "hideEmail": {
-    "message": "E-poçt ünvanımı alıcılardan gizlət."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasətləri \"Send\" seçimlərinizə təsir edir."
@@ -2665,9 +2917,6 @@
   "vaultTimeoutTooLarge": {
     "message": "Seyfin bitmə vaxtı, təşkilatınız tərəfindən ayarlanan məhdudiyyətləri aşır."
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Müəssisə siyasət tələbləri, vaxt bitmə seçimlərinizə tətbiq edildi"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
     "placeholders": {
@@ -2778,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Fərdi seyfin xaricə köçürülməsi"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş fərdi seyf elementləri xaricə köçürüləcək. Təşkilat seyf elementləri daxil edilməyəcək. Yalnız seyf element məlumatları xaricə köçürüləcək və əlaqələndirilmiş qoşmalar daxil edilməyəcək.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş qoşmalar daxil olmaqla fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Təşkilat seyfini xaricə köçürmə"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Fərdi seyfdə və digər təşkilatlardakı elementlər daxil edilməyəcək.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3434,6 +3668,63 @@
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
   },
+  "device": {
+    "message": "Cihaz"
+  },
+  "devices": {
+    "message": "Cihazlar"
+  },
+  "whatIsADevice": {
+    "message": "Cihaz nədir?"
+  },
+  "aDeviceIs": {
+    "message": "Cihaz, giriş etdiyiniz Bitwarden tətbiqinin unikal quraşdırmasıdır. Yenidən quraşdırılması, tətbiq verilərinin təmizlənməsi və ya çərəzlərin təmizlənməsi, cihazın bir neçə dəfə görünməsinə səbəb ola bilər."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Aşağıdakı cihazların hər birində hesabınıza giriş edilib."
+  },
+  "loginStatus": {
+    "message": "Giriş statusu"
+  },
+  "recentlyActive": {
+    "message": "Təzəlikcə aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Bu gün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 gündən çox əvvəl"
+  },
+  "firstLogin": {
+    "message": "İlk giriş"
+  },
+  "trusted": {
+    "message": "Güvənilən"
+  },
+  "currentSession": {
+    "message": "Hazırkı sessiya"
+  },
+  "requestPending": {
+    "message": "Tələb gözlənir"
+  },
+  "deviceIdMissing": {
+    "message": "Cihaz kimliyi əskikdir"
+  },
+  "deviceTypeMissing": {
+    "message": "Cihaz növü əskikdir"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Cihaz yaradılma tarixi əskikdir"
+  },
   "trustOrganization": {
     "message": "Təşkilata güvən"
   },
@@ -3672,6 +3963,9 @@
   "chooseFile": {
     "message": "Fayl seç"
   },
+  "chooseFileSentenceCase": {
+    "message": "Faylı seç"
+  },
   "noFileChosen": {
     "message": "Heç bir fayl seçilməyib"
   },
@@ -3699,6 +3993,21 @@
   },
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
+  },
+  "exportError": {
+    "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Çox faktorlu kimlik doğrulama ləğv edildi"
@@ -3812,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Problemlərin aradan qaldırılması"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Donanım sürətləndirməni sıradan çıxart və yenidən başlat"
@@ -4082,6 +4407,9 @@
   },
   "missingWebsite": {
     "message": "Əskik veb sayt"
+  },
+  "missingPermissions": {
+    "message": "Bu əməliyyatı icra etmək üçün lazımi icazələrin yoxdur."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
@@ -4387,10 +4715,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemWasSentToArchive": {
-    "message": "Element arxivə göndərildi"
+  "itemArchiveToast": {
+    "message": "Element arxivləndi"
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
@@ -4486,8 +4814,14 @@
   "sessionTimeoutSettingsAction": {
     "message": "Vaxt bitmə əməliyyatı"
   },
+  "errorCannotDecrypt": {
+    "message": "Xəta: Şifrəsi açıla bilmir"
+  },
   "sessionTimeoutHeader": {
     "message": "Sessiya vaxt bitməsi"
+  },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
   },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"
@@ -4533,6 +4867,30 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun"
   },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
+  },
   "upgrade": {
     "message": "Yüksəlt"
   },
@@ -4566,8 +4924,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata məxsus olmasını tələb edir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4575,17 +4933,302 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Elementlərinizin sahibliyini transfer etmək üçün \"Qəbul et\"ə klikləyin."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Elementlərin köçürülməsi üzrə kömək məqaləsini aç"
+  },
   "acceptTransfer": {
     "message": "Transferi qəbul et"
   },
   "declineAndLeave": {
     "message": "Rədd et və tərk et"
   },
-  "whyAmISeeingThis": {
-    "message": "Bunu niyə görürəm?"
+  "organizationIsSuspended": {
+    "message": "Təşkilatın fəaliyyəti dayandırılıb"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Fəaliyyəti dayandırılmış təşkilatlardakı elementlərə erişilə bilməz. Kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% tamamlandı",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "noItemsInTrash": {
+    "message": "Tullantıda element yoxdur"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək"
+  },
+  "noItemsInVault": {
+    "message": "Seyfdə element yoxdur"
+  },
+  "emptyVaultDescription": {
+    "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
+  },
+  "emptyFavorites": {
+    "message": "Hələ sevimlilərinizdə heç nə yoxdur"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Çox istifadə etdiyiniz elementləri cəld erişim üçün sevimlilərə əlavə edin."
+  },
+  "noSearchResults": {
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-poçt qorunur"
+  },
+  "emails": {
+    "message": "E-poçtlar"
+  },
+  "noAuth": {
+    "message": "Keçidə sahib olan hər kəs"
+  },
+  "anyOneWithPassword": {
+    "message": "Təyin etdiyiniz parola sahib hər kəs"
+  },
+  "whoCanView": {
+    "message": "Kimlər baxa bilər"
+  },
+  "specificPeople": {
+    "message": "Xüsusi insanlar"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send keçidini paylaşdıqdan sonra, bu \"Send\"ə baxması üçün insanlar e-poçtlarını bir kodla doğrulamalıdırlar."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ - yenidən sırala. Ox düyməsi ilə elementi yuxarı və ya aşağı daşıyın.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "userVerificationFailed": {
+    "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankAccount": {
+    "message": "Bank hesabı"
+  },
+  "bankName": {
+    "message": "Bank adı"
+  },
+  "nameOnAccount": {
+    "message": "Hesabdakı ad"
+  },
+  "bankAccountType": {
+    "message": "Hesab növü"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Şirkət"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Fərdi"
+  },
+  "accountNumber": {
+    "message": "Hesab nömrəsi"
+  },
+  "bankRoutingNumber": {
+    "message": "Yönləndirmə nömrəsi",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial/təşkilat nömrəsi"
+  },
+  "swiftCode": {
+    "message": "SWIFT kodu"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bankın əlaqə nömrəsi"
+  },
+  "searchBankAccount": {
+    "message": "Bank hesabını axtar"
+  },
+  "copyAccountNumber": {
+    "message": "Hesab nömrəsini kopyala"
+  },
+  "copyRoutingNumber": {
+    "message": "Yönləndirmə nömrəsini kopyala"
+  },
+  "copyPin": {
+    "message": "PIN-i kopyala"
+  },
+  "copyIban": {
+    "message": "IBAN-ı kopyala"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Yoxlanılır"
+  },
+  "bankAccountTypeSavings": {
+    "message": "YIğımlar"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Depozit sertifikatı"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredit xətti"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "İnvestisiya/brokerlik"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Pul bazarı"
+  },
+  "bankAccountTypeOther": {
+    "message": "Digər"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bank məlumatlarınızı güvənli şəkildə saxlayın"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Bank hesabı məlumatlarınızı saxlayaraq bütün cihazlarınızdan asanlıqla və güvənli şəkildə erişə bilərsiniz."
+  },
+  "discardEdits": {
+    "message": "Düzəlişləri sil"
+  },
+  "discardEditsMessage": {
+    "message": "Bu görünüşü bağlasanız, saxlanılmamış düzəlişləriniz silinəcək"
+  },
+  "backToEditing": {
+    "message": "Düzəlişə qayıt"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send-də saxlanılmamış düzəlişlər var. Tərk etmək istədiyinizə əminsiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Send düzəlişlərini saxlama uğursuz oldu",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Təşkilatınızın e-poçtun görünməsini tələb edir. Saxlamaq üçün \"E-poçtunuzu baxanlardan gizlədin\" seçimini ləğv edin."
+  },
+  "sideNavigation": {
+    "message": "Yan naviqasiya"
+  },
+  "skipLink": {
+    "message": "Keçidi ötür"
+  },
+  "callout": {
+    "message": "Elan",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "İrəliləyiş çubuğu",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }

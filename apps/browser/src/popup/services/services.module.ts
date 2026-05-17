@@ -3,11 +3,7 @@
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
-import {
-  CollectionService,
-  OrganizationUserApiService,
-  OrganizationUserService,
-} from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
@@ -48,19 +44,12 @@ import {
   LogoutService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import {
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  InternalOrganizationServiceAbstraction,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
@@ -87,13 +76,17 @@ import {
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
+import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs/abstractions/event-upload.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -195,6 +188,7 @@ import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/servi
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
+import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
@@ -314,6 +308,7 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
+      accountCryptographicStateService: AccountCryptographicStateService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -326,6 +321,7 @@ const safeProviders: SafeProvider[] = [
         accountService,
         stateProvider,
         kdfConfigService,
+        accountCryptographicStateService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
@@ -341,6 +337,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -398,7 +395,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider, PolicyService, AccountService],
+    deps: [
+      StateProvider,
+      PolicyService,
+      AccountService,
+      ConfigService,
+      EnvironmentService,
+      AuthService,
+    ],
   }),
   safeProvider({
     provide: AbstractStorageService,
@@ -431,6 +435,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       UserNotificationSettingsServiceAbstraction,
       MessageListener,
+      AnimationControlService,
     ],
   }),
   safeProvider({
@@ -654,14 +659,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyService,
       UserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
       WINDOW,
       LogService,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -677,6 +680,11 @@ const safeProviders: SafeProvider[] = [
     provide: ForegroundTaskSchedulerService,
     useClass: ForegroundTaskSchedulerService,
     deps: [LogService, StateProvider],
+  }),
+  safeProvider({
+    provide: EventUploadServiceAbstraction,
+    useClass: ForegroundEventUploadService,
+    deps: [],
   }),
   safeProvider({
     provide: AnonLayoutWrapperDataService,
@@ -750,7 +758,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangePasswordService,
     useClass: ExtensionChangePasswordService,
-    deps: [KeyService, MasterPasswordApiService, InternalMasterPasswordServiceAbstraction, WINDOW],
+    deps: [
+      KeyService,
+      MasterPasswordApiService,
+      InternalMasterPasswordServiceAbstraction,
+      MasterPasswordUnlockService,
+      WINDOW,
+    ],
   }),
   safeProvider({
     provide: ServerNotificationsService,
@@ -765,25 +779,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [CipherService, ApiService, BillingAccountProfileStateService, ConfigService],
+    deps: [CipherService, ApiService, BillingAccountProfileStateService],
   }),
   safeProvider({
     provide: NewDeviceVerificationComponentService,
     useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: AutomaticUserConfirmationService,
-    useClass: DefaultAutomaticUserConfirmationService,
-    deps: [
-      ConfigService,
-      ApiService,
-      OrganizationUserService,
-      StateProvider,
-      InternalOrganizationServiceAbstraction,
-      OrganizationUserApiService,
-      PolicyService,
-    ],
   }),
   safeProvider({
     provide: SessionTimeoutTypeService,

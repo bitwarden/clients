@@ -24,13 +24,11 @@ import {
   CipherFormConfig,
   CipherFormConfigService,
   PasswordRepromptService,
-} from "@bitwarden/vault";
-
-import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
-} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
+} from "@bitwarden/vault";
+
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 @Directive()
@@ -252,7 +250,7 @@ export abstract class CipherReportComponent implements OnDestroy {
       const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
 
       // the updated cipher does not meet the criteria for the report, it returns a null
-      if (updatedReportResult === null) {
+      if (updatedReportResult === null && index > -1) {
         this.ciphers.splice(index, 1);
       }
 

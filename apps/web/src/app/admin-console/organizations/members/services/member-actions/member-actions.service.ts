@@ -1,5 +1,5 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { lastValueFrom, firstValueFrom, switchMap } from "rxjs";
+import { inject, Injectable, signal, WritableSignal } from "@angular/core";
+import { lastValueFrom, firstValueFrom, take } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -16,18 +16,16 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { UserId } from "@bitwarden/user-core";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
+import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
 export const REQUESTS_PER_BATCH = 500;
 
@@ -36,16 +34,15 @@ export interface MemberActionResult {
   error?: string;
 }
 
-export interface BulkActionResult {
-  successful?: ListResponse<OrganizationUserBulkResponse>;
-  failed: { id: string; error: string }[];
+export class BulkActionResult {
+  successful: OrganizationUserBulkResponse[] = [];
+  failed: { id: string; error: string }[] = [];
 }
 
 @Injectable()
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
-  private configService = inject(ConfigService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
@@ -53,16 +50,27 @@ export class MemberActionsService {
   private logService = inject(LogService);
   private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
   private userNamePipe = inject(UserNamePipe);
+  private memberDialogManager = inject(MemberDialogManagerService);
 
   readonly isProcessing = signal(false);
 
-  private startProcessing(): void {
+  private startProcessing(length?: number): void {
     this.isProcessing.set(true);
+    if (length != null && length > REQUESTS_PER_BATCH) {
+      this.memberDialogManager
+        .openBulkProgressDialog(this.progressCount, length)
+        .closed.pipe(take(1))
+        .subscribe(() => {
+          this.progressCount.set(0);
+        });
+    }
   }
 
   private endProcessing(): void {
     this.isProcessing.set(false);
   }
+
+  private readonly progressCount: WritableSignal<number> = signal(0);
 
   async inviteUser(
     organization: Organization,
@@ -119,20 +127,7 @@ export class MemberActionsService {
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore).pipe(
-          switchMap((enabled) => {
-            if (enabled) {
-              return this.organizationUserService.restoreUser(organization, userId);
-            } else {
-              return this.organizationUserApiService.restoreOrganizationUser(
-                organization.id,
-                userId,
-              );
-            }
-          }),
-        ),
-      );
+      await firstValueFrom(this.organizationUserService.restoreUser(organization, userId));
 
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
@@ -186,25 +181,41 @@ export class MemberActionsService {
     }
   }
 
-  async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
-    this.startProcessing();
+  async bulkReinvite(
+    organization: Organization,
+    users: OrganizationUserView[],
+  ): Promise<BulkActionResult> {
+    let result = new BulkActionResult();
+    this.startProcessing(users.length);
+
     try {
-      return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
-        this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
-      );
+      result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) => {
+        const userIds = userBatch.map((u) => u.id);
+        return this.organizationUserApiService.postManyOrganizationUserReinvite(
+          organization.id,
+          userIds,
+        );
+      });
+
+      if (result.failed.length > 0) {
+        this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result);
+      }
     } catch (error) {
-      return {
-        failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
-      };
+      result.failed = users.map((user) => ({
+        id: user.id,
+        error: (error as Error).message ?? String(error),
+      }));
     } finally {
       this.endProcessing();
     }
+    return result;
   }
 
   allowResetPassword(
     orgUser: OrganizationUserView,
     organization: Organization,
     resetPasswordEnabled: boolean,
+    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     let callingUserHasPermission = false;
 
@@ -222,6 +233,11 @@ export class MemberActionsService {
         break;
     }
 
+    const statusAllowed =
+      orgUser.status === OrganizationUserStatusType.Confirmed ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Revoked) ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Accepted);
+
     return (
       organization.canManageUsersPassword &&
       callingUserHasPermission &&
@@ -229,27 +245,29 @@ export class MemberActionsService {
       organization.hasPublicAndPrivateKeys &&
       orgUser.resetPasswordEnrolled &&
       resetPasswordEnabled &&
-      orgUser.status === OrganizationUserStatusType.Confirmed
+      statusAllowed
     );
   }
 
   /**
    * Processes user IDs in sequential batches and aggregates results.
-   * @param userIds - Array of user IDs to process
+   * @param users - Array of users to process
    * @param batchSize - Number of IDs to process per batch
-   * @param processBatch - Async function that processes a single batch and returns the result
+   * @param processBatch - Async function that processes a single batch from the provided param `users` and returns the result.
    * @returns Aggregated bulk action result
    */
   private async processBatchedOperation(
-    userIds: UserId[],
+    users: OrganizationUserView[],
     batchSize: number,
-    processBatch: (batch: string[]) => Promise<ListResponse<OrganizationUserBulkResponse>>,
+    processBatch: (
+      batch: OrganizationUserView[],
+    ) => Promise<ListResponse<OrganizationUserBulkResponse>>,
   ): Promise<BulkActionResult> {
     const allSuccessful: OrganizationUserBulkResponse[] = [];
     const allFailed: { id: string; error: string }[] = [];
 
-    for (let i = 0; i < userIds.length; i += batchSize) {
-      const batch = userIds.slice(i, i + batchSize);
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batch = users.slice(i, i + batchSize);
 
       try {
         const result = await processBatch(batch);
@@ -265,18 +283,18 @@ export class MemberActionsService {
         }
       } catch (error) {
         allFailed.push(
-          ...batch.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+          ...batch.map((user) => ({
+            id: user.id,
+            error: (error as Error).message ?? String(error),
+          })),
         );
       }
+
+      this.progressCount.update((value) => value + batch.length);
     }
 
-    const successful =
-      allSuccessful.length > 0
-        ? new ListResponse(allSuccessful, OrganizationUserBulkResponse)
-        : undefined;
-
     return {
-      successful,
+      successful: allSuccessful,
       failed: allFailed,
     };
   }

@@ -71,6 +71,8 @@ describe("FidoAuthenticatorService", () => {
 
     isValidRpId = jest.spyOn(DomainUtils, "isValidRpId");
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     client = new Fido2ClientService(
       authenticator,
       configService,
@@ -83,6 +85,7 @@ describe("FidoAuthenticatorService", () => {
     configService.serverConfig$ = of({ environment: { vault: VaultUrl } } as any);
     vaultSettingsService.enablePasskeys$ = of(true);
     domainSettingsService.neverDomains$ = of({});
+    domainSettingsService.blockedInteractionsUris$ = of({});
     authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
     windowReference = Utils.newGuid();
   });
@@ -186,7 +189,7 @@ describe("FidoAuthenticatorService", () => {
         const params = createParams();
         authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
         // `params` actually has a valid rp.id, but we're mocking the function to return false
-        isValidRpId.mockReturnValue(false);
+        isValidRpId.mockResolvedValue(false);
 
         const result = async () => await client.createCredential(params, windowReference);
 
@@ -459,7 +462,7 @@ describe("FidoAuthenticatorService", () => {
         const params = createParams();
         authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
         // `params` actually has a valid rp.id, but we're mocking the function to return false
-        isValidRpId.mockReturnValue(false);
+        isValidRpId.mockResolvedValue(false);
 
         const result = async () => await client.assertCredential(params, windowReference);
 
@@ -570,9 +573,9 @@ describe("FidoAuthenticatorService", () => {
     describe("assert non-discoverable credential", () => {
       it("should call authenticator.assertCredential", async () => {
         const allowedCredentialIds = [
-          Fido2Utils.bufferToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.bufferToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.bufferToString(Utils.fromByteStringToArray("not-a-guid")),
+          Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())),
+          Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())),
+          Fido2Utils.arrayToString(Utils.fromByteStringToArray("not-a-guid")),
         ];
         const params = createParams({
           userVerification: "required",
@@ -588,13 +591,13 @@ describe("FidoAuthenticatorService", () => {
             rpId: RpId,
             allowCredentialDescriptorList: [
               expect.objectContaining({
-                id: Fido2Utils.stringToBuffer(allowedCredentialIds[0]),
+                id: Fido2Utils.stringToArray(allowedCredentialIds[0]),
               }),
               expect.objectContaining({
-                id: Fido2Utils.stringToBuffer(allowedCredentialIds[1]),
+                id: Fido2Utils.stringToArray(allowedCredentialIds[1]),
               }),
               expect.objectContaining({
-                id: Fido2Utils.stringToBuffer(allowedCredentialIds[2]),
+                id: Fido2Utils.stringToArray(allowedCredentialIds[2]),
               }),
             ],
           }),
@@ -686,7 +689,7 @@ describe("FidoAuthenticatorService", () => {
     function createParams(params: Partial<AssertCredentialParams> = {}): AssertCredentialParams {
       return {
         allowedCredentialIds: params.allowedCredentialIds ?? [],
-        challenge: params.challenge ?? Fido2Utils.bufferToString(randomBytes(16)),
+        challenge: params.challenge ?? Fido2Utils.arrayToString(randomBytes(16)),
         origin: params.origin ?? Origin,
         rpId: params.rpId ?? RpId,
         timeout: params.timeout,
@@ -707,6 +710,52 @@ describe("FidoAuthenticatorService", () => {
         signature: randomBytes(64),
       };
     }
+  });
+
+  describe("isFido2FeatureEnabled", () => {
+    const hostname = "sub.example.com";
+    const origin = "https://sub.example.com";
+
+    it("returns false when the hostname exactly matches a `blockedInteractionsUris` entry", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when the hostname is a subdomain of a `blockedInteractionsUris` entry", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "example.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when `blockedInteractionsUris` is empty", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({});
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when no `blockedInteractionsUris` entry matches the hostname", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "bitwarden.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("rejects via `blockedInteractionsUris` regardless of `neverDomains` state", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
+      domainSettingsService.neverDomains$ = of({});
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(false);
+    });
   });
 });
 

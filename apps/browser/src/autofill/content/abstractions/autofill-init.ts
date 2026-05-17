@@ -13,6 +13,7 @@ export type AutofillExtensionMessage = {
   subFrameUrl?: string;
   subFrameId?: string;
   pageDetailsUrl?: string;
+  showAnimations?: boolean;
   ciphers?: any;
   isInlineMenuHidden?: boolean;
   overlayElement?: AutofillOverlayElementType;
@@ -33,6 +34,7 @@ export type AutofillExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
+  collectAutofillTriage: () => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
 };
 

@@ -266,22 +266,31 @@ describe("PinStateService", () => {
       },
     );
 
-    test.each([
-      ["PERSISTENT" as PinLockType, PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT],
-      ["EPHEMERAL" as PinLockType, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL],
-    ])(
-      "should return null when %s envelope is explicitly set to null",
-      async (pinLockType, keyDefinition) => {
-        // Arrange
-        await stateProvider.setUserState(keyDefinition, null, mockUserId);
+    it("should return null when PERSISTENT envelope is explicitly set to null", async () => {
+      // Arrange
+      await stateProvider.setUserState(
+        PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+        null,
+        mockUserId,
+      );
 
-        // Act
-        const result = await sut.getPinProtectedUserKeyEnvelope(mockUserId, pinLockType);
+      // Act
+      const result = await sut.getPinProtectedUserKeyEnvelope(mockUserId, "PERSISTENT");
 
-        // Assert
-        expect(result).toBeNull();
-      },
-    );
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("should return null when EPHEMERAL envelope is explicitly set to null", async () => {
+      // Arrange
+      await stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, null, mockUserId);
+
+      // Act
+      const result = await sut.getPinProtectedUserKeyEnvelope(mockUserId, "EPHEMERAL");
+
+      // Assert
+      expect(result).toBeNull();
+    });
 
     it("should not cross-contaminate PERSISTENT and EPHEMERAL envelopes", async () => {
       // Arrange - set both envelopes to different values

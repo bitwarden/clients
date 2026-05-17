@@ -8,7 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AvatarModule, ItemModule } from "@bitwarden/components";
+import { AvatarModule, IconModule, ItemModule, type BitwardenIcon } from "@bitwarden/components";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
@@ -18,7 +18,7 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
 @Component({
   selector: "auth-account",
   templateUrl: "account.component.html",
-  imports: [CommonModule, JslibModule, AvatarModule, ItemModule],
+  imports: [CommonModule, JslibModule, AvatarModule, IconModule, ItemModule],
 })
 export class AccountComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -60,7 +60,7 @@ export class AccountComponent {
     this.loading.emit(false);
   }
 
-  get status() {
+  get status(): { text: string; icon: BitwardenIcon } {
     if (this.account.isActive) {
       return { text: this.i18nService.t("active"), icon: "bwi-check-circle" };
     }

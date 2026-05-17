@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "คัดลอกเลขหนังสือเดินทาง"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "คัดลอกเลขใบขับขี่"
   },
@@ -573,14 +582,11 @@
   "noItemsInArchiveDesc": {
     "message": "รายการที่จัดเก็บถาวรจะปรากฏที่นี่ และจะไม่ถูกรวมในผลการค้นหาทั่วไปหรือคำแนะนำการป้อนอัตโนมัติ"
   },
-  "itemWasSentToArchive": {
-    "message": "ย้ายรายการไปที่จัดเก็บถาวรแล้ว"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "เลิกจัดเก็บถาวรรายการแล้ว"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "จัดเก็บรายการถาวร"
@@ -589,7 +595,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "เก็บ"
   },
   "unarchiveAndSave": {
     "message": "Unarchive and save"
@@ -699,23 +705,33 @@
   "unlockMethods": {
     "message": "ตัวเลือกการปลดล็อก"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "ตั้งค่าวิธีการปลดล็อกเพื่อเปลี่ยนการดำเนินการเมื่อตู้นิรภัยหมดเวลา"
-  },
   "unlockMethodNeeded": {
     "message": "ตั้งค่าวิธีการปลดล็อกในการตั้งค่า"
   },
   "sessionTimeoutHeader": {
     "message": "เซสชันหมดเวลา"
   },
-  "vaultTimeoutHeader": {
-    "message": "ตู้นิรภัยหมดเวลา"
-  },
   "otherOptions": {
     "message": "ตัวเลือกอื่น ๆ"
   },
   "rateExtension": {
     "message": "ให้คะแนนส่วนขยาย"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "browserNotSupportClipboard": {
     "message": "เว็บเบราว์เซอร์ของคุณไม่รองรับการคัดลอกไปยังคลิปบอร์ดแบบง่าย โปรดคัดลอกด้วยตนเองแทน"
@@ -898,6 +914,9 @@
   },
   "invalidVerificationCode": {
     "message": "รหัสยืนยันไม่ถูกต้อง"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "คัดลอก $VALUE$ แล้ว",
@@ -1154,6 +1173,15 @@
     "message": "ล้างค่าที่คัดลอกออกจากคลิปบอร์ดโดยอัตโนมัติ",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "ต้องการให้ Bitwarden จำรหัสผ่านนี้หรือไม่"
   },
@@ -1306,6 +1334,9 @@
   },
   "additionalOptions": {
     "message": "ตัวเลือกเพิ่มเติม"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
   },
   "enableContextMenuItem": {
     "message": "แสดงตัวเลือกเมนูบริบท"
@@ -1794,6 +1825,27 @@
   "confirmAutofillDesc": {
     "message": "เว็บไซต์นี้ไม่ตรงกับรายละเอียดการเข้าสู่ระบบที่คุณบันทึกไว้ ก่อนป้อนข้อมูล โปรดตรวจสอบให้แน่ใจว่าเป็นเว็บไซต์ที่เชื่อถือได้"
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "แสดงคำแนะนำการป้อนอัตโนมัติบนช่องกรอกข้อมูล"
   },
@@ -2105,8 +2157,86 @@
   "typeSshKey": {
     "message": "คีย์ SSH"
   },
+  "bankAccount": {
+    "message": "Bank account"
+  },
   "typeNote": {
     "message": "โน้ต"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
   },
   "newItemHeaderLogin": {
     "message": "ข้อมูลเข้าสู่ระบบใหม่",
@@ -2128,12 +2258,24 @@
     "message": "คีย์ SSH ใหม่",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "ข้อความ Send ใหม่",
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "ไฟล์ Send ใหม่",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2156,12 +2298,24 @@
     "message": "แก้ไขคีย์ SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "แก้ไขข้อความ Send",
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "แก้ไขไฟล์ Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2183,6 +2337,21 @@
   "viewItemHeaderSshKey": {
     "message": "ดูคีย์ SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "ประวัติรหัสผ่าน"
@@ -2372,6 +2541,30 @@
   "weakMasterPasswordDesc": {
     "message": "รหัสผ่านหลักที่คุณเลือกไม่ปลอดภัย คุณควรใช้รหัสผ่านหลักที่รัดกุม (หรือวลีรหัสผ่าน) เพื่อปกป้องบัญชี Bitwarden ของคุณอย่างเหมาะสม ยืนยันที่จะใช้รหัสผ่านหลักนี้หรือไม่"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2655,8 @@
   "vaultTimeoutAction": {
     "message": "การดำเนินการเมื่อตู้นิรภัยหมดเวลา"
   },
-  "vaultTimeoutAction1": {
-    "message": "การดำเนินการเมื่อหมดเวลา"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "ล็อก",
@@ -2747,9 +2940,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden จะไม่ถามให้บันทึกรายละเอียดการเข้าสู่ระบบสำหรับโดเมนเหล่านี้ คุณต้องรีเฟรชหน้าเว็บเพื่อให้การเปลี่ยนแปลงมีผล"
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden จะไม่ถามให้บันทึกรายละเอียดการเข้าสู่ระบบสำหรับโดเมนเหล่านี้สำหรับทุกบัญชีที่เข้าสู่ระบบ คุณต้องรีเฟรชหน้าเว็บเพื่อให้การเปลี่ยนแปลงมีผล"
-  },
   "blockedDomainsDesc": {
     "message": "การป้อนอัตโนมัติและฟีเจอร์อื่น ๆ ที่เกี่ยวข้องจะไม่พร้อมใช้งานสำหรับเว็บไซต์เหล่านี้ คุณต้องรีเฟรชหน้าเว็บเพื่อให้การเปลี่ยนแปลงมีผล"
   },
@@ -2822,8 +3012,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ ต้องการให้คุณเปลี่ยนรหัสผ่านนี้เนื่องจากมีความเสี่ยง ไปที่การตั้งค่าบัญชีของคุณเพื่อเปลี่ยนรหัสผ่าน",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2862,6 +3052,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "ภาพประกอบรายการข้อมูลเข้าสู่ระบบที่มีความเสี่ยง"
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "สร้างรหัสผ่านที่รัดกุมและไม่ซ้ำกันอย่างรวดเร็วด้วยเมนูป้อนอัตโนมัติของ Bitwarden บนเว็บไซต์ที่มีความเสี่ยง",
@@ -3086,6 +3279,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "คัดลอกลิงก์ Send แล้ว",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3190,9 +3422,6 @@
   },
   "minutes": {
     "message": "นาที"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "ข้อกำหนดนโยบายองค์กรถูกนำไปใช้กับตัวเลือกเวลาหมดเวลาของคุณแล้ว"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "นโยบายองค์กรกำหนดระยะเวลาหมดเวลาของตู้นิรภัยสูงสุดไว้ที่ $HOURS$ ชั่วโมง $MINUTES$ นาที",
@@ -3304,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "กำลังส่งออกตู้นิรภัยส่วนตัว"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "เฉพาะรายการในตู้นิรภัยส่วนตัวที่เชื่อมโยงกับ $EMAIL$ เท่านั้นที่จะถูกส่งออก รายการในตู้นิรภัยองค์กรจะไม่รวมอยู่ด้วย ระบบจะส่งออกเฉพาะข้อมูลรายการในตู้นิรภัยและไม่รวมไฟล์แนบที่เกี่ยวข้อง",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "เฉพาะรายการในตู้นิรภัยส่วนตัวและไฟล์แนบที่เชื่อมโยงกับ $EMAIL$ เท่านั้นที่จะถูกส่งออก รายการในตู้นิรภัยองค์กรจะไม่รวมอยู่ด้วย",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "กำลังส่งออกตู้นิรภัยองค์กร"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "เฉพาะตู้นิรภัยองค์กรที่เชื่อมโยงกับ $ORGANIZATION$ เท่านั้นที่จะถูกส่งออก รายการในตู้นิรภัยส่วนตัวหรือองค์กรอื่นจะไม่รวมอยู่ด้วย",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3713,6 +3927,24 @@
   },
   "loginStatus": {
     "message": "สถานะการเข้าสู่ระบบ"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "บันทึกรหัสผ่านหลักแล้ว"
@@ -4369,6 +4601,9 @@
   "chooseFile": {
     "message": "เลือกไฟล์"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "ไม่ได้เลือกไฟล์"
   },
@@ -4396,6 +4631,21 @@
   },
   "exportSuccess": {
     "message": "ส่งออกข้อมูลตู้นิรภัยแล้ว"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "พาสคีย์"
@@ -4826,11 +5076,14 @@
   "copyAddress": {
     "message": "คัดลอกที่อยู่"
   },
+  "myItems": {
+    "message": "รายการของฉัน"
+  },
   "adminConsole": {
     "message": "คอนโซลผู้ดูแลระบบ"
   },
   "admin": {
-    "message": "Admin"
+    "message": "แอดมิน"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -5966,6 +6219,9 @@
   "cardNumberLabel": {
     "message": "หมายเลขบัตร"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "องค์กรของคุณไม่ใช้รหัสผ่านหลักในการเข้าสู่ระบบ Bitwarden อีกต่อไป หากต้องการดำเนินการต่อ ให้ยืนยันองค์กรและโดเมน"
   },
@@ -6052,6 +6308,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "ตั้งค่าวิธีการปลดล็อกเพื่อเปลี่ยนการดำเนินการเมื่อหมดเวลา"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "อัปเกรด"
   },
@@ -6085,8 +6353,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ กำหนดให้รายการทั้งหมดต้องเป็นขององค์กรเพื่อความปลอดภัยและการปฏิบัติตามข้อกำหนด คลิกยอมรับเพื่อโอนกรรมสิทธิ์รายการของคุณ",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6094,20 +6362,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "ยอมรับการโอนย้าย"
   },
   "declineAndLeave": {
     "message": "ปฏิเสธและออก"
   },
-  "whyAmISeeingThis": {
-    "message": "ทำไมฉันจึงเห็นสิ่งนี้"
-  },
   "items": {
     "message": "Items"
   },
   "searchResults": {
     "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
@@ -6127,8 +6407,155 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company (business)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (personal)"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }

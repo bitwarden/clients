@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
+import { Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -72,20 +72,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const authRequestCredentials = this.cache.value.authRequestCredentials;
-    if (
-      authRequestCredentials.decryptedMasterKey &&
-      authRequestCredentials.decryptedMasterKeyHash
-    ) {
-      await this.masterPasswordService.setMasterKey(
-        authRequestCredentials.decryptedMasterKey,
-        userId,
-      );
-      await this.masterPasswordService.setMasterKeyHash(
-        authRequestCredentials.decryptedMasterKeyHash,
-        userId,
-      );
-    }
+    // This login strategy does not use a master key
   }
 
   protected override async setUserKey(
@@ -93,47 +80,20 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     userId: UserId,
   ): Promise<void> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
-    // User now may or may not have a master password
-    // but set the master key encrypted user key if it exists regardless
-    if (response.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    if (authRequestCredentials.decryptedUserKey) {
-      await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
-    } else {
-      await this.trySetUserKeyWithMasterKey(userId);
-
-      // Establish trust if required after setting user key
-      await this.deviceTrustService.trustDeviceIfRequired(userId);
-    }
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
+    // Establish trust if required after setting user key
+    await this.deviceTrustService.trustDeviceIfRequired(userId);
   }
 
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        masterKey,
-        userId,
-      );
-      await this.keyService.setUserKey(userKey, userId);
-    }
-  }
-
-  protected override async setPrivateKey(
+  protected override async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
       userId,
     );
-    if (response.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
   }
 
   exportCache(): CacheData {

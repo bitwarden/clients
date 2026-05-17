@@ -4,15 +4,17 @@ import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
+import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -47,6 +49,7 @@ export class WindowMain {
     private logService: LogService,
     private storageService: AbstractStorageService,
     private desktopSettingsService: DesktopSettingsService,
+    private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
@@ -55,6 +58,11 @@ export class WindowMain {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
+      if (isDev()) {
+        this.logService.info("Process reload requested, but skipping in development mode");
+        return;
+      }
+
       this.logService.info("Reloading render process");
       // User might have changed theme, ensure the window is updated.
       this.win.setBackgroundColor(await this.getBackgroundColor());
@@ -122,7 +130,6 @@ export class WindowMain {
         if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
-            dialog.showErrorBox("Error", "An instance of Bitwarden Desktop is already running.");
             app.quit();
             return;
           } else {
@@ -323,18 +330,22 @@ export class WindowMain {
     this.win.show();
 
     if (template === "full-app") {
-      // and load the index.html of the app.
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
-        }),
-        {
-          userAgent: cleanUserAgent(this.win.webContents.userAgent),
-        },
-      );
+      void this.win
+        .loadURL(
+          url.format({
+            protocol: "file:",
+            pathname: path.join(__dirname, "/index.html"),
+            slashes: true,
+          }),
+          {
+            userAgent: cleanUserAgent(this.win.webContents.userAgent),
+          },
+        )
+        .then(() => {
+          if (isDev()) {
+            this.win.webContents.openDevTools();
+          }
+        });
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
@@ -351,11 +362,6 @@ export class WindowMain {
           userAgent: cleanUserAgent(this.win.webContents.userAgent),
         },
       );
-    }
-
-    // Open the DevTools.
-    if (isDev()) {
-      this.win.webContents.openDevTools();
     }
 
     // Emitted when the window is closed.
@@ -394,6 +400,16 @@ export class WindowMain {
         command: "windowIsFocused",
         windowIsFocused: true,
       });
+    });
+
+    this.win.webContents.setWindowOpenHandler(({ url }) => {
+      // For security reasons, we redirect all requests to open new windows from the renderer process to the system browser.
+      // SafeShell will check the URL against our allowlist and log if an attempt is made to open a URL that isn't considered safe.
+
+      this.logService.debug(`Redirecting link to external browser: ${url}`);
+      void this.shell.openExternal(url, UrlType.WebUrl);
+
+      return { action: "deny" };
     });
 
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)

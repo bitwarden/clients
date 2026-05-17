@@ -4,7 +4,6 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,20 +37,18 @@ export class DownloadAttachmentComponent {
   readonly admin = input<boolean>(false);
 
   constructor(
-    private i18nService: I18nService,
-    private apiService: ApiService,
-    private fileDownloadService: FileDownloadService,
-    private toastService: ToastService,
-    private stateProvider: StateProvider,
-    private cipherService: CipherService,
+    private readonly i18nService: I18nService,
+    private readonly apiService: ApiService,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly toastService: ToastService,
+    private readonly stateProvider: StateProvider,
+    private readonly cipherService: CipherService,
   ) {}
 
-  protected readonly isDecryptionFailure = computed(
-    () => this.attachment().fileName === DECRYPT_ERROR,
-  );
+  protected readonly isDecryptionFailure = computed(() => this.attachment().hasDecryptionError);
 
   /** Download the attachment */
-  download = async () => {
+  readonly download = async () => {
     const attachment = this.attachment();
     const cipher = this.cipher();
     let url: string | undefined;
@@ -123,7 +120,7 @@ export class DownloadAttachmentComponent {
 
       this.fileDownloadService.download({
         fileName: attachment.fileName,
-        blobData: decBuf,
+        blobData: decBuf as BlobPart,
       });
     } catch {
       this.toastService.showToast({

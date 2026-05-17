@@ -166,6 +166,59 @@ describe("ConfigService", () => {
 
             expect(actual).toEqual(newConfig);
           });
+
+          describe("serverCommunicationConfig$", () => {
+            it("emits direct bootstrap config when response has no communication config", async () => {
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
+            });
+
+            it("emits ssoCookieVendor config when response includes ssoCookieVendor bootstrap", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({
+                bootstrap: {
+                  type: "ssoCookieVendor",
+                  idpLoginUrl: "https://idp.example.com",
+                  cookieName: "auth_token",
+                  cookieDomain: ".example.com",
+                  vaultUrl: "vault.example.com",
+                  cookieValue: undefined,
+                },
+              });
+            });
+
+            it("emits direct bootstrap config when ssoCookieVendor bootstrap has no vault URL", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              // Remove the environment field so vaultUrl will be undefined
+              ssoResponse.environment = undefined as any;
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
+            });
+          });
         });
       });
 
@@ -375,7 +428,10 @@ function serverConfigDataFactory(hash?: string) {
   return new ServerConfigData(serverConfigResponseFactory(hash));
 }
 
-function serverConfigResponseFactory(hash?: string) {
+function serverConfigResponseFactory(
+  hash?: string,
+  bootstrap?: { type: string; idpLoginUrl?: string; cookieName?: string; cookieDomain?: string },
+) {
   return new ServerConfigResponse({
     version: "myConfigVersion",
     gitHash: hash ?? Utils.newGuid(), // Use optional git hash to store uniqueness value
@@ -391,6 +447,7 @@ function serverConfigResponseFactory(hash?: string) {
       feat2: "on",
       feat3: "off",
     },
+    ...(bootstrap != null ? { communication: { bootstrap } } : {}),
   });
 }
 

@@ -263,7 +263,10 @@ describe("WebAuthnLoginStrategy", () => {
       mockPrfPrivateKey,
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, userId);
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(idTokenResponse.privateKey, userId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: idTokenResponse.privateKey } },
+      userId,
+    );
 
     // Master key and private key should not be set
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
@@ -396,7 +399,7 @@ describe("WebAuthnLoginStrategy", () => {
 });
 
 // Helpers and mocks
-function randomBytes(length: number): Uint8Array {
+function randomBytes(length: number): Uint8Array<ArrayBuffer> {
   return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
 }
 

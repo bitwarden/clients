@@ -1,0 +1,30 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ data.titleKey | i18n }}
+    </span>
+    <div bitDialogContent>
+      @if (isRotation) {
+        <bit-callout type="warning">
+          {{ "rotateScimKeyWarning" | i18n }}
+        </bit-callout>
+      }
+
+      <app-user-verification-form-input formControlName="verification">
+      </app-user-verification-form-input>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        [buttonType]="isRotation ? 'danger' : 'primary'"
+      >
+        {{ (isRotation ? "rotateKey" : "viewApiKey") | i18n }}
+      </button>
+      <button bitButton type="button" (click)="close()">
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

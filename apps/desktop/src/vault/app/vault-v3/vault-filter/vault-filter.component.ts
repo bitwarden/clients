@@ -5,12 +5,12 @@ import { Component, inject, OnInit, output, computed, signal } from "@angular/co
 import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { singleOrganizationPolicyApplies$ } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule, DialogService, A11yTitleDirective } from "@bitwarden/components";
@@ -23,7 +23,7 @@ import {
   RoutedVaultFilterBridgeService,
 } from "@bitwarden/vault";
 
-import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../../../../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { CollectionFilterComponent } from "./filters/collection-filter.component";
 import { FolderFilterComponent } from "./filters/folder-filter.component";
@@ -58,7 +58,6 @@ export class VaultFilterComponent implements OnInit {
   private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private vaultFilterService: VaultFilterService = inject(VaultFilterService);
   private accountService: AccountService = inject(AccountService);
-  private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
   private folderService: FolderService = inject(FolderService);
   private policyService: PolicyService = inject(PolicyService);
   private dialogService: DialogService = inject(DialogService);
@@ -69,7 +68,6 @@ export class VaultFilterComponent implements OnInit {
 
   private activeUserId: UserId;
   protected isLoaded = false;
-  protected showArchiveVaultFilter = false;
   protected activeOrganizationDataOwnershipPolicy: boolean;
   protected activeSingleOrganizationPolicy: boolean;
   protected readonly organizations = toSignal(this.vaultFilterService.organizationTree$);
@@ -106,7 +104,7 @@ export class VaultFilterComponent implements OnInit {
       ),
     );
     this.activeSingleOrganizationPolicy = await firstValueFrom(
-      this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, this.activeUserId),
+      singleOrganizationPolicyApplies$(this.activeUserId, this.policyService),
     );
   }
 
@@ -115,10 +113,6 @@ export class VaultFilterComponent implements OnInit {
     if (this.organizations() != null && this.organizations().children.length > 0) {
       await this.setActivePolicies();
     }
-
-    this.showArchiveVaultFilter = await firstValueFrom(
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
-    );
 
     this.routedVaultFilterBridgeService.activeFilter$
       .pipe(takeUntil(this.componentIsDestroyed$))

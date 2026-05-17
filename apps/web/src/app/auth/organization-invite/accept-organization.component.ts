@@ -11,6 +11,7 @@ import { OrganizationInvite } from "@bitwarden/common/auth/services/organization
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { isId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../common/base.accept.component";
@@ -43,6 +44,12 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
 
   async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
+    if (invite === null) {
+      // The BaseAcceptComponent handles thrown errors for the authedHandler (only),
+      // but for clarity and consistency with the unauthedHandler, opting to handle and redirect here.
+      return await this.handleInvalidInvite();
+    }
+
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
       invite,
@@ -61,14 +68,28 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       timeout: 10000,
     });
 
-    await this.router.navigate(["/vault"]);
+    await this.router.navigate(["/"]);
   }
 
   async unauthedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
+    if (invite === null) {
+      // If invite is null (fromParams failed to validate, etc.), we must handle that case here in full.
+      // The unauthedHandler does not account for error handling in the BaseAcceptComponent.
+      return await this.handleInvalidInvite();
+    }
 
     await this.organizationInviteService.setOrganizationInvitation(invite);
     await this.navigateInviteAcceptance(invite);
+  }
+
+  protected override getErrorMessage(errorMessage: string | null): string {
+    // Handle expired token specifically for org invites
+    if (errorMessage === "Expired token.") {
+      return this.i18nService.t(this.failedMessage);
+    }
+
+    return super.getErrorMessage(errorMessage);
   }
 
   /**
@@ -113,6 +134,10 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return null;
     }
 
+    if (!isId(params.organizationId) || !isId(params.organizationUserId)) {
+      return null;
+    }
+
     return Object.assign(new OrganizationInvite(), {
       email: params.email,
       initOrganization: params.initOrganization?.toLocaleLowerCase() === "true",
@@ -123,5 +148,15 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       organizationUserId: params.organizationUserId,
       token: params.token,
     });
+  }
+
+  private async handleInvalidInvite(): Promise<void> {
+    this.toastService.showToast({
+      message: this.i18nService.t(this.failedMessage),
+      variant: "error",
+      timeout: 10000,
+    });
+    await this.router.navigate(["/"]);
+    return;
   }
 }

@@ -20,12 +20,28 @@ finish-args:
   - --talk-name=org.freedesktop.secrets
   - --talk-name=com.canonical.AppMenu.Registrar
   - --system-talk-name=org.freedesktop.PolicyKit1
-    # Lock on lockscreen
+  # Lock on lockscreen
   - --talk-name=org.gnome.ScreenSaver
   - --talk-name=org.freedesktop.ScreenSaver
   - --system-talk-name=org.freedesktop.login1
   - --filesystem=xdg-download
   - --device=all
+
+  # Browser integration
+  # The config directory is needed to write manifests for non-flatpak
+  # Sockets are mounted in each app's directory
+  #
+  # Non-sandboxed
+  - --filesystem=xdg-config/google-chrome/NativeMessagingHosts/
+  - --filesystem=xdg-config/chromium/NativeMessagingHosts/
+  - --filesystem=xdg-config/microsoft-edge/NativeMessagingHosts/
+  - --filesystem=home/.mozilla
+  # Flatpak-sandboxed
+  - --filesystem=~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/
+  - --filesystem=~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/
+  - --filesystem=~/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/
+  # Firefox does not create NMHS directory by default
+  - --filesystem=~/.var/app/org.mozilla.firefox/.mozilla/
 modules:
   - name: bitwarden-desktop
     buildsystem: simple
@@ -53,4 +69,8 @@ modules:
           - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
           - export ZYPAK_LD_PRELOAD="/app/bin/libprocess_isolation.so"
           - export PROCESS_ISOLATION_LD_PRELOAD="/app/bin/libprocess_isolation.so"
-          - exec zypak-wrapper /app/bin/bitwarden-app "$@"
+          - PARAMS="--enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto"
+          - if [ "$USE_X11" != "false" ]; then
+          - PARAMS="--ozone-platform=x11"
+          - fi
+          - exec zypak-wrapper /app/bin/bitwarden-app "$@" "$PARAMS"

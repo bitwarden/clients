@@ -167,8 +167,17 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyFirstName": {
+    "message": "Скопировать имя"
+  },
+  "copyMiddleName": {
+    "message": "Скопировать отчество"
+  },
+  "copyLastName": {
+    "message": "Скопировать фамилию"
+  },
   "copyLicenseNumber": {
-    "message": "Скопировать номер лицензии"
+    "message": "Скопировать номер водительского удостоверения"
   },
   "copyPrivateKey": {
     "message": "Скопировать приватный ключ"
@@ -573,14 +582,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemWasUnarchived": {
-    "message": "Элемент был разархивирован"
-  },
-  "itemUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
@@ -699,23 +705,33 @@
   "unlockMethods": {
     "message": "Настройки разблокировки"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
-  },
   "unlockMethodNeeded": {
     "message": "Установите способ разблокировки в настройках"
   },
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
   },
-  "vaultTimeoutHeader": {
-    "message": "Тайм-аут хранилища"
-  },
   "otherOptions": {
     "message": "Прочие настройки"
   },
   "rateExtension": {
     "message": "Оценить расширение"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "experiencingAnIssue": {
+    "message": "Испытываете проблемы?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Скачайте, а затем поделитесь диагностическим отчетом с"
+  },
+  "bitwardenSupport": {
+    "message": "поддержкой Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Скачать"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
@@ -898,6 +914,9 @@
   },
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Неверный email или код подтверждения"
   },
   "valueCopied": {
     "message": "$VALUE$ скопировано",
@@ -1154,6 +1173,15 @@
     "message": "Автоматически очищать скопированные значения в вашем буфере обмена.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Настройки буфера обмена обновлены"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Время ожидания буфера обмена установлено по умолчанию; в целях повышения безопасности оно было увеличено до 5 минут."
+  },
+  "jumpToSetting": {
+    "message": "Перейти к настройкам"
+  },
   "notificationAddDesc": {
     "message": "Должен ли Bitwarden запомнить этот пароль?"
   },
@@ -1306,6 +1334,9 @@
   },
   "additionalOptions": {
     "message": "Дополнительные настройки"
+  },
+  "enableFillAssist": {
+    "message": "Использовать помощник по заполнению"
   },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
@@ -1794,6 +1825,27 @@
   "confirmAutofillDesc": {
     "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Для логина не сохранен сайт"
+  },
+  "siteDoesntMatch": {
+    "message": "Сайт не совпадает"
+  },
+  "loginNoSiteDesc": {
+    "message": "Для этого логина пока не сохранен ни один сайт. Перед автозаполнением убедитесь, что вы находитесь на довереном сайте."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Этот сайт не соответствует сохраненному для этого логина. Перед автозаполнением убедитесь, что вы находитесь на доверенном сайте."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Этот сайт не соответствует сохраненным для этого логина. Перед автозаполнением убедитесь, что вы находитесь на доверенном сайте."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Заполнить и сохранить этот сайт"
+  },
+  "autofillOnly": {
+    "message": "Только заполнить"
+  },
   "showInlineMenuLabel": {
     "message": "Показывать предположения автозаполнения в полях формы"
   },
@@ -2049,7 +2101,7 @@
     "message": "Номер паспорта"
   },
   "licenseNumber": {
-    "message": "ИНН"
+    "message": "Номер водительского удостоверения"
   },
   "email": {
     "message": "Email"
@@ -2105,8 +2157,86 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "bankAccount": {
+    "message": "Банковский счет"
+  },
   "typeNote": {
     "message": "Заметка"
+  },
+  "typeBankAccount": {
+    "message": "Банковский счет"
+  },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитная или дебетовая карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Личная информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важный текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входа на сервер"
+  },
+  "folderSubtitle": {
+    "message": "Организуйте свои элементы"
+  },
+  "collectionSubtitle": {
+    "message": "Организуйте общие элементы"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Банковские реквизиты"
+  },
+  "typeDriversLicense": {
+    "message": "Водительское удостоверение"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Водительское удостоверение или ID"
+  },
+  "driversLicenseDetails": {
+    "message": "Детали водительского удостоверения"
+  },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "issuingState": {
+    "message": "Республика / область выдачи"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
+  "licenseClass": {
+    "message": "Категории водительского удостоверения"
   },
   "newItemHeaderLogin": {
     "message": "Новый логин",
@@ -2128,12 +2258,24 @@
     "message": "Новый ключ SSH",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Новая текстовая Send",
+  "newItemHeaderBankAccount": {
+    "message": "Новый банковский счет",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Новое водительское удостоверение",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Новый паспорт",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Новый текст",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Новая файловая Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Новый файл",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2156,12 +2298,24 @@
     "message": "Редактировать ключ SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Изменить тестовую Send",
+  "editItemHeaderBankAccount": {
+    "message": "Изменить банковский счет",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Изменить водительское удостоверение",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Изменить паспорт",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Изменить текст",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Изменить файловую Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Изменить файл",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2183,6 +2337,21 @@
   "viewItemHeaderSshKey": {
     "message": "Просмотр ключа SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Просмотреть банковский счет",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Просмотреть водительское удостоверение",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Просмотреть паспорт",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Выберите элемент для добавления"
   },
   "passwordHistory": {
     "message": "История паролей"
@@ -2372,6 +2541,30 @@
   "weakMasterPasswordDesc": {
     "message": "Вы выбрали слабый мастер-пароль. Для надежной защиты аккаунта Bitwarden следует использовать сильный мастер-пароль (или парольную фразу). Вы действительно хотите использовать этот мастер-пароль?"
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
+  },
   "pin": {
     "message": "PIN-код",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2655,8 @@
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
-  "vaultTimeoutAction1": {
-    "message": "Тайм-аут действия"
+  "showAtRiskPasswordNotifications": {
+    "message": "Показывать уведомления о паролях подверженных риску"
   },
   "lock": {
     "message": "Блокировка",
@@ -2747,9 +2940,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не будет предлагать сохранить логины для этих доменов. Для вступления изменений в силу необходимо обновить страницу."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не будет предлагать сохранение логинов для этих доменов для всех авторизованных аккаунтов. Для вступления изменений в силу необходимо обновить страницу."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
   },
@@ -2822,8 +3012,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "Организация $ORGANIZATION$ просит вас изменить этот пароль, поскольку он подвержен риску. Перейдите в настройки аккаунта для изменения пароля.",
+  "atRiskNavigatePromptV2": {
+    "message": "Ваш пароль для этого сайта подвержен риску. Организация $ORGANIZATION$ просит вас перейти в настройки аккаунта и изменить его.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2862,6 +3052,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Иллюстрация списка логинов, которые подвержены риску."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Иллюстрация макета страницы хранилища Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, подверженном риску.",
@@ -3086,6 +3279,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ час.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка, в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка и пароль в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Скопируйте и распространите эту ссылку для Send. Она может быть просмотрена указанными вами пользователями в течение $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Ссылка на Send скопирована",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3190,9 +3422,6 @@
   },
   "minutes": {
     "message": "Мин."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
@@ -3304,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Экспорт личного хранилища"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Будут экспортированы только отдельные элементы хранилища, связанные с $EMAIL$. Элементы хранилища организации включены не будут. Экспортируется только информация об элементах хранилища, не включая связанные вложения.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Будут экспортированы только отдельные элементы хранилища, включая вложения, связанные с $EMAIL$. Элементы хранилища организации включены не будут",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Экспорт хранилища организации"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Элементы из личных хранилищ и из других организаций включены не будут.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Будут экспортированы только те элементы, которые находятся в вашем личном хранилище."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Будут экспортированы только элементы, связанные с хранилищем $ORGANIZATION$. Элементы из личных хранилищ экспортированы не будут.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3713,6 +3927,24 @@
   },
   "loginStatus": {
     "message": "Статус авторизации"
+  },
+  "recentlyActive": {
+    "message": "Недавняя активность"
+  },
+  "recentlyActiveToday": {
+    "message": "Сегодня"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Последние 7 дней"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Последние 14 дней"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Последние 30 дней"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Более 30 дней назад"
   },
   "masterPasswordChanged": {
     "message": "Мастер-пароль сохранен"
@@ -4369,6 +4601,9 @@
   "chooseFile": {
     "message": "Выбрать файл"
   },
+  "chooseFileSentenceCase": {
+    "message": "Выбрать файл"
+  },
   "noFileChosen": {
     "message": "Файл не выбран"
   },
@@ -4396,6 +4631,21 @@
   },
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
+  },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "При экспорте было пропущено 1 поврежденное вложение. Все остальные данные хранилища и вложения были экспортированы успешно."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "При экспорте было пропущено $COUNT$ поврежденных вложений. Все остальные данные хранилища и вложения были экспортированы успешно.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Passkey"
@@ -4825,6 +5075,9 @@
   },
   "copyAddress": {
     "message": "Скопировать адрес"
+  },
+  "myItems": {
+    "message": "Мои элементы"
   },
   "adminConsole": {
     "message": "консоли администратора"
@@ -5966,6 +6219,9 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
   },
@@ -6052,6 +6308,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Управление осуществляется через приложение Bitwarden для компьютера. Для изменения откройте это приложение."
+  },
+  "percentageCompleted": {
+    "message": "Завершено: $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Перейти"
   },
@@ -6085,8 +6353,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6094,20 +6362,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
   },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
-  },
   "items": {
     "message": "Элементы"
   },
   "searchResults": {
     "message": "Результаты поиска"
+  },
+  "simplifiedAutofill": {
+    "message": "Упрощенное автозаполнение"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "При нажатии на предложенный элемент автозаполнения он заполняется, а не перенаправляет вас к деталям. Вы по-прежнему можете просматривать эти элементы в меню Подробнее."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Открыть всплывающее окно упрощенного автозаполнения"
   },
   "resizeSideNavigation": {
     "message": "Изменить размер боковой навигации"
@@ -6127,8 +6407,155 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Скачать приложения Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Email защищен"
+  },
   "sendPasswordHelperText": {
     "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
+  },
+  "enterMonth": {
+    "message": "Введите месяц."
+  },
+  "enterDay": {
+    "message": "Введите день."
+  },
+  "enterYear": {
+    "message": "Введите год."
+  },
+  "invalidDay": {
+    "message": "Введите правильный день."
+  },
+  "invalidYear": {
+    "message": "Введите правильный год."
+  },
+  "searchDriversLicense": {
+    "message": "Поиск водительских удостоверений"
+  },
+  "bankName": {
+    "message": "Название банка"
+  },
+  "nameOnAccount": {
+    "message": "Имя держателя счета"
+  },
+  "bankAccountType": {
+    "message": "Тип счета"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Компания (бизнес)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Индивидуальный (личный)"
+  },
+  "accountNumber": {
+    "message": "Номер счета"
+  },
+  "bankRoutingNumber": {
+    "message": "Номер маршрута",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Номер филиала/учреждения"
+  },
+  "swiftCode": {
+    "message": "Код SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Контактный телефон банка"
+  },
+  "searchBankAccount": {
+    "message": "Поиск банковского счета"
+  },
+  "copyAccountNumber": {
+    "message": "Скопировать номер счета"
+  },
+  "copyRoutingNumber": {
+    "message": "Скопировать номер маршрута"
+  },
+  "copyPin": {
+    "message": "Скопировать PIN"
+  },
+  "copyIban": {
+    "message": "Скопировать IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Проверка"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Сбережения"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Справка о пополнении"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Кредитная линия"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Инвестиции/брокерство"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Денежный рынок"
+  },
+  "bankAccountTypeOther": {
+    "message": "Прочее"
+  },
+  "downloadFailed": {
+    "message": "Не удалось загрузить."
+  },
+  "maxAccessCount": {
+    "message": "Максимум обращений",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Скрыть мой адрес email от получателей."
+  },
+  "viewTextSendHeader": {
+    "message": "Просмотреть текст"
+  },
+  "viewFileSendHeader": {
+    "message": "Просмотреть файл"
+  },
+  "sendCreated": {
+    "message": "Send создана",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Ввод должен быть числовым"
+  },
+  "integerInputError": {
+    "message": "Ввод должен быть целым числом"
+  },
+  "sideNavigation": {
+    "message": "Боковая навигация"
+  },
+  "skipLink": {
+    "message": "Пропустить ссылку"
+  },
+  "callout": {
+    "message": "Инфопанель",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Индикатор прогресса",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Сохранить изменения Send не удалось",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
   }
 }

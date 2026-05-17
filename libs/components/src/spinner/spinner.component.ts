@@ -8,7 +8,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 @Component({
   selector: "bit-spinner",
   templateUrl: "spinner.component.html",
-  standalone: true,
   imports: [CommonModule],
 })
 export class SpinnerComponent {

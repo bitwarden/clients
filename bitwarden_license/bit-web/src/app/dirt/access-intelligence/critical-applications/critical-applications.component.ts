@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -131,7 +133,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
   removeCriticalApplication = async (hostname: string) => {
     this.dataService
-      .removeCriticalApplication(hostname)
+      .removeCriticalApplications(new Set<string>([hostname]))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

@@ -7,6 +7,7 @@ import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environmen
 import {
   activeAuthGuard,
   authGuard,
+  hasPasswordGuard,
   lockGuard,
   redirectGuard,
   redirectToVaultIfUnlockedGuard,
@@ -16,6 +17,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -42,7 +44,8 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
-import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm";
+import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -55,14 +58,16 @@ import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
+import { ChangePasswordPageComponent } from "../auth/popup/settings/change-password-page.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
+import { AutofillTriageComponent } from "../autofill/popup/autofill-triage/autofill-triage.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PhishingWarning } from "../dirt/phishing-detection/popup/phishing-warning.component";
+import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
@@ -78,13 +83,14 @@ import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
-import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
-import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
-import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
-import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro-carousel/intro-carousel.component";
-import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
-import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
-import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
+import { AddEditComponent } from "../vault/popup/components/vault/add-edit/add-edit.component";
+import { AssignCollections } from "../vault/popup/components/vault/assign-collections/assign-collections.component";
+import { AttachmentsComponent } from "../vault/popup/components/vault/attachments/attachments.component";
+import { IntroCarouselComponent } from "../vault/popup/components/vault/intro-carousel/intro-carousel.component";
+import { NewItemPageComponent } from "../vault/popup/components/vault/new-item-page/new-item-page.component";
+import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-password-history/vault-password-history.component";
+import { VaultComponent } from "../vault/popup/components/vault/vault.component";
+import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
 import {
   atRiskPasswordAuthGuard,
   canAccessAtRiskPasswords,
@@ -93,13 +99,13 @@ import {
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
-import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
+import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
 import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
-import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
-import { MoreFromBitwardenPageV2Component } from "../vault/popup/settings/more-from-bitwarden-page-v2.component";
+import { FoldersComponent } from "../vault/popup/settings/folders.component";
+import { MoreFromBitwardenPageComponent } from "../vault/popup/settings/more-from-bitwarden-page.component";
 import { TrashComponent } from "../vault/popup/settings/trash.component";
-import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
+import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
 import { RouteElevation } from "./app-routing.animations";
 import {
@@ -214,7 +220,7 @@ const routes: Routes = [
   },
   {
     path: "view-cipher",
-    component: ViewV2Component,
+    component: ViewComponent,
     canActivate: [authGuard],
     data: {
       // Above "trash"
@@ -223,20 +229,29 @@ const routes: Routes = [
   },
   {
     path: "cipher-password-history",
-    component: PasswordHistoryV2Component,
+    component: PasswordHistoryComponent,
     canActivate: [authGuard],
     data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
+    path: "new-item",
+    component: NewItemPageComponent,
+    canActivate: [
+      authGuard,
+      canAccessFeature(FeatureFlag.PM32009NewItemTypes, true, undefined, false),
+    ],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
     path: "add-cipher",
-    component: AddEditV2Component,
+    component: AddEditComponent,
     canActivate: [authGuard, debounceNavigationGuard()],
     data: { elevation: 1, resetRouterCacheOnTabChange: true } satisfies RouteDataProperties,
     runGuardsAndResolvers: "always",
   },
   {
     path: "edit-cipher",
-    component: AddEditV2Component,
+    component: AddEditComponent,
     canActivate: [authGuard, debounceNavigationGuard()],
     data: {
       // Above "trash"
@@ -247,7 +262,7 @@ const routes: Routes = [
   },
   {
     path: "attachments",
-    component: AttachmentsV2Component,
+    component: AttachmentsComponent,
     canActivate: [authGuard, filePickerPopoutGuard()],
     data: { elevation: 4 } satisfies RouteDataProperties,
   },
@@ -288,10 +303,21 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    path: AuthExtensionRoute.SettingsPassword,
+    component: ChangePasswordPageComponent,
+    canActivate: [
+      // TODO: PM-32419 - remove feature flag check
+      canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement),
+      authGuard,
+      hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`]),
+    ],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
     path: AuthExtensionRoute.DeviceManagement,
     component: ExtensionDeviceManagementComponent,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
     path: "notifications",
@@ -301,13 +327,13 @@ const routes: Routes = [
   },
   {
     path: "vault-settings",
-    component: VaultSettingsV2Component,
+    component: VaultSettingsComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "folders",
-    component: FoldersV2Component,
+    component: FoldersComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
@@ -331,7 +357,7 @@ const routes: Routes = [
   },
   {
     path: "appearance",
-    component: AppearanceV2Component,
+    component: AppearanceComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
@@ -343,7 +369,7 @@ const routes: Routes = [
   },
   {
     path: "clone-cipher",
-    component: AddEditV2Component,
+    component: AddEditComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
@@ -356,12 +382,18 @@ const routes: Routes = [
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard, filePickerPopoutGuard()],
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "send-created",
     component: SendCreatedComponent,
+    canActivate: [authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "autofill-triage",
+    component: AutofillTriageComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
@@ -635,7 +667,7 @@ const routes: Routes = [
   },
   {
     path: "more-from-bitwarden",
-    component: MoreFromBitwardenPageV2Component,
+    component: MoreFromBitwardenPageComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
@@ -696,7 +728,7 @@ const routes: Routes = [
       },
       {
         path: "vault",
-        component: VaultV2Component,
+        component: VaultComponent,
         canActivate: [authGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
@@ -752,7 +784,7 @@ const routes: Routes = [
         children: [
           {
             path: "",
-            component: PhishingWarning,
+            component: PhishingWarningComponent,
           },
           {
             path: "",

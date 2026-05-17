@@ -11,12 +11,11 @@ import {
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -62,17 +61,28 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
 
   transferInProgress$ = this._transferInProgressSubject.asObservable();
 
+  /**
+   * Only a single enforcement should be allowed to run at a time to prevent multiple dialogs
+   * or multiple simultaneous transfers.
+   */
+  private enforcementInFlight: boolean = false;
+
   private enforcingOrganization$(userId: UserId): Observable<Organization | undefined> {
     return this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId).pipe(
       map(
         (policies) =>
-          policies.sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
+          policies
+            .filter((p) => p.data?.enableIndividualItemsTransfer === true)
+            .sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
       ),
       switchMap((policy) => {
         if (policy == null) {
           return of(undefined);
         }
-        return this.organizationService.organizations$(userId).pipe(getById(policy.organizationId));
+        return this.organizationService.organizations$(userId).pipe(
+          getById(policy.organizationId),
+          map((org) => (org?.status === OrganizationUserStatusType.Confirmed ? org : undefined)),
+        );
       }),
     );
   }
@@ -142,7 +152,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
       FeatureFlag.MigrateMyVaultToMyItems,
     );
 
-    if (!featureEnabled) {
+    if (!featureEnabled || this.enforcementInFlight) {
       return;
     }
 
@@ -160,6 +170,8 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
       return;
     }
 
+    this.enforcementInFlight = true;
+
     const userAcceptedTransfer = await this.promptUserForTransfer(
       migrationInfo.enforcingOrganization.name,
     );
@@ -171,14 +183,9 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         message: this.i18nService.t("leftOrganization"),
       });
 
-      await this.eventCollectionService.collect(
-        EventType.Organization_ItemOrganization_Declined,
-        undefined,
-        undefined,
-        migrationInfo.enforcingOrganization.id,
-      );
       // Sync to reflect organization removal
       await this.syncService.fullSync(true);
+      this.enforcementInFlight = false;
       return;
     }
 
@@ -208,6 +215,8 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
+    } finally {
+      this.enforcementInFlight = false;
     }
   }
 

@@ -17,11 +17,11 @@ export class FolderApiService implements FolderApiServiceAbstraction {
     const request = new FolderRequest(folder);
 
     let response: FolderResponse;
-    if (folder.id == null) {
+    if (folder.id) {
+      response = await this.putFolder(folder.id, request);
+    } else {
       response = await this.postFolder(request);
       folder.id = response.id;
-    } else {
-      response = await this.putFolder(folder.id, request);
     }
 
     const data = new FolderData(response);

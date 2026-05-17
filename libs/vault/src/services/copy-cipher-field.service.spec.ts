@@ -1,10 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -186,6 +185,47 @@ describe("CopyCipherFieldService", () => {
         false,
         cipher.organizationId,
       );
+    });
+
+    describe("bank account fields", () => {
+      beforeEach(() => {
+        cipher.reprompt = CipherRepromptType.Password;
+        skipReprompt = false;
+      });
+
+      it.each(["accountNumber", "pin", "iban"] as CopyAction[])(
+        "requires password reprompt for protected field: %s",
+        async (action) => {
+          passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+          const result = await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(result).toBeTruthy();
+          expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
+        },
+      );
+
+      it("does not require password reprompt for routingNumber", async () => {
+        const result = await service.copy(valueToCopy, "routingNumber", cipher, skipReprompt);
+        expect(result).toBeTruthy();
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(platformUtilsService.copyToClipboard).toHaveBeenCalled();
+      });
+
+      it.each(["accountNumber", "pin"] as CopyAction[])(
+        "collects an event for %s",
+        async (action) => {
+          skipReprompt = true;
+          await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(eventCollectionService.collect).toHaveBeenCalled();
+        },
+      );
+
+      it("does not collect events for routingNumber or iban", async () => {
+        skipReprompt = true;
+        for (const action of ["routingNumber", "iban"] as CopyAction[]) {
+          await service.copy(valueToCopy, action, cipher, skipReprompt);
+        }
+        expect(eventCollectionService.collect).not.toHaveBeenCalled();
+      });
     });
   });
 });

@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favorieten"
   },
+  "unfavorite": {
+    "message": "Verwijderen uit favorieten"
+  },
   "types": {
     "message": "Categorieën"
   },
@@ -31,6 +34,45 @@
   },
   "typeSshKey": {
     "message": "SSH-sleutel"
+  },
+  "typeBankAccount": {
+    "message": "Bankrekening"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website of app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit- of debitkaart"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persoonlijke informatie"
+  },
+  "typeNoteSubtitle": {
+    "message": "Belangrijke tekst"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Serverlogintoken"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdetails"
+  },
+  "folderSubtitle": {
+    "message": "Organiseer je items"
+  },
+  "collectionSubtitle": {
+    "message": "Gedeelde items organiseren"
+  },
+  "typeDriversLicense": {
+    "message": "Rijbewijs"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Rijbewijs of ID"
+  },
+  "chooseItemToAdd": {
+    "message": "Kies item om toe te voegen"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Selecteer het type item dat je aan je kluis wilt toevoegen."
   },
   "folders": {
     "message": "Mappen"
@@ -84,6 +126,106 @@
   "viewItem": {
     "message": "Item weergeven"
   },
+  "viewItemHeaderLogin": {
+    "message": "Login weergeven",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kaart weergeven",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identiteit weergeven",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notitie weergeven",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-sleutel weergeven",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankrekening weergeven",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Rijbewijs weergeven",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Rijbewijs weergeven",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Paspoort weergeven",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Nieuwe login",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Nieuwe kaart",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Nieuwe identiteit",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nieuwe notitie",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nieuwe SSH-sleutel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Nieuwe bankrekening",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nieuw rijbewijs",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nieuw paspoort",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-sleutel bewerken",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Bankrekening bewerken",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Rijbewijs bewerken",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Paspoort bewerken",
+    "description": "Header for edit passport item type"
+  },
   "name": {
     "message": "Naam"
   },
@@ -127,7 +269,7 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "Niemand kan deze Send weergeven als de limiet is bereikt.",
+    "message": "Niemand kan deze Send weergeven als het limiet is bereikt.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
@@ -140,20 +282,20 @@
   "sendTypeTextToShare": {
     "message": "Te delen tekst"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nieuwe Send (tekst)",
+  "newItemHeaderTextSendV2": {
+    "message": "Nieuwe tekst",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nieuwe Send (bestand)",
+  "newItemHeaderFileSendV2": {
+    "message": "Nieuw bestand",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send (tekst) bewerken",
+  "editItemHeaderTextSendV2": {
+    "message": "Tekst bewerken",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send (bestand) bewerken",
+  "editItemHeaderFileSendV2": {
+    "message": "Bestand bewerken",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -333,6 +475,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Voor deze functionaliteit heb je een Premium-abonnement nodig."
+  },
+  "syncWithBrowser": {
+    "message": "Synchroniseren met browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Om verbinding te maken met $VAULTURL$ moet je je standaardbrowser synchroniseren met de Bitwarden-app. Je wordt teruggestuurd naar deze app zodra je browser is gesynchroniseerd.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Browser starten"
   },
   "errorOccurred": {
     "message": "Er is een fout opgetreden."
@@ -586,6 +744,12 @@
   "editedItem": {
     "message": "Item opgeslagen"
   },
+  "itemAddedToFavorites": {
+    "message": "Item toegevoegd aan favorieten"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item verwijderd uit favorieten"
+  },
   "deleteItem": {
     "message": "Verwijder item"
   },
@@ -594,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "Verwijder bijlage"
+  },
+  "deleteAttachmentName": {
+    "message": "Bijlage $NAME$ verwijderen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ downloaden",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Weet je zeker dat je dit naar de prullenbak wilt verplaatsen?"
@@ -896,6 +1078,9 @@
   "masterPassHintLabel": {
     "message": "Hoofdwachtwoordhint"
   },
+  "masterPasswordChanged": {
+    "message": "Hoofdwachtwoord opgeslagen"
+  },
   "passwordStrengthScore": {
     "message": "Score wachtwoordsterkte $SCORE$",
     "placeholders": {
@@ -1022,6 +1207,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
   },
   "continue": {
     "message": "Doorgaan"
@@ -1184,6 +1372,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken."
   },
+  "rotateAccountEncKey": {
+    "message": "De encryptiesleutel van mijn account ook roteren"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact van het roteren van je encryptiesleutel"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Er zijn oude bestandsbijlagen in je kluis die aangepast moeten worden voordat je je encryptiesleutels kunt roteren."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Encryptiesleutel roteren"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Weet je zeker dat je de encryptiesleutel van je account wilt roteren?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
+  },
   "confirmIdentityToContinue": {
     "message": "Bevestig je identiteit om door te gaan"
   },
@@ -1268,6 +1477,9 @@
   "changeMasterPass": {
     "message": "Hoofdwachtwoord wijzigen"
   },
+  "changeMasterPassword": {
+    "message": "Hoofdwachtwoord wijzigen"
+  },
   "continueToWebApp": {
     "message": "Doorgaan naar web-app?"
   },
@@ -1346,17 +1558,11 @@
   "twoStepLogin": {
     "message": "Tweestapsaanmelding"
   },
-  "vaultTimeoutHeader": {
-    "message": "Time-out van de kluis"
-  },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
   },
   "vaultTimeout1": {
     "message": "Time-out"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Time-out actie"
   },
   "vaultTimeoutDesc": {
     "message": "Stel de time-out van de kluis en de bijbehorende actie in."
@@ -1453,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "Altijd een pictogram in het systeemvak weergeven."
   },
-  "startToTray": {
-    "message": "Opstarten als systeemvakpictogram"
-  },
-  "startToTrayDesc": {
-    "message": "Wanneer de applicatie voor het eerst wordt gestart, alleen een pictogram in het systeemvak weergeven."
-  },
-  "startToMenuBar": {
-    "message": "Menubalk starten"
-  },
-  "startToMenuBarDesc": {
-    "message": "Wanneer de applicatie voor het eerst is gestart, alleen een pictogram weergeven in de menubalk."
-  },
   "openAtLogin": {
     "message": "Automatisch starten bij inloggen"
   },
@@ -1552,12 +1746,28 @@
   "unknown": {
     "message": "Onbekend"
   },
+  "copyAddress": {
+    "message": "Adres kopiëren"
+  },
+  "copyPhone": {
+    "message": "Telefoon kopiëren"
+  },
+  "copyNote": {
+    "message": "Notitie kopiëren"
+  },
+  "copyVerificationCode": {
+    "message": "Verificatiecode kopiëren"
+  },
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren"
   },
   "copyNumber": {
     "message": "Nummer kopiëren",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Naam kopiëren",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "E-mail kopiëren"
@@ -1634,6 +1844,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "maand"
+  },
+  "monthly": {
+    "message": "Maandelijks"
+  },
+  "year": {
+    "message": "jaar"
+  },
+  "annually": {
+    "message": "Jaarlijks"
+  },
+  "annual": {
+    "message": "Jaarlijks"
   },
   "refreshComplete": {
     "message": "Bijwerken voltooid"
@@ -1799,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "Standaard overeenkomstdetectie",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
   },
   "toggleOptions": {
     "message": "Opties schakelen"
@@ -2050,6 +2281,15 @@
   "unsavedChangesTitle": {
     "message": "Niet-opgeslagen wijzigingen"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Als je nu vertrekt, worden de wijzigingen niet opgeslagen. Installeer de update later zodat je kunt blijven en je wijzigingen kunt opslaan."
+  },
+  "installLater": {
+    "message": "Later installeren"
+  },
+  "continueWithInstall": {
+    "message": "Doorgaan met installeren"
+  },
   "clone": {
     "message": "Dupliceren"
   },
@@ -2065,9 +2305,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Om toegang te krijgen tot een uitgelogde kluis te krijgen moet je opnieuw inloggen."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
-  },
   "lock": {
     "message": "Vergrendelen",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2078,6 +2315,24 @@
   },
   "searchTrash": {
     "message": "Prullenbak doorzoeken"
+  },
+  "searchArchive": {
+    "message": "Archief doorzoeken"
+  },
+  "searchLogin": {
+    "message": "Login zoeken"
+  },
+  "searchCard": {
+    "message": "Kaart zoeken"
+  },
+  "searchIdentity": {
+    "message": "Identiteit zoeken"
+  },
+  "searchSecureNote": {
+    "message": "Veilige notitie zoeken"
+  },
+  "searchSshKey": {
+    "message": "SSH-sleutel zoeken"
   },
   "permanentlyDeleteItem": {
     "message": "Item definitief verwijderen"
@@ -2130,7 +2385,7 @@
     "message": "Kaartgegevens"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$-gegevens",
+    "message": "$BRAND$ gegevens",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -2143,6 +2398,9 @@
   },
   "copyTOTP": {
     "message": "Authenticatie-sleutel (TOTP) kopiëren"
+  },
+  "copyNotes": {
+    "message": "Notities kopiëren"
   },
   "totpHelperTitle": {
     "message": "Maak tweestapsaanmelding naadloos"
@@ -2233,6 +2491,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Je nieuwe hoofdwachtwoord voldoet niet aan de beleidseisen."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
   },
@@ -2281,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Helaas wordt browserintegratie in de linux versie momenteel niet ondersteund."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Vereis verificatie voor browserintegratie"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Schakel een extra beveiligingsniveau in door een vingerafdrukzin te vereisen bij het verbinden van je desktop en browser. Wanneer ingeschakeld moet je iedere verbinding verifiëren."
-  },
   "enableHardwareAcceleration": {
     "message": "Gebruik hardware acceleratie"
   },
@@ -2295,12 +2550,6 @@
   },
   "approve": {
     "message": "Goedkeuren"
-  },
-  "verifyBrowserTitle": {
-    "message": "Browserverbinding verifiëren"
-  },
-  "verifyBrowserDesc": {
-    "message": "Verzeker je ervan dat de getoonde vingerafdruk hetzelfde is als de vingerafdruk in de browserextensie."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ wil verbinding maken met Bitwarden",
@@ -2374,6 +2623,9 @@
   "editSend": {
     "message": "Send bewerken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ik"
   },
   "myVault": {
     "message": "Mijn kluis"
@@ -2530,7 +2782,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Wacht op interactie met beveiligingssleutel..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Verberg mijn e-mailadres voor ontvangers."
   },
   "sendOptionsPolicyInEffect": {
@@ -2665,9 +2917,6 @@
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
     "placeholders": {
@@ -2778,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Persoonlijke kluis exporteren"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Alleen de individuele kluisitems geassocieerd met $EMAIL$ worden geëxporteerd. Kluisitems van de organisatie worden niet meegenomen. Alleen informatie over kluisitem wordt geëxporteerd en bevat geen bijlagen.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exporteert alleen de persoonlijke kluis-items, inclusief attachments, gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Organisatiekluis exporteren"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items of items van andere organisaties.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Alleen items in je individuele kluis worden geëxporteerd."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Alleen items die gekoppeld zijn aan de $ORGANIZATION$ kluis worden geëxporteerd. Items in individuele kluizen worden niet geëxporteerd.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -2855,7 +3089,7 @@
     "message": "E-mailadres genereren"
   },
   "usernameGenerator": {
-    "message": "Gebruikersnaamgenerator"
+    "message": "Gebruikersnaam generator"
   },
   "generatePassword": {
     "message": "Genereer wachtwoord"
@@ -3434,6 +3668,63 @@
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"
   },
+  "device": {
+    "message": "Apparaat"
+  },
+  "devices": {
+    "message": "Apparaten"
+  },
+  "whatIsADevice": {
+    "message": "Wat is een apparaat?"
+  },
+  "aDeviceIs": {
+    "message": "Een apparaat is een unieke installatie van de Bitwarden-app waar je bent ingelogd. Het opnieuw installeren, verwijderen van app-gegevens of het wissen van je cookies kan ertoe leiden dat een apparaat meerdere keren verschijnt."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Je account is op elk van de onderstaande apparaten aangemeld."
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "recentlyActive": {
+    "message": "Recent actief"
+  },
+  "recentlyActiveToday": {
+    "message": "Vandaag"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Afgelopen 7 dagen"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Afgelopen 14 dagen"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Afgelopen 30 dagen"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Meer dan 30 dagen geleden"
+  },
+  "firstLogin": {
+    "message": "Eerste login"
+  },
+  "trusted": {
+    "message": "Vertrouwd"
+  },
+  "currentSession": {
+    "message": "Huidige sessie"
+  },
+  "requestPending": {
+    "message": "Verzoek in behandeling"
+  },
+  "deviceIdMissing": {
+    "message": "Apparaat-ID ontbreekt"
+  },
+  "deviceTypeMissing": {
+    "message": "Apparaat-type ontbreekt"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Aanmaakdatum apparaat ontbreekt"
+  },
   "trustOrganization": {
     "message": "Organisatie vertrouwen"
   },
@@ -3450,7 +3741,7 @@
     "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
   },
   "orgTrustWarning": {
-    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+    "message": "Voor de veiligheid van je account, ga alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
   },
   "orgTrustWarning1": {
     "message": "Deze organisatie heeft een Enterprise-beleid dat je inschrijft voor accountherstel. Inschrijving stelt beheerders van de organisatie in staat om je wachtwoord te wijzigen. Ga alleen verder als je deze organisatie herkent en de vingerafdrukzin die hieronder wordt weergegeven overeenkomt met de vingerafdruk van de organisatie."
@@ -3619,7 +3910,7 @@
     "message": "Jouw account vereist Duo-tweestapsaanmelding."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+    "message": "Jouw account vereist Duo-tweestapslogin. Volg de onderstaande stappen om het inloggen te voltooien."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Volg de onderstaande stappen om in te loggen."
@@ -3672,6 +3963,9 @@
   "chooseFile": {
     "message": "Bestand kiezen"
   },
+  "chooseFileSentenceCase": {
+    "message": "Bestand kiezen"
+  },
   "noFileChosen": {
     "message": "Geen bestand gekozen"
   },
@@ -3699,6 +3993,21 @@
   },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
+  },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschadigde bijlage is overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschadigde bijlagen zijn overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor-authenticatie geannuleerd"
@@ -3755,10 +4064,10 @@
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Direct importeren vanuit browser"
   },
   "browserProfile": {
-    "message": "Browserprofiel"
+    "message": "Browser profiel"
   },
   "seeDetailedInstructions": {
     "message": "Zie gedetailleerde instructies op onze helpsite op",
@@ -3784,7 +4093,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI-matche-detectie is hoe Bitwarden invulsuggesties herkent.",
+    "message": "URI-match detectie is hoe Bitwarden invulsuggesties herkent.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -3812,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Probleemoplossing"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Diagnostisch rapport downloaden"
+  },
+  "experiencingAnIssue": {
+    "message": "Ervaar je een probleem?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download het diagnostische rapport en deel het met"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden-ondersteuning",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Downloaden"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Hardwareversnelling uitschakelen en herstarten"
@@ -3913,7 +4238,7 @@
     "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
   "itemDetails": {
-    "message": "Itemdetails"
+    "message": "Item details"
   },
   "itemName": {
     "message": "Itemnaam"
@@ -4082,6 +4407,9 @@
   },
   "missingWebsite": {
     "message": "Ontbrekende website"
+  },
+  "missingPermissions": {
+    "message": "Je hebt geen rechten om deze actie uit te voeren."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
@@ -4387,11 +4715,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
+  "itemArchiveToast": {
+    "message": "Item gearchiveerd"
   },
-  "itemWasUnarchived": {
-    "message": "Item uit het archief gehaald"
+  "itemUnarchivedToast": {
+    "message": "Item gedearchiveerd"
   },
   "archiveItem": {
     "message": "Item archiveren"
@@ -4439,7 +4767,7 @@
     "message": "En meer!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Geavanceerde online beveiliging"
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
@@ -4451,7 +4779,7 @@
     "message": "Doorgaan met inloggen"
   },
   "doNotContinue": {
-    "message": "Niet verder gaan"
+    "message": "Niet doorgaan"
   },
   "domain": {
     "message": "Domein"
@@ -4486,8 +4814,14 @@
   "sessionTimeoutSettingsAction": {
     "message": "Time-out actie"
   },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
+  },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
+  },
+  "browserAccessDenied": {
+    "message": "Er is een ongeldige browsermap geselecteerd, of de toegang is geweigerd"
   },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
@@ -4533,6 +4867,30 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
   },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is niet geïnstalleerd. Installeer $BROWSER$ voordat je wachtwoorden importeert.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Selecteer de gegevensmap van $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Verwachte locatie:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Toegang verlenen"
+  },
   "upgrade": {
     "message": "Upgrade"
   },
@@ -4566,8 +4924,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4575,17 +4933,302 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
   },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
+  "organizationIsSuspended": {
+    "message": "Organisatie is opgeschort"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% compleet",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "noItemsInTrash": {
+    "message": "Geen items in prullenbak"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd"
+  },
+  "noItemsInVault": {
+    "message": "Geen items in de kluis"
+  },
+  "emptyVaultDescription": {
+    "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
+  },
+  "emptyFavorites": {
+    "message": "Je hebt geen favoriete items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Voeg veelgebruikte items toe aan favorieten voor snelle toegang."
+  },
+  "noSearchResults": {
+    "message": "Geen resultaten teruggekregen"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Wis filters of probeer een andere zoekterm"
   },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
+  "emails": {
+    "message": "E-mails"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
+  },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ herschikken. Gebruik de pijltjestoets om het item omhoog of omlaag te verplaatsen.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "userVerificationFailed": {
+    "message": "Gebruikersverificatie is mislukt."
+  },
+  "enterMonth": {
+    "message": "Voer maand in."
+  },
+  "enterDay": {
+    "message": "Voer dag in."
+  },
+  "enterYear": {
+    "message": "Voer jaar in."
+  },
+  "invalidDay": {
+    "message": "Voer een geldige dag in."
+  },
+  "invalidYear": {
+    "message": "Voer een geldig jaar in."
+  },
+  "searchDriversLicense": {
+    "message": "Rijbewijzen zoeken"
+  },
+  "bankAccount": {
+    "message": "Bankrekening"
+  },
+  "bankName": {
+    "message": "Banknaam"
+  },
+  "nameOnAccount": {
+    "message": "Naam op rekening"
+  },
+  "bankAccountType": {
+    "message": "Soort rekening"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Bedrijf"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individu"
+  },
+  "accountNumber": {
+    "message": "Rekeningnummer"
+  },
+  "bankRoutingNumber": {
+    "message": "Routeringsnummer",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Vestiging/instituutnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefoonnummer bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankrekening doorzoeken"
+  },
+  "copyAccountNumber": {
+    "message": "Rekeningnummer kopiëren"
+  },
+  "copyRoutingNumber": {
+    "message": "Routeringsnummer kopiëren"
+  },
+  "copyPin": {
+    "message": "PIN kopiëren"
+  },
+  "copyIban": {
+    "message": "IBAN kopiëren"
+  },
+  "copyFirstName": {
+    "message": "Voornaam kopiëren"
+  },
+  "copyMiddleName": {
+    "message": "Tussenvoegsel kopiëren"
+  },
+  "copyLastName": {
+    "message": "Achternaam kopiëren"
+  },
+  "copyLicenseNumber": {
+    "message": "Kenteken kopiëren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Controleren"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Spaargeld"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Bewijs van storting"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredietlijn"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investering/makelaar"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Geldmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Overig"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Veilig je bankgegevens opslaan"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Sla je bankgegevens op om deze gemakkelijk en veilig op al je apparaten te benaderen."
+  },
+  "discardEdits": {
+    "message": "Bewerkingen verwerpen"
+  },
+  "discardEditsMessage": {
+    "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
+  },
+  "backToEditing": {
+    "message": "Terug naar bewerken"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Bewerkingen Send opslaan mislukt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "Tekst bekijken"
+  },
+  "viewFileSendHeader": {
+    "message": "Bestand bekijken"
+  },
+  "sendCreated": {
+    "message": "Send aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Invoer moet numeriek zijn"
+  },
+  "integerInputError": {
+    "message": "Invoer moet een geheel getal zijn"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."
+  },
+  "sideNavigation": {
+    "message": "Zijnavigatie"
+  },
+  "skipLink": {
+    "message": "Link overslaan"
+  },
+  "callout": {
+    "message": "Opmerking",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Voortgangsbalk",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Rijbewijsdetails"
+  },
+  "dateOfBirth": {
+    "message": "Geboortedatum"
+  },
+  "birthMonth": {
+    "message": "Geboortemaand"
+  },
+  "birthDay": {
+    "message": "Geboortedag"
+  },
+  "birthYear": {
+    "message": "Geboortejaar"
+  },
+  "issuingCountry": {
+    "message": "Land van uitgifte"
+  },
+  "issuingState": {
+    "message": "Provincie van uitgifte"
+  },
+  "issueDate": {
+    "message": "Uitgiftedatum"
+  },
+  "issueMonth": {
+    "message": "Uitgavemaand"
+  },
+  "issueDay": {
+    "message": "Uitgiftedag"
+  },
+  "issueYear": {
+    "message": "Uitgiftejaar"
+  },
+  "expirationDay": {
+    "message": "Vervaldatum"
+  },
+  "issuingAuthority": {
+    "message": "Instantie van uitgifte"
+  },
+  "licenseClass": {
+    "message": "Rijbewijsklasse"
   }
 }

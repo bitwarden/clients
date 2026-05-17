@@ -1,6 +1,8 @@
 import {
+  Observable,
   ReplaySubject,
   concatMap,
+  distinctUntilChanged,
   filter,
   first,
   map,
@@ -32,6 +34,7 @@ import {
   isForwarderProfile,
   toVendorId,
   CredentialType,
+  AlgorithmMetadata,
 } from "../metadata";
 import { CredentialGeneratorProviders } from "../providers";
 import { GenerateRequest } from "../types";
@@ -136,6 +139,20 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
     return this.provide.metadata
       .algorithms$({ type }, dependencies)
       .pipe(map((algorithms) => algorithms.map((a) => this.algorithm(a))));
+  }
+
+  preferredAlgorithm$(
+    type: CredentialType,
+    dependencies: BoundDependency<"account", Account>,
+  ): Observable<AlgorithmMetadata> {
+    const preference$ = this.provide.metadata.preference$(type, dependencies);
+    const metadata$ = preference$.pipe(
+      memoizedMap((preference) => this.provide.metadata.metadata(preference)),
+      distinctUntilChanged(),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    return metadata$;
   }
 
   algorithms(type: CredentialType | CredentialType[]) {

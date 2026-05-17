@@ -21,6 +21,8 @@ use zbus_polkit::policykit1::{AuthorityProxy, CheckAuthorizationFlags, Subject};
 
 use crate::secure_memory::{encrypted_memory_store::EncryptedMemoryStore, SecureMemoryStore as _};
 
+/// Biometric lock system using Polkit for authentication and secure memory to hold the key on
+/// Linux.
 pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
@@ -28,6 +30,7 @@ pub struct BiometricLockSystem {
 }
 
 impl BiometricLockSystem {
+    /// Creates a new biometric lock system with secure memory storage.
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::default())),
@@ -96,7 +99,32 @@ async fn polkit_authenticate_bitwarden_policy() -> Result<bool> {
 
     let connection = Connection::system().await?;
     let proxy = AuthorityProxy::new(&connection).await?;
-    let subject = Subject::new_for_owner(std::process::id(), None, None)?;
+
+    // Use system-bus-name instead of unix-process to avoid PID namespace issues in
+    // sandboxed environments (e.g., Flatpak). When using unix-process with a PID from
+    // inside the sandbox, polkit cannot validate it against the host PID namespace.
+    //
+    // By using system-bus-name, polkit queries D-Bus for the connection's credentials,
+    // which includes the correct host PID and UID, avoiding namespace mismatches.
+    //
+    // If D-Bus unique name is not available, fall back to the traditional unix-process
+    // approach for compatibility with non-sandboxed environments.
+    let subject = if let Some(bus_name) = connection.unique_name() {
+        use zbus::zvariant::{OwnedValue, Str};
+        let mut subject_details = std::collections::HashMap::new();
+        subject_details.insert(
+            "name".to_string(),
+            OwnedValue::from(Str::from(bus_name.as_str())),
+        );
+        Subject {
+            subject_kind: "system-bus-name".to_string(),
+            subject_details,
+        }
+    } else {
+        // Fallback: use unix-process with PID (may not work in sandboxed environments)
+        Subject::new_for_owner(std::process::id(), None, None)?
+    };
+
     let details = std::collections::HashMap::new();
     let authorization_result = proxy
         .check_authorization(

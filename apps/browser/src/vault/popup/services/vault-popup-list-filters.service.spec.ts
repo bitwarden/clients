@@ -39,7 +39,7 @@ import {
 } from "./vault-popup-list-filters.service";
 
 const configService = {
-  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(true)),
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(false)),
 } as unknown as ConfigService;
 
 jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
@@ -188,6 +188,37 @@ describe("VaultPopupListFiltersService", () => {
         expect(cipherTypes.map((c) => c.value)).toEqual([
           CipherType.Login,
           CipherType.Identity,
+          CipherType.SecureNote,
+          CipherType.SshKey,
+        ]);
+        done();
+      });
+    });
+
+    it("excludes BankAccount cipher type when the feature flag is disabled", (done) => {
+      service.cipherTypes$.subscribe((cipherTypes) => {
+        expect(cipherTypes.map((c) => c.value)).not.toContain(CipherType.BankAccount);
+        done();
+      });
+    });
+
+    it("includes BankAccount cipher type when the feature flag is enabled", (done) => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValueOnce(new BehaviorSubject(true));
+      const { service: flagEnabledService } = createSeededVaultPopupListFiltersService(
+        [],
+        [],
+        [],
+        {},
+      );
+
+      flagEnabledService.cipherTypes$.subscribe((cipherTypes) => {
+        expect(cipherTypes.map((c) => c.value)).toEqual([
+          CipherType.Login,
+          CipherType.Card,
+          CipherType.BankAccount,
+          CipherType.Identity,
+          CipherType.DriversLicense,
+          CipherType.Passport,
           CipherType.SecureNote,
           CipherType.SshKey,
         ]);
@@ -359,7 +390,7 @@ describe("VaultPopupListFiltersService", () => {
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.icon)).toEqual([
             "bwi-user",
-            "bwi-exclamation-triangle tw-text-danger",
+            "bwi-exclamation-triangle",
           ]);
           done();
         });
@@ -438,7 +469,7 @@ describe("VaultPopupListFiltersService", () => {
 
   describe("folders$", () => {
     it('returns no folders when "No Folder" is the only option', (done) => {
-      folderViews$.next([{ id: null, name: "No Folder" }]);
+      folderViews$.next([{ id: "", name: "No Folder" }]);
 
       service.folders$.subscribe((folders) => {
         expect(folders).toEqual([]);
@@ -448,7 +479,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it('moves "No Folder" to the end of the list', (done) => {
       folderViews$.next([
-        { id: null, name: "No Folder" },
+        { id: "", name: "No Folder" },
         { id: "2345", name: "Folder 2" },
         { id: "1234", name: "Folder 1" },
       ]);
@@ -823,6 +854,7 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
+      configService,
     );
   });
 

@@ -35,9 +35,9 @@ import {
   ProvidersTableDataSource,
   showConfirmBanner,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
-import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import {
   AddEditMemberDialogComponent,
@@ -61,7 +61,7 @@ interface BulkProviderFlags {
   templateUrl: "members.component.html",
   standalone: false,
 })
-export class vNextMembersComponent {
+export class MembersComponent {
   protected apiService = inject(ApiService);
   protected dialogService = inject(DialogService);
   protected i18nService = inject(I18nService);
@@ -228,15 +228,20 @@ export class vNextMembersComponent {
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {
         // In self-hosted environments, show legacy dialog
-        const request = this.apiService.postManyProviderUserReinvite(
-          providerId,
-          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-        );
+        const request = this.apiService
+          .postManyProviderUserReinvite(
+            providerId,
+            new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+          )
+          .then((response) => response.data);
 
         const dialogRef = BulkStatusComponent.open(this.dialogService, {
           data: {

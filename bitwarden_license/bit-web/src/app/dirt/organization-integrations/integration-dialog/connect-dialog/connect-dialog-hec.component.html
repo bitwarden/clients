@@ -6,7 +6,7 @@
     <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
       @if (loading) {
         <ng-container #spinner>
-          <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+          <bit-icon name="bwi-spinner" class="bwi-lg bwi-spin" aria-hidden="true"></bit-icon>
         </ng-container>
       }
       @if (!loading) {
@@ -17,7 +17,7 @@
               bitInput
               type="text"
               formControlName="url"
-              placeholder="https://<customer-id>.crowdstrike.com"
+              placeholder="{{ urlHelperLinkText }}"
             />
           </bit-form-field>
 
@@ -52,7 +52,7 @@
           <button
             bitIconButton="bwi-trash"
             type="button"
-            buttonType="danger"
+            buttonType="dangerGhost"
             label="{{ 'delete' | i18n }}"
             appA11yTitle="{{ 'delete' | i18n }}"
             [bitAction]="delete"

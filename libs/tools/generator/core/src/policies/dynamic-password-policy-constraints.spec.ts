@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 
 import { BuiltIn, Profile } from "../metadata";

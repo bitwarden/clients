@@ -100,6 +100,8 @@ export class Organization {
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
   usePhishingBlocker: boolean;
+  useMyItems: boolean;
+  useInviteLinks: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -166,6 +168,8 @@ export class Organization {
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
     this.usePhishingBlocker = obj.usePhishingBlocker;
+    this.useMyItems = obj.useMyItems;
+    this.useInviteLinks = obj.useInviteLinks;
   }
 
   get canAccess() {

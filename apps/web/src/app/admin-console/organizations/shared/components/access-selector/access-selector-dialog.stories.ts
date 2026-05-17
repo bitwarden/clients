@@ -25,14 +25,13 @@ const render: Story["render"] = (args) => ({
     ...args,
   },
   template: `
-    <bit-dialog [dialogSize]="dialogSize" [disablePadding]="disablePadding" disableAnimations>
+    <bit-dialog disableAnimations>
       <span bitDialogTitle>Access selector</span>
       <span bitDialogContent>
         <bit-access-selector
           (ngModelChange)="valueChanged($event)"
           [ngModel]="initialValue"
           [items]="items"
-          [disabled]="disabled"
           [columnHeader]="columnHeader"
           [showGroupColumn]="showGroupColumn"
           [selectorLabelText]="selectorLabelText"
@@ -48,7 +47,7 @@ const render: Story["render"] = (args) => ({
         <button
           class="tw-ml-auto"
           bitIconButton="bwi-trash"
-          buttonType="danger"
+          buttonType="dangerGhost"
           size="default"
           title="Delete"
           label="Delete"></button>
@@ -68,7 +67,6 @@ export const Dialog: Story = {
     selectorLabelText: "Select Collections",
     selectorHelpText: "Some helper text describing what this does",
     emptySelectionText: "No collections added",
-    disabled: false,
     initialValue: [] as any[],
     items: dialogAccessItems,
   },

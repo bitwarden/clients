@@ -9,7 +9,7 @@ import { DialogService, NavigationModule } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
-import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
+import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
 
@@ -27,6 +27,13 @@ class MockSendFiltersNavComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockVaultFiltersNavComponent {}
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,

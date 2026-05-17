@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,19 +11,19 @@ import {
 } from "@angular/core";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  SpinnerComponent,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
@@ -32,15 +34,13 @@ import { SendAccessTextComponent } from "./send-access-text.component";
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule],
+  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
   readonly id = input.required<string>();
   readonly key = input.required<string>();
   readonly accessToken = input<SendAccessToken | null>(null);
-  readonly sendResponse = input<SendAccessResponse | null>(null);
-  readonly accessRequest = input<SendAccessRequest>(new SendAccessRequest());
 
   authRequired = output<void>();
 
@@ -65,10 +65,12 @@ export class SendViewComponent implements OnInit {
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
-    private configService: ConfigService,
   ) {}
 
   ngOnInit() {
+    this.layoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "sendAccessContentTitle" },
+    });
     void this.load();
   }
 
@@ -78,23 +80,12 @@ export class SendViewComponent implements OnInit {
     this.error.set(false);
 
     try {
-      const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-      let response: SendAccessResponse;
-      if (sendEmailOtp) {
-        const accessToken = this.accessToken();
-        if (!accessToken) {
-          this.authRequired.emit();
-          return;
-        }
-        response = await this.sendApiService.postSendAccessV2(accessToken);
-      } else {
-        const sendResponse = this.sendResponse();
-        if (!sendResponse) {
-          this.authRequired.emit();
-          return;
-        }
-        response = sendResponse;
+      const accessToken = this.accessToken();
+      if (!accessToken) {
+        this.authRequired.emit();
+        return;
       }
+      const response = await this.sendApiService.postSendAccessV2(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
       this.decKey = await this.keyService.makeSendKey(keyArray);

@@ -19,7 +19,12 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CalloutComponent, MenuModule } from "@bitwarden/components";
+import {
+  CalloutComponent,
+  MenuModule,
+  BitIconButtonComponent,
+  IconButtonModule,
+} from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
@@ -28,18 +33,26 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
-  imports: [MenuModule, CommonModule, JslibModule, ScrollingModule, CalloutComponent],
+  imports: [
+    CommonModule,
+    JslibModule,
+    ScrollingModule,
+    CalloutComponent,
+    MenuModule,
+    IconButtonModule,
+    BitIconButtonComponent,
+  ],
 })
 export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
   readonly showPremiumCallout = input<boolean>(false);
 
   readonly onAddFolder = output<void>();
-
-  protected readonly desktopMigrationMilestone1 = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone1),
-  );
+  readonly onAddItemDialog = output<void>();
 
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+  protected readonly useNewItemDialog = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+  );
 
   constructor(
     searchService: SearchService,

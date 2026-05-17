@@ -11,6 +11,7 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -138,7 +139,7 @@ function expectEqualCiphers(ciphers: CipherView[] | Cipher[], jsonResult: string
 }
 
 function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
+  const actual = JSON.parse(jsonResult).folders;
   const folders: FolderResponse[] = [];
   folderViews.forEach((c) => {
     const folder = new FolderResponse();
@@ -148,21 +149,19 @@ function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult
   });
 
   expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(folders));
+  expect(actual).toEqual(folders);
 }
 
 function expectEqualFolders(folders: Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
-  const items: Folder[] = [];
-  folders.forEach((c) => {
-    const item = new Folder();
-    item.id = c.id;
-    item.name = c.name;
-    items.push(item);
-  });
+  const actual = JSON.parse(jsonResult).folders;
+
+  const expected = folders.map((c) => ({
+    id: c.id,
+    name: c.name?.encryptedString,
+  }));
 
   expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(items));
+  expect(actual).toEqual(expected);
 }
 
 describe("VaultExportService", () => {
@@ -177,6 +176,7 @@ describe("VaultExportService", () => {
   let apiService: MockProxy<ApiService>;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
   let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
+  let logService: MockProxy<LogService>;
   let fetchMock: jest.Mock;
 
   const userId = emptyGuid as UserId;
@@ -190,6 +190,7 @@ describe("VaultExportService", () => {
     encryptService = mock<EncryptService>();
     kdfConfigService = mock<KdfConfigService>();
     apiService = mock<ApiService>();
+    logService = mock<LogService>();
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
@@ -227,6 +228,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       apiService,
       restrictedItemTypesService as RestrictedItemTypesService,
+      logService,
     );
   });
 
@@ -347,7 +349,7 @@ describe("VaultExportService", () => {
     });
 
     it.each([[400], [401], [404], [500]])(
-      "throws error if the http request fails (status === %n)",
+      "returns skipped attachment if the http request fails (status === %n)",
       async (status) => {
         const cipherData = new CipherData();
         cipherData.id = "mock-id";
@@ -367,13 +369,13 @@ describe("VaultExportService", () => {
         ) as any;
         global.Request = jest.fn(() => {}) as any;
 
-        await expect(async () => {
-          await exportService.getExport(userId, "zip");
-        }).rejects.toThrow("Error downloading attachment");
+        const result = await exportService.getExport(userId, "zip");
+        const blobResult = result as ExportedVaultAsBlob;
+        expect(blobResult.skippedAttachmentCount).toBe(1);
       },
     );
 
-    it("throws error if decrypting attachment fails", async () => {
+    it("returns skipped attachment if decrypting attachment fails", async () => {
       const cipherData = new CipherData();
       cipherData.id = "mock-id";
       const cipherView = new CipherView(new Cipher(cipherData));
@@ -395,9 +397,33 @@ describe("VaultExportService", () => {
       ) as any;
       global.Request = jest.fn(() => {}) as any;
 
-      await expect(async () => {
-        await exportService.getExport(userId, "zip");
-      }).rejects.toThrow("Error decrypting attachment");
+      const result = await exportService.getExport(userId, "zip");
+      const blobResult = result as ExportedVaultAsBlob;
+      expect(blobResult.skippedAttachmentCount).toBe(1);
+    });
+
+    it("returns no skippedAttachments when all attachments succeed", async () => {
+      const cipherData = new CipherData();
+      cipherData.id = "mock-id";
+      const cipherView = new CipherView(new Cipher(cipherData));
+      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView.fileName = "mock-file-name";
+      cipherView.attachments = [attachmentView];
+
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(255)),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      const result = await exportService.getExport(userId, "zip");
+      const blobResult = result as ExportedVaultAsBlob;
+      expect(blobResult.skippedAttachmentCount).toBeUndefined();
     });
 
     it("contains attachments with folders", async () => {

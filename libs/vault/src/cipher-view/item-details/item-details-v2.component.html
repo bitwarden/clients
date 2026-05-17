@@ -12,7 +12,7 @@
       </div>
       <h2
         bitTypography="h4"
-        class="tw-ml-2 tw-mt-2 tw-select-auto tw-flex-1"
+        class="tw-ml-2 tw-mt-2 tw-select-auto tw-flex-1 tw-break-all tw-line-clamp-2"
         data-testid="item-name"
       >
         {{ cipher().name }}
@@ -64,30 +64,32 @@
           </span>
         }
         @if (hasSmallScreen() && allItems().length > 2 && cipher().collectionIds.length > 1) {
-          <button
-            bitTypography="body2"
-            type="button"
-            bitLink
-            linkType="primary"
-            class="tw-mt-1.5"
-            (click)="toggleShowMore()"
-            *ngIf="!showAllDetails()"
-          >
-            {{ "showMore" | i18n }}
-          </button>
-          <button
-            bitTypography="body2"
-            type="button"
-            bitLink
-            linkType="primary"
-            class="tw-mt-1.5"
-            (click)="toggleShowMore()"
-            *ngIf="showAllDetails()"
-          >
-            {{ "showLess" | i18n }}
-          </button>
+          @if (!showAllDetails()) {
+            <button
+              bitTypography="body2"
+              type="button"
+              bitLink
+              linkType="primary"
+              class="tw-mt-1.5"
+              (click)="toggleShowMore()"
+            >
+              {{ "showMore" | i18n }}
+            </button>
+          } @else {
+            <button
+              bitTypography="body2"
+              type="button"
+              bitLink
+              linkType="primary"
+              class="tw-mt-1.5"
+              (click)="toggleShowMore()"
+            >
+              {{ "showLess" | i18n }}
+            </button>
+          }
         }
       </div>
     </ng-container>
+    <ng-content></ng-content>
   </bit-card>
 </section>

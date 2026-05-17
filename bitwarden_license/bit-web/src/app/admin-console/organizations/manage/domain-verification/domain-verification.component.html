@@ -1,6 +1,13 @@
 <app-header>
-  <button *ngIf="!loading" type="button" buttonType="primary" bitButton (click)="addDomain()">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
+  <button
+    *ngIf="!loading"
+    type="button"
+    buttonType="primary"
+    bitButton
+    (click)="addDomain()"
+    startIcon="bwi-plus"
+  >
+    {{ "newDomain" | i18n }}
   </button>
 </app-header>
 
@@ -13,9 +20,8 @@
     appA11yTitle="{{ 'learnMore' | i18n }}"
     href="https://bitwarden.com/help/claimed-accounts/"
     slot="end"
-  >
-    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-  </a>
+    startIcon="bwi-question-circle"
+  ></a>
 </p>
 
 <ng-container *ngIf="loading">
@@ -106,8 +112,15 @@
       <bit-no-items [icon]="domainIcon">
         <div slot="title">{{ "noDomains" | i18n }}</div>
         <div slot="description">{{ "noDomainsSubText" | i18n }}</div>
-        <button slot="button" type="button" buttonType="secondary" bitButton (click)="addDomain()">
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
+        <button
+          slot="button"
+          type="button"
+          buttonType="secondary"
+          bitButton
+          (click)="addDomain()"
+          startIcon="bwi-plus"
+        >
+          {{ "newDomain" | i18n }}
         </button>
       </bit-no-items>
     </div>

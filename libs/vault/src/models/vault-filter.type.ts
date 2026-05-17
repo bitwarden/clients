@@ -3,15 +3,16 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { BitwardenIcon } from "@bitwarden/components";
 
 export type CipherStatus = "all" | "favorites" | "archive" | "trash" | CipherType;
 
-export type CipherTypeFilter = ITreeNodeObject & { type: CipherStatus; icon: string };
+export type CipherTypeFilter = ITreeNodeObject & { type: CipherStatus; icon?: BitwardenIcon };
 export type CollectionFilter = CollectionAdminView & {
-  icon: string;
+  icon?: BitwardenIcon;
 };
 export type FolderFilter = FolderView & {
-  icon: string;
+  icon?: BitwardenIcon;
   /**
    * Full folder name.
    *
@@ -19,4 +20,4 @@ export type FolderFilter = FolderView & {
    */
   fullName?: string;
 };
-export type OrganizationFilter = Organization & { icon: string; hideOptions?: boolean };
+export type OrganizationFilter = Organization & { icon?: BitwardenIcon; hideOptions?: boolean };

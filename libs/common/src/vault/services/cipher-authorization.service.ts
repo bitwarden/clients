@@ -135,7 +135,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    *
    * {@link CipherAuthorizationService.canEditCipher$}
    */
-  canEditCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+  canEditCipher$(cipher: CipherLike, isAdminConsoleAction: boolean = false): Observable<boolean> {
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {

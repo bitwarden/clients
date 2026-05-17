@@ -66,7 +66,7 @@ export class CartResponse extends BaseResponse implements Cart {
     additionalServiceAccounts?: CartItem;
   };
   cadence: SubscriptionCadence;
-  discount?: Discount;
+  discounts?: Discount[];
   estimatedTax: number;
 
   constructor(response: any) {
@@ -89,7 +89,7 @@ export class CartResponse extends BaseResponse implements Cart {
 
     const discount = this.getResponseProperty("Discount");
     if (discount) {
-      this.discount = new DiscountResponse(discount);
+      this.discounts = [new DiscountResponse(discount)];
     }
 
     this.estimatedTax = this.getResponseProperty("EstimatedTax");

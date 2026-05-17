@@ -14,6 +14,7 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -27,6 +28,7 @@ import {
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
@@ -90,6 +92,7 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -192,6 +195,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
+      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -251,29 +255,15 @@ export class DefaultSyncService extends CoreSyncService {
         response.accountKeys.toWrappedAccountCryptographicState(),
         response.id,
       );
-
-      // V1 and V2 users
-      await this.keyService.setPrivateKey(
-        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+    } else {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        {
+          V1: {
+            private_key: response.privateKey as SdkEncString,
+          },
+        },
         response.id,
       );
-      // V2 users only
-      if (response.accountKeys.isV2Encryption()) {
-        await this.keyService.setUserSigningKey(
-          response.accountKeys.signatureKeyPair.wrappedSigningKey,
-          response.id,
-        );
-        await this.securityStateService.setAccountSecurityState(
-          response.accountKeys.securityState.securityState,
-          response.id,
-        );
-        await this.keyService.setSignedPublicKey(
-          response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
-          response.id,
-        );
-      }
-    } else {
-      await this.keyService.setPrivateKey(response.privateKey, response.id);
     }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
@@ -438,6 +428,24 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncNewPolicies(
+    response: PolicyResponse[] | undefined,
+    fallback: PolicyResponse[] | undefined,
+    userId: UserId,
+  ) {
+    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
+    // feature flag is off) so the new service is always seeded with data.
+    const source = response != null && response.length > 0 ? response : fallback;
+    if (source == null || source.length === 0) {
+      return;
+    }
+    const policies: { [id: string]: PolicyData } = {};
+    source.forEach((p) => {
+      policies[p.id] = new PolicyData(p);
+    });
+    return await this.newPolicyService.replace(policies, userId);
   }
 
   private async syncUserDecryption(

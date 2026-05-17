@@ -5,15 +5,9 @@
 >
   {{ "personalVaultExportPolicyInEffect" | i18n }}
 </bit-callout>
-<tools-export-scope-callout
-  [organizationId]="organizationId"
-  [exportFormat]="format"
-  [orgExportDescription]="orgExportDescription"
-></tools-export-scope-callout>
-
 <form [formGroup]="exportForm" [bitSubmit]="submit" id="export_form_exportForm">
   <ng-container *ngIf="organizations$ | async as organizations">
-    <bit-form-field *ngIf="organizations.length > 0">
+    <bit-form-field disableMargin *ngIf="organizations.length > 0">
       <bit-label>{{ "exportFrom" | i18n }}</bit-label>
       <bit-select formControlName="vaultSelector">
         <bit-option
@@ -30,6 +24,10 @@
         />
       </bit-select>
     </bit-form-field>
+    <tools-export-scope-description
+      [organizationId]="organizationId"
+      [orgExportDescription]="orgExportDescription"
+    ></tools-export-scope-description>
   </ng-container>
 
   <bit-form-field>
@@ -130,3 +128,9 @@
     </ng-container>
   </ng-container>
 </form>
+
+@if (skippedAttachmentCount() > 0) {
+  <bit-callout type="warning" [title]="null">
+    {{ skippedAttachmentMessage }}
+  </bit-callout>
+}

@@ -7,6 +7,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -15,6 +16,7 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { ConsoleLogService } from "@bitwarden/logging";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { MessageResponse } from "../../models/response/message.response";
@@ -37,6 +39,8 @@ describe("UnlockCommand", () => {
   const i18nService = mock<I18nService>();
   const encryptedMigrator = mock<EncryptedMigrator>();
   const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+  const unlockService = mock<UnlockService>();
+  const configService = mock<ConfigService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -72,6 +76,7 @@ describe("UnlockCommand", () => {
     accountService.activeAccount$ = of(activeAccount);
     keyConnectorService.convertAccountRequired$ = of(false);
     cryptoFunctionService.randomBytes.mockResolvedValue(mockSessionKey);
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     command = new UnlockCommand(
       accountService,
@@ -85,6 +90,8 @@ describe("UnlockCommand", () => {
       i18nService,
       encryptedMigrator,
       masterPasswordUnlockService,
+      unlockService,
+      configService,
     );
   });
 

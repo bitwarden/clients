@@ -54,6 +54,47 @@ export const WithAriaLabel: Story = {
   },
 };
 
+export const FixedWidth: Story = {
+  args: {
+    name: "bwi-lock",
+    fixedWidth: true,
+  },
+};
+
+export const FixedWidthComparison: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon name="bwi-lock" fixedWidth />
+          <span>bwi-lock (fixed width)</span>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon name="bwi-eye" fixedWidth />
+          <span>bwi-eye (fixed width)</span>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon name="bwi-collection" fixedWidth />
+          <span>bwi-collection (fixed width)</span>
+        </div>
+        <hr class="tw-my-2" />
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon name="bwi-lock" />
+          <span>bwi-lock (default)</span>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon name="bwi-eye" />
+          <span>bwi-eye (default)</span>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon name="bwi-collection" />
+          <span>bwi-collection (default)</span>
+        </div>
+      </div>
+    `,
+  }),
+};
+
 export const CompareWithLegacy: Story = {
   render: () => ({
     template: `<bit-icon name="bwi-lock"></bit-icon> <i class="bwi bwi-lock"></i>`,

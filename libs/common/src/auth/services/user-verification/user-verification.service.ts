@@ -14,10 +14,10 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
+import { MasterPasswordUnlockService } from "../../../key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { HashPurpose } from "../../../platform/enums";
 import { UserId } from "../../../types/guid";
 import { AccountService } from "../../abstractions/account.service";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
@@ -54,6 +54,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private pinService: PinServiceAbstraction,
     private kdfConfigService: KdfConfigService,
     private biometricsService: BiometricsService,
+    private masterPasswordUnlockService: MasterPasswordUnlockService,
   ) {}
 
   async getAvailableVerificationOptions(
@@ -63,7 +64,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     if (verificationType === "client") {
       const [userHasMasterPassword, isPinDecryptionAvailable, biometricsStatus] = await Promise.all(
         [
-          this.hasMasterPasswordAndMasterKeyHash(userId),
+          this.hasMasterPassword(userId),
           this.pinService.isPinDecryptionAvailable(userId),
           this.biometricsService.getBiometricsStatus(),
         ],
@@ -190,21 +191,11 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error("KDF config is required. Cannot verify user by master password.");
     }
 
-    let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (!masterKey) {
-      masterKey = await this.keyService.makeMasterKey(verification.secret, email, kdfConfig);
-    }
-
-    if (!masterKey) {
-      throw new Error("Master key could not be created to verify the master password.");
-    }
-
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
-    if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
-      const passwordValid = await this.keyService.compareKeyHash(
+    if (await this.hasMasterPassword(userId)) {
+      const passwordValid = await this.masterPasswordUnlockService.proofOfDecryption(
         verification.secret,
-        masterKey,
         userId,
       );
       if (!passwordValid) {
@@ -214,12 +205,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     } else {
       // Server-side verification
       const request = new SecretVerificationRequest();
-      const serverKeyHash = await this.keyService.hashMasterKey(
-        verification.secret,
-        masterKey,
-        HashPurpose.ServerAuthorization,
-      );
-      request.masterPasswordHash = serverKeyHash;
+      const authenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          verification.secret,
+          kdfConfig,
+          await firstValueFrom(this.masterPasswordService.saltForUser$(userId)),
+        );
+      request.authenticateWith(authenticationData);
       try {
         policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(request);
         // FIXME: Remove when updating file. Eslint update
@@ -229,14 +221,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
     }
 
-    const localKeyHash = await this.keyService.hashMasterKey(
-      verification.secret,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-    await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    return { policyOptions, masterKey, email };
+    return { policyOptions, email };
   }
 
   private async verifyUserByPIN(verification: PinVerification, userId: UserId): Promise<boolean> {
@@ -270,14 +255,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     return await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPasswordById$(resolvedUserId as UserId),
-    );
-  }
-
-  async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {
-    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    return (
-      (await this.hasMasterPassword(userId)) &&
-      (await firstValueFrom(this.masterPasswordService.masterKeyHash$(userId as UserId))) != null
     );
   }
 

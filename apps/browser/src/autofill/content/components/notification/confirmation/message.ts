@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../../utils/event-security";
 import { spacing, themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
@@ -127,7 +128,7 @@ const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
 `;
 
 function handleButtonKeyDown(event: KeyboardEvent, handleClick: () => void) {
-  if (event.key === "Enter" || event.key === " ") {
+  if (EventSecurity.isEventTrusted(event) && (event.key === "Enter" || event.key === " ")) {
     event.preventDefault();
     handleClick();
   }

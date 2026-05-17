@@ -13,6 +13,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DialogService,
+  IconModule,
   LinkModule,
   MenuModule,
   ToastService,
@@ -26,13 +27,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
   standalone: true,
-  imports: [CommonModule, I18nPipe, MenuModule, LinkModule, TypographyModule],
+  imports: [CommonModule, I18nPipe, IconModule, LinkModule, MenuModule, TypographyModule],
 })
 export class EnvironmentSelectorComponent implements OnDestroy {
   protected ServerEnvironmentType = Region;
   protected availableRegions = this.environmentService.availableRegions();
   protected selectedRegion$: Observable<RegionConfig | undefined> =
-    this.environmentService.environment$.pipe(
+    this.environmentService.globalEnvironment$.pipe(
       map((e) => e.getRegion()),
       map((r) => this.availableRegions.find((ar) => ar.key === r)),
     );

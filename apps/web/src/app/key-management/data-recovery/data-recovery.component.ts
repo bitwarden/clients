@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
@@ -15,6 +17,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { SharedModule } from "../../shared";
 
+import { DownloadEventLogsComponent } from "./download-event-logs.component";
 import { LogRecorder } from "./log-recorder";
 import {
   SyncStep,
@@ -44,7 +47,7 @@ interface StepState {
   selector: "app-data-recovery",
   templateUrl: "data-recovery.component.html",
   standalone: true,
-  imports: [JslibModule, ButtonModule, CommonModule, SharedModule],
+  imports: [JslibModule, ButtonModule, CommonModule, SharedModule, DownloadEventLogsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataRecoveryComponent {

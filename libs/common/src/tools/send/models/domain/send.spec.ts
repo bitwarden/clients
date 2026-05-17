@@ -41,7 +41,6 @@ describe("Send", () => {
       deletionDate: "2022-01-31T12:00:00.000Z",
       password: "password",
       emails: "",
-      emailHashes: "",
       disabled: false,
       hideEmail: true,
       authType: AuthType.None,
@@ -70,8 +69,7 @@ describe("Send", () => {
       expirationDate: null,
       deletionDate: null,
       password: undefined,
-      emails: null,
-      emailHashes: undefined,
+      emails: undefined,
       disabled: undefined,
       hideEmail: undefined,
     });
@@ -97,8 +95,7 @@ describe("Send", () => {
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       deletionDate: new Date("2022-01-31T12:00:00.000Z"),
       password: "password",
-      emails: null,
-      emailHashes: "",
+      emails: "",
       disabled: false,
       hideEmail: true,
       authType: AuthType.None,
@@ -135,12 +132,15 @@ describe("Send", () => {
     encryptService.decryptBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
-    encryptService.decryptString
-      .calledWith(send.name, "cryptoKey" as any)
-      .mockResolvedValue("name");
-    encryptService.decryptString
-      .calledWith(send.notes, "cryptoKey" as any)
-      .mockResolvedValue("notes");
+    encryptService.decryptString.mockImplementation((encString: any) => {
+      if (encString === send.name) {
+        return Promise.resolve("name");
+      }
+      if (encString === send.notes) {
+        return Promise.resolve("notes");
+      }
+      return Promise.resolve(null);
+    });
     keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
     keyService.userKey$.calledWith(userId).mockReturnValue(of(userKey));
 
@@ -149,6 +149,7 @@ describe("Send", () => {
     const view = await send.decrypt(userId);
 
     expect(text.decrypt).toHaveBeenNthCalledWith(1, "cryptoKey");
+    expect(encryptService.decryptString).toHaveBeenNthCalledWith(1, send.name, "cryptoKey");
 
     expect(view).toMatchObject({
       id: "id",
@@ -173,7 +174,7 @@ describe("Send", () => {
     });
   });
 
-  describe("Email decryption", () => {
+  describe("Email parsing", () => {
     let encryptService: jest.Mocked<EncryptService>;
     let keyService: jest.Mocked<KeyService>;
     const userKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
@@ -188,91 +189,45 @@ describe("Send", () => {
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
     });
 
-    it("should decrypt and parse single email", async () => {
+    it("should parse single email", async () => {
       const send = new Send();
       send.id = "id";
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
       send.key = mockEnc("key");
-      send.emails = mockEnc("test@example.com");
+      send.emails = "test@example.com";
       send.text = mock<SendText>();
       send.text.decrypt = jest.fn().mockResolvedValue("textView" as any);
-
-      encryptService.decryptString.mockImplementation((encString, key) => {
-        if (encString === send.emails) {
-          return Promise.resolve("test@example.com");
-        }
-        if (encString === send.name) {
-          return Promise.resolve("name");
-        }
-        if (encString === send.notes) {
-          return Promise.resolve("notes");
-        }
-        return Promise.resolve("");
-      });
-
       const view = await send.decrypt(userId);
-
-      expect(encryptService.decryptString).toHaveBeenCalledWith(send.emails, "cryptoKey");
       expect(view.emails).toEqual(["test@example.com"]);
     });
 
-    it("should decrypt and parse multiple emails", async () => {
+    it("should parse multiple emails", async () => {
       const send = new Send();
       send.id = "id";
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
       send.key = mockEnc("key");
-      send.emails = mockEnc("test@example.com,user@test.com,admin@domain.com");
+      send.emails = "test@example.com,user@test.com,admin@domain.com";
       send.text = mock<SendText>();
       send.text.decrypt = jest.fn().mockResolvedValue("textView" as any);
-
-      encryptService.decryptString.mockImplementation((encString, key) => {
-        if (encString === send.emails) {
-          return Promise.resolve("test@example.com,user@test.com,admin@domain.com");
-        }
-        if (encString === send.name) {
-          return Promise.resolve("name");
-        }
-        if (encString === send.notes) {
-          return Promise.resolve("notes");
-        }
-        return Promise.resolve("");
-      });
-
       const view = await send.decrypt(userId);
-
       expect(view.emails).toEqual(["test@example.com", "user@test.com", "admin@domain.com"]);
     });
 
-    it("should trim whitespace from decrypted emails", async () => {
+    it("should trim whitespace from emails", async () => {
       const send = new Send();
       send.id = "id";
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
       send.key = mockEnc("key");
-      send.emails = mockEnc("  test@example.com  ,  user@test.com  ");
+      send.emails = "  test@example.com  ,  user@test.com  ";
       send.text = mock<SendText>();
       send.text.decrypt = jest.fn().mockResolvedValue("textView" as any);
-
-      encryptService.decryptString.mockImplementation((encString, key) => {
-        if (encString === send.emails) {
-          return Promise.resolve("  test@example.com  ,  user@test.com  ");
-        }
-        if (encString === send.name) {
-          return Promise.resolve("name");
-        }
-        if (encString === send.notes) {
-          return Promise.resolve("notes");
-        }
-        return Promise.resolve("");
-      });
-
       const view = await send.decrypt(userId);
-
       expect(view.emails).toEqual(["test@example.com", "user@test.com"]);
     });
 
@@ -293,61 +248,17 @@ describe("Send", () => {
       expect(encryptService.decryptString).not.toHaveBeenCalledWith(expect.anything(), "cryptoKey");
     });
 
-    it("should return empty array when decrypted emails is empty string", async () => {
+    it("should return empty array when emails is empty string", async () => {
       const send = new Send();
       send.id = "id";
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
       send.key = mockEnc("key");
-      send.emails = mockEnc("");
+      send.emails = "";
       send.text = mock<SendText>();
       send.text.decrypt = jest.fn().mockResolvedValue("textView" as any);
-
-      encryptService.decryptString.mockImplementation((encString, key) => {
-        if (encString === send.emails) {
-          return Promise.resolve("");
-        }
-        if (encString === send.name) {
-          return Promise.resolve("name");
-        }
-        if (encString === send.notes) {
-          return Promise.resolve("notes");
-        }
-        return Promise.resolve("");
-      });
-
       const view = await send.decrypt(userId);
-
-      expect(view.emails).toEqual([]);
-    });
-
-    it("should return empty array when decrypted emails is null", async () => {
-      const send = new Send();
-      send.id = "id";
-      send.type = SendType.Text;
-      send.name = mockEnc("name");
-      send.notes = mockEnc("notes");
-      send.key = mockEnc("key");
-      send.emails = mockEnc("something");
-      send.text = mock<SendText>();
-      send.text.decrypt = jest.fn().mockResolvedValue("textView" as any);
-
-      encryptService.decryptString.mockImplementation((encString, key) => {
-        if (encString === send.emails) {
-          return Promise.resolve(null);
-        }
-        if (encString === send.name) {
-          return Promise.resolve("name");
-        }
-        if (encString === send.notes) {
-          return Promise.resolve("notes");
-        }
-        return Promise.resolve("");
-      });
-
-      const view = await send.decrypt(userId);
-
       expect(view.emails).toEqual([]);
     });
   });
