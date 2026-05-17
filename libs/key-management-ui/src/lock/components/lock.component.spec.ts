@@ -372,7 +372,7 @@ describe("LockComponent", () => {
       expect(unlockViaBiometricsSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("switches to non-biometric options without triggering biometric unlock", async () => {
+    it("switches to pin without triggering biometric unlock", async () => {
       const unlockViaBiometricsSpy = jest
         .spyOn(component, "unlockViaBiometrics")
         .mockResolvedValue();

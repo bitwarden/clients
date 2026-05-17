@@ -27,7 +27,7 @@ import { BiometricsStatus } from "@bitwarden/key-management";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 
-import { UnlockOption, UnlockOptions } from "../../services/lock-component.service";
+import { UnlockOptions } from "../../services/lock-component.service";
 import { WebAuthnPrfUnlockService } from "../../services/webauthn-prf-unlock.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock.component";
@@ -349,7 +349,6 @@ describe("MasterPasswordLockComponent", () => {
           },
         },
         expectedText: "unlockWithPin",
-        expectedUnlockOption: UnlockOption.Pin,
         shouldShow: true,
         shouldEnable: true,
       },
@@ -363,7 +362,6 @@ describe("MasterPasswordLockComponent", () => {
           },
         },
         expectedText: "unlockWithPin",
-        expectedUnlockOption: UnlockOption.Pin,
         shouldShow: false,
         shouldEnable: false,
       },
@@ -374,7 +372,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: true,
         shouldEnable: true,
       },
@@ -385,7 +382,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: true,
         shouldEnable: false,
       },
@@ -396,7 +392,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: true, biometricsStatus: BiometricsStatus.PlatformUnsupported },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: false,
         shouldEnable: false,
       },
@@ -407,7 +402,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: false, biometricsStatus: BiometricsStatus.PlatformUnsupported },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: false,
         shouldEnable: false,
       },
@@ -415,23 +409,15 @@ describe("MasterPasswordLockComponent", () => {
 
     test.each(swapButtonScenarios)(
       "renders and handles $name",
-      ({ unlockOptions, expectedText, expectedUnlockOption, shouldShow, shouldEnable }) => {
-        const { secondaryButton, component } = setupComponent(unlockOptions, expectedText);
+      ({ unlockOptions, expectedText, shouldShow, shouldEnable }) => {
+        const { secondaryButton } = setupComponent(unlockOptions, expectedText);
 
         if (shouldShow) {
           expect(secondaryButton).toBeTruthy();
           expect(secondaryButton.nativeElement.textContent?.trim()).toBe(expectedText);
 
           if (shouldEnable) {
-            // Mimic parent handling for PIN swap: child emits swapToPin, parent updates activeUnlockOption.
-            if (expectedUnlockOption === UnlockOption.Pin) {
-              component.swapToPin.subscribe(() => {
-                component.activeUnlockOption.set(UnlockOption.Pin);
-              });
-            }
-
-            secondaryButton.nativeElement.click();
-            expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
+            expect(secondaryButton.nativeElement.getAttribute("aria-disabled")).not.toBe("true");
           } else {
             expect(secondaryButton.nativeElement.getAttribute("aria-disabled")).toBe("true");
           }

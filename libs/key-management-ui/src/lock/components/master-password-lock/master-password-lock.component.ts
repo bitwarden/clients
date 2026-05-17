@@ -3,7 +3,6 @@ import {
   computed,
   inject,
   input,
-  model,
   OnDestroy,
   OnInit,
   output,
@@ -31,11 +30,7 @@ import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 
-import {
-  UnlockOption,
-  UnlockOptions,
-  UnlockOptionValue,
-} from "../../services/lock-component.service";
+import { UnlockOptions } from "../../services/lock-component.service";
 import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -61,9 +56,6 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly logService = inject(LogService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly messageListener = inject(MessageListener);
-  UnlockOption = UnlockOption;
-
-  readonly activeUnlockOption = model.required<UnlockOptionValue>();
 
   readonly unlockOptions = input.required<UnlockOptions>();
   readonly biometricUnlockBtnText = input.required<string>();
