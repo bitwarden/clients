@@ -228,8 +228,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         ];
       case CipherType.Passport:
         return [
-          { field: "firstNamePassport", title: "copyFirstName" },
-          { field: "lastNamePassport", title: "copyLastName" },
+          { field: "givenName", title: "copyFirstName" },
+          { field: "surname", title: "copyLastName" },
           { field: "passportNumber", title: "copyPassportNumber" },
           {
             field: "nationalIdentificationNumber",

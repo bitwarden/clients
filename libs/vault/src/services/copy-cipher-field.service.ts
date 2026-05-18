@@ -103,8 +103,6 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   firstName: { typeI18nKey: "firstName", protected: false },
   middleName: { typeI18nKey: "middleName", protected: false },
   lastName: { typeI18nKey: "lastName", protected: false },
-  firstNamePassport: { typeI18nKey: "firstName", protected: false },
-  lastNamePassport: { typeI18nKey: "lastName", protected: false },
   licenseNumber: {
     typeI18nKey: "licenseNumber",
     protected: true,
@@ -119,8 +117,8 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     typeI18nKey: "nationalIdentificationNumber",
     protected: true,
   },
-  givenName: { typeI18nKey: "firstName", protected: true },
-  surname: { typeI18nKey: "lastName", protected: true },
+  givenName: { typeI18nKey: "firstName", protected: false },
+  surname: { typeI18nKey: "lastName", protected: false },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,

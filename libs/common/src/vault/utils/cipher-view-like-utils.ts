@@ -304,10 +304,6 @@ export class CipherViewLikeUtils {
         return !!cipher.driversLicense?.licenseNumber;
       case "passportNumber":
         return !!cipher.passport?.passportNumber;
-      case "firstNamePassport":
-        return !!cipher.passport?.givenName;
-      case "lastNamePassport":
-        return !!cipher.passport?.surname;
       case "nationalIdentificationNumber":
         return !!cipher.passport?.nationalIdentificationNumber;
       case "givenName":
