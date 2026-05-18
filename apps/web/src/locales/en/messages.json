@@ -13927,5 +13927,8 @@
   },
   "pamLeasingSaveFailed": {
     "message": "Could not save leasing settings"
+  },
+  "policyHumanApprovalDescription": {
+    "message": "Every access requires a manager to approve. Used when you need a human in the loop every time."
   }
 }

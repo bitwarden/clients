@@ -26,6 +26,8 @@ import {
 } from "@bitwarden/components";
 import { CollectionLeasingRequest, LeasingPolicy, PamApiService } from "@bitwarden/pam";
 
+import { HumanApprovalEditorComponent } from "../policy-editor/human-approval/human-approval-editor.component";
+
 /** The discriminator values of {@link LeasingPolicy}. */
 export const LeasingPolicyKind = Object.freeze({
   HumanApproval: "human_approval",
@@ -68,6 +70,7 @@ export type LeasingPolicyKind = (typeof LeasingPolicyKind)[keyof typeof LeasingP
     FormFieldModule,
     LinkModule,
     ToggleGroupModule,
+    HumanApprovalEditorComponent,
   ],
 })
 export class CollectionLeasingTabComponent implements OnInit {
