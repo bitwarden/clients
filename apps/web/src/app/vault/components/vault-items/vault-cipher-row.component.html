@@ -15,7 +15,7 @@
   <app-vault-icon [cipher]="cipher"></app-vault-icon>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-pr-7 lg:tw-pr-0">
-  <div class="tw-inline-flex tw-w-full">
+  <div class="tw-inline-flex tw-w-full tw-items-center">
     <!-- Opt out of router focus manager via [state] input, since the dialog will handle focus -->
     <button
       bitLink
@@ -36,6 +36,13 @@
     >
       {{ cipher.name }}
     </button>
+    @if ((showLeaseBadge$ | async) && leaseState() !== "unleased") {
+      <app-cipher-lease-badge
+        class="tw-ml-2"
+        [state]="leaseState()"
+        [leaseExpiresAt]="leaseExpiresAt()"
+      />
+    }
     @if (hasAttachments) {
       <ng-container>
         <i

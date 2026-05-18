@@ -1,0 +1,43 @@
+<p class="tw-mb-4 tw-text-muted">{{ "policyTimeOfDayDescription" | i18n }}</p>
+
+<bit-form-field class="tw-mb-4">
+  <bit-label>{{ "policyTimeOfDayTimezoneLabel" | i18n }}</bit-label>
+  <bit-select
+    [items]="timezoneOptions"
+    [ngModel]="tz()"
+    [disabled]="disabled()"
+    (ngModelChange)="onTzChange($event)"
+    data-testid="timezone-select"
+  ></bit-select>
+</bit-form-field>
+
+@for (win of windows(); track $index) {
+  <pam-time-window-card
+    [window]="win"
+    [index]="$index"
+    [canRemove]="windows().length > 1"
+    [disabled]="disabled()"
+    (windowChange)="onWindowChange($index, $event)"
+    (remove)="removeWindow($index)"
+  ></pam-time-window-card>
+}
+
+@if (windows().length === 0) {
+  <bit-callout type="warning">
+    {{ "policyTimeOfDayAtLeastOne" | i18n }}
+  </bit-callout>
+}
+
+<div class="tw-mt-2">
+  <button
+    type="button"
+    bitButton
+    buttonType="secondary"
+    [disabled]="disabled()"
+    (click)="addWindow()"
+    data-testid="add-window"
+  >
+    <i class="bwi bwi-plus" aria-hidden="true"></i>
+    {{ "policyTimeOfDayAddWindow" | i18n }}
+  </button>
+</div>

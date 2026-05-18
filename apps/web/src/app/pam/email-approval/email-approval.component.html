@@ -1,0 +1,177 @@
+<div class="tw-flex tw-flex-col tw-gap-6">
+  <div
+    class="tw-flex tw-items-center tw-gap-2 tw-rounded tw-border tw-border-solid tw-border-warning-600 tw-bg-warning-100 tw-p-3 tw-text-sm"
+    role="status"
+    data-testid="email-approval-locked-banner"
+  >
+    <bit-icon name="bwi-lock" [fixedWidth]="true" class="tw-text-warning-600"></bit-icon>
+    <span class="tw-font-semibold tw-text-warning-700">
+      {{ "lockedVaultApprovalBanner" | i18n }}
+    </span>
+  </div>
+
+  @if (confirmedDecision(); as decision) {
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-8 tw-text-center"
+      data-testid="email-approval-confirmation"
+    >
+      <bit-icon
+        [name]="decision === 'approve' ? 'bwi-check-circle' : 'bwi-minus-circle'"
+        class="tw-text-4xl"
+        [class.tw-text-success]="decision === 'approve'"
+        [class.tw-text-danger]="decision === 'deny'"
+      ></bit-icon>
+      <p class="tw-m-0 tw-text-lg tw-font-semibold tw-text-main" data-testid="email-approval-confirmed-message">
+        @if (decision === "approve") {
+          {{ "lockedVaultApprovalApproved" | i18n }}
+        } @else {
+          {{ "lockedVaultApprovalDenied" | i18n }}
+        }
+      </p>
+      <div class="tw-flex tw-gap-3">
+        <a
+          bitLink
+          href="/lock"
+          data-testid="email-approval-unlock-link"
+        >{{ "lockedVaultApprovalUnlockVault" | i18n }}</a>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          data-testid="email-approval-inbox-link"
+          (click)="navigateToInbox()"
+        >
+          {{ "lockedVaultApprovalReturnToInbox" | i18n }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <header class="tw-flex tw-flex-col tw-gap-1">
+      <h1 bitTypography="h1" class="tw-m-0">{{ "lockedVaultApprovalTitle" | i18n }}</h1>
+      <p class="tw-m-0 tw-text-muted">{{ "lockedVaultApprovalSubtitle" | i18n }}</p>
+    </header>
+
+    <div class="tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-4">
+      <dl class="tw-m-0 tw-grid tw-grid-cols-1 tw-gap-3 tw-text-sm md:tw-grid-cols-2">
+        <div>
+          <dt class="tw-font-semibold tw-text-muted">{{ "emailApprovalCipherLabel" | i18n }}</dt>
+          <dd class="tw-m-0 tw-font-semibold tw-text-main" data-testid="email-approval-cipher-name">
+            {{ request().cipherName }}
+          </dd>
+        </div>
+        <div>
+          <dt class="tw-font-semibold tw-text-muted">{{ "pamInboxInCollection" | i18n: request().collectionName }}</dt>
+          <dd class="tw-m-0 tw-text-main" data-testid="email-approval-collection-name">
+            {{ request().collectionName }}
+          </dd>
+        </div>
+        <div>
+          <dt class="tw-font-semibold tw-text-muted">{{ "pamInboxRequester" | i18n }}</dt>
+          <dd class="tw-m-0 tw-text-main" data-testid="email-approval-requester">
+            {{ request().requesterName || request().requesterEmail }}
+            @if (request().requesterName) {
+              <span class="tw-text-muted">&nbsp;&lt;{{ request().requesterEmail }}&gt;</span>
+            }
+          </dd>
+        </div>
+        <div>
+          <dt class="tw-font-semibold tw-text-muted">{{ "pamInboxWindow" | i18n }}</dt>
+          <dd class="tw-m-0 tw-text-main" data-testid="email-approval-window">
+            @if (request().requestedNotBefore && request().requestedNotAfter) {
+              {{ request().requestedNotBefore | date: "short" }} &ndash;
+              {{ request().requestedNotAfter | date: "short" }}
+            } @else {
+              {{ "pamInboxWindowAsap" | i18n }}
+            }
+          </dd>
+        </div>
+        <div class="md:tw-col-span-2">
+          <dt class="tw-font-semibold tw-text-muted">{{ "pamInboxReason" | i18n }}</dt>
+          <dd class="tw-m-0 tw-text-main" data-testid="email-approval-reason">
+            @if (request().reason?.trim(); as reason) {
+              {{ reason }}
+            } @else {
+              <span class="tw-italic tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+            }
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    @if (pendingDecision(); as pending) {
+      <div
+        class="tw-flex tw-flex-col tw-gap-3 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background-alt tw-p-3"
+      >
+        <p class="tw-m-0 tw-text-sm tw-font-semibold">
+          @if (pending === "approve") {
+            {{ "pamInboxConfirmApprove" | i18n }}
+          } @else {
+            {{ "pamInboxConfirmDeny" | i18n }}
+          }
+        </p>
+        <bit-form-field>
+          <bit-label>{{ "pamInboxCommentLabel" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            [formControl]="commentControl"
+            [placeholder]="'pamInboxCommentPlaceholder' | i18n"
+            data-testid="email-approval-comment"
+          />
+        </bit-form-field>
+        <div class="tw-flex tw-flex-wrap tw-justify-end tw-gap-2">
+          <button
+            bitButton
+            type="button"
+            buttonType="secondary"
+            [disabled]="submitting()"
+            data-testid="email-approval-cancel"
+            (click)="cancelDecision()"
+          >
+            {{ "cancel" | i18n }}
+          </button>
+          <button
+            bitButton
+            type="button"
+            [buttonType]="pending === 'approve' ? 'primary' : 'danger'"
+            [loading]="submitting()"
+            [disabled]="submitting()"
+            data-testid="email-approval-confirm"
+            (click)="confirmDecision()"
+          >
+            @if (pending === "approve") {
+              {{ "pamInboxConfirmApproveButton" | i18n }}
+            } @else {
+              {{ "pamInboxConfirmDenyButton" | i18n }}
+            }
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="tw-flex tw-flex-wrap tw-justify-end tw-gap-2">
+        <button
+          bitButton
+          type="button"
+          buttonType="primary"
+          [disabled]="!canDecide"
+          [bitTooltip]="disabledTooltip"
+          data-testid="email-approval-approve"
+          (click)="beginDecision('approve')"
+        >
+          {{ "pamInboxApprove" | i18n }}
+        </button>
+        <button
+          bitButton
+          type="button"
+          buttonType="danger"
+          [disabled]="!canDecide"
+          [bitTooltip]="disabledTooltip"
+          data-testid="email-approval-deny"
+          (click)="beginDecision('deny')"
+        >
+          {{ "pamInboxDeny" | i18n }}
+        </button>
+      </div>
+    }
+  }
+</div>

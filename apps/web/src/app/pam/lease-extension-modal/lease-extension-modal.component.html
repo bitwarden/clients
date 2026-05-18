@@ -1,0 +1,67 @@
+<bit-dialog>
+  <ng-container bitDialogTitle>
+    <span>{{ "leaseExtensionModalTitle" | i18n }}</span>
+  </ng-container>
+
+  <ng-container bitDialogContent>
+    <p bitTypography="body1" class="tw-mb-4 tw-text-muted">
+      {{ "leaseExtensionModalDescription" | i18n }}
+    </p>
+
+    <form [formGroup]="form" id="extension-form" (ngSubmit)="submit()">
+      <bit-form-field>
+        <bit-label>{{ "leaseExtensionModalWindowStart" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="datetime-local"
+          formControlName="notBefore"
+          data-testid="extension-not-before"
+        />
+      </bit-form-field>
+
+      <bit-form-field>
+        <bit-label>{{ "leaseExtensionModalWindowEnd" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="datetime-local"
+          formControlName="notAfter"
+          data-testid="extension-not-after"
+        />
+      </bit-form-field>
+
+      <bit-form-field>
+        <bit-label>{{ "leaseExtensionModalReasonLabel" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="reason"
+          [placeholder]="'leaseExtensionModalReasonPlaceholder' | i18n"
+          data-testid="extension-reason"
+        />
+      </bit-form-field>
+    </form>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      type="submit"
+      form="extension-form"
+      buttonType="primary"
+      [disabled]="submitting() || form.invalid"
+      data-testid="extension-submit"
+    >
+      {{ "leaseExtensionModalSubmit" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      [disabled]="submitting()"
+      (click)="cancel()"
+      data-testid="extension-cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

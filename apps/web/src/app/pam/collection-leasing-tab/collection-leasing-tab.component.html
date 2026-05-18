@@ -1,0 +1,82 @@
+@if (loading()) {
+  <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+} @else {
+  <p>{{ "pamLeasingTabDescription" | i18n }}</p>
+
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      id="pamLeasingEnabled"
+      [checked]="leasingEnabled()"
+      [disabled]="!canManage()"
+      (change)="onToggleLeasingEnabled($any($event.target).checked)"
+    />
+    <bit-label>{{ "pamLeasingEnabledLabel" | i18n }}</bit-label>
+    <bit-hint>{{ "pamLeasingEnabledHint" | i18n }}</bit-hint>
+  </bit-form-control>
+
+  @if (!leasingEnabled()) {
+    <bit-callout type="info">
+      {{ "pamLeasingDisabledCallout" | i18n }}
+    </bit-callout>
+  }
+
+  <fieldset
+    class="tw-mt-4"
+    [attr.aria-disabled]="!leasingEnabled() || !canManage() ? 'true' : null"
+  >
+    <legend class="tw-mb-2 tw-text-sm tw-font-semibold">
+      {{ "pamLeasingPolicyModeLabel" | i18n }}
+    </legend>
+    <bit-toggle-group
+      [selected]="activePolicyKind()"
+      (selectedChange)="onSelectPolicyKind($any($event))"
+      [attr.aria-label]="'pamLeasingPolicyModeLabel' | i18n"
+    >
+      <bit-toggle value="human_approval">{{ "pamLeasingModeHumanApproval" | i18n }}</bit-toggle>
+      <bit-toggle value="ip_allowlist">{{ "pamLeasingModeIpAllowlist" | i18n }}</bit-toggle>
+      <bit-toggle value="time_of_day">{{ "pamLeasingModeTimeOfDay" | i18n }}</bit-toggle>
+      <bit-toggle value="all_of">{{ "pamLeasingModeAllOf" | i18n }}</bit-toggle>
+    </bit-toggle-group>
+
+    <div
+      class="tw-mt-3 tw-rounded tw-border tw-border-dashed tw-border-secondary-300 tw-p-4"
+      data-testid="pam-leasing-policy-editor-region"
+    >
+      @switch (activePolicyKind()) {
+        @case ("human_approval") {
+          <pam-human-approval-editor
+            (manageMembersClicked)="onManageMembersClicked()"
+          ></pam-human-approval-editor>
+        }
+        @case ("ip_allowlist") {
+          <pam-ip-allowlist-editor
+            [cidrs]="initialCidrs()"
+            [readonly]="!canManage()"
+          ></pam-ip-allowlist-editor>
+        }
+        @case ("time_of_day") {
+          <pam-time-of-day-editor
+            [initialTz]="initialTz()"
+            [initialWindows]="initialWindows()"
+            [disabled]="!leasingEnabled() || !canManage()"
+            (policyChange)="onTimeOfDayPolicyChange($event)"
+          ></pam-time-of-day-editor>
+        }
+        @case ("all_of") {
+          <pam-composite-policy-editor
+            (policyChange)="onCompositePolicyChange($event)"
+            (manageMembersClicked)="onManageMembersClicked()"
+          ></pam-composite-policy-editor>
+        }
+      }
+    </div>
+  </fieldset>
+
+  <div class="tw-mt-4">
+    <button type="button" bitButton buttonType="primary" [bitAction]="save" [disabled]="!canSave()">
+      {{ "save" | i18n }}
+    </button>
+  </div>
+}

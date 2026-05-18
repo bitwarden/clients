@@ -53,6 +53,12 @@ export type AccessItemView = SelectItemView & {
    * item if it set to readonly.
    */
   readonlyPermission?: CollectionPermission;
+
+  /**
+   * Initial value for the `requireLease` toggle when this row is selected.
+   * Only meaningful for members today; gated by `FeatureFlag.Pam`.
+   */
+  initialRequireLease?: boolean;
 } & (
     | {
         type: AccessItemType.Collection;
@@ -76,6 +82,13 @@ export type AccessItemValue = {
   id: string;
   permission?: CollectionPermission;
   type: AccessItemType;
+  /**
+   * Per-row Privileged Access Manager toggle. Indicates that the principal must obtain an
+   * approved lease before decrypting ciphers in the collection. Defaults to `false`. Gated by
+   * `FeatureFlag.Pam`; if the column is hidden, this value is preserved unchanged so that
+   * existing server state isn't clobbered.
+   */
+  requireLease?: boolean;
 };
 
 export type Permission = {
@@ -126,6 +139,7 @@ export const convertToSelectionView = (value: AccessItemValue) => {
     readOnly: readOnly(value.permission),
     hidePasswords: hidePassword(value.permission),
     manage: value.permission === CollectionPermission.Manage,
+    requireLease: value.requireLease ?? false,
   });
 };
 

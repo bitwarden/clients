@@ -1,0 +1,15 @@
+@if (loading()) {
+  <div class="tw-text-muted" data-testid="leasing-request-loading">
+    {{ "loading" | i18n }}
+  </div>
+} @else if (loadError()) {
+  <p class="tw-text-danger" data-testid="leasing-request-error">
+    {{ "emailApprovalLoadFailed" | i18n }}
+  </p>
+} @else if (request(); as req) {
+  <pam-email-approval
+    [request]="req"
+    [currentUserId]="currentUserId()"
+    data-testid="leasing-request-email-approval"
+  ></pam-email-approval>
+}

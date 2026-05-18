@@ -10,6 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,6 +27,8 @@ import {
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
 } from "@bitwarden/vault";
+
+import { CipherLeaseBadgeComponent } from "../../../pam/cipher-lease-badge/cipher-lease-badge.component";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
@@ -49,8 +52,11 @@ describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
   let overlayContainer: OverlayContainer;
+  let pamFlag$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
+    pamFlag$ = new BehaviorSubject<boolean>(false);
+
     await TestBed.configureTestingModule({
       declarations: [VaultCipherRowComponent],
       imports: [
@@ -62,6 +68,7 @@ describe("VaultCipherRowComponent", () => {
         CopyCipherFieldDirective,
         OrganizationNameBadgeComponent,
         PremiumBadgeComponent,
+        CipherLeaseBadgeComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -79,7 +86,11 @@ describe("VaultCipherRowComponent", () => {
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) =>
+              flag === FeatureFlag.Pam ? pamFlag$.asObservable() : of(false),
+            ),
+          },
         },
         {
           provide: BillingAccountProfileStateService,
@@ -252,6 +263,59 @@ describe("VaultCipherRowComponent", () => {
       component.organizations = [];
 
       expect(component["showAssignToCollections"]).toBeFalsy();
+    });
+  });
+
+  describe("cipher lease badge", () => {
+    let cipher: CipherView;
+
+    beforeEach(() => {
+      cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Test Login";
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.organizationId = undefined;
+      cipher.deletedDate = null;
+
+      component.cipher = cipher;
+      component.disabled = false;
+    });
+
+    const badgeEl = (): HTMLElement | null =>
+      fixture.nativeElement.querySelector("app-cipher-lease-badge");
+
+    it("hides the badge when the Pam feature flag is OFF", () => {
+      pamFlag$.next(false);
+      fixture.componentRef.setInput("leaseState", "gated_no_lease");
+      fixture.detectChanges();
+
+      expect(badgeEl()).toBeNull();
+    });
+
+    it("hides the badge when leaseState is 'unleased' even with the flag ON", () => {
+      pamFlag$.next(true);
+      fixture.componentRef.setInput("leaseState", "unleased");
+      fixture.detectChanges();
+
+      expect(badgeEl()).toBeNull();
+    });
+
+    it("shows the badge when the flag is ON and leaseState is 'gated_no_lease'", () => {
+      pamFlag$.next(true);
+      fixture.componentRef.setInput("leaseState", "gated_no_lease");
+      fixture.detectChanges();
+
+      expect(badgeEl()).not.toBeNull();
+    });
+
+    it("shows the badge when the flag is ON and leaseState is 'gated_active_lease'", () => {
+      pamFlag$.next(true);
+      fixture.componentRef.setInput("leaseState", "gated_active_lease");
+      fixture.componentRef.setInput("leaseExpiresAt", new Date(Date.now() + 60_000));
+      fixture.detectChanges();
+
+      expect(badgeEl()).not.toBeNull();
     });
   });
 });

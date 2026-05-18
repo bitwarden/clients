@@ -4,6 +4,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   canAccessOrgAdmin,
   canAccessGroupsTab,
@@ -13,6 +14,7 @@ import {
   canAccessSettingsTab,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { deepLinkGuard } from "../../auth/guards/deep-link/deep-link.guard";
 
@@ -70,6 +72,17 @@ const routes: Routes = [
           import("../../billing/organizations/organization-billing.module").then(
             (m) => m.OrganizationBillingModule,
           ),
+      },
+      {
+        // PM-37277: PAM credential-leasing governance dashboard (org admin).
+        // Org-admin gating comes from the parent canActivate
+        // `organizationPermissionsGuard(canAccessOrgAdmin)`; the feature flag
+        // gate goes on the child path so the rest of the admin console isn't
+        // affected when Pam is off.
+        path: "pam",
+        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/")],
+        loadChildren: () =>
+          import("./pam/pam-governance.module").then((m) => m.PamGovernanceModule),
       },
     ],
   },

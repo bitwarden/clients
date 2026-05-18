@@ -1,0 +1,88 @@
+<p class="tw-mb-1 tw-text-sm tw-text-muted">{{ "policyCompositeDescription" | i18n }}</p>
+
+@if (slots().length < 2) {
+  <bit-callout type="warning" class="tw-mb-3">
+    {{ "policyCompositeMinChildrenWarning" | i18n }}
+  </bit-callout>
+}
+
+<div class="tw-flex tw-flex-col tw-gap-3" data-testid="composite-child-slots">
+  @for (slot of slots(); track slot.id) {
+    <div
+      class="tw-rounded tw-border tw-border-secondary-300 tw-p-4"
+      [attr.data-testid]="'composite-slot-' + slot.id"
+    >
+      <div class="tw-mb-3 tw-flex tw-items-center tw-justify-between">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <label class="tw-text-sm tw-font-semibold" [for]="'slot-kind-' + slot.id">
+            {{ "policyCompositeConditionLabel" | i18n }}
+          </label>
+          <select
+            [id]="'slot-kind-' + slot.id"
+            class="tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-px-2 tw-py-1 tw-text-sm"
+            [value]="slot.kind"
+            (change)="onKindChange(slot.id, $any($event.target).value)"
+            [attr.data-testid]="'slot-kind-select-' + slot.id"
+          >
+            @for (kind of availableKinds(slot); track kind) {
+              <option [value]="kind">{{ kindLabelKey(kind) | i18n }}</option>
+            }
+          </select>
+        </div>
+        <button
+          type="button"
+          bitIconButton="bwi-trash"
+          buttonType="subtle"
+          size="small"
+          [title]="'policyCompositeRemoveCondition' | i18n"
+          (click)="removeSlot(slot.id)"
+          [attr.data-testid]="'slot-remove-' + slot.id"
+        ></button>
+      </div>
+
+      @if (slot.error) {
+        <bit-callout type="danger" class="tw-mb-2" [attr.data-testid]="'slot-error-' + slot.id">
+          {{ slot.error | i18n }}
+        </bit-callout>
+      }
+
+      <div [attr.data-testid]="'slot-editor-' + slot.id">
+        @switch (slot.kind) {
+          @case (ChildPolicyKind.HumanApproval) {
+            <pam-human-approval-editor
+              (manageMembersClicked)="onManageMembersClicked()"
+            ></pam-human-approval-editor>
+          }
+          @case (ChildPolicyKind.IpAllowlist) {
+            <pam-stub-ip-allowlist-editor
+              (policyChange)="onChildPolicyChange(slot.id, $event)"
+            ></pam-stub-ip-allowlist-editor>
+          }
+          @case (ChildPolicyKind.TimeOfDay) {
+            <pam-stub-time-of-day-editor
+              (policyChange)="onChildPolicyChange(slot.id, $event)"
+            ></pam-stub-time-of-day-editor>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
+
+@if (canAddMore) {
+  <button
+    type="button"
+    bitButton
+    buttonType="secondary"
+    class="tw-mt-3"
+    (click)="addSlot()"
+    data-testid="add-condition-button"
+  >
+    <i class="bwi bwi-plus" aria-hidden="true"></i>
+    {{ "policyCompositeAddCondition" | i18n }}
+  </button>
+} @else {
+  <p class="tw-mt-3 tw-text-sm tw-text-muted" data-testid="all-conditions-added-notice">
+    {{ "policyCompositeAllConditionsAdded" | i18n }}
+  </p>
+}

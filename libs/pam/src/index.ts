@@ -5,8 +5,14 @@ export {
   TimeWindow,
   parseLeasingPolicy,
 } from "./abstractions/leasing-policy";
-export { PamApiService } from "./abstractions/pam-api.service";
+export { BulkRevokeResult, PamApiService } from "./abstractions/pam-api.service";
 export { CollectionLeasingConfigResponse } from "./abstractions/responses/collection-leasing.response";
+export { InboxBadgeCountResponse } from "./abstractions/responses/inbox-badge-count.response";
+export { InboxLeaseRequestResponse } from "./abstractions/responses/inbox-lease-request.response";
+export {
+  CollectionGovernanceRowResponse,
+  OrganizationGovernanceSummaryResponse,
+} from "./abstractions/responses/governance-summary.response";
 export {
   LeaseRequestResponse,
   LeaseRequestStatus,
@@ -30,3 +36,8 @@ export { LeaseRequestForApproval, UserForApproval, canApprove } from "./helpers/
 export { LeaseEvent, LeaseEventKind } from "./abstractions/lease-event";
 export { LeaseEventService } from "./abstractions/lease-event.service";
 export { DefaultLeaseEventService } from "./services/default-lease-event.service";
+export {
+  LeasingPolicySummary,
+  flattenLeasingPolicy,
+  formatLeasingPolicy,
+} from "./helpers/format-leasing-policy";

@@ -64,6 +64,7 @@ import {
 
 import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
 import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
+import { CipherOpenInterceptorService } from "../../pam/cipher-open-interceptor.service";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { WebVaultExtensionPromptService } from "../services/web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
@@ -249,6 +250,12 @@ describe("VaultComponent", () => {
         {
           provide: VaultProfileService,
           useValue: { getProfileCreationDate: jest.fn().mockResolvedValue(new Date()) },
+        },
+        {
+          provide: CipherOpenInterceptorService,
+          useValue: {
+            open: jest.fn().mockResolvedValue({ kind: "passthrough" }),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

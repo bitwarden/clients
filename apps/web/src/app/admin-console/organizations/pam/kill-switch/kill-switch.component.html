@@ -1,0 +1,34 @@
+@if (killSwitchEnabled()) {
+  <section class="tw-rounded tw-border tw-border-solid tw-border-danger-600 tw-p-4" data-testid="kill-switch-section">
+    <div class="tw-mb-3">
+      <h2 bitTypography="h3" class="tw-text-danger">{{ "killSwitchDangerZoneTitle" | i18n }}</h2>
+      <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+        {{ "killSwitchDangerZoneDescription" | i18n }}
+      </p>
+    </div>
+
+    @if (isSuccess()) {
+      <bit-callout type="success" [title]="'killSwitchSuccessTitle' | i18n" data-testid="kill-switch-success-callout">
+        {{ "killSwitchSuccessMessage" | i18n : successCount().toString() }}
+      </bit-callout>
+    }
+
+    @if (isPartial()) {
+      <bit-callout type="warning" [title]="'killSwitchPartialTitle' | i18n" data-testid="kill-switch-partial-callout">
+        {{ "killSwitchPartialMessage" | i18n : partialRevokedCount().toString() : partialFailedCount().toString() }}
+      </bit-callout>
+    }
+
+    <button
+      type="button"
+      bitButton
+      buttonType="danger"
+      [loading]="submitting()"
+      [disabled]="submitting()"
+      (click)="openKillSwitchDialog()"
+      data-testid="kill-switch-button"
+    >
+      {{ "killSwitchButtonLabel" | i18n }}
+    </button>
+  </section>
+}

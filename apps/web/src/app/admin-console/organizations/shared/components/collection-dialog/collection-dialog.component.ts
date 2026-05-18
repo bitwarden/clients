@@ -36,6 +36,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -52,6 +53,7 @@ import {
 } from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
+import { CollectionLeasingTabComponent } from "../../../../../pam/collection-leasing-tab/collection-leasing-tab.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
 import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
@@ -71,6 +73,7 @@ import { AccessSelectorModule } from "../access-selector/access-selector.module"
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
+  Leasing = 2,
 }
 
 /**
@@ -122,13 +125,20 @@ export enum CollectionDialogAction {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, CollectionLeasingTabComponent],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected organizations$: Observable<Organization[]>;
 
   protected tabIndex: CollectionDialogTabType;
+  /**
+   * Whether to render the Leasing tab. Gated by the `Pam` feature flag and
+   * requires `manage` permission on the collection. The Leasing tab is only
+   * meaningful when editing an existing collection — there is nothing to lease
+   * out of a collection that does not exist yet.
+   */
+  protected showLeasingTab$: Observable<boolean>;
   protected loading = true;
   protected organization?: Organization;
   protected collection?: CollectionAdminView;
@@ -148,6 +158,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected initialPermission: CollectionPermission;
+  protected pamEnabled = false;
+  protected currentMemberId: string | null = null;
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -168,9 +180,19 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
     this.initialPermission = params.initialPermission ?? CollectionPermission.View;
+    this.showLeasingTab$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
+  }
+
+  protected switchToAccessTab(): void {
+    this.tabIndex = CollectionDialogTabType.Access;
+  }
+
+  protected get canManageCollection(): boolean {
+    return this.editMode && this.collection?.manage === true && !this.dialogReadonly;
   }
 
   async ngOnInit() {
+    this.pamEnabled = await this.configService.getFeatureFlag(FeatureFlag.Pam);
     // Opened from the individual vault
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (this.params.showOrgSelector) {
@@ -255,6 +277,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
       .subscribe(({ organization, collections: allCollections, groups, users }) => {
         this.organization = organization;
+        this.currentMemberId =
+          users.data.find((u) => u.userId === organization?.userId)?.id ?? null;
 
         if (this.params.collectionId) {
           this.collection = allCollections.find((c) => c.id === this.collectionId);
@@ -549,11 +573,13 @@ function mapToAccessSelections(collectionDetails: CollectionAdminView): AccessIt
       id: selection.id,
       type: AccessItemType.Group,
       permission: convertToPermission(selection),
+      requireLease: selection.requireLease ?? false,
     })),
     collectionDetails.users.map<AccessItemValue>((selection) => ({
       id: selection.id,
       type: AccessItemType.Member,
       permission: convertToPermission(selection),
+      requireLease: selection.requireLease ?? false,
     })),
   );
 }
@@ -601,6 +627,7 @@ function mapUserToAccessItemView(
   user: OrganizationUserUserMiniResponse,
   collection: CollectionAdminView,
 ): AccessItemView {
+  const existing = collection?.users.find((u) => u.id === user.id);
   return {
     id: user.id,
     type: AccessItemType.Member,
@@ -612,10 +639,9 @@ function mapUserToAccessItemView(
     readonly: false,
     readonlyPermission:
       collection != null
-        ? convertToPermission(
-            new CollectionAccessSelectionView(collection.users.find((u) => u.id === user.id)),
-          )
+        ? convertToPermission(new CollectionAccessSelectionView(existing))
         : undefined,
+    initialRequireLease: existing?.requireLease ?? false,
   };
 }
 
