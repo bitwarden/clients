@@ -13882,5 +13882,53 @@
   },
   "pamLeaseRequestPending": {
     "message": "Lease request submitted. You'll be notified when it's approved."
+  },
+  "leasedPillActiveLabel": {
+    "message": "Leased — expires in $TIME$",
+    "placeholders": {
+      "time": { "content": "$1", "example": "47m" }
+    }
+  },
+  "leasedPillActiveTooltip": {
+    "message": "Active lease — expires in $TIME$. Click to request extension.",
+    "placeholders": {
+      "time": { "content": "$1", "example": "47m" }
+    }
+  },
+  "leasedPillExtensionPendingLabel": {
+    "message": "Extension pending"
+  },
+  "leasedPillExtensionPendingTooltip": {
+    "message": "Extension request submitted. Awaiting approval."
+  },
+  "leaseExtensionModalTitle": {
+    "message": "Request extension"
+  },
+  "leaseExtensionModalDescription": {
+    "message": "Request an extension to your active lease. Enter the new window and an optional reason."
+  },
+  "leaseExtensionModalWindowStart": {
+    "message": "New window start"
+  },
+  "leaseExtensionModalWindowEnd": {
+    "message": "New window end"
+  },
+  "leaseExtensionModalReasonLabel": {
+    "message": "Reason (optional)"
+  },
+  "leaseExtensionModalReasonPlaceholder": {
+    "message": "Why do you need more time?"
+  },
+  "leaseExtensionModalSubmit": {
+    "message": "Request extension"
+  },
+  "leaseExtensionModalAutoApprovedToast": {
+    "message": "Lease extended."
+  },
+  "leaseExtensionModalPendingToast": {
+    "message": "Extension request submitted. Awaiting approval."
+  },
+  "leaseExtensionModalErrorToast": {
+    "message": "Could not submit the extension request. Try again."
   }
 }
