@@ -42,8 +42,6 @@ export type CopyAction =
   | "lastName"
   | "licenseNumber"
   | "passportNumber"
-  | "firstNamePassport"
-  | "lastNamePassport"
   | "nationalIdentificationNumber"
   | "givenName"
   | "surname";
