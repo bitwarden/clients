@@ -309,14 +309,14 @@ async fn test_sign_request_unknown_key_returns_failure() {
 
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
-async fn test_sign_request_rsa_default_produces_sha512_signature() {
+async fn test_sign_request_rsa_sha512_flag_produces_sha512_signature() {
     setup();
     let mut agent = agent_with_keys(vec![test_rsa_key()]);
     agent.start().unwrap();
 
     let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
     stream
-        .write_all(&framed_sign_request(&test_rsa_key_blob(), b"test data", 0))
+        .write_all(&framed_sign_request(&test_rsa_key_blob(), b"test data", 4))
         .await
         .unwrap();
     let response = read_framed_response(&mut stream).await;
@@ -325,7 +325,7 @@ async fn test_sign_request_rsa_default_produces_sha512_signature() {
     assert_eq!(
         parse_sign_response_algorithm(&response),
         "rsa-sha2-512",
-        "expected SHA-512 algorithm when no flags set"
+        "expected SHA-512 algorithm when flags=4"
     );
 
     agent.stop();

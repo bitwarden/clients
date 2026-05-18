@@ -15,7 +15,7 @@ use super::{
     },
     KeyStore,
 };
-use crate::crypto::PublicKey;
+use crate::crypto::{PublicKey, SignablePrivateKey};
 
 // Guards against oversized allocations from untrusted length prefixes on the socket.
 const MAX_MESSAGE_LEN: usize = 256 * 1024;
@@ -225,17 +225,25 @@ async fn handle_sign_request<K: KeyStore, A: AuthPolicy>(
         return failure();
     }
 
-    match keystore.get_private_key(&public_key) {
-        Ok(Some(private_key)) => build_sign_response(&private_key.sign(&data, flags)),
-        Ok(None) => {
-            error!("Key not found in keystore");
-            failure()
-        }
-        Err(error) => {
-            error!(%error, "Failed to retrieve key from keystore");
-            failure()
-        }
-    }
+    let Ok(maybe_key) = keystore
+        .get_private_key(&public_key)
+        .inspect_err(|error| error!(%error, "Failed to retrieve key from keystore"))
+    else {
+        return failure();
+    };
+
+    let Some(private_key) = maybe_key else {
+        warn!("Key not found in keystore");
+        return failure();
+    };
+
+    let Ok(signing_key) = SignablePrivateKey::try_from((private_key, flags)).inspect_err(
+        |error| warn!(%error, ?flags, "Unable to create signable key with provided request input"),
+    ) else {
+        return failure();
+    };
+
+    build_sign_response(&signing_key.sign(&data))
 }
 
 #[cfg(test)]
@@ -469,7 +477,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn sign_request_rsa_sha256_flag_produces_sha256_signature() {
+    async fn sign_request_rsa_without_flags_returns_failure() {
         use ssh_key::{private::RsaKeypair, rand_core::OsRng};
 
         const MIN_RSA_BITS: usize = 2048;
@@ -489,7 +497,39 @@ mod tests {
             .return_once(move |_| Ok(Some(private_key)));
 
         let auth_policy = Arc::new(AlwaysAllowPolicy);
-        let msg = make_sign_request_msg(&blob, b"test data", 2); // SSH_AGENT_RSA_SHA2_256
+        let msg = make_sign_request_msg(&blob, b"test data", 0); // no flags → would imply SHA-1
+
+        let response = super::handle_message(&msg, None, &Arc::new(keystore), &auth_policy).await;
+
+        assert_eq!(response, vec![FAILURE]);
+    }
+
+    #[tokio::test]
+    async fn sign_request_rsa_sha256_flag_produces_sha256_signature() {
+        use ssh_key::{private::RsaKeypair, rand_core::OsRng};
+
+        // SSH_AGENT_RSA_SHA2_256 flag
+        const RSA_SHA2_256: u32 = 2;
+
+        const MIN_RSA_BITS: usize = 2048;
+
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_RSA_BITS).unwrap();
+        let blob = make_minimal_rsa_blob();
+        let expected_public_key = PublicKey {
+            alg: "ssh-rsa".to_string(),
+            blob: blob.clone(),
+        };
+
+        let private_key = PrivateKey::Rsa(keypair);
+        let mut keystore = MockKeyStore::new();
+        keystore
+            .expect_get_private_key()
+            .with(eq(expected_public_key))
+            .once()
+            .return_once(move |_| Ok(Some(private_key)));
+
+        let auth_policy = Arc::new(AlwaysAllowPolicy);
+        let msg = make_sign_request_msg(&blob, b"test data", RSA_SHA2_256);
 
         let response = super::handle_message(&msg, None, &Arc::new(keystore), &auth_policy).await;
 
