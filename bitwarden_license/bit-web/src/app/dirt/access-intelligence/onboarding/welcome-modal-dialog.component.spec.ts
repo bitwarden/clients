@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule, DialogModule, DialogRef, TypographyModule } from "@bitwarden/components";
 
 import { OnboardingService } from "./services/onboarding.service";
-import { WelcomeModalDialogComponent } from "./welcome-modal-dialog.components";
+import { WelcomeModalDialogComponent } from "./welcome-modal-dialog.component";
 
 const mockDialogRef = {
   close: jest.fn(),

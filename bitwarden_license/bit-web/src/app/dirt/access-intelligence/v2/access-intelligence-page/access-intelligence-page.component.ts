@@ -47,7 +47,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
-import { WelcomeModalDialogComponent } from "../../onboarding/welcome-modal-dialog.components";
+import { WelcomeModalDialogComponent } from "../../onboarding/welcome-modal-dialog.component";
 import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
@@ -447,13 +447,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected async beginOnboardingTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
-      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService).catch(
-        () => {
-          this.logService.info(
-            "Welcome dialog did not render. It was already acknowledged or this feature is not available.",
-          );
-        },
-      );
+      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
     }
   }
 }
