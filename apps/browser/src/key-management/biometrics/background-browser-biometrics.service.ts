@@ -19,18 +19,63 @@ import {
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ipcRegisterBiometricsHandlers, ipcRequestAuthenticateBiometrics, ipcRequestGetBiometricsStatus, ipcRequestUnlockBiometrics, BiometricsStatus as SdkBiometricsStatus, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+
+function toSdkBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
+  switch (status) {
+    case BiometricsStatus.Available:
+      return SdkBiometricsStatus.Available;
+    case BiometricsStatus.HardwareUnavailable:
+      return SdkBiometricsStatus.HardwareUnavailable;
+    case BiometricsStatus.NotEnabledLocally:
+      return SdkBiometricsStatus.NotEnabled;
+    case BiometricsStatus.UnlockNeeded:
+      return SdkBiometricsStatus.UnlockNeeded;
+    default:
+      return SdkBiometricsStatus.NotEnabled;
+  }
+}
+
+function toTsBiometricsStatus(status: SdkBiometricsStatus): BiometricsStatus {
+  switch (status) {
+    case SdkBiometricsStatus.Available:
+      return BiometricsStatus.Available;
+    case SdkBiometricsStatus.HardwareUnavailable:
+      return BiometricsStatus.HardwareUnavailable;
+    case SdkBiometricsStatus.NotEnabled:
+      return BiometricsStatus.NotEnabledLocally;
+    case SdkBiometricsStatus.UnlockNeeded:
+      return BiometricsStatus.UnlockNeeded;
+    default:
+      return BiometricsStatus.NotEnabledLocally;
+  }
+}
+
+function fromSdkUserId(userId: SdkUserId): UserId {
+  return uuidAsString(userId) as UserId;
+}
+
+function fromTsUserId(userId: UserId): SdkUserId {
+  return asUuid(userId) as SdkUserId;
+}
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
 
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
+    private configService: () => ConfigService,
     private logService: LogService,
     private keyService: KeyService,
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private pinService: PinServiceAbstraction,
+    private ipcService: IpcService
   ) {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
@@ -54,6 +99,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      const result = await ipcRequestAuthenticateBiometrics(this.ipcService.client);
+      return result;
+    }
+
     try {
       await this.ensureConnected();
 
@@ -68,6 +118,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      // Handle SDK-based biometrics status check
+      return BiometricsStatus.Available;
+    }
+
     if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
       return BiometricsStatus.NativeMessagingPermissionMissing;
     }
@@ -89,6 +144,23 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      // Handle SDK-based biometric unlock
+      try {
+        const userKey = await ipcRequestUnlockBiometrics(this.ipcService.client, fromTsUserId(userId));
+        if (userKey) {
+          await this.biometricStateService.setBiometricUnlockEnabled(true);
+          await this.keyService.setUserKey(userKey, userId);
+          await this.pinService.userUnlocked(userId);
+          // to update badge and other things
+          this.messagingService.send("switchAccount", { userId });
+          return userKey;
+        } else {
+          return null;
+        }
+      }
+    }
+
     try {
       await this.ensureConnected();
 
@@ -120,6 +192,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      const status = await ipcRequestGetBiometricsStatus(this.ipcService.client, fromTsUserId(id));
+      return toTsBiometricsStatus(status);
+    }
+
     try {
       await this.ensureConnected();
 

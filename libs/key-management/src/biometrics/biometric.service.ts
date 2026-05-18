@@ -3,11 +3,14 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
 import { BiometricsStatus } from "./biometrics-status";
+import { UnlockService } from "@bitwarden/unlock";
 
 /**
  * The biometrics service is used to provide access to the status of and access to biometric functionality on the platforms.
  */
 export abstract class BiometricsService {
+  unlockService: UnlockService | null = null;
+
   supportsBiometric() {
     throw new Error("Method not implemented.");
   }
@@ -61,4 +64,9 @@ export abstract class BiometricsService {
    * @returns true if a persistent key is enrolled
    */
   abstract hasPersistentKey(userId: UserId): Promise<boolean>;
+
+  // Cannot be DI injected because of circular dependency
+  setUnlockService(service: UnlockService): void {
+    this.unlockService = service;
+  }
 }

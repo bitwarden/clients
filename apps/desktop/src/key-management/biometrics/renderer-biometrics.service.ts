@@ -5,12 +5,71 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
-import { CryptoClient } from "@bitwarden/sdk-internal";
+// eslint-disable-next-line no-restricted-imports
+import { BiometricsStatus, BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { CryptoClient, IpcClient, ipcRegisterBiometricsHandlers, SymmetricKey } from "@bitwarden/sdk-internal";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
+
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  UserId,
+  BiometricsUnlock,
+  BiometricsStatus as SdkBiometricsStatus,
+} from "@bitwarden/sdk-internal";
+import { UserId as TSUserId } from "@bitwarden/user-core";
+import { UnlockService } from "@bitwarden/unlock";
+import { LogService } from "@bitwarden/logging";
+
+// Should not be enabled until after shared unlock is enabled
+// This toggles whether the desktop app gets unlock whenever the browser requests an unlock. This
+// should only happen after shared unlock has rolled out since otherwise the desktop app
+// inadvertently gets unlocked but not locked again.
+const SET_USERKEY_UNLOCK = false;
+
+function toSdkBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
+  switch (status) {
+    case BiometricsStatus.Available:
+      return SdkBiometricsStatus.Available;
+    case BiometricsStatus.HardwareUnavailable:
+      return SdkBiometricsStatus.HardwareUnavailable;
+    case BiometricsStatus.NotEnabledLocally:
+      return SdkBiometricsStatus.NotEnabled;
+    case BiometricsStatus.UnlockNeeded:
+      return SdkBiometricsStatus.UnlockNeeded;
+    default:
+      return SdkBiometricsStatus.NotEnabled;
+  }
+}
+
+function fromSdkUserId(userId: UserId): TSUserId {
+  return uuidAsString(userId) as TSUserId;
+}
+
+// Creates the SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
+export function createBiometricsDriver(
+  biometricsService: RendererBiometricsService,
+  unlockService: UnlockService,
+): BiometricsUnlock {
+  return {
+    async get_biometrics_status(user_id: UserId): Promise<SdkBiometricsStatus> {
+      const status = await biometricsService.getBiometricsStatusForUser(fromSdkUserId(user_id));
+      return toSdkBiometricsStatus(status);
+    },
+    async unlock_biometrics(user_id: UserId): Promise<SymmetricKey | undefined> {
+      const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
+      if (key != null && SET_USERKEY_UNLOCK) {
+        await unlockService.unlockWithDecryptedKey(fromSdkUserId(user_id), key);
+      }
+      return key;
+    },
+    async authenticate_biometrics() {
+      return await biometricsService.authenticateWithBiometrics();
+    },
+  };
+}
+
 
 /**
  * This service implement the base biometrics service to provide desktop specific functions,
@@ -21,6 +80,8 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   constructor(
     private tokenService: TokenService,
     private biometricStateService: BiometricStateService,
+    private ipcClient: IpcClient,
+    private logService: LogService,
   ) {
     super();
   }
@@ -33,7 +94,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.getBiometricsStatus();
   }
 
-  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+  async unlockWithBiometricsForUser(userId: TSUserId): Promise<UserKey | null> {
     const userKey = await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
     if (userKey == null) {
       return null;
@@ -42,7 +103,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return SymmetricCryptoKey.fromJSON(userKey) as UserKey;
   }
 
-  async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+  async getBiometricsStatusForUser(id: TSUserId): Promise<BiometricsStatus> {
     if ((await firstValueFrom(this.tokenService.hasAccessToken$(id))) === false) {
       return BiometricsStatus.NotEnabledInConnectedDesktopApp;
     }
@@ -51,7 +112,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async setBiometricProtectedUnlockKeyForUser(
-    userId: UserId,
+    userId: TSUserId,
     value: SymmetricCryptoKey,
   ): Promise<void> {
     return await ipc.keyManagement.biometric.setBiometricProtectedUnlockKeyForUser(
@@ -60,7 +121,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     );
   }
 
-  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
+  async deleteBiometricUnlockKeyForUser(userId: TSUserId): Promise<void> {
     return await ipc.keyManagement.biometric.deleteBiometricUnlockKeyForUser(userId);
   }
 
@@ -85,7 +146,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     ].includes(biometricStatus);
   }
 
-  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+  async enrollPersistent(userId: TSUserId, key: SymmetricCryptoKey): Promise<void> {
     await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
     await SdkLoadService.Ready;
     const keyId = CryptoClient.get_key_id_for_symmetric_key(key.toEncoded());
@@ -99,7 +160,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     }
   }
 
-  async hasPersistentKey(userId: UserId): Promise<boolean> {
+  async hasPersistentKey(userId: TSUserId): Promise<boolean> {
     return await ipc.keyManagement.biometric.hasPersistentKey(userId);
   }
 
@@ -109,5 +170,12 @@ export class RendererBiometricsService extends DesktopBiometricsService {
 
   async isLinuxV2BiometricsEnabled(): Promise<boolean> {
     return await ipc.keyManagement.biometric.isLinuxV2BiometricsEnabled();
+  }
+
+  async setUnlockService(service: UnlockService): Promise<void> {
+    super.setUnlockService(service);
+    const driver = createBiometricsDriver(this, this.unlockService);
+    this.logService.info("Registering biometrics IPC driver");
+    await ipcRegisterBiometricsHandlers(this.ipcClient, driver);
   }
 }

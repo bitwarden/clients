@@ -12,6 +12,7 @@ import { WindowMain } from "../../main/window.main";
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
+import { IpcClient, ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
@@ -26,6 +27,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private biometricStateService: BiometricStateService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
+    private ipcClient: IpcClient,
   ) {
     super();
     if (platform === "win32") {
@@ -50,6 +52,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
     } else {
       throw new Error("Unsupported platform");
     }
+
+    ipcRegisterBiometricsHandlers(this.ipcClient, 
   }
 
   /**
