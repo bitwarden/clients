@@ -53,6 +53,7 @@
     "clipboardWrite",
     "contextMenus",
     "idle",
+    "nativeMessaging",
     "offscreen",
     "scripting",
     "sidePanel",
@@ -71,6 +72,7 @@
     "clipboardWrite",
     "contextMenus",
     "idle",
+    "nativeMessaging",
     "scripting",
     "storage",
     "tabs",
@@ -97,8 +99,8 @@
     "webRequest",
     "webRequestAuthProvider"
   ],
-  "optional_permissions": ["nativeMessaging", "privacy"],
-  "__firefox__optional_permissions": ["nativeMessaging"],
+  "optional_permissions": ["privacy"],
+  "__firefox__optional_permissions": [],
   "__safari__optional_permissions": null,
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
