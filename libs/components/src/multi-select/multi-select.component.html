@@ -13,7 +13,7 @@
   [multiple]="true"
   [closeOnSelect]="false"
   (close)="onDropdownClosed()"
-  [disabled]="disabled"
+  [disabled]="disabled()"
   [clearSearchOnAdd]="true"
   [labelForId]="searchInputId()"
   [keyDownFn]="keyDown"
@@ -29,7 +29,7 @@
       class="tw-me-1"
       [label]="item.labelName"
       [startIcon]="item.icon"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       (dismissed)="clear(item)"
     ></bit-chip>
   </ng-template>

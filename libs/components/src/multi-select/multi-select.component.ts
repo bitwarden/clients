@@ -3,9 +3,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  Input,
   OnInit,
-  booleanAttribute,
   computed,
   effect,
   inject,
@@ -66,11 +64,7 @@ export class MultiSelectComponent implements AfterViewInit, OnInit, ControlValue
   readonly removeSelectedItems = input(false);
   readonly placeholder = model<string>();
   readonly loading = input(false);
-  // TODO: Skipped for signal migration because:
-  //  Your application code writes to the input. This prevents migration.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute }) disabled?: boolean;
+  readonly disabled = model<boolean>();
 
   // Internal tracking of selected items
   protected readonly selectedItems = signal<SelectItemView[] | null>(null);
@@ -187,7 +181,7 @@ export class MultiSelectComponent implements AfterViewInit, OnInit, ControlValue
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
