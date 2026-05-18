@@ -29,12 +29,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import { Trial } from "@bitwarden/web-vault/app/billing/trial-initiation/trial-billing-step/trial-billing-step.service";
 
 import { RouterService } from "../../../core/router.service";
 import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
-
 export type InitiationPath =
   | "Password Manager trial from marketing website"
   | "Secrets Manager trial from marketing website";
@@ -160,7 +160,11 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         this.useTrialStepper = true;
       }
 
-      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : 7;
+      // We can assume the default trial length if the query param is not present or invalid
+      // Validation for trial length is done in the backend, to double-check this
+      this.trialLength = qParams.trialLength
+        ? parseInt(qParams.trialLength)
+        : DEFAULT_TRIAL_LENGTH_DAYS;
       this.paymentOptional = qParams.paymentOptional === "true";
 
       // Are they coming from an email for sponsoring a families organization
@@ -277,6 +281,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         plan,
       },
       activeUserId,
+      this.trialLength,
     );
 
     this.orgId = response?.id;
