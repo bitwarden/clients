@@ -22,46 +22,10 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ipcRegisterBiometricsHandlers, ipcRequestAuthenticateBiometrics, ipcRequestGetBiometricsStatus, ipcRequestUnlockBiometrics, BiometricsStatus as SdkBiometricsStatus, UserId as SdkUserId } from "@bitwarden/sdk-internal";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { ipcRequestAuthenticateBiometrics, ipcRequestGetBiometricsStatus, ipcRequestUnlockBiometrics, BiometricsStatus as SdkBiometricsStatus, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+import { fromTsUserId } from "@bitwarden/common/key-management/utils";
+import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 
-function toSdkBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
-  switch (status) {
-    case BiometricsStatus.Available:
-      return SdkBiometricsStatus.Available;
-    case BiometricsStatus.HardwareUnavailable:
-      return SdkBiometricsStatus.HardwareUnavailable;
-    case BiometricsStatus.NotEnabledLocally:
-      return SdkBiometricsStatus.NotEnabled;
-    case BiometricsStatus.UnlockNeeded:
-      return SdkBiometricsStatus.UnlockNeeded;
-    default:
-      return SdkBiometricsStatus.NotEnabled;
-  }
-}
-
-function toTsBiometricsStatus(status: SdkBiometricsStatus): BiometricsStatus {
-  switch (status) {
-    case SdkBiometricsStatus.Available:
-      return BiometricsStatus.Available;
-    case SdkBiometricsStatus.HardwareUnavailable:
-      return BiometricsStatus.HardwareUnavailable;
-    case SdkBiometricsStatus.NotEnabled:
-      return BiometricsStatus.NotEnabledLocally;
-    case SdkBiometricsStatus.UnlockNeeded:
-      return BiometricsStatus.UnlockNeeded;
-    default:
-      return BiometricsStatus.NotEnabledLocally;
-  }
-}
-
-function fromSdkUserId(userId: SdkUserId): UserId {
-  return uuidAsString(userId) as UserId;
-}
-
-function fromTsUserId(userId: UserId): SdkUserId {
-  return asUuid(userId) as SdkUserId;
-}
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;

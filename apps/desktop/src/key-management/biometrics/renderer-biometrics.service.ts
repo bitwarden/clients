@@ -12,7 +12,6 @@ import { CryptoClient, IpcClient, ipcRegisterBiometricsHandlers, SymmetricKey } 
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   UserId,
   BiometricsUnlock,
@@ -21,6 +20,7 @@ import {
 import { UserId as TSUserId } from "@bitwarden/user-core";
 import { UnlockService } from "@bitwarden/unlock";
 import { LogService } from "@bitwarden/logging";
+import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
 
 // Should not be enabled until after shared unlock is enabled
 // This toggles whether the desktop app gets unlock whenever the browser requests an unlock. This
@@ -28,26 +28,8 @@ import { LogService } from "@bitwarden/logging";
 // inadvertently gets unlocked but not locked again.
 const SET_USERKEY_UNLOCK = false;
 
-function toSdkBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
-  switch (status) {
-    case BiometricsStatus.Available:
-      return SdkBiometricsStatus.Available;
-    case BiometricsStatus.HardwareUnavailable:
-      return SdkBiometricsStatus.HardwareUnavailable;
-    case BiometricsStatus.NotEnabledLocally:
-      return SdkBiometricsStatus.NotEnabled;
-    case BiometricsStatus.UnlockNeeded:
-      return SdkBiometricsStatus.UnlockNeeded;
-    default:
-      return SdkBiometricsStatus.NotEnabled;
-  }
-}
-
-function fromSdkUserId(userId: UserId): TSUserId {
-  return uuidAsString(userId) as TSUserId;
-}
-
 // Creates the SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
+// This replaces the `BiometricMessageHandlerService` entirely.
 export function createBiometricsDriver(
   biometricsService: RendererBiometricsService,
   unlockService: UnlockService,
@@ -69,7 +51,6 @@ export function createBiometricsDriver(
     },
   };
 }
-
 
 /**
  * This service implement the base biometrics service to provide desktop specific functions,
