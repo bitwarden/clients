@@ -33,7 +33,7 @@ import { OptionComponent } from "./option.component";
   hostDirectives: [
     {
       directive: BitFormFieldControlDirective,
-      inputs: ["required"],
+      inputs: ["required", "id"],
     },
   ],
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],

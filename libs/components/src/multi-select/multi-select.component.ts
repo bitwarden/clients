@@ -35,7 +35,7 @@ import { SelectItemView } from "./models/select-item-view";
   hostDirectives: [
     {
       directive: BitFormFieldControlDirective,
-      inputs: ["required"],
+      inputs: ["required", "id"],
     },
   ],
   imports: [
