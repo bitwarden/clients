@@ -1,0 +1,83 @@
+<bit-dialog dialogSize="default">
+  <span bitDialogTitle>{{ "requestDetailModalTitle" | i18n }}</span>
+
+  <ng-container bitDialogContent>
+    <p bitTypography="body2" class="tw-mb-4 tw-text-muted">
+      {{ "requestDetailModalDescription" | i18n }}
+    </p>
+
+    <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap-4">
+      <bit-form-field>
+        <bit-label>{{ "requestDetailModalNotBefore" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="datetime-local"
+          formControlName="notBefore"
+          [min]="minDate()"
+          data-testid="request-not-before"
+        />
+      </bit-form-field>
+
+      <bit-form-field>
+        <bit-label>{{ "requestDetailModalNotAfter" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="datetime-local"
+          formControlName="notAfter"
+          [min]="minDate()"
+          data-testid="request-not-after"
+        />
+        <bit-hint>{{ "requestDetailModalNotAfterHint" | i18n }}</bit-hint>
+      </bit-form-field>
+
+      <bit-form-field>
+        <bit-label>{{ "requestDetailModalReason" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="reason"
+          [placeholder]="'requestDetailModalReasonPlaceholder' | i18n"
+          data-testid="request-reason"
+        />
+        <bit-hint>{{ "requestDetailModalReasonHint" | i18n }}</bit-hint>
+      </bit-form-field>
+    </form>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="form.invalid || submitting() || cancelling()"
+      [loading]="submitting()"
+      (click)="submit()"
+      data-testid="request-submit"
+    >
+      {{ "requestDetailModalSubmit" | i18n }}
+    </button>
+
+    <button
+      type="button"
+      bitButton
+      buttonType="danger"
+      [disabled]="cancelling() || submitting()"
+      [loading]="cancelling()"
+      (click)="cancelRequest()"
+      data-testid="request-cancel"
+    >
+      {{ "requestDetailModalCancelRequest" | i18n }}
+    </button>
+
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [disabled]="submitting() || cancelling()"
+      (click)="dismiss()"
+      data-testid="request-dismiss"
+    >
+      {{ "requestDetailModalDismiss" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

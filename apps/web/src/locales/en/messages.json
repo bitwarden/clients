@@ -13882,5 +13882,80 @@
   },
   "pamLeaseRequestPending": {
     "message": "Lease request submitted. You'll be notified when it's approved."
+  },
+  "requestDetailModalTitle": {
+    "message": "Request access"
+  },
+  "requestDetailModalDescription": {
+    "message": "Amend the access window and optional reason before your approver reviews the request."
+  },
+  "requestDetailModalNotBefore": {
+    "message": "Access from"
+  },
+  "requestDetailModalNotAfter": {
+    "message": "Access until"
+  },
+  "requestDetailModalNotAfterHint": {
+    "message": "When you need access to end."
+  },
+  "requestDetailModalReason": {
+    "message": "Reason (optional)"
+  },
+  "requestDetailModalReasonPlaceholder": {
+    "message": "e.g. Incident response"
+  },
+  "requestDetailModalReasonHint": {
+    "message": "Visible to approvers."
+  },
+  "requestDetailModalSubmit": {
+    "message": "Submit"
+  },
+  "requestDetailModalCancelRequest": {
+    "message": "Cancel request"
+  },
+  "requestDetailModalDismiss": {
+    "message": "Dismiss"
+  },
+  "requestDetailModalSubmitSuccess": {
+    "message": "Request submitted."
+  },
+  "requestDetailModalSubmitError": {
+    "message": "Couldn't submit the request."
+  },
+  "requestDetailModalCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "requestDetailModalCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "pendingStateTitle": {
+    "message": "Pending approval — submitted $TIME$ ago",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "5m"
+      }
+    }
+  },
+  "pendingStateNotified": {
+    "message": "Notified"
+  },
+  "pendingStateApproversTbd": {
+    "message": "Awaiting approval"
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pendingStateCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "denialStateTitle": {
+    "message": "Access denied"
+  },
+  "denialStateNoReason": {
+    "message": "Access to this item was denied."
   }
 }

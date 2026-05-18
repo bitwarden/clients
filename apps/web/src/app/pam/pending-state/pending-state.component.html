@@ -1,0 +1,53 @@
+@if (isPending()) {
+  <div
+    class="tw-flex tw-flex-col tw-gap-3 tw-rounded tw-border tw-border-solid tw-border-warning-600 tw-bg-warning-100 tw-p-4"
+    data-testid="pending-state-block"
+  >
+    <p bitTypography="body1" class="tw-font-semibold tw-text-warning-800" data-testid="pending-state-status">
+      {{ "pendingStateTitle" | i18n: elapsedLabel() }}
+    </p>
+
+    <p bitTypography="body2" class="tw-text-muted" data-testid="pending-state-approvers">
+      {{ "pendingStateNotified" | i18n }}: {{ approverSummary() }}
+    </p>
+
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        [disabled]="cancelling()"
+        [loading]="cancelling()"
+        (click)="cancelRequest()"
+        data-testid="pending-state-cancel"
+      >
+        {{ "pendingStateCancelRequest" | i18n }}
+      </button>
+    </div>
+  </div>
+}
+
+@if (isDenied()) {
+  <div
+    class="tw-flex tw-flex-col tw-gap-3 tw-rounded tw-border tw-border-solid tw-border-danger-600 tw-bg-danger-100 tw-p-4"
+    data-testid="denial-state-block"
+  >
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <i class="bwi bwi-lock tw-text-danger-700" aria-hidden="true"></i>
+      <p bitTypography="body1" class="tw-font-semibold tw-text-danger-800" data-testid="denial-state-title">
+        {{ "denialStateTitle" | i18n }}
+      </p>
+    </div>
+
+    @if (denialReason()) {
+      <p bitTypography="body2" class="tw-text-danger-700" data-testid="denial-state-reason">
+        {{ denialReason() }}
+      </p>
+    } @else {
+      <p bitTypography="body2" class="tw-text-muted" data-testid="denial-state-no-reason">
+        {{ "denialStateNoReason" | i18n }}
+      </p>
+    }
+  </div>
+}
