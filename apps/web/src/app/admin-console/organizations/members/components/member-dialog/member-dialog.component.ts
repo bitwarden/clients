@@ -17,6 +17,7 @@ import {
 import {
   CollectionAdminService,
   OrganizationUserApiService,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -36,6 +37,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -59,6 +61,7 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
+import { MemberActionsService } from "../../services";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
@@ -91,7 +94,7 @@ export interface AddMemberDialogParams extends CommonMemberDialogParams {
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
   kind: "Edit";
   name: string;
-  organizationUserId: string;
+  organizationUserId: Guid;
   usesKeyConnector: boolean;
   managedByOrganization?: boolean;
   initialTab: MemberDialogTab;
@@ -207,6 +210,7 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
+    private memberActionsService: MemberActionsService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
@@ -226,7 +230,7 @@ export class MemberDialogComponent implements OnDestroy {
       this.editMode = true;
       this.title = this.i18nService.t("editMember");
       userDetails$ = this.userService.get(
-        this.params.organizationId,
+        this.params.organizationId as OrganizationId,
         this.params.organizationUserId,
       );
       this.tabIndex = this.params.initialTab;
@@ -525,24 +529,36 @@ export class MemberDialogComponent implements OnDestroy {
   };
 
   private async getUserView(): Promise<OrganizationUserAdminView> {
-    const userView = new OrganizationUserAdminView();
-    userView.organizationId = this.params.organizationId;
-    userView.type = this.formGroup.value.type;
-
-    userView.permissions = this.setRequestPermissions(
-      userView.permissions ?? new PermissionsApi(),
-      userView.type !== OrganizationUserType.Custom,
+    const type = this.formGroup.value.type;
+    const permissions = this.setRequestPermissions(
+      new PermissionsApi(),
+      type !== OrganizationUserType.Custom,
     );
 
-    userView.collections = this.formGroup.value.access
+    const collections = this.formGroup.value.access
       .filter((v) => v.type === AccessItemType.Collection)
       .map(convertToSelectionView);
 
-    userView.groups = (await firstValueFrom(this.restrictEditingSelf$))
+    const groups = (await firstValueFrom(this.restrictEditingSelf$))
       ? null
       : this.formGroup.value.groups.map((m) => m.id);
 
-    userView.accessSecretsManager = this.formGroup.value.accessSecretsManager;
+    const userView = new OrganizationUserAdminView({
+      id: null,
+      userId: null,
+      organizationId: this.params.organizationId as OrganizationId,
+      type,
+      status: null,
+      externalId: null,
+      ssoExternalId: null,
+      permissions,
+      collections,
+      groups,
+      accessSecretsManager: this.formGroup.value.accessSecretsManager,
+      resetPasswordEnrolled: false,
+      hasMasterPassword: false,
+      managedByOrganization: false,
+    });
 
     return userView;
   }
@@ -566,7 +582,21 @@ export class MemberDialogComponent implements OnDestroy {
   private async handleInviteUsers(userView: OrganizationUserAdminView, organization: Organization) {
     const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
 
-    await this.userService.invite(emails, userView);
+    const request = new OrganizationUserInviteRequest({
+      emails,
+      type: userView.type,
+      groups: userView.groups,
+      permissions: userView.permissions,
+      collections: userView.collections,
+      accessSecretsManager: userView.accessSecretsManager,
+    });
+
+    const result = await this.memberActionsService.invite(organization.id, request);
+
+    if (result.success === false) {
+      this.toastService.showToast({ variant: "error", title: null, message: result.error });
+      return;
+    }
 
     this.toastService.showToast({
       variant: "success",

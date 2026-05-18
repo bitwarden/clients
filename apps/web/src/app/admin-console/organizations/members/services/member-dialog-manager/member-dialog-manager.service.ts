@@ -1,5 +1,5 @@
 import { Injectable, WritableSignal } from "@angular/core";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
 
 import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -35,7 +35,7 @@ import {
   openUserAddEditDialog,
 } from "../../components/member-dialog";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
-import { BulkActionResult } from "../member-actions/member-actions.service";
+import { BulkActionResult } from "../member-actions/member-actions.types";
 
 @Injectable()
 export class MemberDialogManagerService {
@@ -379,17 +379,16 @@ export class MemberDialogManagerService {
     organization: Organization,
     users: OrganizationUserView[],
     result: BulkActionResult,
-  ) {
-    return this.dialogService.open<BulkReinviteFailureDialogComponent>(
-      BulkReinviteFailureDialogComponent,
-      {
-        positionStrategy: new CenterPositionStrategy(),
-        data: {
-          organization,
-          users,
-          result,
-        },
+  ): Observable<OrganizationUserView[]> {
+    const resend = BulkReinviteFailureDialogComponent.open(this.dialogService, {
+      data: {
+        organization,
+        users,
+        result,
       },
-    );
+      positionStrategy: new CenterPositionStrategy(),
+    });
+
+    return resend.closed.pipe(map((r) => (Array.isArray(r) ? (r as OrganizationUserView[]) : [])));
   }
 }

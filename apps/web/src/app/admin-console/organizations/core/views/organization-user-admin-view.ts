@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { OrganizationUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
@@ -7,11 +5,12 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 export class OrganizationUserAdminView {
-  id: string;
-  userId: string;
-  organizationId: string;
+  id: Guid;
+  userId: UserId;
+  organizationId: OrganizationId;
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
   externalId: string;
@@ -26,31 +25,63 @@ export class OrganizationUserAdminView {
 
   accessSecretsManager: boolean;
 
+  constructor(c: {
+    id: Guid;
+    userId: UserId;
+    organizationId: OrganizationId;
+    collections: CollectionAccessSelectionView[];
+    groups: string[];
+    type: OrganizationUserType;
+    status: OrganizationUserStatusType;
+    externalId: string;
+    ssoExternalId: string;
+    permissions: PermissionsApi;
+    accessSecretsManager: boolean;
+    resetPasswordEnrolled: boolean;
+    hasMasterPassword: boolean;
+    managedByOrganization: boolean;
+  }) {
+    this.id = c.id;
+    this.userId = c.userId;
+    this.organizationId = c.organizationId;
+    this.collections = c.collections;
+    this.groups = c.groups;
+    this.type = c.type;
+    this.status = c.status;
+    this.externalId = c.externalId;
+    this.ssoExternalId = c.ssoExternalId;
+    this.permissions = c.permissions;
+    this.accessSecretsManager = c.accessSecretsManager;
+    this.resetPasswordEnrolled = c.resetPasswordEnrolled;
+    this.hasMasterPassword = c.hasMasterPassword;
+    this.managedByOrganization = c.managedByOrganization;
+  }
+
   static fromResponse(
-    organizationId: string,
+    organizationId: OrganizationId,
     response: OrganizationUserDetailsResponse,
   ): OrganizationUserAdminView {
-    const view = new OrganizationUserAdminView();
-
-    view.id = response.id;
-    view.organizationId = organizationId;
-    view.userId = response.userId;
-    view.type = response.type;
-    view.status = response.status;
-    view.externalId = response.externalId;
-    view.ssoExternalId = response.ssoExternalId;
-    view.permissions = response.permissions;
-    view.resetPasswordEnrolled = response.resetPasswordEnrolled;
-    view.collections = response.collections.map((c) => ({
-      id: c.id,
-      hidePasswords: c.hidePasswords,
-      readOnly: c.readOnly,
-      manage: c.manage,
-    }));
-    view.groups = response.groups;
-    view.accessSecretsManager = response.accessSecretsManager;
-    view.hasMasterPassword = response.hasMasterPassword;
-    view.managedByOrganization = response.managedByOrganization;
+    const view = new OrganizationUserAdminView({
+      id: response.id as Guid,
+      userId: response.userId as UserId,
+      organizationId: organizationId,
+      collections: response.collections.map((c) => ({
+        id: c.id,
+        hidePasswords: c.hidePasswords,
+        readOnly: c.readOnly,
+        manage: c.manage,
+      })),
+      groups: response.groups ?? [],
+      type: response.type,
+      status: response.status,
+      externalId: response.externalId,
+      ssoExternalId: response.ssoExternalId,
+      permissions: response.permissions,
+      accessSecretsManager: response.accessSecretsManager ?? false,
+      resetPasswordEnrolled: response.resetPasswordEnrolled ?? false,
+      hasMasterPassword: response.hasMasterPassword ?? false,
+      managedByOrganization: response.managedByOrganization ?? false,
+    });
 
     return view;
   }

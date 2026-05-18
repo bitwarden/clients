@@ -14,9 +14,9 @@ export class OrganizationUserResponse extends BaseResponse {
   type: OrganizationUserType;
   revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;
+  permissions: PermissionsApi;
   externalId: string;
   accessSecretsManager: boolean;
-  permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
   collections: SelectionReadOnlyResponse[] = [];
@@ -31,9 +31,13 @@ export class OrganizationUserResponse extends BaseResponse {
     this.status = this.getResponseProperty("Status");
     this.permissions = new PermissionsApi(this.getResponseProperty("Permissions"));
     this.externalId = this.getResponseProperty("ExternalId");
-    this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
-    this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled");
-    this.hasMasterPassword = this.getResponseProperty("HasMasterPassword");
+    this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager") ?? false;
+    this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled") ?? false;
+    this.hasMasterPassword = this.getResponseProperty("HasMasterPassword") ?? false;
+
+    if (this.id == null) {
+      throw new Error("Missing required property: Id");
+    }
 
     const collections = this.getResponseProperty("Collections");
     if (collections != null) {
@@ -59,9 +63,13 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.avatarColor = this.getResponseProperty("AvatarColor");
-    this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
+    this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
     this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+
+    if (this.email == null) {
+      throw new Error("Missing required property: email");
+    }
   }
 }
 
@@ -80,8 +88,8 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   organizationUserId: string;
   kdf: KdfType;
   kdfIterations: number;
-  kdfMemory?: number;
-  kdfParallelism?: number;
+  kdfMemory: number | undefined;
+  kdfParallelism: number | undefined;
   resetPasswordKey: string;
   encryptedPrivateKey: string;
 

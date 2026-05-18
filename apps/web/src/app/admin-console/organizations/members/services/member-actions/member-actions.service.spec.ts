@@ -5,6 +5,7 @@ import { of, throwError } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -27,7 +28,8 @@ import { KeyService } from "@bitwarden/key-management";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-import { REQUESTS_PER_BATCH, MemberActionsService } from "./member-actions.service";
+import { MemberActionsService } from "./member-actions.service";
+import { REQUESTS_PER_BATCH } from "./member-actions.types";
 
 describe("MemberActionsService", () => {
   let service: MemberActionsService;
@@ -90,30 +92,25 @@ describe("MemberActionsService", () => {
     service = TestBed.inject(MemberActionsService);
   });
 
-  describe("inviteUser", () => {
+  describe("invite", () => {
     it("should successfully invite a user", async () => {
       organizationUserApiService.postOrganizationUserInvite.mockResolvedValue(undefined);
 
-      const result = await service.inviteUser(
-        mockOrganization,
-        "test@example.com",
-        OrganizationUserType.User,
-        {},
-        [],
-        [],
-      );
+      const request = new OrganizationUserInviteRequest({
+        emails: ["test@example.com"],
+        type: OrganizationUserType.User,
+        accessSecretsManager: false,
+        collections: [],
+        groups: [],
+        permissions: {} as any,
+      });
+
+      const result = await service.invite(organizationId, request);
 
       expect(result).toEqual({ success: true });
       expect(organizationUserApiService.postOrganizationUserInvite).toHaveBeenCalledWith(
         organizationId,
-        {
-          emails: ["test@example.com"],
-          type: OrganizationUserType.User,
-          accessSecretsManager: false,
-          collections: [],
-          groups: [],
-          permissions: {},
-        },
+        request,
       );
     });
 
@@ -123,11 +120,16 @@ describe("MemberActionsService", () => {
         new Error(errorMessage),
       );
 
-      const result = await service.inviteUser(
-        mockOrganization,
-        "test@example.com",
-        OrganizationUserType.User,
-      );
+      const request = new OrganizationUserInviteRequest({
+        emails: ["test@example.com"],
+        type: OrganizationUserType.User,
+        accessSecretsManager: false,
+        collections: [],
+        groups: [],
+        permissions: {} as any,
+      });
+
+      const result = await service.invite(organizationId, request);
 
       expect(result).toEqual({ success: false, error: errorMessage });
     });
@@ -285,6 +287,7 @@ describe("MemberActionsService", () => {
   describe("bulkReinvite", () => {
     beforeEach(() => {
       memberDialogManager.openBulkProgressDialog.mockReturnValue({ closed: of(undefined) } as any);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValue(of([]));
     });
 
     it("should process users in a single batch when count equals REQUESTS_PER_BATCH", async () => {

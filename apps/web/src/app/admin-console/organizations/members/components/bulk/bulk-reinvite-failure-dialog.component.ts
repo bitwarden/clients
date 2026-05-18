@@ -7,10 +7,7 @@ import { DialogConfig, DialogService } from "@bitwarden/components";
 import { MembersTableDataSource } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core";
-import {
-  BulkActionResult,
-  MemberActionsService,
-} from "../../services/member-actions/member-actions.service";
+import { BulkActionResult } from "../../services/member-actions/member-actions.types";
 
 export interface BulkReinviteFailureDialogParams {
   result: BulkActionResult;
@@ -25,17 +22,14 @@ export interface BulkReinviteFailureDialogParams {
   standalone: false,
 })
 export class BulkReinviteFailureDialogComponent {
-  private readonly organization: Organization;
   protected readonly totalCount: string;
   protected readonly dataSource: WritableSignal<MembersTableDataSource>;
 
   constructor(
-    readonly dialogRef: DialogRef,
-    private readonly memberActionsService: MemberActionsService,
+    readonly dialogRef: DialogRef<OrganizationUserView[]>,
     @Inject(DIALOG_DATA) data: BulkReinviteFailureDialogParams,
     environmentService: EnvironmentService,
   ) {
-    this.organization = data.organization;
     this.totalCount = (data.users.length ?? 0).toLocaleString();
     this.dataSource = signal(new MembersTableDataSource(environmentService));
     this.dataSource().data = data.result.failed.map((failedUser) => {
@@ -47,13 +41,12 @@ export class BulkReinviteFailureDialogComponent {
     });
   }
 
-  async resendInvitations() {
-    await this.memberActionsService.bulkReinvite(this.organization, this.dataSource().data);
-    await this.dialogRef.close();
+  resendInvitations() {
+    return this.dialogRef.close(this.dataSource().data);
   }
 
-  async cancel() {
-    await this.dialogRef.close();
+  cancel() {
+    this.dialogRef.close([]);
   }
 
   static open(dialogService: DialogService, config: DialogConfig<BulkReinviteFailureDialogParams>) {
