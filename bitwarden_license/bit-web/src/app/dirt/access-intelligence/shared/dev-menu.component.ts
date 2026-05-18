@@ -15,6 +15,11 @@ import { LogService } from "@bitwarden/logging";
 
 import { OnboardingService } from "../onboarding/services/onboarding.service";
 
+/*This component is a dev menu only.
+ * It is not intended for production use and will be removed before release a
+ * after the feature flag is removed. It is only intended for use in development and testing.
+ * No language translations are required and therefore no use of i18n pipe or service.
+ */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-dev-menu",
@@ -61,7 +66,6 @@ export class DevMenuComponent implements OnInit {
   protected onBeginTour(): void {
     this.isOpen.set(false);
     this.beginTour.emit();
-    // WelcomeModalDialogComponent.showWelcomeDialog(this.dialogService);
   }
 
   protected onImportData(): void {
