@@ -23,7 +23,7 @@ import {
   RoutedVaultFilterBridgeService,
 } from "@bitwarden/vault";
 
-import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../../../../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { CollectionFilterComponent } from "./filters/collection-filter.component";
 import { FolderFilterComponent } from "./filters/folder-filter.component";
