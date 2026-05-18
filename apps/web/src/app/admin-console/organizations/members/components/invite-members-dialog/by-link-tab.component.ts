@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import {
   combineLatest,
   filter,
@@ -21,6 +21,7 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkComponent,
@@ -58,6 +59,7 @@ export class ByLinkTabComponent {
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
 
@@ -86,7 +88,7 @@ export class ByLinkTabComponent {
   );
 
   readonly form = this.fb.group({
-    domains: ["", Validators.required],
+    domains: [""],
   });
 
   constructor() {
@@ -114,12 +116,34 @@ export class ByLinkTabComponent {
       .map((domain) => domain.trim())
       .filter((domain) => domain.length > 0);
 
+    const inviteLink = await firstValueFrom(this.inviteLink$);
+
     if (domains.length === 0) {
-      this.form.controls.domains.setErrors({ required: true });
+      if (!inviteLink) {
+        this.form.controls.domains.setErrors({ required: true });
+        return;
+      }
+
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "invalidateInviteLink" },
+        content: { key: "invalidateInviteLinkDesc" },
+        type: "warning",
+        acceptButtonText: { key: "invalidateLink" },
+        cancelButtonText: { key: "cancel" },
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      await this.inviteLinkService.delete(userId, this.organizationId());
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("inviteLinkInvalidated"),
+      });
       return;
     }
 
-    const inviteLink = await firstValueFrom(this.inviteLink$);
     if (inviteLink) {
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains);
     } else {
