@@ -636,7 +636,7 @@ export class AutofillComponent implements OnInit {
     }
 
     const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
-    return Boolean(result.pendingDefaultPasswordManagerApply);
+    return Boolean(result?.pendingDefaultPasswordManagerApply);
   }
 
   async updateShowCardsCurrentTab() {

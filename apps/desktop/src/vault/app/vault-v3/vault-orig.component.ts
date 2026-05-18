@@ -81,7 +81,6 @@ import {
   AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -91,7 +90,6 @@ import {
   CollectionAssignmentResult,
   createFilterFunction,
   DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
@@ -105,8 +103,8 @@ import {
 } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { ItemFooterComponent } from "../vault/item-footer.component";
@@ -136,10 +134,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: CipherFormConfigService,
       useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
     },
     {
       provide: ViewPasswordHistoryService,
@@ -629,6 +623,41 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       });
     }
 
+    const addDriverLicenseFields = () => {
+      const fields = ["firstName", "middleName", "lastName", "licenseNumber"] as const;
+      const fieldLabels: Record<(typeof fields)[number], { copyLabelKey: string; aType?: string }> =
+        {
+          firstName: {
+            copyLabelKey: "copyFirstName",
+          },
+          middleName: {
+            copyLabelKey: "copyMiddleName",
+          },
+          lastName: {
+            copyLabelKey: "copyLastName",
+          },
+          licenseNumber: {
+            copyLabelKey: "copyLicenseNumber",
+            aType: "License Number",
+          },
+        };
+      const hasAnyField = fields.some((field) => cipher.driversLicense?.[field] != null);
+      if (hasAnyField) {
+        menu.push({ type: "separator" });
+      }
+
+      fields.forEach((field) => {
+        const value = cipher.driversLicense?.[field];
+        if (value != null) {
+          const { copyLabelKey, aType } = fieldLabels[field];
+          menu.push({
+            label: this.i18nService.t(copyLabelKey),
+            click: () => this.copyValue(cipher, value, field, aType),
+          });
+        }
+      });
+    };
+
     switch (cipher.type) {
       case CipherType.Login:
         if (
@@ -696,6 +725,50 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
             },
           });
         }
+        break;
+      case CipherType.BankAccount:
+        if (cipher.bankAccount.accountNumber != null || cipher.bankAccount.routingNumber != null) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.bankAccount.accountNumber) {
+          menu.push({
+            label: this.i18nService.t("copyAccountNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.accountNumber,
+                "accountNumber",
+                "Account Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.routingNumber) {
+          menu.push({
+            label: this.i18nService.t("copyRoutingNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.routingNumber,
+                "routingNumber",
+                "Routing Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.pin) {
+          menu.push({
+            label: this.i18nService.t("copyPin"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.pin, "pin", "PIN"),
+          });
+        }
+        if (cipher.bankAccount.iban) {
+          menu.push({
+            label: this.i18nService.t("copyIban"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
+          });
+        }
+        break;
+      case CipherType.DriversLicense:
+        addDriverLicenseFields();
         break;
       default:
         break;

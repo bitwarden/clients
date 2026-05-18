@@ -20,11 +20,14 @@ import { LocalData, toSdkLocalData, fromSdkLocalData } from "../data/local.data"
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
+import { BankAccountView } from "./bank-account.view";
 import { CardView } from "./card.view";
+import { DriversLicenseView } from "./drivers-license.view";
 import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
+import { PassportView } from "./passport.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
@@ -49,6 +52,9 @@ export class CipherView implements View, InitializerMetadata {
   card = new CardView();
   secureNote = new SecureNoteView();
   sshKey = new SshKeyView();
+  bankAccount = new BankAccountView();
+  driversLicense = new DriversLicenseView();
+  passport = new PassportView();
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
@@ -105,6 +111,12 @@ export class CipherView implements View, InitializerMetadata {
         return this.identity;
       case CipherType.SshKey:
         return this.sshKey;
+      case CipherType.BankAccount:
+        return this.bankAccount;
+      case CipherType.DriversLicense:
+        return this.driversLicense;
+      case CipherType.Passport:
+        return this.passport;
       default:
         break;
     }
@@ -267,6 +279,15 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.SshKey:
         view.sshKey = SshKeyView.fromJSON(obj.sshKey);
         break;
+      case CipherType.BankAccount:
+        view.bankAccount = BankAccountView.fromJSON(obj.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        view.driversLicense = DriversLicenseView.fromJSON(obj.driversLicense);
+        break;
+      case CipherType.Passport:
+        view.passport = PassportView.fromJSON(obj.passport);
+        break;
       default:
         break;
     }
@@ -354,6 +375,21 @@ export class CipherView implements View, InitializerMetadata {
         cipherView.sshKey = obj.sshKey
           ? SshKeyView.fromSdkSshKeyView(obj.sshKey)
           : new SshKeyView();
+        break;
+      case CipherType.BankAccount:
+        cipherView.bankAccount = obj.bankAccount
+          ? BankAccountView.fromSdkBankAccountView(obj.bankAccount)
+          : new BankAccountView();
+        break;
+      case CipherType.DriversLicense:
+        cipherView.driversLicense = obj.driversLicense
+          ? DriversLicenseView.fromSdkDriversLicenseView(obj.driversLicense)
+          : new DriversLicenseView();
+        break;
+      case CipherType.Passport:
+        cipherView.passport = obj.passport
+          ? PassportView.fromSdkPassportView(obj.passport)
+          : new PassportView();
         break;
       default:
         break;
@@ -445,6 +481,15 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.SshKey:
         viewType = { sshKey: this.sshKey?.toSdkSshKeyView() };
         break;
+      case CipherType.BankAccount:
+        viewType = { bankAccount: this.bankAccount?.toSdkBankAccountView() };
+        break;
+      case CipherType.DriversLicense:
+        viewType = { driversLicense: this.driversLicense?.toSdkDriversLicenseView() };
+        break;
+      case CipherType.Passport:
+        viewType = { passport: this.passport?.toSdkPassportView() };
+        break;
       default:
         viewType = {
           // Default to empty login - should not be valid code path.
@@ -499,6 +544,9 @@ export class CipherView implements View, InitializerMetadata {
       identity: undefined,
       secureNote: undefined,
       sshKey: undefined,
+      bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
     };
 
     switch (this.type) {
@@ -516,6 +564,15 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.SshKey:
         sdkCipherView.sshKey = this.sshKey?.toSdkSshKeyView();
+        break;
+      case CipherType.BankAccount:
+        sdkCipherView.bankAccount = this.bankAccount?.toSdkBankAccountView();
+        break;
+      case CipherType.DriversLicense:
+        sdkCipherView.driversLicense = this.driversLicense?.toSdkDriversLicenseView();
+        break;
+      case CipherType.Passport:
+        sdkCipherView.passport = this.passport?.toSdkPassportView();
         break;
       default:
         break;

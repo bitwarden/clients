@@ -13,7 +13,7 @@ import {
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -79,7 +79,10 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         if (policy == null) {
           return of(undefined);
         }
-        return this.organizationService.organizations$(userId).pipe(getById(policy.organizationId));
+        return this.organizationService.organizations$(userId).pipe(
+          getById(policy.organizationId),
+          map((org) => (org?.status === OrganizationUserStatusType.Confirmed ? org : undefined)),
+        );
       }),
     );
   }
