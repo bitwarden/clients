@@ -13927,5 +13927,35 @@
   },
   "pamLeasingSaveFailed": {
     "message": "Could not save leasing settings"
+  },
+  "policyTimeOfDayDescription": {
+    "message": "Auto-approve during these windows. Outside them, requests are denied."
+  },
+  "policyTimeOfDayTimezoneLabel": {
+    "message": "Timezone"
+  },
+  "policyTimeOfDayDaysLabel": {
+    "message": "Days of week"
+  },
+  "policyTimeOfDayFrom": {
+    "message": "From"
+  },
+  "policyTimeOfDayTo": {
+    "message": "To"
+  },
+  "policyTimeOfDayFromBeforeTo": {
+    "message": "\"From\" must be earlier than \"To\""
+  },
+  "policyTimeOfDayWindowLabel": {
+    "message": "Window $1"
+  },
+  "policyTimeOfDayAddWindow": {
+    "message": "Add window"
+  },
+  "policyTimeOfDayRemoveWindow": {
+    "message": "Remove window"
+  },
+  "policyTimeOfDayAtLeastOne": {
+    "message": "At least one time window is required."
   }
 }

@@ -64,8 +64,12 @@
           <p class="tw-text-muted">{{ "pamLeasingEditorComingSoon" | i18n }}</p>
         }
         @case ("time_of_day") {
-          <p class="tw-mb-1 tw-font-semibold">{{ "pamLeasingModeTimeOfDay" | i18n }}</p>
-          <p class="tw-text-muted">{{ "pamLeasingEditorComingSoon" | i18n }}</p>
+          <pam-time-of-day-editor
+            [initialTz]="initialTz()"
+            [initialWindows]="initialWindows()"
+            [disabled]="!leasingEnabled() || !canManage()"
+            (policyChange)="onTimeOfDayPolicyChange($event)"
+          ></pam-time-of-day-editor>
         }
         @case ("all_of") {
           <p class="tw-mb-1 tw-font-semibold">{{ "pamLeasingModeAllOf" | i18n }}</p>

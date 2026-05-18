@@ -1,0 +1,74 @@
+<div class="tw-rounded tw-border tw-border-secondary-300 tw-p-4 tw-mb-3">
+  <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
+    <span class="tw-text-sm tw-font-semibold">
+      {{ "policyTimeOfDayWindowLabel" | i18n: (index() + 1) }}
+    </span>
+    <button
+      type="button"
+      bitIconButton="bwi-trash"
+      buttonType="muted"
+      size="small"
+      [attr.aria-label]="'policyTimeOfDayRemoveWindow' | i18n"
+      [disabled]="!canRemove() || disabled()"
+      (click)="onRemove()"
+      data-testid="remove-window"
+    ></button>
+  </div>
+
+  <div class="tw-mb-3">
+    <p class="tw-mb-1 tw-text-sm tw-font-semibold">{{ "policyTimeOfDayDaysLabel" | i18n }}</p>
+    <div class="tw-flex tw-flex-wrap tw-gap-1" role="group" [attr.aria-label]="'policyTimeOfDayDaysLabel' | i18n">
+      @for (day of allDays; track day) {
+        <button
+          type="button"
+          class="tw-px-2 tw-py-1 tw-rounded tw-text-xs tw-font-medium tw-border tw-transition-colors"
+          [class.tw-bg-primary-600]="isDaySelected(day)"
+          [class.tw-text-contrast-600]="isDaySelected(day)"
+          [class.tw-border-primary-600]="isDaySelected(day)"
+          [class.tw-bg-transparent]="!isDaySelected(day)"
+          [class.tw-text-main]="!isDaySelected(day)"
+          [class.tw-border-secondary-300]="!isDaySelected(day)"
+          [disabled]="disabled()"
+          [attr.aria-pressed]="isDaySelected(day)"
+          [attr.aria-label]="dayLabels[day]"
+          (click)="toggleDay(day)"
+          data-testid="day-chip"
+        >
+          {{ dayLabels[day] }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="tw-flex tw-gap-4">
+    <bit-form-field class="tw-flex-1">
+      <bit-label>{{ "policyTimeOfDayFrom" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="time"
+        [value]="window().from"
+        [disabled]="disabled()"
+        (change)="onFromChange($any($event.target).value)"
+        data-testid="from-time"
+      />
+      @if (fromError()) {
+        <bit-hint class="tw-text-danger">{{ fromError()! | i18n }}</bit-hint>
+      }
+    </bit-form-field>
+
+    <bit-form-field class="tw-flex-1">
+      <bit-label>{{ "policyTimeOfDayTo" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="time"
+        [value]="window().to"
+        [disabled]="disabled()"
+        (change)="onToChange($any($event.target).value)"
+        data-testid="to-time"
+      />
+      @if (toError()) {
+        <bit-hint class="tw-text-danger">{{ toError()! | i18n }}</bit-hint>
+      }
+    </bit-form-field>
+  </div>
+</div>

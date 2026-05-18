@@ -24,7 +24,9 @@ import {
   ToastService,
   ToggleGroupModule,
 } from "@bitwarden/components";
-import { CollectionLeasingRequest, LeasingPolicy, PamApiService } from "@bitwarden/pam";
+import { CollectionLeasingRequest, LeasingPolicy, TimeWindow, PamApiService } from "@bitwarden/pam";
+
+import { TimeOfDayEditorComponent } from "../policy-editor/time-of-day/time-of-day-editor.component";
 
 /** The discriminator values of {@link LeasingPolicy}. */
 export const LeasingPolicyKind = Object.freeze({
@@ -68,6 +70,7 @@ export type LeasingPolicyKind = (typeof LeasingPolicyKind)[keyof typeof LeasingP
     FormFieldModule,
     LinkModule,
     ToggleGroupModule,
+    TimeOfDayEditorComponent,
   ],
 })
 export class CollectionLeasingTabComponent implements OnInit {
@@ -100,13 +103,25 @@ export class CollectionLeasingTabComponent implements OnInit {
   /** Tracks the last-loaded server state so we can detect "turning off". */
   private readonly wasEnabledOnLoad = false;
 
-  /**
-   * `true` when the form is in a state we can save. v0 considers any combination
-   * valid (leasing off saves null policy; leasing on + human_approval saves a
-   * concrete policy; the other kinds save null awaiting their editor stories).
-   * Future mode-editor stories will tighten this once their forms exist.
-   */
-  protected readonly canSave = computed(() => !this.loading() && this.canManage());
+  /** Holds the latest valid time-of-day policy emitted by the editor, or null. */
+  protected readonly timeOfDayPolicy = signal<{ tz: string; windows: TimeWindow[] } | null>(null);
+
+  /** Pre-loaded values passed into the time-of-day editor when the server config is loaded. */
+  protected readonly initialTz = signal<string | null>(null);
+  protected readonly initialWindows = signal<TimeWindow[] | null>(null);
+
+  protected readonly canSave = computed(() => {
+    if (this.loading() || !this.canManage()) {
+      return false;
+    }
+    if (!this.leasingEnabled()) {
+      return true;
+    }
+    if (this.activePolicyKind() === LeasingPolicyKind.TimeOfDay) {
+      return this.timeOfDayPolicy() !== null;
+    }
+    return true;
+  });
 
   async ngOnInit(): Promise<void> {
     await this.load();
@@ -120,6 +135,10 @@ export class CollectionLeasingTabComponent implements OnInit {
       this.wasEnabledOnLoad = config.leasingEnabled;
       if (config.policy != null) {
         this.activePolicyKind.set(config.policy.kind);
+        if (config.policy.kind === "time_of_day") {
+          this.initialTz.set(config.policy.tz);
+          this.initialWindows.set(config.policy.windows);
+        }
       }
     } catch {
       // The server returns 404 when no config has been saved yet — treat as
@@ -165,6 +184,10 @@ export class CollectionLeasingTabComponent implements OnInit {
     this.switchToAccess.emit();
   }
 
+  protected onTimeOfDayPolicyChange(value: { tz: string; windows: TimeWindow[] } | null): void {
+    this.timeOfDayPolicy.set(value);
+  }
+
   /**
    * Submit handler. Bound to `bitAction` so the async-actions module disables
    * the button + shows a spinner for the duration of the request.
@@ -203,7 +226,14 @@ export class CollectionLeasingTabComponent implements OnInit {
     if (this.activePolicyKind() === LeasingPolicyKind.HumanApproval) {
       return { kind: "human_approval" };
     }
-    // Other kinds defer to their editor stories (PM-37273/74/75).
+    if (this.activePolicyKind() === LeasingPolicyKind.TimeOfDay) {
+      const tod = this.timeOfDayPolicy();
+      if (tod == null) {
+        return null;
+      }
+      return { kind: "time_of_day", tz: tod.tz, windows: tod.windows };
+    }
+    // Other kinds defer to their editor stories (PM-37273/75).
     return null;
   }
 }
