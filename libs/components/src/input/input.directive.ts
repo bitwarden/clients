@@ -29,6 +29,7 @@ export function inputBorderClasses(error: boolean) {
     "(input)": "onInput()",
     "[attr.aria-invalid]": "ariaInvalid()",
     "[required]": "formFieldControl.required()",
+    "[attr.readonly]": "formFieldControl.readOnly() ? '' : null",
   },
 })
 export class BitInputDirective implements AfterViewInit {
