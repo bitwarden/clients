@@ -2,7 +2,13 @@ import { importProvidersFrom } from "@angular/core";
 import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CollectionGovernanceRowResponse,
   OrganizationGovernanceSummaryResponse,
@@ -21,6 +27,22 @@ class StubPamApiService {
   /** Never resolves — the override input drives the rendered state. */
   getGovernanceSummary(): Promise<OrganizationGovernanceSummaryResponse> {
     return new Promise(() => undefined);
+  }
+}
+
+class StubOrganizationService {
+  organizations$(_userId: unknown) {
+    return of([{ id: "org-1", name: "Acme Corp" }]);
+  }
+}
+
+class StubAccountService {
+  activeAccount$ = of({ id: "user-1" });
+}
+
+class StubConfigService {
+  getFeatureFlag$(_flag: unknown) {
+    return of(false);
   }
 }
 
@@ -66,6 +88,12 @@ export default {
       imports: [GovernanceDashboardComponent, RouterTestingModule],
       providers: [
         { provide: PamApiService, useClass: StubPamApiService },
+        { provide: OrganizationService, useClass: StubOrganizationService },
+        { provide: AccountService, useClass: StubAccountService },
+        { provide: ConfigService, useClass: StubConfigService },
+        { provide: LogService, useValue: { error: () => {} } },
+        { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
+        { provide: ToastService, useValue: { showToast: () => {} } },
         {
           provide: ActivatedRoute,
           useValue: {

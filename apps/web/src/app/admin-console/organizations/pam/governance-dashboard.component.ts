@@ -3,13 +3,21 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   OnInit,
   signal,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -28,6 +36,8 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { KillSwitchComponent } from "./kill-switch/kill-switch.component";
 
 /**
  * Query-param convention for governance dashboard click-throughs (PM-37277).
@@ -66,13 +76,17 @@ type DashboardStatus = "loading" | "ready" | "empty" | "error";
     TypographyModule,
     LinkModule,
     I18nPipe,
+    KillSwitchComponent,
   ],
 })
 export class GovernanceDashboardComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly pamApiService = inject(PamApiService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Optional summary injected by Storybook / tests instead of fetching from
@@ -80,8 +94,13 @@ export class GovernanceDashboardComponent implements OnInit {
    */
   readonly summaryOverride = input<OrganizationGovernanceSummaryResponse | null>(null);
 
+  /** Optional org name for Storybook / tests. When provided, the component skips the org-service lookup. */
+  readonly organizationNameOverride = input<string | null>(null);
+
   protected readonly status = signal<DashboardStatus>("loading");
   protected readonly summary = signal<OrganizationGovernanceSummaryResponse | null>(null);
+  protected readonly organizationId = signal<string | null>(null);
+  protected readonly organizationName = signal<string | null>(null);
 
   protected readonly rows = computed(() => this.summary()?.collections ?? []);
   protected readonly collectionTotal = computed(
@@ -102,6 +121,9 @@ export class GovernanceDashboardComponent implements OnInit {
     if (override != null) {
       this.summary.set(override);
       this.status.set(override.collections.length === 0 ? "empty" : "ready");
+      if (this.organizationNameOverride() != null) {
+        this.organizationName.set(this.organizationNameOverride());
+      }
       return;
     }
 
@@ -110,6 +132,21 @@ export class GovernanceDashboardComponent implements OnInit {
       this.status.set("error");
       return;
     }
+
+    this.organizationId.set(organizationId);
+
+    this.accountService.activeAccount$
+      .pipe(getUserId, takeUntilDestroyed(this.destroyRef))
+      .subscribe((userId) => {
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(organizationId), takeUntilDestroyed(this.destroyRef))
+          .subscribe((org) => {
+            if (org != null) {
+              this.organizationName.set(org.name);
+            }
+          });
+      });
 
     try {
       const summary = await this.pamApiService.getGovernanceSummary(organizationId);

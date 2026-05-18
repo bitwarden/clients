@@ -1,7 +1,7 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
-import { PamApiService } from "../abstractions/pam-api.service";
+import { BulkRevokeResult, PamApiService } from "../abstractions/pam-api.service";
 import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
 import { OrganizationGovernanceSummaryResponse } from "../abstractions/responses/governance-summary.response";
 import { LeaseRequestResponse } from "../abstractions/responses/lease-request.response";
@@ -73,6 +73,35 @@ export class DefaultPamApiService implements PamApiService {
     return new OrganizationGovernanceSummaryResponse(
       await this.send("GET", `/organizations/${organizationId}/leasing/governance`, null, true),
     );
+  }
+
+  // TODO(PM-37278): Placeholder endpoint — coordinate with the server team to
+  // finalise the URL and response shape before enabling PamKillSwitch in
+  // production. The response parsing below assumes the server returns
+  // { Kind, RevokedCount, FailedCount?, Failures? } — update once the contract
+  // is agreed.
+  async bulkRevokeLeases(organizationId: string): Promise<BulkRevokeResult> {
+    const raw = await this.send(
+      "POST",
+      `/organizations/${organizationId}/leasing/leases/revoke-all`,
+      null,
+      true,
+    );
+    const data = raw as {
+      Kind: string;
+      RevokedCount: number;
+      FailedCount?: number;
+      Failures?: { LeaseId: string; Reason: string }[];
+    };
+    if (data.Kind === "partial") {
+      return {
+        kind: "partial",
+        revokedCount: data.RevokedCount ?? 0,
+        failedCount: data.FailedCount ?? 0,
+        failures: (data.Failures ?? []).map((f) => ({ leaseId: f.LeaseId, reason: f.Reason })),
+      };
+    }
+    return { kind: "ok", revokedCount: data.RevokedCount ?? 0 };
   }
 
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {

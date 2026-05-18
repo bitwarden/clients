@@ -9,6 +9,21 @@ import { CollectionLeasingConfigResponse } from "./responses/collection-leasing.
 import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
 import { LeaseRequestResponse } from "./responses/lease-request.response";
 
+/**
+ * Result of a bulk revoke operation. The server returns a partial-failure shape
+ * when some leases could not be revoked (e.g. concurrent expiry). This type
+ * mirrors the assumed response shape — coordinate with the server team to
+ * finalise before the endpoint ships. See PM-37278.
+ */
+export type BulkRevokeResult =
+  | { kind: "ok"; revokedCount: number }
+  | {
+      kind: "partial";
+      revokedCount: number;
+      failedCount: number;
+      failures: { leaseId: string; reason: string }[];
+    };
+
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
   abstract patchLeaseRequest(
@@ -34,4 +49,11 @@ export abstract class PamApiService {
   abstract getGovernanceSummary(
     organizationId: string,
   ): Promise<OrganizationGovernanceSummaryResponse>;
+
+  /**
+   * Revoke all active leases for an organization in a single call (kill switch).
+   * The server generates an audit-log entry per revoked lease. Org-admin only.
+   * See PM-37278.
+   */
+  abstract bulkRevokeLeases(organizationId: string): Promise<BulkRevokeResult>;
 }

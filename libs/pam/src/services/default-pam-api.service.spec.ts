@@ -143,6 +143,55 @@ describe("DefaultPamApiService", () => {
     });
   });
 
+  describe("bulkRevokeLeases", () => {
+    it("POSTs /organizations/{id}/leasing/leases/revoke-all and returns ok shape", async () => {
+      apiService.send.mockResolvedValue({ Kind: "ok", RevokedCount: 5 });
+
+      const result = await service.bulkRevokeLeases("org-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/leasing/leases/revoke-all",
+        null,
+        true,
+        true,
+      );
+      expect(result).toEqual({ kind: "ok", revokedCount: 5 });
+    });
+
+    it("returns partial shape when Kind is 'partial'", async () => {
+      apiService.send.mockResolvedValue({
+        Kind: "partial",
+        RevokedCount: 3,
+        FailedCount: 2,
+        Failures: [
+          { LeaseId: "lease-a", Reason: "already expired" },
+          { LeaseId: "lease-b", Reason: "concurrent revoke" },
+        ],
+      });
+
+      const result = await service.bulkRevokeLeases("org-1");
+
+      expect(result).toEqual({
+        kind: "partial",
+        revokedCount: 3,
+        failedCount: 2,
+        failures: [
+          { leaseId: "lease-a", reason: "already expired" },
+          { leaseId: "lease-b", reason: "concurrent revoke" },
+        ],
+      });
+    });
+
+    it("defaults RevokedCount to 0 when absent from the response", async () => {
+      apiService.send.mockResolvedValue({ Kind: "ok" });
+
+      const result = await service.bulkRevokeLeases("org-1");
+
+      expect(result).toEqual({ kind: "ok", revokedCount: 0 });
+    });
+  });
+
   describe("getGovernanceSummary", () => {
     it("GETs /organizations/{id}/leasing/governance and wraps the response", async () => {
       apiService.send.mockResolvedValue({

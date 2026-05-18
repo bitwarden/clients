@@ -103,6 +103,7 @@ export enum FeatureFlag {
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
+  PamKillSwitch = "pm-37044-pam-v-0-kill-switch",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -212,6 +213,7 @@ export const DefaultFeatureFlagValue = {
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamKillSwitch]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

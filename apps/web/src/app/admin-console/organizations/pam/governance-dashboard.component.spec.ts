@@ -1,9 +1,14 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CollectionGovernanceRowResponse,
   OrganizationGovernanceSummaryResponse,
@@ -56,12 +61,28 @@ describe("GovernanceDashboardComponent", () => {
       pamApiService.getGovernanceSummary.mockResolvedValue(opts.summary);
     }
 
+    const organizationService = mock<OrganizationService>();
+    organizationService.organizations$.mockReturnValue(
+      of([{ id: "org-1", name: "Acme Corp" }] as any),
+    );
+
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: "user-1" } as any);
+
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [GovernanceDashboardComponent],
       providers: [
         { provide: PamApiService, useValue: pamApiService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: logService },
+        { provide: OrganizationService, useValue: organizationService },
+        { provide: AccountService, useValue: accountService },
+        { provide: ConfigService, useValue: configService },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -278,12 +299,24 @@ describe("GovernanceDashboardComponent", () => {
       logService = mock<LogService>();
       i18nService.t.mockImplementation((key: string) => key);
 
+      const organizationService = mock<OrganizationService>();
+      organizationService.organizations$.mockReturnValue(of([] as any));
+      const accountService = mock<AccountService>();
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      const configService = mock<ConfigService>();
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+
       await TestBed.configureTestingModule({
         imports: [GovernanceDashboardComponent],
         providers: [
           { provide: PamApiService, useValue: pamApiService },
           { provide: I18nService, useValue: i18nService },
           { provide: LogService, useValue: logService },
+          { provide: OrganizationService, useValue: organizationService },
+          { provide: AccountService, useValue: accountService },
+          { provide: ConfigService, useValue: configService },
+          { provide: DialogService, useValue: mock<DialogService>() },
+          { provide: ToastService, useValue: mock<ToastService>() },
           {
             provide: ActivatedRoute,
             useValue: { snapshot: { paramMap: convertToParamMap({ organizationId: "org-1" }) } },

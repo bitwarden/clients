@@ -7,13 +7,14 @@
     {{ "pamGovernanceDescription" | i18n }}
   </p>
 
-  <!--
-    PM-37278: a kill-switch (organization-wide leasing disable) lives here.
-    Reserving the slot keeps layout stable when the follow-up story lands.
-  -->
-  <div class="tw-mb-4 tw-flex tw-items-center tw-gap-2" data-testid="pam-kill-switch-slot">
-    <ng-content select="[pamKillSwitchSlot]"></ng-content>
-  </div>
+  @if (organizationId() && organizationName()) {
+    <div class="tw-mb-4" data-testid="pam-kill-switch-slot">
+      <app-pam-kill-switch
+        [organizationId]="organizationId()!"
+        [organizationName]="organizationName()!"
+      ></app-pam-kill-switch>
+    </div>
+  }
 
   <div class="tw-mb-6 tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-3">
     <div

@@ -13958,5 +13958,66 @@
   },
   "pamGovernanceLoadError": {
     "message": "We couldn't load the governance summary. Try again in a moment."
+  },
+  "killSwitchDangerZoneTitle": {
+    "message": "Danger zone"
+  },
+  "killSwitchDangerZoneDescription": {
+    "message": "Immediately revoke all active leases across the entire organization. This action cannot be undone and will be recorded in the audit log."
+  },
+  "killSwitchButtonLabel": {
+    "message": "Revoke all active leases"
+  },
+  "killSwitchDialogTitle": {
+    "message": "Revoke all active leases"
+  },
+  "killSwitchDialogWarning": {
+    "message": "This will immediately revoke every active lease in the organization. All users currently holding a lease will lose access. This action is permanent and cannot be undone."
+  },
+  "killSwitchDialogConfirmPrompt": {
+    "message": "To confirm, type the organization name: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "killSwitchDialogInputLabel": {
+    "message": "Organization name"
+  },
+  "killSwitchConfirmButtonLabel": {
+    "message": "Revoke all leases"
+  },
+  "killSwitchSuccessTitle": {
+    "message": "All leases revoked"
+  },
+  "killSwitchSuccessMessage": {
+    "message": "$COUNT$ lease(s) revoked successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "killSwitchPartialTitle": {
+    "message": "Partial revocation"
+  },
+  "killSwitchPartialMessage": {
+    "message": "$REVOKED$ lease(s) revoked. $FAILED$ lease(s) could not be revoked — check the audit log for details.",
+    "placeholders": {
+      "revoked": {
+        "content": "$1",
+        "example": "8"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "killSwitchErrorMessage": {
+    "message": "Failed to revoke leases. Try again in a moment."
   }
 }
