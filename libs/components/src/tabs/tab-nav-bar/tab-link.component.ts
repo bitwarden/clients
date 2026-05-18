@@ -84,8 +84,8 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   /** Roving tabindex value — parent nav-bar sets one link to 0 and the rest to -1. */
   readonly tabIndex = signal(-1);
 
-  @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
-    if (event.code === "Space") {
+  @HostListener("keydown", ["$event"]) onKeyDown(event: Event) {
+    if ((event as KeyboardEvent).code === "Space") {
       this.tabItem().click();
     }
   }
