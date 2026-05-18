@@ -46,4 +46,10 @@ export abstract class PamApiService {
    * Pending lease-request count visible to the caller, for the nav badge.
    */
   abstract getInboxBadgeCount(): Promise<InboxBadgeCountResponse>;
+  /**
+   * Fetch a single lease request by ID. Used by the email deep-link route so
+   * the locked-vault approval surface can render request details without
+   * decrypting any vault data.
+   */
+  abstract getLeaseRequest(id: string): Promise<InboxLeaseRequestResponse>;
 }

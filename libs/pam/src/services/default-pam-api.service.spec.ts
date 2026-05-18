@@ -205,6 +205,37 @@ describe("DefaultPamApiService", () => {
     });
   });
 
+  describe("getLeaseRequest", () => {
+    it("GETs /leasing/requests/{id} and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "req-1",
+        CipherId: "cipher-1",
+        CollectionId: "col-1",
+        RequesterUserId: "user-2",
+        Status: "pending",
+        RequestedTtlSeconds: 3600,
+        SubmittedAt: "2026-05-15T12:00:00Z",
+        CipherName: "Prod DB",
+        CollectionName: "Production",
+        RequesterName: "Bob",
+        RequesterEmail: "bob@example.com",
+      });
+
+      const result = await service.getLeaseRequest("req-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/requests/req-1",
+        null,
+        true,
+        true,
+      );
+      expect(result.id).toBe("req-1");
+      expect(result.cipherName).toBe("Prod DB");
+      expect(result.requesterEmail).toBe("bob@example.com");
+    });
+  });
+
   describe("getInboxBadgeCount", () => {
     it("GETs /leasing/requests/inbox/count and wraps the response", async () => {
       apiService.send.mockResolvedValue({ Count: 3 });

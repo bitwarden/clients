@@ -13996,5 +13996,32 @@
         "example": "3"
       }
     }
+  },
+  "emailApprovalCipherLabel": {
+    "message": "Item"
+  },
+  "emailApprovalLoadFailed": {
+    "message": "Couldn't load the access request."
+  },
+  "lockedVaultApprovalBanner": {
+    "message": "Vault locked — approval mode"
+  },
+  "lockedVaultApprovalTitle": {
+    "message": "Access request"
+  },
+  "lockedVaultApprovalSubtitle": {
+    "message": "Your vault is locked. You can still approve or deny this request."
+  },
+  "lockedVaultApprovalApproved": {
+    "message": "Request approved."
+  },
+  "lockedVaultApprovalDenied": {
+    "message": "Request denied."
+  },
+  "lockedVaultApprovalUnlockVault": {
+    "message": "Unlock vault"
+  },
+  "lockedVaultApprovalReturnToInbox": {
+    "message": "Return to inbox"
   }
 }

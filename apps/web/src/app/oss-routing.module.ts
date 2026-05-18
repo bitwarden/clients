@@ -85,6 +85,7 @@ import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connect
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { ApproverInboxComponent } from "./pam/approver-inbox/approver-inbox.component";
+import { LeasingRequestRouteComponent } from "./pam/leasing-request-route/leasing-request-route.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
@@ -669,6 +670,12 @@ const routes: Routes = [
         path: "pam/approver-inbox",
         component: ApproverInboxComponent,
         data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
+        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
+      },
+      {
+        path: "leasing/requests/:id",
+        component: LeasingRequestRouteComponent,
+        data: { titleId: "lockedVaultApprovalTitle" } satisfies RouteDataProperties,
         canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
       },
       {
