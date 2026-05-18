@@ -591,5 +591,96 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasDriversLicenseValues).toBe(false);
     });
+
+    it("uses copyableFields for passport values", () => {
+      (component.cipher() as CipherListView).copyableFields = [
+        "PassportPassportNumber",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasPassportValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "LoginUsername",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasPassportValues).toBe(false);
+    });
+  });
+
+  describe("singleCopyablePassport", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(CipherViewLikeUtils, "hasCopyableValue")
+        .mockImplementation(
+          (cipher: CipherViewLike & { __copyable?: Record<string, boolean> }, field) => {
+            return Boolean(cipher.__copyable?.[field]);
+          },
+        );
+    });
+
+    it("returns the single populated passport field", () => {
+      (component.cipher() as any).__copyable = {
+        givenName: false,
+        surname: false,
+        passportNumber: true,
+        nationalIdentificationNumber: false,
+      };
+
+      const result = component.singleCopyablePassport;
+
+      expect(result).toEqual({
+        key: "translated-passportNumber",
+        field: "passportNumber",
+      });
+    });
+
+    it("returns null when multiple passport fields are populated", () => {
+      (component.cipher() as any).__copyable = {
+        givenName: false,
+        surname: false,
+        passportNumber: true,
+        nationalIdentificationNumber: true,
+      };
+
+      const result = component.singleCopyablePassport;
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when no passport fields are populated", () => {
+      (component.cipher() as any).__copyable = {
+        givenName: false,
+        surname: false,
+        passportNumber: false,
+        nationalIdentificationNumber: false,
+      };
+
+      const result = component.singleCopyablePassport;
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("hasPassportValues in non-list view", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+    });
+
+    it("returns true when at least one passport field is populated", () => {
+      (component.cipher() as any).passport = { passportNumber: "AB123456" };
+
+      expect(component.hasPassportValues).toBe(true);
+    });
+
+    it("returns false when all passport fields are empty", () => {
+      (component.cipher() as any).passport = {
+        givenName: null,
+        surname: null,
+        passportNumber: null,
+        nationalIdentificationNumber: null,
+      };
+
+      expect(component.hasPassportValues).toBe(false);
+    });
   });
 });

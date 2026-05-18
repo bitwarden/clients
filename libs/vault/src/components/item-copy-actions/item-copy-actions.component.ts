@@ -138,6 +138,20 @@ export class VaultItemCopyActionsComponent {
     return this.getNumberOfDriversLicenseValues(this.cipher()) > 0;
   }
 
+  get hasPassportValues() {
+    return this.getNumberOfPassportValues(this.cipher()) > 0;
+  }
+
+  get singleCopyablePassport(): CipherItem | null {
+    const passportItems: CipherItem[] = [
+      { key: "givenName", field: "givenName" },
+      { key: "surname", field: "surname" },
+      { key: "passportNumber", field: "passportNumber" },
+      { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
+    ];
+    return this.findSingleCopyableItem(this.cipher(), passportItems);
+  }
+
   /** Sets the number of populated login values for the cipher */
   private getNumberOfLoginValues(cipher: CipherViewLike) {
     return this.getLoginCopyableItems(cipher)
@@ -184,6 +198,20 @@ export class VaultItemCopyActionsComponent {
     }
 
     return cipher.notes ? 1 : 0;
+  }
+
+  /** Sets the number of populated passport values for the cipher */
+  private getNumberOfPassportValues(cipher: CipherViewLike) {
+    if (CipherViewLikeUtils.isCipherListView(cipher)) {
+      const copyablePassportFields: CopyableCipherFields[] = ["PassportPassportNumber"];
+      return cipher.copyableFields.filter((field) => copyablePassportFields.includes(field)).length;
+    }
+    return [
+      cipher.passport?.givenName,
+      cipher.passport?.surname,
+      cipher.passport?.passportNumber,
+      cipher.passport?.nationalIdentificationNumber,
+    ].filter(Boolean).length;
   }
 
   /** Sets the number of populated SSH key values for the cipher */

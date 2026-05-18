@@ -297,3 +297,49 @@
     }
   </bit-item-action>
 }
+
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.Passport) {
+  <bit-item-action>
+    @if (singleCopyablePassport) {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="'copyFieldCipherName' | i18n: singleCopyablePassport.key : _cipher.name"
+        [appCopyField]="singleCopyablePassport.field"
+        [cipher]="_cipher"
+        showToast
+      ></button>
+    } @else {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="
+          hasPassportValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+        "
+        [disabled]="!hasPassportValues"
+        [bitMenuTriggerFor]="passportOptions"
+      ></button>
+      <bit-menu #passportOptions>
+        <button type="button" bitMenuItem appCopyField="givenName" [cipher]="_cipher">
+          {{ "copyFirstName" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="surname" [cipher]="_cipher">
+          {{ "copyLastName" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="passportNumber" [cipher]="_cipher">
+          {{ "copyPassportNumber" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitMenuItem
+          appCopyField="nationalIdentificationNumber"
+          [cipher]="_cipher"
+        >
+          {{ "copyNationalIdentificationNumber" | i18n }}
+        </button>
+      </bit-menu>
+    }
+  </bit-item-action>
+}
