@@ -6590,6 +6590,9 @@
   "downloadFailed": {
     "message": "Failed to download."
   },
+  "more": {
+    "message": "More"
+  },
   "maxAccessCount": {
     "message": "Maximum access count",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
