@@ -5075,6 +5075,9 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "more": {
+    "message": "More"
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -5159,6 +5162,9 @@
   },
   "copyLicenseNumber": {
     "message": "Copy license number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
