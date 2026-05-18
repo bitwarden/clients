@@ -9,6 +9,7 @@
   <ng-container *ngIf="sub && !loading">
     <app-subscription-status
       [organizationSubscriptionResponse]="sub"
+      [hideCallout]="isResellerOrganizationOwnerExempt"
       (reinstatementRequested)="reinstate()"
       *ngIf="!userOrg.isFreeOrg"
     ></app-subscription-status>

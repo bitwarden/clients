@@ -15,7 +15,7 @@
     </li>
     <li *ngIf="trialLength > 0">
       <p>
-        {{ "trialPaidInfoMessage" | i18n: orgLabel }}
+        {{ "trialPaidInfoMessageSpecificTrialLength" | i18n: orgLabel : trialLength }}
       </p>
     </li>
   </ul>
