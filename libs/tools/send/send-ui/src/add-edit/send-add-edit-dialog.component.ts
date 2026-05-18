@@ -256,13 +256,19 @@ export class SendAddEditDialogComponent {
   }
 
   protected async cancelEditSend() {
-    const proceed = await this.sendFormService.promptForUnsavedEdits();
-    if (!proceed) {
-      return;
-    }
     if (this.config.mode === "add") {
+      // For "add" mode, just call close() — the closePredicate wired at open-time
+      // (promptForUnsavedEdits) will handle showing the discard dialog exactly once.
+      // Calling promptForUnsavedEdits manually here AND then close() would cause the
+      // discard dialog to appear twice (once here, once from the closePredicate).
       void this.dialogRef.close();
     } else {
+      // For "edit" mode we are not closing the dialog, just toggling back to view mode,
+      // so the closePredicate never runs — we must check for unsaved edits manually.
+      const proceed = await this.sendFormService.promptForUnsavedEdits();
+      if (!proceed) {
+        return;
+      }
       this.editing.set(false);
     }
   }
