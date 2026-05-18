@@ -658,6 +658,36 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       });
     };
 
+    const addPassportFields = () => {
+      const fields: { field: string; copyLabelKey: string; aType?: string; i18nKey?: string }[] = [
+        { field: "givenName", copyLabelKey: "copyFirstName", i18nKey: "firstName" },
+        { field: "surname", copyLabelKey: "copyLastName", i18nKey: "lastName" },
+        { field: "passportNumber", copyLabelKey: "copyPassportNumber", aType: "Passport Number" },
+        {
+          field: "nationalIdentificationNumber",
+          copyLabelKey: "copyNationalIdentificationNumber",
+          aType: "National Identification Number",
+        },
+      ];
+
+      const hasAnyField = fields.some(
+        (f) => cipher.passport?.[f.field as keyof typeof cipher.passport] != null,
+      );
+      if (hasAnyField) {
+        menu.push({ type: "separator" });
+      }
+
+      fields.forEach(({ field, copyLabelKey, aType, i18nKey }) => {
+        const value = cipher.passport?.[field as keyof typeof cipher.passport];
+        if (value != null) {
+          menu.push({
+            label: this.i18nService.t(copyLabelKey),
+            click: () => this.copyValue(cipher, value as string, i18nKey ?? field, aType),
+          });
+        }
+      });
+    };
+
     switch (cipher.type) {
       case CipherType.Login:
         if (
@@ -766,6 +796,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
             click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
           });
         }
+        break;
+      case CipherType.Passport:
+        addPassportFields();
         break;
       case CipherType.DriversLicense:
         addDriverLicenseFields();

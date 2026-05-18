@@ -115,8 +115,8 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     typeI18nKey: "nationalIdentificationNumber",
     protected: true,
   },
-  givenName: { typeI18nKey: "firstName", protected: true },
-  surname: { typeI18nKey: "lastName", protected: true },
+  givenName: { typeI18nKey: "firstName", protected: false },
+  surname: { typeI18nKey: "lastName", protected: false },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,
