@@ -96,8 +96,10 @@ export class BitFormFieldComponent implements AfterContentChecked {
    */
   protected readonly defaultContentIsFocused = signal(false);
   @HostListener("focusin", ["$event.target"])
-  onFocusIn(target: HTMLElement) {
-    this.defaultContentIsFocused.set(target.matches("[data-default-content] *:focus-visible"));
+  onFocusIn(target: EventTarget) {
+    this.defaultContentIsFocused.set(
+      (target as HTMLElement).matches("[data-default-content] *:focus-visible"),
+    );
   }
   @HostListener("focusout")
   onFocusOut() {
