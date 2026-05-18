@@ -14,3 +14,4 @@ export { ConfirmKeyConnectorDomainComponent } from "./key-connector/confirm-key-
 export { SessionTimeoutSettingsComponent } from "./session-timeout/components/session-timeout-settings.component";
 export { SessionTimeoutSettingsComponentService } from "./session-timeout/services/session-timeout-settings-component.service";
 export { SessionTimeoutInputComponent } from "./session-timeout/components/session-timeout-input.component";
+export { KeyRotationDialogComponent } from "./key-rotation/key-rotation-dialog.component";

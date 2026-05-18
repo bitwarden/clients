@@ -9,6 +9,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
+import { PublicKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { DefaultUserKeyRotationService } from "./user-key-rotation.service";
@@ -65,6 +66,7 @@ describe("DefaultUserKeyRotationService", () => {
   let mockUserCryptoManagement: {
     get_untrusted_emergency_access_public_keys: jest.Mock;
     get_untrusted_organization_public_keys: jest.Mock;
+    rotate_user_keys: jest.Mock;
   };
 
   beforeEach(() => {
@@ -77,10 +79,12 @@ describe("DefaultUserKeyRotationService", () => {
     mockUserCryptoManagement = {
       get_untrusted_emergency_access_public_keys: jest.fn(),
       get_untrusted_organization_public_keys: jest.fn(),
+      rotate_user_keys: jest.fn(),
     };
 
     mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
     mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
+    mockUserCryptoManagement.rotate_user_keys.mockResolvedValue(undefined);
 
     const mockSdkClient = {
       take: jest.fn().mockReturnValue({
@@ -290,6 +294,103 @@ describe("DefaultUserKeyRotationService", () => {
         numberOfEmergencyAccessUsers: 1,
         orgName: undefined,
       });
+    });
+  });
+
+  describe("rotateUserKey", () => {
+    const mockPasswordRotation = { Password: { password: "mockPassword" } };
+    const mockOrgKey = "mockOrgPublicKey" as PublicKey;
+    const mockEaKey = "mockEaPublicKey" as PublicKey;
+
+    let verifyTrustSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      verifyTrustSpy = jest.spyOn(service, "verifyTrust").mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [mockOrgKey],
+        trustedEmergencyAccessUserPublicKeys: [mockEaKey],
+      });
+    });
+
+    it("calls verifyTrust with the correct userId", async () => {
+      await service.rotateUserKey(mockPasswordRotation, mockUserId);
+
+      expect(verifyTrustSpy).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("does not call rotate_user_keys when verifyTrust throws", async () => {
+      verifyTrustSpy.mockRejectedValue(new Error("trust check failed"));
+
+      await expect(service.rotateUserKey(mockPasswordRotation, mockUserId)).rejects.toThrow(
+        "trust check failed",
+      );
+
+      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
+    });
+
+    it("returns false when trust is denied", async () => {
+      verifyTrustSpy.mockResolvedValue({
+        wasTrustDenied: true,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
+
+      const result = await service.rotateUserKey(mockPasswordRotation, mockUserId);
+
+      expect(result).toBe(false);
+      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
+      expect(mockSdkService.userClient$).not.toHaveBeenCalled();
+      expect(mockLogService.info).toHaveBeenCalledWith(
+        "[UserKeyRotationService] Trust was denied by user. Aborting!",
+      );
+    });
+
+    it("returns true on successful rotation", async () => {
+      const result = await service.rotateUserKey(mockPasswordRotation, mockUserId);
+
+      expect(result).toBe(true);
+      expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key_rotation_method: mockPasswordRotation,
+          trusted_organization_public_keys: [mockOrgKey],
+          trusted_emergency_access_public_keys: [mockEaKey],
+        }),
+      );
+    });
+
+    it("passes empty arrays when verifyTrust returns no keys", async () => {
+      verifyTrustSpy.mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
+
+      await service.rotateUserKey(mockPasswordRotation, mockUserId);
+
+      expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key_rotation_method: mockPasswordRotation,
+          trusted_organization_public_keys: [],
+          trusted_emergency_access_public_keys: [],
+        }),
+      );
+    });
+
+    it("throws when the SDK client is null", async () => {
+      mockSdkService.userClient$.mockReturnValue(of(null) as any);
+
+      await expect(service.rotateUserKey(mockPasswordRotation, mockUserId)).rejects.toThrow(
+        "SDK not available",
+      );
+      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
+    });
+
+    it("throws when rotate_user_keys rejects", async () => {
+      mockUserCryptoManagement.rotate_user_keys.mockRejectedValue(new Error("rotation failed"));
+
+      await expect(service.rotateUserKey(mockPasswordRotation, mockUserId)).rejects.toThrow(
+        "rotation failed",
+      );
     });
   });
 });
