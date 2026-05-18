@@ -247,7 +247,10 @@ describe("DefaultMemberCipherMappingService", () => {
     });
 
     it("should handle complex scenario with multiple groups and collections", async () => {
-      const ciphers = [createCipher("cipher-1", ["collection-1", "collection-2"])];
+      const ciphers = [
+        createCipher("cipher-1", ["collection-1"]),
+        createCipher("cipher-2", ["collection-2"]),
+      ];
       const members = [
         createMember("user-1", "Alice", "alice@example.com"),
         createMember("user-2", "Bob", "bob@example.com"),
@@ -274,10 +277,11 @@ describe("DefaultMemberCipherMappingService", () => {
       // user-2: group-1 → collection-1
       // user-3: group-1 → collection-1, group-2 → collection-2
       // user-4: group-2 → collection-2
-      expect(result.mapping.get("cipher-1")).toEqual(
-        expect.arrayContaining(["user-1", "user-2", "user-3", "user-4"]),
-      );
-      expect(result.mapping.get("cipher-1")?.length).toBe(4);
+      expect(result.mapping.get("cipher-1")).toEqual(["user-1", "user-2", "user-3"]);
+      expect(result.mapping.get("cipher-1")?.length).toBe(3);
+      expect(result.mapping.get("cipher-2")).toEqual(["user-1", "user-3", "user-4"]);
+      expect(result.mapping.get("cipher-2")?.length).toBe(3);
+
       expect(Object.keys(result.registry).length).toBe(4);
     });
   });
