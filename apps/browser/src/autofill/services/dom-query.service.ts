@@ -121,7 +121,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    * This is an expensive operation that should be debounced.
    * @returns True if any new shadow roots are found that aren't being observed
    */
-  checkForNewShadowRoots = (): boolean => {
+  checkForNewShadowRoots = (addedElements?: Element[]): boolean => {
     // Short-circuit: if we have already confirmed the page has no shadow DOM,
     // skip the expensive querySelectorAll(":defined") + getShadowRoot scan entirely.
     // FIXME: this disables all checks after the page initializes; introduce a
@@ -130,6 +130,27 @@ export class DomQueryService implements DomQueryServiceInterface {
       return false;
     }
 
+    // When added elements are provided (from a mutation batch), only check those
+    // elements and their descendants instead of scanning the entire document.
+    // This reduces the number of chrome.dom.openOrClosedShadowRoot() calls from
+    // potentially hundreds of thousands to typically 1–10 per mutation batch.
+    if (addedElements && addedElements.length > 0) {
+      for (const el of addedElements) {
+        const root = this.getShadowRoot(el);
+        if (root && !this.observedShadowRoots.has(root)) {
+          return true;
+        }
+        for (const child of el.querySelectorAll("*")) {
+          const childRoot = this.getShadowRoot(child);
+          if (childRoot && !this.observedShadowRoots.has(childRoot)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Full scan fallback when no specific elements are provided.
     let currentRoots: ShadowRoot[];
     try {
       currentRoots = this.recursivelyQueryShadowRoots(globalThis.document.body);
