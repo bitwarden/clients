@@ -42,6 +42,8 @@ export type CopyAction =
   | "lastName"
   | "licenseNumber"
   | "passportNumber"
+  | "firstNamePassport"
+  | "lastNamePassport"
   | "nationalIdentificationNumber";
 
 /**
@@ -99,6 +101,8 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   firstName: { typeI18nKey: "firstName", protected: false },
   middleName: { typeI18nKey: "middleName", protected: false },
   lastName: { typeI18nKey: "lastName", protected: false },
+  firstNamePassport: { typeI18nKey: "firstName", protected: false },
+  lastNamePassport: { typeI18nKey: "lastName", protected: false },
   licenseNumber: {
     typeI18nKey: "licenseNumber",
     protected: true,
