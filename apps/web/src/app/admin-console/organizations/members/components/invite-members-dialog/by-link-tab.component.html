@@ -14,7 +14,12 @@
 <div class="tw-flex tw-items-start tw-gap-2">
   <bit-form-field class="tw-flex-1">
     <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
-    <input bitInput type="text" [formControl]="form.controls.domains" />
+    <input
+      bitInput
+      type="text"
+      [formControl]="form.controls.domains"
+      data-testid="allowedDomains"
+    />
     <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
   </bit-form-field>
 
@@ -26,6 +31,7 @@
       buttonType="primary"
       [bitAction]="save"
       class="tw-mt-[10px]"
+      data-testid="saveDomains"
     >
       {{ "save" | i18n }}
     </button>
@@ -44,7 +50,13 @@
   @if (inviteLinkUrl) {
     <bit-form-field>
       <bit-label>{{ "inviteLink" | i18n }}</bit-label>
-      <input bitInput type="text" disabled="true" [value]="inviteLinkUrl" />
+      <input
+        bitInput
+        type="text"
+        disabled="true"
+        [value]="inviteLinkUrl"
+        data-testid="inviteLink"
+      />
       <button
         type="button"
         bitSuffix
