@@ -437,6 +437,85 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
+  async getManyFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<[Cipher[], CipherListView[]]> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_assigned_org_ciphers(asUuid(organizationId));
+
+          const ciphers = result.ciphers
+            .map((c) => Cipher.fromSdkCipher(c))
+            .filter((c): c is Cipher => c !== undefined);
+
+          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list assigned organization ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async bulkUpdateCollectionsWithServer(
+    orgId: OrganizationId,
+    userId: UserId,
+    cipherIds: CipherId[],
+    collectionIds: CollectionId[],
+    removeCollections: boolean,
+  ): Promise<void> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          await ref.value
+            .vault()
+            .ciphers()
+            .bulk_update_collections(
+              asUuid(orgId),
+              cipherIds.map((id) => asUuid(id)),
+              collectionIds.map((id) => asUuid(id)),
+              removeCollections,
+            );
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to bulk update cipher collections: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async moveManyWithServer(ids: string[], folderId: string | null, userId: UserId): Promise<void> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          await ref.value
+            .vault()
+            .ciphers()
+            .move_many(
+              ids.map((id) => asUuid(id)),
+              folderId == null ? undefined : asUuid(folderId),
+            );
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to move multiple ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
   async saveCollectionsWithServerAdmin(
     cipherId: string,
     collectionIds: string[],
