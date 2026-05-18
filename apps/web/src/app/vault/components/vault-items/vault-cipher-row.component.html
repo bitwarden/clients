@@ -212,6 +212,10 @@
           }
 
           @if (isBankAccountCipher) {
+            <button type="button" bitMenuItem appCopyField="nameOnAccount" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyNameOnAccount" | i18n }}
+            </button>
             <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
               {{ "copyAccountNumber" | i18n }}
@@ -219,6 +223,10 @@
             <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
               {{ "copyRoutingNumber" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="branchNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyBranchNumber" | i18n }}
             </button>
             <button type="button" bitMenuItem appCopyField="pin" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
@@ -228,27 +236,48 @@
               <bit-icon name="bwi-clone" />
               {{ "copyIban" | i18n }}
             </button>
+            <button type="button" bitMenuItem appCopyField="swiftCode" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copySwiftCode" | i18n }}
+            </button>
           }
 
           @if (isPassportCipher) {
+            <button type="button" bitMenuItem appCopyField="givenName" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyFirstName" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="surname" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyLastName" | i18n }}
+            </button>
             <button type="button" bitMenuItem appCopyField="passportNumber" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyPassportNumber" | i18n }}
             </button>
+            <button
+              type="button"
+              bitMenuItem
+              appCopyField="nationalIdentificationNumber"
+              [cipher]="cipher"
+            >
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyNationalIdentificationNumber" | i18n }}
+            </button>
           }
 
           @if (isDriversLicenseCipher) {
-            <button type="button" bitMenuItem appCopyField="firstName" [cipher]="cipher">
+            <button type="button" bitMenuItem appCopyField="firstNameLicense" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyFirstName" | i18n }}
             </button>
 
-            <button type="button" bitMenuItem appCopyField="middleName" [cipher]="cipher">
+            <button type="button" bitMenuItem appCopyField="middleNameLicense" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyMiddleName" | i18n }}
             </button>
 
-            <button type="button" bitMenuItem appCopyField="lastName" [cipher]="cipher">
+            <button type="button" bitMenuItem appCopyField="lastNameLicense" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyLastName" | i18n }}
             </button>
