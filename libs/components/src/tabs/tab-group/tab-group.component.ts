@@ -23,7 +23,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
 import { MenuModule } from "../../menu";
-import { OverflowItemDirective, OverflowListDirective } from "../../overflow-list";
+import {
+  OverflowItemDirective,
+  OverflowListDirective,
+  OverflowTriggerDirective,
+} from "../../overflow-list";
 import { TabHeaderComponent } from "../shared/tab-header.component";
 import {
   TAB_LIST_CONTAINER_GAP,
@@ -59,6 +63,7 @@ let nextId = 0;
     I18nPipe,
     OverflowListDirective,
     OverflowItemDirective,
+    OverflowTriggerDirective,
   ],
 })
 export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
