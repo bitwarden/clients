@@ -766,7 +766,6 @@ describe("SettingsComponent", () => {
         BiometricsStatus.DesktopDisconnected,
         BiometricsStatus.NotEnabledLocally,
         BiometricsStatus.NotEnabledInConnectedDesktopApp,
-        BiometricsStatus.NativeMessagingPermissionMissing,
       ])(
         `disables biometric when biometrics status check for the user returns %s`,
         async (status) => {

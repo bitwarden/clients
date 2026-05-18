@@ -1,0 +1,93 @@
+<section [formGroup]="passportForm" class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">
+      {{ "passportDetails" | i18n }}
+    </h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "firstName" | i18n }}</bit-label>
+      <input bitInput formControlName="givenName" data-testid="given-name" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "lastName" | i18n }}</bit-label>
+      <input bitInput formControlName="surname" data-testid="surname" />
+    </bit-form-field>
+
+    <vault-date-field-group
+      formControlName="dateOfBirth"
+      [monthLabel]="'birthMonth' | i18n"
+      [dayLabel]="'birthDay' | i18n"
+      [yearLabel]="'birthYear' | i18n"
+    ></vault-date-field-group>
+
+    <bit-form-field>
+      <bit-label>{{ "sex" | i18n }}</bit-label>
+      <input bitInput formControlName="sex" data-testid="sex" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "birthPlace" | i18n }}</bit-label>
+      <input bitInput formControlName="birthPlace" data-testid="birth-place" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "nationality" | i18n }}</bit-label>
+      <input bitInput formControlName="nationality" data-testid="nationality" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "passportNumber" | i18n }}</bit-label>
+      <input
+        bitInput
+        formControlName="passportNumber"
+        type="password"
+        class="tw-font-mono"
+        data-testid="passport-number"
+      />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "passportType" | i18n }}</bit-label>
+      <input bitInput formControlName="passportType" data-testid="passport-type" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "nationalIdentificationNumber" | i18n }}</bit-label>
+      <input
+        bitInput
+        formControlName="nationalIdentificationNumber"
+        type="password"
+        class="tw-font-mono"
+        data-testid="national-identification-number"
+      />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "issuingCountry" | i18n }}</bit-label>
+      <input bitInput formControlName="issuingCountry" data-testid="issuing-country" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "issuingAuthority" | i18n }}</bit-label>
+      <input bitInput formControlName="issuingAuthority" data-testid="issuing-authority" />
+    </bit-form-field>
+
+    <vault-date-field-group
+      formControlName="issueDate"
+      [monthLabel]="'issueMonth' | i18n"
+      [dayLabel]="'issueDay' | i18n"
+      [yearLabel]="'issueYear' | i18n"
+    ></vault-date-field-group>
+
+    <vault-date-field-group
+      formControlName="expirationDate"
+      [monthLabel]="'expirationMonth' | i18n"
+      [dayLabel]="'expirationDay' | i18n"
+      [yearLabel]="'expirationYear' | i18n"
+    ></vault-date-field-group>
+  </bit-card>
+</section>
