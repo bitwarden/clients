@@ -1,5 +1,6 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
+  afterRenderEffect,
   Component,
   contentChildren,
   HostBinding,
@@ -77,19 +78,21 @@ export class SelectComponent<T> implements ControlValueAccessor {
           this.formFieldControl.ariaDescribedBy() ?? "",
         );
     });
-    effect(() => {
-      const opts = this.options();
-      if (opts.length === 0) {
-        return;
-      }
-      this.items.set(
-        opts.map((option) => ({
-          icon: option.icon(),
-          value: option.value(),
-          label: option.label(),
-          disabled: option.disabled(),
-        })),
-      );
+    afterRenderEffect({
+      read: () => {
+        const opts = this.options();
+        if (opts.length === 0) {
+          return;
+        }
+        this.items.set(
+          opts.map((option) => ({
+            icon: option.icon(),
+            value: option.value(),
+            label: option.label(),
+            disabled: option.disabled(),
+          })),
+        );
+      },
     });
   }
 
