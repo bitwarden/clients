@@ -2,9 +2,9 @@ import "core-js/proposals/explicit-resource-management";
 
 import { program } from "commander";
 
-import { applyEarlyProcessEnvFlags } from "@bitwarden/cli/bw";
 import { registerOssPrograms } from "@bitwarden/cli/register-oss-programs";
 import { ServeProgram } from "@bitwarden/cli/serve.program";
+import { applyEarlyProcessEnvFlags } from "@bitwarden/cli/utils";
 
 import { BitServeConfigurator } from "./bit-serve-configurator";
 import { registerBitPrograms } from "./register-bit-programs";

@@ -290,3 +290,46 @@ export async function firstValueFromOrNull<T>(
 ): Promise<T | null> {
   return firstValueFrom(observable.pipe(timeout({ first: timeoutMs, with: () => of(null) })));
 }
+
+/**
+ * Pre-scans argv and sets process.env flags before Commander parses arguments.
+ * This ensures env-driven features (BW_SESSION, BW_RAW, etc.) are available
+ * during ServiceContainer initialization, which happens before Commander runs.
+ */
+export function applyEarlyProcessEnvFlags(argv: string[]) {
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+
+    switch (arg) {
+      case "--pretty":
+        process.env.BW_PRETTY = "true";
+        break;
+      case "--raw":
+        process.env.BW_RAW = "true";
+        break;
+      case "--response":
+        process.env.BW_RESPONSE = "true";
+        break;
+      case "--cleanexit":
+        process.env.BW_CLEANEXIT = "true";
+        break;
+      case "--quiet":
+        process.env.BW_QUIET = "true";
+        break;
+      case "--nointeraction":
+        process.env.BW_NOINTERACTION = "true";
+        break;
+      case "--session":
+        if (index + 1 < argv.length) {
+          process.env.BW_SESSION = argv[index + 1];
+          index++;
+        }
+        break;
+      default:
+        if (arg.startsWith("--session=")) {
+          process.env.BW_SESSION = arg.slice("--session=".length);
+        }
+        break;
+    }
+  }
+}

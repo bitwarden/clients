@@ -6,46 +6,9 @@ import { OssServeConfigurator } from "./oss-serve-configurator";
 import { registerOssPrograms } from "./register-oss-programs";
 import { ServeProgram } from "./serve.program";
 import { ServiceContainer } from "./service-container/service-container";
+import { applyEarlyProcessEnvFlags } from "./utils";
 
-export function applyEarlyProcessEnvFlags(argv: string[]) {
-  for (let index = 0; index < argv.length; index++) {
-    const arg = argv[index];
-
-    switch (arg) {
-      case "--pretty":
-        process.env.BW_PRETTY = "true";
-        break;
-      case "--raw":
-        process.env.BW_RAW = "true";
-        break;
-      case "--response":
-        process.env.BW_RESPONSE = "true";
-        break;
-      case "--cleanexit":
-        process.env.BW_CLEANEXIT = "true";
-        break;
-      case "--quiet":
-        process.env.BW_QUIET = "true";
-        break;
-      case "--nointeraction":
-        process.env.BW_NOINTERACTION = "true";
-        break;
-      case "--session":
-        if (index + 1 < argv.length) {
-          process.env.BW_SESSION = argv[index + 1];
-          index++;
-        }
-        break;
-      default:
-        if (arg.startsWith("--session=")) {
-          process.env.BW_SESSION = arg.slice("--session=".length);
-        }
-        break;
-    }
-  }
-}
-
-export async function main() {
+async function main() {
   applyEarlyProcessEnvFlags(process.argv.slice(2));
 
   const serviceContainer = new ServiceContainer();
