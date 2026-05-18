@@ -1685,21 +1685,20 @@ export class ApiService implements ApiServiceAbstraction {
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
     const responseIsBlob =
       responseType != null && responseType.indexOf("application/octet-stream") !== -1;
-    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+    const responseIsSuccess =
+      response.status === HttpStatusCode.Ok || response.status === HttpStatusCode.Created;
+    if (hasResponse && responseIsSuccess && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
-    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+    } else if (hasResponse && responseIsSuccess && responseIsCsv) {
       return await response.text();
-    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsBlob) {
+    } else if (hasResponse && responseIsSuccess && responseIsBlob) {
       const disposition = response.headers.get("Content-Disposition") ?? "";
       const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
       const fileName = match ? match[1].replace(/['"]/g, "") : "download";
       const blob = await response.blob();
       return { blob, fileName };
-    } else if (
-      response.status !== HttpStatusCode.Ok &&
-      response.status !== HttpStatusCode.NoContent
-    ) {
+    } else if (!responseIsSuccess && response.status !== HttpStatusCode.NoContent) {
       const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
       return Promise.reject(error);
     }
