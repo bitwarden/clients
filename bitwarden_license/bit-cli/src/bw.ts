@@ -2,6 +2,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import { program } from "commander";
 
+import { applyEarlyProcessEnvFlags } from "@bitwarden/cli/bw";
 import { registerOssPrograms } from "@bitwarden/cli/register-oss-programs";
 import { ServeProgram } from "@bitwarden/cli/serve.program";
 
@@ -10,6 +11,8 @@ import { registerBitPrograms } from "./register-bit-programs";
 import { ServiceContainer } from "./service-container";
 
 async function main() {
+  applyEarlyProcessEnvFlags(process.argv.slice(2));
+
   const serviceContainer = new ServiceContainer();
   await serviceContainer.init();
 
