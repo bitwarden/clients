@@ -1,6 +1,7 @@
+import { provideZoneChangeDetection } from "@angular/core";
 import { setCompodocJson } from "@storybook/addon-docs/angular";
 import { withThemeByClassName } from "@storybook/addon-themes";
-import { componentWrapperDecorator } from "@storybook/angular";
+import { applicationConfig, componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
 
 import docJson from "../documentation.json";
@@ -17,6 +18,9 @@ const wrapperDecorator = componentWrapperDecorator((story) => {
 
 const preview: Preview = {
   decorators: [
+    applicationConfig({
+      providers: [provideZoneChangeDetection()],
+    }),
     withThemeByClassName({
       themes: {
         light: "theme_light",

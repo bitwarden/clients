@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject } from "@angular/core";
+import { Component, computed, inject, Type } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -22,7 +22,7 @@ export class VaultWrapperComponent {
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3),
   );
 
-  protected readonly componentToRender = computed(() =>
+  protected readonly componentToRender = computed<Type<unknown>>(() =>
     this.useMilestone3() ? VaultComponent : VaultOrigComponent,
   );
 }

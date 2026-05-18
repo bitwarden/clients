@@ -2,7 +2,7 @@
   "compilerOptions": {
     "strict": false,
     "pretty": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noImplicitAny": true,
     "target": "ES2016",
     "module": "ES2020",

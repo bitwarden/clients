@@ -121,8 +121,8 @@ export class NavItemComponent extends NavBaseComponent {
       : "",
   );
 
-  protected onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches("[data-fvw]:focus-visible"));
+  protected onFocusIn(target: EventTarget) {
+    this.focusVisibleWithin.set((target as HTMLElement).matches("[data-fvw]:focus-visible"));
   }
 
   protected onFocusOut() {
