@@ -167,6 +167,16 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
                 } as CipherTypeFilter,
               ]
             : []),
+          ...(newItemTypes
+            ? [
+                {
+                  id: "passport",
+                  name: this.i18nService.t("typePassport"),
+                  type: CipherType.Passport,
+                  icon: "bwi-globe",
+                } as CipherTypeFilter,
+              ]
+            : []),
           {
             id: "note",
             name: this.i18nService.t("typeSecureNote"),
