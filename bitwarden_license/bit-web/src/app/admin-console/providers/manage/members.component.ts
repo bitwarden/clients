@@ -37,6 +37,7 @@ import {
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
+import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.types";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import {
@@ -45,10 +46,7 @@ import {
 } from "./dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.component";
-import {
-  MemberActionResult,
-  ProviderActionsService,
-} from "./services/provider-actions/provider-actions.service";
+import { ProviderActionsService } from "./services/provider-actions/provider-actions.service";
 
 interface BulkProviderFlags {
   showBulkConfirmUsers: boolean;
@@ -366,7 +364,7 @@ export class MembersComponent {
     user: ProviderUser,
     sideEffect?: () => void | Promise<void>,
   ) {
-    if (result.error != null) {
+    if (result.success === false) {
       this.validationService.showError(result.error);
       this.logService.error(result.error);
       return;

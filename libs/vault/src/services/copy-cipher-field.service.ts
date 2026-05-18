@@ -44,7 +44,9 @@ export type CopyAction =
   | "passportNumber"
   | "firstNamePassport"
   | "lastNamePassport"
-  | "nationalIdentificationNumber";
+  | "nationalIdentificationNumber"
+  | "givenName"
+  | "surname";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
@@ -117,6 +119,8 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     typeI18nKey: "nationalIdentificationNumber",
     protected: true,
   },
+  givenName: { typeI18nKey: "firstName", protected: true },
+  surname: { typeI18nKey: "lastName", protected: true },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,
