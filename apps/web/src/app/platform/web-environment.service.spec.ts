@@ -158,7 +158,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";
-      const expectedSendUrl = expectedProdEUUrls.webVault + "/#/send/";
+      const expectedSendUrl = "https://send.bitwarden.eu/#";
 
       const prodEURegionConfig = PRODUCTION_REGIONS.find((r) => r.key === Region.EU);
 

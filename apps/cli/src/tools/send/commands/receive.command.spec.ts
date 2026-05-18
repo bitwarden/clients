@@ -457,6 +457,18 @@ describe("SendReceiveCommand", () => {
       expect(apiUrl).toBe("https://api.bitwarden.com");
     });
 
+    it("should resolve send.bitwarden.eu to api.bitwarden.eu", async () => {
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+
+      const sendUrl = "https://send.bitwarden.eu/#/send/abc123/key456";
+      await command.run(sendUrl, {});
+
+      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      expect(apiUrl).toBe("https://api.bitwarden.eu");
+    });
+
     it("should handle custom domain URLs", async () => {
       const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
       sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));

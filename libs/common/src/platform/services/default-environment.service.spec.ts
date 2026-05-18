@@ -95,7 +95,7 @@ describe("EnvironmentService", () => {
         notifications: "https://notifications.bitwarden.eu",
         events: "https://events.bitwarden.eu",
         scim: "https://scim.bitwarden.eu/v2",
-        send: "https://vault.bitwarden.eu/#/send/",
+        send: "https://send.bitwarden.eu/#",
       },
     },
   ];

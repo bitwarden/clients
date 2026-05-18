@@ -116,7 +116,8 @@ export class WebEnvironmentService extends DefaultEnvironmentService {
 export class WebCloudEnvironment extends CloudEnvironment {
   constructor(config: RegionConfig, urls: Urls) {
     super(config);
-    // We override the urls to avoid CORS issues
-    this.urls = urls;
+    // We override the urls to avoid CORS issues, but preserve the send URL from the region config
+    // since the build-time envUrls don't include a send-specific domain.
+    this.urls = { send: config.urls.send, ...urls };
   }
 }
