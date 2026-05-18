@@ -84,16 +84,16 @@
                 <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
               </bit-tab>
             } @else {
-              <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount() }}">
+              <bit-tab label="{{ 'allApplications' | i18n }}" [berryValue]="appsCount()">
                 <dirt-all-applications-tab
                   [organizationId]="organizationId()"
                 ></dirt-all-applications-tab>
               </bit-tab>
-              <bit-tab>
-                <ng-template bitTabLabel>
-                  <bit-icon name="bwi-star"></bit-icon>
-                  {{ "criticalApplicationsWithCount" | i18n: criticalAppsCount() }}
-                </ng-template>
+              <bit-tab
+                label="{{ 'criticalApplications' | i18n }}"
+                startIcon="bwi-star"
+                [berryValue]="criticalAppsCount()"
+              >
                 <dirt-critical-applications-tab
                   [organizationId]="organizationId()"
                 ></dirt-critical-applications-tab>

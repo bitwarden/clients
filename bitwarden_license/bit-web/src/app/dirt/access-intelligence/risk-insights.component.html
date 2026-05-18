@@ -87,18 +87,16 @@
                   <dirt-applications></dirt-applications>
                 </bit-tab>
               } @else {
-                <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
+                <bit-tab label="{{ 'allApplications' | i18n }}" [berryValue]="appsCount">
                   <dirt-all-applications></dirt-all-applications>
                 </bit-tab>
-                <bit-tab>
-                  <ng-template bitTabLabel>
-                    <bit-icon name="bwi-star"></bit-icon>
-                    {{
-                      "criticalApplicationsWithCount"
-                        | i18n
-                          : (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
-                    }}
-                  </ng-template>
+                <bit-tab
+                  label="{{ 'criticalApplications' | i18n }}"
+                  startIcon="bwi-star"
+                  [berryValue]="
+                    (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
+                  "
+                >
                   <dirt-critical-applications></dirt-critical-applications>
                 </bit-tab>
               }

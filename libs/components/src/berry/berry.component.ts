@@ -22,6 +22,10 @@ export type BerryVariant =
   selector: "bit-berry",
   templateUrl: "berry.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "containerClasses()",
+    "[class.tw-hidden]": "!content() && type() === 'count'",
+  },
 })
 export class BerryComponent {
   readonly variant = model<BerryVariant>("primary");

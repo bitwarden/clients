@@ -1,5 +1,63 @@
-<bit-tab-header>
-  <nav bitTabListContainer [attr.aria-label]="label()" (keydown)="keyManager.onKeydown($event)">
+<bit-tab-header (keydown)="keyManager()?.onKeydown($event)">
+  <nav
+    bitOverflowList
+    [items]="overflowItems()"
+    [gap]="TAB_LIST_CONTAINER_GAP"
+    #ovf="bitOverflowList"
+    bitTabListContainer
+    [attr.aria-label]="label()"
+    [class.tw-invisible]="!ovf.ready()"
+  >
     <ng-content></ng-content>
   </nav>
+  <!--
+    The More button lives outside the bitOverflowList so the directive only manages
+    its own row. It uses tw-invisible (not [hidden]) so its layout space is always
+    reserved — that keeps the directive's measured width stable across the
+    no-overflow / overflow transition and avoids a feedback loop.
+  -->
+  <button
+    #moreButton
+    bitTabListItem
+    type="button"
+    class="tw-shrink-0"
+    [class.tw-invisible]="ovf.overflow().length === 0"
+    [attr.aria-hidden]="ovf.overflow().length === 0 ? 'true' : null"
+    tabindex="-1"
+    [bitMenuTriggerFor]="overflowTabsMenu"
+    [style.marginInlineStart.px]="TAB_LIST_CONTAINER_GAP"
+  >
+    <span [class]="tabLabelContentClasses">
+      {{ "more" | i18n }}
+      <bit-berry [value]="ovf.overflow().length" />
+      <bit-icon name="bwi-angle-down" class="tw-text-base" />
+    </span>
+  </button>
 </bit-tab-header>
+
+<bit-menu #overflowTabsMenu>
+  @for (i of ovf.overflow(); track i) {
+    @let tab = tabLabels()[i];
+    <a
+      bitMenuItem
+      [routerLink]="tab.disabled ? null : tab.route()"
+      [disabled]="tab.disabled"
+      [attr.aria-disabled]="tab.disabled || null"
+      (click)="!tab.disabled && overflowTabsMenu.closed.emit()"
+      ariaCurrentWhenActive="page"
+    >
+      @if (tab.startIcon()) {
+        <bit-icon slot="start" [name]="tab.startIcon()" class="tw-text-base" />
+      }
+      {{ tab.displayText() }}
+      <div slot="end" class="empty:tw-hidden tw-flex tw-items-center tw-gap-1">
+        @if (tab.berryValue()) {
+          <bit-berry [value]="tab.berryValue()" />
+        }
+        @if (tab.endIcon()) {
+          <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
+        }
+      </div>
+    </a>
+  }
+</bit-menu>

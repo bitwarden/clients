@@ -98,15 +98,6 @@
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
   },
-  "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Create new login item"
   },
@@ -163,15 +154,6 @@
       "total": {
         "content": "$2",
         "example": "5"
-      }
-    }
-  },
-  "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
       }
     }
   },
@@ -13863,6 +13845,9 @@
         "example": "4"
       }
     }
+  },
+  "more": {
+    "message": "More"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."

@@ -1,6 +1,6 @@
 @let organization = organization$ | async;
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="large" [disablePadding]="organization.useInviteLinks">
+  <bit-dialog dialogSize="large">
     <span bitDialogTitle>{{ "inviteMembers" | i18n }}</span>
     <div bitDialogContent>
       @if (organization.useInviteLinks) {

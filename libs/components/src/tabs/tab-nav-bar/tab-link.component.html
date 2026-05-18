@@ -1,3 +1,5 @@
+@let labelContent = label();
+
 <a
   bitTabListItem
   [routerLink]="disabled ? null : route()"
@@ -8,14 +10,27 @@
   [state]="{ focusAfterNav: false }"
   [disabled]="disabled"
   [attr.aria-disabled]="disabled"
+  [attr.tabindex]="tabIndex()"
   ariaCurrentWhenActive="page"
   role="link"
-  class="tw-flex tw-group/tab hover:tw-no-underline"
 >
-  <div class="group-hover/tab:tw-underline">
-    <ng-content></ng-content>
-  </div>
-  <div class="tw-font-normal tw-ms-2 empty:tw-ms-0">
+  <span [class]="tabLabelContentClasses">
+    @if (startIcon()) {
+      <bit-icon [name]="startIcon()" class="tw-text-base" />
+    }
+    <span #labelText class="tw-min-w-0 tw-truncate">
+      @if (labelContent) {
+        {{ labelContent }}
+      } @else {
+        <ng-content></ng-content>
+      }
+    </span>
+    @if (berryValue()) {
+      <bit-berry [value]="berryValue()" />
+    }
+    @if (endIcon()) {
+      <bit-icon [name]="endIcon()" class="tw-text-base" />
+    }
     <ng-content select="[slot=end]"></ng-content>
-  </div>
+  </span>
 </a>
