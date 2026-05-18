@@ -76,6 +76,16 @@ export class VaultItemCopyActionsComponent {
     return this.findSingleCopyableItem(this.cipher(), identityItems);
   }
 
+  get singleCopyableBankAccount() {
+    const bankAccountItems: CipherItem[] = [
+      { key: "accountNumber", field: "accountNumber" },
+      { key: "routingNumber", field: "routingNumber" },
+      { key: "pin", field: "pin" },
+      { key: "iban", field: "iban" },
+    ];
+    return this.findSingleCopyableItem(this.cipher(), bankAccountItems);
+  }
+
   get singleCopyableDriversLicense() {
     const driversLicenseItems: CipherItem[] = [
       { key: "firstName", field: "firstName" },
@@ -118,6 +128,10 @@ export class VaultItemCopyActionsComponent {
 
   get hasSshKeyValues() {
     return this.getNumberOfSshKeyValues(this.cipher()) > 0;
+  }
+
+  get hasBankAccountValues() {
+    return this.getNumberOfBankAccountValues(this.cipher()) > 0;
   }
 
   get hasDriversLicenseValues() {
@@ -181,6 +195,28 @@ export class VaultItemCopyActionsComponent {
     return [cipher.sshKey.privateKey, cipher.sshKey.publicKey, cipher.sshKey.keyFingerprint].filter(
       Boolean,
     ).length;
+  }
+
+  /** Sets the number of populated bank account values for the cipher */
+  private getNumberOfBankAccountValues(cipher: CipherViewLike) {
+    if (CipherViewLikeUtils.isCipherListView(cipher)) {
+      const copyableBankAccountFields: CopyableCipherFields[] = [
+        "BankAccountAccountNumber",
+        "BankAccountRoutingNumber",
+        "BankAccountPin",
+        "BankAccountIban",
+      ];
+
+      return cipher.copyableFields.filter((field) => copyableBankAccountFields.includes(field))
+        .length;
+    }
+
+    return [
+      cipher.bankAccount.accountNumber,
+      cipher.bankAccount.routingNumber,
+      cipher.bankAccount.pin,
+      cipher.bankAccount.iban,
+    ].filter(Boolean).length;
   }
 
   /** Sets the number of populated drivers license values for the cipher */

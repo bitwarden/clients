@@ -214,6 +214,47 @@
   </bit-item-action>
 }
 
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.BankAccount) {
+  <bit-item-action>
+    @if (singleCopyableBankAccount) {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="'copyFieldCipherName' | i18n: singleCopyableBankAccount.key : _cipher.name"
+        [appCopyField]="singleCopyableBankAccount.field"
+        [cipher]="_cipher"
+        showToast
+      ></button>
+    } @else {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="
+          hasBankAccountValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+        "
+        [disabled]="!hasBankAccountValues"
+        [bitMenuTriggerFor]="bankAccountOptions"
+      ></button>
+      <bit-menu #bankAccountOptions>
+        <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="_cipher">
+          {{ "copyAccountNumber" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="_cipher">
+          {{ "copyRoutingNumber" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="pin" [cipher]="_cipher">
+          {{ "copyPin" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="iban" [cipher]="_cipher">
+          {{ "copyIban" | i18n }}
+        </button>
+      </bit-menu>
+    }
+  </bit-item-action>
+}
+
 @if (CipherViewLikeUtils.getType(_cipher) === CipherType.DriversLicense) {
   <bit-item-action>
     @if (singleCopyableDriversLicense) {
