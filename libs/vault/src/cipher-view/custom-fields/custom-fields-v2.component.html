@@ -17,18 +17,21 @@
               bitInput
               [value]="field.value ?? ''"
               aria-readonly="true"
+              [attr.aria-label]="emptyFieldAriaLabel(field)"
               vaultAutosizeReadOnlyTextArea
             ></textarea>
-            <button
-              bitIconButton="bwi-clone"
-              bitSuffix
-              type="button"
-              [appCopyClick]="field.value"
-              showToast
-              [valueLabel]="field.name"
-              [label]="'copyCustomField' | i18n: field.name"
-              data-testid="copy-custom-field"
-            ></button>
+            @if (field.value) {
+              <button
+                bitIconButton="bwi-clone"
+                bitSuffix
+                type="button"
+                [appCopyClick]="field.value"
+                showToast
+                [valueLabel]="field.name"
+                [label]="'copyCustomField' | i18n: field.name"
+                data-testid="copy-custom-field"
+              ></button>
+            }
           </bit-form-field>
         }
         @if (field.type === fieldType.Hidden) {
@@ -41,6 +44,7 @@
                 type="password"
                 [value]="field.value ?? ''"
                 aria-readonly="true"
+                [attr.aria-label]="emptyFieldAriaLabel(field)"
                 class="tw-font-mono"
               />
             }
@@ -50,7 +54,7 @@
                 readonly
                 bitInput
                 type="password"
-                [value]="field.value"
+                [value]="field.value ?? ''"
                 aria-readonly="true"
                 class="tw-font-mono"
                 vaultAutosizeReadOnlyTextArea
@@ -73,7 +77,7 @@
                 (click)="toggleCharacterCount(i)"
               ></button>
             }
-            @if (canViewPassword) {
+            @if (canViewPassword && field.value) {
               <button
                 bitSuffix
                 type="button"
@@ -82,7 +86,7 @@
                 (toggledChange)="toggleHiddenField($event, i)"
               ></button>
             }
-            @if (canViewPassword) {
+            @if (canViewPassword && field.value) {
               <button
                 bitIconButton="bwi-clone"
                 bitSuffix
