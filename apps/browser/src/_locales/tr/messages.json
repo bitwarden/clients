@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Pasaport numarasını kopyala"
   },
+  "copyFirstName": {
+    "message": "Adı kopyala"
+  },
+  "copyMiddleName": {
+    "message": "Orta adı kopyala"
+  },
+  "copyLastName": {
+    "message": "Soyadı kopyala"
+  },
   "copyLicenseNumber": {
     "message": "Ruhsat numarasını kopyala"
   },
@@ -365,10 +374,10 @@
     "message": "Passwordless.dev ile geleneksel parolalara ihtiyaç duymadan sorunsuz ve güvenli oturum açma deneyimleri oluşturun. Daha fazla bilgi için bitwarden.com web sitesini ziyaret edin."
   },
   "freeBitwardenFamilies": {
-    "message": "Ücretsiz Bitwarden Aile"
+    "message": "Ücretsiz Bitwarden Families"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "Ücretsiz Bitwarden Aileleri için uygunsun. Bu teklifi bugün web uygulamasında kullan."
+    "message": "Ücretsiz Bitwarden Families paketinden faydalanabilirsiniz. Bu teklifi hemen web uygulamasında kullanabilirsiniz."
   },
   "version": {
     "message": "Sürüm"
@@ -583,7 +592,7 @@
     "message": "Kaydı arşivle"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Bu kayıt arşivlendikten sonra arama sonuçlarından ve otomatik doldurma önerilerinden çıkarılacaktır."
   },
   "archived": {
     "message": "Arşivlendi"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Uzantıyı değerlendirin"
+  },
+  "troubleshooting": {
+    "message": "Sorun giderme"
+  },
+  "experiencingAnIssue": {
+    "message": "Sorun mu yaşıyorsunuz?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Tanılama raporunu indirip"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden destek ekibiyle paylaşın",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "İndir"
   },
   "browserNotSupportClipboard": {
     "message": "Web tarayıcınız panoya kopyalamayı desteklemiyor. Parolayı elle kopyalayın."
@@ -1152,10 +1177,10 @@
     "message": "Pano ayarı güncellendi"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "Pano zaman aşımınız varsayılan olarak ayarlanmıştı. Güvenliği artırmak için bu süre 5 dakika olarak güncellendi."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Ayara git"
   },
   "notificationAddDesc": {
     "message": "Bitwarden bu parolayı sizin için hatırlasın mı?"
@@ -1807,13 +1832,13 @@
     "message": "Site eşleşmiyor"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "Bu hesabın henüz kaydedilmiş bir web sitesi yok. Otomatik doldurmadan önce güvenilir bir sitede olduğunuzu doğrulayın."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Bu site, bu hesap için kaydettiğiniz siteyle eşleşmiyor. Otomatik doldurmadan önce güvenilir bir sitede olduğunuzu doğrulayın."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Bu site, bu hesap için kaydettiklerinizle eşleşmiyor. Otomatik doldurmadan önce güvenilir bir sitede olduğunuzu doğrulayın."
   },
   "autofillAndSaveThisSite": {
     "message": "Otomatik doldur ve bu siteyi kaydet"
@@ -2132,8 +2157,14 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "bankAccount": {
+    "message": "Banka hesabı"
+  },
   "typeNote": {
     "message": "Not"
+  },
+  "typeBankAccount": {
+    "message": "Banka hesabı"
   },
   "typeLoginSubtitle": {
     "message": "Web sitesi veya uygulama"
@@ -2156,6 +2187,57 @@
   "collectionSubtitle": {
     "message": "Paylaşılan kayıtları organize edin"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banka detayları"
+  },
+  "typeDriversLicense": {
+    "message": "Ehliyet"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Ehliyet veya kimlik"
+  },
+  "driversLicenseDetails": {
+    "message": "Ehliyet bilgileri"
+  },
+  "dateOfBirth": {
+    "message": "Doğum tarihi"
+  },
+  "birthMonth": {
+    "message": "Doğum ayı"
+  },
+  "birthDay": {
+    "message": "Doğum günü"
+  },
+  "birthYear": {
+    "message": "Doğum yılı"
+  },
+  "issuingCountry": {
+    "message": "Veren ülke"
+  },
+  "issuingState": {
+    "message": "Veren eyalet/şehir"
+  },
+  "issuingAuthority": {
+    "message": "Veren makam"
+  },
+  "issueDate": {
+    "message": "Veriliş tarihi"
+  },
+  "issueMonth": {
+    "message": "Veriliş ayı"
+  },
+  "issueDay": {
+    "message": "Veriliş günü"
+  },
+  "issueYear": {
+    "message": "Veriliş yılı"
+  },
+  "expirationDay": {
+    "message": "Son kullanma tarihi"
+  },
+  "licenseClass": {
+    "message": "Ehliyet sınıfı"
+  },
   "newItemHeaderLogin": {
     "message": "Yeni hesap",
     "description": "Header for new login item type"
@@ -2176,12 +2258,24 @@
     "message": "Yeni SSH anahtarı",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Yeni Send metni",
+  "newItemHeaderBankAccount": {
+    "message": "Yeni banka hesabı",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Yeni ehliyet",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Yeni pasaport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Yeni metin",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Yeni Send dosyası",
+  "newItemHeaderFileSendV2": {
+    "message": "Yeni dosya",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "SSH anahtarını düzenle",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send metnini düzenle",
+  "editItemHeaderBankAccount": {
+    "message": "Banka hesabını düzenle",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Ehliyeti düzenle",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Pasaportu düzenle",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Metni düzenle",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send dosyasını düzenle",
+  "editItemHeaderFileSendV2": {
+    "message": "Dosyayı düzenle",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2337,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH anahtarını göster",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Banka hesabını görüntüle",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Ehliyeti görüntüle",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Pasaportu görüntüle",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Eklenecek kaydı seçin"
@@ -2433,10 +2551,10 @@
     "message": "Hesabınızın şifreleme anahtarını yenilemek istediğinizden emin misiniz?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Şifreleme anahtarınızı güncelledikten sonra, şu anda kullanmakta olduğunuz tüm Bitwarden uygulamalarında (mobil uygulama veya tarayıcı uzantıları gibi) oturumunuzu kapatıp tekrar açmanız gerekir. Yeni şifreleme anahtarınızı indirme için oturumu kapatıp tekrar açmamamız verilerin bozulmasına neden olabilir. Oturumunuzu otomatik olarak kapatmaya çalışacağız, ancak bu gecikebilir."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Kaydettiğiniz tüm hesap kısıtlamalı dışa aktarmalar geçersiz hale gelecektir."
   },
   "oldAttachmentsNeedFixDesc": {
     "message": "Hesabınızın şifreleme anahtarını yenilemeden önce kasanızdaki eski dosya eklerini düzeltmeniz gerekiyor."
@@ -2895,7 +3013,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "Bu site için şifreniz risk altındadır. $ORGANIZATION$ sizden hesap ayarlarınıza gitmenizi ve bunu değiştirmenizi istedi.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Kişisel kasa dışa aktarılıyor"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Yalnızca $EMAIL$ ile ilişkili kasa kayıtları dışa aktarılacaktır. Kuruluş kasasındaki kayıtlar dahil edilmeyecektir. Yalnızca kasa kayıt bilgileri dışa aktarılacak, kayıtlara eklenen dosyalar aktarılmayacaktır.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Yalnızca $EMAIL$ ile ilişkili kişisel kasadaki kayıtlar ve dosyalar dışa aktarılacaktır. Kuruluş kasasındaki kayıtlar dahil edilmeyecektir",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Kuruluş kasasını dışa aktarma"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Yalnızca $ORGANIZATION$ ile ilişkili kuruluş kasası dışarı aktarılacak. Kişisel kasalardaki ve diğer kuruluşlardaki kayıtlar dahil edilmeyecek.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4141,7 +4244,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan şifrelenecektir.",
+    "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan uca şifrelenecektir.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4307,7 +4410,7 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Hesabınızın kilidini açın, yeni bir pencerede açılır",
+    "message": "Hesabınızın kilidini açın, yeni pencerede açılır",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
@@ -4343,7 +4446,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Yeni kasa giriş ögesini yeni bir açılır pencerede ekleyin",
+    "message": "Kasaya yeni hesap ekle, yeni pencerede açılır",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
@@ -4351,7 +4454,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
-    "message": "Yeni kasa kartı ögesini yeni bir açılır pencerede ekleyin",
+    "message": "Kasaya yeni kart ekle, yeni pencerede açılır",
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
@@ -4359,7 +4462,7 @@
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Yeni kasa kimliği kayıtı ekle, yeni bir pencerede açılır",
+    "message": "Kasaya yeni kimlik ekle, yeni pencerede açılır",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "Dosya seçin"
   },
+  "chooseFileSentenceCase": {
+    "message": "Dosya seç"
+  },
   "noFileChosen": {
     "message": "Dosya seçilmedi"
   },
@@ -4527,7 +4633,19 @@
     "message": "Kasa verileri dışa aktarıldı"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Kasa verilerinizi dışa aktarırken bir hata oluştu"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Geçiş anahtarı"
@@ -4724,7 +4842,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URl eşleştirme tespiti, Bitwarden'ın otomatik doldurma önerilerini nasıl tanımladığıdır.",
+    "message": "URl eşleştirme tespiti, Bitwarden'ın otomatik doldurma önerilerini tanımlama şeklidir.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -4971,22 +5089,22 @@
     "message": "Otomatik kullanıcı onayı"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Bu cihazın kilidi açıkken bekleyen kullanıcıları otomatik olarak onaylayın"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Otomatik kullanıcı onayı ile zamandan tasarruf edin"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Bu durum kuruluşunuzun veri güvenliğini etkileyebilir."
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Riskler hakkında bilgi edinin"
   },
   "autoConfirmSetup": {
     "message": "Yeni kullanıcıları otomatik onayla"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Bu cihazın kilidi açıkken yeni kullanıcılar otomatik olarak onaylanacaktır."
   },
   "autoConfirmSetupHint": {
     "message": "Olası güvenlik riskleri neler?"
@@ -4995,19 +5113,19 @@
     "message": "Otomatik onay etkinleştirildi"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Şimdi kullanılabilir"
   },
   "accountSecurity": {
     "message": "Hesap güvenliği"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Kimlik Avı Engelleyici"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Kimlik avı tespiti"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Şüpheli kimlik avı sitelerine erişmeden önce uyarı görüntüleme"
   },
   "notifications": {
     "message": "Bildirimler"
@@ -5629,10 +5747,10 @@
     "message": "Kasanıza daha hızlı ulaşmak için kilit açma ve zaman aşımı ayarlarınızı özelleştirebilirsiniz."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "Kilidi PIN setiyle aç"
   },
   "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
+    "message": "Kilidi biyometri setiyle aç"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
@@ -5857,7 +5975,7 @@
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Güvensiz parola."
   },
   "changeNow": {
     "message": "Şimdi değiştir"
@@ -5976,19 +6094,19 @@
     "message": "Kesintisiz çevrimiçi alışveriş"
   },
   "newCardNudgeBody": {
-    "message": "Kartlarla, ödeme formlarını güvenli ve doğru bir şekilde kolayca otomatik doldurun."
+    "message": "Kartları kullanarak ödeme formlarını güvenli ve doğru bir şekilde otomatik doldurabilirsiniz."
   },
   "newIdentityNudgeTitle": {
     "message": "Hesap oluşturmak artık daha basit"
   },
   "newIdentityNudgeBody": {
-    "message": "Kimlikler ile uzun kayıt veya iletişim formlarını hızla otomatik doldurun."
+    "message": "Kimlikleri kullanarak uzun kayıt ve iletişim formlarını otomatik olarak doldurabilirsiniz."
   },
   "newNoteNudgeTitle": {
     "message": "Hassas verilerinizi güvende tutun"
   },
   "newNoteNudgeBody": {
-    "message": "Notlarla, bankacılık veya sigorta bilgileri gibi hassas verileri güvenli bir şekilde saklayın."
+    "message": "Notları kullanarak banka veya sigorta bilgileri gibi hassas verileri güvenle depolayabilirsiniz."
   },
   "newSshNudgeTitle": {
     "message": "Geliştirici dostu SSH erişimi"
@@ -6007,17 +6125,17 @@
     "message": "Hızlıca parola oluşturun"
   },
   "generatorNudgeBodyOne": {
-    "message": "Tıklayarak güçlü ve benzersiz parolaları kolayca oluşturun",
+    "message": "Hesaplarınızı güvende tutmak için",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "hesaplarınızı güvende tutmanıza yardımcı olmak için.",
+    "message": "düğmesine tıklayarak güçlü ve benzersiz parolalar oluşturabilirsiniz.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Güvenli oturumlar açmaya yardımcı olmak için Parola Oluştur düğmesine tıklayarak güçlü ve benzersiz parolalar oluşturun.",
+    "message": "Hesaplarınızı güvende tutmak için \"Parola üret\" düğmesine tıklayarak güçlü ve benzersiz parolalar oluşturabilirsiniz.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
@@ -6105,7 +6223,7 @@
     "message": "Hata: Deşifre edilemiyor"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Kuruluşunuz artık Bitwarden'da oturum açmak için ana parolalar kullanmıyor. Devam etmek için kuruluşu ve etki alanını doğrulayın."
   },
   "continueWithLogIn": {
     "message": "Giriş yapmaya devam et"
@@ -6114,34 +6232,34 @@
     "message": "Devam etme"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Alan Adı"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Bu alan adı hesap şifreleme anahtarlarınızı depolayacaktır, bu nedenle ona güvendiğinizden emin olun. Emin değilseniz yöneticinize danışın."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Giriş yapmak için kuruluşunuzu doğrulayın"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Kuruluş doğrulandı"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Alan adı doğrulandı"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Kuruluşunuzu doğrulamazsanız, kuruluşa erişiminiz iptal edilecektir."
   },
   "leaveNow": {
     "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Giriş yapmak için alan adınızı doğrulayın"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Giriş yaparak devam etmek için bu alan adını doğrulayın."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Giriş yaparak devam etmek için kuruluşu ve alan adını doğrulayın."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Zaman aşımı eylemi"
@@ -6236,7 +6354,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "$ORGANIZATION$ güvenlik ve uyumluluk için tüm kayıtların kuruluşa ait olmasını şart koşmaktadır.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6245,10 +6363,10 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "Kayıtlarınızın sahipliğini devretmek için kabul et seçeneğine tıklayın."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "Kayıtların aktarılmasıyla ilgili yardım makalesini açın"
   },
   "acceptTransfer": {
     "message": "Aktarımı kabul et"
@@ -6281,7 +6399,7 @@
     "message": "Belirli kişiler"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Bu Send bağlantısını paylaştığınızda kullanıcıların bu Send'i görüntülemeleri için e-posta adreslerini bir kodla doğrulamaları gerekecektir."
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "E-posta adreslerini virgülle ayırarak yazın."
@@ -6305,21 +6423,139 @@
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
   },
+  "enterMonth": {
+    "message": "Ay girin."
+  },
+  "enterDay": {
+    "message": "Gün girin."
+  },
+  "enterYear": {
+    "message": "Yıl girin."
+  },
+  "invalidDay": {
+    "message": "Geçerli bir gün girin."
+  },
+  "invalidYear": {
+    "message": "Geçerli bir yıl girin."
+  },
+  "searchDriversLicense": {
+    "message": "Ehliyet ara"
+  },
+  "bankName": {
+    "message": "Banka adı"
+  },
+  "nameOnAccount": {
+    "message": "Hesaptaki ad"
+  },
+  "bankAccountType": {
+    "message": "Hesap türü"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Şirket (işletme)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Bireysel (kişisel)"
+  },
+  "accountNumber": {
+    "message": "Hesap numarası"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing numarası",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Şube numarası"
+  },
+  "swiftCode": {
+    "message": "SWIFT kodu"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Banka telefonu"
+  },
+  "searchBankAccount": {
+    "message": "Banka hesabı ara"
+  },
+  "copyAccountNumber": {
+    "message": "Hesap numarasını kopyala"
+  },
+  "copyRoutingNumber": {
+    "message": "Routing numarasını kopyala"
+  },
+  "copyPin": {
+    "message": "PIN'i kopyala"
+  },
+  "copyIban": {
+    "message": "IBAN'ı kopyala"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Vadesiz"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Mevduat"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Bono"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredi limiti"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Yatırım/aracılık"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Para piyasası"
+  },
+  "bankAccountTypeOther": {
+    "message": "Diğer"
+  },
   "downloadFailed": {
     "message": "İndirilemedi."
   },
+  "maxAccessCount": {
+    "message": "Maksimum erişim sayısı",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "E-posta adresimi alıcılardan gizle."
+  },
+  "viewTextSendHeader": {
+    "message": "Metni göster"
+  },
+  "viewFileSendHeader": {
+    "message": "Dosyayı göster"
+  },
+  "sendCreated": {
+    "message": "Send oluşturuldu",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Girdi sayısal olmalıdır"
+  },
+  "integerInputError": {
+    "message": "Girdi tamsayı olmalıdır"
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Yan gezinti"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Bağlantıyı atla"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Bilgi",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "İlerleme çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Send düzenlemeleri kaydedilemedi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }

@@ -5,6 +5,7 @@
         <bit-label>{{ "permission" | i18n }}</bit-label>
         <bit-select
           bitInput
+          data-testid="permission"
           [disabled]="disabled()"
           [ngModel]="initialPermissionValue()"
           (ngModelChange)="initialPermissionValue.set($event)"
@@ -18,11 +19,12 @@
       </bit-form-field>
     }
     @if (!disabled()) {
-      <bit-form-field class="tw-grow tw-p-3">
+      <bit-form-field class="tw-grow tw-py-3">
         <bit-label>{{ selectorLabelText() }}</bit-label>
         @if (!hideTable()) {
           <bit-multi-select
             class="tw-w-full"
+            [attr.data-testid]="multiSelectTestId()"
             [baseItems]="selectionList.deselectedItems"
             [removeSelectedItems]="true"
             [disabled]="disabled()"
@@ -32,6 +34,7 @@
         } @else {
           <bit-multi-select
             class="tw-w-full"
+            [attr.data-testid]="multiSelectTestId()"
             [baseItems]="selectionList.allItems"
             [removeSelectedItems]="false"
             [disabled]="disabled()"

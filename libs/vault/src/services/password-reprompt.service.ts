@@ -33,6 +33,7 @@ export class PasswordRepromptService {
       "Account Number",
       "IBAN",
       "SWIFT",
+      "License Number",
     ];
   }
 

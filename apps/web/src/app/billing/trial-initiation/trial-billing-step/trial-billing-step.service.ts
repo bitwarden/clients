@@ -203,6 +203,7 @@ export class TrialBillingStepService {
           taxId: billingAddress.taxId ?? undefined,
         },
         skipTrial: trial.length === 0,
+        trialLength: trial.length,
       },
       ...(coupons?.length ? { coupons } : {}),
     };

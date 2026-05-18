@@ -114,6 +114,10 @@ describe("AccessIntelligenceDrawerV2Component", () => {
           blobOptions: { type: "text/plain" },
         }),
       );
+
+      const callArg = mockFileDownloadService.download.mock.calls[0][0];
+      const firstLine = (callArg.blobData as string).split("\n")[0].trim();
+      expect(firstLine).toBe("email,userName,userGuid,atRiskApplications");
     });
 
     it("should call FileDownloadService.download for CriticalAtRiskMembers drawer type", () => {

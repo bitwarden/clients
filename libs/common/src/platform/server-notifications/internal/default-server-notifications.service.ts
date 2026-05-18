@@ -16,6 +16,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -72,6 +73,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly authRequestAnsweringService: AuthRequestAnsweringService,
     private readonly configService: ConfigService,
     private readonly policyService: InternalPolicyService,
+    private readonly newPolicyService: InternalNewPolicyService,
     private autoConfirmService: AutomaticUserConfirmationService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
@@ -292,9 +294,12 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           adminId: notification.payload.adminId,
         });
         break;
-      case NotificationType.SyncPolicy:
-        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
+      case NotificationType.SyncPolicy: {
+        const policyData = PolicyData.fromPolicy(notification.payload.policy);
+        await this.policyService.syncPolicy(policyData);
+        await this.newPolicyService.upsert(policyData, userId);
         break;
+      }
       case NotificationType.AutoConfirmMember:
         await this.autoConfirmService.autoConfirmUser(
           notification.payload.userId,
