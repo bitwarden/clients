@@ -28,6 +28,11 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+
+// DEMO ONLY: derive the per-row badge state from the same deterministic
+// predicates the mock cipher-open path uses so the badge marks exactly the
+// ciphers that will actually prompt for access.
+import { PamMockConfig } from "../../../pam/mock/pam-mock-config";
 import { GatedState } from "@bitwarden/pam";
 
 import {
@@ -134,6 +139,35 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // sync ships requireLease + active leases. Until then every row is "gated_no_lease".
   readonly leaseState = input<GatedState>("gated_no_lease");
   readonly leaseExpiresAt = input<Date | null>(null);
+
+  /**
+   * DEMO ONLY: per-cipher gated state derived from the same deterministic
+   * predicates the mock cipher-open path uses. Keeps the badge in sync with
+   * which ciphers will actually prompt.
+   */
+  protected mockLeaseState(): GatedState {
+    const id = this.cipher?.id as string | undefined;
+    if (id == null || !PamMockConfig.isEnabled()) {
+      return this.leaseState();
+    }
+    if (!PamMockConfig.shouldGate(id)) {
+      return "unleased";
+    }
+    return PamMockConfig.shouldStartWithActiveLease(id)
+      ? "gated_active_lease"
+      : "gated_no_lease";
+  }
+
+  /**
+   * DEMO ONLY: synthesise a `notAfter` for ciphers that the predicate marks as
+   * "already leased" so the badge countdown has something to render.
+   */
+  protected mockLeaseExpiresAt(): Date | null {
+    if (this.mockLeaseState() !== "gated_active_lease") {
+      return this.leaseExpiresAt();
+    }
+    return new Date(Date.now() + PamMockConfig.DEFAULT_LEASE_DURATION_MS);
+  }
 
   protected showLeaseBadge$: Observable<boolean>;
 

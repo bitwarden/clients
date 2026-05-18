@@ -36,11 +36,11 @@
     >
       {{ cipher.name }}
     </button>
-    @if ((showLeaseBadge$ | async) && leaseState() !== "unleased") {
+    @if ((showLeaseBadge$ | async) && mockLeaseState() !== "unleased") {
       <app-cipher-lease-badge
         class="tw-ml-2"
-        [state]="leaseState()"
-        [leaseExpiresAt]="leaseExpiresAt()"
+        [state]="mockLeaseState()"
+        [leaseExpiresAt]="mockLeaseExpiresAt()"
       />
     }
     @if (hasAttachments) {

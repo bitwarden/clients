@@ -114,6 +114,12 @@ import {
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { CipherOpenInterceptorService } from "../../pam/cipher-open-interceptor.service";
+// DEMO ONLY: mock membership data + modal opener wired in below.
+import { MockCipherMembershipService } from "../../pam/mock/mock-cipher-membership.service";
+import {
+  RequestDetailModalComponent,
+  RequestDetailModalResult,
+} from "../../pam/request-detail-modal/request-detail-modal.component";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
@@ -325,6 +331,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
     private cipherOpenInterceptorService: CipherOpenInterceptorService,
+    private mockCipherMembership: MockCipherMembershipService,
   ) {}
 
   async ngOnInit() {
@@ -1091,14 +1098,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     // returns "passthrough" when the flag is off or the cipher is unleased, so
     // non-gated opens are unaffected.
     //
-    // Membership and active-lease state are not yet wired (future story), so
-    // we pass empty arrays — `deriveGatedState` will return "unleased" and the
-    // interceptor short-circuits. The branching is covered by unit tests on
-    // CipherOpenInterceptorService.
+    // DEMO ONLY: real membership/active-lease wiring is a PM-37264 follow-up.
+    // `MockCipherMembershipService` supplies non-empty arrays only when the
+    // `pam-mock` localStorage toggle is on AND the cipher hashes into the
+    // gated bucket; otherwise returns `{ [], [] }` so production behaviour is
+    // byte-identical with the previous hard-coded placeholders.
+    const { memberships, activeLeases } = this.mockCipherMembership.forCipher(
+      cipher.id,
+      activeUserId,
+    );
     const decision = await this.cipherOpenInterceptorService.open({
       cipherId: cipher.id,
-      memberships: [],
-      activeLeases: [],
+      memberships,
+      activeLeases,
       userId: activeUserId,
     });
 
@@ -1108,12 +1120,24 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     if (decision.kind === "pending") {
-      // PM-37265 will open the approval modal; for now hand the request id off
-      // via the audit hook and surface a toast so the user gets feedback.
-      this.toastService.showToast({
-        variant: "info",
-        message: this.i18nService.t("pamLeaseRequestPending"),
+      // PM-37265 modal: lets the requester amend the window/reason. The
+      // pending request is already stored server-side (the 202 created it);
+      // dismissing the modal leaves it untouched.
+      const dialogRef = RequestDetailModalComponent.open(this.dialogService, {
+        request: decision.request,
       });
+      const result = await firstValueFrom(dialogRef.closed);
+      if (result === RequestDetailModalResult.Cancelled) {
+        // User cancelled the request server-side; return to the vault list.
+        await this.go(
+          { cipherId: null, itemId: null, action: null },
+          this.configureRouterFocusToCipher(cipher.id),
+        );
+        return;
+      }
+      // Submitted or Dismissed: the request stays pending. The
+      // pending-state block (when wired into the cipher view) will subscribe
+      // to LeaseEventService.events$(request.id) and re-fetch on approve.
       await this.go(
         { cipherId: null, itemId: null, action: null },
         this.configureRouterFocusToCipher(cipher.id),
