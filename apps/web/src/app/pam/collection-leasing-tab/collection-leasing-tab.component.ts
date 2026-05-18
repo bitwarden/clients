@@ -26,6 +26,7 @@ import {
 } from "@bitwarden/components";
 import { CollectionLeasingRequest, LeasingPolicy, PamApiService } from "@bitwarden/pam";
 
+import { CompositePolicyEditorComponent } from "../policy-editor/composite/composite-policy-editor.component";
 import { HumanApprovalEditorComponent } from "../policy-editor/human-approval/human-approval-editor.component";
 
 /** The discriminator values of {@link LeasingPolicy}. */
@@ -71,6 +72,7 @@ export type LeasingPolicyKind = (typeof LeasingPolicyKind)[keyof typeof LeasingP
     LinkModule,
     ToggleGroupModule,
     HumanApprovalEditorComponent,
+    CompositePolicyEditorComponent,
   ],
 })
 export class CollectionLeasingTabComponent implements OnInit {
@@ -99,6 +101,9 @@ export class CollectionLeasingTabComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly leasingEnabled = signal(false);
   protected readonly activePolicyKind = signal<LeasingPolicyKind>(LeasingPolicyKind.HumanApproval);
+
+  /** Holds the latest serialized policy from the composite editor. Null until valid. */
+  protected readonly compositePolicy = signal<LeasingPolicy | null>(null);
 
   /** Tracks the last-loaded server state so we can detect "turning off". */
   private readonly wasEnabledOnLoad = false;
@@ -199,6 +204,10 @@ export class CollectionLeasingTabComponent implements OnInit {
     }
   };
 
+  protected onCompositePolicyChange(policy: LeasingPolicy | null): void {
+    this.compositePolicy.set(policy);
+  }
+
   private buildPolicy(): LeasingPolicy | null {
     if (!this.leasingEnabled()) {
       return null;
@@ -206,7 +215,10 @@ export class CollectionLeasingTabComponent implements OnInit {
     if (this.activePolicyKind() === LeasingPolicyKind.HumanApproval) {
       return { kind: "human_approval" };
     }
-    // Other kinds defer to their editor stories (PM-37273/74/75).
+    if (this.activePolicyKind() === LeasingPolicyKind.AllOf) {
+      return this.compositePolicy();
+    }
+    // IP allowlist and time-of-day defer to their editor stories (PM-37273/74).
     return null;
   }
 }

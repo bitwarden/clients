@@ -13930,5 +13930,53 @@
   },
   "policyHumanApprovalDescription": {
     "message": "Every access requires a manager to approve. Used when you need a human in the loop every time."
+  },
+  "policyCompositeDescription": {
+    "message": "All conditions must be met. If any condition needs a human, the request goes to a human."
+  },
+  "policyCompositeMinChildrenWarning": {
+    "message": "At least two conditions are required."
+  },
+  "policyCompositeConditionLabel": {
+    "message": "Condition"
+  },
+  "policyCompositeAddCondition": {
+    "message": "Add condition"
+  },
+  "policyCompositeRemoveCondition": {
+    "message": "Remove condition"
+  },
+  "policyCompositeAllConditionsAdded": {
+    "message": "All available condition types have been added."
+  },
+  "policyCompositeDuplicateKindError": {
+    "message": "This condition type is already in use. Choose a different type or remove the duplicate."
+  },
+  "pamLeasingMode_human_approval": {
+    "message": "Human approval"
+  },
+  "pamLeasingMode_ip_allowlist": {
+    "message": "IP allowlist"
+  },
+  "pamLeasingMode_time_of_day": {
+    "message": "Time of day"
+  },
+  "policyStubIpAllowlistLabel": {
+    "message": "IP allowlist (scaffold)"
+  },
+  "policyStubIpAllowlistHint": {
+    "message": "This editor is a scaffold. It will be replaced by the real PM-37273 component at integration."
+  },
+  "policyStubIpAllowlistCidrLabel": {
+    "message": "CIDR ranges"
+  },
+  "policyStubIpAllowlistCidrHint": {
+    "message": "Enter one CIDR range per line or separate with commas."
+  },
+  "policyStubTimeOfDayLabel": {
+    "message": "Time of day (scaffold)"
+  },
+  "policyStubTimeOfDayDescription": {
+    "message": "This editor is a scaffold showing a fixed window. It will be replaced by the real PM-37274 component at integration."
   }
 }

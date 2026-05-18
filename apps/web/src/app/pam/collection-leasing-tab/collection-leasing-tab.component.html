@@ -59,8 +59,10 @@
           <p class="tw-text-muted">{{ "pamLeasingEditorComingSoon" | i18n }}</p>
         }
         @case ("all_of") {
-          <p class="tw-mb-1 tw-font-semibold">{{ "pamLeasingModeAllOf" | i18n }}</p>
-          <p class="tw-text-muted">{{ "pamLeasingEditorComingSoon" | i18n }}</p>
+          <pam-composite-policy-editor
+            (policyChange)="onCompositePolicyChange($event)"
+            (manageMembersClicked)="onManageMembersClicked()"
+          ></pam-composite-policy-editor>
         }
       }
     </div>

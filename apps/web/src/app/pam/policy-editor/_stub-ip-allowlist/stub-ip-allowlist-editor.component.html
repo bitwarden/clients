@@ -1,0 +1,13 @@
+<p class="tw-mb-1 tw-font-semibold">{{ "policyStubIpAllowlistLabel" | i18n }}</p>
+<p class="tw-mb-2 tw-text-sm tw-text-muted">{{ "policyStubIpAllowlistHint" | i18n }}</p>
+<bit-form-field>
+  <bit-label>{{ "policyStubIpAllowlistCidrLabel" | i18n }}</bit-label>
+  <textarea
+    bitInput
+    rows="3"
+    [ngModel]="cidrText()"
+    (ngModelChange)="onCidrTextChange($event)"
+    data-testid="stub-ip-allowlist-cidrs"
+  ></textarea>
+  <bit-hint>{{ "policyStubIpAllowlistCidrHint" | i18n }}</bit-hint>
+</bit-form-field>
