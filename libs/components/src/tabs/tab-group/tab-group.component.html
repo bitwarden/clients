@@ -49,8 +49,9 @@
     }
     <!--
       The More button sits inside the overflow list so it lands immediately after
-      the last visible tab in the flex flow. bitOverflowTrigger manages its own
-      visibility and aria-hidden state based on whether anything has overflowed.
+      the last visible tab in the flex flow. The list hides the trigger via the
+      `hidden` property when there's nothing to surface, which also takes it out
+      of focus and the accessibility tree.
     -->
     <button
       bitTabListItem

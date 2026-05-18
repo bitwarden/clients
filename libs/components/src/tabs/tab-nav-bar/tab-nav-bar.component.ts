@@ -82,14 +82,9 @@ export class TabNavBarComponent implements AfterViewInit {
       .withHorizontalOrientation("ltr")
       .withWrap()
       .withHomeAndEnd()
-      // Skip disabled items, items the overflow directive hid via [hidden], and the
-      // visibility-hidden More button (aria-hidden="true" while no overflow exists).
-      .skipPredicate(
-        (item) =>
-          item.disabled ||
-          item.elementRef.nativeElement.hidden ||
-          item.elementRef.nativeElement.getAttribute("aria-hidden") === "true",
-      );
+      // Skip disabled items and anything the overflow directive hid via [hidden]
+      // (overflowed tabs as well as the More button when there's nothing to surface).
+      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
 
     this.keyManager.set(km);
     // Seed roving tabindex now that tab-links have populated their isActive signals.

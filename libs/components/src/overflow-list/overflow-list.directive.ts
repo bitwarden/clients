@@ -101,10 +101,19 @@ export class OverflowListDirective {
         overflow: [] as readonly number[],
       };
     }
+    const containerWidth = this.containerWidth();
+    const gap = this.gap();
+    // First, check whether everything fits without reserving the trigger — when
+    // it does, the trigger will be hidden and won't consume layout, so we'd be
+    // overflowing items just to make room for an affordance we don't need.
+    const totalWidth = widths.reduce((sum, w, i) => sum + w + (i > 0 ? gap : 0), 0);
+    if (totalWidth <= containerWidth) {
+      return pack(widths, containerWidth, gap, this.pinIndex());
+    }
     const triggerWidth = this.triggerWidth();
-    const reserved = triggerWidth > 0 ? triggerWidth + this.gap() : 0;
-    const available = Math.max(0, this.containerWidth() - reserved);
-    return pack(widths, available, this.gap(), this.pinIndex());
+    const reserved = triggerWidth > 0 ? triggerWidth + gap : 0;
+    const available = Math.max(0, containerWidth - reserved);
+    return pack(widths, available, gap, this.pinIndex());
   });
 
   /** Indices of items rendered in the visible row, in DOM order. */
@@ -142,9 +151,10 @@ export class OverflowListDirective {
       this.destroyRef.onDestroy(() => ro.disconnect());
     });
 
-    // Apply [hidden] to overflowed items, flag the lone displayed item (if any)
-    // so consumers can gate truncation styling on it, and tell the trailing
-    // trigger whether to reveal itself.
+    // Apply [hidden] to overflowed items and to the trailing trigger when there's
+    // nothing to surface; flag the lone displayed item (if any) so consumers can
+    // gate truncation styling on it. The trigger update is gated on `ready` so
+    // its first-pass measurement happens while it's still visible.
     effect(() => {
       const overflowList = this.overflow();
       const displayedList = this.displayed();
@@ -155,7 +165,12 @@ export class OverflowListDirective {
         item.elementRef.nativeElement.hidden = overflowSet.has(i);
         item.shouldShrink.set(i === lonelyIndex);
       });
-      this.trigger()?.hasOverflow.set(overflowList.length > 0);
+      if (this.ready()) {
+        const trigger = this.trigger();
+        if (trigger) {
+          trigger.elementRef.nativeElement.hidden = overflowList.length === 0;
+        }
+      }
     });
   }
 }
