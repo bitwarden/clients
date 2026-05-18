@@ -60,8 +60,10 @@
           </p>
         }
         @case ("ip_allowlist") {
-          <p class="tw-mb-1 tw-font-semibold">{{ "pamLeasingModeIpAllowlist" | i18n }}</p>
-          <p class="tw-text-muted">{{ "pamLeasingEditorComingSoon" | i18n }}</p>
+          <pam-ip-allowlist-editor
+            [cidrs]="initialCidrs()"
+            [readonly]="!canManage()"
+          ></pam-ip-allowlist-editor>
         }
         @case ("time_of_day") {
           <p class="tw-mb-1 tw-font-semibold">{{ "pamLeasingModeTimeOfDay" | i18n }}</p>

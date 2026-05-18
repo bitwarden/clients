@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  ViewChild,
   computed,
   inject,
   input,
@@ -25,6 +26,8 @@ import {
   ToggleGroupModule,
 } from "@bitwarden/components";
 import { CollectionLeasingRequest, LeasingPolicy, PamApiService } from "@bitwarden/pam";
+
+import { IpAllowlistEditorComponent } from "../policy-editor/ip-allowlist/ip-allowlist-editor.component";
 
 /** The discriminator values of {@link LeasingPolicy}. */
 export const LeasingPolicyKind = Object.freeze({
@@ -68,6 +71,7 @@ export type LeasingPolicyKind = (typeof LeasingPolicyKind)[keyof typeof LeasingP
     FormFieldModule,
     LinkModule,
     ToggleGroupModule,
+    IpAllowlistEditorComponent,
   ],
 })
 export class CollectionLeasingTabComponent implements OnInit {
@@ -93,9 +97,15 @@ export class CollectionLeasingTabComponent implements OnInit {
    */
   readonly switchToAccess = output<void>();
 
+  @ViewChild(IpAllowlistEditorComponent)
+  protected ipAllowlistEditor?: IpAllowlistEditorComponent;
+
   protected readonly loading = signal(true);
   protected readonly leasingEnabled = signal(false);
   protected readonly activePolicyKind = signal<LeasingPolicyKind>(LeasingPolicyKind.HumanApproval);
+
+  /** Initial CIDR list passed down to the IP allowlist editor on load. */
+  protected readonly initialCidrs = signal<string[]>([]);
 
   /** Tracks the last-loaded server state so we can detect "turning off". */
   private readonly wasEnabledOnLoad = false;
@@ -120,6 +130,9 @@ export class CollectionLeasingTabComponent implements OnInit {
       this.wasEnabledOnLoad = config.leasingEnabled;
       if (config.policy != null) {
         this.activePolicyKind.set(config.policy.kind);
+        if (config.policy.kind === "ip_allowlist") {
+          this.initialCidrs.set(config.policy.cidrs);
+        }
       }
     } catch {
       // The server returns 404 when no config has been saved yet — treat as
@@ -175,6 +188,14 @@ export class CollectionLeasingTabComponent implements OnInit {
     if (!this.canSave()) {
       return;
     }
+    if (
+      this.leasingEnabled() &&
+      this.activePolicyKind() === LeasingPolicyKind.IpAllowlist &&
+      this.ipAllowlistEditor &&
+      !this.ipAllowlistEditor.validate()
+    ) {
+      return;
+    }
     const policy = this.buildPolicy();
     const request = new CollectionLeasingRequest({
       leasingEnabled: this.leasingEnabled(),
@@ -203,7 +224,13 @@ export class CollectionLeasingTabComponent implements OnInit {
     if (this.activePolicyKind() === LeasingPolicyKind.HumanApproval) {
       return { kind: "human_approval" };
     }
-    // Other kinds defer to their editor stories (PM-37273/74/75).
+    if (this.activePolicyKind() === LeasingPolicyKind.IpAllowlist && this.ipAllowlistEditor) {
+      if (!this.ipAllowlistEditor.validate()) {
+        return null;
+      }
+      return { kind: "ip_allowlist", cidrs: this.ipAllowlistEditor.currentCidrs };
+    }
+    // Other kinds defer to their editor stories (PM-37274/75).
     return null;
   }
 }

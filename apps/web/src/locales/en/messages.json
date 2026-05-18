@@ -13927,5 +13927,35 @@
   },
   "pamLeasingSaveFailed": {
     "message": "Could not save leasing settings"
+  },
+  "policyIpAllowlistHelpText": {
+    "message": "Auto-approve when the request comes from one of these network ranges. Otherwise the request is denied."
+  },
+  "policyIpAllowlistCidrLabel": {
+    "message": "CIDR range $INDEX$",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "policyIpAllowlistCidrPlaceholder": {
+    "message": "e.g. 10.0.0.0/8 or 2001:db8::/32"
+  },
+  "policyIpAllowlistAddRow": {
+    "message": "Add CIDR range"
+  },
+  "policyIpAllowlistRemoveRow": {
+    "message": "Remove CIDR range"
+  },
+  "policyIpAllowlistInvalidCidr": {
+    "message": "Enter a valid IPv4 or IPv6 CIDR range (e.g. 10.0.0.0/8)"
+  },
+  "policyIpAllowlistDuplicateCidr": {
+    "message": "Duplicate CIDR ranges are not allowed"
+  },
+  "policyIpAllowlistAtLeastOne": {
+    "message": "At least one CIDR range is required"
   }
 }
