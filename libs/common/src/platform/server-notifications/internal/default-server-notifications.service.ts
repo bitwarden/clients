@@ -233,12 +233,22 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         const noLogoutOnKdfChange = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
         );
+        const noLogoutOnKeyUpgradeRotation = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKeyUpgradeRotation),
+        );
         if (
           noLogoutOnKdfChange &&
           logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
         ) {
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout KDF change",
+          );
+        } else if (
+          noLogoutOnKeyUpgradeRotation &&
+          logOutNotification.reason === PushNotificationLogOutReasonType.KeyRotation
+        ) {
+          this.logService.info(
+            "[Notifications Service] Skipping logout due to no logout key rotation",
           );
         } else {
           await this.logoutCallback("logoutNotification", userId);
