@@ -31,9 +31,12 @@ export class MenuItemComponent implements FocusableOption {
     "focus-visible:tw-ring-border-focus",
     "active:!tw-ring-0",
     "active:!tw-ring-offset-0",
-    "disabled:!tw-text-muted",
     "disabled:hover:tw-bg-background",
-    "disabled:tw-cursor-not-allowed",
+    "disabled:tw-cursor-default",
+    "disabled:!tw-text-fg-inactive",
+    "aria-disabled:hover:tw-bg-background",
+    "aria-disabled:tw-cursor-default",
+    "aria-disabled:!tw-text-fg-inactive",
   ];
   @HostBinding("attr.role") role = "menuitem";
   @HostBinding("tabIndex") tabIndex = "-1";

@@ -167,4 +167,60 @@ describe("buildCipherIcon", () => {
       });
     });
   });
+
+  describe("Passport cipher", () => {
+    const cipher = {
+      type: CipherType.Passport,
+    } as any as CipherView;
+
+    it("returns bwi-globe icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-globe",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-globe icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-globe",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
+
+  describe("DriversLicense cipher", () => {
+    const cipher = {
+      type: CipherType.DriversLicense,
+    } as any as CipherView;
+
+    it("returns bwi-id-card icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-id-card icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
 });

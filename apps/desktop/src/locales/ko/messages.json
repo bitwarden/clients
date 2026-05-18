@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH 키"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -50,11 +53,20 @@
   "typeSshKeySubtitle": {
     "message": "Server login token"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
   "collectionSubtitle": {
     "message": "Organize shared items"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -134,6 +146,22 @@
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -154,6 +182,18 @@
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Edit Login",
     "description": "Header for edit login item type"
@@ -173,6 +213,18 @@
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "이름"
@@ -230,20 +282,20 @@
   "sendTypeTextToShare": {
     "message": "공유할 텍스트"
   },
-  "newItemHeaderTextSend": {
-    "message": "새 텍스트 Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "새 파일 Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "텍스트 Send 편집",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "파일 Send 편집",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -706,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "첨부 파일 삭제"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "정말로 휴지통으로 이동시킬까요?"
@@ -1589,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "항상 알림 영역에 아이콘을 표시합니다."
   },
-  "startToTray": {
-    "message": "트레이 아이콘으로 시작"
-  },
-  "startToTrayDesc": {
-    "message": "응용프로그램을 시작할 때 알림 영역에 아이콘으로 표시합니다."
-  },
-  "startToMenuBar": {
-    "message": "메뉴 막대에서 시작하기"
-  },
-  "startToMenuBarDesc": {
-    "message": "앱을 시작할 때 메뉴 바에 아이콘으로 표시합니다."
-  },
   "openAtLogin": {
     "message": "로그인할 때 자동으로 실행"
   },
@@ -1706,6 +1764,10 @@
   "copyNumber": {
     "message": "번호 복사",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "이메일 복사"
@@ -1962,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "기본 일치 인식",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "toggleOptions": {
     "message": "표시 / 숨기기"
@@ -2474,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "현재 Linux 버전에서는 브라우저와 연결이 지원되지 않습니다."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "브라우저와 연결을 위해 인증이 필요함"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "데스크탑 앱과 브라우저를 연결할 때 지문 구절을 확인하는 과정을 제공함으로써 추가적인 보안을 제공합니다. 이 옵션을 켜면, 연결이 설정될 때마다 사용자의 확인을 요구합니다."
-  },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
   },
@@ -2488,12 +2550,6 @@
   },
   "approve": {
     "message": "승인"
-  },
-  "verifyBrowserTitle": {
-    "message": "브라우저와 연결 인증"
-  },
-  "verifyBrowserDesc": {
-    "message": "다음의 지문 구절이 브라우저 확장 프로그램에 표시된 지문 구절과 동일한지 확인해주세요."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$이(가) Bitwarden에 연결하려고 합니다",
@@ -2726,8 +2782,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "보안 키 상호작용 대기 중..."
   },
-  "hideEmail": {
-    "message": "받는 사람으로부터 나의 이메일 주소 숨기기"
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "하나 이상의 단체 정책이 Send 설정에 영향을 미치고 있습니다."
@@ -2971,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "개인 보관함을 내보내는 중"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3922,6 +3963,9 @@
   "chooseFile": {
     "message": "Choose File"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "No file chosen"
   },
@@ -3952,6 +3996,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"
@@ -4065,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Troubleshooting"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Disable hardware acceleration and restart"
@@ -4748,6 +4820,9 @@
   "sessionTimeoutHeader": {
     "message": "Session timeout"
   },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -4791,6 +4866,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
   },
   "upgrade": {
     "message": "Upgrade"
@@ -4919,8 +5018,126 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "사용자 인증에 실패했습니다."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "discardEdits": {
     "message": "Discard edits"
@@ -4939,6 +5156,25 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
   "sideNavigation": {
     "message": "Side navigation"
   },
@@ -4952,5 +5188,47 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }
