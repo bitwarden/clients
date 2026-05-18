@@ -39,7 +39,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private pinService: PinServiceAbstraction,
-    private ipcService: IpcService
+    private ipcService: () => IpcService,
   ) {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
@@ -64,7 +64,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      const result = await ipcRequestAuthenticateBiometrics(this.ipcService.client);
+      const result = await ipcRequestAuthenticateBiometrics(this.ipcService().client);
       return result;
     }
 
@@ -111,14 +111,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
       // Handle SDK-based biometric unlock
       try {
-        const userKey = await ipcRequestUnlockBiometrics(this.ipcService.client, fromTsUserId(userId));
-        if (userKey) {
+        const response = await ipcRequestUnlockBiometrics(this.ipcService().client, fromTsUserId(userId));
+        if (response.user_key) {
           await this.biometricStateService.setBiometricUnlockEnabled(true);
-          await this.keyService.setUserKey(userKey, userId);
+          await this.keyService.setUserKey(SymmetricCryptoKey.fromSdk(response.user_key) as UserKey, userId);
           await this.pinService.userUnlocked(userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
-          return userKey;
+          return SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
         } else {
           return null;
         }
@@ -157,7 +157,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      const status = await ipcRequestGetBiometricsStatus(this.ipcService.client, fromTsUserId(id));
+      const status = await ipcRequestGetBiometricsStatus(this.ipcService().client, fromTsUserId(id));
       return toTsBiometricsStatus(status);
     }
 

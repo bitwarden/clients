@@ -8,7 +8,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsStatus, BiometricStateService, KeyService } from "@bitwarden/key-management";
-import { CryptoClient, IpcClient, ipcRegisterBiometricsHandlers, SymmetricKey } from "@bitwarden/sdk-internal";
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import { CryptoClient, ipcRegisterBiometricsHandlers, SymmetricKey } from "@bitwarden/sdk-internal";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
@@ -21,6 +22,7 @@ import { UserId as TSUserId } from "@bitwarden/user-core";
 import { UnlockService } from "@bitwarden/unlock";
 import { LogService } from "@bitwarden/logging";
 import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
+import { toSdkBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 
 // Should not be enabled until after shared unlock is enabled
 // This toggles whether the desktop app gets unlock whenever the browser requests an unlock. This
@@ -61,7 +63,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   constructor(
     private tokenService: TokenService,
     private biometricStateService: BiometricStateService,
-    private ipcClient: IpcClient,
+    private ipcService: IpcService,
     private logService: LogService,
   ) {
     super();
@@ -157,6 +159,6 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     super.setUnlockService(service);
     const driver = createBiometricsDriver(this, this.unlockService);
     this.logService.info("Registering biometrics IPC driver");
-    await ipcRegisterBiometricsHandlers(this.ipcClient, driver);
+    await ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
   }
 }
