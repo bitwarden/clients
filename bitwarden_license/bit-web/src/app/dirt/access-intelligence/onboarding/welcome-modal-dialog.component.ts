@@ -45,7 +45,7 @@ export class WelcomeModalDialogComponent {
   static async showWelcomeDialog(
     injector: Injector,
     dialogService: DialogService,
-  ): Promise<DialogRef<unknown, WelcomeModalDialogComponent>> {
+  ): Promise<DialogRef<unknown, WelcomeModalDialogComponent> | undefined> {
     return runInInjectionContext(injector, async () => {
       const logger = inject(LogService);
       const onboardingService = inject(OnboardingService);
