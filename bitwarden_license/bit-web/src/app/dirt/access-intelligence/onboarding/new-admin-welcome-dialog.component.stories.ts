@@ -9,6 +9,7 @@ import {
   DialogRef,
   DIALOG_DATA,
   TypographyModule,
+  I18nMockService,
 } from "@bitwarden/components";
 import { VaultCarouselModule } from "@bitwarden/vault";
 
@@ -19,6 +20,28 @@ const mockDialogRef = { close: async () => {} };
 const mockOnboardingService = { setCarouselAcknowledged: async () => {} };
 const mockOrganizationId = "story-org-id" as OrganizationId;
 
+const mockI18nService = new I18nMockService({
+  accessIntelligenceWelcomeTour: "Welcome to Access Intelligence!",
+  yourEntireOrgsSecurityInOneView: "Your entire org's security in one view",
+  accessIntelligenceGivesYouSinglePlace:
+    "Access Intelligence gives you a single place to view and manage your organization's security posture, so you can spend less time on security administration and more time on strategic initiatives.",
+  youSetThePrioritiesWeSurfaceTheRisks:
+    "You set the priorities, we surface the risks. With Access Intelligence, you can easily identify and remediate security risks across your organization, all while empowering your end users to take charge of their own security.",
+  youMarkWhichAppsAreMostCritical:
+    "You mark which apps are most critical to your org, and Access Intelligence surfaces the riskiest accounts and weakest links in those apps, so you can focus on what matters most.",
+  trackImprovementsAcrossYourTeam:
+    "Track improvements across your team and show off your wins to leadership with Access Intelligence's reporting and analytics features.",
+  membersAreAutomaticallyNotified:
+    "Members are automatically notified of security risks and can take action to resolve them, making it easier than ever to maintain a strong security posture across your organization.",
+  importYourOrgDataToGetStarted: "Import your org data to get started",
+  onceItHasTheVaultData:
+    "Once it has the vault data, Access Intelligence can start surfacing insights and recommendations to help you improve your organization's security.",
+  skip: "Skip",
+  back: "Back",
+  next: "Next",
+  importData: "Import Data",
+});
+
 export default {
   title: "Access Intelligence/NewAdminWelcomeDialog",
   component: NewAdminWelcomeDialogComponent,
@@ -26,7 +49,7 @@ export default {
     moduleMetadata({
       imports: [VaultCarouselModule, DialogModule, ButtonModule, TypographyModule],
       providers: [
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: I18nService, useValue: mockI18nService },
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: OnboardingService, useValue: mockOnboardingService },
         { provide: DIALOG_DATA, useValue: { organizationId: mockOrganizationId } },
