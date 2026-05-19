@@ -211,7 +211,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       pageTitle: {
         key: "createAccount",
       },
-      adjustedLayout: this.registrationStartComponentService.dataEntryAdjustedLayout, // exists only on ExtensionAnonLayoutWrapperData. Partial cast allows this excess property.
+      adjustedLayout: this.registrationStartComponentService.adjustLayoutOnDataEntryScreen, // exists only on ExtensionAnonLayoutWrapperData. Partial cast allows this excess property.
     } as Partial<AnonLayoutWrapperData>);
     this.registrationStartStateChange.emit(this.state);
   }

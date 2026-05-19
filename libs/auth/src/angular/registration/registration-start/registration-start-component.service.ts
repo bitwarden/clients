@@ -3,5 +3,5 @@ export abstract class RegistrationStartComponentService {
   abstract showDataEntryPageIcon: boolean;
 
   /** Whether the data entry screen should use the anon-layout adjusted layout (left-aligned, reduced padding) */
-  abstract dataEntryAdjustedLayout: boolean;
+  abstract adjustLayoutOnDataEntryScreen: boolean;
 }
