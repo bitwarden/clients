@@ -1,28 +1,38 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
+  effect,
   inject,
   input,
   signal,
+  viewChild,
 } from "@angular/core";
 
 import { IconComponent } from "../icon/icon.component";
 import { BitwardenIcon } from "../shared/icon";
+import { TooltipDirective } from "../tooltip/tooltip.directive";
+
+import { BULK_ACTIONS_BAR_CONTEXT } from "./bulk-actions-bar-context";
 
 @Component({
   selector: "button[bitBulkAction], a[bitBulkAction]",
   templateUrl: "./bulk-action.component.html",
   imports: [IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [TooltipDirective],
   host: {
-    "[class]": "actionClasses",
+    "[class]": "actionClasses()",
     "[attr.tabindex]": "tabIndex()",
   },
 })
-export class BulkActionComponent implements FocusableOption {
+export class BulkActionComponent implements FocusableOption, AfterViewInit {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly parent = inject(BULK_ACTIONS_BAR_CONTEXT, { optional: true });
+  private readonly tooltip = inject(TooltipDirective, { self: true });
 
   readonly icon = input.required<BitwardenIcon>();
 
@@ -30,6 +40,26 @@ export class BulkActionComponent implements FocusableOption {
   // roving-tabindex pattern: only the active item is part of the document
   // tab order; the rest are reachable only via arrow keys.
   readonly tabIndex = signal(-1);
+
+  private readonly label = viewChild<ElementRef<HTMLSpanElement>>("label");
+  private readonly labelText = signal("");
+
+  protected readonly compact = computed(
+    () => this.parent?.additionalActionsTrigger() === this || (this.parent?.compact() ?? false),
+  );
+
+  constructor() {
+    // Drive the host TooltipDirective's content from compact state. Empty
+    // content is guarded inside the tooltip component template, so nothing
+    // renders while compact is false.
+    effect(() => {
+      this.tooltip.tooltipContent.set(this.compact() ? this.labelText() : "");
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.labelText.set(this.label()?.nativeElement.textContent?.trim() ?? "");
+  }
 
   focus(): void {
     // focusVisible is not yet in TypeScript's FocusOptions but is supported in all modern browsers
@@ -42,12 +72,11 @@ export class BulkActionComponent implements FocusableOption {
     return (this.elementRef.nativeElement as HTMLButtonElement).disabled === true;
   }
 
-  protected readonly actionClasses = [
+  protected readonly actionClasses = computed(() => [
     "tw-inline-flex",
     "tw-items-center",
     "tw-gap-2",
-    "tw-px-3",
-    "tw-py-2",
+    ...(this.compact() ? ["tw-p-2"] : ["tw-px-3", "tw-py-2"]),
     "tw-text-sm",
     "!tw-text-fg-contrast",
     "!tw-no-underline",
@@ -67,5 +96,5 @@ export class BulkActionComponent implements FocusableOption {
     "aria-disabled:!tw-text-fg-inactive",
     "aria-disabled:tw-cursor-default",
     "aria-disabled:hover:tw-bg-transparent",
-  ];
+  ]);
 }

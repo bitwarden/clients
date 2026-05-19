@@ -4,10 +4,20 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { MenuModule } from "../menu";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BulkActionComponent } from "./bulk-action.component";
 import { BulkActionsBarComponent } from "./bulk-actions-bar.component";
+
+// JSDOM does not implement ResizeObserver — provide a no-op stub so the
+// component can construct without throwing.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
 
 @Component({
   imports: [BulkActionsBarComponent, BulkActionComponent],
@@ -245,5 +255,145 @@ describe("BulkActionsBarComponent", () => {
       expect(document.activeElement).toBe(before);
       expect(host.cleared()).toBe(0);
     }));
+  });
+
+  describe("compact mode", () => {
+    const labelSpan = (action: HTMLElement) =>
+      action.querySelector("span") as HTMLSpanElement | null;
+
+    beforeEach(() => {
+      host.count.set(2);
+      fixture.detectChanges();
+    });
+
+    it("defaults to non-compact with labels visible", () => {
+      expect(host.bar().compact()).toBe(false);
+      expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(false);
+      expect(labelSpan(firstAction())?.textContent?.trim()).toBe("First");
+    });
+
+    it("hides labels when compact is true", () => {
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(true);
+      expect(labelSpan(closeBtn())?.classList.contains("tw-hidden")).toBe(true);
+    });
+
+    it("restores labels when compact toggles back off", () => {
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      host.bar().compact.set(false);
+      fixture.detectChanges();
+      expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(false);
+    });
+  });
+});
+
+@Component({
+  imports: [BulkActionsBarComponent, BulkActionComponent, MenuModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-bulk-actions-bar [selectedCount]="count()">
+      <button id="first-action" bitBulkAction icon="bwi-folder" type="button">First</button>
+      @if (showAdditional()) {
+        <a id="export" bitMenuItem href="#">Export</a>
+        <a id="share" bitMenuItem href="#">Share</a>
+      }
+    </bit-bulk-actions-bar>
+  `,
+})
+class AdditionalActionsHostComponent {
+  readonly count = signal(2);
+  readonly showAdditional = signal(true);
+
+  readonly bar = viewChild.required(BulkActionsBarComponent);
+}
+
+describe("BulkActionsBarComponent — additional actions", () => {
+  let fixture: ComponentFixture<AdditionalActionsHostComponent>;
+  let host: AdditionalActionsHostComponent;
+
+  const trigger = () =>
+    fixture.nativeElement.querySelector(
+      'button[bitBulkAction][icon="bwi-ellipsis-v"]',
+    ) as HTMLButtonElement | null;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AdditionalActionsHostComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              selected: "selected",
+              selectionCleared: "Selection cleared",
+              clear: "Clear",
+              bulkActionsBar: "Bulk actions",
+              bulkActionsBarAnnouncement: "__$1__ items selected. Press __$2__+B.",
+              additionalActions: "Additional actions",
+            }),
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AdditionalActionsHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+    document.body.setAttribute("tabindex", "-1");
+    document.body.appendChild(fixture.nativeElement);
+  });
+
+  afterEach(() => {
+    if (fixture.nativeElement.parentNode) {
+      fixture.nativeElement.parentNode.removeChild(fixture.nativeElement);
+    }
+    document.body.removeAttribute("tabindex");
+  });
+
+  it("does not render the trigger when no bitMenuItem is projected", () => {
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    expect(trigger()).toBeNull();
+  });
+
+  it("renders an ellipsis trigger when bitMenuItem entries are projected", () => {
+    const btn = trigger();
+    expect(btn).not.toBeNull();
+    expect(btn!.querySelector("bit-icon")).not.toBeNull();
+  });
+
+  it("requests the menu open above the trigger (anchored to the trigger's end edge)", () => {
+    expect(trigger()!.getAttribute("position")).toBe("above-end");
+  });
+
+  it("keeps the trigger label hidden even when the bar is not compact", () => {
+    expect(host.bar().compact()).toBe(false);
+    const labelSpan = trigger()!.querySelector("span") as HTMLSpanElement;
+    expect(labelSpan.classList.contains("tw-hidden")).toBe(true);
+    expect(labelSpan.textContent?.trim()).toBe("Additional actions");
+  });
+
+  it("opens the menu when the trigger is clicked", () => {
+    const btn = trigger()!;
+    expect(btn.getAttribute("aria-expanded")).toBe("false");
+    btn.click();
+    fixture.detectChanges();
+    expect(btn.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("includes the trigger in the toolbar's roving tabindex", () => {
+    // `End` jumps to the last item in the FocusKeyManager — if the trigger
+    // were missing from the items list, focus would land on the last
+    // bitBulkAction instead.
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(trigger());
   });
 });

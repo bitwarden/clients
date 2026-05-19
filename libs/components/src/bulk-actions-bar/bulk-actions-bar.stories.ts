@@ -5,6 +5,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { CheckboxModule } from "../checkbox";
+import { MenuModule } from "../menu";
 import { TableDataSource } from "../table/table-data-source";
 import { TableModule } from "../table/table.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -21,6 +22,7 @@ type Row = { id: number; name: string; type: string };
     CommonModule,
     TableModule,
     CheckboxModule,
+    MenuModule,
     BulkActionsBarComponent,
     BulkActionComponent,
   ],
@@ -65,6 +67,8 @@ type Row = { id: number; name: string; type: string };
       <button bitBulkAction icon="bwi-folder" type="button">Move</button>
       <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
       <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
+      <a bitMenuItem href="javascript:void(0)">Export</a>
+      <a bitMenuItem href="javascript:void(0)">Share</a>
     </bit-bulk-actions-bar>
   `,
 })
@@ -129,6 +133,7 @@ export default {
         CommonModule,
         TableModule,
         CheckboxModule,
+        MenuModule,
         StoryBulkActionsTableComponent,
       ],
       providers: [
@@ -147,6 +152,7 @@ export default {
               move: "Move",
               archive: "Archive",
               delete: "Delete",
+              additionalActions: "Additional actions",
             }),
         },
       ],
@@ -175,8 +181,56 @@ export const Default: Story = {
   }),
 };
 
+/**
+ * Drop `<a bitMenuItem>` (or `<button bitMenuItem>`) entries into the bar's
+ * content alongside `bitBulkAction` buttons. When any are present, the bar
+ * renders an icon-only "Additional actions" trigger at the end of the action
+ * row that opens a `bit-menu` populated with the projected items.
+ */
+export const WithAdditionalActions: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
+        <button bitBulkAction icon="bwi-folder" type="button">Move</button>
+        <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
+        <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
+
+        <a bitMenuItem href="javascript:void(0)">Export</a>
+        <a bitMenuItem href="javascript:void(0)">Share</a>
+        <a bitMenuItem href="javascript:void(0)">Move to organization</a>
+      </bit-bulk-actions-bar>
+    `,
+  }),
+};
+
 export const WithTableSelection: Story = {
   render: () => ({
     template: /*html*/ `<story-bulk-actions-table></story-bulk-actions-table>`,
+  }),
+};
+
+/**
+ * Wraps the bar in a narrow container that establishes a containing block for
+ * its `position: fixed` wrapper (via `transform`), so the ResizeObserver-driven
+ * compact mode can be exercised in Storybook: labels collapse to icons and
+ * surface via tooltip once the available width drops below the bar's natural
+ * width.
+ */
+export const Compact: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div
+        class="tw-relative tw-w-[280px] tw-h-32 tw-border tw-border-dashed tw-border-secondary-300"
+        style="transform: translateX(0)"
+      >
+        <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
+          <button bitBulkAction icon="bwi-folder" type="button">Move</button>
+          <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
+          <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
+        </bit-bulk-actions-bar>
+      </div>
+    `,
   }),
 };

@@ -1,4 +1,4 @@
-<div class="tw-fixed tw-bottom-0 tw-inset-x-0 tw-z-50 tw-flex tw-justify-center">
+<div #wrapper class="tw-fixed tw-bottom-0 tw-inset-x-0 tw-z-50 tw-flex tw-justify-center">
   <div role="status" aria-live="polite" class="tw-sr-only">
     {{ announcement() }}
   </div>
@@ -34,6 +34,22 @@
 
     <div class="tw-flex tw-items-center tw-gap-2">
       <ng-content></ng-content>
+
+      @if (hasAdditionalActions()) {
+        <button
+          #additionalActionsTrigger
+          bitBulkAction
+          icon="bwi-ellipsis-v"
+          type="button"
+          [bitMenuTriggerFor]="additionalActionsMenu"
+          position="above-end"
+        >
+          {{ "additionalActions" | i18n }}
+        </button>
+        <bit-menu #additionalActionsMenu [ariaLabel]="'additionalActions' | i18n">
+          <ng-content select="[bitMenuItem]"></ng-content>
+        </bit-menu>
+      }
     </div>
   </div>
 </div>

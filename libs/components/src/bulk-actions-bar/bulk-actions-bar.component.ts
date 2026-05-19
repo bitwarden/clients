@@ -1,11 +1,13 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { DOCUMENT } from "@angular/common";
 import {
-  AfterContentInit,
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   OnDestroy,
+  afterNextRender,
   computed,
   contentChildren,
   inject,
@@ -20,18 +22,31 @@ import { takeUntil } from "rxjs/operators";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { MenuItemComponent } from "../menu/menu-item.component";
+import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
+import { MenuComponent } from "../menu/menu.component";
+
 import { BulkActionComponent } from "./bulk-action.component";
+import { BULK_ACTIONS_BAR_CONTEXT, BulkActionsBarContext } from "./bulk-actions-bar-context";
+
+/**
+ * Slack between the bar's intrinsic width and the wrapper width that triggers
+ * compact mode. Engaging compact while the bar still has breathing room avoids
+ * a "just barely fits" state where the bar visually crowds the viewport.
+ */
+const COMPACT_THRESHOLD_BUFFER_PX = 48;
 
 @Component({
   selector: "bit-bulk-actions-bar",
   templateUrl: "./bulk-actions-bar.component.html",
-  imports: [I18nPipe, BulkActionComponent],
+  imports: [I18nPipe, BulkActionComponent, MenuComponent, MenuTriggerForDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(document:keydown)": "handleShortcut($event)",
   },
+  providers: [{ provide: BULK_ACTIONS_BAR_CONTEXT, useExisting: BulkActionsBarComponent }],
 })
-export class BulkActionsBarComponent implements AfterContentInit, OnDestroy {
+export class BulkActionsBarComponent implements BulkActionsBarContext, AfterViewInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly i18nService = inject(I18nService);
 
@@ -41,11 +56,28 @@ export class BulkActionsBarComponent implements AfterContentInit, OnDestroy {
   readonly clear = outputFromObservable(this.clear$);
 
   protected readonly bar = viewChild<ElementRef<HTMLElement>>("bar");
+  protected readonly wrapper = viewChild.required<ElementRef<HTMLElement>>("wrapper");
   protected readonly closeBtn = viewChild(BulkActionComponent);
 
+  readonly additionalActionsTrigger = viewChild("additionalActionsTrigger", {
+    read: BulkActionComponent,
+  });
+
   private readonly actions = contentChildren(BulkActionComponent);
+  private readonly additionalActions = contentChildren(MenuItemComponent);
+  protected readonly hasAdditionalActions = computed(() => this.additionalActions().length > 0);
 
   protected readonly visible = computed(() => this.selectedCount() > 0);
+
+  /**
+   * The bar's intrinsic width (in px) measured once after first render, when all
+   * action labels are visible. Used both as the cap (`max-width`) and as the
+   * threshold for entering compact mode.
+   */
+  protected readonly initialBarWidth = signal(0);
+
+  /** True when the wrapper is narrower than the bar's intrinsic width. */
+  readonly compact = signal(false);
 
   private readonly shortcutKey = computed(() => {
     const nav = this.document.defaultView?.navigator;
@@ -76,13 +108,49 @@ export class BulkActionsBarComponent implements AfterContentInit, OnDestroy {
 
   private readonly keyManager = signal<FocusKeyManager<BulkActionComponent> | undefined>(undefined);
   private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
-  ngAfterContentInit(): void {
+  constructor() {
+    afterNextRender(() => {
+      const barEl = this.bar()?.nativeElement;
+      const wrapperEl = this.wrapper().nativeElement;
+      if (!barEl) {
+        return;
+      }
+
+      // Measure the bar's intrinsic width once. Pinning `min-width: max-content`
+      // for the read prevents the bar's flex parent from shrinking it below its
+      // content size when the bar mounts in a constrained context. Even if the
+      // measurement is slightly off, the `COMPACT_THRESHOLD_BUFFER_PX` below
+      // absorbs the imprecision — the bar is never width-capped, so an
+      // under-read just causes compact mode to engage a few pixels earlier.
+      const previousMinWidth = barEl.style.minWidth;
+      barEl.style.minWidth = "max-content";
+      this.initialBarWidth.set(Math.ceil(barEl.getBoundingClientRect().width));
+      barEl.style.minWidth = previousMinWidth;
+
+      const observer = new ResizeObserver(() => {
+        const threshold = this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX;
+        this.compact.set(wrapperEl.clientWidth < threshold);
+      });
+      observer.observe(wrapperEl);
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // Built in ngAfterViewInit (not ngAfterContentInit) so the additional-
+    // actions trigger — which only renders once the bitMenuItem content
+    // children resolve and the @if branch ticks through — is available.
     const closeBtn = this.closeBtn();
     if (closeBtn == null) {
       return;
     }
     const items: BulkActionComponent[] = [closeBtn, ...this.actions()];
+    const trigger = this.additionalActionsTrigger();
+    if (trigger) {
+      items.push(trigger);
+    }
 
     const manager = new FocusKeyManager<BulkActionComponent>(items)
       .withHorizontalOrientation("ltr")
