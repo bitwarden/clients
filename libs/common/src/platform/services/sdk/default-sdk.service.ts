@@ -192,10 +192,7 @@ export class DefaultSdkService implements SdkService {
         return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
             if (
-              env == null ||
-              kdfParams == null ||
-              accountCryptographicState == null ||
-              userKey == null
+              env == null
             ) {
               return undefined;
             }
@@ -205,6 +202,15 @@ export class DefaultSdkService implements SdkService {
               new JsTokenProvider(this.apiService, userId),
               settings,
             );
+
+            // Returns a locked SDK client, if any of these values are missing
+            if (
+              kdfParams == null
+              || accountCryptographicState == null
+              || userKey == null
+            ) {
+              return client;
+            }
 
             await this.initializeClient(
               userId,

@@ -85,7 +85,7 @@ export class PinService implements PinServiceAbstraction {
     userId: UserId,
     fn: (pinSettingsClient: PinSettingsClient) => TResult,
   ): Promise<TResult> {
-    return await withPasswordManagerSdk(userId, this.sdkService, this.registerSdkService, (sdk) => {
+    return await withPasswordManagerSdk(userId, this.sdkService, (sdk) => {
       return fn(sdk.user_crypto_management().pin_settings());
     });
   }

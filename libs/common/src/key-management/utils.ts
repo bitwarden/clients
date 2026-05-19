@@ -28,35 +28,15 @@ export async function firstValueFromOrThrow<T>(
 export async function withPasswordManagerSdk<TResult>(
   userId: UserId,
   sdkService: SdkService,
-  registerSdkService: RegisterSdkService,
   passedInFunction: (sdk: PasswordManagerClient) => TResult,
 ): Promise<TResult> {
-  try {
-    return await firstValueFrom(
-      sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          using ref = sdk.take();
-          return passedInFunction(ref.value);
-        }),
-        catchError(() => {
-          throw new Error("SDK client not available");
-        }),
-      ),
-    );
-  } catch (error) {
-    // If the error is not "SDK client not available", we re-throw it. Otherwise, try on the register client,
-    // since the vault appears to be locked.
-    if (!(error instanceof Error && error.message === "SDK client not available")) {
-      throw error;
-    }
+  return await firstValueFrom(
+    sdkService.userClient$(userId).pipe(
+      map((sdk) => {
+        using ref = sdk.take();
+        return passedInFunction(ref.value);
+      }),
+    ),
+  );
 
-    return firstValueFrom(
-      registerSdkService.registerClient$(userId).pipe(
-        map((client) => {
-          using ref = client.take();
-          return passedInFunction(ref.value);
-        }),
-      ),
-    );
-  }
 }
