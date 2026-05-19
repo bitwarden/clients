@@ -200,13 +200,14 @@ export class DefaultSdkService implements SdkService {
               new JsTokenProvider(this.apiService, userId),
               settings,
             );
-
+            await this.initializeClient(userId, client);
+            
             // Returns a locked SDK client, if any of these values are missing
             if (kdfParams == null || accountCryptographicState == null || userKey == null) {
               return client;
             }
 
-            await this.initializeClient(
+            await this.initializeClientCrypto(
               userId,
               client,
               account,
@@ -244,7 +245,16 @@ export class DefaultSdkService implements SdkService {
     return client$;
   }
 
-  private async initializeClient(
+  private async initializeClient(userId: UserId, client: PasswordManagerClient) {
+    // Initialize the client managed repositories.
+    await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
+    client
+      .km_state_bridge()
+      .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
+    await this.loadFeatureFlags(client);
+  }
+
+  private async initializeClientCrypto(
     userId: UserId,
     client: PasswordManagerClient,
     account: AccountInfo,
@@ -253,12 +263,6 @@ export class DefaultSdkService implements SdkService {
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
-    // Initialize the client managed repositories.
-    await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
-    client
-      .km_state_bridge()
-      .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
-    await this.loadFeatureFlags(client);
     if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
       await client.crypto().initialize_user_crypto({
         userId: asUuid(userId),
