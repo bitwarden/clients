@@ -70,7 +70,7 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      void this.ipcService.init();
+      await this.ipcService.init();
       this.taskService.listenForTaskNotifications();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);

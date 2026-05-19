@@ -29,6 +29,8 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -77,6 +79,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
     private readonly routerFocusManager: RouterFocusManagerService,
+    private readonly sharedUnlockFollowerService: SharedUnlockFollowerService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -90,6 +93,11 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    void (async () => {
+      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
+        await this.sharedUnlockFollowerService.start();
+      }
+    })();
     this.ngZone.runOutsideAngular(() => {
       window.onmousemove = () => this.recordActivity();
       window.onmousedown = () => this.recordActivity();
@@ -125,6 +133,7 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           }
           case "locked":
+            this.router.navigate(["/"]);
             await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":

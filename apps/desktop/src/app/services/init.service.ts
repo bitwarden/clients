@@ -8,12 +8,16 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -57,6 +61,9 @@ export class InitService {
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
+    private ipcService: IpcService,
+    private sharedUnlockLeaderService: SharedUnlockLeaderService,
+    private configService: ConfigService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
@@ -105,6 +112,10 @@ export class InitService {
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
 
+      await this.ipcService.init();
+      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
+        await this.sharedUnlockLeaderService.start();
+      }
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeService.init();

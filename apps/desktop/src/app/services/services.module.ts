@@ -32,6 +32,7 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
   LoginEmailService,
   SsoUrlService,
   UserDecryptionOptionsServiceAbstraction,
@@ -74,6 +75,12 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  SharedUnlockLeaderService,
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -98,6 +105,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -165,6 +173,7 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { IpcRendererService } from "../../platform/services/ipc-renderer.service";
 import {
   DefaultServerCommunicationConfigService,
   ServerCommunicationConfigPlatformApiService,
@@ -186,6 +195,7 @@ import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
+import { UnlockService } from "@bitwarden/unlock";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 
@@ -322,6 +332,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       LogService,
       AuthServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -379,11 +390,32 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       DesktopBiometricsService,
       AccountCryptographicStateService,
+      IpcService,
     ],
   }),
   safeProvider({
     provide: DesktopSettingsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockLeaderService,
+    useClass: DefaultSharedUnlockLeaderService,
+    deps: [
+      IpcService,
+      AccountService,
+      LockService,
+      KeyServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      VaultTimeoutSettingsService,
+      EnvironmentService,
+      SharedUnlockSettingsService,
+      UnlockService,
+    ],
   }),
   safeProvider({
     provide: DesktopAutofillSettingsService,
@@ -638,6 +670,11 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       DialogService,
     ],
+  }),
+  safeProvider({
+    provide: IpcService,
+    useClass: IpcRendererService,
+    deps: [],
   }),
 ];
 

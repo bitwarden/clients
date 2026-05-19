@@ -31,6 +31,8 @@ export class IpcContentScriptManagerService {
           await BrowserApi.registerContentScriptsMv3([
             {
               id: IPC_CONTENT_SCRIPT_ID,
+              // WARNING: This means that all websites can talk to the IPC layer.
+              // Before sharing unlock state, this needs to be fixed.
               matches: ["https://*/*"],
               js: ["content/ipc-content-script.js"],
             },
