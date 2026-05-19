@@ -507,7 +507,7 @@ export class LoginCommand {
         const answer: inquirer.Answers = await inquirer.createPromptModule({
           output: process.stderr,
         })({
-          type: "input",
+          type: "password",
           name: "clientSecret",
           message:
             (isAdditionalAuthentication ? additionalAuthenticationMessage : "") + "client_secret:",
