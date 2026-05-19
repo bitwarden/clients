@@ -27,7 +27,7 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     id: "org-1" as OrganizationId,
     name: "Acme Corp",
     useInviteLinks: true,
-    useGroups: false,
+    useGroups: true,
     useSecretsManager: false,
     useCustomPermissions: false,
     seats: 10,
@@ -67,16 +67,30 @@ const mockDialogService = {
   open: () => ({ closed: of(undefined) }),
 };
 
+const mockGroups = [
+  { id: "grp-1", name: "Admins" },
+  { id: "grp-2", name: "Developers" },
+  { id: "grp-3", name: "Designers" },
+  { id: "grp-4", name: "Managers" },
+];
+
 const mockGroupApiService = {
-  getAllDetails: () => Promise.resolve([]),
+  getAllDetails: () => Promise.resolve(mockGroups),
 };
 
 const mockUserAdminService = {
   invite: () => Promise.resolve(),
 };
 
+const mockCollections = [
+  { id: "col-1", name: "Engineering", canEditUserAccess: () => true },
+  { id: "col-2", name: "Marketing", canEditUserAccess: () => true },
+  { id: "col-3", name: "Finance", canEditUserAccess: () => true },
+  { id: "col-4", name: "HR", canEditUserAccess: () => true },
+];
+
 const mockCollectionAdminService = {
-  collectionAdminViews$: () => of([]),
+  collectionAdminViews$: () => of(mockCollections),
 };
 
 const mockInviteLinkServiceNoLink = {
