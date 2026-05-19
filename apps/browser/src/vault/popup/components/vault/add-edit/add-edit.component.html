@@ -32,24 +32,37 @@
   </vault-cipher-form>
 
   <popup-footer slot="footer">
-    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
-      {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
-    </button>
-
-    <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
-      {{ "cancel" | i18n }}
-    </button>
-
-    <ng-container slot="end">
-      @if (canDeleteCipher$ | async) {
-        <button
-          [bitAction]="delete"
-          type="button"
-          buttonType="dangerGhost"
-          bitIconButton="bwi-trash"
-          [label]="'delete' | i18n"
-        ></button>
-      }
+    <ng-container *ngIf="fillAfterSave; else defaultFooter">
+      <button [bitAction]="submitAndFill" type="button" bitButton buttonType="primary">
+        {{ "saveAndFill" | i18n }}
+      </button>
+      <button type="submit" form="cipherForm" bitButton buttonType="secondary">
+        {{ "save" | i18n }}
+      </button>
+      <button (click)="handleBackButton()" bitButton type="button" buttonType="ghost" slot="end">
+        {{ "cancel" | i18n }}
+      </button>
     </ng-container>
+    <ng-template #defaultFooter>
+      <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
+        {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
+      </button>
+
+      <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
+        {{ "cancel" | i18n }}
+      </button>
+
+      <ng-container slot="end">
+        @if (canDeleteCipher$ | async) {
+          <button
+            [bitAction]="delete"
+            type="button"
+            buttonType="dangerGhost"
+            bitIconButton="bwi-trash"
+            [label]="'delete' | i18n"
+          ></button>
+        }
+      </ng-container>
+    </ng-template>
   </popup-footer>
 </popup-page>
