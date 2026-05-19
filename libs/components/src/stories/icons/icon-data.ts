@@ -75,6 +75,10 @@ const bitwardenObjects = [
     usage: "Indicates an identity item type.",
   },
   {
+    id: "bwi-passport",
+    usage: "Indicates a passport item type.",
+  },
+  {
     id: "bwi-premium",
     usage: "Relates to premium plans or actions.",
   },

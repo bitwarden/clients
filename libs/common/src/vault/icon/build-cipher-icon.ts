@@ -104,7 +104,7 @@ export function buildCipherIcon(
       icon = "bwi-bank";
       break;
     case CipherType.Passport:
-      icon = "bwi-globe";
+      icon = "bwi-passport";
       break;
     case CipherType.DriversLicense:
       icon = "bwi-id-card";

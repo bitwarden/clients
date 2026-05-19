@@ -173,22 +173,22 @@ describe("buildCipherIcon", () => {
       type: CipherType.Passport,
     } as any as CipherView;
 
-    it("returns bwi-globe icon", () => {
+    it("returns bwi-passport icon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-passport",
         image: null,
         fallbackImage: "",
         imageEnabled: true,
       });
     });
 
-    it("returns bwi-globe icon when showFavicon is false", () => {
+    it("returns bwi-passport icon when showFavicon is false", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-passport",
         image: null,
         fallbackImage: "",
         imageEnabled: false,
