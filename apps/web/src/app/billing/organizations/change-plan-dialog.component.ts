@@ -2,14 +2,16 @@
 // @ts-strict-ignore
 import {
   Component,
-  EventEmitter,
+  computed,
   Inject,
-  Input,
+  input,
   OnDestroy,
   OnInit,
-  Output,
-  ViewChild,
+  output,
+  signal,
+  viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
@@ -45,6 +47,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Cart, CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -114,79 +117,49 @@ interface OnSuccessArgs {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     CardComponent,
+    CartSummaryComponent,
   ],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent: EnterPaymentMethodComponent;
+  // ViewChildren
+  readonly enterPaymentMethodComponent = viewChild(EnterPaymentMethodComponent);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() acceptingSponsorship = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() organizationId: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showFree = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showCancel = false;
+  // Inputs
+  readonly acceptingSponsorship = input(false);
+  readonly showFree = input(false);
+  readonly showCancel = input(false);
+  readonly providerId = input<string | null>(null);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get productTier(): ProductTierType {
-    return this._productTier;
-  }
+  /**
+   * Initial product tier for form initialization only.
+   * After initialization, the form control becomes the source of truth.
+   */
+  readonly initialProductTier = input<ProductTierType>(ProductTierType.Free);
 
-  set productTier(product: ProductTierType) {
-    this._productTier = product;
-    this.formGroup?.controls?.productTier?.setValue(product);
-  }
+  /**
+   * Initial plan for form initialization only.
+   * After initialization, the form control becomes the source of truth.
+   */
+  readonly initialPlan = input<PlanType>(PlanType.Free);
 
-  protected estimatedTax: number = 0;
-  private _productTier = ProductTierType.Free;
-  private _familyPlan: PlanType;
+  // Outputs
+  readonly onSuccess = output<OnSuccessArgs>();
+  readonly onCanceled = output<void>();
+  readonly onTrialBillingSuccess = output<{ orgId: string; subLabelText: string }>();
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get plan(): PlanType {
-    return this._plan;
-  }
-
-  set plan(plan: PlanType) {
-    this._plan = plan;
-    this.formGroup?.controls?.plan?.setValue(plan);
-  }
-
-  private _plan = PlanType.Free;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() providerId?: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onCanceled = new EventEmitter<void>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onTrialBillingSuccess = new EventEmitter();
-
-  protected discountPercentageFromSub: number;
-  protected loading = true;
-  protected planCards: PlanCard[];
-  protected ResultType = ChangePlanDialogResultType;
-
-  selfHosted = false;
-  productTypes = ProductTierType;
-  formPromise: Promise<string>;
-  singleOrgPolicyAppliesToActiveUser = false;
-  isInTrialFlow = false;
-  discount = 0;
+  // Signal-based state
+  protected readonly estimatedTax = signal(0);
+  protected readonly discount = signal(0);
+  private readonly _familyPlan = signal<PlanType | null>(null);
+  protected readonly discountPercentageFromSub = signal(0);
+  protected readonly loading = signal(true);
+  protected readonly planCards = signal<PlanCard[]>([]);
+  protected readonly ResultType = ChangePlanDialogResultType;
+  protected readonly selfHosted = signal(false);
+  protected readonly productTypes = ProductTierType;
+  protected readonly formPromise = signal<Promise<string> | null>(null);
+  protected readonly singleOrgPolicyAppliesToActiveUser = signal(false);
+  protected readonly isInTrialFlow = signal(false);
 
   formGroup = this.formBuilder.group({
     name: [""],
@@ -195,8 +168,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     premiumAccessAddon: [false],
     additionalSeats: [0, [Validators.min(0), Validators.max(100000)]],
     clientOwnerEmail: ["", [Validators.email]],
-    plan: [this.plan],
-    productTier: [this.productTier],
+    plan: [this.initialPlan()],
+    productTier: [this.initialProductTier()],
+  });
+
+  // Convert form observables to signals for reactivity
+  protected readonly formValues = toSignal(this.formGroup.valueChanges, {
+    initialValue: this.formGroup.value,
   });
 
   billingFormGroup = this.formBuilder.group({
@@ -204,29 +182,212 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
-  planType: string;
-  selectedPlan: PlanResponse;
-  selectedInterval: number = 1;
-  planIntervals = PlanInterval;
-  passwordManagerPlans: PlanResponse[];
-  secretsManagerPlans: PlanResponse[];
-  organization: Organization;
-  sub: OrganizationSubscriptionResponse;
-  dialogHeaderName: string;
-  currentPlanName: string;
-  showPayment: boolean = false;
-  totalOpened: boolean = false;
-  currentPlan: PlanResponse;
-  isCardStateDisabled = false;
-  focusedIndex: number | null = null;
-  plans: ListResponse<PlanResponse>;
-  isSubscriptionCanceled: boolean = false;
-  secretsManagerTotal: number;
+  readonly planType = signal<string>("");
+  readonly selectedPlan = signal<PlanResponse | null>(null);
+  readonly selectedInterval = signal<number>(1);
+  readonly planIntervals = PlanInterval;
+  readonly passwordManagerPlans = signal<PlanResponse[]>([]);
+  readonly secretsManagerPlans = signal<PlanResponse[]>([]);
+  readonly organization = signal<Organization | null>(null);
+  readonly sub = signal<OrganizationSubscriptionResponse | null>(null);
+  readonly dialogHeaderName = signal<string>("");
+  readonly currentPlanName = signal<string>("");
+  readonly showPayment = signal<boolean>(false);
+  readonly totalOpened = signal<boolean>(false);
+  readonly currentPlan = signal<PlanResponse | null>(null);
+  readonly focusedIndex = signal<number | null>(null);
+  readonly plans = signal<ListResponse<PlanResponse> | null>(null);
+  readonly isSubscriptionCanceled = signal<boolean>(false);
+  readonly secretsManagerTotal = signal<number>(0);
+  readonly organizationId = signal<string>("");
 
-  paymentMethod: MaskedPaymentMethod | null;
-  billingAddress: BillingAddress | null;
+  readonly paymentMethod = signal<MaskedPaymentMethod | null>(null);
+  readonly billingAddress = signal<BillingAddress | null>(null);
 
   private destroy$ = new Subject<void>();
+
+  // Computed signals
+  readonly upgradeRequiresPaymentMethod = computed(() => {
+    const isFreeTier = this.organization()?.productTierType === ProductTierType.Free;
+    const shouldHideFree = !this.showFree();
+    const hasNoPaymentSource = !this.paymentMethod();
+
+    return isFreeTier && shouldHideFree && hasNoPaymentSource;
+  });
+
+  readonly selectedPlanInterval = computed(() => {
+    if (this.isSubscriptionCanceled()) {
+      return this.currentPlan()?.isAnnual ? "year" : "month";
+    }
+    return this.selectedPlan()?.isAnnual ? "year" : "month";
+  });
+
+  readonly selectableProducts = computed(() => {
+    if (this.isSubscriptionCanceled()) {
+      const resubPlan = this.reSubscribablePlan();
+      return resubPlan ? [resubPlan] : [];
+    }
+
+    const pmPlans = this.passwordManagerPlans() ?? [];
+    const familyPlanType = this._familyPlan();
+
+    if (this.acceptingSponsorship()) {
+      const familyPlan = pmPlans.find((plan) => plan.type === familyPlanType);
+      if (familyPlan) {
+        this.discount.set(familyPlan.PasswordManager.basePrice);
+        return [familyPlan];
+      }
+      return [];
+    }
+
+    const businessOwnedIsChecked = this.formValues()?.businessOwned ?? false;
+    const selectedInterval = this.selectedInterval();
+    const cp = this.currentPlan();
+    const org = this.organization();
+
+    const result = pmPlans.filter(
+      (plan) =>
+        plan.type !== PlanType.Custom &&
+        (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
+        (this.showFree() || plan.productTier !== ProductTierType.Free) &&
+        (plan.productTier === ProductTierType.Free ||
+          plan.productTier === ProductTierType.TeamsStarter ||
+          (selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
+          (selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === familyPlanType) &&
+        (!cp || cp.upgradeSortOrder < plan.upgradeSortOrder) &&
+        this.planIsEnabled(plan),
+    );
+
+    if (
+      cp?.productTier === ProductTierType.Free &&
+      selectedInterval === PlanInterval.Monthly &&
+      !org?.useSecretsManager
+    ) {
+      const familyPlan = pmPlans.find((plan) => plan.productTier == ProductTierType.Families);
+      if (familyPlan) {
+        result.push(familyPlan);
+      }
+    }
+
+    if (org?.useSecretsManager && cp?.productTier === ProductTierType.Free) {
+      const familyPlanIndex = result.findIndex(
+        (plan) => plan.productTier === ProductTierType.Families,
+      );
+
+      if (familyPlanIndex !== -1) {
+        result.splice(familyPlanIndex, 1);
+      }
+    }
+
+    if (cp && cp.productTier !== ProductTierType.Free) {
+      result.push(cp);
+    }
+
+    result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
+
+    return result;
+  });
+
+  readonly selectablePlans = computed(() => {
+    const selectedProductTierType = this.formValues()?.productTier;
+    const result =
+      this.passwordManagerPlans()?.filter(
+        (plan) => plan.productTier === selectedProductTierType && this.planIsEnabled(plan),
+      ) || [];
+
+    result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
+    return result;
+  });
+
+  readonly teamsStarterPlanIsAvailable = computed(() =>
+    this.selectablePlans().some((plan) => plan.type === PlanType.TeamsStarter),
+  );
+
+  readonly supportsTaxId = computed(() => {
+    return this.formValues()?.productTier !== ProductTierType.Families;
+  });
+
+  readonly cartData = computed<Cart | null>(() => {
+    const plan = this.selectedPlan();
+    if (!plan) {
+      return null;
+    }
+
+    const cadence = plan.isAnnual ? "annually" : "monthly";
+
+    // Password Manager seats
+    const pmSeats = this.passwordManagerSeats();
+    const pmSeatCost = plan.PasswordManager.basePrice
+      ? plan.isAnnual
+        ? plan.PasswordManager.basePrice / 12
+        : plan.PasswordManager.basePrice
+      : plan.PasswordManager.seatPrice;
+
+    const cart: Cart = {
+      passwordManager: {
+        seats: {
+          translationKey: "members",
+          quantity: pmSeats,
+          cost: pmSeatCost,
+        },
+      },
+      cadence,
+      estimatedTax: this.estimatedTax(),
+    };
+
+    // Additional storage
+    const storage = this.storageGb();
+    if (plan.PasswordManager.hasAdditionalStorageOption && storage > 0) {
+      cart.passwordManager.additionalStorage = {
+        translationKey: "additionalStorageGbMessage",
+        translationParams: [storage],
+        quantity: storage,
+        cost: plan.PasswordManager.additionalStoragePricePerGb,
+      };
+    }
+
+    // Secrets Manager
+    if (this.organization()?.useSecretsManager && plan.SecretsManager) {
+      const smSeats = this.sub()?.smSeats || 0;
+      const smSeatCost = plan.SecretsManager.basePrice
+        ? plan.isAnnual
+          ? plan.SecretsManager.basePrice / 12
+          : plan.SecretsManager.basePrice
+        : plan.SecretsManager.seatPrice;
+
+      cart.secretsManager = {
+        seats: {
+          translationKey: "members",
+          quantity: smSeats,
+          cost: smSeatCost,
+        },
+      };
+
+      // Additional service accounts
+      const addlSvcAccts = this.additionalServiceAccount();
+      if (plan.SecretsManager.hasAdditionalServiceAccountOption && addlSvcAccts > 0) {
+        cart.secretsManager.additionalServiceAccounts = {
+          translationKey: "serviceAccounts",
+          quantity: addlSvcAccts,
+          cost: plan.SecretsManager.additionalPricePerServiceAccount,
+        };
+      }
+    }
+
+    // Cart-level discount
+    const discountPct = this.discountPercentageFromSub();
+    if (discountPct > 0 && !this.isSecretsManagerTrial()) {
+      cart.discounts = [
+        {
+          type: DiscountTypes.PercentOff,
+          value: discountPct,
+        },
+      ];
+    }
+
+    return cart;
+  });
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,
@@ -251,61 +412,65 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     if (this.dialogParams.organizationId) {
-      this.currentPlanName = this.resolvePlanName(this.dialogParams.productTierType);
-      this.sub =
+      this.currentPlanName.set(this.resolvePlanName(this.dialogParams.productTierType));
+      const subscription =
         this.dialogParams.subscription ??
         (await this.organizationApiService.getSubscription(this.dialogParams.organizationId));
-      this.dialogHeaderName = this.resolveHeaderName(this.sub);
-      this.organizationId = this.dialogParams.organizationId;
-      this.currentPlan = this.sub?.plan;
-      this.selectedPlan = this.sub?.plan;
+      this.sub.set(subscription);
+      this.dialogHeaderName.set(this.resolveHeaderName(subscription));
+      this.organizationId.set(this.dialogParams.organizationId);
+      this.currentPlan.set(subscription?.plan);
+      this.selectedPlan.set(subscription?.plan);
       const userId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      this.organization = await firstValueFrom(
+      const org = await firstValueFrom(
         this.organizationService
           .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
+          .pipe(getOrganizationById(this.organizationId())),
       );
-      if (this.sub?.subscription?.status !== "canceled") {
+      this.organization.set(org);
+      if (subscription?.subscription?.status !== "canceled") {
         try {
-          const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
+          const subscriber: BitwardenSubscriber = { type: "organization", data: org };
           const [paymentMethod, billingAddress] = await Promise.all([
             this.subscriberBillingClient.getPaymentMethod(subscriber),
             this.subscriberBillingClient.getBillingAddress(subscriber),
           ]);
 
-          this.paymentMethod = paymentMethod;
-          this.billingAddress = billingAddress;
+          this.paymentMethod.set(paymentMethod);
+          this.billingAddress.set(billingAddress);
         } catch (error) {
           this.billingNotificationService.handleError(error);
         }
       }
     }
 
-    if (!this.selfHosted) {
-      this.plans = await this.apiService.getPlans();
-      this.passwordManagerPlans = this.plans.data.filter((plan) => !!plan.PasswordManager);
-      this.secretsManagerPlans = this.plans.data.filter((plan) => !!plan.SecretsManager);
+    if (!this.selfHosted()) {
+      const plansList = await this.apiService.getPlans();
+      this.plans.set(plansList);
+      this.passwordManagerPlans.set(plansList.data.filter((plan) => !!plan.PasswordManager));
+      this.secretsManagerPlans.set(plansList.data.filter((plan) => !!plan.SecretsManager));
 
-      if (
-        this.productTier === ProductTierType.Enterprise ||
-        this.productTier === ProductTierType.Teams
-      ) {
+      const productTier = this.formValues()?.productTier;
+      if (productTier === ProductTierType.Enterprise || productTier === ProductTierType.Teams) {
         this.formGroup.controls.businessOwned.setValue(true);
       }
     }
 
-    this._familyPlan = PlanType.FamiliesAnnually;
-    if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
-      const upgradedPlan = this.passwordManagerPlans.find((plan) =>
-        this.currentPlan.productTier === ProductTierType.Free
-          ? plan.type === this._familyPlan
-          : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
+    this._familyPlan.set(PlanType.FamiliesAnnually);
+    const cp = this.currentPlan();
+    if (cp && cp.productTier !== ProductTierType.Enterprise) {
+      const upgradedPlan = this.passwordManagerPlans().find((plan) =>
+        cp.productTier === ProductTierType.Free
+          ? plan.type === this._familyPlan()
+          : plan.upgradeSortOrder == cp.upgradeSortOrder + 1,
       );
 
-      this.plan = upgradedPlan.type;
-      this.productTier = upgradedPlan.productTier;
+      if (upgradedPlan) {
+        this.formGroup.controls.plan.setValue(upgradedPlan.type);
+        this.formGroup.controls.productTier.setValue(upgradedPlan.productTier);
+      }
     }
     this.upgradeFlowPrefillForm();
 
@@ -316,14 +481,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {
-        this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
+        this.singleOrgPolicyAppliesToActiveUser.set(policyAppliesToActiveUser);
       });
 
-    if (!this.selfHosted) {
+    if (!this.selfHosted()) {
       this.changedProduct();
     }
 
-    this.planCards = [
+    this.planCards.set([
       {
         name: this.i18nService.t("planNameTeams"),
         selected: true,
@@ -332,13 +497,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         name: this.i18nService.t("planNameEnterprise"),
         selected: false,
       },
-    ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
+    ]);
+    this.discountPercentageFromSub.set(
+      this.isSecretsManagerTrial() ? 0 : (this.sub()?.customerDiscount?.percentOff ?? 0),
+    );
 
     await this.setInitialPlanSelection();
-    if (!this.isSubscriptionCanceled) {
+    if (!this.isSubscriptionCanceled()) {
       await this.refreshSalesTax();
     }
 
@@ -354,14 +519,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.loading = false;
+    this.loading.set(false);
   }
 
   resolveHeaderName(subscription: OrganizationSubscriptionResponse): string {
     if (subscription.subscription != null) {
-      this.isSubscriptionCanceled =
-        subscription.subscription.cancelled && this.sub?.plan.productTier !== ProductTierType.Free;
-      if (this.isSubscriptionCanceled) {
+      const isCanceled =
+        subscription.subscription.cancelled &&
+        this.sub()?.plan.productTier !== ProductTierType.Free;
+      this.isSubscriptionCanceled.set(isCanceled);
+      if (isCanceled) {
         return this.i18nService.t("restartSubscription");
       }
     }
@@ -373,22 +540,23 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   async setInitialPlanSelection() {
-    this.focusedIndex = this.selectableProducts.length - 1;
-    if (!this.isSubscriptionCanceled) {
+    this.focusedIndex.set(this.selectableProducts().length - 1);
+    if (!this.isSubscriptionCanceled()) {
       await this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
     } else {
-      await this.selectPlan(this.reSubscribablePlan);
+      await this.selectPlan(this.reSubscribablePlan());
     }
   }
 
   getPlanByType(productTier: ProductTierType) {
-    return this.selectableProducts.find((product) => product.productTier === productTier);
+    return this.selectableProducts().find((product) => product.productTier === productTier);
   }
 
   isSecretsManagerTrial(): boolean {
+    const subscription = this.sub();
     return (
-      this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
+      subscription?.subscription?.items?.some((item) =>
+        subscription?.customerDiscount?.appliesTo?.includes(item.productId),
       ) ?? false
     );
   }
@@ -398,7 +566,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   async updateInterval(event: number) {
-    this.selectedInterval = event;
+    this.selectedInterval.set(event);
     await this.planTypeChanged();
   }
 
@@ -415,31 +583,21 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     ];
   }
 
-  optimizedNgForRender(index: number) {
-    return index;
-  }
-
-  protected getPlanCardContainerClasses(plan: PlanResponse, index: number) {
+  protected getPlanCardContainerClasses(plan: PlanResponse) {
     let cardState: PlanCardState;
 
-    if (plan == this.currentPlan) {
+    // Determine card state without side effects
+    if (plan == this.currentPlan()) {
       cardState = PlanCardState.Disabled;
-      this.isCardStateDisabled = true;
-      this.focusedIndex = index;
-    } else if (plan == this.selectedPlan) {
+    } else if (plan == this.selectedPlan()) {
       cardState = PlanCardState.Selected;
-      this.isCardStateDisabled = false;
-      this.focusedIndex = index;
     } else if (
-      this.selectedInterval === PlanInterval.Monthly &&
+      this.selectedInterval() === PlanInterval.Monthly &&
       plan.productTier == ProductTierType.Families
     ) {
       cardState = PlanCardState.Disabled;
-      this.isCardStateDisabled = true;
-      this.focusedIndex = this.selectableProducts.length - 1;
     } else {
       cardState = PlanCardState.NotSelected;
-      this.isCardStateDisabled = false;
     }
 
     switch (cardState) {
@@ -471,7 +629,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         ];
       }
       case PlanCardState.Disabled: {
-        if (this.isSubscriptionCanceled) {
+        if (this.isSubscriptionCanceled()) {
           return [
             "tw-cursor-not-allowed",
             "tw-bg-secondary-100",
@@ -499,140 +657,54 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected async selectPlan(plan: PlanResponse) {
     if (
-      this.selectedInterval === PlanInterval.Monthly &&
+      this.selectedInterval() === PlanInterval.Monthly &&
       plan.productTier == ProductTierType.Families
     ) {
       return;
     }
 
-    if (plan === this.currentPlan && !this.isSubscriptionCanceled) {
+    if (plan === this.currentPlan() && !this.isSubscriptionCanceled()) {
       return;
     }
-    this.selectedPlan = plan;
+    this.selectedPlan.set(plan);
     this.formGroup.patchValue({ productTier: plan.productTier });
 
     try {
       await this.refreshSalesTax();
     } catch {
-      this.estimatedTax = 0;
+      this.estimatedTax.set(0);
     }
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  get upgradeRequiresPaymentMethod() {
-    const isFreeTier = this.organization?.productTierType === ProductTierType.Free;
-    const shouldHideFree = !this.showFree;
-    const hasNoPaymentSource = !this.paymentMethod;
-
-    return isFreeTier && shouldHideFree && hasNoPaymentSource;
-  }
-
-  get selectedPlanInterval() {
-    if (this.isSubscriptionCanceled) {
-      return this.currentPlan.isAnnual ? "year" : "month";
-    }
-    return this.selectedPlan.isAnnual ? "year" : "month";
-  }
-
-  get reSubscribablePlan() {
-    if (!this.currentPlan) {
+  readonly reSubscribablePlan = computed(() => {
+    const cp = this.currentPlan();
+    if (!cp) {
       throw new Error(
         "Current plan must be set to find the re-subscribable plan for a cancelled subscription.",
       );
     }
-    if (!this.currentPlan.disabled) {
-      return this.currentPlan;
+    if (!cp.disabled) {
+      return cp;
     }
     return (
-      this.passwordManagerPlans.find(
+      this.passwordManagerPlans().find(
         (plan) =>
-          plan.productTier === this.currentPlan.productTier &&
-          plan.isAnnual === this.currentPlan.isAnnual &&
-          !plan.disabled,
-      ) ?? this.currentPlan
+          plan.productTier === cp.productTier && plan.isAnnual === cp.isAnnual && !plan.disabled,
+      ) ?? cp
     );
-  }
+  });
 
-  get selectableProducts() {
-    if (this.isSubscriptionCanceled) {
-      return [this.reSubscribablePlan];
-    }
-
-    if (this.acceptingSponsorship) {
-      const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
-      this.discount = familyPlan.PasswordManager.basePrice;
-      return [familyPlan];
-    }
-
-    const businessOwnedIsChecked = this.formGroup.controls.businessOwned.value;
-
-    const result = this.passwordManagerPlans.filter(
-      (plan) =>
-        plan.type !== PlanType.Custom &&
-        (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
-        (this.showFree || plan.productTier !== ProductTierType.Free) &&
-        (plan.productTier === ProductTierType.Free ||
-          plan.productTier === ProductTierType.TeamsStarter ||
-          (this.selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
-          (this.selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
-        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
-        (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
-        this.planIsEnabled(plan),
-    );
-
-    if (
-      this.currentPlan.productTier === ProductTierType.Free &&
-      this.selectedInterval === PlanInterval.Monthly &&
-      !this.organization.useSecretsManager
-    ) {
-      const familyPlan = this.passwordManagerPlans.find(
-        (plan) => plan.productTier == ProductTierType.Families,
-      );
-      result.push(familyPlan);
-    }
-
-    if (
-      this.organization.useSecretsManager &&
-      this.currentPlan.productTier === ProductTierType.Free
-    ) {
-      const familyPlanIndex = result.findIndex(
-        (plan) => plan.productTier === ProductTierType.Families,
-      );
-
-      if (familyPlanIndex !== -1) {
-        result.splice(familyPlanIndex, 1);
-      }
-    }
-
-    if (this.currentPlan.productTier !== ProductTierType.Free) {
-      result.push(this.currentPlan);
-    }
-
-    result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
-
-    return result;
-  }
-
-  get selectablePlans() {
-    const selectedProductTierType = this.formGroup.controls.productTier.value;
-    const result =
-      this.passwordManagerPlans?.filter(
-        (plan) => plan.productTier === selectedProductTierType && this.planIsEnabled(plan),
-      ) || [];
-
-    result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
-    return result;
-  }
-
-  get storageGb() {
+  readonly storageGb = computed(() => {
+    const plan = this.selectedPlan();
     return Math.max(
       0,
-      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
+      (this.sub()?.maxStorageGb ?? 0) - (plan?.PasswordManager.baseStorageGb ?? 0),
     );
+  });
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   passwordManagerSeatTotal(plan: PlanResponse): number {
@@ -640,7 +712,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return plan.PasswordManager.seatPrice * Math.abs(this.sub?.seats || 0);
+    return plan.PasswordManager.seatPrice * Math.abs(this.sub()?.seats || 0);
   }
 
   secretsManagerSeatTotal(plan: PlanResponse, seats: number): number {
@@ -656,7 +728,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
+    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb();
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
@@ -664,92 +736,95 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   additionalServiceAccountTotal(plan: PlanResponse): number {
-    if (
-      !plan.SecretsManager.hasAdditionalServiceAccountOption ||
-      this.additionalServiceAccount == 0
-    ) {
+    const addlSvcAccts = this.additionalServiceAccount();
+    if (!plan.SecretsManager.hasAdditionalServiceAccountOption || addlSvcAccts == 0) {
       return 0;
     }
 
-    return plan.SecretsManager.additionalPricePerServiceAccount * this.additionalServiceAccount;
+    return plan.SecretsManager.additionalPricePerServiceAccount * addlSvcAccts;
   }
 
-  get passwordManagerSubtotal() {
-    if (!this.selectedPlan || !this.selectedPlan.PasswordManager) {
+  readonly passwordManagerSubtotal = computed(() => {
+    const plan = this.selectedPlan();
+    if (!plan || !plan.PasswordManager) {
       return 0;
     }
 
-    let subTotal = this.selectedPlan.PasswordManager.basePrice;
-    if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
-      subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
+    let subTotal = plan.PasswordManager.basePrice;
+    if (plan.PasswordManager.hasAdditionalSeatsOption) {
+      subTotal += this.passwordManagerSeatTotal(plan);
     }
-    if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
-      subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
+    if (plan.PasswordManager.hasPremiumAccessOption) {
+      subTotal += plan.PasswordManager.premiumAccessOptionPrice;
     }
-    if (this.selectedPlan.PasswordManager.hasAdditionalStorageOption) {
-      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    if (plan.PasswordManager.hasAdditionalStorageOption) {
+      subTotal += this.additionalStorageTotal(plan);
     }
-    return subTotal - this.discount;
-  }
+    return subTotal - this.discount();
+  });
+
+  readonly secretsManagerSubtotalValue = computed(() => {
+    const plan = this.selectedPlan();
+    if (!plan || !plan.SecretsManager) {
+      return this.secretsManagerTotal() || 0;
+    }
+
+    if (this.secretsManagerTotal()) {
+      return this.secretsManagerTotal();
+    }
+
+    const total =
+      plan.SecretsManager.basePrice +
+      this.secretsManagerSeatTotal(plan, this.sub()?.smSeats) +
+      this.additionalServiceAccountTotal(plan);
+    return total;
+  });
 
   secretsManagerSubtotal() {
-    const plan = this.selectedPlan;
-    if (!plan || !plan.SecretsManager) {
-      return this.secretsManagerTotal || 0;
-    }
-
-    if (this.secretsManagerTotal) {
-      return this.secretsManagerTotal;
-    }
-
-    this.secretsManagerTotal =
-      plan.SecretsManager.basePrice +
-      this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan);
-    return this.secretsManagerTotal;
+    return this.secretsManagerSubtotalValue();
   }
 
-  get passwordManagerSeats() {
-    if (!this.selectedPlan) {
+  readonly passwordManagerSeats = computed(() => {
+    const plan = this.selectedPlan();
+    if (!plan) {
       return 0;
     }
 
-    if (this.selectedPlan.productTier === ProductTierType.Families) {
-      return this.selectedPlan.PasswordManager.baseSeats;
+    if (plan.productTier === ProductTierType.Families) {
+      return plan.PasswordManager.baseSeats;
     }
-    return this.sub?.seats;
-  }
+    return this.sub()?.seats;
+  });
 
-  get total() {
-    if (!this.organization || !this.selectedPlan) {
+  readonly total = computed(() => {
+    const org = this.organization();
+    const plan = this.selectedPlan();
+    if (!org || !plan) {
       return 0;
     }
 
-    if (this.organization.useSecretsManager) {
-      return this.passwordManagerSubtotal + this.secretsManagerSubtotal() + this.estimatedTax;
+    if (org.useSecretsManager) {
+      return this.passwordManagerSubtotal() + this.secretsManagerSubtotal() + this.estimatedTax();
     }
-    return this.passwordManagerSubtotal + this.estimatedTax;
-  }
+    return this.passwordManagerSubtotal() + this.estimatedTax();
+  });
 
-  get teamsStarterPlanIsAvailable() {
-    return this.selectablePlans.some((plan) => plan.type === PlanType.TeamsStarter);
-  }
-
-  get additionalServiceAccount() {
-    if (!this.currentPlan || !this.currentPlan.SecretsManager) {
+  readonly additionalServiceAccount = computed(() => {
+    const cp = this.currentPlan();
+    if (!cp || !cp.SecretsManager) {
       return 0;
     }
 
-    const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
+    const baseServiceAccount = cp.SecretsManager?.baseServiceAccount || 0;
+    const usedServiceAccounts = this.sub()?.smServiceAccounts || 0;
 
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
 
     return additionalServiceAccounts <= 0 ? Math.abs(additionalServiceAccounts) : 0;
-  }
+  });
 
   changedProduct() {
-    const selectedPlan = this.selectablePlans[0];
+    const selectedPlan = this.selectablePlans()[0];
 
     this.setPlanType(selectedPlan.type);
     this.handlePremiumAddonAccess(selectedPlan.PasswordManager.hasPremiumAccessOption);
@@ -770,13 +845,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.currentPlan && !this.currentPlan.PasswordManager.hasAdditionalSeatsOption) {
-      this.formGroup.controls.additionalSeats.setValue(this.currentPlan.PasswordManager.baseSeats);
+    const cp = this.currentPlan();
+    if (cp && !cp.PasswordManager.hasAdditionalSeatsOption) {
+      this.formGroup.controls.additionalSeats.setValue(cp.PasswordManager.baseSeats);
       return;
     }
 
-    if (this.organization) {
-      this.formGroup.controls.additionalSeats.setValue(this.organization.seats);
+    const org = this.organization();
+    if (org) {
+      this.formGroup.controls.additionalSeats.setValue(org.seats);
       return;
     }
 
@@ -786,38 +863,39 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   submit = async () => {
     this.formGroup.markAllAsTouched();
     this.billingFormGroup.markAllAsTouched();
-    if (this.formGroup.invalid || (this.billingFormGroup.invalid && !this.paymentMethod)) {
+    if (this.formGroup.invalid || (this.billingFormGroup.invalid && !this.paymentMethod())) {
       return;
     }
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
-      const sub = this.sub?.subscription;
+      const sub = this.sub()?.subscription;
       const isCanceled = sub?.status === "canceled";
+      const org = this.organization();
       const isCancelledDowngradedToFreeOrg =
-        sub?.cancelled && this.organization.productTierType === ProductTierType.Free;
+        sub?.cancelled && org.productTierType === ProductTierType.Free;
 
       if (isCanceled || isCancelledDowngradedToFreeOrg) {
         await this.restartSubscription();
-        orgId = this.organizationId;
+        orgId = this.organizationId();
       } else {
         orgId = await this.updateOrganization();
       }
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.isSubscriptionCanceled
+        message: this.isSubscriptionCanceled()
           ? this.i18nService.t("restartOrganizationSubscription")
           : this.i18nService.t("organizationUpgraded"),
       });
 
       await this.syncService.fullSync(true);
 
-      if (!this.acceptingSponsorship && !this.isInTrialFlow) {
+      if (!this.acceptingSponsorship() && !this.isInTrialFlow()) {
         await this.router.navigate(["/organizations/" + orgId + "/billing/subscription"]);
       }
 
-      if (this.isInTrialFlow) {
+      if (this.isInTrialFlow()) {
         this.onTrialBillingSuccess.emit({
           orgId: orgId,
           subLabelText: this.billingSubLabelText(),
@@ -827,8 +905,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return orgId;
     };
 
-    this.formPromise = doSubmit();
-    const organizationId = await this.formPromise;
+    const promise = doSubmit();
+    this.formPromise.set(promise);
+    const organizationId = await promise;
     this.onSuccess.emit({ organizationId: organizationId });
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId });
@@ -836,10 +915,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   };
 
   private async restartSubscription() {
-    const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+    const paymentMethod = await this.enterPaymentMethodComponent()?.tokenize();
     const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
     await this.subscriberBillingClient.restartSubscription(
-      { type: "organization", data: this.organization },
+      { type: "organization", data: this.organization() },
       paymentMethod,
       billingAddress,
     );
@@ -848,18 +927,19 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   private async updateOrganization() {
     const request = new OrganizationUpgradeRequest();
-    if (this.selectedPlan.productTier !== ProductTierType.Families) {
-      request.additionalSeats = this.sub?.seats;
+    const plan = this.selectedPlan();
+    const subscription = this.sub();
+    if (plan.productTier !== ProductTierType.Families) {
+      request.additionalSeats = subscription?.seats;
     }
-    if (this.sub?.maxStorageGb > this.selectedPlan.PasswordManager.baseStorageGb) {
-      request.additionalStorageGb =
-        this.sub?.maxStorageGb - this.selectedPlan.PasswordManager.baseStorageGb;
+    if (subscription?.maxStorageGb > plan.PasswordManager.baseStorageGb) {
+      request.additionalStorageGb = subscription?.maxStorageGb - plan.PasswordManager.baseStorageGb;
     }
     request.premiumAccessAddon =
-      this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
+      plan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value;
-    request.planType = this.selectedPlan.type;
-    if (this.showPayment) {
+    request.planType = plan.type;
+    if (this.showPayment()) {
       request.billingAddressCountry = this.billingFormGroup.controls.billingAddress.value.country;
       request.billingAddressPostalCode =
         this.billingFormGroup.controls.billingAddress.value.postalCode;
@@ -868,38 +948,39 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     // Secrets Manager
     this.buildSecretsManagerRequest(request);
 
-    if (this.upgradeRequiresPaymentMethod || this.showPayment || !this.paymentMethod) {
-      const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+    if (this.upgradeRequiresPaymentMethod() || this.showPayment() || !this.paymentMethod()) {
+      const paymentMethod = await this.enterPaymentMethodComponent()?.tokenize();
       const billingAddress = getBillingAddressFromForm(
         this.billingFormGroup.controls.billingAddress,
       );
 
-      const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
+      const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization() };
       // These need to be synchronous so one of them can create the Customer in the case we're upgrading from Free.
       await this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress);
       await this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null);
     }
 
     // Backfill pub/priv key if necessary
-    if (!this.organization.hasPublicAndPrivateKeys) {
+    const org = this.organization();
+    if (!org.hasPublicAndPrivateKeys) {
       const userId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
       const orgShareKey = await firstValueFrom(
         this.keyService
           .orgKeys$(userId)
-          .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
+          .pipe(map((orgKeys) => orgKeys?.[this.organizationId() as OrganizationId] ?? null)),
       );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
-    await this.organizationApiService.upgrade(this.organizationId, request);
-    return this.organizationId;
+    await this.organizationApiService.upgrade(this.organizationId(), request);
+    return this.organizationId();
   }
 
   private billingSubLabelText(): string {
-    const selectedPlan = this.selectedPlan;
+    const selectedPlan = this.selectedPlan();
     const price =
       selectedPlan.PasswordManager.basePrice === 0
         ? selectedPlan.PasswordManager.seatPrice
@@ -916,48 +997,48 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private buildSecretsManagerRequest(request: OrganizationUpgradeRequest): void {
-    request.useSecretsManager = this.organization.useSecretsManager;
-    if (!this.organization.useSecretsManager) {
+    const org = this.organization();
+    request.useSecretsManager = org.useSecretsManager;
+    if (!org.useSecretsManager) {
       return;
     }
 
-    if (
-      this.selectedPlan.SecretsManager.hasAdditionalSeatsOption &&
-      this.currentPlan.productTier === ProductTierType.Free
-    ) {
-      request.additionalSmSeats = this.organization.seats;
+    const plan = this.selectedPlan();
+    const cp = this.currentPlan();
+    if (plan.SecretsManager.hasAdditionalSeatsOption && cp.productTier === ProductTierType.Free) {
+      request.additionalSmSeats = org.seats;
     } else {
-      request.additionalSmSeats = this.sub?.smSeats;
-      request.additionalServiceAccounts = this.additionalServiceAccount;
+      request.additionalSmSeats = this.sub()?.smSeats;
+      request.additionalServiceAccounts = this.additionalServiceAccount();
     }
   }
 
   private upgradeFlowPrefillForm() {
-    if (this.acceptingSponsorship) {
+    if (this.acceptingSponsorship()) {
       this.formGroup.controls.productTier.setValue(ProductTierType.Families);
       this.changedProduct();
       return;
     }
 
-    if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
-      const upgradedPlan = this.passwordManagerPlans.find((plan) => {
-        if (this.currentPlan.productTier === ProductTierType.Free) {
-          return plan.type === this._familyPlan;
+    const cp = this.currentPlan();
+    if (cp && cp.productTier !== ProductTierType.Enterprise) {
+      const upgradedPlan = this.passwordManagerPlans().find((plan) => {
+        if (cp.productTier === ProductTierType.Free) {
+          return plan.type === this._familyPlan();
         }
 
-        if (
-          this.currentPlan.productTier === ProductTierType.Families &&
-          !this.teamsStarterPlanIsAvailable
-        ) {
+        if (cp.productTier === ProductTierType.Families && !this.teamsStarterPlanIsAvailable()) {
           return plan.type === PlanType.TeamsAnnually;
         }
 
-        return plan.upgradeSortOrder === this.currentPlan.upgradeSortOrder + 1;
+        return plan.upgradeSortOrder === cp.upgradeSortOrder + 1;
       });
 
-      this.plan = upgradedPlan.type;
-      this.productTier = upgradedPlan.productTier;
-      this.changedProduct();
+      if (upgradedPlan) {
+        this.formGroup.controls.plan.setValue(upgradedPlan.type);
+        this.formGroup.controls.productTier.setValue(upgradedPlan.productTier);
+        this.changedProduct();
+      }
     }
   }
 
@@ -966,15 +1047,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   toggleShowPayment() {
-    this.showPayment = true;
+    this.showPayment.set(true);
   }
 
   toggleTotalOpened() {
-    this.totalOpened = !this.totalOpened;
+    this.totalOpened.set(!this.totalOpened());
   }
 
   calculateTotalAppliedDiscount(total: number) {
-    return total * (this.discountPercentageFromSub / 100);
+    return total * (this.discountPercentageFromSub() / 100);
   }
 
   resolvePlanName(productTier: ProductTierType) {
@@ -1019,21 +1100,31 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   async onFocus(index: number) {
-    this.focusedIndex = index;
-    await this.selectPlan(this.selectableProducts[index]);
+    this.focusedIndex.set(index);
+    await this.selectPlan(this.selectableProducts()[index]);
   }
 
   isCardDisabled(index: number): boolean {
-    const card = this.selectableProducts[index];
-    return card === (this.currentPlan || this.isCardStateDisabled);
-  }
+    const card = this.selectableProducts()[index];
+    const currentPlan = this.currentPlan();
 
-  manageSelectableProduct(index: number) {
-    return index;
+    // Card is disabled if it's the current plan or if it's a family plan with monthly interval
+    if (card === currentPlan) {
+      return true;
+    }
+
+    if (
+      this.selectedInterval() === PlanInterval.Monthly &&
+      card.productTier === ProductTierType.Families
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   private async refreshSalesTax(): Promise<void> {
-    if (this.billingFormGroup.controls.billingAddress.invalid && !this.billingAddress) {
+    if (this.billingFormGroup.controls.billingAddress.invalid && !this.billingAddress()) {
       return;
     }
 
@@ -1055,43 +1146,41 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const billingAddress = this.billingFormGroup.controls.billingAddress.valid
       ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
-      : this.billingAddress;
+      : this.billingAddress();
 
     const taxAmounts =
       await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
-        this.organizationId,
-        getPlanFromLegacyEnum(this.selectedPlan.type),
+        this.organizationId(),
+        getPlanFromLegacyEnum(this.selectedPlan().type),
         billingAddress,
       );
 
-    this.estimatedTax = taxAmounts.tax;
+    this.estimatedTax.set(taxAmounts.tax);
   }
 
   protected canUpdatePaymentInformation(): boolean {
     return (
-      this.upgradeRequiresPaymentMethod ||
-      this.showPayment ||
-      !this.paymentMethod ||
-      this.isSubscriptionCanceled
+      this.upgradeRequiresPaymentMethod() ||
+      this.showPayment() ||
+      !this.paymentMethod() ||
+      this.isSubscriptionCanceled()
     );
   }
 
-  get submitButtonLabel(): string {
+  readonly submitButtonLabel = computed(() => {
+    const org = this.organization();
+    const subscription = this.sub();
     if (
-      this.organization &&
-      this.sub &&
-      this.organization.productTierType !== ProductTierType.Free &&
-      this.sub.subscription?.status === "canceled"
+      org &&
+      subscription &&
+      org.productTierType !== ProductTierType.Free &&
+      subscription.subscription?.status === "canceled"
     ) {
       return this.i18nService.t("restart");
     } else {
       return this.i18nService.t("upgrade");
     }
-  }
+  });
 
-  get supportsTaxId() {
-    return this.formGroup.value.productTier !== ProductTierType.Families;
-  }
-
-  getCardBrandIcon = () => getCardBrandIcon(this.paymentMethod);
+  getCardBrandIcon = () => getCardBrandIcon(this.paymentMethod());
 }
