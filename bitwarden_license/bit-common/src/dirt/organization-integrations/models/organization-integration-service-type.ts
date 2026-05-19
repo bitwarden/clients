@@ -3,6 +3,7 @@ export const OrganizationIntegrationServiceName = Object.freeze({
   CrowdStrike: "CrowdStrike",
   Datadog: "Datadog",
   Huntress: "Huntress",
+  Splunk: "Splunk",
 } as const);
 
 export type OrganizationIntegrationServiceName =

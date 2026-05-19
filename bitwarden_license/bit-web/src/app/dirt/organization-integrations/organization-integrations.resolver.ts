@@ -179,13 +179,6 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         type: IntegrationType.BWDC,
       },
       {
-        name: "Splunk",
-        linkURL: "https://bitwarden.com/help/splunk-siem/",
-        image: "../../../../../../../images/integrations/logo-splunk-black.svg",
-        imageDarkMode: "../../../../../../../images/integrations/splunk-darkmode.svg",
-        type: IntegrationType.EVENT,
-      },
-      {
         name: "Microsoft Sentinel",
         linkURL: "https://bitwarden.com/help/microsoft-sentinel-siem/",
         image: "../../../../../../../images/integrations/logo-microsoft-sentinel-color.svg",
@@ -225,6 +218,23 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         type: IntegrationType.DEVICE,
       },
     ];
+
+    const splunkFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForSplunk),
+    );
+
+    if (splunkFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Splunk,
+        linkURL: "https://bitwarden.com/help/splunk-siem/",
+        image: "../../../../../../../images/integrations/logo-splunk-black.svg",
+        imageDarkMode: "../../../../../../../images/integrations/splunk-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://<SPLUNK_HEC_URL>/services/collector/raw",
+      });
+    }
 
     const blumiraFeatureEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.EventManagementForBlumira),
