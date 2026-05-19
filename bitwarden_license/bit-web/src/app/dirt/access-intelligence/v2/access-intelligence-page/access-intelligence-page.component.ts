@@ -447,7 +447,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected async beginOnboardingTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
-      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
+      await WelcomeModalDialogComponent.showWelcomeDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
     }
   }
 }

@@ -31,14 +31,19 @@ export class DevMenuComponent implements OnInit {
   private readonly onboardingService = inject(OnboardingService);
   private readonly logger = inject(LogService);
   protected readonly welcomeDialogAcked = signal(false);
+  protected readonly newAdminWelcomeDialogAcked = signal(false);
 
+  readonly beginNewAdminWelcomeTour = output<void>();
   readonly beginTour = output<void>();
   readonly importData = output<void>();
   protected readonly isOpen = signal(false);
 
   async ngOnInit(): Promise<void> {
-    const isAck = await this.onboardingService.isWelcomeDialogAcknowledged();
-    this.welcomeDialogAcked.set(isAck);
+    const isWelcomeDialogAcked = await this.onboardingService.isWelcomeDialogAcknowledged();
+    this.welcomeDialogAcked.set(isWelcomeDialogAcked);
+
+    const newAdminWelcomeDialogAcked = await this.onboardingService.isCarouselAcknowledged();
+    this.newAdminWelcomeDialogAcked.set(newAdminWelcomeDialogAcked);
   }
 
   @HostListener("document:keydown", ["$event"])
@@ -68,6 +73,11 @@ export class DevMenuComponent implements OnInit {
     this.beginTour.emit();
   }
 
+  protected onBeginNewAdminWelcomeTour(): void {
+    this.isOpen.set(false);
+    this.beginNewAdminWelcomeTour.emit();
+  }
+
   protected onImportData(): void {
     this.isOpen.set(false);
     this.importData.emit();
@@ -94,6 +104,34 @@ export class DevMenuComponent implements OnInit {
     } catch (error) {
       this.logger.error(
         "Failed to get Access Intelligence welcome dialog acknowledged state.",
+        error,
+      );
+    }
+  }
+
+  protected async onResetNewAdminWelcomeDialogAck(): Promise<void> {
+    try {
+      await this.onboardingService.setCarouselAcknowledged(false);
+      this.newAdminWelcomeDialogAcked.set(false);
+      this.logger.info("Reset Access Intelligence new admin welcome dialog acknowledged state.");
+    } catch (error) {
+      this.logger.error(
+        "Failed to reset Access Intelligence new admin welcome dialog acknowledged state.",
+        error,
+      );
+    }
+  }
+
+  protected async onShowNewAdminWelcomeDialogAckState(): Promise<void> {
+    try {
+      const isAck = await this.onboardingService.isCarouselAcknowledged();
+      this.newAdminWelcomeDialogAcked.set(isAck);
+      this.logger.info(
+        `Access Intelligence new admin welcome dialog acknowledged state: ${isAck}.`,
+      );
+    } catch (error) {
+      this.logger.error(
+        "Failed to get Access Intelligence new admin welcome dialog acknowledged state.",
         error,
       );
     }

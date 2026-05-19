@@ -20,6 +20,34 @@
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
+        (click)="onBeginNewAdminWelcomeTour()"
+      >
+        Begin New Admin Welcome Tour
+      </button>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
+        (click)="onResetNewAdminWelcomeDialogAck()"
+      >
+        Undo New Admin Welcome Dialog Acknowledgement
+      </button>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
+        (click)="onShowNewAdminWelcomeDialogAckState()"
+      >
+        New Admin Welcome Acknowledged? {{ newAdminWelcomeDialogAcked() }}
+        <bit-badge variant="secondary">Click to refresh</bit-badge>
+      </button>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
         (click)="onBeginTour()"
       >
         Begin Tour

@@ -112,6 +112,7 @@
   @if (isDevMode || adoptionUxImprovementsEnabled) {
     <dirt-dev-menu
       (beginTour)="beginOnboardingTour()"
+      (beginNewAdminWelcomeTour)="launchOnboardingWelcome()"
       (importData)="goToImportPage()"
     ></dirt-dev-menu>
   }

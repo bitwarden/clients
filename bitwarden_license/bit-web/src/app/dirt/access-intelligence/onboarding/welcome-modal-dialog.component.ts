@@ -6,17 +6,23 @@ import {
   runInInjectionContext,
 } from "@angular/core";
 
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   DialogModule,
   DialogRef,
   DialogService,
   TypographyModule,
+  DIALOG_DATA,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OnboardingService } from "./services/onboarding.service";
+
+export type WelcomeModalDialogData = {
+  organizationId: OrganizationId;
+};
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,14 +32,15 @@ import { OnboardingService } from "./services/onboarding.service";
 })
 export class WelcomeModalDialogComponent {
   private readonly dialogRef = inject(DialogRef<WelcomeModalDialogComponent>);
+  private readonly dialogService = inject(DialogService);
   private readonly onboardingService = inject(OnboardingService);
+  private readonly data = inject<WelcomeModalDialogData>(DIALOG_DATA);
 
-  protected async onStartTour() {
-    // invoke the dialog here
+  protected async onStartTour(): Promise<void> {
     await this.dialogRef.close();
   }
 
-  protected async onSkip() {
+  protected async onSkip(): Promise<void> {
     await this.onboardingService
       .setWelcomeDialogAcknowledged()
       .then(() => {
@@ -45,6 +52,7 @@ export class WelcomeModalDialogComponent {
   static async showWelcomeDialog(
     injector: Injector,
     dialogService: DialogService,
+    organizationId: OrganizationId,
   ): Promise<DialogRef<unknown, WelcomeModalDialogComponent> | undefined> {
     return runInInjectionContext(injector, async () => {
       const logger = inject(LogService);
@@ -58,6 +66,7 @@ export class WelcomeModalDialogComponent {
       }
 
       const dialog = dialogService.open(WelcomeModalDialogComponent, {
+        data: { organizationId } satisfies WelcomeModalDialogData,
         width: "600px",
         disableClose: true,
       });

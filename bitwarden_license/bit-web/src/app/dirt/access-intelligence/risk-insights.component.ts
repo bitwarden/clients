@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { concat, EMPTY, firstValueFrom, of } from "rxjs";
+import { combineLatest, concat, EMPTY, firstValueFrom, of } from "rxjs";
 import {
   concatMap,
   delay,
@@ -24,6 +24,7 @@ import {
   map,
   skip,
   switchMap,
+  take,
   tap,
 } from "rxjs/operators";
 
@@ -59,6 +60,7 @@ import { ApplicationsComponent } from "./all-applications/applications.component
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { WelcomeCarouselDialogComponent } from "./onboarding/welcome-carousel-dialog.component";
 import { WelcomeModalDialogComponent } from "./onboarding/welcome-modal-dialog.component";
 import { DevMenuComponent } from "./shared/dev-menu.component";
 import { PageLoadingComponent } from "./shared/page-loading.component";
@@ -277,6 +279,18 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.currentProgressStep.set(step);
       });
 
+    combineLatest([this.dataService.hasReportData$, this.dataService.hasCiphers$])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.launchOnboardingWelcome().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
+
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
       await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
     }
@@ -393,7 +407,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       await this.beginOnboardingTour();
     }
 
-    await this.beginOnboardingTour();
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
   }
 
@@ -409,7 +422,17 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   protected async beginOnboardingTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled) {
-      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
+      await WelcomeModalDialogComponent.showWelcomeDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId,
+      );
+    }
+  }
+
+  protected async launchOnboardingWelcome(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await WelcomeCarouselDialogComponent.open(this.dialogService, this.organizationId);
     }
   }
 }

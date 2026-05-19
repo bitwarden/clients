@@ -13,7 +13,16 @@ const ACCESS_INTELLIGENCE_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinitio
   "accessIntelligenceWelcomeDialogCompleted",
   {
     deserializer: (value) => value,
-    clearOn: [],
+    clearOn: [], // Welcome dialog acknowledged state should persist across lock/logout so the dialog is not reshown
+  },
+);
+
+const ACCESS_INTELLIGENCE_CAROUSEL_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
+  ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK,
+  "accessIntelligenceCarouselAcknowledged",
+  {
+    deserializer: (value) => value,
+    clearOn: [], // Carousel acknowledged state should persist across lock/logout so the tour is not reshown
   },
 );
 
@@ -42,6 +51,30 @@ export class OnboardingService {
     if (account) {
       await this.stateProvider.setUserState(
         ACCESS_INTELLIGENCE_WELCOME_DIALOG_ACKNOWLEDGED_KEY,
+        value,
+        account.id,
+      );
+    }
+  }
+
+  async isCarouselAcknowledged(): Promise<boolean> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account) {
+      return false;
+    }
+
+    return await firstValueFrom(
+      this.stateProvider
+        .getUserState$(ACCESS_INTELLIGENCE_CAROUSEL_ACKNOWLEDGED_KEY, account.id)
+        .pipe(map((v) => v ?? false)),
+    );
+  }
+
+  async setCarouselAcknowledged(value = true) {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (account) {
+      await this.stateProvider.setUserState(
+        ACCESS_INTELLIGENCE_CAROUSEL_ACKNOWLEDGED_KEY,
         value,
         account.id,
       );
