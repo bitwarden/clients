@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { defaultPositions } from "./default-positions";
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 
 import { MenuModule } from "./index";
@@ -82,6 +83,44 @@ describe("Menu", () => {
 
     expect(getBitMenuPanel()).toBeFalsy();
   });
+
+  describe("position preference", () => {
+    // The `positions` getter is private; the unknown cast lets us assert
+    // ordering without depending on CDK overlay internals.
+    const readPositions = (d: MenuTriggerForDirective) =>
+      (d as unknown as { positions: { id?: string }[] }).positions;
+
+    it("returns defaultPositions unchanged when no position input is set", () => {
+      const directive = getMenuTriggerDirective();
+      expect(readPositions(directive)).toBe(defaultPositions);
+    });
+  });
+});
+
+describe("Menu — with position input", () => {
+  let fixture: ComponentFixture<TestAppWithPositionComponent>;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      imports: [TestAppWithPositionComponent],
+    });
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestAppWithPositionComponent);
+    fixture.detectChanges();
+  });
+
+  it("moves the preferred position to the front and keeps the rest as fallbacks", () => {
+    const directive = fixture.debugElement
+      .query(By.directive(MenuTriggerForDirective))
+      .injector.get(MenuTriggerForDirective);
+    const positions = (directive as unknown as { positions: { id?: string }[] }).positions;
+    expect(positions[0].id).toBe("above-end");
+    expect(positions.slice(1).map((p) => p.id)).toEqual([
+      "below-start",
+      "below-end",
+      "above-start",
+    ]);
+  });
 });
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -99,3 +138,17 @@ describe("Menu", () => {
   imports: [MenuModule],
 })
 class TestAppComponent {}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "test-app-with-position",
+  template: `
+    <button type="button" [bitMenuTriggerFor]="testMenu" position="above-end">Open menu</button>
+    <bit-menu #testMenu>
+      <a id="item1" bitMenuItem>Item 1</a>
+    </bit-menu>
+  `,
+  imports: [MenuModule],
+})
+class TestAppWithPositionComponent {}

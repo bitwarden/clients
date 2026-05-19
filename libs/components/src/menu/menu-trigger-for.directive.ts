@@ -13,6 +13,7 @@ import {
 import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
+import { MenuPositionIdentifier, defaultPositions } from "./default-positions";
 import { MenuComponent } from "./menu.component";
 
 /**
@@ -65,25 +66,35 @@ export class MenuTriggerForDirective implements OnDestroy {
 
   readonly menu = input.required<MenuComponent>({ alias: "bitMenuTriggerFor" });
 
+  /** Preferred opening position. CDK falls back through the remaining positions if the preferred one doesn't fit. */
+  readonly position = input<MenuPositionIdentifier>();
+
   private overlayRef: OverlayRef | null = null;
-  private defaultMenuConfig: OverlayConfig = {
-    panelClass: "bit-menu-panel",
-    hasBackdrop: true,
-    backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
-    scrollStrategy: this.overlay.scrollStrategies.reposition(),
-    positionStrategy: this.overlay
-      .position()
-      .flexibleConnectedTo(this.elementRef)
-      .withPositions([
-        { originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
-        { originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
-        { originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
-        { originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
-      ])
-      .withLockedPosition(true)
-      .withFlexibleDimensions(false)
-      .withPush(true),
-  };
+
+  private get positions(): ConnectedPosition[] {
+    const preferred = this.position();
+    if (!preferred) {
+      return defaultPositions;
+    }
+    const match = defaultPositions.find((p) => p.id === preferred);
+    return match ? [match, ...defaultPositions.filter((p) => p !== match)] : defaultPositions;
+  }
+
+  private get defaultMenuConfig(): OverlayConfig {
+    return {
+      panelClass: "bit-menu-panel",
+      hasBackdrop: true,
+      backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      positionStrategy: this.overlay
+        .position()
+        .flexibleConnectedTo(this.elementRef)
+        .withPositions(this.positions)
+        .withLockedPosition(true)
+        .withFlexibleDimensions(false)
+        .withPush(true),
+    };
+  }
   private closedEventsSub: Subscription | null = null;
   private keyDownEventsSub: Subscription | null = null;
   private menuCloseListenerSub: Subscription | null = null;
@@ -120,6 +131,7 @@ export class MenuTriggerForDirective implements OnDestroy {
 
     this.isOpen = true;
 
+    const baseConfig = this.defaultMenuConfig;
     const positionStrategy = event
       ? this.overlay
           .position()
@@ -128,9 +140,9 @@ export class MenuTriggerForDirective implements OnDestroy {
           .withLockedPosition(false)
           .withFlexibleDimensions(false)
           .withPush(true)
-      : this.defaultMenuConfig.positionStrategy;
+      : baseConfig.positionStrategy;
 
-    const config = { ...this.defaultMenuConfig, positionStrategy, hasBackdrop: !event };
+    const config = { ...baseConfig, positionStrategy, hasBackdrop: !event };
 
     this.overlayRef = this.overlay.create(config);
 
