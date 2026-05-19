@@ -1,5 +1,4 @@
 import { UserId } from "@bitwarden/common/types/guid";
-import { SymmetricKey } from "@bitwarden/sdk-internal";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
