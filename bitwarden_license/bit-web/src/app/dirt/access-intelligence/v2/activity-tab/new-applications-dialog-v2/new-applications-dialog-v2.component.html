@@ -81,12 +81,12 @@
         bitButton
         size="small"
         buttonType="primary"
-        (click)="handleAssignTasks()"
+        (click)="handleSendNotifications()"
         [disabled]="saving()"
         [loading]="saving()"
-        [attr.aria-label]="'assignTasks' | i18n"
+        [attr.aria-label]="'sendNotifications' | i18n"
       >
-        {{ "assignTasks" | i18n }}
+        {{ "sendNotifications" | i18n }}
       </button>
       <button
         type="button"

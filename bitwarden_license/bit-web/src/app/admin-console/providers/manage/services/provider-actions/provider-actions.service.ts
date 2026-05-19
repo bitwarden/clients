@@ -10,11 +10,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
-
-export interface MemberActionResult {
-  success: boolean;
-  error?: string;
-}
+import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.types";
 
 @Injectable()
 export class ProviderActionsService {
