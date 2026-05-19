@@ -40,40 +40,29 @@ const mockToastService = {
   showToast: () => {},
 };
 
-const mockInviteLinkServiceNoLink = {
-  inviteLink$: () => of(undefined),
-  reconstructUrl: () => of(undefined),
-  createInviteLink: () => Promise.resolve(),
-  updateInviteLink: () => Promise.resolve(),
-  refreshInviteLink: () => Promise.resolve(),
-};
-
-const mockInviteLinkServiceWithLink = {
-  inviteLink$: () => of(mockInviteLink),
-  reconstructUrl: () => of("https://vault.bitwarden.com/#/join/org-1?key=XYZ"),
-  createInviteLink: () => Promise.resolve(),
-  updateInviteLink: () => Promise.resolve(),
-  refreshInviteLink: () => Promise.resolve(),
-};
-
 export default {
   title: "Web/Organizations/Members/Invite Members Dialog/By Link Tab",
   component: ByLinkTabComponent,
+  args: {
+    hasLink: true,
+    inviteLinkUrl:
+      "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp",
+  },
   argTypes: {
+    hasLink: {
+      name: "hasLink",
+      control: "boolean",
+      description: "Whether an invite link has been generated. Hides the callout when true.",
+      table: { category: "properties" },
+    },
+    inviteLinkUrl: {
+      name: "inviteLinkUrl",
+      control: "text",
+      description: "The shareable invite link URL shown in the read-only input.",
+      table: { category: "properties" },
+    },
     copyLink: { control: false, table: { type: { summary: "() => Promise<void>" } } },
     form: { control: false, table: { type: { summary: "FormGroup" } } },
-    hasInviteLinkUrl$: { control: false, table: { type: { summary: "Observable<boolean>" } } },
-    inviteLink$: {
-      control: false,
-      table: {
-        type: { summary: "Observable<OrganizationInviteLink | undefined>" },
-        category: "properties",
-      },
-    },
-    inviteLinkUrl$: {
-      control: false,
-      table: { type: { summary: "Observable<string>" }, category: "properties" },
-    },
     organizationId: { control: false, table: { type: { summary: "InputSignal<OrganizationId>" } } },
     refreshLink: { control: false, table: { type: { summary: "() => Promise<void>" } } },
     save: { control: false, table: { type: { summary: "() => Promise<void>" } } },
@@ -91,40 +80,49 @@ export default {
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
     }),
   ],
-} as Meta<ByLinkTabComponent>;
+} as Meta;
 
-type Story = StoryObj<ByLinkTabComponent>;
+type Story = StoryObj<{ hasLink: boolean; inviteLinkUrl: string }>;
+
+const render: Story["render"] = (args) => ({
+  props: args,
+  moduleMetadata: {
+    providers: [
+      {
+        provide: OrganizationInviteLinkService,
+        useValue: {
+          inviteLink$: () => of(args["hasLink"] ? mockInviteLink : undefined),
+          reconstructUrl: () => of(args["inviteLinkUrl"] ?? ""),
+          createInviteLink: () => Promise.resolve(),
+          updateInviteLink: () => Promise.resolve(),
+          refreshInviteLink: () => Promise.resolve(),
+        },
+      },
+    ],
+  },
+  template: `<app-by-link-tab organizationId="org-1"></app-by-link-tab>`,
+});
 
 /**
  * Fresh state — callout prompts user to enter domains before generating a link.
  */
 export const NoLinkYet: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [
-        { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceNoLink },
-      ],
-    }),
-  ],
-  render: (args) => ({
-    props: args,
-    template: `<app-by-link-tab organizationId="org-1"></app-by-link-tab>`,
-  }),
+  args: {
+    hasLink: false,
+    inviteLinkUrl:
+      "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp",
+  },
+  render,
 };
 
 /**
  * Link is generated — shows URL in disabled input with refresh + copy icon buttons and creation date hint.
  */
 export const LinkExists: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [
-        { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceWithLink },
-      ],
-    }),
-  ],
-  render: (args) => ({
-    props: args,
-    template: `<app-by-link-tab organizationId="org-1"></app-by-link-tab>`,
-  }),
+  args: {
+    hasLink: true,
+    inviteLinkUrl:
+      "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp",
+  },
+  render,
 };
