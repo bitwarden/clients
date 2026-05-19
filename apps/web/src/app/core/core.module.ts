@@ -75,7 +75,7 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
-    DefaultSharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
   SharedUnlockFollowerService,
   SharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";

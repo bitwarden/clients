@@ -614,7 +614,6 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       BrowserRouterService,
       WebAuthnPrfUnlockService,
-      ConfigService
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
