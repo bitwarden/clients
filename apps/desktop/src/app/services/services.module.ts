@@ -138,6 +138,7 @@ import {
   DefaultWebAuthnPrfUnlockService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
@@ -195,7 +196,6 @@ import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
-import { UnlockService } from "@bitwarden/unlock";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 

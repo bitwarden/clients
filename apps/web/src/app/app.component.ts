@@ -16,7 +16,9 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,8 +31,6 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
-import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
