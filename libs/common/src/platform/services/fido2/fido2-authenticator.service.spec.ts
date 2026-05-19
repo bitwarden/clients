@@ -3,6 +3,8 @@ import { TextEncoder } from "util";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { PureCrypto } from "@bitwarden/sdk-internal";
+
 import { mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
 import { CipherId, UserId } from "../../../types/guid";
@@ -70,6 +72,10 @@ describe("FidoAuthenticatorService", () => {
     );
     windowReference = Utils.newGuid();
     accountService.activeAccount$ = activeAccountSubject;
+
+    // PureCrypto is backed by WASM and is not initialized in jest. stub the
+    // GUID generator so createKeyView() can run without loading the module.
+    jest.spyOn(PureCrypto, "new_guid").mockImplementation(() => Utils.newGuid());
   });
 
   describe("makeCredential", () => {
