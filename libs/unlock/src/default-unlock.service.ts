@@ -135,14 +135,14 @@ export class DefaultUnlockService implements UnlockService {
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
   }
 
-  async unlockWithDecryptedKey(userId: UserId, key: SymmetricKey): Promise<void> {
+  async unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
     const startTime = performance.now();
     await this.unlockWithMethod(userId, {
       decryptedKey: {
-        decrypted_user_key: key,
+        decrypted_user_key: userKey.toSdk(),
       },
     });
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithDecryptedKey");
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithDecryptedUserKey");
   }
 
   private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {
