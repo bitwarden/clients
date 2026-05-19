@@ -1,4 +1,3 @@
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { PinLockType, PinSettingsClient } from "@bitwarden/sdk-internal";
 
 import { assertNonNullish } from "../../auth/utils";
