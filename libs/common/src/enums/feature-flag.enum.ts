@@ -54,6 +54,7 @@ export enum FeatureFlag {
   UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   UnlockViaSDK = "unlock-via-sdk",
+  NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
@@ -65,10 +66,12 @@ export enum FeatureFlag {
   EventManagementForBlumira = "event-management-for-blumira",
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   EventManagementForHuntress = "event-management-for-huntress",
+  EventManagementForSplunk = "event-management-for-splunk",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
   AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
+  AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -142,10 +145,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForBlumira]: FALSE,
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
+  [FeatureFlag.EventManagementForSplunk]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
+  [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -184,6 +189,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
