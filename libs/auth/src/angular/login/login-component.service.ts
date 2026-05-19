@@ -22,9 +22,6 @@ export abstract class LoginComponentService {
   /** Whether to show the page icons (the login page has two UI screens, each with its own icon). */
   abstract showPageIcons: boolean;
 
-  /** The page title on the email entry screen. */
-  abstract emailEntryPageTitle: string;
-
   /** The page title on the master password entry screen. */
   abstract masterPasswordPageTitle: string;
 

@@ -970,8 +970,8 @@
   "logIn": {
     "message": "Log in"
   },
-  "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Enter the code sent to your email"

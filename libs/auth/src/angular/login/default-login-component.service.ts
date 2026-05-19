@@ -13,7 +13,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
   protected clientType: ClientType;
 
   showPageIcons = true;
-  emailEntryPageTitle = "logInToBitwarden";
   masterPasswordPageTitle = "welcomeBack";
 
   constructor(

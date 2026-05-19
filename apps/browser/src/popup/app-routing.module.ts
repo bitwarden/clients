@@ -455,7 +455,7 @@ const routes: Routes = [
         data: {
           pageIcon: null,
           pageTitle: {
-            key: "logIn",
+            key: "loginPageEmailEntryScreenTitle",
           },
           elevation: 1,
           showAcctSwitcher: true,

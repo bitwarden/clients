@@ -527,7 +527,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginComponentService.showBackButton(false);
 
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: this.loginComponentService.emailEntryPageTitle },
+        pageTitle: { key: "loginPageEmailEntryScreenTitle" },
         pageIcon: this.loginComponentService.showPageIcons ? this.Icons.VaultIcon : null,
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
