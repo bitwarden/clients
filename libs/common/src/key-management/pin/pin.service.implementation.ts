@@ -10,9 +10,7 @@ import { PinServiceAbstraction } from "./pin.service.abstraction";
  * A thin wrapper around the SDK. Pin is entirely managed in the SDK.
  */
 export class PinService implements PinServiceAbstraction {
-  constructor(
-    private sdkService: SdkService,
-  ) {}
+  constructor(private sdkService: SdkService) {}
 
   @assertParametersNonNull()
   async getPinLockType(userId: UserId): Promise<PinLockType | undefined> {
@@ -60,7 +58,7 @@ export class PinService implements PinServiceAbstraction {
   @assertParametersNonNull()
   async isPinDecryptionAvailable(userId: UserId): Promise<boolean> {
     return await this.withPinSettingsClient(userId, async (client) => {
-      return await client.get_status() === "Available";
+      return (await client.get_status()) === "Available";
     });
   }
 

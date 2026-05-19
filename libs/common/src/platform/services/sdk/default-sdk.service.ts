@@ -191,9 +191,7 @@ export class DefaultSdkService implements SdkService {
         // Create our own observable to be able to implement clean-up logic
         return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
-            if (
-              env == null
-            ) {
+            if (env == null) {
               return undefined;
             }
 
@@ -204,11 +202,7 @@ export class DefaultSdkService implements SdkService {
             );
 
             // Returns a locked SDK client, if any of these values are missing
-            if (
-              kdfParams == null
-              || accountCryptographicState == null
-              || userKey == null
-            ) {
+            if (kdfParams == null || accountCryptographicState == null || userKey == null) {
               return client;
             }
 

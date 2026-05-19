@@ -138,7 +138,12 @@ export class DefaultUnlockService implements UnlockService {
         decrypted_user_key: key.toSdk(),
       },
     });
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithDecryptedUserKey");
+    this.logService.measure(
+      startTime,
+      "Unlock",
+      "DefaultUnlockService",
+      "unlockWithDecryptedUserKey",
+    );
   }
 
   private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {
