@@ -3,6 +3,5 @@ import { LoginViaWebAuthnComponentService } from "./login-via-webauthn-component
 export class DefaultLoginViaWebAuthnComponentService implements LoginViaWebAuthnComponentService {
   showPageIcons = true;
   showTroubleLoggingInText = true;
-  useDifferentLoginMethodLinkText = "useADifferentLogInMethod";
   leftAlignDescription = false;
 }

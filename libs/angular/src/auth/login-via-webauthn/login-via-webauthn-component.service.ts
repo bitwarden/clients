@@ -5,9 +5,6 @@ export abstract class LoginViaWebAuthnComponentService {
   /** Whether to show the "Trouble logging in?" text. */
   abstract showTroubleLoggingInText: boolean;
 
-  /** The link text for navigating away from passkey login. */
-  abstract useDifferentLoginMethodLinkText: string;
-
   /** Whether to left-align the descriptive text. */
   abstract leftAlignDescription: boolean;
 }

@@ -54,7 +54,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
   protected showPageIcons = true;
   protected showTroubleLoggingInText = true;
-  protected useDifferentLoginMethodLinkText = "";
   protected leftAlignDescription = false;
   private shouldAutoClosePopout = false;
 
@@ -91,8 +90,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
   ) {
     this.showPageIcons = this.loginViaWebAuthnComponentService.showPageIcons;
     this.showTroubleLoggingInText = this.loginViaWebAuthnComponentService.showTroubleLoggingInText;
-    this.useDifferentLoginMethodLinkText =
-      this.loginViaWebAuthnComponentService.useDifferentLoginMethodLinkText;
     this.leftAlignDescription = this.loginViaWebAuthnComponentService.leftAlignDescription;
   }
 

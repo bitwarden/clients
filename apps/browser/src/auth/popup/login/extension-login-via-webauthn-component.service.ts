@@ -10,6 +10,5 @@ export class ExtensionLoginViaWebAuthnComponentService
 {
   showPageIcons = false;
   showTroubleLoggingInText = false;
-  useDifferentLoginMethodLinkText = "useDifferentLoginMethod";
   leftAlignDescription = true;
 }
