@@ -145,4 +145,6 @@ export enum EventType {
   Send_Created_File = 2503,
   Send_Created_File_WithEmailVerification = 2504,
   Send_Created_File_WithPasswordProtection = 2505,
+  Send_Accessed_Text = 2510,
+  Send_Accessed_File = 2511,
 }
