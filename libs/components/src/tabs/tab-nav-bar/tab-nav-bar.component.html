@@ -33,7 +33,7 @@
   </nav>
 </bit-tab-header>
 
-<bit-menu #overflowTabsMenu>
+<bit-menu #overflowTabsMenu (closed)="onOverflowMenuClosed()">
   @for (i of ovf.overflow(); track i) {
     @let tab = tabLabels()[i];
     <a

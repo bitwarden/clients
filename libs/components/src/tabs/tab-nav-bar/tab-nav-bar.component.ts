@@ -91,6 +91,16 @@ export class TabNavBarComponent implements AfterViewInit {
     this.updateActiveLink();
   }
 
+  /**
+   * When the overflow menu closes, the CDK overlay restores focus to the More
+   * button trigger, but the key manager's active item points at the newly
+   * active route (set during `updateActiveLink`). Realign the key manager to
+   * the trigger so the next arrow key behaves relative to where focus is.
+   */
+  protected onOverflowMenuClosed() {
+    this.keyManager()?.updateActiveItem(this.moreButtonItem());
+  }
+
   updateActiveLink() {
     const items = this.tabLabels();
     if (items.length === 0) {

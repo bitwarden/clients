@@ -10,6 +10,7 @@ import {
   input,
   model,
   output,
+  viewChild,
   viewChildren,
   inject,
   Injector,
@@ -89,6 +90,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   protected readonly tabs = contentChildren(TabComponent);
   readonly tabLabels = viewChildren(TabListItemDirective);
+  private readonly moreButton = viewChild("moreButton", { read: TabListItemDirective });
 
   /** The index of the active tab. Supports two-way binding via `[(selectedIndex)]`. */
   readonly selectedIndex = model(0);
@@ -156,6 +158,19 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   selectTab(index: number) {
     this.selectedIndex.set(index);
+  }
+
+  /**
+   * When the overflow menu closes, the CDK overlay restores focus to the More
+   * button trigger, but the key manager's active item points at the newly
+   * selected tab (set during `ngAfterContentChecked`). Realign the key manager
+   * to the trigger so the next arrow key behaves relative to where focus is.
+   */
+  protected onOverflowMenuClosed() {
+    const moreButton = this.moreButton();
+    if (moreButton) {
+      this.keyManager()?.updateActiveItem(moreButton);
+    }
   }
 
   /**

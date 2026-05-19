@@ -54,6 +54,7 @@
       of focus and the accessibility tree.
     -->
     <button
+      #moreButton
       bitTabListItem
       bitOverflowTrigger
       type="button"
@@ -84,7 +85,7 @@
   }
 </div>
 
-<bit-menu #overFlowTabsMenu>
+<bit-menu #overFlowTabsMenu (closed)="onOverflowMenuClosed()">
   @for (i of ovf.overflow(); track i) {
     @let tab = tabs()[i];
     <button bitMenuItem type="button" [disabled]="tab.disabled()" (click)="selectTab(i)">
