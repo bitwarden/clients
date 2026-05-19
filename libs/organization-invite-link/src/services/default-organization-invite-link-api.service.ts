@@ -75,9 +75,9 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
 
   async getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel> {
     const r = await this.apiService.send(
-      "GET",
-      `/organizations/invite-link/${code}/status`,
-      null,
+      "POST",
+      `/organizations/invite-link/status`,
+      { code },
       false,
       true,
     );
