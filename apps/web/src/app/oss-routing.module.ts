@@ -612,6 +612,7 @@ const routes: Routes = [
           pageTitle: null,
           pageIcon: null,
           doNotSaveUrl: true,
+          maxWidth: "xl",
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
       },

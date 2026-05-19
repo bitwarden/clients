@@ -1,8 +1,8 @@
-<div class="tw-flex tw-flex-col tw-items-center tw-gap-8 tw-text-center tw-max-w-[491px]">
+<div class="tw-flex tw-flex-col tw-items-center tw-gap-8 tw-text-center tw-max-w-[531px]">
   <bit-icon-tile
     icon="bwi-check-circle"
     variant="success"
-    size="lg"
+    size="xl"
     ariaLabel="{{ 'paymentSuccessful' | i18n }}"
   ></bit-icon-tile>
   <div class="tw-w-full">
@@ -13,10 +13,10 @@
   </div>
 
   <dl
-    class="tw-m-0 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-4 tw-text-left"
+    class="tw-m-0 tw-flex tw-w-full tw-flex-col tw-gap-4 tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300 tw-p-4 tw-text-left"
   >
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
-      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle">
+      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle tw-font-normal">
         {{ "planPurchased" | i18n }}
       </dt>
       <dd bitTypography="body1" class="tw-m-0 tw-font-medium tw-text-main">
@@ -24,13 +24,15 @@
       </dd>
     </div>
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
-      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle">{{ "startDate" | i18n }}</dt>
+      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle tw-font-normal">
+        {{ "startDate" | i18n }}
+      </dt>
       <dd bitTypography="body1" class="tw-m-0 tw-font-medium tw-text-main">
         {{ startDate | date: "MMMM d, y" }}
       </dd>
     </div>
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
-      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle">
+      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle tw-font-normal">
         {{ "renewalDate" | i18n }}
       </dt>
       <dd bitTypography="body1" class="tw-m-0 tw-font-medium tw-text-main">
@@ -38,11 +40,17 @@
       </dd>
     </div>
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
-      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle">
+      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle tw-font-normal">
         {{ "upgradeStatus" | i18n }}
       </dt>
       <dd class="tw-m-0">
-        <span bitBadge variant="info" startIcon="bwi-clock" data-testid="upgrade-status-badge">
+        <span
+          bitBadge
+          variant="info"
+          startIcon="bwi-clock"
+          size="small"
+          data-testid="upgrade-status-badge"
+        >
           {{ "processing" | i18n }}
         </span>
       </dd>
