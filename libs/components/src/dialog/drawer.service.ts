@@ -69,17 +69,18 @@ export class DrawerService {
   }
 
   /**
-   * Try to close all drawers, checking each ref's closePredicate from top to bottom.
-   * Returns false (and closes nothing) if any predicate rejects.
+   * Close drawers top-to-bottom, stopping at the first whose closePredicate rejects.
+   * Drawers above the rejecting one are already closed by the time we return; that
+   * drawer and any below it remain. Returns true if the entire stack was closed.
    */
   async closeAll(): Promise<boolean> {
-    const refs = [...this.stack()].reverse();
-    for (const ref of refs) {
-      if (!(await ref.canClose())) {
+    while (this.stack().length > 0) {
+      const top = this.stack()[this.stack().length - 1];
+      const { closed } = await top.close();
+      if (!closed) {
         return false;
       }
     }
-    this.forceCloseAll();
     return true;
   }
 

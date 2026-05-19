@@ -106,24 +106,6 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     return this.onStack(component, config);
   }
 
-  /**
-   * Check whether this drawer can close (i.e., the closePredicate passes).
-   * Does not modify state.
-   */
-  async canClose(result?: R): Promise<boolean> {
-    if (this._isClosed) {
-      return false;
-    }
-    if (this.closePredicate) {
-      try {
-        return await this.closePredicate(result);
-      } catch (err) {
-        this.logService?.error(err);
-      }
-    }
-    return true;
-  }
-
   /** Pop this drawer off the stack, firing the closed observable with the given result. Respects closePredicate. */
   async close(result?: R, _options?: DialogCloseOptions): Promise<DialogCloseRef> {
     if (this._isClosed) {
