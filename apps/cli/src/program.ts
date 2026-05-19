@@ -301,6 +301,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.masterPasswordUnlockService,
             this.serviceContainer.unlockService,
             this.serviceContainer.configService,
+            this.serviceContainer.userAutoUnlockKeyService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);

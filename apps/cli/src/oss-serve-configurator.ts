@@ -177,6 +177,7 @@ export class OssServeConfigurator {
       this.serviceContainer.masterPasswordUnlockService,
       this.serviceContainer.unlockService,
       this.serviceContainer.configService,
+      this.serviceContainer.userAutoUnlockKeyService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(

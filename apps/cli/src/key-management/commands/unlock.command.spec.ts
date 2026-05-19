@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -41,6 +42,7 @@ describe("UnlockCommand", () => {
   const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
   const unlockService = mock<UnlockService>();
   const configService = mock<ConfigService>();
+  const userAutoUnlockKeyService = mock<UserAutoUnlockKeyService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -77,6 +79,7 @@ describe("UnlockCommand", () => {
     keyConnectorService.convertAccountRequired$ = of(false);
     cryptoFunctionService.randomBytes.mockResolvedValue(mockSessionKey);
     configService.getFeatureFlag.mockResolvedValue(false);
+    userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet.mockResolvedValue(true);
 
     command = new UnlockCommand(
       accountService,
@@ -92,6 +95,7 @@ describe("UnlockCommand", () => {
       masterPasswordUnlockService,
       unlockService,
       configService,
+      userAutoUnlockKeyService,
     );
   });
 
@@ -139,6 +143,54 @@ describe("UnlockCommand", () => {
         activeAccount.id,
       );
       expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
+    });
+
+    it("verifies the auto-unlock entry decrypts with the returned session key", async () => {
+      masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+
+      const response = await command.run(mockMasterPassword, {});
+
+      expect(response.success).toEqual(true);
+      expect(userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet).toHaveBeenCalledWith(
+        activeAccount.id,
+      );
+    });
+
+    it("re-writes the auto-unlock entry when verification fails on legacy path", async () => {
+      masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+      userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+
+      const response = await command.run(mockMasterPassword, {});
+
+      expect(response.success).toEqual(true);
+      expect(keyService.setUserKey).toHaveBeenCalledTimes(2);
+      expect(keyService.setUserKey).toHaveBeenNthCalledWith(1, mockUserKey, activeAccount.id);
+      expect(keyService.setUserKey).toHaveBeenNthCalledWith(2, mockUserKey, activeAccount.id);
+      expect(userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet).toHaveBeenCalledTimes(2);
+    });
+
+    it("returns error when the auto-unlock entry cannot be persisted even after retry", async () => {
+      masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+      userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet.mockResolvedValue(false);
+
+      const response = await command.run(mockMasterPassword, {});
+
+      expect(response.success).toEqual(false);
+      expect(response.message).toContain("Failed to persist new session key");
+    });
+
+    it("returns error when SDK unlock path leaves auto-unlock entry undecryptable", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+      userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet.mockResolvedValue(false);
+
+      const response = await command.run(mockMasterPassword, {});
+
+      expect(response.success).toEqual(false);
+      expect(response.message).toContain("Failed to persist new session key");
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
     });
 
     it("returns error response if unlockWithMasterPassword fails", async () => {
