@@ -416,6 +416,49 @@ describe("NotificationsService", () => {
 
         expect(logoutCallback).not.toHaveBeenCalled();
       });
+
+      it.each([
+        { featureFlagEnabled: false, reason: undefined },
+        { featureFlagEnabled: true, reason: undefined },
+        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KeyRotation },
+      ])(
+        "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
+        async ({ featureFlagEnabled, reason }) => {
+          configService.getFeatureFlag$.mockReturnValue(of(featureFlagEnabled));
+
+          const payload: { UserId: UserId; Reason?: PushNotificationLogOutReasonType } = {
+            UserId: mockUser1,
+            Reason: undefined,
+          };
+          if (reason != null) {
+            payload.Reason = reason;
+          }
+
+          const notification = new NotificationResponse({
+            type: NotificationType.LogOut,
+            payload,
+            contextId: "different-app-id",
+          });
+
+          await sut["processNotification"](notification, mockUser1);
+
+          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+        },
+      );
+
+      it("should skip logout when receiving key rotation reason with feature flag enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.LogOut,
+          payload: { UserId: mockUser1, Reason: PushNotificationLogOutReasonType.KeyRotation },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(logoutCallback).not.toHaveBeenCalled();
+      });
     });
 
     describe("NotificationType.SyncPolicy", () => {

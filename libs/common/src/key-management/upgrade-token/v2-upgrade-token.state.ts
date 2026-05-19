@@ -7,5 +7,7 @@ export const V2_UPGRADE_TOKEN = new UserKeyDefinition<V2UpgradeToken>(
   {
     deserializer: (jsonValue) => jsonValue,
     clearOn: ["logout"],
+    // Prevents the state from caching and rxjs observable becoming hot observable.
+    cleanupDelayMs: 0,
   },
 );
