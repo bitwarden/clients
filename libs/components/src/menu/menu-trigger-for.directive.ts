@@ -8,10 +8,13 @@ import {
   HostListener,
   OnDestroy,
   ViewContainerRef,
+  inject,
   input,
 } from "@angular/core";
 import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
+
+import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 import { MenuPositionIdentifier, defaultPositions } from "./default-positions";
 import { MenuComponent } from "./menu.component";
@@ -70,6 +73,12 @@ export class MenuTriggerForDirective implements OnDestroy {
   readonly position = input<MenuPositionIdentifier>();
 
   private overlayRef: OverlayRef | null = null;
+
+  /**
+   * Host tooltip (if any) on the same element. Suppressed while the menu is open so
+   * a `bitTooltip` can't pop over the active menu.
+   */
+  private readonly hostTooltip = inject(TooltipDirective, { self: true, optional: true });
 
   private get positions(): ConnectedPosition[] {
     const preferred = this.position();
@@ -130,6 +139,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     }
 
     this.isOpen = true;
+    this.hostTooltip?.suppressed.set(true);
 
     const baseConfig = this.defaultMenuConfig;
     const positionStrategy = event
@@ -194,6 +204,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     }
 
     this.isOpen = false;
+    this.hostTooltip?.suppressed.set(false);
     this.disposeAll();
     this.menu().closed.emit();
   }

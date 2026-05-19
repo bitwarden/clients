@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { TooltipDirective } from "../tooltip/tooltip.directive";
+
 import { defaultPositions } from "./default-positions";
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 
@@ -152,3 +154,48 @@ class TestAppComponent {}
   imports: [MenuModule],
 })
 class TestAppWithPositionComponent {}
+
+describe("Menu — host tooltip suppression", () => {
+  let fixture: ComponentFixture<TestAppWithTooltipComponent>;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({ imports: [TestAppWithTooltipComponent] });
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestAppWithTooltipComponent);
+    fixture.detectChanges();
+  });
+
+  const getTriggerEl = () =>
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      .nativeElement as HTMLButtonElement;
+
+  const getTooltipDirective = () =>
+    fixture.debugElement.query(By.directive(TooltipDirective)).injector.get(TooltipDirective);
+
+  it("suppresses the host tooltip while the menu is open and restores on close", () => {
+    const tooltip = getTooltipDirective();
+    const trigger = getTriggerEl();
+
+    expect(tooltip.suppressed()).toBe(false);
+
+    trigger.click();
+    expect(tooltip.suppressed()).toBe(true);
+
+    trigger.click();
+    expect(tooltip.suppressed()).toBe(false);
+  });
+});
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "test-app-with-tooltip",
+  template: `
+    <button type="button" bitTooltip="Open menu" [bitMenuTriggerFor]="testMenu">Open menu</button>
+    <bit-menu #testMenu>
+      <a id="item1" bitMenuItem>Item 1</a>
+    </bit-menu>
+  `,
+  imports: [MenuModule, TooltipDirective],
+})
+class TestAppWithTooltipComponent {}
