@@ -39,8 +39,6 @@ export enum FeatureFlag {
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
-  PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
-
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
@@ -56,6 +54,7 @@ export enum FeatureFlag {
   UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   UnlockViaSDK = "unlock-via-sdk",
+  NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
@@ -82,7 +81,6 @@ export enum FeatureFlag {
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
-  PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
@@ -160,7 +158,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
-  [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
@@ -179,8 +176,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
-  [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
-
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */
@@ -190,6 +185,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
