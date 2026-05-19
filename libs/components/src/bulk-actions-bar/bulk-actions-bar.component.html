@@ -1,0 +1,39 @@
+<div class="tw-fixed tw-bottom-0 tw-inset-x-0 tw-z-50 tw-flex tw-justify-center">
+  <div role="status" aria-live="polite" class="tw-sr-only">
+    {{ announcement() }}
+  </div>
+
+  <div
+    #bar
+    class="tw-mb-4 tw-flex tw-items-center tw-gap-4 tw-p-2 tw-rounded-xl tw-bg-bg-brand-stronger tw-transition-[transform,opacity] tw-duration-200 tw-ease-out"
+    [class]="barStateClasses()"
+    [attr.inert]="!visible() ? '' : null"
+    [attr.aria-hidden]="!visible() ? 'true' : null"
+    role="toolbar"
+    aria-orientation="horizontal"
+    [attr.aria-label]="'bulkActionsBar' | i18n"
+    (keydown)="onToolbarKeydown($event)"
+  >
+    <span class="tw-px-2 tw-text-sm" [class]="elementWithDividerClasses">
+      <span class="tw-font-semibold tw-text-fg-contrast">
+        {{ selectedCount() }}
+      </span>
+      <span class="tw-text-fg-contrast-strong">
+        {{ "selected" | i18n }}
+      </span>
+    </span>
+    <button
+      [class]="elementWithDividerClasses"
+      bitBulkAction
+      icon="bwi-clear"
+      (click)="onClear()"
+      type="button"
+    >
+      {{ "clear" | i18n }}
+    </button>
+
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

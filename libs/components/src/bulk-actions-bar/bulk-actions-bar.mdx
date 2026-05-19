@@ -1,0 +1,56 @@
+import { Canvas, Controls, Description, Meta, Primary, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./bulk-actions-bar.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BulkActionComponent, BulkActionsBarComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+<Primary />
+<Controls />
+
+## Action buttons
+
+Use the `bitBulkAction` attribute on a `<button>` or `<a>` for each action you project into the bar.
+The `[icon]` input is required — a bulk action without an icon is not a valid use of this component.
+The consumer keeps full control of `(click)`, `[disabled]`, and other host concerns.
+
+```html
+<button bitBulkAction icon="bwi-trash" (click)="deleteSelected()">Delete</button>
+```
+
+## Visibility
+
+The bar auto-renders when `selectedCount > 0` and slides offscreen when the count returns to `0`. It
+stays mounted at all times — visibility is purely a CSS transform — so screen readers can still
+announce the count-to-zero transition via the bar's internal live region.
+
+## Clearing the selection
+
+The trailing close (×) button is always rendered. Wire `(clear)` to reset your selection state —
+typically a CDK `SelectionModel.clear()` call. `Escape` deliberately does nothing; clearing is an
+explicit action.
+
+## Keyboard shortcut
+
+By default, pressing <kbd>Cmd+B</kbd> (Mac) or <kbd>Ctrl+B</kbd> (Windows/Linux) while the bar is
+visible jumps focus into the bar. Pressing it again restores focus to whatever element was focused
+before.
+
+The default uses a `cmdOrCtrl: true` flag on the `FocusShortcut` so a single declaration covers both
+platforms. Override with a custom combination via `[focusShortcut]` or disable entirely by passing
+`null`.
+
+<Canvas of={stories.CustomShortcut} />
+
+## Accessibility
+
+- The bar has `role="region"` with a localized `aria-label` for landmark navigation (NVDA
+  <kbd>D</kbd>, VoiceOver <kbd>VO+U</kbd>).
+- A visually-hidden `role="status" aria-live="polite"` region outside the bar announces count
+  changes — including the "Selection cleared" transition that fires after the bar slides away.
+- While hidden, the bar carries `inert` so it can't be focused or read by assistive technology.
