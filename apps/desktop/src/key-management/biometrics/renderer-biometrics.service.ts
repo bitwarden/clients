@@ -44,7 +44,7 @@ export function createBiometricsDriver(
     async unlock_biometrics(user_id: UserId): Promise<SymmetricKey | undefined> {
       const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
       if (key != null && SET_USERKEY_UNLOCK) {
-        await unlockService.unlockWithDecryptedKey(fromSdkUserId(user_id), key);
+        await unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
       }
       return key;
     },

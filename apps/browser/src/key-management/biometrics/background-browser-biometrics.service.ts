@@ -64,8 +64,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      const result = await ipcRequestAuthenticateBiometrics(this.ipcService().client);
-      return result;
+      if (!this.nativeMessagingBackground().connected) {
+        return false;
+      } else {
+        return await ipcRequestAuthenticateBiometrics(this.ipcService().client);
+      }
     }
 
     try {
@@ -83,8 +86,12 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      // Handle SDK-based biometrics status check
-      return BiometricsStatus.Available;
+      if (!this.nativeMessagingBackground().connected) {
+        return BiometricsStatus.DesktopDisconnected;
+      } else {
+        // Handle SDK-based biometrics status check
+        return BiometricsStatus.Available;
+      }
     }
 
     if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
@@ -109,17 +116,24 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      // Handle SDK-based biometric unlock
-      try {
-        const response = await ipcRequestUnlockBiometrics(this.ipcService().client, fromTsUserId(userId));
-        if (response.user_key) {
-          await this.biometricStateService.setBiometricUnlockEnabled(true);
-          await this.keyService.setUserKey(SymmetricCryptoKey.fromSdk(response.user_key) as UserKey, userId);
-          await this.pinService.userUnlocked(userId);
-          // to update badge and other things
-          this.messagingService.send("switchAccount", { userId });
-          return SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
-        } else {
+      if (!this.nativeMessagingBackground().connected) {
+        return null;
+      } else {
+        // Handle SDK-based biometric unlock
+        try {
+          const response = await ipcRequestUnlockBiometrics(this.ipcService().client, fromTsUserId(userId));
+          if (response.user_key) {
+            await this.biometricStateService.setBiometricUnlockEnabled(true);
+            await this.keyService.setUserKey(SymmetricCryptoKey.fromSdk(response.user_key) as UserKey, userId);
+            await this.pinService.userUnlocked(userId);
+            // to update badge and other things
+            this.messagingService.send("switchAccount", { userId });
+            return SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
+          } else {
+            return null;
+          }
+        } catch (e) {
+          this.logService.info("Biometric unlock for user failed", e);
           return null;
         }
       }
@@ -157,8 +171,12 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      const status = await ipcRequestGetBiometricsStatus(this.ipcService().client, fromTsUserId(id));
-      return toTsBiometricsStatus(status);
+      if (!this.nativeMessagingBackground().connected) {
+        return BiometricsStatus.DesktopDisconnected;
+      } else {
+        const status = await ipcRequestGetBiometricsStatus(this.ipcService().client, fromTsUserId(id));
+        return toTsBiometricsStatus(status);
+      }
     }
 
     try {
