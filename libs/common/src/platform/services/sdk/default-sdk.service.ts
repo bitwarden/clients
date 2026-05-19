@@ -201,7 +201,7 @@ export class DefaultSdkService implements SdkService {
               settings,
             );
             await this.initializeClient(userId, client);
-            
+
             // Returns a locked SDK client, if any of these values are missing
             if (kdfParams == null || accountCryptographicState == null || userKey == null) {
               return client;
