@@ -3,7 +3,7 @@
   [bitSubmit]="data.orgDomain ? verifyDomain : saveDomain"
   [allowDisabledFormSubmit]="true"
 >
-  <bit-dialog [dialogSize]="'default'" [disablePadding]="false">
+  <bit-dialog [dialogSize]="'default'">
     <span bitDialogTitle>
       <span *ngIf="!data.orgDomain">{{ "newDomain" | i18n }}</span>
       <span *ngIf="data.orgDomain">

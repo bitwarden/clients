@@ -89,17 +89,8 @@ export class NewItemNudgeComponent {
         this.nudgeBodyLinkUrl = "https://bitwarden.com/help/ssh-agent";
         return NudgeType.NewSshItemStatus;
       }
-      case CipherType.BankAccount:
-        this.dismissalNudgeType = NudgeType.NewBankAccountItemStatus;
-        this.nudgeTitle = this.i18nService.t("newBankAccountNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
-        return NudgeType.NewBankAccountItemStatus;
-
-      case CipherType.DriversLicense: {
-        return null;
-      }
       default:
-        throw new Error("Unsupported cipher type");
+        return null;
     }
   }
 

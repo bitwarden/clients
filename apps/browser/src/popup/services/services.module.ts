@@ -374,7 +374,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: ForegroundBrowserBiometricsService,
-    deps: [PlatformUtilsService],
+    deps: [],
   }),
   safeProvider({
     provide: SyncService,
