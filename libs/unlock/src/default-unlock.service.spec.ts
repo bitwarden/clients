@@ -42,6 +42,7 @@ const mockMasterPasswordUnlockData = { some: "unlockData", salt: "salt", kdf: "p
 describe("DefaultUnlockService", () => {
   const registerSdkService = mock<RegisterSdkService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const pinStateService = mock<PinStateServiceAbstraction>();
   const kdfService = mock<KdfConfigService>();
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
@@ -51,7 +52,6 @@ describe("DefaultUnlockService", () => {
   const biometricsService = mock<BiometricsService>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const biometricStateService = mock<BiometricStateService>();
-  const pinStateService = mock<PinStateServiceAbstraction>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
