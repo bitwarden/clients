@@ -15,7 +15,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
   showPageIcons = true;
   emailEntryPageTitle = "logInToBitwarden";
   masterPasswordPageTitle = "welcomeBack";
-  hintLinkText = "getMasterPasswordHint";
 
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,

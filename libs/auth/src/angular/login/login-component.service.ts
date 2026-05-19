@@ -28,9 +28,6 @@ export abstract class LoginComponentService {
   /** The page title on the master password entry screen. */
   abstract masterPasswordPageTitle: string;
 
-  /** The hint link text on the master password entry screen. */
-  abstract hintLinkText: string;
-
   /**
    * Gets the organization policies if there is an organization invite.
    * - Used by: Web

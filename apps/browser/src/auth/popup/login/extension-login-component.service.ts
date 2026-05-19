@@ -21,7 +21,6 @@ export class ExtensionLoginComponentService
   showPageIcons = false;
   emailEntryPageTitle = "logIn";
   masterPasswordPageTitle = "logIn";
-  hintLinkText = "hint";
 
   constructor(
     cryptoFunctionService: CryptoFunctionService,

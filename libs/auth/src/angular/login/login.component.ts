@@ -96,7 +96,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   readonly Icons = { WaveIcon, VaultIcon };
-  protected hintLinkText: string;
 
   clientType: ClientType;
   ClientType = ClientType;
@@ -154,8 +153,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private passwordPreloginService: PasswordPreloginService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
-
-    this.hintLinkText = this.loginComponentService.hintLinkText;
   }
 
   async ngOnInit(): Promise<void> {
