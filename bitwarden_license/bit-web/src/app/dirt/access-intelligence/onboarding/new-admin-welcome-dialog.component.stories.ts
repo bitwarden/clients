@@ -12,16 +12,16 @@ import {
 } from "@bitwarden/components";
 import { VaultCarouselModule } from "@bitwarden/vault";
 
+import { NewAdminWelcomeDialogComponent } from "./new-admin-welcome-dialog.component";
 import { OnboardingService } from "./services/onboarding.service";
-import { WelcomeCarouselDialogComponent } from "./welcome-carousel-dialog.component";
 
 const mockDialogRef = { close: async () => {} };
 const mockOnboardingService = { setCarouselAcknowledged: async () => {} };
 const mockOrganizationId = "story-org-id" as OrganizationId;
 
 export default {
-  title: "Access Intelligence/WelcomeCarouselDialog",
-  component: WelcomeCarouselDialogComponent,
+  title: "Access Intelligence/NewAdminWelcomeDialog",
+  component: NewAdminWelcomeDialogComponent,
   decorators: [
     moduleMetadata({
       imports: [VaultCarouselModule, DialogModule, ButtonModule, TypographyModule],
@@ -36,6 +36,6 @@ export default {
   ],
 } as Meta;
 
-type Story = StoryObj<WelcomeCarouselDialogComponent>;
+type Story = StoryObj<NewAdminWelcomeDialogComponent>;
 
 export const Default: Story = {};
