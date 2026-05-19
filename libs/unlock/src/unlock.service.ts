@@ -1,7 +1,7 @@
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 /**
  * Service for unlocking a user's account with various methods.
