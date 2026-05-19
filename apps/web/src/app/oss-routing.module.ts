@@ -609,10 +609,9 @@ const routes: Routes = [
         path: "premium/checkout/success",
         data: {
           titleId: "paymentSuccessful",
-          pageTitle: null,
           pageIcon: null,
           doNotSaveUrl: true,
-          maxWidth: "xl",
+          maxWidth: "lg",
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
       },
