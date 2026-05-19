@@ -816,6 +816,12 @@ export class EventService {
       case EventType.Send_Created_File_WithPasswordProtection:
         msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
         break;
+      case EventType.Send_Deleted_Text:
+        msg = humanReadableMsg = this.i18nService.t("deletedTextSend");
+        break;
+      case EventType.Send_Deleted_File:
+        msg = humanReadableMsg = this.i18nService.t("deletedFileSend");
+        break;
 
       default:
         break;
