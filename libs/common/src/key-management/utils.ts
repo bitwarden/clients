@@ -3,8 +3,8 @@ import { catchError, firstValueFrom, map, Observable } from "rxjs";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
-import { RegisterSdkService } from "../platform/abstractions/sdk/register-sdk.service";
 import { SdkService } from "../platform/abstractions/sdk/sdk.service";
+import { assertNonNullish } from "../auth/utils";
 
 export async function firstValueFromOrThrow<T>(
   value: Observable<T | null>,
@@ -28,15 +28,40 @@ export async function firstValueFromOrThrow<T>(
 export async function withPasswordManagerSdk<TResult>(
   userId: UserId,
   sdkService: SdkService,
-  passedInFunction: (sdk: PasswordManagerClient) => TResult,
+  passedInFunction: (sdk: PasswordManagerClient) => Promise<TResult>,
 ): Promise<TResult> {
   return await firstValueFrom(
     sdkService.userClient$(userId).pipe(
-      map((sdk) => {
+      map(async (sdk) => {
         using ref = sdk.take();
-        return passedInFunction(ref.value);
+        return await passedInFunction(ref.value);
       }),
     ),
   );
 
+}
+
+/**
+ * Method decorator that asserts the named positional arguments are non-nullish
+ * before the method body runs. Otherwise throws.
+ *
+ * @example
+ * ```ts
+ *   @assertParametersNonNull()
+ *   async setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void> {
+ *     // ...
+ *   }
+ * ```
+ */
+export function assertParametersNonNull(): MethodDecorator {
+  return (_target, _propertyKey, descriptor: PropertyDescriptor) => {
+    const original = descriptor.value as (...args: unknown[]) => unknown;
+    descriptor.value = function (this: unknown, ...args: unknown[]) {
+      for (let i = 0; i < args.length; i++) {
+        assertNonNullish(args[i], `parameter ${i}`);
+      }
+      return original.apply(this, args);
+    };
+    return descriptor;
+  };
 }

@@ -1,9 +1,8 @@
 import { PinLockType, PinSettingsClient } from "@bitwarden/sdk-internal";
 
-import { assertNonNullish } from "../../auth/utils";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
-import { withPasswordManagerSdk } from "../utils";
+import { assertParametersNonNull, withPasswordManagerSdk } from "../utils";
 
 import { PinServiceAbstraction } from "./pin.service.abstraction";
 
@@ -15,65 +14,60 @@ export class PinService implements PinServiceAbstraction {
     private sdkService: SdkService,
   ) {}
 
+  @assertParametersNonNull()
   async getPinLockType(userId: UserId): Promise<PinLockType | undefined> {
-    assertNonNullish(userId, "userId");
-    return await this.withPinSettingsClient(userId, (client) => {
-      return client.get_lock_type();
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.get_lock_type();
     });
   }
 
+  @assertParametersNonNull()
   async isPinSet(userId: UserId): Promise<boolean> {
-    assertNonNullish(userId, "userId");
-    const pinStatus = await this.withPinSettingsClient(userId, (client) => {
-      return client.get_status();
+    return await this.withPinSettingsClient(userId, async (client) => {
+      const pinStatus = await client.get_status();
+      return pinStatus === "Available" || pinStatus === "NeedsUnlock";
     });
-    return pinStatus === "Available" || pinStatus === "NeedsUnlock";
   }
 
+  @assertParametersNonNull()
   async logout(userId: UserId): Promise<void> {
-    assertNonNullish(userId, "userId");
-    return await this.withPinSettingsClient(userId, (client) => {
-      return client.unset_pin();
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.unset_pin();
     });
   }
 
+  @assertParametersNonNull()
   async getPin(userId: UserId): Promise<string | undefined> {
-    assertNonNullish(userId, "userId");
-    return await this.withPinSettingsClient(userId, (client) => {
-      return client.get_pin();
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.get_pin();
     });
   }
 
+  @assertParametersNonNull()
   async setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void> {
-    assertNonNullish(pin, "pin");
-    assertNonNullish(pinLockType, "pinLockType");
-    assertNonNullish(userId, "userId");
-    return await this.withPinSettingsClient(userId, (client) => {
-      return client.set_pin(pin, pinLockType);
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.set_pin(pin, pinLockType);
     });
   }
 
+  @assertParametersNonNull()
   async unsetPin(userId: UserId): Promise<void> {
-    assertNonNullish(userId, "userId");
-    return await this.withPinSettingsClient(userId, (client) => {
-      return client.unset_pin();
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.unset_pin();
     });
   }
 
+  @assertParametersNonNull()
   async isPinDecryptionAvailable(userId: UserId): Promise<boolean> {
-    assertNonNullish(userId, "userId");
-    return (
-      (await this.withPinSettingsClient(userId, (client) => {
-        return client.get_status();
-      })) === "Available"
-    );
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.get_status() === "Available";
+    });
   }
 
+  @assertParametersNonNull()
   async validatePin(pin: string, userId: UserId): Promise<boolean> {
-    assertNonNullish(pin, "pin");
-    assertNonNullish(userId, "userId");
-    return await this.withPinSettingsClient(userId, (client) => {
-      return client.validate_pin(pin);
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.validate_pin(pin);
     });
   }
 
@@ -81,10 +75,10 @@ export class PinService implements PinServiceAbstraction {
   // This makes repeated calls to the SDK more compact
   private async withPinSettingsClient<TResult>(
     userId: UserId,
-    fn: (pinSettingsClient: PinSettingsClient) => TResult,
+    passedInFunction: (pinSettingsClient: PinSettingsClient) => Promise<TResult>,
   ): Promise<TResult> {
-    return await withPasswordManagerSdk(userId, this.sdkService, (sdk) => {
-      return fn(sdk.user_crypto_management().pin_settings());
+    return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+      return await passedInFunction(sdk.user_crypto_management().pin_settings());
     });
   }
 }
