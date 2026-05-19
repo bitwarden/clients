@@ -69,14 +69,8 @@ export class DefaultUnlockService implements UnlockService {
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
     const startTime = performance.now();
     await this.unlockWithMethod(userId, {
-<<<<<<< km/pin-management-sdk
       pinState: {
         pin,
-=======
-      pinEnvelope: {
-        pin,
-        pin_protected_user_key_envelope: await this.getPinProtectedUserKeyEnvelope(userId),
->>>>>>> km/refactor/unlock
       },
     });
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithPin");
@@ -137,7 +131,6 @@ export class DefaultUnlockService implements UnlockService {
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
   }
 
-<<<<<<< km/pin-management-sdk
   async unlockWithDecryptedKey(userId: UserId, key: SymmetricKey): Promise<void> {
     const startTime = performance.now();
     await this.unlockWithMethod(userId, {
@@ -146,21 +139,6 @@ export class DefaultUnlockService implements UnlockService {
       },
     });
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithDecryptedKey");
-=======
-  async unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
-    const startTime = performance.now();
-    await this.unlockWithMethod(userId, {
-      decryptedKey: {
-        decrypted_user_key: userKey.toSdk(),
-      },
-    });
-    this.logService.measure(
-      startTime,
-      "Unlock",
-      "DefaultUnlockService",
-      "unlockWithDecryptedUserKey",
-    );
->>>>>>> km/refactor/unlock
   }
 
   private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {

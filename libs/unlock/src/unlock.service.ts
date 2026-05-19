@@ -57,9 +57,5 @@ export abstract class UnlockService {
    * @throws If the SDK is not available
    * @throws If decryption fails or the key is invalid
    */
-<<<<<<< km/pin-management-sdk
-  abstract unlockWithDecryptedKey(userId: UserId, userKey: SymmetricKey): Promise<void>;
-=======
   abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
->>>>>>> km/refactor/unlock
 }
