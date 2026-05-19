@@ -38,6 +38,13 @@ export function filePickerPopoutGuard(): CanActivateFn {
 
     let needsPopout = false;
 
+    // The import page can launch long-running browser flows like Keeper SSO.
+    // Keep it in a persistent extension context so opening an active tab does not
+    // close the normal popup and tear down listeners.
+    if (isImportRoute(state.url) && !inPopout && !inSidebar) {
+      needsPopout = true;
+    }
+
     // Firefox: needs sidebar OR popout to avoid crash with file picker
     if (deviceType === DeviceType.FirefoxExtension && !inPopout && !inSidebar) {
       needsPopout = true;
@@ -93,4 +100,8 @@ function isTextSendRoute(url: string): boolean {
     return false;
   }
   return new URLSearchParams(url.substring(queryStart + 1)).get("type") === String(SendType.Text);
+}
+
+function isImportRoute(url: string): boolean {
+  return url === "/import" || url.startsWith("/import?");
 }

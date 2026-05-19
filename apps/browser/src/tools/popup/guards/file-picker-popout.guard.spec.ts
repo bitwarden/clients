@@ -260,6 +260,33 @@ describe("filePickerPopoutGuard", () => {
       expect(closePopupSpy).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
+
+    it("should open popout for import route on Windows when not in popout or sidebar", async () => {
+      const importState: RouterStateSnapshot = {
+        url: "/import",
+      } as RouterStateSnapshot;
+
+      const guard = filePickerPopoutGuard();
+      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
+
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import");
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
+      expect(result).toBe(false);
+    });
+
+    it("should allow import route navigation when already in a persistent context", async () => {
+      inPopoutSpy.mockReturnValue(true);
+      const importState: RouterStateSnapshot = {
+        url: "/import",
+      } as RouterStateSnapshot;
+
+      const guard = filePickerPopoutGuard();
+      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
+
+      expect(openPopoutSpy).not.toHaveBeenCalled();
+      expect(closePopupSpy).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+    });
   });
 
   describe("File picker routes", () => {
