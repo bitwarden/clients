@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Critical apps at risk"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Critical applications at risk"
+  },
   "allCriticalApps": {
     "message": "All critical apps"
   },
@@ -337,8 +340,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "These members have access to vulnerable items for critical applications."
   },
-  "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+  "membersWithAtRiskPwds": {
+    "message": "Members with at risk passwords"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
@@ -367,6 +383,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal":{
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -10879,6 +10904,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
+  },
+  "sendNotifications": {
+    "message": "Send notifications"
   },
   "assignToCollections": {
     "message": "Assign to collections"

@@ -365,21 +365,24 @@ describe("NewApplicationsDialogV2Component", () => {
       // Select app with no at-risk ciphers
       testAccess(component).toggleSelection("bitbucket.org"); // u4: false, c4: false
 
-      const handleAssignTasksSpy = jest.spyOn(testAccess(component), "handleAssignTasks");
+      const handleSendNotificationsSpy = jest.spyOn(
+        testAccess(component),
+        "handleSendNotifications",
+      );
 
       await testAccess(component).handleMarkAsCritical();
 
-      // Should call handleAssignTasks directly (skip assign view)
-      expect(handleAssignTasksSpy).toHaveBeenCalled();
+      // Should call handleSendNotifications directly (skip assign view)
+      expect(handleSendNotificationsSpy).toHaveBeenCalled();
 
-      handleAssignTasksSpy.mockRestore();
+      handleSendNotificationsSpy.mockRestore();
     });
 
-    it("should handle handleAssignTasks - marks apps and assigns tasks", (done) => {
+    it("should handle handleSendNotifications - marks apps and assigns tasks", (done) => {
       testAccess(component).toggleSelection("github.com");
       testAccess(component).toggleSelection("gitlab.com");
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       // Wait for async operations
       setTimeout(() => {
@@ -422,7 +425,7 @@ describe("NewApplicationsDialogV2Component", () => {
     it("should call markApplicationsAsCritical$ for selected apps", (done) => {
       testAccess(component).toggleSelection("github.com");
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       setTimeout(() => {
         expect(mockAccessIntelligenceService.markApplicationsAsCritical$).toHaveBeenCalledWith(
@@ -435,7 +438,7 @@ describe("NewApplicationsDialogV2Component", () => {
     it("should call markApplicationsAsReviewed$ once with all apps", (done) => {
       testAccess(component).toggleSelection("github.com"); // Select only one
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       setTimeout(() => {
         // All apps should be marked as reviewed in a single bulk call
@@ -447,7 +450,7 @@ describe("NewApplicationsDialogV2Component", () => {
     it("should call requestPasswordChangeForCriticalApplications with cipher IDs", (done) => {
       testAccess(component).toggleSelection("github.com");
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       setTimeout(() => {
         expect(
@@ -470,7 +473,7 @@ describe("NewApplicationsDialogV2Component", () => {
 
       testAccess(component).toggleSelection("github.com");
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       setTimeout(() => {
         expect(mockToastService.showToast).toHaveBeenCalledWith(
@@ -494,7 +497,7 @@ describe("NewApplicationsDialogV2Component", () => {
 
       testAccess(component).toggleSelection("github.com");
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       setTimeout(() => {
         expect(mockLogService.error).toHaveBeenCalledWith(
@@ -582,10 +585,10 @@ describe("NewApplicationsDialogV2Component", () => {
       expect(testAccess(newComponent).hasNoCriticalApplications()).toBe(false);
     });
 
-    it("should prevent double-click on handleAssignTasks", () => {
+    it("should prevent double-click on handleSendNotifications", () => {
       testAccess(component).saving.set(true);
 
-      testAccess(component).handleAssignTasks();
+      testAccess(component).handleSendNotifications();
 
       // Should return early and not call service
       expect(mockAccessIntelligenceService.markApplicationsAsReviewed$).not.toHaveBeenCalled();
