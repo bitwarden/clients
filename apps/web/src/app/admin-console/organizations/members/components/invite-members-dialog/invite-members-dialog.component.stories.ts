@@ -1,7 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
-import { userEvent, within } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -12,10 +11,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
-import {
-  OrganizationInviteLink,
-  OrganizationInviteLinkService,
-} from "@bitwarden/organization-invite-link";
+import { OrganizationInviteLinkService } from "@bitwarden/organization-invite-link";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, UserAdminService } from "../../../core";
@@ -43,19 +39,6 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     ...overrides,
   } as unknown as Organization;
 }
-
-const mockInviteLink: OrganizationInviteLink = Object.assign(
-  new OrganizationInviteLink({} as any),
-  {
-    id: "link-1",
-    code: "abc123",
-    organizationId: "org-1",
-    allowedDomains: ["example.com", "acme.org"],
-    encryptedInviteKey: "enc-key",
-    encryptedOrgKey: undefined,
-    creationDate: "2025-01-15T10:30:00Z",
-  },
-);
 
 const dialogParams: InviteMembersDialogParams = {
   organizationId: "org-1",
@@ -99,15 +82,6 @@ const mockCollectionAdminService = {
 const mockInviteLinkServiceNoLink = {
   inviteLink$: () => of(undefined),
   reconstructUrl: () => of(undefined),
-  createInviteLink: () => Promise.resolve(),
-  updateInviteLink: () => Promise.resolve(),
-  refreshInviteLink: () => Promise.resolve(),
-};
-
-// Used in ByLinkTabActive story where the link tab is shown with an existing link
-const mockInviteLinkServiceWithLink = {
-  inviteLink$: () => of(mockInviteLink),
-  reconstructUrl: () => of("https://vault.bitwarden.com/#/join/org-1?key=XYZ"),
   createInviteLink: () => Promise.resolve(),
   updateInviteLink: () => Promise.resolve(),
   refreshInviteLink: () => Promise.resolve(),
@@ -160,33 +134,6 @@ export const WithInviteLinks: Story = {
   render: () => ({
     template: `<app-invite-members-dialog></app-invite-members-dialog>`,
   }),
-};
-
-/**
- * Dialog with the "By Link" tab active and no invite link generated yet.
- */
-export const ByLinkTabActive: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [
-        {
-          provide: OrganizationService,
-          useValue: {
-            organizations$: () => of([mockOrganization({ useInviteLinks: true })]),
-          },
-        },
-        { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceWithLink },
-      ],
-    }),
-  ],
-  render: () => ({
-    template: `<app-invite-members-dialog></app-invite-members-dialog>`,
-  }),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const byLinkTab = await canvas.findByRole("tab", { name: /by link/i });
-    await userEvent.click(byLinkTab);
-  },
 };
 
 /**
