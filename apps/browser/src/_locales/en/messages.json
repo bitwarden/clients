@@ -2864,10 +2864,7 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Your new master password does not meet the policy requirements."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
-  },
-  "receiveMarketingEmailsShort": {
+  "receiveMarketingEmails": {
     "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {

@@ -93,8 +93,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   showErrorSummary = false;
 
-  protected marketingEmailsLabelText = "";
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -108,7 +106,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private registrationStartComponentService: RegistrationStartComponentService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
-    this.marketingEmailsLabelText = this.registrationStartComponentService.marketingEmailsLabelText;
   }
 
   async ngOnInit() {

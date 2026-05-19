@@ -4,7 +4,4 @@ export abstract class RegistrationStartComponentService {
 
   /** Whether the data entry screen should use the anon-layout adjusted layout (left-aligned, reduced padding) */
   abstract dataEntryAdjustedLayout: boolean;
-
-  /** The marketing emails checkbox label text. */
-  abstract marketingEmailsLabelText: string;
 }

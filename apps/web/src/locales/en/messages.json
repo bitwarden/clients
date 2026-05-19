@@ -5599,11 +5599,8 @@
   "nothingSelected": {
     "message": "You have not selected anything."
   },
-  "receiveMarketingEmailsV2": {
+  "receiveMarketingEmails": {
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
-  },
-  "receiveMarketingEmailsShort": {
-    "message": "Receive updates from Bitwarden in your inbox."
   },
   "subscribe": {
     "message": "Subscribe"

@@ -12,5 +12,4 @@ export class ExtensionRegistrationStartComponentService
 {
   showDataEntryPageIcon = false;
   dataEntryAdjustedLayout = true;
-  marketingEmailsLabelText = "receiveMarketingEmailsShort";
 }
