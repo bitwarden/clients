@@ -380,11 +380,14 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const decryptResult = await ref.value.vault().ciphers().get_all();
+          const decryptResult = await sdkCiphersClient.get_all();
 
           const successes = [...(decryptResult.successes ?? [])]
-            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
+            .map((sdkCipherView: any) =>
+              CipherView.fromSdkCipherView(sdkCipherView, sdkCiphersClient),
+            )
             .filter((v): v is CipherView => v !== undefined);
 
           const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {
