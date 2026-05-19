@@ -222,7 +222,7 @@ export const Compact: Story = {
     props: args,
     template: /*html*/ `
       <div
-        class="tw-relative tw-w-[280px] tw-h-32 tw-border tw-border-dashed tw-border-secondary-300"
+        class="tw-relative tw-w-[325px] tw-h-32"
         style="transform: translateX(0)"
       >
         <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
