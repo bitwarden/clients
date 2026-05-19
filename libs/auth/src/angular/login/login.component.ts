@@ -97,7 +97,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   readonly Icons = { WaveIcon, VaultIcon };
   protected hintLinkText: string;
-  protected submitButtonText: string;
 
   clientType: ClientType;
   ClientType = ClientType;
@@ -157,7 +156,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.clientType = this.platformUtilsService.getClientType();
 
     this.hintLinkText = this.loginComponentService.hintLinkText;
-    this.submitButtonText = this.loginComponentService.submitButtonText;
   }
 
   async ngOnInit(): Promise<void> {
