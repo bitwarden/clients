@@ -84,6 +84,17 @@ describe("AddEditCustomFieldDialogComponent", () => {
     );
   });
 
+  it('filters out "Linked" field type for Passport cipher type', () => {
+    dialogData.cipherType = CipherType.Passport;
+
+    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
+    component = fixture.componentInstance;
+
+    expect(component.fieldTypeOptions).not.toContainEqual(
+      expect.objectContaining({ value: FieldType.Linked }),
+    );
+  });
+
   it('filters out "Linked" field type for Drivers License cipher type', () => {
     dialogData.cipherType = CipherType.DriversLicense;
 

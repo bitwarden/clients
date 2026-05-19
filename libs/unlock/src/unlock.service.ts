@@ -2,6 +2,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { SymmetricKey } from "@bitwarden/sdk-internal";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 /**
  * Service for unlocking a user's account with various methods.
@@ -56,5 +57,9 @@ export abstract class UnlockService {
    * @throws If the SDK is not available
    * @throws If decryption fails or the key is invalid
    */
+<<<<<<< km/pin-management-sdk
   abstract unlockWithDecryptedKey(userId: UserId, userKey: SymmetricKey): Promise<void>;
+=======
+  abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
+>>>>>>> km/refactor/unlock
 }
