@@ -19,7 +19,7 @@ export class PinService implements PinServiceAbstraction {
 
   async getPinLockType(userId: UserId): Promise<PinLockType | undefined> {
     assertNonNullish(userId, "userId");
-    return this.withPinSettingsClient(userId, (client) => {
+    return await this.withPinSettingsClient(userId, (client) => {
       return client.get_lock_type();
     });
   }
@@ -34,14 +34,14 @@ export class PinService implements PinServiceAbstraction {
 
   async logout(userId: UserId): Promise<void> {
     assertNonNullish(userId, "userId");
-    return this.withPinSettingsClient(userId, (client) => {
+    return await this.withPinSettingsClient(userId, (client) => {
       return client.unset_pin();
     });
   }
 
   async getPin(userId: UserId): Promise<string | undefined> {
     assertNonNullish(userId, "userId");
-    return this.withPinSettingsClient(userId, (client) => {
+    return await this.withPinSettingsClient(userId, (client) => {
       return client.get_pin();
     });
   }
@@ -50,14 +50,14 @@ export class PinService implements PinServiceAbstraction {
     assertNonNullish(pin, "pin");
     assertNonNullish(pinLockType, "pinLockType");
     assertNonNullish(userId, "userId");
-    return this.withPinSettingsClient(userId, (client) => {
+    return await this.withPinSettingsClient(userId, (client) => {
       return client.set_pin(pin, pinLockType);
     });
   }
 
   async unsetPin(userId: UserId): Promise<void> {
     assertNonNullish(userId, "userId");
-    return this.withPinSettingsClient(userId, (client) => {
+    return await this.withPinSettingsClient(userId, (client) => {
       return client.unset_pin();
     });
   }
@@ -74,7 +74,7 @@ export class PinService implements PinServiceAbstraction {
   async validatePin(pin: string, userId: UserId): Promise<boolean> {
     assertNonNullish(pin, "pin");
     assertNonNullish(userId, "userId");
-    return this.withPinSettingsClient(userId, (client) => {
+    return await this.withPinSettingsClient(userId, (client) => {
       return client.validate_pin(pin);
     });
   }
@@ -85,7 +85,7 @@ export class PinService implements PinServiceAbstraction {
     userId: UserId,
     fn: (pinSettingsClient: PinSettingsClient) => TResult,
   ): Promise<TResult> {
-    return withPasswordManagerSdk(userId, this.sdkService, this.registerSdkService, (sdk) => {
+    return await withPasswordManagerSdk(userId, this.sdkService, this.registerSdkService, (sdk) => {
       return fn(sdk.user_crypto_management().pin_settings());
     });
   }
