@@ -37,5 +37,25 @@
         {{ renewalDate | date: "MMMM d, y" }}
       </dd>
     </div>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
+      <dt bitTypography="body1" class="tw-m-0 tw-text-fg-body-subtle">
+        {{ "upgradeStatus" | i18n }}
+      </dt>
+      <dd class="tw-m-0">
+        <span bitBadge variant="info" startIcon="bwi-clock" data-testid="upgrade-status-badge">
+          {{ "processing" | i18n }}
+        </span>
+      </dd>
+    </div>
   </dl>
+
+  <a
+    bitButton
+    buttonType="primary"
+    [routerLink]="managePlanRoute"
+    endIcon="bwi-external-link"
+    data-testid="manage-plan-button"
+  >
+    {{ "managePlanInWebApp" | i18n }}
+  </a>
 </div>

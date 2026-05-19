@@ -1,13 +1,29 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { RouterLink } from "@angular/router";
 
-import { IconModule, IconTileComponent, TypographyModule } from "@bitwarden/components";
+import {
+  BadgeModule,
+  ButtonModule,
+  IconModule,
+  IconTileComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   templateUrl: "./premium-checkout-success.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, I18nPipe, IconModule, IconTileComponent, TypographyModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    I18nPipe,
+    BadgeModule,
+    ButtonModule,
+    IconModule,
+    IconTileComponent,
+    TypographyModule,
+  ],
 })
 export class PremiumCheckoutSuccessComponent {
   // Rendered at an anonymous route — we can't call AccountBillingClient here.
@@ -19,4 +35,5 @@ export class PremiumCheckoutSuccessComponent {
     renewal.setFullYear(renewal.getFullYear() + 1);
     return renewal;
   })();
+  protected readonly managePlanRoute = "/settings/subscription/premium";
 }

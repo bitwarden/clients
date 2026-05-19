@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,7 +19,7 @@ describe("PremiumCheckoutSuccessComponent", () => {
     i18nService.t.mockImplementation((key) => key);
 
     await TestBed.configureTestingModule({
-      imports: [PremiumCheckoutSuccessComponent],
+      imports: [PremiumCheckoutSuccessComponent, RouterTestingModule],
       providers: [{ provide: I18nService, useValue: i18nService }],
     }).compileComponents();
 
@@ -44,7 +45,7 @@ describe("PremiumCheckoutSuccessComponent", () => {
     const labels = Array.from(fixture.nativeElement.querySelectorAll("dl dt")).map((dt: Element) =>
       (dt as HTMLElement).textContent?.trim(),
     );
-    expect(labels).toEqual(["planPurchased", "startDate", "renewalDate"]);
+    expect(labels).toEqual(["planPurchased", "startDate", "renewalDate", "upgradeStatus"]);
   });
 
   it("renders Premium as the plan value", () => {
@@ -60,9 +61,16 @@ describe("PremiumCheckoutSuccessComponent", () => {
     expect(values[2]).toBe("May 15, 2027");
   });
 
-  it("does not render a spinner, manage-plan button, or status badge", () => {
-    expect(fixture.nativeElement.querySelector("bit-icon[name='bwi-spinner']")).toBeNull();
-    expect(fixture.nativeElement.querySelector("[data-testid='manage-plan-button']")).toBeNull();
-    expect(fixture.nativeElement.querySelector("[data-testid='upgrade-status-badge']")).toBeNull();
+  it("renders the Processing upgrade-status badge", () => {
+    const badge = fixture.nativeElement.querySelector("[data-testid='upgrade-status-badge']");
+    expect(badge).not.toBeNull();
+    expect(badge?.textContent?.trim()).toBe("processing");
+  });
+
+  it("renders the manage-plan button linking to the subscription page", () => {
+    const button = fixture.nativeElement.querySelector("[data-testid='manage-plan-button']");
+    expect(button).not.toBeNull();
+    expect(button?.textContent?.trim()).toBe("managePlanInWebApp");
+    expect(button?.getAttribute("href")).toBe("/settings/subscription/premium");
   });
 });
