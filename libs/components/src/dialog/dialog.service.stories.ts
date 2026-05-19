@@ -93,6 +93,14 @@ class StoryDialogComponent {
   openStackedDrawer() {
     void this.dialogService.openDrawer(StackedDrawerContentComponent, {
       data: { level: 1 },
+      closePredicate: async () =>
+        await this.dialogService.openSimpleDialog({
+          title: "Discard level 1?",
+          content: "You have unsaved changes. Close this drawer anyway?",
+          type: "warning",
+          acceptButtonText: "Discard",
+          cancelButtonText: "Keep editing",
+        }),
     });
   }
 }
@@ -235,6 +243,7 @@ class LargeDrawerContentComponent {
 })
 class StackedDrawerContentComponent {
   private drawerRef = inject(DrawerRef, { optional: true });
+  private dialogService = inject(DialogService);
   private data = inject<DrawerLevel>(DIALOG_DATA);
 
   get level() {
@@ -242,8 +251,17 @@ class StackedDrawerContentComponent {
   }
 
   pushNext() {
+    const nextLevel = this.level + 1;
     this.drawerRef?.stack(StackedDrawerContentComponent, {
-      data: { level: this.level + 1 },
+      data: { level: nextLevel },
+      closePredicate: async () =>
+        await this.dialogService.openSimpleDialog({
+          title: `Discard level ${nextLevel}?`,
+          content: "You have unsaved changes. Close this drawer anyway?",
+          type: "warning",
+          acceptButtonText: "Discard",
+          cancelButtonText: "Keep editing",
+        }),
     });
   }
 }
