@@ -19,7 +19,6 @@ export class ExtensionLoginComponentService
   implements LoginComponentService
 {
   showPageIcons = false;
-  masterPasswordPageTitle = "logIn";
 
   constructor(
     cryptoFunctionService: CryptoFunctionService,
