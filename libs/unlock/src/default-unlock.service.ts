@@ -34,7 +34,6 @@ import {
   PasswordManagerClient,
   PasswordProtectedKeyEnvelope,
   PureCrypto,
-  SymmetricKey,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
