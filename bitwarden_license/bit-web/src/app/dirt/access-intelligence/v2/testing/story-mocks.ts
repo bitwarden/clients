@@ -115,13 +115,20 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     prioritizeCriticalApplications: "Prioritize Critical Applications",
     assignSecurityTasksToMembers: "Assign Security Tasks to Members",
     taskSummary: "Task Summary",
-    membersWithAtRiskPasswords: "members have at-risk passwords",
     membersWillReceiveSecurityTask:
       "Members will receive a security task to update their passwords.",
     selectCriticalAppsDescription: "Select which applications are critical to your organization.",
     reviewNewAppsDescription: "Review new applications and mark which ones are critical.",
     clickIconToMarkAppAsCritical: "Click the star icon to mark an app as critical",
     markAsCritical: "Mark as Critical",
+    membersWithAtRiskPwds: "Members with at risk passwords",
+    membersWithAtRiskPasswordsAndForCriticalApplications: (
+      n: string | undefined,
+      m: string | undefined,
+    ) => `${n} Members with at risk passwords for ${m} Critical applications`,
+    ofCountTotal: (n: string | undefined) => `of ${n} total`,
+    sendNotifications: "Send notifications",
+    criticalApplicationsAtRisk: "Critical applications at risk",
 
     // --- Chip filter (used by ChipFilterComponent internally) ---
     viewItemsIn: (name: string | undefined) => `View items in ${name}`,
