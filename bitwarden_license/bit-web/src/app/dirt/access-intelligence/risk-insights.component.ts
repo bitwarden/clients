@@ -286,7 +286,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         take(1),
       )
       .subscribe(() => {
-        void this.launchOnboardingWelcome().catch((error: unknown) => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
           this.logService.error("Failed to launch onboarding welcome", error);
         });
       });
@@ -404,7 +404,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginOnboardingTour();
+      await this.beginPostImportTour();
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -420,9 +420,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected async beginOnboardingTour(): Promise<void> {
+  protected async beginPostImportTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled) {
-      await PostImportModalDialogComponent.showWelcomeDialog(
+      await PostImportModalDialogComponent.showDialog(
         this.injector,
         this.dialogService,
         this.organizationId,
@@ -430,9 +430,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async launchOnboardingWelcome(): Promise<void> {
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled) {
-      await NewAdminWelcomeDialogComponent.showWelcomeCarouselDialog(
+      await NewAdminWelcomeDialogComponent.showDialog(
         this.injector,
         this.dialogService,
         this.organizationId,

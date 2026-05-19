@@ -49,7 +49,7 @@ export class PostImportModalDialogComponent {
       .catch(() => {});
   }
 
-  static async showWelcomeDialog(
+  static async showDialog(
     injector: Injector,
     dialogService: DialogService,
     organizationId: OrganizationId,

@@ -64,7 +64,7 @@ export class NewAdminWelcomeDialogComponent {
     );
   }
 
-  static async showWelcomeCarouselDialog(
+  static async showDialog(
     injector: Injector,
     dialogService: DialogService,
     organizationId: OrganizationId,
@@ -75,7 +75,7 @@ export class NewAdminWelcomeDialogComponent {
       const acknowledged = await onboardingService.isNewAdminWelcomeDialogAcknowledged();
       if (acknowledged) {
         logger.info(
-          "[Access Intelligence Onboarding] Welcome carousel already acknowledged, skipping dialog display.",
+          "[Access Intelligence Onboarding] Welcome dialog already acknowledged, skipping dialog display.",
         );
         return;
       }

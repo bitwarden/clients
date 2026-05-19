@@ -16,6 +16,7 @@
         Import Data from Access Intelligence
       </button>
     </div>
+    <hr />
     <div>
       <button
         type="button"
@@ -48,27 +49,27 @@
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
-        (click)="onBeginTour()"
+        (click)="onBeginPostImportTour()"
       >
-        Begin Tour
+        Begin Post Import Tour
       </button>
     </div>
     <div>
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
-        (click)="onResetWelcomeDialogAck()"
+        (click)="onResetPostImportDialogAck()"
       >
-        Undo Welcome Dialog Acknowledgement
+        Undo Post Import Dialog Acknowledgement
       </button>
     </div>
     <div>
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
-        (click)="onShowWelcomeDialogAckState()"
+        (click)="onShowPostImportDialogAckState()"
       >
-        Acknowledged? {{ welcomeDialogAcked() }}
+        Post Import Dialog Acknowledged? {{ postImportDialogAcked() }}
         <bit-badge variant="secondary">Click to refresh</bit-badge>
       </button>
     </div>

@@ -32,52 +32,36 @@ export class OnboardingService {
   private stateProvider = inject(StateProvider);
 
   async isPostImportDialogAcknowledged(): Promise<boolean> {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (!account) {
-      return false;
-    }
-
-    const acknowledged = await firstValueFrom(
-      this.stateProvider
-        .getUserState$(ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY, account.id)
-        .pipe(map((v) => v ?? false)),
-    );
-
-    return acknowledged;
+    return this.isAcknowledged(ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY);
   }
 
   async setPostImportDialogAcknowledged(value = true) {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (account) {
-      await this.stateProvider.setUserState(
-        ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY,
-        value,
-        account.id,
-      );
-    }
+    await this.setAcknowledged(ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY, value);
   }
 
   async isNewAdminWelcomeDialogAcknowledged(): Promise<boolean> {
+    return this.isAcknowledged(ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY);
+  }
+
+  async setNewAdminWelcomeDialogAcknowledged(value = true) {
+    await this.setAcknowledged(ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY, value);
+  }
+
+  private async isAcknowledged(key: UserKeyDefinition<boolean>): Promise<boolean> {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
       return false;
     }
 
     return await firstValueFrom(
-      this.stateProvider
-        .getUserState$(ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY, account.id)
-        .pipe(map((v) => v ?? false)),
+      this.stateProvider.getUserState$(key, account.id).pipe(map((v) => v ?? false)),
     );
   }
 
-  async setNewAdminWelcomeDialogAcknowledged(value = true) {
+  private async setAcknowledged(key: UserKeyDefinition<boolean>, value = true) {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (account) {
-      await this.stateProvider.setUserState(
-        ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY,
-        value,
-        account.id,
-      );
+      await this.stateProvider.setUserState(key, value, account.id);
     }
   }
 }

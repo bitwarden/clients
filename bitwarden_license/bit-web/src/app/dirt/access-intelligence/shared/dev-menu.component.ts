@@ -30,17 +30,17 @@ export class DevMenuComponent implements OnInit {
   private readonly elementRef = inject(ElementRef);
   private readonly onboardingService = inject(OnboardingService);
   private readonly logger = inject(LogService);
-  protected readonly welcomeDialogAcked = signal(false);
+  protected readonly postImportDialogAcked = signal(false);
   protected readonly newAdminWelcomeDialogAcked = signal(false);
 
   readonly beginNewAdminWelcomeTour = output<void>();
-  readonly beginTour = output<void>();
+  readonly beginPostImportTour = output<void>();
   readonly importData = output<void>();
   protected readonly isOpen = signal(false);
 
   async ngOnInit(): Promise<void> {
-    const isWelcomeDialogAcked = await this.onboardingService.isPostImportDialogAcknowledged();
-    this.welcomeDialogAcked.set(isWelcomeDialogAcked);
+    const isPostImportDialogAcked = await this.onboardingService.isPostImportDialogAcknowledged();
+    this.postImportDialogAcked.set(isPostImportDialogAcked);
 
     const newAdminWelcomeDialogAcked =
       await this.onboardingService.isNewAdminWelcomeDialogAcknowledged();
@@ -69,9 +69,9 @@ export class DevMenuComponent implements OnInit {
     }
   }
 
-  protected onBeginTour(): void {
+  protected onBeginPostImportTour(): void {
     this.isOpen.set(false);
-    this.beginTour.emit();
+    this.beginPostImportTour.emit();
   }
 
   protected onBeginNewAdminWelcomeTour(): void {
@@ -84,27 +84,27 @@ export class DevMenuComponent implements OnInit {
     this.importData.emit();
   }
 
-  protected async onResetWelcomeDialogAck(): Promise<void> {
+  protected async onResetPostImportDialogAck(): Promise<void> {
     try {
       await this.onboardingService.setPostImportDialogAcknowledged(false);
-      this.welcomeDialogAcked.set(false);
-      this.logger.info("Reset Access Intelligence welcome dialog acknowledged state.");
+      this.postImportDialogAcked.set(false);
+      this.logger.info("Reset Access Intelligence post import dialog acknowledged state.");
     } catch (error) {
       this.logger.error(
-        "Failed to reset Access Intelligence welcome dialog acknowledged state.",
+        "Failed to reset Access Intelligence post import dialog acknowledged state.",
         error,
       );
     }
   }
 
-  protected async onShowWelcomeDialogAckState(): Promise<void> {
+  protected async onShowPostImportDialogAckState(): Promise<void> {
     try {
       const isAck = await this.onboardingService.isPostImportDialogAcknowledged();
-      this.welcomeDialogAcked.set(isAck);
-      this.logger.info(`Access Intelligence welcome dialog acknowledged state: ${isAck}.`);
+      this.postImportDialogAcked.set(isAck);
+      this.logger.info(`Access Intelligence post import dialog acknowledged state: ${isAck}.`);
     } catch (error) {
       this.logger.error(
-        "Failed to get Access Intelligence welcome dialog acknowledged state.",
+        "Failed to get Access Intelligence post import dialog acknowledged state.",
         error,
       );
     }
