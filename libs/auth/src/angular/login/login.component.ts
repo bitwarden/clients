@@ -66,7 +66,9 @@ const BroadcasterSubscriptionId = "LoginComponent";
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
+  /** Display the email input field + continue button */
   EMAIL_ENTRY = "EmailEntry",
+  /** Display the master password input field + login submit button */
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 

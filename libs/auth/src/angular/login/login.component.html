@@ -1,15 +1,3 @@
-<!--
-  # Table of Contents
-
-    This file contains a single consolidated template for all visual clients.
-
-  # UI States
-
-    The template has two UI states, defined by the `LoginUiState` enum:
-      EMAIL_ENTRY: displays the email input field + continue button
-      MASTER_PASSWORD_ENTRY: displays the master password input field + login button
--->
-
 <form [bitSubmit]="submit" [formGroup]="formGroup">
   <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
     <!-- Email Address input -->
