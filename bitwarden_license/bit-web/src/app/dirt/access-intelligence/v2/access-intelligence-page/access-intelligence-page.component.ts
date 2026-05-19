@@ -9,6 +9,8 @@ import {
   OnInit,
   signal,
   ChangeDetectionStrategy,
+  Injector,
+  isDevMode,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -45,6 +47,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { WelcomeModalDialogComponent } from "../../onboarding/welcome-modal-dialog.component";
+import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
@@ -84,6 +88,7 @@ type ProgressStep = ReportProgress | null;
     PageLoadingComponent,
     TabsModule,
     ReportLoadingComponent,
+    DevMenuComponent,
   ],
   animations: [
     trigger("fadeIn", [
@@ -155,6 +160,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
 
+  readonly adoptionUxImprovementsEnabled = toSignal<boolean>(
+    this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceAdoptionUxImprovements),
+  );
+
+  protected readonly isDevMode = signal<boolean>(isDevMode());
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -164,6 +175,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly dialogService: DialogService,
     private readonly logService: LogService,
     private readonly configService: ConfigService,
+    private readonly injector: Injector,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -203,7 +215,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -225,7 +237,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     void this.currentDialogRef()?.close();
 
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
-      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+      await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
     }
   }
 
@@ -412,9 +424,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+  private async handleReturnParams(
+    source: string | undefined,
+    status: string | undefined,
+  ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
+      await this.beginOnboardingTour();
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -428,5 +444,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       queryParamsHandling: "merge",
       replaceUrl: true,
     });
+  }
+
+  protected async beginOnboardingTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
+    }
   }
 }
