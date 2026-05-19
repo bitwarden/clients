@@ -67,7 +67,7 @@ describe("ProviderActionsService", () => {
       const result = await service.deleteProviderUser(providerId, mockProviderUser);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.success === false && result.error).toBeDefined();
     });
   });
 
@@ -86,7 +86,7 @@ describe("ProviderActionsService", () => {
       const result = await service.reinviteProvider(providerId, mockProviderUser);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.success === false && result.error).toBeDefined();
     });
   });
 
@@ -127,7 +127,7 @@ describe("ProviderActionsService", () => {
       const result = await service.confirmProvider(mockProviderUser, providerId, publicKey);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.success === false && result.error).toBeDefined();
     });
   });
 });

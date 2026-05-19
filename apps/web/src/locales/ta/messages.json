@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "SSH விசை"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -1134,12 +1140,12 @@
     "message": "New passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1166,20 +1172,20 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Edit driver's license",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Edit passport",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1206,9 +1212,9 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "View driver's license",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "View passport",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "கடவுச்சீட்டு எண்ணை நகலெடு"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
   },
   "copyLicenseNumber": {
     "message": "உரிம எண்ணை நகலெடு"
@@ -2254,6 +2269,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "கடவுச்சொல் ஜெனரேட்டர்"
@@ -4388,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "Viewed license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "$ID$ உருப்படி தானாக நிரப்பப்பட்டது.",
     "placeholders": {
@@ -4938,6 +4983,9 @@
   "riskInsightsRunReport": {
     "message": "Run report"
   },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
+  },
   "updateBrowserDesc": {
     "message": "ஆதரிக்கப்படாத இணைய உலாவியைப் பயன்படுத்துகிறீர்கள். இணையப் பெட்டகம் சரியாகச் செயல்படாமல் போகலாம்."
   },
@@ -5458,6 +5506,41 @@
   },
   "byLink": {
     "message": "By link"
+  },
+  "allowedDomains": {
+    "message": "Allowed domains"
+  },
+  "allowedDomainsHint": {
+    "message": "If entering multiple domains, separate with commas"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Enter allowed domains to generate an invite link"
+  },
+  "domainsEdited": {
+    "message": "Domains edited"
+  },
+  "inviteLink": {
+    "message": "Invite link"
+  },
+  "lastGenerated": {
+    "message": "Last generated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Invite link copied"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Invite link regenerated"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerate invite link"
+  },
+  "inviteByLinkDesc": {
+    "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
   "byContinuingYouAgreeToThe": {
     "message": "தொடர்ந்து செல்வதன் மூலம், நீங்கள்"
@@ -6072,14 +6155,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "New Text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "New File Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "Send சேமிக்கப்பட்டது",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6172,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "இணைப்புகளைப் பதிவிறக்கவும்"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Experiencing an issue? Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "sendAccessPasswordTitle": {
     "message": "இந்த Send-ஐப் பார்க்க கடவுச்சொல்லை உள்ளிடவும்",
@@ -6883,8 +6971,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "பயனர் $ID$ க்கான மாஸ்டர் கடவுச்சொல் மீட்டமைக்கப்பட்டது.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Account recovery with master password initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6892,8 +6980,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8054,26 +8142,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "நிறுவன வால்ட்டை ஏற்றுமதி செய்கிறது"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட வால்ட் உருப்படிகள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன வால்ட் உருப்படிகள் சேர்க்கப்படாது. வால்ட் உருப்படி தகவல் மட்டுமே ஏற்றுமதி செய்யப்படும் மற்றும் அதனுடன் தொடர்புடைய இணைப்புகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய இணைப்புகள் உட்பட தனிப்பட்ட வால்ட் உருப்படிகள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன வால்ட் உருப்படிகள் சேர்க்கப்படாது",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ உடன் தொடர்புடைய நிறுவன வால்ட் மட்டுமே ஏற்றுமதி செய்யப்படும். தனிப்பட்ட வால்ட்கள் அல்லது பிற நிறுவனங்களில் உள்ள உருப்படிகள் சேர்க்கப்படாது.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8576,6 +8649,21 @@
   },
   "inputRequired": {
     "message": "உள்ளீடு தேவை."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "inputEmail": {
     "message": "உள்ளீடு ஒரு மின்னஞ்சல் முகவரி அல்ல."
@@ -9376,6 +9464,9 @@
   "inviteMember": {
     "message": "உறுப்பினரை அழை"
   },
+  "inviteMembers": {
+    "message": "Invite members"
+  },
   "addSponsorship": {
     "message": "விளம்பர ஆதரவைச் சேர்"
   },
@@ -10079,8 +10170,8 @@
   "recoverAccountSuccess": {
     "message": "Account recovery success!"
   },
-  "updatedTempPassword": {
-    "message": "கணக்கு மீட்பு மூலம் வழங்கப்பட்ட கடவுச்சொல்லை பயனர் புதுப்பித்தார்."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "Secrets Manager-க்கு அணுகல் செயல்படுத்தப்பட்டது",
@@ -13690,6 +13781,28 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
@@ -13706,5 +13819,53 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
+  "copy": {
+    "message": "Copy"
   }
 }

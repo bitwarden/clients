@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "מפתח SSH"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "typeLoginSubtitle": {
     "message": "אתר או יישום"
   },
@@ -1134,12 +1140,12 @@
     "message": "דרכון חדש",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "סֵנְד של טקסט חדש",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "סֵנְד של קובץ חדש",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1166,20 +1172,20 @@
     "message": "עריכת חשבון בנק",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "עריכת רישיון נהיגה",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "עריכת דרכון",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "ערוך סֵנְד של טקסט",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "ערוך סֵנְד של קובץ",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1206,9 +1212,9 @@
     "message": "הצגת חשבון בנק",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "הצגת רישיון נהיגה",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "הצגת דרכון",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "העתק מספר דרכון"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
   },
   "copyLicenseNumber": {
     "message": "העתק מספר רישיון"
@@ -2254,6 +2269,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "מחולל הסיסמאות"
@@ -4388,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "Viewed license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "פריט שבוצע עבורו מילוי אוטומטי $ID$.",
     "placeholders": {
@@ -4938,6 +4983,9 @@
   "riskInsightsRunReport": {
     "message": "הרץ דוח"
   },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
+  },
   "updateBrowserDesc": {
     "message": "אתה משתמש בדפדפן אינטרנט שאיננו נתמך. כספת הרשת עלולה שלא לפעול כראוי."
   },
@@ -5458,6 +5506,41 @@
   },
   "byLink": {
     "message": "באמצעות קישור"
+  },
+  "allowedDomains": {
+    "message": "Allowed domains"
+  },
+  "allowedDomainsHint": {
+    "message": "If entering multiple domains, separate with commas"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Enter allowed domains to generate an invite link"
+  },
+  "domainsEdited": {
+    "message": "Domains edited"
+  },
+  "inviteLink": {
+    "message": "Invite link"
+  },
+  "lastGenerated": {
+    "message": "Last generated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Invite link copied"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Invite link regenerated"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerate invite link"
+  },
+  "inviteByLinkDesc": {
+    "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
   "byContinuingYouAgreeToThe": {
     "message": "על ידי המשך, אתה מסכים ל"
@@ -6072,14 +6155,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "שליחה חדשה של מלל",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "שליחה חדשה של קובץ",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "סֵנְד נשמר",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6172,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "הורד צרופות"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Experiencing an issue? Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "sendAccessPasswordTitle": {
     "message": "הזן את הסיסמה כדי להציג את הסֵנְד",
@@ -6883,8 +6971,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "סיסמה ראשית אופסה עבור המשתמש $ID$.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Account recovery with master password initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6892,8 +6980,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8054,26 +8142,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "מייצא כספת ארגון"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו צרופות משויכות.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "רק פריטי הכספת האישית כולל צרופות המשויכים עם $EMAIL$ ייוצאו. פריטי כספת ארגונית לא יכללו",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ תיוצא. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8576,6 +8649,21 @@
   },
   "inputRequired": {
     "message": "נדרש קלט."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "inputEmail": {
     "message": "קלט הוא לא כתובת דוא\"ל."
@@ -9376,6 +9464,9 @@
   "inviteMember": {
     "message": "הזמן חבר"
   },
+  "inviteMembers": {
+    "message": "Invite members"
+  },
   "addSponsorship": {
     "message": "הוסף חסות"
   },
@@ -10079,8 +10170,8 @@
   "recoverAccountSuccess": {
     "message": "החשבון שוחזר בהצלחה!"
   },
-  "updatedTempPassword": {
-    "message": "משתמש עדכן סיסמה שהונפקה באמצעות שחזור חשבון."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "הופעלה גישה למנהל הסודות",
@@ -13690,6 +13781,28 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
@@ -13706,5 +13819,53 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
+  "copy": {
+    "message": "Copy"
   }
 }
