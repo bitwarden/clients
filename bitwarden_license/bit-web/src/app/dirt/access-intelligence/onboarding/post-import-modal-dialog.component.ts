@@ -26,12 +26,12 @@ export type WelcomeModalDialogData = {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-welcome-modal-dialog",
+  selector: "app-post-import-modal-dialog",
   imports: [ButtonModule, TypographyModule, DialogModule, I18nPipe],
-  templateUrl: "./welcome-modal-dialog.component.html",
+  templateUrl: "./post-import-modal-dialog.component.html",
 })
-export class WelcomeModalDialogComponent {
-  private readonly dialogRef = inject(DialogRef<WelcomeModalDialogComponent>);
+export class PostImportModalDialogComponent {
+  private readonly dialogRef = inject(DialogRef<PostImportModalDialogComponent>);
   private readonly dialogService = inject(DialogService);
   private readonly onboardingService = inject(OnboardingService);
   private readonly data = inject<WelcomeModalDialogData>(DIALOG_DATA);
@@ -42,7 +42,7 @@ export class WelcomeModalDialogComponent {
 
   protected async onSkip(): Promise<void> {
     await this.onboardingService
-      .setWelcomeDialogAcknowledged()
+      .setPostImportDialogAcknowledged()
       .then(() => {
         return this.dialogRef.close();
       })
@@ -53,11 +53,11 @@ export class WelcomeModalDialogComponent {
     injector: Injector,
     dialogService: DialogService,
     organizationId: OrganizationId,
-  ): Promise<DialogRef<unknown, WelcomeModalDialogComponent> | undefined> {
+  ): Promise<DialogRef<unknown, PostImportModalDialogComponent> | undefined> {
     return runInInjectionContext(injector, async () => {
       const logger = inject(LogService);
       const onboardingService = inject(OnboardingService);
-      const acknowledged = await onboardingService.isWelcomeDialogAcknowledged();
+      const acknowledged = await onboardingService.isPostImportDialogAcknowledged();
       if (acknowledged) {
         logger.info(
           "[Access Intelligence Onboarding] Welcome dialog already acknowledged, skipping dialog display.",
@@ -65,7 +65,7 @@ export class WelcomeModalDialogComponent {
         return;
       }
 
-      const dialog = dialogService.open(WelcomeModalDialogComponent, {
+      const dialog = dialogService.open(PostImportModalDialogComponent, {
         data: { organizationId } satisfies WelcomeModalDialogData,
         width: "600px",
         disableClose: true,

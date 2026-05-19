@@ -8,21 +8,21 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/state";
 
-const ACCESS_INTELLIGENCE_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
+const ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
   ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK,
-  "accessIntelligenceWelcomeDialogCompleted",
+  "accessIntelligencePostImportDialogCompleted",
   {
     deserializer: (value) => value,
-    clearOn: [], // Welcome dialog acknowledged state should persist across lock/logout so the dialog is not reshown
+    clearOn: [], // Post-import dialog acknowledged state should persist across lock/logout so the dialog is not reshown
   },
 );
 
-const ACCESS_INTELLIGENCE_CAROUSEL_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
+const ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
   ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK,
-  "accessIntelligenceCarouselAcknowledged",
+  "accessIntelligenceNewAdminWelcomeAcknowledged",
   {
     deserializer: (value) => value,
-    clearOn: [], // Carousel acknowledged state should persist across lock/logout so the tour is not reshown
+    clearOn: [], // New admin welcome acknowledged state should persist across lock/logout so the tour is not reshown
   },
 );
 
@@ -31,7 +31,7 @@ export class OnboardingService {
   private accountService = inject(AccountService);
   private stateProvider = inject(StateProvider);
 
-  async isWelcomeDialogAcknowledged(): Promise<boolean> {
+  async isPostImportDialogAcknowledged(): Promise<boolean> {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
       return false;
@@ -39,25 +39,25 @@ export class OnboardingService {
 
     const acknowledged = await firstValueFrom(
       this.stateProvider
-        .getUserState$(ACCESS_INTELLIGENCE_WELCOME_DIALOG_ACKNOWLEDGED_KEY, account.id)
+        .getUserState$(ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY, account.id)
         .pipe(map((v) => v ?? false)),
     );
 
     return acknowledged;
   }
 
-  async setWelcomeDialogAcknowledged(value = true) {
+  async setPostImportDialogAcknowledged(value = true) {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (account) {
       await this.stateProvider.setUserState(
-        ACCESS_INTELLIGENCE_WELCOME_DIALOG_ACKNOWLEDGED_KEY,
+        ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY,
         value,
         account.id,
       );
     }
   }
 
-  async isCarouselAcknowledged(): Promise<boolean> {
+  async isNewAdminWelcomeDialogAcknowledged(): Promise<boolean> {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
       return false;
@@ -65,16 +65,16 @@ export class OnboardingService {
 
     return await firstValueFrom(
       this.stateProvider
-        .getUserState$(ACCESS_INTELLIGENCE_CAROUSEL_ACKNOWLEDGED_KEY, account.id)
+        .getUserState$(ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY, account.id)
         .pipe(map((v) => v ?? false)),
     );
   }
 
-  async setCarouselAcknowledged(value = true) {
+  async setNewAdminWelcomeDialogAcknowledged(value = true) {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (account) {
       await this.stateProvider.setUserState(
-        ACCESS_INTELLIGENCE_CAROUSEL_ACKNOWLEDGED_KEY,
+        ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY,
         value,
         account.id,
       );

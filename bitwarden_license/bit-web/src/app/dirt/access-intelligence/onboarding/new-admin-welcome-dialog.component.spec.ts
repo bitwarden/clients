@@ -7,8 +7,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ButtonModule, DialogModule, DialogRef, DIALOG_DATA } from "@bitwarden/components";
 import { VaultCarouselModule } from "@bitwarden/vault";
 
+import { NewAdminWelcomeDialogComponent } from "./new-admin-welcome-dialog.component";
 import { OnboardingService } from "./services/onboarding.service";
-import { WelcomeCarouselDialogComponent } from "./welcome-carousel-dialog.component";
 
 const mockOrganizationId = "test-org-id" as OrganizationId;
 
@@ -19,22 +19,22 @@ const mockDialogRef = {
 } as unknown as DialogRef<any, any>;
 
 const mockOnboardingService = {
-  setCarouselAcknowledged: jest.fn().mockResolvedValue(undefined),
+  setNewAdminWelcomeDialogAcknowledged: jest.fn().mockResolvedValue(undefined),
 };
 
 const mockRouter = {
   navigate: jest.fn().mockResolvedValue(true),
 };
 
-describe("WelcomeCarouselDialogComponent", () => {
-  let component: WelcomeCarouselDialogComponent;
-  let fixture: ComponentFixture<WelcomeCarouselDialogComponent>;
+describe("NewAdminWelcomeDialogComponent", () => {
+  let component: NewAdminWelcomeDialogComponent;
+  let fixture: ComponentFixture<NewAdminWelcomeDialogComponent>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     await TestBed.configureTestingModule({
-      imports: [WelcomeCarouselDialogComponent, VaultCarouselModule, DialogModule, ButtonModule],
+      imports: [NewAdminWelcomeDialogComponent, VaultCarouselModule, DialogModule, ButtonModule],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DialogRef, useValue: mockDialogRef },
@@ -44,7 +44,7 @@ describe("WelcomeCarouselDialogComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(WelcomeCarouselDialogComponent);
+    fixture = TestBed.createComponent(NewAdminWelcomeDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -71,9 +71,9 @@ describe("WelcomeCarouselDialogComponent", () => {
   });
 
   describe("onSkip", () => {
-    it("calls setCarouselAcknowledged", async () => {
+    it("calls setNewAdminWelcomeDialogAcknowledged", async () => {
       await component["onSkip"]();
-      expect(mockOnboardingService.setCarouselAcknowledged).toHaveBeenCalledTimes(1);
+      expect(mockOnboardingService.setNewAdminWelcomeDialogAcknowledged).toHaveBeenCalledTimes(1);
     });
 
     it("closes the dialog", async () => {
@@ -83,9 +83,9 @@ describe("WelcomeCarouselDialogComponent", () => {
   });
 
   describe("onImportData", () => {
-    it("calls setCarouselAcknowledged", async () => {
+    it("calls setNewAdminWelcomeDialogAcknowledged", async () => {
       await component["onImportData"]();
-      expect(mockOnboardingService.setCarouselAcknowledged).toHaveBeenCalledTimes(1);
+      expect(mockOnboardingService.setNewAdminWelcomeDialogAcknowledged).toHaveBeenCalledTimes(1);
     });
 
     it("navigates to the org import page", async () => {

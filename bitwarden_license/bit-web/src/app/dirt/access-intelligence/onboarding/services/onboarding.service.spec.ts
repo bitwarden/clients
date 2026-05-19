@@ -29,22 +29,22 @@ describe("OnboardingService", () => {
     service = TestBed.inject(OnboardingService);
   });
 
-  describe("isCarouselAcknowledged", () => {
+  describe("isNewAdminWelcomeDialogAcknowledged", () => {
     it("returns false when state is null", async () => {
       mockStateProvider.getUserState$.mockReturnValue(of(null));
-      const result = await service.isCarouselAcknowledged();
+      const result = await service.isNewAdminWelcomeDialogAcknowledged();
       expect(result).toBe(false);
     });
 
     it("returns false when state is false", async () => {
       mockStateProvider.getUserState$.mockReturnValue(of(false));
-      const result = await service.isCarouselAcknowledged();
+      const result = await service.isNewAdminWelcomeDialogAcknowledged();
       expect(result).toBe(false);
     });
 
     it("returns true when state is true", async () => {
       mockStateProvider.getUserState$.mockReturnValue(of(true));
-      const result = await service.isCarouselAcknowledged();
+      const result = await service.isNewAdminWelcomeDialogAcknowledged();
       expect(result).toBe(true);
     });
 
@@ -57,26 +57,26 @@ describe("OnboardingService", () => {
           { provide: StateProvider, useValue: mockStateProvider },
         ],
       });
-      const noAccountService = TestBed.inject(OnboardingService);
-      const result = await noAccountService.isCarouselAcknowledged();
+      const service = TestBed.inject(OnboardingService);
+      const result = await service.isNewAdminWelcomeDialogAcknowledged();
       expect(result).toBe(false);
     });
   });
 
-  describe("setCarouselAcknowledged", () => {
+  describe("setNewAdminWelcomeDialogAcknowledged", () => {
     it("calls setUserState with true by default", async () => {
-      await service.setCarouselAcknowledged();
+      await service.setNewAdminWelcomeDialogAcknowledged();
       expect(mockStateProvider.setUserState).toHaveBeenCalledWith(
-        expect.objectContaining({ key: "accessIntelligenceCarouselAcknowledged" }),
+        expect.objectContaining({ key: "accessIntelligenceNewAdminWelcomeAcknowledged" }),
         true,
         mockAccount.id,
       );
     });
 
     it("calls setUserState with the provided value", async () => {
-      await service.setCarouselAcknowledged(false);
+      await service.setNewAdminWelcomeDialogAcknowledged(false);
       expect(mockStateProvider.setUserState).toHaveBeenCalledWith(
-        expect.objectContaining({ key: "accessIntelligenceCarouselAcknowledged" }),
+        expect.objectContaining({ key: "accessIntelligenceNewAdminWelcomeAcknowledged" }),
         false,
         mockAccount.id,
       );
@@ -91,8 +91,8 @@ describe("OnboardingService", () => {
           { provide: StateProvider, useValue: mockStateProvider },
         ],
       });
-      const noAccountService = TestBed.inject(OnboardingService);
-      await noAccountService.setCarouselAcknowledged();
+      const onboardingSvc = TestBed.inject(OnboardingService);
+      await onboardingSvc.setNewAdminWelcomeDialogAcknowledged();
       expect(mockStateProvider.setUserState).not.toHaveBeenCalled();
     });
   });

@@ -39,10 +39,11 @@ export class DevMenuComponent implements OnInit {
   protected readonly isOpen = signal(false);
 
   async ngOnInit(): Promise<void> {
-    const isWelcomeDialogAcked = await this.onboardingService.isWelcomeDialogAcknowledged();
+    const isWelcomeDialogAcked = await this.onboardingService.isPostImportDialogAcknowledged();
     this.welcomeDialogAcked.set(isWelcomeDialogAcked);
 
-    const newAdminWelcomeDialogAcked = await this.onboardingService.isCarouselAcknowledged();
+    const newAdminWelcomeDialogAcked =
+      await this.onboardingService.isNewAdminWelcomeDialogAcknowledged();
     this.newAdminWelcomeDialogAcked.set(newAdminWelcomeDialogAcked);
   }
 
@@ -85,7 +86,7 @@ export class DevMenuComponent implements OnInit {
 
   protected async onResetWelcomeDialogAck(): Promise<void> {
     try {
-      await this.onboardingService.setWelcomeDialogAcknowledged(false);
+      await this.onboardingService.setPostImportDialogAcknowledged(false);
       this.welcomeDialogAcked.set(false);
       this.logger.info("Reset Access Intelligence welcome dialog acknowledged state.");
     } catch (error) {
@@ -98,7 +99,7 @@ export class DevMenuComponent implements OnInit {
 
   protected async onShowWelcomeDialogAckState(): Promise<void> {
     try {
-      const isAck = await this.onboardingService.isWelcomeDialogAcknowledged();
+      const isAck = await this.onboardingService.isPostImportDialogAcknowledged();
       this.welcomeDialogAcked.set(isAck);
       this.logger.info(`Access Intelligence welcome dialog acknowledged state: ${isAck}.`);
     } catch (error) {
@@ -111,7 +112,7 @@ export class DevMenuComponent implements OnInit {
 
   protected async onResetNewAdminWelcomeDialogAck(): Promise<void> {
     try {
-      await this.onboardingService.setCarouselAcknowledged(false);
+      await this.onboardingService.setNewAdminWelcomeDialogAcknowledged(false);
       this.newAdminWelcomeDialogAcked.set(false);
       this.logger.info("Reset Access Intelligence new admin welcome dialog acknowledged state.");
     } catch (error) {
@@ -124,7 +125,7 @@ export class DevMenuComponent implements OnInit {
 
   protected async onShowNewAdminWelcomeDialogAckState(): Promise<void> {
     try {
-      const isAck = await this.onboardingService.isCarouselAcknowledged();
+      const isAck = await this.onboardingService.isNewAdminWelcomeDialogAcknowledged();
       this.newAdminWelcomeDialogAcked.set(isAck);
       this.logger.info(
         `Access Intelligence new admin welcome dialog acknowledged state: ${isAck}.`,

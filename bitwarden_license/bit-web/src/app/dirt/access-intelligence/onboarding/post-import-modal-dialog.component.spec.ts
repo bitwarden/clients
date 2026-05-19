@@ -12,8 +12,8 @@ import {
   DIALOG_DATA,
 } from "@bitwarden/components";
 
+import { PostImportModalDialogComponent } from "./post-import-modal-dialog.component";
 import { OnboardingService } from "./services/onboarding.service";
-import { WelcomeModalDialogComponent } from "./welcome-modal-dialog.component";
 
 const mockOrganizationId = "test-org-id" as OrganizationId;
 
@@ -28,19 +28,19 @@ const mockDialogService = {
 };
 
 const mockOnboardingService = {
-  setWelcomeDialogAcknowledged: jest.fn().mockResolvedValue(undefined),
-  isWelcomeDialogAcknowledged: jest.fn().mockResolvedValue(false),
+  setPostImportDialogAcknowledged: jest.fn().mockResolvedValue(undefined),
+  isPostImportDialogAcknowledged: jest.fn().mockResolvedValue(false),
 };
 
-describe("WelcomeModalDialogComponent", () => {
-  let component: WelcomeModalDialogComponent;
-  let fixture: ComponentFixture<WelcomeModalDialogComponent>;
+describe("PostImportModalDialogComponent", () => {
+  let component: PostImportModalDialogComponent;
+  let fixture: ComponentFixture<PostImportModalDialogComponent>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
     await TestBed.configureTestingModule({
-      imports: [WelcomeModalDialogComponent, TypographyModule, ButtonModule, DialogModule],
+      imports: [PostImportModalDialogComponent, TypographyModule, ButtonModule, DialogModule],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: OnboardingService, useValue: mockOnboardingService },
@@ -50,7 +50,7 @@ describe("WelcomeModalDialogComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(WelcomeModalDialogComponent);
+    fixture = TestBed.createComponent(PostImportModalDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -60,9 +60,9 @@ describe("WelcomeModalDialogComponent", () => {
   });
 
   describe("onSkip", () => {
-    it("calls setWelcomeDialogAcknowledged and closes the dialog", async () => {
+    it("calls setPostImportDialogAcknowledged and closes the dialog", async () => {
       await component["onSkip"]();
-      expect(mockOnboardingService.setWelcomeDialogAcknowledged).toHaveBeenCalled();
+      expect(mockOnboardingService.setPostImportDialogAcknowledged).toHaveBeenCalled();
       expect(mockDialogRef.close).toHaveBeenCalled();
     });
   });

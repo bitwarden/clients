@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  Injector,
+  runInInjectionContext,
+  signal,
+} from "@angular/core";
 import { Router } from "@angular/router";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -10,6 +18,7 @@ import {
   DIALOG_DATA,
   TypographyModule,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultCarouselModule } from "@bitwarden/vault";
 
@@ -23,12 +32,12 @@ const TOTAL_SLIDES = 4;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-welcome-carousel-dialog",
+  selector: "app-new-admin-welcome-dialog",
   imports: [ButtonModule, DialogModule, I18nPipe, TypographyModule, VaultCarouselModule],
-  templateUrl: "./welcome-carousel-dialog.component.html",
+  templateUrl: "./new-admin-welcome-dialog.component.html",
 })
-export class WelcomeCarouselDialogComponent {
-  private readonly dialogRef = inject(DialogRef<WelcomeCarouselDialogComponent>);
+export class NewAdminWelcomeDialogComponent {
+  private readonly dialogRef = inject(DialogRef<NewAdminWelcomeDialogComponent>);
   private readonly router = inject(Router);
   private readonly onboardingService = inject(OnboardingService);
   private readonly data = inject<WelcomeCarouselDialogData>(DIALOG_DATA);
@@ -42,12 +51,12 @@ export class WelcomeCarouselDialogComponent {
   }
 
   protected async onSkip(): Promise<void> {
-    await this.onboardingService.setCarouselAcknowledged();
+    await this.onboardingService.setNewAdminWelcomeDialogAcknowledged();
     await this.dialogRef.close();
   }
 
   protected async onImportData(): Promise<void> {
-    await this.onboardingService.setCarouselAcknowledged();
+    await this.onboardingService.setNewAdminWelcomeDialogAcknowledged();
     await this.dialogRef.close();
     await this.router.navigate(
       ["/organizations", this.data.organizationId, "settings", "tools", "import"],
@@ -55,14 +64,28 @@ export class WelcomeCarouselDialogComponent {
     );
   }
 
-  static open(
+  static async showWelcomeCarouselDialog(
+    injector: Injector,
     dialogService: DialogService,
     organizationId: OrganizationId,
-  ): DialogRef<WelcomeCarouselDialogComponent> {
-    return dialogService.open(WelcomeCarouselDialogComponent, {
-      data: { organizationId } satisfies WelcomeCarouselDialogData,
-      width: "600px",
-      disableClose: true,
+  ): Promise<DialogRef<unknown, NewAdminWelcomeDialogComponent> | undefined> {
+    return runInInjectionContext(injector, async () => {
+      const logger = inject(LogService);
+      const onboardingService = inject(OnboardingService);
+      const acknowledged = await onboardingService.isNewAdminWelcomeDialogAcknowledged();
+      if (acknowledged) {
+        logger.info(
+          "[Access Intelligence Onboarding] Welcome carousel already acknowledged, skipping dialog display.",
+        );
+        return;
+      }
+
+      const dialog = dialogService.open(NewAdminWelcomeDialogComponent, {
+        data: { organizationId } satisfies WelcomeCarouselDialogData,
+        width: "600px",
+        disableClose: true,
+      });
+      return dialog;
     });
   }
 }

@@ -60,8 +60,8 @@ import { ApplicationsComponent } from "./all-applications/applications.component
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
-import { WelcomeCarouselDialogComponent } from "./onboarding/welcome-carousel-dialog.component";
-import { WelcomeModalDialogComponent } from "./onboarding/welcome-modal-dialog.component";
+import { NewAdminWelcomeDialogComponent } from "./onboarding/new-admin-welcome-dialog.component";
+import { PostImportModalDialogComponent } from "./onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "./shared/dev-menu.component";
 import { PageLoadingComponent } from "./shared/page-loading.component";
 import { ReportLoadingComponent } from "./shared/report-loading.component";
@@ -422,7 +422,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   protected async beginOnboardingTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled) {
-      await WelcomeModalDialogComponent.showWelcomeDialog(
+      await PostImportModalDialogComponent.showWelcomeDialog(
         this.injector,
         this.dialogService,
         this.organizationId,
@@ -432,7 +432,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   protected async launchOnboardingWelcome(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled) {
-      await WelcomeCarouselDialogComponent.open(this.dialogService, this.organizationId);
+      await NewAdminWelcomeDialogComponent.showWelcomeCarouselDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId,
+      );
     }
   }
 }
