@@ -29,6 +29,13 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
    * Does not work with drawer dialogs.
    **/
   abstract componentInstance: C | null;
+
+  /**
+   * An optional predicate called before closing. Return `true` to allow the close, `false` to
+   * prevent it (e.g. to ask the user to confirm discarding unsaved changes). Settable at
+   * runtime so a dialog component can gate its own close based on its own state.
+   */
+  closePredicate?: (result?: R) => Promise<boolean>;
 }
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
@@ -65,6 +72,7 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   private _isClosed = false;
   closed = this._closedSubject.asObservable();
   disableClose = false;
+  closePredicate?: (result?: R) => Promise<boolean>;
 
   /** The portal containing the drawer — set by DialogService after construction. */
   portal?: Portal<unknown>;
@@ -79,9 +87,11 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     ) => DrawerRef<SR, SC>,
     /** Whether to close this drawer when navigating to a different route. Only meaningful on the root ref. */
     readonly closeOnNavigation = false,
-    private readonly closePredicate?: (result?: R) => Promise<boolean>,
+    closePredicate?: (result?: R) => Promise<boolean>,
     private readonly logService?: LogService | null,
-  ) {}
+  ) {
+    this.closePredicate = closePredicate;
+  }
 
   /**
    * Push a new component onto the drawer stack without closing the current drawer.
@@ -120,9 +130,13 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
       return { closed: false };
     }
     if (this.closePredicate) {
+      // Temporarily clear so an async predicate that itself opens a dialog can't re-enter close().
+      const predicate = this.closePredicate;
+      this.closePredicate = undefined;
       try {
-        const canClose = await this.closePredicate(result);
+        const canClose = await predicate(result);
         if (!canClose) {
+          this.closePredicate = predicate; // Restore — drawer stays open.
           return { closed: false };
         }
       } catch (err) {
@@ -159,10 +173,14 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = false;
 
+  closePredicate?: (result?: R) => Promise<boolean>;
+
   constructor(
     private readonly logService?: LogService | null,
-    private readonly closePredicate?: (result?: R) => Promise<boolean>,
-  ) {}
+    closePredicate?: (result?: R) => Promise<boolean>,
+  ) {
+    this.closePredicate = closePredicate;
+  }
 
   /** This is not available until after construction, @see DialogService.open. */
   cdkDialogRefBase!: CdkDialogRefBase<R, C>;

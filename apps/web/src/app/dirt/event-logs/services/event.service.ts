@@ -11,6 +11,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BitwardenIcon } from "@bitwarden/components";
 
 @Injectable()
 export class EventService {
@@ -89,7 +90,9 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("exportedVault");
         break;
       case EventType.User_UpdatedTempPassword:
-        msg = humanReadableMsg = this.i18nService.t("updatedTempPassword");
+        msg = humanReadableMsg = this.i18nService.t(
+          "userResetMasterPasswordThroughAccountRecovery",
+        );
         break;
       case EventType.User_MigratedKeyToKeyConnector:
         msg = humanReadableMsg = this.i18nService.t("migratedKeyConnector");
@@ -228,6 +231,35 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientToggledLicenseNumberVisible:
+        msg = this.i18nService.t("viewedLicenseNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedLicenseNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedLicenseNumber:
+        msg = this.i18nService.t("copiedLicenseNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedLicenseNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedPassportNumber:
+        msg = this.i18nService.t("copiedPassportNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedPassportNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledPassportNumberVisible:
+        msg = this.i18nService.t("viewedPassportNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedPassportNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+
       // Collection
       case EventType.Collection_Created:
         msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));
@@ -321,16 +353,22 @@ export class EventService {
         );
         break;
       case EventType.OrganizationUser_AdminResetPassword:
-        msg = this.i18nService.t("eventAdminPasswordReset", this.formatOrgUserId(ev));
+        msg = this.i18nService.t(
+          "eventAccountRecoveryWithMasterPasswordInitiated",
+          this.formatOrgUserId(ev),
+        );
         humanReadableMsg = this.i18nService.t(
-          "eventAdminPasswordReset",
+          "eventAccountRecoveryWithMasterPasswordInitiated",
           this.getShortId(ev.organizationUserId),
         );
         break;
       case EventType.OrganizationUser_AdminResetTwoFactor:
-        msg = this.i18nService.t("eventAdminResetTwoFactor", this.formatOrgUserId(ev));
+        msg = this.i18nService.t(
+          "eventAccountRecoveryWithTwoStepLoginInitiated",
+          this.formatOrgUserId(ev),
+        );
         humanReadableMsg = this.i18nService.t(
-          "eventAdminResetTwoFactor",
+          "eventAccountRecoveryWithTwoStepLoginInitiated",
           this.getShortId(ev.organizationUserId),
         );
         break;
@@ -759,6 +797,25 @@ export class EventService {
         msg = this.i18nService.t("phishingBlockerBypassed");
         humanReadableMsg = this.i18nService.t("phishingBlockerBypassed");
         break;
+      // Send
+      case EventType.Send_Created_Text:
+        msg = humanReadableMsg = this.i18nService.t("createdTextSend");
+        break;
+      case EventType.Send_Created_Text_WithEmailVerification:
+        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithEmailVerification");
+        break;
+      case EventType.Send_Created_Text_WithPasswordProtection:
+        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithPasswordProtection");
+        break;
+      case EventType.Send_Created_File:
+        msg = humanReadableMsg = this.i18nService.t("createdFileSend");
+        break;
+      case EventType.Send_Created_File_WithEmailVerification:
+        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithEmailVerification");
+        break;
+      case EventType.Send_Created_File_WithPasswordProtection:
+        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
+        break;
 
       default:
         break;
@@ -769,7 +826,7 @@ export class EventService {
     };
   }
 
-  private getAppInfo(ev: EventResponse): [string, string] {
+  private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
     if (ev.serviceAccountId) {
       return ["bwi-globe", this.i18nService.t("sdk")];
     }
@@ -1027,7 +1084,7 @@ export class EventService {
 export class EventInfo {
   message: string;
   humanReadableMessage: string;
-  appIcon: string;
+  appIcon: BitwardenIcon;
   appName: string;
 }
 
