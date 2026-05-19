@@ -104,7 +104,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
         try {
-          await this.unlockService!.unlockWithDecryptedKey(userId, userKey.toSdk());
+          await this.unlockService!.unlockWithDecryptedUserKey(userId, userKey);
           await this.biometricStateService.setBiometricUnlockEnabled(true);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });

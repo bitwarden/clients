@@ -683,7 +683,7 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    this.pinService = new PinService(this.sdkService, this.registerSdkService);
+    this.pinService = new PinService(this.sdkService);
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,

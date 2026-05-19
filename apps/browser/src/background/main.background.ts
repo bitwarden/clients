@@ -948,7 +948,7 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
     );
 
-    this.pinService = new PinService(this.sdkService, this.registerSdkService);
+    this.pinService = new PinService(this.sdkService);
 
     const browserBiometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,

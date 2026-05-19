@@ -14,7 +14,6 @@ import { PinServiceAbstraction } from "./pin.service.abstraction";
 export class PinService implements PinServiceAbstraction {
   constructor(
     private sdkService: SdkService,
-    private registerSdkService: RegisterSdkService,
   ) {}
 
   async getPinLockType(userId: UserId): Promise<PinLockType | undefined> {
