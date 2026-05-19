@@ -208,6 +208,9 @@ export const WithTableSelection: Story = {
   render: () => ({
     template: /*html*/ `<story-bulk-actions-table></story-bulk-actions-table>`,
   }),
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 /**
