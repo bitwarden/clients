@@ -96,7 +96,6 @@
                 Square150x150Logo="assets\Square150x150Logo.png"
                 Square44x44Logo="assets\Square44x44Logo.png"
                 Description="A secure and free password manager for all of your devices.">
-                <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="assets\BadgeLogo.png" />
                 <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" />
                 <uap:SplashScreen Image="assets\SplashScreen.png" />
             </uap:VisualElements>
