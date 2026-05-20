@@ -2333,6 +2333,17 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["mutationObserver"]).toBeInstanceOf(MutationObserver);
       expect(collectAutofillContentService["mutationObserver"].observe).toHaveBeenCalled();
     });
+
+    it("registers the visibilitychange listener on the document", () => {
+      const addListenerSpy = jest.spyOn(document, "addEventListener");
+
+      collectAutofillContentService["setupMutationObserver"]();
+
+      expect(addListenerSpy).toHaveBeenCalledWith(
+        "visibilitychange",
+        collectAutofillContentService["handleVisibilityChange"],
+      );
+    });
   });
 
   describe("handleMutationObserverMutation", () => {
@@ -3226,6 +3237,136 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["processMutations"]();
 
       expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
+    });
+  });
+
+  describe("tab visibility handling", () => {
+    const setVisibilityState = (state: DocumentVisibilityState) => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => state,
+      });
+    };
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+      setVisibilityState("visible");
+    });
+
+    it("bails out of processMutations when the tab is hidden and preserves the queue", () => {
+      setVisibilityState("hidden");
+      const mutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        removedNodes: document.querySelectorAll("li"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        target: document.body,
+      } as unknown as MutationRecord;
+      collectAutofillContentService["mutationsQueue"] = [[mutationRecord]];
+      const processRecordSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "processMutationRecord",
+      );
+
+      collectAutofillContentService["processMutations"]();
+
+      expect(processRecordSpy).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(1);
+      expect(collectAutofillContentService["hasPendingMutationsOnVisible"]).toBe(true);
+    });
+
+    it("bails out of updateAutofillElementsAfterMutation when the tab is hidden", () => {
+      setVisibilityState("hidden");
+      const requestIdleSpy = jest.spyOn(globalThis, "requestIdleCallback");
+
+      collectAutofillContentService["updateAutofillElementsAfterMutation"]();
+
+      expect(requestIdleSpy).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["updateAfterMutationIdleCallback"]).toBeNull();
+      expect(collectAutofillContentService["hasPendingPageDetailsOnVisible"]).toBe(true);
+    });
+
+    it("reconciles pending mutations and page-details refresh when the tab becomes visible", () => {
+      setVisibilityState("visible");
+      collectAutofillContentService["hasPendingMutationsOnVisible"] = true;
+      collectAutofillContentService["hasPendingPageDetailsOnVisible"] = true;
+      const updateSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "updateAutofillElementsAfterMutation",
+      );
+      const requestIdleSpy = jest.spyOn(globalThis, "requestIdleCallback");
+
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(collectAutofillContentService["hasPendingMutationsOnVisible"]).toBe(false);
+      expect(collectAutofillContentService["hasPendingPageDetailsOnVisible"]).toBe(false);
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      expect(requestIdleSpy).toHaveBeenCalled();
+    });
+
+    it("drains a mutation queued while hidden once the tab becomes visible", () => {
+      setVisibilityState("hidden");
+      const mutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        removedNodes: document.querySelectorAll("li"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        target: document.body,
+      } as unknown as MutationRecord;
+      collectAutofillContentService["mutationsQueue"] = [[mutationRecord]];
+      const processRecordSpy = jest
+        .spyOn(collectAutofillContentService as any, "processMutationRecord")
+        .mockImplementation(() => undefined);
+
+      collectAutofillContentService["processMutations"]();
+      expect(processRecordSpy).not.toHaveBeenCalled();
+
+      setVisibilityState("visible");
+      collectAutofillContentService["handleVisibilityChange"]();
+      jest.runAllTimers();
+
+      expect(processRecordSpy).toHaveBeenCalledWith(mutationRecord);
+      expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
+    });
+
+    it("does nothing on handleVisibilityChange when the document is still hidden", () => {
+      setVisibilityState("hidden");
+      collectAutofillContentService["hasPendingMutationsOnVisible"] = true;
+      collectAutofillContentService["hasPendingPageDetailsOnVisible"] = true;
+      const updateSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "updateAutofillElementsAfterMutation",
+      );
+
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(collectAutofillContentService["hasPendingMutationsOnVisible"]).toBe(true);
+      expect(collectAutofillContentService["hasPendingPageDetailsOnVisible"]).toBe(true);
+      expect(updateSpy).not.toHaveBeenCalled();
+    });
+
+    it("removes the visibilitychange listener on destroy", () => {
+      const removeListenerSpy = jest.spyOn(document, "removeEventListener");
+
+      collectAutofillContentService.destroy();
+
+      expect(removeListenerSpy).toHaveBeenCalledWith(
+        "visibilitychange",
+        collectAutofillContentService["handleVisibilityChange"],
+      );
     });
   });
 });
