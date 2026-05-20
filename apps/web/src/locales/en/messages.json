@@ -4377,11 +4377,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accessedTextSend": {
-    "message": "Text Send accessed",
+    "message": "Accessed text Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accessedFileSend": {
-    "message": "File Send accessed",
+    "message": "Accessed file Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "movedItemIdToOrg": {
