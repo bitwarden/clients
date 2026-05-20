@@ -1,4 +1,5 @@
 import { firstValueFrom, Observable } from "rxjs";
+
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserId as SdkUserId } from "@bitwarden/sdk-internal";
 

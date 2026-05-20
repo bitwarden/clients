@@ -1,6 +1,7 @@
 // Temporary mappers for biometrics status until the SDK is fully integrated.
 // In the fully migrated version, the typescript biometrics status is removed entirely.
 
+// eslint-disable-next-line no-restricted-imports
 import { BiometricsStatus } from "@bitwarden/key-management";
 import { BiometricsStatus as SdkBiometricsStatus } from "@bitwarden/sdk-internal";
 

@@ -1,14 +1,10 @@
-import {
-  IpcClient,
-  IpcCommunicationBackend,
-  OutgoingMessage,
-} from "@bitwarden/sdk-internal";
+import { IpcClient, IpcCommunicationBackend, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../abstractions/log.service";
 import { SdkLoadService } from "../abstractions/sdk/sdk-load.service";
 
-import { IpcService } from "./ipc.service";
 import { IpcSessionRepository } from "./ipc-session-repository";
+import { IpcService } from "./ipc.service";
 
 /**
  * No-op {@link IpcService} used as a placeholder where a real IPC transport is

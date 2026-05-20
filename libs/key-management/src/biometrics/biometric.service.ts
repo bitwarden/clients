@@ -1,9 +1,9 @@
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { BiometricsStatus } from "./biometrics-status";
-import { UnlockService } from "@bitwarden/unlock";
 
 /**
  * The biometrics service is used to provide access to the status of and access to biometric functionality on the platforms.

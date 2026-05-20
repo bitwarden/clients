@@ -2,27 +2,24 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { toSdkBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
+import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
-// eslint-disable-next-line no-restricted-imports
-import { BiometricsStatus, BiometricStateService, KeyService } from "@bitwarden/key-management";
-import { IpcService } from "@bitwarden/common/platform/ipc";
-import { CryptoClient, ipcRegisterBiometricsHandlers, SymmetricKey } from "@bitwarden/sdk-internal";
-
-import { DesktopBiometricsService } from "./desktop.biometrics.service";
-
-import {
+import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
+import { CryptoClient, ipcRegisterBiometricsHandlers, SymmetricKey ,
   UserId,
   BiometricsUnlock,
   BiometricsStatus as SdkBiometricsStatus,
 } from "@bitwarden/sdk-internal";
-import { UserId as TSUserId } from "@bitwarden/user-core";
 import { UnlockService } from "@bitwarden/unlock";
-import { LogService } from "@bitwarden/logging";
-import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
-import { toSdkBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
+import { UserId as TSUserId } from "@bitwarden/user-core";
+
+import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
 // Should not be enabled until after shared unlock is enabled
 // This toggles whether the desktop app gets unlock whenever the browser requests an unlock. This
@@ -46,7 +43,7 @@ export function createBiometricsDriver(
       if (key != null && SET_USERKEY_UNLOCK) {
         await unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
       }
-      return key;
+      return key.toSdk();
     },
     async authenticate_biometrics() {
       return await biometricsService.authenticateWithBiometrics();

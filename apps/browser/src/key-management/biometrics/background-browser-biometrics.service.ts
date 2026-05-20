@@ -1,10 +1,15 @@
 import { combineLatest, timer } from "rxjs";
 import { filter, concatMap } from "rxjs/operators";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { fromTsUserId } from "@bitwarden/common/key-management/utils";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -16,15 +21,13 @@ import {
   KeyService,
   BiometricStateService,
 } from "@bitwarden/key-management";
+import {
+  ipcRequestAuthenticateBiometrics,
+  ipcRequestGetBiometricsStatus,
+  ipcRequestUnlockBiometrics,
+} from "@bitwarden/sdk-internal";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
-import { IpcService } from "@bitwarden/common/platform/ipc";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ipcRequestAuthenticateBiometrics, ipcRequestGetBiometricsStatus, ipcRequestUnlockBiometrics, BiometricsStatus as SdkBiometricsStatus, UserId as SdkUserId } from "@bitwarden/sdk-internal";
-import { fromTsUserId } from "@bitwarden/common/key-management/utils";
-import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
-
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
@@ -116,10 +119,16 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       } else {
         // Handle SDK-based biometric unlock
         try {
-          const response = await ipcRequestUnlockBiometrics(this.ipcService().client, fromTsUserId(userId));
+          const response = await ipcRequestUnlockBiometrics(
+            this.ipcService().client,
+            fromTsUserId(userId),
+          );
           if (response.user_key) {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
-            await this.keyService.setUserKey(SymmetricCryptoKey.fromSdk(response.user_key) as UserKey, userId);
+            await this.keyService.setUserKey(
+              SymmetricCryptoKey.fromSdk(response.user_key) as UserKey,
+              userId,
+            );
             await this.pinService.userUnlocked(userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
@@ -169,7 +178,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       if (!this.nativeMessagingBackground().connected) {
         return BiometricsStatus.DesktopDisconnected;
       } else {
-        const status = await ipcRequestGetBiometricsStatus(this.ipcService().client, fromTsUserId(id));
+        const status = await ipcRequestGetBiometricsStatus(
+          this.ipcService().client,
+          fromTsUserId(id),
+        );
         return toTsBiometricsStatus(status);
       }
     }
