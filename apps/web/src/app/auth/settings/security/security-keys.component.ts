@@ -5,9 +5,12 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ChangeKdfModule } from "../../../key-management/change-kdf/change-kdf.module";
+import { KeyRotationComponent } from "../../../key-management/key-rotation/key-rotation.component";
 import { SharedModule } from "../../../shared";
 
 import { ApiKeyComponent } from "./api-key.component";
@@ -16,16 +19,18 @@ import { ApiKeyComponent } from "./api-key.component";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "security-keys.component.html",
-  imports: [SharedModule, ChangeKdfModule],
+  imports: [SharedModule, ChangeKdfModule, KeyRotationComponent],
 })
 export class SecurityKeysComponent implements OnInit {
   showChangeKdf = true;
+  readonly sdkKeyRotationFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SdkKeyRotation);
 
   constructor(
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
