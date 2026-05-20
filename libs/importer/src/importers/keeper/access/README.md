@@ -1,5 +1,25 @@
 ## Direct Keeper importer
 
+### For reviewers
+
+Most of the diff is local to `libs/importer/src/importers/keeper/`. The points below cover the
+non-obvious changes outside that directory.
+
+1. **`keepercsv` / `keeperjson` are gone from the web dropdown.** There's just one `keeper`
+   entry now, with a small dropdown next to it to pick the method (direct / CSV / JSON). The
+   old IDs still exist in the code, so `bw import keepercsv` and `bw import keeperjson` keep
+   working as before. The CLI also accepts `keeper` and picks CSV or JSON based on the file
+   extension. The direct flow only runs in the web app and the extension, not in the CLI.
+
+2. **The `/import` route now opens as a popout in the extension on all platforms.** Before,
+   Windows kept it inside the popup; now it matches macOS and Linux. The direct flow runs a
+   websocket and a bunch of listeners that the popup would tear down whenever you click away.
+   This applies to all import formats, not just Keeper.
+
+3. **`keeper` is pinned to the top of `featuredImportOptions` for testing.** Done purely to make
+   it easy to find during development. The team should move it to whatever position fits the
+   normal priority order before merge.
+
 ### Device approval
 
 - [x] Email link click
