@@ -251,7 +251,7 @@ describe("filePickerPopoutGuard", () => {
       });
     });
 
-    it("should allow navigation without popout on Windows", async () => {
+    it("should allow navigation without popout on Windows for File Sends", async () => {
       const guard = filePickerPopoutGuard();
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
