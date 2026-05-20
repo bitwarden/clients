@@ -58,8 +58,12 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       updateKdfResult.oldMasterPasswordAuthenticationData,
     );
 
-    const request = new KdfRequest(authenticationData, unlockData);
-    request.authenticateWith(oldAuthenticationData);
+    const request = new KdfRequest(
+      oldAuthenticationData.masterPasswordAuthenticationHash,
+      authenticationData,
+      unlockData,
+    );
+
     await this.changeKdfApiService.updateUserKdfParams(request);
 
     // Update the locally stored master key and hash, so that UV, etc. still works

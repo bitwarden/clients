@@ -153,6 +153,7 @@ describe("ChangeKdfService", () => {
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
       const expectedRequest = new KdfRequest(
+        mockOldHash,
         {
           salt: mockSalt,
           kdf: mockNewKdfConfig,
@@ -164,11 +165,6 @@ describe("ChangeKdfService", () => {
           mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
         ),
       );
-      expectedRequest.authenticateWith({
-        salt: mockSalt,
-        kdf: mockOldKdfConfig,
-        masterPasswordAuthenticationHash: mockOldHash,
-      });
 
       expect(changeKdfApiService.updateUserKdfParams).toHaveBeenCalledWith(expectedRequest);
     });
