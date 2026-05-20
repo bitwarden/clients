@@ -133,7 +133,7 @@ describe("BulkActionsBarComponent", () => {
       fixture.detectChanges();
     });
 
-    it("moves focus into the bar on Alt+B from outside", () => {
+    it("moves focus into the bar on Ctrl+B from outside", () => {
       outside().focus();
       expect(document.activeElement).toBe(outside());
 
@@ -143,7 +143,7 @@ describe("BulkActionsBarComponent", () => {
       expect(document.activeElement).toBe(closeBtn());
     });
 
-    it("toggles focus back to the previously-focused element on second Alt+B", () => {
+    it("toggles focus back to the previously-focused element on second Ctrl+B", () => {
       outside().focus();
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "b", ctrlKey: true }));
       fixture.detectChanges();
