@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/key-management";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
-import { BrowserApi } from "../../platform/browser/browser-api";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -92,10 +91,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         // Handle SDK-based biometrics status check
         return BiometricsStatus.Available;
       }
-    }
-
-    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
-      return BiometricsStatus.NativeMessagingPermissionMissing;
     }
 
     try {

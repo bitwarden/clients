@@ -103,7 +103,8 @@ export class CreateCommand {
 
       if (
         cipherView.type === CipherType.BankAccount ||
-        cipherView.type === CipherType.DriversLicense
+        cipherView.type === CipherType.DriversLicense ||
+        cipherView.type === CipherType.Passport
       ) {
         const newItemTypesEnabled = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
