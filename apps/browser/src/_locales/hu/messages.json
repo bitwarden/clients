@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Útlevélszám másolása"
   },
+  "copyFirstName": {
+    "message": "Személynév másolása"
+  },
+  "copyMiddleName": {
+    "message": "Középső név másolása"
+  },
+  "copyLastName": {
+    "message": "Családnév másolása"
+  },
   "copyLicenseNumber": {
     "message": "Licensz szám másolása"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Bővítmény értékelése"
+  },
+  "troubleshooting": {
+    "message": "Hibaelhárítás"
+  },
+  "experiencingAnIssue": {
+    "message": "Problémát tapasztalunk?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Töltsük le, majd osszuk meg a diagnosztikai jelentést:"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden támogatás",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Letöltés"
   },
   "browserNotSupportClipboard": {
     "message": "A webböngésződ nem támogat könnyű vágólap másolást. Másold manuálisan inkább."
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Banki adatok"
   },
+  "typeDriversLicense": {
+    "message": "Licensz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Jogosítvány szám vagy azonosító"
+  },
+  "driversLicenseDetails": {
+    "message": "Licensz részletek"
+  },
+  "dateOfBirth": {
+    "message": "Születési dátum"
+  },
+  "birthMonth": {
+    "message": "Születési hónap"
+  },
+  "birthDay": {
+    "message": "Születési nap"
+  },
+  "birthYear": {
+    "message": "Születési év"
+  },
+  "issuingCountry": {
+    "message": "Kiállító ország"
+  },
+  "issuingState": {
+    "message": "Kiállító állam/tartomány"
+  },
+  "issuingAuthority": {
+    "message": "Kiállító hatóság"
+  },
+  "issueDate": {
+    "message": "Kiállítási dátum"
+  },
+  "issueMonth": {
+    "message": "Kiállítási hónap"
+  },
+  "issueDay": {
+    "message": "Kiállítási nap"
+  },
+  "issueYear": {
+    "message": "Kiállítási év"
+  },
+  "expirationDay": {
+    "message": "Lejárati dátum"
+  },
+  "licenseClass": {
+    "message": "Licensz osztály"
+  },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
     "description": "Header for new login item type"
@@ -2197,12 +2270,12 @@
     "message": "Új útlevél",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Új szöveges Send elem",
+  "newItemHeaderTextSendV2": {
+    "message": "Új szöveg",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Új fájl Send elem",
+  "newItemHeaderFileSendV2": {
+    "message": "Új fájl",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2229,7 +2302,7 @@
     "message": "Bankszámla szerkesztése",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Licensz szerkesztése",
     "description": "Header for edit license item type"
   },
@@ -2237,12 +2310,12 @@
     "message": "Útlevél szerkesztése",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send szöveg szerkesztése",
+  "editItemHeaderTextSendV2": {
+    "message": "Szöveg szerkesztése",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send fájl szerkesztése",
+  "editItemHeaderFileSendV2": {
+    "message": "Fájl szerkesztése",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2269,7 +2342,7 @@
     "message": "Bankszámla megtekintése",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Licensz megtekintése",
     "description": "Header for view license item type"
   },
@@ -3460,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Személyes széf exportálása"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ email címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Csak $ORGANIZATION$ névvel társított szervezeti széf kerül exportálásra. Ebbe nem kerülnek be a személyes és más szervezeti széf elemek.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Csak az egyéni széfben lévő elemek exportálhatók."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Csak $ORGANIZATION$ széfhez kapcsolódó elemek exportálhatók. Az egyes széfekben lévő elemek nem.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4576,6 +4634,18 @@
   },
   "exportError": {
     "message": "Hiba történt a széf adatainak exportálása közben."
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Hozzáférési kulcs"
@@ -6353,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "enterMonth": {
+    "message": "A hónap megadása."
+  },
+  "enterDay": {
+    "message": "A nap megadása."
+  },
+  "enterYear": {
+    "message": "Az év megadása."
+  },
+  "invalidDay": {
+    "message": "Érvényes napot adjunk meg."
+  },
+  "invalidYear": {
+    "message": "Érvényes évet adjunk meg."
+  },
+  "searchDriversLicense": {
+    "message": "Licenszek keresése"
+  },
   "bankName": {
     "message": "Bank neve"
   },
@@ -6423,14 +6511,31 @@
   "bankAccountTypeOther": {
     "message": "Egyéb"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Banki adatok biztonságos tárolása"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Mentsük el a bankszámla adatokat, hogy könnyen és biztonságosan hozzáférhessünk az eszközökhöz."
-  },
   "downloadFailed": {
     "message": "A letöltés sikertelen volt."
+  },
+  "maxAccessCount": {
+    "message": "Maximális elérési szám",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Saját email cím elrejtése a címzettek elől."
+  },
+  "viewTextSendHeader": {
+    "message": "Szöveg megtekintése"
+  },
+  "viewFileSendHeader": {
+    "message": "Fájl megtekintése"
+  },
+  "sendCreated": {
+    "message": "Az új Send elem létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "A beviteli adat legyen numerikus."
+  },
+  "integerInputError": {
+    "message": "A beviteli adat legyen egész szám."
   },
   "sideNavigation": {
     "message": "Oldal navigáció"
