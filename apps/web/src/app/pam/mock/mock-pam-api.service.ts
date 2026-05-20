@@ -209,6 +209,17 @@ export class MockPamApiService extends PamApiService {
     return Array.from(this.store.inboxRequests.values()).filter((r) => r.status === "pending");
   }
 
+  async listInboxHistory(): Promise<InboxLeaseRequestResponse[]> {
+    this.store.seedInboxIfNeeded();
+    return Array.from(this.store.inboxRequests.values())
+      .filter((r) => r.status !== "pending")
+      .sort((a, b) => {
+        const aTime = a.resolvedAt ?? a.submittedAt;
+        const bTime = b.resolvedAt ?? b.submittedAt;
+        return bTime.localeCompare(aTime);
+      });
+  }
+
   async getInboxBadgeCount(): Promise<InboxBadgeCountResponse> {
     this.store.seedInboxIfNeeded();
     const count = Array.from(this.store.inboxRequests.values()).filter(
@@ -232,9 +243,7 @@ export class MockPamApiService extends PamApiService {
       collectionId: request.collectionId,
       requesterUserId: request.requesterUserId,
       status: request.status,
-      requestedNotBefore: request.requestedNotBefore
-        ? new Date(request.requestedNotBefore)
-        : null,
+      requestedNotBefore: request.requestedNotBefore ? new Date(request.requestedNotBefore) : null,
       requestedNotAfter: request.requestedNotAfter ? new Date(request.requestedNotAfter) : null,
       requestedTtlSeconds: request.requestedTtlSeconds,
       submittedAt: new Date(request.submittedAt),
@@ -245,10 +254,7 @@ export class MockPamApiService extends PamApiService {
     });
   }
 
-  private applyDecision(
-    requestId: string,
-    request: LeaseDecisionRequest,
-  ): LeaseRequestResponse {
+  private applyDecision(requestId: string, request: LeaseDecisionRequest): LeaseRequestResponse {
     const existing = this.requireRequest(requestId, /* fallbackInbox */ true);
     if (existing.status !== "pending") {
       return existing;

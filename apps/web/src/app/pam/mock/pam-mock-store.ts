@@ -37,6 +37,7 @@ export class PamMockStore {
   currentUserId: string | null = null;
 
   /** Push channel — `events$.next({ kind, requestId })` to deliver an event. */
+  // eslint-disable-next-line rxjs/no-exposed-subjects -- intentional mock push channel
   readonly events$ = new Subject<LeaseEvent>();
 
   private seededInbox = false;
@@ -145,13 +146,15 @@ export class PamMockStore {
       return;
     }
     this.seededInbox = true;
-    const fakes = [
+    const now = new Date();
+
+    // Pending requests that need a decision.
+    const pending = [
       { user: "Alex Rivera", email: "alex@example.com", cipher: "Prod database" },
       { user: "Bo Chen", email: "bo@example.com", cipher: "Stripe API key" },
       { user: "Casey Park", email: "casey@example.com", cipher: "AWS root" },
     ];
-    const now = new Date();
-    for (const f of fakes) {
+    for (const f of pending) {
       const id = this.mintId("inbox-req");
       const cipherId = this.mintId("cipher");
       const inbox = buildInboxLeaseRequest({
@@ -169,6 +172,144 @@ export class PamMockStore {
         requesterName: f.user,
         requesterEmail: f.email,
       });
+      this.inboxRequests.set(id, inbox);
+    }
+
+    // Historical requests (already resolved).
+    // windowOffsetMs: [notBeforeOffsetFromNow, notAfterOffsetFromNow] — defaults to past window.
+    const history: Array<{
+      user: string;
+      email: string;
+      cipher: string;
+      collection: string;
+      status: "approved" | "denied" | "expired";
+      resolvedMsAgo: number;
+      submittedMsAgo: number;
+      comment?: string;
+      windowOffsetMs?: [number, number];
+    }> = [
+      // Active now: window spans the present moment.
+      {
+        user: "Dana Kim",
+        email: "dana@example.com",
+        cipher: "GitHub deploy key",
+        collection: "Production secrets",
+        status: "approved",
+        submittedMsAgo: 2 * 60 * 60 * 1000,
+        resolvedMsAgo: 1.5 * 60 * 60 * 1000,
+        comment: "Approved for hotfix deploy.",
+        windowOffsetMs: [-30 * 60 * 1000, 30 * 60 * 1000],
+      },
+      // Scheduled: window starts in the future.
+      {
+        user: "Jordan Lee",
+        email: "jordan@example.com",
+        cipher: "Kubernetes secrets",
+        collection: "Infrastructure",
+        status: "approved",
+        submittedMsAgo: 1 * 60 * 60 * 1000,
+        resolvedMsAgo: 45 * 60 * 1000,
+        comment: "Pre-approved for tonight's maintenance.",
+        windowOffsetMs: [4 * 60 * 60 * 1000, 6 * 60 * 60 * 1000],
+      },
+      // Today.
+      {
+        user: "Eli Santos",
+        email: "eli@example.com",
+        cipher: "Datadog API key",
+        collection: "Monitoring",
+        status: "denied",
+        submittedMsAgo: 5 * 60 * 60 * 1000,
+        resolvedMsAgo: 4 * 60 * 60 * 1000,
+        comment: "Outside approved hours.",
+      },
+      // Earlier this week.
+      {
+        user: "Fran Osei",
+        email: "fran@example.com",
+        cipher: "Prod database",
+        collection: "Production secrets",
+        status: "approved",
+        submittedMsAgo: 26 * 60 * 60 * 1000,
+        resolvedMsAgo: 25 * 60 * 60 * 1000,
+      },
+      {
+        user: "Gus Morita",
+        email: "gus@example.com",
+        cipher: "SendGrid API key",
+        collection: "Email services",
+        status: "denied",
+        submittedMsAgo: 50 * 60 * 60 * 1000,
+        resolvedMsAgo: 49 * 60 * 60 * 1000,
+        comment: "No incident ticket provided.",
+      },
+      // Older.
+      {
+        user: "Hana Bello",
+        email: "hana@example.com",
+        cipher: "AWS root",
+        collection: "Production secrets",
+        status: "expired",
+        submittedMsAgo: 10 * 24 * 60 * 60 * 1000,
+        resolvedMsAgo: 10 * 24 * 60 * 60 * 1000,
+      },
+      {
+        user: "Ivan Petrov",
+        email: "ivan@example.com",
+        cipher: "Terraform state",
+        collection: "Infrastructure",
+        status: "approved",
+        submittedMsAgo: 14 * 24 * 60 * 60 * 1000,
+        resolvedMsAgo: 14 * 24 * 60 * 60 * 1000,
+        comment: "Approved for planned maintenance window.",
+      },
+    ];
+    for (const h of history) {
+      const id = this.mintId("inbox-req");
+      const cipherId = this.mintId("cipher");
+      const submittedAt = new Date(now.getTime() - h.submittedMsAgo);
+      const resolvedAt = new Date(now.getTime() - h.resolvedMsAgo);
+      const [winStart, winEnd] = h.windowOffsetMs
+        ? [
+            new Date(now.getTime() + h.windowOffsetMs[0]),
+            new Date(now.getTime() + h.windowOffsetMs[1]),
+          ]
+        : [submittedAt, new Date(submittedAt.getTime() + PamMockConfig.DEFAULT_LEASE_DURATION_MS)];
+      const inbox = buildInboxLeaseRequest({
+        id,
+        cipherId,
+        collectionId: this.collectionFor(cipherId),
+        requesterUserId: this.mintId("user"),
+        status: h.status,
+        requestedNotBefore: winStart,
+        requestedNotAfter: winEnd,
+        requestedTtlSeconds: 3600,
+        submittedAt,
+        cipherName: h.cipher,
+        collectionName: h.collection,
+        requesterName: h.user,
+        requesterEmail: h.email,
+      });
+      inbox.resolvedAt = resolvedAt.toISOString();
+      if (h.comment) {
+        inbox.resolverComment = h.comment;
+      }
+      // Mint a real lease for approved items that have an active or future
+      // window so the revoke button has a leaseId to act on.
+      if (h.status === "approved" && h.windowOffsetMs) {
+        const lease = buildLease({
+          id: this.mintId("lease"),
+          requestId: id,
+          cipherId,
+          collectionId: this.collectionFor(cipherId),
+          granteeUserId: this.mintId("user"),
+          notBefore: winStart,
+          notAfter: winEnd,
+          status: "active",
+        });
+        this.leases.set(lease.id, lease);
+        inbox.leaseId = lease.id;
+      }
       this.inboxRequests.set(id, inbox);
     }
   }
