@@ -21,7 +21,8 @@ import {
 import { KeeperAuthDialogComponent } from "./dialog/keeper-auth-dialog.component";
 import { KEEPER_SSO_TAB_MONITOR } from "./services/keeper-sso-tab-monitor";
 
-const SSO_CALLBACK_URL_PATTERN = /keepersecurity\.[^/]+\/api\/rest\/sso\/saml\/\d+\/saml\/sso/i;
+const SSO_CALLBACK_URL_PATTERN =
+  /^https:\/\/keepersecurity\.[^/]+\/api\/rest\/sso\/saml\/\d+\/saml\/sso/i;
 
 export type KeeperAuthStage =
   | { kind: "idle" }
