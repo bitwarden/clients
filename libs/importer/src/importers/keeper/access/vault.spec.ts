@@ -7,7 +7,6 @@ import { fromBinary } from "@bufbuild/protobuf";
 import { Vault } from "../../keeper/access";
 import * as fixture from "../../spec-data/keeper-direct/sync-down-fixture.json";
 
-
 import { SyncDownResponseSchema } from "./generated/sync-down_pb";
 import { VaultItem } from "./models";
 
