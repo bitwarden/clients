@@ -72,6 +72,21 @@ export class Fido2Background implements Fido2BackgroundInterface {
   }
 
   /**
+   * Returns true when a user visible passkey picker is active for the tab.
+   * Conditional WebAuthn mediation may hold an active credential request with zero
+   * passkeys which shouldn't block notifications.
+   */
+  shouldDeferVaultNotificationsForPasskeyUi(tabId: number): boolean {
+    if (!this.activeCredentialRequests.has(tabId)) {
+      return false;
+    }
+
+    const activeRequest = this.fido2ActiveRequestManager.getActiveRequest(tabId);
+
+    return activeRequest != null && activeRequest.credentials.length > 0;
+  }
+
+  /**
    * Initializes the FIDO2 background service. Sets up the extension message
    * and port listeners. Subscribes to the enablePasskeys$ observable to
    * handle passkey enable/disable events.
