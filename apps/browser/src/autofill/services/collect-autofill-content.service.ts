@@ -71,26 +71,24 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
   private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
-  private hasPendingMutationsOnVisible = false;
-  private hasPendingPageDetailsOnVisible = false;
   private handleVisibilityChange = () => {
-    if (globalThis.document.visibilityState !== "visible") {
+    if (globalThis.document.visibilityState === "hidden") {
+      // Tear down all mutation-driven work while the tab is hidden. The rescan
+      // triggered on the visible transition re-derives autofill state from the
+      // current DOM, so we can drop in-flight records without losing signal.
+      // A still-pending debouncedProcessMutations fires harmlessly once the queue
+      // is empty (it early-returns at the length check).
+      this.mutationObserver?.disconnect();
+      this.mutationsQueue = [];
+      if (this.updateAfterMutationIdleCallback !== null) {
+        cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+        this.updateAfterMutationIdleCallback = null;
+      }
       return;
     }
 
-    if (this.hasPendingMutationsOnVisible) {
-      this.hasPendingMutationsOnVisible = false;
-      // Debounce coalesces the resume call with any visibility-burst mutations
-      // (lazy hydration, intersection observers) that fire in the next 100ms.
-      requestIdleCallbackPolyfill(this.debouncedProcessMutations, { timeout: 500 });
-    }
-
-    if (this.hasPendingPageDetailsOnVisible) {
-      this.hasPendingPageDetailsOnVisible = false;
-      // updateAutofillElementsAfterMutation schedules through requestIdleCallback itself,
-      // so wrapping this call would double-defer.
-      this.updateAutofillElementsAfterMutation();
-    }
+    this.observeDocumentMutations();
+    this.updateAutofillElementsAfterMutation();
   };
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -1227,13 +1225,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupMutationObserver() {
     this.currentLocationHref = globalThis.location.href;
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
-    this.mutationObserver.observe(document.documentElement, {
+    this.observeDocumentMutations();
+    globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChange);
+  }
+
+  private observeDocumentMutations() {
+    this.mutationObserver?.observe(document.documentElement, {
       attributes: true,
       attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
     });
-    globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChange);
   }
 
   /**
@@ -1310,11 +1312,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Now all pending work is flattened and processed in a single idle callback.
    */
   private processMutations = () => {
-    if (globalThis.document.visibilityState === "hidden") {
-      this.hasPendingMutationsOnVisible = true;
-      return;
-    }
-
     // Flatten all pending batches into one array and clear the queue immediately
     // so that any new mutations arriving during processing go into a fresh queue.
     const allMutations = this.mutationsQueue.flat();
@@ -1591,11 +1588,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.updateAfterMutationIdleCallback !== null) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
       this.updateAfterMutationIdleCallback = null;
-    }
-
-    if (globalThis.document.visibilityState === "hidden") {
-      this.hasPendingPageDetailsOnVisible = true;
-      return;
     }
 
     const now = Date.now();

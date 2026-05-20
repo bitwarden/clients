@@ -3250,6 +3250,7 @@ describe("CollectAutofillContentService", () => {
 
     beforeEach(() => {
       jest.useFakeTimers();
+      collectAutofillContentService["setupMutationObserver"]();
     });
 
     afterEach(() => {
@@ -3258,104 +3259,43 @@ describe("CollectAutofillContentService", () => {
       setVisibilityState("visible");
     });
 
-    it("bails out of processMutations when the tab is hidden and preserves the queue", () => {
+    it("disconnects the MutationObserver and clears pending mutation work when the tab becomes hidden", () => {
       setVisibilityState("hidden");
-      const mutationRecord = {
-        type: "childList",
-        addedNodes: document.querySelectorAll("div"),
-        removedNodes: document.querySelectorAll("li"),
-        attributeName: null,
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        target: document.body,
-      } as unknown as MutationRecord;
-      collectAutofillContentService["mutationsQueue"] = [[mutationRecord]];
-      const processRecordSpy = jest.spyOn(
-        collectAutofillContentService as any,
-        "processMutationRecord",
+      collectAutofillContentService["mutationsQueue"] = [
+        [{ type: "childList" } as unknown as MutationRecord],
+      ];
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = 42 as any;
+      const disconnectSpy = jest.spyOn(
+        collectAutofillContentService["mutationObserver"]!,
+        "disconnect",
       );
 
-      collectAutofillContentService["processMutations"]();
+      collectAutofillContentService["handleVisibilityChange"]();
 
-      expect(processRecordSpy).not.toHaveBeenCalled();
-      expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(1);
-      expect(collectAutofillContentService["hasPendingMutationsOnVisible"]).toBe(true);
-    });
-
-    it("bails out of updateAutofillElementsAfterMutation when the tab is hidden", () => {
-      setVisibilityState("hidden");
-      const requestIdleSpy = jest.spyOn(globalThis, "requestIdleCallback");
-
-      collectAutofillContentService["updateAutofillElementsAfterMutation"]();
-
-      expect(requestIdleSpy).not.toHaveBeenCalled();
+      expect(disconnectSpy).toHaveBeenCalled();
+      expect(collectAutofillContentService["mutationsQueue"]).toEqual([]);
       expect(collectAutofillContentService["updateAfterMutationIdleCallback"]).toBeNull();
-      expect(collectAutofillContentService["hasPendingPageDetailsOnVisible"]).toBe(true);
     });
 
-    it("reconciles pending mutations and page-details refresh when the tab becomes visible", () => {
+    it("re-observes the document and triggers a page-details rescan when the tab becomes visible", () => {
       setVisibilityState("visible");
-      collectAutofillContentService["hasPendingMutationsOnVisible"] = true;
-      collectAutofillContentService["hasPendingPageDetailsOnVisible"] = true;
+      const observeSpy = jest.spyOn(collectAutofillContentService["mutationObserver"]!, "observe");
       const updateSpy = jest.spyOn(
         collectAutofillContentService as any,
         "updateAutofillElementsAfterMutation",
       );
-      const requestIdleSpy = jest.spyOn(globalThis, "requestIdleCallback");
 
       collectAutofillContentService["handleVisibilityChange"]();
 
-      expect(collectAutofillContentService["hasPendingMutationsOnVisible"]).toBe(false);
-      expect(collectAutofillContentService["hasPendingPageDetailsOnVisible"]).toBe(false);
+      expect(observeSpy).toHaveBeenCalledWith(
+        document.documentElement,
+        expect.objectContaining({
+          attributes: true,
+          childList: true,
+          subtree: true,
+        }),
+      );
       expect(updateSpy).toHaveBeenCalledTimes(1);
-      expect(requestIdleSpy).toHaveBeenCalled();
-    });
-
-    it("drains a mutation queued while hidden once the tab becomes visible", () => {
-      setVisibilityState("hidden");
-      const mutationRecord = {
-        type: "childList",
-        addedNodes: document.querySelectorAll("div"),
-        removedNodes: document.querySelectorAll("li"),
-        attributeName: null,
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        target: document.body,
-      } as unknown as MutationRecord;
-      collectAutofillContentService["mutationsQueue"] = [[mutationRecord]];
-      const processRecordSpy = jest
-        .spyOn(collectAutofillContentService as any, "processMutationRecord")
-        .mockImplementation(() => undefined);
-
-      collectAutofillContentService["processMutations"]();
-      expect(processRecordSpy).not.toHaveBeenCalled();
-
-      setVisibilityState("visible");
-      collectAutofillContentService["handleVisibilityChange"]();
-      jest.runAllTimers();
-
-      expect(processRecordSpy).toHaveBeenCalledWith(mutationRecord);
-      expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
-    });
-
-    it("does nothing on handleVisibilityChange when the document is still hidden", () => {
-      setVisibilityState("hidden");
-      collectAutofillContentService["hasPendingMutationsOnVisible"] = true;
-      collectAutofillContentService["hasPendingPageDetailsOnVisible"] = true;
-      const updateSpy = jest.spyOn(
-        collectAutofillContentService as any,
-        "updateAutofillElementsAfterMutation",
-      );
-
-      collectAutofillContentService["handleVisibilityChange"]();
-
-      expect(collectAutofillContentService["hasPendingMutationsOnVisible"]).toBe(true);
-      expect(collectAutofillContentService["hasPendingPageDetailsOnVisible"]).toBe(true);
-      expect(updateSpy).not.toHaveBeenCalled();
     });
 
     it("removes the visibilitychange listener on destroy", () => {
