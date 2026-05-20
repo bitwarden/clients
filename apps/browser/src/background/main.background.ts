@@ -346,6 +346,7 @@ import { AutofillTriageService } from "../autofill/services/autofill-triage.serv
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { createInlineMenuFieldQualificationService } from "../autofill/services/qualification/qualification-service.factory";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
@@ -1538,7 +1539,12 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    // Background construction is synchronous and downstream consumers (AutofillTriageService,
+    // ContextMenuClickedHandler) capture the reference immediately on the next lines, so a
+    // ConfigService.getFeatureFlag(...) await is not possible here. Route through the factory
+    // with useEngine=false for v1 — the seam is in place; dynamic flag-switching for the
+    // background context can land in a follow-up that refactors construction timing.
+    this.inlineMenuFieldQualificationService = createInlineMenuFieldQualificationService(false);
     this.autofillTriageService = new AutofillTriageService(
       this.inlineMenuFieldQualificationService,
     );

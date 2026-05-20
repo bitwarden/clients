@@ -39,4 +39,14 @@ export interface InlineMenuFieldQualificationService {
   isElementChangePasswordSubmitButton(element: Element): boolean;
   isTotpField(field: AutofillField): boolean;
   hasCurrentPasswordAutocomplete(field: AutofillField): boolean;
+  /**
+   * Optional hook for engine-backed implementations. Receives a freshly
+   * collected {@link AutofillPageDetails} snapshot so the implementation can
+   * classify its fields and forms in advance. The legacy concrete service
+   * does not implement this — only adapter-backed implementations do.
+   *
+   * Consumers that collect pageDetails snapshots should call this with
+   * optional chaining: `service.enroll?.(pageDetails)`.
+   */
+  enroll?(pageDetails: AutofillPageDetails): void;
 }
