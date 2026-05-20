@@ -67,6 +67,7 @@ function fakeApi(rows: InboxLeaseRequestResponse[]): PamApiService {
     revokeLease: () => Promise.resolve(),
     setCollectionLeasingConfig: () => Promise.reject(new Error("not used")),
     listInboxRequests: () => Promise.resolve(rows),
+    listInboxHistory: () => Promise.resolve([]),
     submitDecision: (id: string, _request: LeaseDecisionRequest) =>
       Promise.resolve(new LeaseRequestResponse({ Id: id, Status: "approved" })),
     getInboxBadgeCount: () => Promise.reject(new Error("not used")),

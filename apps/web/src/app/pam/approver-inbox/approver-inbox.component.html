@@ -26,10 +26,7 @@
       </ng-container>
     </bit-no-items>
   } @else {
-    <ul
-      class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-0"
-      data-testid="approver-inbox-list"
-    >
+    <div class="tw-flex tw-flex-col tw-gap-3" data-testid="approver-inbox-list">
       @for (req of requests(); track trackById($index, req)) {
         <pam-approver-inbox-row
           [request]="req"
@@ -38,6 +35,104 @@
           (decide)="onDecide(req, $event)"
         ></pam-approver-inbox-row>
       }
-    </ul>
+    </div>
   }
+
+  <!-- Decision history -->
+  <section class="tw-flex tw-flex-col tw-gap-4" data-testid="approver-inbox-history">
+    <h2 bitTypography="h6" class="tw-m-0 tw-text-muted tw-uppercase tw-tracking-wide tw-text-xs">
+      {{ "pamInboxHistoryTitle" | i18n }}
+    </h2>
+
+    @if (historyGroups().length === 0) {
+      <p class="tw-m-0 tw-text-sm tw-text-muted" data-testid="approver-inbox-history-empty">
+        {{ "pamInboxHistoryEmpty" | i18n }}
+      </p>
+    } @else {
+      @for (group of historyGroups(); track trackByLabel($index, group)) {
+        @let isActiveGroup = group.labelKey === "pamInboxHistoryGroupActive";
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          <p
+            class="tw-mb-0 tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted"
+          >
+            {{ group.labelKey | i18n }}
+          </p>
+          @for (item of group.items; track trackById($index, item)) {
+            <div
+              class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background-alt tw-px-4 tw-py-3"
+              data-testid="approver-inbox-history-row"
+            >
+              <div class="tw-min-w-0 tw-flex-1">
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <span bitTypography="body2" class="tw-font-semibold tw-text-main">{{
+                    item.cipherName
+                  }}</span>
+                  <span
+                    class="tw-rounded-full tw-px-2 tw-py-0.5 tw-text-xs tw-font-medium"
+                    [class.tw-bg-success-100]="item.status === 'approved'"
+                    [class.tw-text-success-700]="item.status === 'approved'"
+                    [class.tw-bg-danger-100]="item.status === 'denied'"
+                    [class.tw-text-danger-700]="item.status === 'denied'"
+                    [class.tw-bg-secondary-100]="
+                      item.status !== 'approved' && item.status !== 'denied'
+                    "
+                    [class.tw-text-muted]="item.status !== 'approved' && item.status !== 'denied'"
+                  >
+                    @switch (item.status) {
+                      @case ("approved") {
+                        {{ "pamInboxHistoryStatusApproved" | i18n }}
+                      }
+                      @case ("denied") {
+                        {{ "pamInboxHistoryStatusDenied" | i18n }}
+                      }
+                      @case ("expired") {
+                        {{ "pamInboxHistoryStatusExpired" | i18n }}
+                      }
+                      @default {
+                        {{ "pamInboxHistoryStatusCancelled" | i18n }}
+                      }
+                    }
+                  </span>
+                </div>
+                <p class="tw-mb-0 tw-mt-0.5 tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: item.collectionName }}
+                  &middot;
+                  {{ item.requesterName || item.requesterEmail }}
+                  @let relTime = historyRelativeTime(item, group.labelKey);
+                  @if (relTime) {
+                    &middot;
+                    <span class="tw-font-medium">{{ relTime }}</span>
+                  }
+                </p>
+                @if (item.resolverComment) {
+                  <p class="tw-mb-0 tw-mt-1 tw-text-xs tw-italic tw-text-muted">
+                    {{ "pamInboxHistoryComment" | i18n: item.resolverComment }}
+                  </p>
+                }
+              </div>
+              <div class="tw-flex tw-shrink-0 tw-items-center tw-gap-3">
+                @if (
+                  (isActiveGroup || group.labelKey === "pamInboxHistoryGroupFuture") && item.leaseId
+                ) {
+                  <button
+                    bitButton
+                    type="button"
+                    buttonType="secondary"
+                    size="small"
+                    [loading]="revoking().has(item.leaseId)"
+                    [disabled]="revoking().has(item.leaseId)"
+                    data-testid="approver-inbox-revoke"
+                    (click)="onRevoke(item)"
+                  >
+                    {{ "pamInboxRevoke" | i18n }}
+                  </button>
+                }
+                <span class="tw-text-xs tw-text-muted">{{ item.resolvedAt | date: "short" }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </section>
 </div>

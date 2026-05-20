@@ -1,7 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
 
-import { InboxLeaseRequestResponse, LeaseDecisionRequest, PamApiService } from "@bitwarden/pam";
+import {
+  InboxLeaseRequestResponse,
+  LeaseDecisionRequest,
+  LeaseRevokeRequest,
+  PamApiService,
+} from "@bitwarden/pam";
 
 /**
  * Loads pending lease requests for the approver inbox, applies the
@@ -17,10 +22,12 @@ export class ApproverInboxService {
   private readonly pamApiService = inject(PamApiService);
 
   private readonly _requests$ = new BehaviorSubject<InboxLeaseRequestResponse[]>([]);
+  private readonly _history$ = new BehaviorSubject<InboxLeaseRequestResponse[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly requests$: Observable<InboxLeaseRequestResponse[]> = this._requests$.asObservable();
+  readonly history$: Observable<InboxLeaseRequestResponse[]> = this._history$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   readonly badgeCount$: Observable<number> = this._requests$.pipe(
@@ -28,13 +35,17 @@ export class ApproverInboxService {
     distinctUntilChanged(),
   );
 
-  /** Fetch the inbox and replace local state. */
+  /** Fetch the inbox and history, replacing local state. */
   async load(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
     try {
-      const rows = await this.pamApiService.listInboxRequests();
+      const [rows, history] = await Promise.all([
+        this.pamApiService.listInboxRequests(),
+        this.pamApiService.listInboxHistory(),
+      ]);
       this._requests$.next(sortInbox(rows));
+      this._history$.next(history);
     } catch (e) {
       this._loadError$.next(e);
       throw e;
@@ -61,13 +72,37 @@ export class ApproverInboxService {
     next.splice(index, 1);
     this._requests$.next(next);
     try {
-      await this.pamApiService.submitDecision(requestId, request);
+      const resolved = await this.pamApiService.submitDecision(requestId, request);
+      // Mutate a copy of the inbox row with the server-returned decision fields
+      // and prepend it to history so the approver sees it immediately.
+      row.status = resolved.status;
+      row.resolvedAt = resolved.resolvedAt;
+      row.resolverComment = resolved.resolverComment;
+      this._history$.next([row, ...this._history$.value]);
     } catch (e) {
       const restored = this._requests$.value.slice();
       restored.splice(index, 0, row);
       this._requests$.next(sortInbox(restored));
       throw e;
     }
+  }
+
+  /**
+   * Revoke an active lease and move it to the past bucket in history
+   * by flipping its status to "revoked" optimistically.
+   */
+  async revokeLease(leaseId: string): Promise<void> {
+    await this.pamApiService.revokeLease(leaseId, new LeaseRevokeRequest({}));
+    // Set requestedNotAfter to epoch so groupHistory() unconditionally
+    // places the row in the Past bucket regardless of when renderedAt was snapped.
+    const epoch = new Date(0).toISOString();
+    const updated = this._history$.value.map((item) => {
+      if (item.leaseId === leaseId) {
+        item.requestedNotAfter = epoch;
+      }
+      return item;
+    });
+    this._history$.next(updated);
   }
 }
 

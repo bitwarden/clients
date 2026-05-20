@@ -3,7 +3,14 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ButtonModule, FormFieldModule, IconModule, TooltipDirective } from "@bitwarden/components";
+import {
+  ButtonModule,
+  CardComponent,
+  FormFieldModule,
+  IconModule,
+  TooltipDirective,
+  TypographyModule,
+} from "@bitwarden/components";
 import { InboxLeaseRequestResponse, LeaseDecision } from "@bitwarden/pam";
 
 /**
@@ -13,7 +20,7 @@ import { InboxLeaseRequestResponse, LeaseDecision } from "@bitwarden/pam";
  * per click. Self-approval is disabled at the button level — gating is the
  * parent's responsibility via {@link canDecide}.
  */
- 
+
 @Component({
   selector: "pam-approver-inbox-row",
   templateUrl: "./approver-inbox-row.component.html",
@@ -22,9 +29,11 @@ import { InboxLeaseRequestResponse, LeaseDecision } from "@bitwarden/pam";
     ReactiveFormsModule,
     JslibModule,
     ButtonModule,
+    CardComponent,
     FormFieldModule,
     IconModule,
     TooltipDirective,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
