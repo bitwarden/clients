@@ -27,6 +27,7 @@ import {
   Fido2UserInterfaceSession,
   NewCredentialParams,
 } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
@@ -75,6 +76,7 @@ describe("FidoAuthenticatorService", () => {
 
     // PureCrypto is backed by WASM and is not initialized in jest. stub the
     // GUID generator so createKeyView() can run without loading the module.
+    (SdkLoadService as any).Ready = jest.fn().mockResolvedValue(true);
     jest.spyOn(PureCrypto, "new_guid").mockImplementation(() => Utils.newGuid());
   });
 

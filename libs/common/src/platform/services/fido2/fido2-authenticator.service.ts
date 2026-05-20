@@ -27,6 +27,7 @@ import {
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
@@ -486,6 +487,8 @@ async function createKeyView(
   if (keyValue.algorithm.name !== "ECDSA" && (keyValue.algorithm as any).namedCurve !== "P-256") {
     throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
   }
+
+  await SdkLoadService.Ready; // Required for PureCrypto.new_guid()
 
   const pkcs8Key = new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyValue));
   const fido2Credential = new Fido2CredentialView();
