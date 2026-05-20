@@ -204,8 +204,9 @@ export class DialogService {
      * and we need the portal to complete the ref. Solved with mutability (same
      * pattern as openDialog / CdkDialogRef).
      */
-    const ref = new DrawerRef<R, C>(
+    const ref: DrawerRef<R, C> = new DrawerRef<R, C>(
       () => this.drawerService.pop(),
+      () => this.drawerService.isTop(ref),
       (c, cfg) => this.stackDrawer(c, cfg),
       closeOnNavigation,
       config?.closePredicate,

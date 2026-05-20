@@ -68,6 +68,12 @@ export class DrawerService {
     }
   }
 
+  /** Return true if the given ref is currently on top of the stack. */
+  isTop(ref: DrawerRef<any, any>): boolean {
+    const s = this.stack();
+    return s.length > 0 && s[s.length - 1] === ref;
+  }
+
   /**
    * Close drawers top-to-bottom, stopping at the first whose closePredicate rejects.
    * Drawers above the rejecting one are already closed by the time we return; that

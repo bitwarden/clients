@@ -80,6 +80,8 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   constructor(
     /** Called when close() is invoked to notify the owner to handle teardown. */
     private readonly onClose: () => void,
+    /** Returns true if this ref is currently on top of the stack. Provided by DialogService. */
+    private readonly isTop: () => boolean,
     /** Pushes a new entry onto the stack. Provided by DialogService. */
     private readonly onStack: <SR, SD, SC>(
       component: ComponentType<SC>,
@@ -103,12 +105,26 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     component: ComponentType<SC>,
     config?: Omit<DialogConfig<SD, SR>, "closeOnNavigation">,
   ): DrawerRef<SR, SC> {
+    if (!this.isTop()) {
+      throw new Error(
+        "DrawerRef.stack() called on a non-top drawer; only the top drawer can stack a child",
+      );
+    }
     return this.onStack(component, config);
   }
 
   /** Pop this drawer off the stack, firing the closed observable with the given result. Respects closePredicate. */
   async close(result?: R, _options?: DialogCloseOptions): Promise<DialogCloseRef> {
     if (this._isClosed) {
+      return { closed: false };
+    }
+    if (!this.isTop()) {
+      // Only the top drawer in the stack can be closed via its ref. Stacked refs
+      // must be closed in LIFO order; closing a buried ref would orphan the refs
+      // above it. Use drawerService.closeAll() or close from the top down.
+      this.logService?.error(
+        "DrawerRef.close() called on a non-top drawer; close from the top of the stack",
+      );
       return { closed: false };
     }
     if (this.closePredicate) {
