@@ -4368,6 +4368,14 @@
     "message": "Edited file Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deletedTextSend": {
+    "message": "Deleted text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Deleted file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "accessedTextSend": {
     "message": "Text Send accessed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

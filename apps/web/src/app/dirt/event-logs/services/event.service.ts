@@ -822,6 +822,12 @@ export class EventService {
       case EventType.Send_Updated_File:
         msg = humanReadableMsg = this.i18nService.t("editedFileSend");
         break;
+      case EventType.Send_Deleted_Text:
+        msg = humanReadableMsg = this.i18nService.t("deletedTextSend");
+        break;
+      case EventType.Send_Deleted_File:
+        msg = humanReadableMsg = this.i18nService.t("deletedFileSend");
+        break;
       case EventType.Send_Accessed_Text:
         msg = humanReadableMsg = this.i18nService.t("accessedTextSend");
         break;
