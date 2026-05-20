@@ -72,6 +72,7 @@ describe("DomQueryService", () => {
     });
 
     it("queries form field elements that are nested within multiple ShadowDOM elements", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
@@ -241,6 +242,7 @@ describe("DomQueryService", () => {
     });
 
     it("returns true when a shadow root is not in the observed set", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       customElement.attachShadow({ mode: "open" });
       document.body.appendChild(customElement);
@@ -251,6 +253,7 @@ describe("DomQueryService", () => {
     });
 
     it("returns false when all shadow roots are already observed", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
       document.body.appendChild(customElement);

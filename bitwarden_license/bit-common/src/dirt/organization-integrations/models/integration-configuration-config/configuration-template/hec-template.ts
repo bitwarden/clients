@@ -40,6 +40,24 @@ export class HecTemplate implements OrgIntegrationTemplate {
         secretId: "#SecretId#",
         projectId: "#ProjectId#",
         serviceAccountId: "#ServiceAccountId#",
+        enrichment_details: {
+          actingUser: {
+            name: "#ActingUserName#",
+            email: "#ActingUserEmail#",
+            type: "#ActingUserType#",
+          },
+          member: {
+            name: "#UserName#",
+            email: "#UserEmail#",
+            type: "#UserType#",
+          },
+          group: {
+            name: "#GroupName#",
+          },
+          organization: {
+            name: "#OrganizationName#",
+          },
+        },
       },
     };
 

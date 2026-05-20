@@ -158,7 +158,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuButtonVisible: boolean = false;
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
-  private iconsServerUrl: string = "";
   private passkeyAuthTabId: number | null = null;
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
@@ -273,8 +272,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   async init() {
     this.setupExtensionListeners();
-    const env = await firstValueFrom(this.environmentService.environment$);
-    this.iconsServerUrl = env.getIconsUrl();
     const yieldedPassword$ = merge(
       this.generatorService.generate$({
         on$: this.requestGeneratedPassword$,
@@ -557,7 +554,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * objects that contain the cipher data needed for the inline menu list.
    */
   private async getInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
-    const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
+    const [showFavicons, env] = await Promise.all([
+      firstValueFrom(this.domainSettingsService.showFavicons$),
+      firstValueFrom(this.environmentService.environment$),
+    ]);
+    const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     let inlineMenuCipherData: InlineMenuCipherData[];
     this.showPasskeysLabelsWithinInlineMenu = false;
@@ -566,11 +567,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuCipherData = await this.buildInlineMenuAccountCreationCiphers(
         inlineMenuCiphersArray,
         true,
+        iconsServerUrl,
       );
     } else {
       inlineMenuCipherData = await this.buildInlineMenuCiphers(
         inlineMenuCiphersArray,
         showFavicons,
+        iconsServerUrl,
       );
     }
 
@@ -587,6 +590,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async buildInlineMenuAccountCreationCiphers(
     inlineMenuCiphersArray: [string, CipherView][],
     showFavicons: boolean,
+    iconsServerUrl: string | null,
   ) {
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
     const accountCreationLoginCiphers: InlineMenuCipherData[] = [];
@@ -599,6 +603,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
           await this.buildCipherData({
             inlineMenuCipherId,
             cipher,
+            iconsServerUrl,
             showFavicons,
             showInlineMenuAccountCreation: true,
           }),
@@ -619,6 +624,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         await this.buildCipherData({
           inlineMenuCipherId,
           cipher,
+          iconsServerUrl,
           showFavicons,
           showInlineMenuAccountCreation: true,
           identityData: identity,
@@ -642,13 +648,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async buildInlineMenuCiphers(
     inlineMenuCiphersArray: [string, CipherView][],
     showFavicons: boolean,
+    iconsServerUrl: string | null,
   ) {
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
     const passkeyCipherData: InlineMenuCipherData[] = [];
     const domainExclusions = await this.getExcludedDomains();
     let domainExclusionsSet: Set<string> | null = null;
     if (domainExclusions) {
-      domainExclusionsSet = new Set(Object.keys(await this.getExcludedDomains()));
+      domainExclusionsSet = new Set(Object.keys(domainExclusions));
     }
     const passkeysEnabled = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
 
@@ -682,7 +689,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (!passkeysEnabled || !(await this.showCipherAsPasskey(cipher, domainExclusionsSet))) {
         inlineMenuCipherData.push(
-          await this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
+          await this.buildCipherData({ inlineMenuCipherId, cipher, iconsServerUrl, showFavicons }),
         );
         continue;
       }
@@ -691,6 +698,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         await this.buildCipherData({
           inlineMenuCipherId,
           cipher,
+          iconsServerUrl,
           showFavicons,
           hasPasskey: true,
         }),
@@ -698,7 +706,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (cipher.login?.password && cipher.login.username) {
         inlineMenuCipherData.push(
-          await this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
+          await this.buildCipherData({ inlineMenuCipherId, cipher, iconsServerUrl, showFavicons }),
         );
       }
     }
@@ -783,6 +791,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async buildCipherData({
     inlineMenuCipherId,
     cipher,
+    iconsServerUrl,
     showFavicons,
     showInlineMenuAccountCreation,
     hasPasskey,
@@ -794,7 +803,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       type: cipher.type,
       reprompt: cipher.reprompt,
       favorite: cipher.favorite,
-      icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons ?? false),
+      icon: buildCipherIcon(iconsServerUrl, cipher, showFavicons ?? false),
       accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
     };
 

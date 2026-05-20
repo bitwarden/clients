@@ -218,6 +218,7 @@ export type InlineMenuCipherData = {
 export type BuildCipherDataParams = {
   inlineMenuCipherId: string;
   cipher: CipherView;
+  iconsServerUrl: string | null;
   showFavicons?: boolean;
   showInlineMenuAccountCreation?: boolean;
   hasPasskey?: boolean;
