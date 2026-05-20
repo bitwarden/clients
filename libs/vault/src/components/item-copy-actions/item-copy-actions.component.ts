@@ -33,7 +33,7 @@ export class VaultItemCopyActionsComponent {
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly CipherType = CipherType;
 
-  constructor(private readonly i18nService: I18nService) { }
+  constructor(private readonly i18nService: I18nService) {}
 
   /*
    * singleCopyableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
@@ -243,7 +243,7 @@ export class VaultItemCopyActionsComponent {
         "BankAccountBranchNumber",
         "BankAccountPin",
         "BankAccountIban",
-        "BankAccountSwift"
+        "BankAccountSwift",
       ];
 
       return cipher.copyableFields.filter((field) => copyableBankAccountFields.includes(field))
