@@ -154,7 +154,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   constructor(
     private accountService: AccountService,
-    private pinService: PinServiceAbstraction,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,

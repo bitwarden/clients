@@ -16,7 +16,6 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -65,7 +64,6 @@ describe("LockComponent", () => {
 
   // Mock services
   const mockAccountService = mockAccountServiceWith(userId);
-  const mockPinService = mock<PinServiceAbstraction>();
   const mockUserVerificationService = mock<UserVerificationService>();
   const mockKeyService = mock<KeyService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
@@ -131,7 +129,6 @@ describe("LockComponent", () => {
       providers: [
         FormBuilder,
         { provide: AccountService, useValue: mockAccountService },
-        { provide: PinServiceAbstraction, useValue: mockPinService },
         { provide: UserVerificationService, useValue: mockUserVerificationService },
         { provide: KeyService, useValue: mockKeyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
