@@ -12,6 +12,7 @@ import {
   viewChild,
 } from "@angular/core";
 
+import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { IconComponent } from "../icon/icon.component";
 import { BitwardenIcon } from "../shared/icon";
 import { TooltipDirective } from "../tooltip/tooltip.directive";
@@ -54,6 +55,15 @@ export class BulkActionComponent implements FocusableOption, AfterViewInit {
     // renders while compact is false.
     effect(() => {
       this.tooltip.tooltipContent.set(this.compact() ? this.labelText() : "");
+    });
+
+    effect(() => {
+      const el = this.elementRef.nativeElement;
+      if (this.compact() && this.labelText()) {
+        setA11yTitleAndAriaLabel({ element: el, label: this.labelText() });
+      } else {
+        el.removeAttribute("aria-label");
+      }
     });
   }
 
