@@ -1,16 +1,14 @@
 import {
   MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
   MasterPasswordUnlockData,
 } from "../../../key-management/master-password/types/master-password.types";
 
-import { SecretVerificationRequest } from "./secret-verification.request";
-
-export class PasswordRequest extends SecretVerificationRequest {
+export class PasswordRequest {
   constructor(
+    readonly masterPasswordHash: MasterPasswordAuthenticationHash,
     readonly authenticationData: MasterPasswordAuthenticationData,
     readonly unlockData: MasterPasswordUnlockData,
     readonly masterPasswordHint: string,
-  ) {
-    super();
-  }
+  ) {}
 }

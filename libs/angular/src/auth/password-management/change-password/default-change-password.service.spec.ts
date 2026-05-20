@@ -151,11 +151,11 @@ describe("DefaultChangePasswordService", () => {
         };
 
         request = new PasswordRequest(
+          currentAuthenticationData.masterPasswordAuthenticationHash,
           newAuthenticationData,
           newUnlockData,
           passwordInputResult.newPasswordHint!,
         );
-        request.authenticateWith(currentAuthenticationData);
 
         masterPasswordService.makeMasterPasswordAuthenticationData
           .mockResolvedValueOnce(currentAuthenticationData) // first call: current auth data

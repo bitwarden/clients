@@ -83,12 +83,11 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     );
 
     const request = new PasswordRequest(
+      currentAuthenticationData.masterPasswordAuthenticationHash,
       newAuthenticationData,
       newUnlockData,
       passwordInputResult.newPasswordHint,
     );
-
-    request.authenticateWith(currentAuthenticationData);
 
     await this.masterPasswordApiService.postPassword(request);
   }
