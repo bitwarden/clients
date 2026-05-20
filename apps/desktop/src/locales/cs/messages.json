@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Uspořádat sdílené položky"
   },
+  "typeDriversLicense": {
+    "message": "Řidičský průkaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Řidičský nebo občanský průkaz"
+  },
   "chooseItemToAdd": {
     "message": "Vyberte položku k přidání"
   },
@@ -148,6 +154,10 @@
     "message": "Zobrazit licenci",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "Zobrazit řidičský průkaz",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "Zobrazit pas",
     "description": "Header for view passport item type"
@@ -208,8 +218,8 @@
     "message": "Upravit bankovní účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Upravit licenci",
+  "editItemHeaderLicense": {
+    "message": "Upravit řidičský průkaz",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1755,6 +1765,10 @@
     "message": "Kopírovat číslo",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Kopírovat jméno",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Kopírovat e-mail"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Integrace prohlížeče není aktuálně v Linuxu podporována."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Vyžadovat ověření pro integraci prohlížeče"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Přidá další vrstvu zabezpečení vyžadováním ověření frází otisků prstů při vytvoření propojení mezi plochou a prohlížečem. Pokud je povoleno, vyžaduje to zásah uživatele a ověření pokaždé, když je navázáno spojení."
-  },
   "enableHardwareAcceleration": {
     "message": "Používat hardwarovou akceleraci"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Schválit"
-  },
-  "verifyBrowserTitle": {
-    "message": "Ověřit připojení prohlížeče"
-  },
-  "verifyBrowserDesc": {
-    "message": "Zkontrolujte, zda je zobrazený otisk totožný s otiskem zobrazeným v rozšíření prohlížeče."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ se chce připojit k Bitwardenu",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "Řešení problémů"
   },
+  "downloadDiagnosticReport": {
+    "message": "Stáhnout diagnostický report"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stáhněte si a pak sdílejte diagnostický report s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stáhnout"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Zakázat hardwarovou akceleraci a restartovat"
   },
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
   },
+  "enterMonth": {
+    "message": "Zadejte měsíc."
+  },
+  "enterDay": {
+    "message": "Zadejte den."
+  },
+  "enterYear": {
+    "message": "Zadejte rok."
+  },
+  "invalidDay": {
+    "message": "Zadejte platný den."
+  },
+  "invalidYear": {
+    "message": "Zadejte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Hledat řidičské průkazy"
+  },
   "bankAccount": {
     "message": "Bankovní účet"
   },
@@ -5063,6 +5099,18 @@
   },
   "copyIban": {
     "message": "Kopírovat IBAN"
+  },
+  "copyFirstName": {
+    "message": "Kopírovat křestní jméno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovat prostřední jméno"
+  },
+  "copyLastName": {
+    "message": "Kopírovat příjmení"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovat číslo řidičského průkazu"
   },
   "bankAccountTypeChecking": {
     "message": "Kontrolování"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti řidičského průkazu"
+  },
+  "dateOfBirth": {
+    "message": "Datum narození"
+  },
+  "birthMonth": {
+    "message": "Měsíc narození"
+  },
+  "birthDay": {
+    "message": "Den narození"
+  },
+  "birthYear": {
+    "message": "Rok narození"
+  },
+  "issuingCountry": {
+    "message": "Země vydání průkazu"
+  },
+  "issuingState": {
+    "message": "Vydávající stát/Provincie"
+  },
+  "issueDate": {
+    "message": "Datum vystavení"
+  },
+  "issueMonth": {
+    "message": "Měsíc vystavení"
+  },
+  "issueDay": {
+    "message": "Den vystavení"
+  },
+  "issueYear": {
+    "message": "Rok vystavení"
+  },
+  "expirationDay": {
+    "message": "Den vypršení platnosti"
+  },
+  "issuingAuthority": {
+    "message": "Vydávající orgán"
+  },
+  "licenseClass": {
+    "message": "Skupina řidičského průkazu"
   }
 }

@@ -137,8 +137,8 @@ import {
   SshImportPromptService,
 } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
-import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
@@ -457,9 +457,7 @@ const safeProviders: SafeProvider[] = [
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [
       DialogService,
-      ConfigService,
       AccountService,
-      ApiService,
       SyncService,
       BillingAccountProfileStateService,
       PlatformUtilsService,
