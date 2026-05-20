@@ -33,4 +33,8 @@ export class WebBiometricsService extends BiometricsService {
     userId: UserId,
     value: SymmetricCryptoKey,
   ): Promise<void> {}
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
 }

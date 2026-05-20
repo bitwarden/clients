@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Αντιγραφή αριθμού διαβατηρίου"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Αντιγραφή αριθμού άδειας"
   },
@@ -562,7 +571,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Αναίρεση αρχειοθέτησης"
   },
   "itemsInArchive": {
     "message": "Στοιχεία στην αρχειοθήκη"
@@ -577,7 +586,7 @@
     "message": "Το στοιχείο αρχειοθετήθηκε"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Η αρχειοθέτηση του στοιχείου αναιρέθηκε"
   },
   "archiveItem": {
     "message": "Αρχειοθέτηση στοιχείου"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Βαθμολογήστε την επέκταση"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "browserNotSupportClipboard": {
     "message": "Το πρόγραμμα περιήγησης ιστού δεν υποστηρίζει εύκολη αντιγραφή πρόχειρου. Αντιγράψτε το με το χέρι αντ'αυτού."
@@ -891,7 +916,7 @@
     "message": "Μη έγκυρος κωδικός επαλήθευσης"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Μη έγκυρο email ή κωδικός επαλήθευσης"
   },
   "valueCopied": {
     "message": "$VALUE$ αντιγράφηκε",
@@ -1155,7 +1180,7 @@
     "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Μετάβαση στη ρύθμιση"
   },
   "notificationAddDesc": {
     "message": "Πρέπει το Bitwarden να θυμάται αυτόν τον κωδικό πρόσβασης για εσάς;"
@@ -1311,7 +1336,7 @@
     "message": "Πρόσθετες επιλογές"
   },
   "enableFillAssist": {
-    "message": "Use fill assist"
+    "message": "Χρήση υποβοήθησης συμπλήρωσης"
   },
   "enableContextMenuItem": {
     "message": "Εμφάνιση επιλογών μενού περιβάλλοντος"
@@ -1777,7 +1802,7 @@
     "message": "Πρόταση αυτόματης συμπλήρωσης"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "Εύκολη εύρεση προτάσεων αυτόματης συμπλήρωσης"
   },
   "autofillSpotlightDesc": {
     "message": "Απενεργοποιήστε τις ρυθμίσεις αυτόματης συμπλήρωσης του προγράμματος περιήγησής σας, έτσι ώστε να μη συγκρούονται με αυτές του Bitwarden."
@@ -1804,7 +1829,7 @@
     "message": "Login has no site saved"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "Ο ιστότοπος δεν ταιριάζει"
   },
   "loginNoSiteDesc": {
     "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
@@ -1816,10 +1841,10 @@
     "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Αυτόματη συμπλήρωση και αποθήκευση αυτού του ιστοτόπου"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Μόνο αυτόματη συμπλήρωση"
   },
   "showInlineMenuLabel": {
     "message": "Εμφάνιση μενού αυτόματης συμπλήρωσης στα πεδία της φόρμας"
@@ -1983,7 +2008,7 @@
     "message": "Έτος λήξης"
   },
   "monthly": {
-    "message": "month"
+    "message": "μήνας"
   },
   "expiration": {
     "message": "Λήξη"
@@ -2132,29 +2157,86 @@
   "typeSshKey": {
     "message": "Κλειδί SSH"
   },
+  "bankAccount": {
+    "message": "Τραπεζικός λογαριασμός"
+  },
   "typeNote": {
     "message": "Σημείωση"
   },
+  "typeBankAccount": {
+    "message": "Τραπεζικός λογαριασμός"
+  },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Ιστότοπος ή εφαρμογή"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Πιστωτική ή χρεωστική κάρτα"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Προσωπικές πληροφορίες"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Σημαντικό κείμενο"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Διακριτικό σύνδεσης διακομιστή"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Οργανώστε τα στοιχεία σας"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Οργάνωση κοινόχρηστων στοιχείων"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
   },
   "newItemHeaderLogin": {
     "message": "Νέα σύνδεση",
@@ -2176,12 +2258,24 @@
     "message": "Νέο κλειδί SSH",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Νέο Send κειμένου",
+  "newItemHeaderBankAccount": {
+    "message": "Νέος τραπεζικός λογαριασμός",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Νέα άδεια",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Νέο διαβατήριο",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Νέο Send αρχείου",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "Επεξεργασία κλειδιού SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Επεξεργασία Send κειμένου",
+  "editItemHeaderBankAccount": {
+    "message": "Επεξεργασία τραπεζικού λογαριασμού",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Επεξεργασία διαβατηρίου",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Επεξεργασία Send αρχείου",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2232,8 +2338,20 @@
     "message": "Προβολή κλειδιού SSH",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Προβολή τραπεζικού λογαριασμού",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Προβολή διαβατηρίου",
+    "description": "Header for view passport item type"
+  },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Επιλέξτε στοιχείο για προσθήκη"
   },
   "passwordHistory": {
     "message": "Ιστορικό κωδικού πρόσβασης"
@@ -2427,10 +2545,10 @@
     "message": "Also rotate my account's encryption key"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Περιστροφή κλειδιού κρυπτογράφησης"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Θέλετε σίγουρα να γίνει περιστροφή του κλειδιού κρυπτογράφησης του λογαριασμού σας;"
   },
   "updateEncryptionKeyWarning": {
     "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
@@ -2532,7 +2650,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Προσαρμογή κρύπτης"
   },
   "vaultTimeoutAction": {
     "message": "Ενέργεια Χρόνου Λήξης Vault"
@@ -2826,7 +2944,7 @@
     "message": "Η αυτόματη συμπλήρωση και άλλες σχετικές λειτουργίες δεν θα προσφερθούν για αυτούς τους ιστότοπους. Πρέπει να ανανεώσετε τη σελίδα για να τεθούν σε ισχύ οι αλλαγές."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Η αυτόματη συμπλήρωση έχει αποκλειστεί για αυτόν τον ιστότοπο."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
@@ -2923,7 +3041,7 @@
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "Έλεγχος συνδέσεων σε κίνδυνο"
   },
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords"
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Εξαγωγή ατομικού θησαυ/κίου"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Μόνο τα ατομικά αντικείμενα θησαυ/κίου που σχετίζονται με το $EMAIL$ θα εξαχθούν. Τα αντικείμενα θησαυ/κίου του οργανισμού δε θα συμπεριληφθούν. Μόνο πληροφορίες αντικειμένων θησαυ/κίου θα εξαχθούν και δε θα περιλαμβάνουν συσχετιζόμενα συνημμένα.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Εξαγωγή θησαυ/κίου οργανισμού"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Μόνο το θησαυ/κιο του οργανισμού που σχετίζεται με το $ORGANIZATION$ θα εξαχθεί. Αντικείμενα σε ατομικά θησαυ/κια ή άλλους οργανισμούς δε θα συμπεριληφθούν.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3476,7 +3579,7 @@
     "message": "Σφάλμα αποκρυπτογράφησης"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Σφάλμα λήψης δεδομένων αυτόματης συμπλήρωσης"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Το Bitwarden δεν μπόρεσε να αποκρυπτογραφήσει τα αντικείμενα θησαυ/κίου που αναφέρονται παρακάτω."
@@ -3829,19 +3932,19 @@
     "message": "Recently active"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Σήμερα"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Τελευταίες 7 ημέρες"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Τελευταίες 14 ημέρες"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Τελευταίες 30 ημέρες"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Πάνω από 30 ημέρες πριν"
   },
   "masterPasswordChanged": {
     "message": "Master password saved"
@@ -3955,10 +4058,10 @@
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Κρύπτη ιστού"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Εφαρμογή ιστού"
   },
   "cli": {
     "message": "CLI"
@@ -3968,7 +4071,7 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Αίτημα σε εκκρεμότητα"
   },
   "firstLogin": {
     "message": "Πρώτη σύνδεση"
@@ -3977,7 +4080,7 @@
     "message": "Trusted"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Απαιτεί έγκριση"
   },
   "devices": {
     "message": "Συσκευές"
@@ -4122,7 +4225,7 @@
     "message": "Do not trust"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Ο οργανισμός δεν είναι έμπιστος"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -4137,7 +4240,7 @@
     "message": "Trust user"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Ασφαλής αποστολή ευαίσθητων πληροφοριών",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
@@ -4268,7 +4371,7 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Αδυναμία αυτόματης συμπλήρωσης"
   },
   "cannotAutofillExactMatch": {
     "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "Επιλογή Αρχείου"
   },
+  "chooseFileSentenceCase": {
+    "message": "Επιλογή αρχείου"
+  },
   "noFileChosen": {
     "message": "Δεν επιλέχθηκε κανένα αρχείο"
   },
@@ -4528,6 +4634,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Κλειδί πρόσβασης"
@@ -4959,7 +5077,7 @@
     "message": "Αντιγραφή διεύθυνσης"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Τα στοιχεία μου"
   },
   "adminConsole": {
     "message": "Κονσόλα Διαχειριστή"
@@ -4992,10 +5110,10 @@
     "message": "What are the potential security risks?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Η αυτόματη επιβεβαίωση ενεργοποιήθηκε"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Διαθέσιμο τώρα"
   },
   "accountSecurity": {
     "message": "Ασφάλεια λογαριασμού"
@@ -5004,7 +5122,7 @@
     "message": "Phishing Blocker"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Εντοπισμός ηλεκτρονικού «ψαρέματος»"
   },
   "enablePhishingDetectionDesc": {
     "message": "Display warning before accessing suspected phishing sites"
@@ -5122,13 +5240,13 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Λήψη συνημμένου"
   },
   "downloadBitwarden": {
     "message": "Λήψη του Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Λήψη του Bitwarden σε όλες τις συσκευές"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
@@ -5143,7 +5261,7 @@
     "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "Λήψη από το bitwarden.com τώρα"
   },
   "getItOnGooglePlay": {
     "message": "Αποκτήστε το στο Google Play"
@@ -5245,7 +5363,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Προεπιλογή ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5518,7 +5636,7 @@
     "message": "Account access requested"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Επιβεβαίωση απόπειρας πρόσβασης για το $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5629,10 +5747,10 @@
     "message": "You can customize your unlock and timeout settings to more quickly access your vault."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "Ορίστηκε PIN ξεκλειδώματος"
   },
   "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
+    "message": "Ορίστηκε το ξεκλείδωμα με βιομετρικά στοιχεία"
   },
   "authenticating": {
     "message": "Ταυτοποίηση"
@@ -5806,7 +5924,7 @@
     "message": "Εξαιρετικά φαρδύ"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Στενό"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
@@ -5821,7 +5939,7 @@
     "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Εισαγάγετε κωδικό πρόσβασης"
   },
   "invalidSshKey": {
     "message": "Το κλειδί SSH δεν είναι έγκυρο"
@@ -5866,7 +5984,7 @@
     "message": "Missing website"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Επιλογές κρύπτης"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5911,7 +6029,7 @@
     "message": "Εισαγωγή τώρα"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Καλώς ορίσατε στην κρύπτη σας!"
   },
   "phishingPageTitleV2": {
     "message": "Phishing attempt detected"
@@ -5920,13 +6038,13 @@
     "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Κλείσιμο καρτέλας"
   },
   "phishingPageContinueV2": {
     "message": "Continue to this site (not recommended)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Αυτός ο ιστότοπος βρέθηκε στο ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
@@ -5949,7 +6067,7 @@
     "message": "Autofill items for the current page"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Αγαπημένα στοιχεία για εύκολη πρόσβαση"
   },
   "hasItemsVaultNudgeBodyThree": {
     "message": "Search your vault for something else"
@@ -6004,7 +6122,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Γρήγορη δημιουργία κωδικών πρόσβασης"
   },
   "generatorNudgeBodyOne": {
     "message": "Easily create strong and unique passwords by clicking on",
@@ -6021,7 +6139,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Σχετικά με αυτήν τη ρύθμιση"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -6053,28 +6171,28 @@
     "message": "Great job securing your at-risk logins!"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Αναβάθμιση τώρα"
   },
   "builtInAuthenticator": {
     "message": "Built-in authenticator"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Ασφαλής χώρος αποθήκευσης αρχείων"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Πρόσβαση έκτακτης ανάγκης"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Εποπτεία παραβιάσεων"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Και πολλά άλλα!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Προηγμένη διαδικτυακή ασφάλεια"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Αναβάθμιση στο Premium"
   },
   "unlockAdvancedSecurity": {
     "message": "Unlock advanced security features"
@@ -6086,7 +6204,7 @@
     "message": "Explore Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "Φόρτωση κρύπτης"
   },
   "vaultLoaded": {
     "message": "Vault loaded"
@@ -6096,19 +6214,19 @@
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Ταχυδρομικός κώδικας"
   },
   "cardNumberLabel": {
     "message": "Αριθμός κάρτας"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Σφάλμα: Αδυναμία αποκρυπτογράφησης"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Συνεχίστε με σύνδεση"
   },
   "doNotContinue": {
     "message": "Do not continue"
@@ -6144,7 +6262,7 @@
     "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Ενέργεια λήξης χρονικού ορίου"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."
@@ -6194,7 +6312,7 @@
     "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% ολοκληρωμένο",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -6206,7 +6324,7 @@
     "message": "Αναβάθμιση"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Θέλετε σίγουρα να αποχωρήσετε;"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
@@ -6215,7 +6333,7 @@
     "message": "Contact your admin to regain access."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Αποχώρηση από $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6227,7 +6345,7 @@
     "message": "How do I manage my vault?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Μεταφορά στοιχείων στο $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6266,7 +6384,7 @@
     "message": "Απλοποιημένη αυτόματη συμπλήρωση"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Όταν κάνετε κλικ σε ένα προτεινόμενο στοιχείο αυτόματης συμπλήρωσης, γίνεται συμπλήρωση αντί για μεταφορά στις λεπτομέρειες. Μπορείτε ακόμα να δείτε αυτά τα στοιχεία από το μενού «Περισσότερα»."
   },
   "openSimplifiedAutofillPopover": {
     "message": "Open simplified autofill popover"
@@ -6293,7 +6411,7 @@
     "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Λήψη εφαρμογών Bitwarden"
   },
   "emailProtected": {
     "message": "Email protected"
@@ -6303,23 +6421,141 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Η επαλήθευση χρήστη απέτυχε."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankName": {
+    "message": "Όνομα τράπεζας"
+  },
+  "nameOnAccount": {
+    "message": "Όνομα κατόχου"
+  },
+  "bankAccountType": {
+    "message": "Τύπος λογαριασμού"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Εταιρικός (επιχείρηση)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Ιδιώτης (προσωπικός)"
+  },
+  "accountNumber": {
+    "message": "Αριθμός λογαριασμού"
+  },
+  "bankRoutingNumber": {
+    "message": "Αριθμός υποκαταστήματος",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Αριθμός υποκαταστήματος/ιδρύματος"
+  },
+  "swiftCode": {
+    "message": "Κωδικός SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Τηλέφωνο επικοινωνίας τράπεζας"
+  },
+  "searchBankAccount": {
+    "message": "Αναζήτηση τραπεζικών λογαριασμών"
+  },
+  "copyAccountNumber": {
+    "message": "Αντιγραφή αριθμού λογαριασμού"
+  },
+  "copyRoutingNumber": {
+    "message": "Αντιγραφή αριθμού υποκαταστήματος"
+  },
+  "copyPin": {
+    "message": "Αντιγραφή PIN"
+  },
+  "copyIban": {
+    "message": "Αντιγραφή IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Τρεχούμενος"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ταμιευτηρίου"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Αποδεικτικό κατάθεσης"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Πιστωτικό όριο"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Χρηματαγορά"
+  },
+  "bankAccountTypeOther": {
+    "message": "Άλλο"
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "Αποτυχία λήψης."
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Πλευρική πλοήγηση"
   },
   "skipLink": {
     "message": "Skip link"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Επεξήγηση",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Γραμμή προόδου",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }

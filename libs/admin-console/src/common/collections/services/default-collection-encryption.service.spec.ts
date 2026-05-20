@@ -29,7 +29,7 @@ const stubSdkCollection: SdkCollection = {
   readOnly: false,
   manage: false,
   defaultUserCollectionEmail: undefined,
-  type: "SharedCollection",
+  type: CollectionTypes.SharedCollection,
 };
 
 function makeCollection(overrides: Partial<Collection> = {}): Collection {
@@ -50,7 +50,7 @@ function makeSdkCollectionView(overrides: Partial<SdkCollectionView> = {}): SdkC
     hidePasswords: false,
     readOnly: false,
     manage: true,
-    type: "SharedCollection",
+    type: CollectionTypes.SharedCollection,
     ...overrides,
   };
 }
@@ -188,7 +188,9 @@ describe("DefaultCollectionEncryptionService", () => {
         type: CollectionTypes.DefaultUserCollection,
       });
       jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-      mockDecrypt.mockReturnValue(makeSdkCollectionView({ type: "DefaultUserCollection" }));
+      mockDecrypt.mockReturnValue(
+        makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection }),
+      );
 
       const [result] = await service.decryptMany([collection], userId);
 
@@ -204,38 +206,6 @@ describe("DefaultCollectionEncryptionService", () => {
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to decrypt collections in batch"),
       );
-    });
-  });
-
-  describe("encrypt", () => {
-    it("encrypts a collection view and maps the result to a Collection", async () => {
-      const view = new CollectionView({
-        id: collectionId,
-        organizationId: orgId,
-        name: "My Collection",
-      });
-      jest.spyOn(view, "toSdkCollectionView").mockReturnValue({} as SdkCollectionView);
-      mockEncrypt.mockReturnValue(stubSdkCollection);
-
-      const result = await service.encrypt(view, userId);
-
-      expect(mockEncrypt).toHaveBeenCalled();
-      expect(result).toBeInstanceOf(Collection);
-    });
-
-    it("logs the error and rejects when the SDK throws during encrypt", async () => {
-      const view = new CollectionView({
-        id: collectionId,
-        organizationId: orgId,
-        name: "My Collection",
-      });
-      jest.spyOn(view, "toSdkCollectionView").mockReturnValue({} as SdkCollectionView);
-      mockEncrypt.mockImplementation(() => {
-        throw new Error("encrypt failure");
-      });
-
-      await expect(service.encrypt(view, userId)).rejects.toThrow();
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Failed to encrypt"));
     });
   });
 });

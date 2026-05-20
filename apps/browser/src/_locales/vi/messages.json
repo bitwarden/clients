@@ -29,7 +29,7 @@
     "message": "Đăng nhập bằng khóa truy cập"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Mở khóa bằng khoá truy cập"
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
@@ -166,6 +166,15 @@
   },
   "copyPassportNumber": {
     "message": "Sao chép số hộ chiếu"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
   },
   "copyLicenseNumber": {
     "message": "Sao chép số giấy phép"
@@ -574,10 +583,10 @@
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Mục đã được lưu trữ"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Đánh giá tiện ích mở rộng"
+  },
+  "troubleshooting": {
+    "message": "Khắc phục sự cố"
+  },
+  "experiencingAnIssue": {
+    "message": "Đang gặp sự cố?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Tải xuống rồi chia sẻ báo cáo chẩn đoán với"
+  },
+  "bitwardenSupport": {
+    "message": "Bộ phận hỗ trợ Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Tải xuống"
   },
   "browserNotSupportClipboard": {
     "message": "Trình duyệt web của bạn không hỗ trợ sao chép vào bảng nhớ tạm một cách dễ dàng. Vui lòng sao chép thủ công."
@@ -891,7 +916,7 @@
     "message": "Mã xác minh không đúng"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Email hoặc mã xác nhận không hợp lệ"
   },
   "valueCopied": {
     "message": "Đã sao chép $VALUE$",
@@ -985,10 +1010,10 @@
     "message": "Không"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Bất kỳ ai có liên kết"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Bất kỳ ai có mật khẩu được đặt bởi bạn"
   },
   "location": {
     "message": "Vị trí"
@@ -1149,7 +1174,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "Cài đặt bảng tạm đã được cập nhật"
   },
   "clipboardSettingUpdatedMessage": {
     "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
@@ -2132,8 +2157,14 @@
   "typeSshKey": {
     "message": "Khóa SSH"
   },
+  "bankAccount": {
+    "message": "Bank account"
+  },
   "typeNote": {
     "message": "Ghi chú"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "typeLoginSubtitle": {
     "message": "Website or app"
@@ -2156,6 +2187,57 @@
   "collectionSubtitle": {
     "message": "Organize shared items"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "Đăng nhập mới",
     "description": "Header for new login item type"
@@ -2176,12 +2258,24 @@
     "message": "Khóa SSH mới",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Send văn bản mới",
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Send tập tin mới",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "Sửa khóa SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Sửa Send văn bản",
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Sửa Send tập tin",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2337,18 @@
   "viewItemHeaderSshKey": {
     "message": "Xem khóa SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Đang xuất dữ liệu kho cá nhân"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Chỉ dữ liệu trong kho cá nhân liên kết với $EMAIL$ mới được xuất. Không bao gồm các dữ liệu trong kho tổ chức. Chỉ thông tin về các mục trong kho mới được xuất, sẽ không có các tệp đính kèm.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Chỉ các mục kho lưu trữ cá nhân bao gồm các tệp đính kèm liên quan đến $EMAIL$ sẽ được xuất. Các mục trong kho lưu trữ của tổ chức sẽ không được bao gồm",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Đang xuất dữ liệu kho tổ chức"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Chỉ dữ liệu trong kho tổ chức $ORGANIZATION$ mới được xuất. Các kho cá nhân hoặc của tổ chức khác sẽ không được bao gồm.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "Chọn tập tin"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
   },
@@ -4528,6 +4634,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Mã khoá"
@@ -6305,8 +6423,119 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company (business)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (personal)"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -6321,5 +6550,12 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }

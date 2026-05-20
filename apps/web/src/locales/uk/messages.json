@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "typeLoginSubtitle": {
     "message": "Вебсайт або програма"
   },
@@ -1011,6 +1017,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Токен входу на сервер"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Банківські реквізити"
   },
   "folderSubtitle": {
     "message": "Організуйте свої записи"
@@ -1029,6 +1038,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Захищені нотатки"
+  },
+  "typeBankAccount": {
+    "message": "Банківський рахунок"
   },
   "folders": {
     "message": "Теки"
@@ -1116,12 +1128,24 @@
     "message": "Новий ключ SSH",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Нове текстове відправлення",
+  "newItemHeaderBankAccount": {
+    "message": "Новий банківський рахунок",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Нова ліцензія",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Новий паспорт",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Новий текст",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Нове файлове відправлення",
+  "newItemHeaderFileSendV2": {
+    "message": "Новий файл",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1144,12 +1168,24 @@
     "message": "Редагувати ключ SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Редагувати текстове відправлення",
+  "editItemHeaderBankAccount": {
+    "message": "Редагувати банківський рахунок",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Редагувати паспорт",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Редагувати текст",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Редагувати файлове відправлення",
+  "editItemHeaderFileSendV2": {
+    "message": "Редагувати файл",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1171,6 +1207,18 @@
   "viewItemHeaderSshKey": {
     "message": "Перегляд ключа SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Переглянути банківський рахунок",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Переглянути паспорт",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Новий",
@@ -1275,6 +1323,15 @@
   "copyPassportNumber": {
     "message": "Копіювати номер паспорта"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Копіювати номер ліцензії"
   },
@@ -1304,6 +1361,38 @@
       "ciphername": {
         "content": "$2",
         "example": "Login Item"
+      }
+    }
+  },
+  "copyInfoTitle": {
+    "message": "Копіювати дані - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Копіювати нотатку - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Немає даних для копіювання"
+  },
+  "launchWebsiteName": {
+    "message": "Перейти на вебсайт - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
       }
     }
   },
@@ -1415,6 +1504,24 @@
   },
   "deleteAttachment": {
     "message": "Видалити вкладення"
+  },
+  "deleteAttachmentName": {
+    "message": "Видалити вкладення $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Завантажити вкладення $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Ви дійсно хочете перенести до смітника?"
@@ -2163,6 +2270,18 @@
   "exportError": {
     "message": "Виникла помилка під час експорту даних вашого сховища"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "Під час експорту було пропущено одне пошкоджене вкладення. Усі інші дані сховища та вкладення експортовано успішно."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "Під час експорту було пропущено $COUNT$ пошкоджених вкладень. Усі інші дані сховища та вкладення експортовано успішно.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "passwordGenerator": {
     "message": "Генератор паролів"
   },
@@ -2538,6 +2657,9 @@
     "message": "Оберіть файл для імпорту"
   },
   "chooseFile": {
+    "message": "Вибрати файл"
+  },
+  "chooseFileSentenceCase": {
     "message": "Вибрати файл"
   },
   "noFileChosen": {
@@ -3949,11 +4071,26 @@
       }
     }
   },
+  "invite": {
+    "message": "Надіслати запрошення"
+  },
   "inviteUserDesc": {
     "message": "Запросіть нового користувача до вашої організації, ввівши адресу е-пошти його облікового запису Bitwarden. Якщо він ще не має облікового запису, він отримає запит на його створення."
   },
+  "inviteUserDescription": {
+    "message": "Надішліть запрошення до вашої організації новим користувачам, вказавши їхні адреси електронної пошти нижче."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Вкажіть до $COUNT$ адрес електронної пошти, розділивши їх комами.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
   "inviteMultipleEmailsWithSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
+    "message": "Вкажіть до $BATCHLIMIT$ адрес електронної пошти, розділивши їх комами. (Залишилось $REMAININGSEATS$ місць)",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -3972,7 +4109,7 @@
     "message": "У вас залишилося 0 запрошень."
   },
   "inviteMultipleEmailsNoSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "message": "Вкажіть до $BATCHLIMIT$ адрес електронної пошти за раз, розділивши їх комами.",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -4242,6 +4379,60 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Переглянуто номер рахунку для елемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Переглянуто PIN-код для елемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Скопійовано номер рахунку для елемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Скопійовано PIN-код для елемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Viewed license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Виконано автозаповнення запису $ID$.",
     "placeholders": {
@@ -4280,6 +4471,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Скасувати зміни"
+  },
+  "discardEditsConfirmation": {
+    "message": "Якщо ви закриєте це вікно, незбережені зміни буде скасовано."
+  },
+  "discardEdits": {
+    "message": "Скасувати зміни"
+  },
+  "keepEditing": {
+    "message": "Продовжити редагування"
+  },
+  "backToEditing": {
+    "message": "Повернутися до редагування"
   },
   "editedPolicyId": {
     "message": "Змінено політику $ID$.",
@@ -4355,6 +4561,45 @@
   },
   "revokedEmailError": {
     "message": "Щонайменше 1 лист належить відкликаним учасникам. Відновіть їхній доступ, щоб запросити повторно."
+  },
+  "revocationReasonUnknown": {
+    "message": "Невідома причина"
+  },
+  "revocationReasonManual": {
+    "message": "Відкликано адміністратором"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Невідповідність політиці двофакторної автентифікації"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Невідповідність політиці єдиної організації"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Відкликано доступ до організації для $ID$ через невідповідність політиці двофакторної автентифікації в організації.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Відкликано доступ до організації для $ID$ через невідповідність політиці єдиної організації.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Відкликано доступ до організації для $ID$ через відмову від передачі права власності організації.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Доступ до організації для $ID$ відновлено.",
@@ -4732,8 +4977,14 @@
   "reportGenerationDone": {
     "message": "Виконано!"
   },
+  "reportGenerationFailed": {
+    "message": "Під час створення звіту виникла помилка. Спробуйте знову."
+  },
   "riskInsightsRunReport": {
     "message": "Виконати звіт"
+  },
+  "goToAccessIntelligence": {
+    "message": "Перейти до Access Intelligence"
   },
   "updateBrowserDesc": {
     "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
@@ -5255,6 +5506,41 @@
   },
   "byLink": {
     "message": "Посиланням"
+  },
+  "allowedDomains": {
+    "message": "Дозволені домени"
+  },
+  "allowedDomainsHint": {
+    "message": "Розділяйте домени комою"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Введіть дозволені домени, щоб створити посилання для запрошення"
+  },
+  "domainsEdited": {
+    "message": "Домени змінено"
+  },
+  "inviteLink": {
+    "message": "Invite link"
+  },
+  "lastGenerated": {
+    "message": "Last generated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Invite link copied"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Invite link regenerated"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerate invite link"
+  },
+  "inviteByLinkDesc": {
+    "message": "Запрошуйте учасників до своєї організації за допомогою посилання. Якщо роль не вказано, їх буде додано як стандартних користувачів."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Продовжуючи, ви погоджуєтеся з"
@@ -5869,14 +6155,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "Нове текстове відправлення",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Нове файлове відправлення",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "Відправлення збережено",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5969,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Завантажити вкладення"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Experiencing an issue? Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "sendAccessPasswordTitle": {
     "message": "Введіть пароль для перегляду цього відправлення",
@@ -6680,8 +6971,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "Головний пароль для користувача $ID$ скинуто.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Account recovery with master password initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6689,8 +6980,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Двоетапну перевірку вимкнено для користувача $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7851,26 +8142,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Експортування сховища організації"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено. Експортуються лише дані записів сховища без пов'язаних вкладень.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи особистих сховищ або інших організацій не будуть включені.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8281,9 +8557,19 @@
     "message": "Розгортання SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
+  },
+  "scimLearnMore": {
+    "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Автоматично забезпечувати користувачів та групи бажаним провайдером ідентифікації через SCIM. Знайти підтримувані інтеграції",
@@ -8363,6 +8649,21 @@
   },
   "inputRequired": {
     "message": "Необхідно ввести дані."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "inputEmail": {
     "message": "Введені дані не є адресою е-пошти."
@@ -9163,6 +9464,9 @@
   "inviteMember": {
     "message": "Запросити учасника"
   },
+  "inviteMembers": {
+    "message": "Invite members"
+  },
   "addSponsorship": {
     "message": "Додати спонсорство"
   },
@@ -9171,6 +9475,9 @@
   },
   "memberRole": {
     "message": "Роль учасника"
+  },
+  "moreSettings": {
+    "message": "More settings"
   },
   "moreFromBitwarden": {
     "message": "Більше від Bitwarden"
@@ -9354,6 +9661,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Активувати доступ користувача до менеджера секретів."
+  },
+  "grantSecretsManager": {
+    "message": "Grant access to Secrets Manager"
   },
   "userAccessSecretsManagerGA": {
     "message": "Цей користувач має доступ до менеджера секретів"
@@ -9860,8 +10170,8 @@
   "recoverAccountSuccess": {
     "message": "Відновлення облікового запису пройшло успішно!"
   },
-  "updatedTempPassword": {
-    "message": "Користувач оновив пароль під час відновлення облікового запису."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "Активовано доступ до менеджера секретів",
@@ -13329,6 +13639,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "sendsTitleNoSearchResults": {
     "message": "No search results returned"
   },
@@ -13396,14 +13770,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -13412,6 +13780,31 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -13426,5 +13819,53 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
+  "copy": {
+    "message": "Copy"
   }
 }

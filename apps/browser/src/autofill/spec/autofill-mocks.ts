@@ -26,6 +26,8 @@ export function createAutofillFormMock(customFields = {}): AutofillForm {
     htmlAction: "default-htmlAction",
     htmlMethod: "default-htmlMethod",
     htmlName: "default-htmlName",
+    htmlClass: "",
+    htmlAncestorHeadings: [],
     ...customFields,
   };
 }
@@ -81,6 +83,8 @@ export function createAutofillPageDetailsMock(customFields = {}): AutofillPageDe
         htmlID: "htmlID",
         htmlAction: "htmlAction",
         htmlMethod: "htmlMethod",
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       },
     },
     fields: [createAutofillFieldMock({ opid: "non-password-field" })],

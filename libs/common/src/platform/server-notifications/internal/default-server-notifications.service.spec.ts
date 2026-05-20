@@ -5,6 +5,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -46,6 +47,7 @@ describe("NotificationsService", () => {
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
@@ -77,6 +79,7 @@ describe("NotificationsService", () => {
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
     policyService = mock<InternalPolicyService>();
+    newPolicyService = mock<InternalNewPolicyService>();
     autoConfirmService = mock<AutomaticUserConfirmationService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
@@ -131,6 +134,7 @@ describe("NotificationsService", () => {
       authRequestAnsweringService,
       configService,
       policyService,
+      newPolicyService,
       autoConfirmService,
     );
   });
@@ -405,6 +409,49 @@ describe("NotificationsService", () => {
         const notification = new NotificationResponse({
           type: NotificationType.LogOut,
           payload: { UserId: mockUser1, Reason: PushNotificationLogOutReasonType.KdfChange },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(logoutCallback).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        { featureFlagEnabled: false, reason: undefined },
+        { featureFlagEnabled: true, reason: undefined },
+        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KeyRotation },
+      ])(
+        "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
+        async ({ featureFlagEnabled, reason }) => {
+          configService.getFeatureFlag$.mockReturnValue(of(featureFlagEnabled));
+
+          const payload: { UserId: UserId; Reason?: PushNotificationLogOutReasonType } = {
+            UserId: mockUser1,
+            Reason: undefined,
+          };
+          if (reason != null) {
+            payload.Reason = reason;
+          }
+
+          const notification = new NotificationResponse({
+            type: NotificationType.LogOut,
+            payload,
+            contextId: "different-app-id",
+          });
+
+          await sut["processNotification"](notification, mockUser1);
+
+          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+        },
+      );
+
+      it("should skip logout when receiving key rotation reason with feature flag enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.LogOut,
+          payload: { UserId: mockUser1, Reason: PushNotificationLogOutReasonType.KeyRotation },
           contextId: "different-app-id",
         });
 

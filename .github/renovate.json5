@@ -9,6 +9,14 @@
       matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
       datasourceTemplate: "crate",
     },
+    {
+      // Keep electronVersion in electron-builder.json in sync with the electron package.
+      customType: "regex",
+      fileMatch: ["apps/desktop/electron-builder\\.json$"],
+      matchStrings: ['"electronVersion":\\s*"(?<currentValue>[\\d.]+)"'],
+      depNameTemplate: "electron",
+      datasourceTemplate: "npm",
+    },
   ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================
@@ -90,11 +98,9 @@
         "concurrently",
         "cross-env",
         "del",
-        "ed25519",
         "lit",
         "@lit-labs/signals",
         "patch-package",
-        "pkcs8",
         "prettier",
         "prettier-plugin-tailwindcss",
         "rimraf",
@@ -110,7 +116,7 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["mockall", "serial_test"],
+      matchPackageNames: ["ed25519", "mockall", "pkcs8", "serial_test"],
       description: "Autofill-Desktop owned dependencies",
       commitMessagePrefix: "[deps] Desktop Native:",
       reviewers: ["team:team-desktop-native-dev"],
@@ -177,6 +183,7 @@
         "itertools",
         "jest",
         "jest-diff",
+        "jest-environment-jsdom",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
@@ -509,6 +516,7 @@
         "interprocess",
         "jest",
         "jest-diff",
+        "jest-environment-jsdom",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",

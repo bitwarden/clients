@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -44,10 +43,12 @@ import { CipherFormCacheService } from "../services/default-cipher-form-cache.se
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
 import { BankAccountSectionComponent } from "./bank-account-section/bank-account-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
+import { DriversLicenseSectionComponent } from "./drivers-license-section/drivers-license-section.component";
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
 import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
+import { PassportSectionComponent } from "./passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -76,7 +77,8 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     IdentitySectionComponent,
     SshKeySectionComponent,
     BankAccountSectionComponent,
-    NgIf,
+    DriversLicenseSectionComponent,
+    PassportSectionComponent,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
     NewItemNudgeComponent,
