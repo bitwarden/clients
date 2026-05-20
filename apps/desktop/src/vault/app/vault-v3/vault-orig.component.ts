@@ -696,7 +696,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         { field: "branchNumber", copyLabelKey: "copyBranchNumber" },
         { field: "pin", copyLabelKey: "copyPin", aType: "PIN" },
         { field: "iban", copyLabelKey: "copyIban", aType: "IBAN" },
-        { field: "swiftCode", copyLabelKey: "copySwiftCode", aType: "SWIFT Code" },
+        { field: "swiftCode", copyLabelKey: "copySwiftCode", aType: "SWIFT" },
       ];
 
       const hasAnyField = fields.some(
