@@ -37,10 +37,10 @@ CDK `SelectionModel.clear()` call.
 
 ## Additional actions
 
-Project `<a bitMenuItem>` or `<button bitMenuItem>` entries into the bar alongside your
-`bitBulkAction` buttons. When any are present, the bar auto-renders an icon-only "Additional
-actions" trigger at the end of the action row that opens a `bit-menu` populated with the projected
-items.
+Wrap `<a bitMenuItem>` or `<button bitMenuItem>` entries in a `<bit-menu>` projected into the bar
+alongside your `bitBulkAction` buttons. When a `bit-menu` is present, the bar auto-renders an
+icon-only "Additional actions" trigger at the end of the action row that opens the consumer-provided
+menu.
 
 <Canvas of={stories.WithAdditionalActions} />
 

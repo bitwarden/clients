@@ -35,21 +35,18 @@
     <div class="tw-flex tw-items-center tw-gap-2">
       <ng-content></ng-content>
 
-      @if (hasAdditionalActions()) {
+      @if (additionalActionsMenu(); as menu) {
         <button
           #additionalActionsTrigger
           bitBulkAction
           icon="bwi-ellipsis-v"
           type="button"
-          [bitMenuTriggerFor]="additionalActionsMenu"
+          [bitMenuTriggerFor]="menu"
           position="above-end"
           [attr.aria-label]="'additionalActions' | i18n"
         >
           {{ "additionalActions" | i18n }}
         </button>
-        <bit-menu #additionalActionsMenu [ariaLabel]="'additionalActions' | i18n">
-          <ng-content select="[bitMenuItem]"></ng-content>
-        </bit-menu>
       }
     </div>
   </div>

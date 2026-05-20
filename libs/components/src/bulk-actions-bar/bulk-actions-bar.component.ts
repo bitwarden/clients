@@ -9,6 +9,7 @@ import {
   OnDestroy,
   afterNextRender,
   computed,
+  contentChild,
   contentChildren,
   inject,
   input,
@@ -22,7 +23,6 @@ import { takeUntil } from "rxjs/operators";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { MenuItemComponent } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
 
@@ -39,7 +39,7 @@ const COMPACT_THRESHOLD_BUFFER_PX = 48;
 @Component({
   selector: "bit-bulk-actions-bar",
   templateUrl: "./bulk-actions-bar.component.html",
-  imports: [I18nPipe, BulkActionComponent, MenuComponent, MenuTriggerForDirective],
+  imports: [I18nPipe, BulkActionComponent, MenuTriggerForDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(document:keydown)": "handleShortcut($event)",
@@ -64,8 +64,7 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
   });
 
   private readonly actions = contentChildren(BulkActionComponent);
-  private readonly additionalActions = contentChildren(MenuItemComponent);
-  protected readonly hasAdditionalActions = computed(() => this.additionalActions().length > 0);
+  protected readonly additionalActionsMenu = contentChild(MenuComponent);
 
   protected readonly visible = computed(() => this.selectedCount() > 0);
 
@@ -140,8 +139,9 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
 
   ngAfterViewInit(): void {
     // Built in ngAfterViewInit (not ngAfterContentInit) so the additional-
-    // actions trigger — which only renders once the bitMenuItem content
-    // children resolve and the @if branch ticks through — is available.
+    // actions trigger — which only renders once the consumer-provided
+    // bit-menu content child resolves and the @if branch ticks through —
+    // is available.
     const closeBtn = this.closeBtn();
     if (closeBtn == null) {
       return;

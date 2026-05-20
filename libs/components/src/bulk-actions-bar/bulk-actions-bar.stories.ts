@@ -67,8 +67,10 @@ type Row = { id: number; name: string; type: string };
       <button bitBulkAction icon="bwi-folder" type="button">Move</button>
       <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
       <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
-      <a bitMenuItem href="javascript:void(0)">Export</a>
-      <a bitMenuItem href="javascript:void(0)">Share</a>
+      <bit-menu>
+        <a bitMenuItem href="javascript:void(0)">Export</a>
+        <a bitMenuItem href="javascript:void(0)">Share</a>
+      </bit-menu>
     </bit-bulk-actions-bar>
   `,
 })
@@ -182,10 +184,10 @@ export const Default: Story = {
 };
 
 /**
- * Drop `<a bitMenuItem>` (or `<button bitMenuItem>`) entries into the bar's
- * content alongside `bitBulkAction` buttons. When any are present, the bar
- * renders an icon-only "Additional actions" trigger at the end of the action
- * row that opens a `bit-menu` populated with the projected items.
+ * Wrap `<a bitMenuItem>` (or `<button bitMenuItem>`) entries in a `<bit-menu>`
+ * inside the bar's content. When a `bit-menu` is present, the bar renders an
+ * icon-only "Additional actions" trigger at the end of the action row that
+ * opens the consumer-provided menu.
  */
 export const WithAdditionalActions: Story = {
   render: (args) => ({
@@ -196,9 +198,11 @@ export const WithAdditionalActions: Story = {
         <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
         <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
 
-        <a bitMenuItem href="javascript:void(0)">Export</a>
-        <a bitMenuItem href="javascript:void(0)">Share</a>
-        <a bitMenuItem href="javascript:void(0)">Move to organization</a>
+        <bit-menu>
+          <a bitMenuItem href="javascript:void(0)">Export</a>
+          <a bitMenuItem href="javascript:void(0)">Share</a>
+          <a bitMenuItem href="javascript:void(0)">Move to organization</a>
+        </bit-menu>
       </bit-bulk-actions-bar>
     `,
   }),

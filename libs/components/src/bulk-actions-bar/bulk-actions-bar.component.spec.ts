@@ -296,8 +296,10 @@ describe("BulkActionsBarComponent", () => {
     <bit-bulk-actions-bar [selectedCount]="count()">
       <button id="first-action" bitBulkAction icon="bwi-folder" type="button">First</button>
       @if (showAdditional()) {
-        <a id="export" bitMenuItem href="#">Export</a>
-        <a id="share" bitMenuItem href="#">Share</a>
+        <bit-menu>
+          <a id="export" bitMenuItem href="#">Export</a>
+          <a id="share" bitMenuItem href="#">Share</a>
+        </bit-menu>
       }
     </bit-bulk-actions-bar>
   `,
@@ -351,13 +353,13 @@ describe("BulkActionsBarComponent — additional actions", () => {
     document.body.removeAttribute("tabindex");
   });
 
-  it("does not render the trigger when no bitMenuItem is projected", () => {
+  it("does not render the trigger when no bit-menu is projected", () => {
     host.showAdditional.set(false);
     fixture.detectChanges();
     expect(trigger()).toBeNull();
   });
 
-  it("renders an ellipsis trigger when bitMenuItem entries are projected", () => {
+  it("renders an ellipsis trigger when a bit-menu is projected", () => {
     const btn = trigger();
     expect(btn).not.toBeNull();
     expect(btn!.querySelector("bit-icon")).not.toBeNull();
