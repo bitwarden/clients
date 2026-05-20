@@ -47,7 +47,7 @@ export abstract class UnlockService {
     keyConnectorUnlockData: KeyConnectorUnlockData,
   ): Promise<void>;
 
-  /*
+  /**
    * Unlocks the user's account with a decrypted user key
    * Note: Where possible use other unlock methods.
    *
