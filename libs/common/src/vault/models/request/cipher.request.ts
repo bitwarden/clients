@@ -44,6 +44,7 @@ export class CipherRequest {
   archivedDate: Date | null;
   reprompt: CipherRepromptType;
   key: string;
+  data?: string;
 
   constructor({ cipher, encryptedFor }: EncryptionContext) {
     this.type = cipher.type;
@@ -57,6 +58,7 @@ export class CipherRequest {
     this.archivedDate = cipher.archivedDate;
     this.reprompt = cipher.reprompt;
     this.key = cipher.key?.encryptedString;
+    this.data = cipher.data;
 
     switch (this.type) {
       case CipherType.Login:

@@ -69,6 +69,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
+  data?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -96,6 +97,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
+    this.data = obj.data;
 
     switch (this.type) {
       case CipherType.Login:
@@ -284,6 +286,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       c.key = this.key.encryptedString;
     }
 
+    if (this.data != null) {
+      c.data = this.data;
+    }
+
     if (this.permissions != null) {
       c.permissions = this.permissions;
     }
@@ -382,6 +388,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     domain.name = EncString.fromJSON(obj.name);
     domain.notes = encStringFrom(obj.notes);
     domain.key = encStringFrom(obj.key);
+    domain.data = obj.data;
     domain.attachments = obj.attachments
       ?.map((a: any) => Attachment.fromJSON(a))
       .filter((a): a is Attachment => a != null);
@@ -483,7 +490,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       bankAccount: undefined,
       driversLicense: undefined,
       passport: undefined,
-      data: undefined,
+      data: this.data,
     };
 
     switch (this.type) {
@@ -575,6 +582,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : undefined;
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
+    cipher.data = sdkCipher.data;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);

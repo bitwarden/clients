@@ -47,6 +47,7 @@ export class CipherData {
   archivedDate?: string;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: string;
+  data?: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
@@ -72,6 +73,7 @@ export class CipherData {
     this.archivedDate = response.archivedDate;
     this.reprompt = response.reprompt;
     this.key = response.key;
+    this.data = response.data;
 
     switch (this.type) {
       case CipherType.Login:
