@@ -56,52 +56,50 @@ const positiveNumberValidator =
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <form [formGroup]="formGroup" [bitSubmit]="submit">
-      <bit-dialog>
-        <span bitDialogTitle class="tw-font-medium">
-          {{ "addCredit" | i18n }}
-        </span>
-        <div bitDialogContent>
-          <p bitTypography="body1">{{ "creditDelayed" | i18n }}</p>
-          <div class="tw-grid tw-grid-cols-2">
-            <bit-radio-group [formControl]="formGroup.controls.paymentMethod">
-              <bit-radio-button id="credit-method-paypal" [value]="'payPal'">
-                <bit-label> <i class="bwi bwi-paypal"></i>PayPal</bit-label>
-              </bit-radio-button>
-              <bit-radio-button id="credit-method-bitcoin" [value]="'bitPay'">
-                <bit-label> <i class="bwi bwi-bitcoin"></i>Bitcoin</bit-label>
-              </bit-radio-button>
-            </bit-radio-group>
-          </div>
-          <div class="tw-grid tw-grid-cols-2">
-            <bit-form-field>
-              <bit-label>{{ "amount" | i18n }}</bit-label>
-              <input
-                bitInput
-                [formControl]="formGroup.controls.amount"
-                type="text"
-                (blur)="formatAmount()"
-                required
-              />
-              <span bitPrefix>$USD</span>
-            </bit-form-field>
-          </div>
+    <form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+      <span bitDialogTitle class="tw-font-medium">
+        {{ "addCredit" | i18n }}
+      </span>
+      <div bitDialogContent>
+        <p bitTypography="body1">{{ "creditDelayed" | i18n }}</p>
+        <div class="tw-grid tw-grid-cols-2">
+          <bit-radio-group [formControl]="formGroup.controls.paymentMethod">
+            <bit-radio-button id="credit-method-paypal" [value]="'payPal'">
+              <bit-label> <i class="bwi bwi-paypal"></i>PayPal</bit-label>
+            </bit-radio-button>
+            <bit-radio-button id="credit-method-bitcoin" [value]="'bitPay'">
+              <bit-label> <i class="bwi bwi-bitcoin"></i>Bitcoin</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
         </div>
-        <ng-container bitDialogFooter>
-          <button type="submit" bitButton bitFormButton buttonType="primary">
-            {{ "submit" | i18n }}
-          </button>
-          <button
-            type="button"
-            bitButton
-            bitFormButton
-            buttonType="secondary"
-            [bitDialogClose]="'cancelled'"
-          >
-            {{ "cancel" | i18n }}
-          </button>
-        </ng-container>
-      </bit-dialog>
+        <div class="tw-grid tw-grid-cols-2">
+          <bit-form-field>
+            <bit-label>{{ "amount" | i18n }}</bit-label>
+            <input
+              bitInput
+              [formControl]="formGroup.controls.amount"
+              type="text"
+              (blur)="formatAmount()"
+              required
+            />
+            <span bitPrefix>$USD</span>
+          </bit-form-field>
+        </div>
+      </div>
+      <ng-container bitDialogFooter>
+        <button type="submit" bitButton bitFormButton buttonType="primary">
+          {{ "submit" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          bitFormButton
+          buttonType="secondary"
+          [bitDialogClose]="'cancelled'"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </ng-container>
     </form>
     <form #payPalForm action="{{ payPalConfig.buttonAction }}" method="post" target="_top">
       <input type="hidden" name="cmd" value="_xclick" />

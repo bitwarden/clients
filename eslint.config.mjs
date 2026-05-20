@@ -221,6 +221,7 @@ export default tseslint.config(
       ],
       "@bitwarden/components/no-bwi-class-usage": "warn",
       "@bitwarden/components/no-icon-children-in-bit-button": "warn",
+      "@bitwarden/components/no-bit-dialog-wrapper": "error",
     },
   },
 

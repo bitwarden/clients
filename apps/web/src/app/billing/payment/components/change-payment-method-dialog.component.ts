@@ -22,33 +22,31 @@ type DialogParams = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <form [formGroup]="formGroup" [bitSubmit]="submit">
-      <bit-dialog>
-        <span bitDialogTitle class="tw-font-medium">
-          {{ "changePaymentMethod" | i18n }}
-        </span>
-        <div bitDialogContent>
-          <app-enter-payment-method
-            [group]="formGroup"
-            [showBankAccount]="dialogParams.subscriber.type !== 'account'"
-            [includeBillingAddress]="true"
-          >
-          </app-enter-payment-method>
-        </div>
-        <ng-container bitDialogFooter>
-          <button bitButton bitFormButton buttonType="primary" type="submit">
-            {{ "save" | i18n }}
-          </button>
-          <button
-            bitButton
-            buttonType="secondary"
-            type="button"
-            [bitDialogClose]="{ type: 'cancelled' }"
-          >
-            {{ "cancel" | i18n }}
-          </button>
-        </ng-container>
-      </bit-dialog>
+    <form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+      <span bitDialogTitle class="tw-font-medium">
+        {{ "changePaymentMethod" | i18n }}
+      </span>
+      <div bitDialogContent>
+        <app-enter-payment-method
+          [group]="formGroup"
+          [showBankAccount]="dialogParams.subscriber.type !== 'account'"
+          [includeBillingAddress]="true"
+        >
+        </app-enter-payment-method>
+      </div>
+      <ng-container bitDialogFooter>
+        <button bitButton bitFormButton buttonType="primary" type="submit">
+          {{ "save" | i18n }}
+        </button>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          [bitDialogClose]="{ type: 'cancelled' }"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </ng-container>
     </form>
   `,
   standalone: true,
