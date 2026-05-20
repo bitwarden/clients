@@ -74,8 +74,11 @@ export class DefaultCipherSdkService implements CipherSdkService {
                 sdkUpdateRequest,
                 originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
               );
-          } else {
+          } else if (cipher.edit) {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
+          } else {
+            const sdkPartialUpdateRequest = cipher.toSdkPartialUpdateCipherRequest();
+            result = await sdkCiphersClient.edit_partial(sdkPartialUpdateRequest);
           }
 
           return CipherView.fromSdkCipherView(result, sdkCiphersClient);
