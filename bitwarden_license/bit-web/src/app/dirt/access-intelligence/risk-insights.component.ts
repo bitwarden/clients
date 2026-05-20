@@ -10,6 +10,8 @@ import {
   inject,
   signal,
   ChangeDetectionStrategy,
+  isDevMode,
+  Injector,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -57,6 +59,8 @@ import { ApplicationsComponent } from "./all-applications/applications.component
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { WelcomeModalDialogComponent } from "./onboarding/welcome-modal-dialog.component";
+import { DevMenuComponent } from "./shared/dev-menu.component";
 import { PageLoadingComponent } from "./shared/page-loading.component";
 import { ReportLoadingComponent } from "./shared/report-loading.component";
 import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
@@ -73,6 +77,7 @@ type ProgressStep = ReportProgress | null;
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
+    DevMenuComponent,
     IconModule,
     CriticalApplicationsComponent,
     EmptyStateCardComponent,
@@ -96,6 +101,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   protected ReportStatusEnum = ReportStatus;
   protected milestone11Enabled: boolean = false;
+  protected adoptionUxImprovementsEnabled: boolean = false;
+  protected isDevMode = isDevMode();
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
@@ -137,6 +144,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private configService: ConfigService,
     private toastService: ToastService,
+    private injector: Injector,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -174,6 +182,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
     this.milestone11Enabled = await this.configService.getFeatureFlag(
       FeatureFlag.Milestone11AppPageImprovements,
+    );
+
+    this.adoptionUxImprovementsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AccessIntelligenceAdoptionUxImprovements,
     );
 
     // Subscribe to report data updates
@@ -266,7 +278,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       });
 
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
-      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+      await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
     }
   }
 
@@ -372,11 +384,16 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     }
   };
 
-  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+  private async handleReturnParams(
+    source: string | undefined,
+    status: string | undefined,
+  ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
+      await this.beginOnboardingTour();
     }
 
+    await this.beginOnboardingTour();
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
   }
 
@@ -388,5 +405,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParamsHandling: "merge",
       replaceUrl: true,
     });
+  }
+
+  protected async beginOnboardingTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
+    }
   }
 }
