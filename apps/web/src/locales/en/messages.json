@@ -4393,6 +4393,38 @@
     "message": "File Send accessed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "accessedTextSendFromClaimedDomain": {
+    "message": "Text Send accessed from a claimed domain",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSendFromClaimedDomain": {
+    "message": "File Send accessed from a claimed domain",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSendFromExternalDomain": {
+    "message": "Text Send accessed from an external domain",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSendFromExternalDomain": {
+    "message": "File Send accessed from an external domain",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithEmailVerificationFromClaimedDomain": {
+    "message": "Created text Send (email verification, recipients in claimed domain)",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerificationFromClaimedDomain": {
+    "message": "Created file Send (email verification, recipients in claimed domain)",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithEmailVerificationFromExternalDomain": {
+    "message": "Created text Send (email verification, one or more recipients in external domain)",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerificationFromExternalDomain": {
+    "message": "Created file Send (email verification, one or more recipients in external domain)",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Moved item $ID$ to an organization.",
     "placeholders": {

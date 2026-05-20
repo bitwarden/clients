@@ -834,6 +834,38 @@ export class EventService {
       case EventType.Send_Accessed_File:
         msg = humanReadableMsg = this.i18nService.t("accessedFileSend");
         break;
+      case EventType.Send_Accessed_Text_FromClaimedDomain:
+        msg = humanReadableMsg = this.i18nService.t("accessedTextSendFromClaimedDomain");
+        break;
+      case EventType.Send_Accessed_File_FromClaimedDomain:
+        msg = humanReadableMsg = this.i18nService.t("accessedFileSendFromClaimedDomain");
+        break;
+      case EventType.Send_Accessed_Text_FromExternalDomain:
+        msg = humanReadableMsg = this.i18nService.t("accessedTextSendFromExternalDomain");
+        break;
+      case EventType.Send_Accessed_File_FromExternalDomain:
+        msg = humanReadableMsg = this.i18nService.t("accessedFileSendFromExternalDomain");
+        break;
+      case EventType.Send_Created_Text_WithEmailVerification_FromClaimedDomain:
+        msg = humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationFromClaimedDomain",
+        );
+        break;
+      case EventType.Send_Created_File_WithEmailVerification_FromClaimedDomain:
+        msg = humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationFromClaimedDomain",
+        );
+        break;
+      case EventType.Send_Created_Text_WithEmailVerification_FromExternalDomain:
+        msg = humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationFromExternalDomain",
+        );
+        break;
+      case EventType.Send_Created_File_WithEmailVerification_FromExternalDomain:
+        msg = humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationFromExternalDomain",
+        );
+        break;
 
       default:
         break;
