@@ -176,7 +176,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -972,7 +972,12 @@ export default class MainBackground {
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
+    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
+    this.ipcService = new IpcBackgroundService(
+      this.platformUtilsService,
+      this.logService,
+      ipcSessionRepository,
+    );
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
@@ -982,8 +987,6 @@ export default class MainBackground {
       this.messagingService,
       this.vaultTimeoutSettingsService,
       this.pinService,
-      this.configService,
-      this.ipcService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -1424,7 +1427,6 @@ export default class MainBackground {
       this.accountService,
       this.logService,
       this.authService,
-      this.platformUtilsService,
     );
 
     // Background
@@ -1787,8 +1789,10 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
     await this.ipcService.init();
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
       await this.sharedUnlockLeaderService.start();
+    }
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
       await this.sharedUnlockFollowerService.start();
     }
     this.badgeService.startListening();
