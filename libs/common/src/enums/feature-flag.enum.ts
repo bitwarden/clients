@@ -29,7 +29,6 @@ export enum FeatureFlag {
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
 
   /* Autofill */
-  PM36385FillAfterSave = "pm-36385-fill-after-save",
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
@@ -89,7 +88,7 @@ export enum FeatureFlag {
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-
+  PM29968_FillAfterSave = "pm-29968-fill-after-save",
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
@@ -126,7 +125,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.PM36385FillAfterSave]: FALSE,
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -166,6 +164,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
+  [FeatureFlag.PM29968_FillAfterSave]: true,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,

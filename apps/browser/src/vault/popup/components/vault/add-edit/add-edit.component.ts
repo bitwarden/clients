@@ -404,7 +404,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
           if (params.fillAfterSave) {
             const fillAfterSaveEnabled = await this.configService.getFeatureFlag(
-              FeatureFlag.PM36385FillAfterSave,
+              FeatureFlag.PM29968_FillAfterSave,
             );
             this.fillAfterSave = fillAfterSaveEnabled;
           }
