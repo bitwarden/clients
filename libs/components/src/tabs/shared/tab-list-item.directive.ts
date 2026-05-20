@@ -60,6 +60,7 @@ export class TabListItemDirective implements FocusableOption {
     "tw-block",
     "tw-relative",
     "tw-h-full",
+    "tw-max-w-fit",
     "tw-whitespace-nowrap",
     "tw-pb-3",
     "tw-text-sm",

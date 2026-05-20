@@ -10,6 +10,7 @@ import {
   input,
   model,
   output,
+  viewChild,
   viewChildren,
   inject,
   Injector,
@@ -23,7 +24,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
 import { MenuModule } from "../../menu";
-import { OverflowItemDirective, OverflowListDirective } from "../../overflow-list";
+import {
+  OverflowItemDirective,
+  OverflowListDirective,
+  OverflowTriggerDirective,
+} from "../../overflow-list";
 import { TabHeaderComponent } from "../shared/tab-header.component";
 import {
   TAB_LIST_CONTAINER_GAP,
@@ -59,6 +64,7 @@ let nextId = 0;
     I18nPipe,
     OverflowListDirective,
     OverflowItemDirective,
+    OverflowTriggerDirective,
   ],
 })
 export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
@@ -84,6 +90,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   protected readonly tabs = contentChildren(TabComponent);
   readonly tabLabels = viewChildren(TabListItemDirective);
+  private readonly moreButton = viewChild("moreButton", { read: TabListItemDirective });
 
   /** The index of the active tab. Supports two-way binding via `[(selectedIndex)]`. */
   readonly selectedIndex = model(0);
@@ -154,6 +161,19 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   }
 
   /**
+   * When the overflow menu closes, the CDK overlay restores focus to the More
+   * button trigger, but the key manager's active item points at the newly
+   * selected tab (set during `ngAfterContentChecked`). Realign the key manager
+   * to the trigger so the next arrow key behaves relative to where focus is.
+   */
+  protected onOverflowMenuClosed() {
+    const moreButton = this.moreButton();
+    if (moreButton) {
+      this.keyManager()?.updateActiveItem(moreButton);
+    }
+  }
+
+  /**
    * After content is checked, the tab group knows what tabs are defined and which index
    * should be currently selected.
    */
@@ -190,14 +210,9 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       .withHorizontalOrientation("ltr")
       .withWrap()
       .withHomeAndEnd()
-      // Skip disabled items, items the overflow directive hid via [hidden], and the
-      // visibility-hidden More button (aria-hidden="true" while no overflow exists).
-      .skipPredicate(
-        (item) =>
-          item.disabled ||
-          item.elementRef.nativeElement.hidden ||
-          item.elementRef.nativeElement.getAttribute("aria-hidden") === "true",
-      );
+      // Skip disabled items and anything the overflow directive hid via [hidden]
+      // (overflowed tabs as well as the More button when there's nothing to surface).
+      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
 
     km.updateActiveItem(this._selectedIndex() ?? 0);
 
