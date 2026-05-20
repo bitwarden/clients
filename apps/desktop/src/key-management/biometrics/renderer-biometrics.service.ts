@@ -11,7 +11,10 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
-import { CryptoClient, ipcRegisterBiometricsHandlers, SymmetricKey ,
+import {
+  CryptoClient,
+  ipcRegisterBiometricsHandlers,
+  SymmetricKey,
   UserId,
   BiometricsUnlock,
   BiometricsStatus as SdkBiometricsStatus,
