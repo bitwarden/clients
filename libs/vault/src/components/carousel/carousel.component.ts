@@ -3,7 +3,6 @@ import { CdkPortalOutlet } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
-  booleanAttribute,
   ChangeDetectorRef,
   Component,
   ContentChildren,
@@ -11,6 +10,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  input,
   Input,
   NgZone,
   Output,
@@ -59,9 +59,7 @@ export class VaultCarouselComponent implements AfterViewInit {
    * When true, hides the previous/next arrow navigation buttons.
    * Use with the `carouselActions` content slot to provide custom navigation controls.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute }) hideArrows = false;
+  protected readonly hideArrows = input<boolean>(false);
 
   /**
    * Emits the index of the newly selected slide.
