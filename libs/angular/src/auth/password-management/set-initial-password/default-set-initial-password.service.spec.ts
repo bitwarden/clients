@@ -21,7 +21,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -154,7 +154,7 @@ describe("DefaultSetInitialPasswordService", () => {
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
-    let setPasswordRequest: SetPasswordRequest;
+    let setInitialPasswordRequest: SetInitialPasswordRequest;
 
     let enrollmentRequest: OrganizationUserResetPasswordEnrollmentRequest;
 
@@ -211,7 +211,7 @@ describe("DefaultSetInitialPasswordService", () => {
       } as MasterPasswordUnlockData;
       masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
 
-      setPasswordRequest = new SetPasswordRequest(
+      setInitialPasswordRequest = new SetInitialPasswordRequest(
         authenticationData,
         unlockData,
         credentials.newPasswordHint,
@@ -317,10 +317,16 @@ describe("DefaultSetInitialPasswordService", () => {
       describe("given the user has an existing local key pair", () => {
         it("should NOT create a brand new key pair for the user", async () => {
           // Arrange
-          setPasswordRequest.keys = {
-            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString,
-            publicKey: Utils.fromBufferToB64(existingUserPublicKey),
-          };
+          setInitialPasswordRequest = new SetInitialPasswordRequest(
+            authenticationData,
+            unlockData,
+            credentials.newPasswordHint,
+            credentials.orgSsoIdentifier,
+            new KeysRequest(
+              Utils.fromBufferToB64(existingUserPublicKey),
+              userKeyEncryptedPrivateKey.encryptedString,
+            ),
+          );
 
           setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
 
@@ -328,7 +334,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(keyService.userPrivateKey$).toHaveBeenCalledWith(userId);
           expect(keyService.userPublicKey$).toHaveBeenCalledWith(userId);
           expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(
@@ -348,7 +356,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
         });
       });
 
@@ -361,7 +371,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
         });
       });
 
@@ -404,7 +416,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
             ForceSetPasswordReason.None,
             userId,
@@ -423,7 +437,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
             userId,
             userDecryptionOptions,
@@ -441,7 +457,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
           ).toHaveBeenCalledWith(
@@ -462,7 +480,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -506,7 +526,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+              setInitialPasswordRequest,
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).toHaveBeenCalledWith(credentials.orgId, userId, enrollmentRequest);
@@ -526,7 +548,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await expect(promise).rejects.toThrow(
               "Organization keys response is null. Could not handle reset password auto enroll.",
             );
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+              setInitialPasswordRequest,
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).not.toHaveBeenCalled();
@@ -554,7 +578,7 @@ describe("DefaultSetInitialPasswordService", () => {
                   "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
                 );
                 expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
-                  setPasswordRequest,
+                  setInitialPasswordRequest,
                 );
                 expect(
                   organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
@@ -575,7 +599,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+              setInitialPasswordRequest,
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).not.toHaveBeenCalled();
@@ -587,7 +613,13 @@ describe("DefaultSetInitialPasswordService", () => {
     describe("given SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP", () => {
       beforeEach(() => {
         userType = SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP;
-        setPasswordRequest.keys = null;
+        setInitialPasswordRequest = new SetInitialPasswordRequest(
+          authenticationData,
+          unlockData,
+          credentials.newPasswordHint,
+          credentials.orgSsoIdentifier,
+          null,
+        );
       });
 
       it("should NOT generate a keyPair", async () => {
@@ -613,7 +645,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
         });
       });
 
@@ -626,7 +660,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
         });
       });
 
@@ -639,7 +675,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
             ForceSetPasswordReason.None,
             userId,
@@ -654,7 +692,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
             userId,
             userDecryptionOptions,
@@ -676,7 +716,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
           ).not.toHaveBeenCalled();
@@ -690,7 +732,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+            setInitialPasswordRequest,
+          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -734,7 +778,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+              setInitialPasswordRequest,
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).toHaveBeenCalledWith(credentials.orgId, userId, enrollmentRequest);
@@ -750,7 +796,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+              setInitialPasswordRequest,
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).not.toHaveBeenCalled();
@@ -1155,7 +1203,7 @@ describe("DefaultSetInitialPasswordService", () => {
     // Mock method data
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
-    let setPasswordRequest: SetPasswordRequest;
+    let setInitialPasswordRequest: SetInitialPasswordRequest;
     let userDecryptionOptions: UserDecryptionOptions;
 
     beforeEach(() => {
@@ -1191,7 +1239,7 @@ describe("DefaultSetInitialPasswordService", () => {
       } as MasterPasswordUnlockData;
       masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
 
-      setPasswordRequest = new SetPasswordRequest(
+      setInitialPasswordRequest = new SetInitialPasswordRequest(
         authenticationData,
         unlockData,
         credentials.newPasswordHint,
@@ -1292,7 +1340,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
       // Assert
       expect(masterPasswordApiService.setPassword).toHaveBeenCalledTimes(1);
-      expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+      expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setInitialPasswordRequest);
     });
 
     describe("given the initial password has been successfully set", () => {

@@ -15,7 +15,7 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -119,7 +119,7 @@ describe("WebSetInitialPasswordService", () => {
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
-    let setPasswordRequest: SetPasswordRequest;
+    let setInitialPasswordRequest: SetInitialPasswordRequest;
 
     beforeEach(() => {
       // Mock function parameters
@@ -166,7 +166,7 @@ describe("WebSetInitialPasswordService", () => {
       } as MasterPasswordUnlockData;
       masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
 
-      setPasswordRequest = new SetPasswordRequest(
+      setInitialPasswordRequest = new SetInitialPasswordRequest(
         authenticationData,
         unlockData,
         credentials.newPasswordHint,
@@ -195,7 +195,9 @@ describe("WebSetInitialPasswordService", () => {
         await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+          setInitialPasswordRequest,
+        );
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
       });
 
@@ -207,7 +209,9 @@ describe("WebSetInitialPasswordService", () => {
         await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+          setInitialPasswordRequest,
+        );
         expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
       });
     });

@@ -14,7 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { PasswordRequest } from "../../models/request/password.request";
-import { SetPasswordRequest } from "../../models/request/set-password.request";
+import { SetInitialPasswordRequest } from "../../models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
@@ -56,7 +56,7 @@ describe("MasterPasswordApiService", () => {
         "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
       );
 
-      const request = new SetPasswordRequest(
+      const request = new SetInitialPasswordRequest(
         authenticationData,
         unlockData,
         "masterPasswordHint",

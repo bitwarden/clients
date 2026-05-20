@@ -5,10 +5,10 @@ import {
 
 import { KeysRequest } from "../../../models/request/keys.request";
 
-export class SetPasswordRequest {
+export class SetInitialPasswordRequest {
   constructor(
-    readonly authenticationData: MasterPasswordAuthenticationData,
-    readonly unlockData: MasterPasswordUnlockData,
+    readonly masterPasswordAuthentication: MasterPasswordAuthenticationData,
+    readonly masterPasswordUnlock: MasterPasswordUnlockData,
     readonly masterPasswordHint: string,
     readonly orgIdentifier: string,
     readonly keys: KeysRequest | null,
