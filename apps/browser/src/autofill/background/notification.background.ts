@@ -248,7 +248,7 @@ export default class NotificationBackground {
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
-    const iconsServerUrl = env.getIconsUrl();
+    const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
 
     const getOrganizationType = (orgId?: string) =>
       organizations.find((org) => org.id === orgId)?.productTierType;
@@ -315,7 +315,7 @@ export default class NotificationBackground {
 
   convertToNotificationCipherData(
     view: CipherView,
-    iconsServerUrl: string,
+    iconsServerUrl: string | null,
     showFavicons: boolean,
     organizationType?: ProductTierType,
   ): NotificationCipherData {
