@@ -95,6 +95,23 @@ export const requireSenderTab: EnvPairCheck = (_msg, sender) => sender?.tab != n
 export const requireFrameId: EnvPairCheck = (_msg, sender) => typeof sender?.frameId === "number";
 
 /**
+ * Distinguishes content scripts from extension pages (popup, options,
+ * sidepanel). Both share `sender.origin === extensionOrigin`, so origin alone
+ * cannot tell them apart — content scripts have `sender.tab`, extension pages
+ * don't.
+ *
+ * Phase 3 §7.1: closes an existing soft-check gap. Without it, a popup-shaped
+ * sender can pass a `content:background` chain and vice versa. Added to every
+ * existing pair in the same change per §7.1.
+ */
+export const distinguishContentVsExtensionPage =
+  (expect: "tab-present" | "tab-absent"): EnvPairCheck =>
+  (_msg, sender) => {
+    const hasTab = sender?.tab != null;
+    return expect === "tab-present" ? hasTab : !hasTab;
+  };
+
+/**
  * Predicate chain by EnvPair claim. Look-ups returning `undefined` are treated
  * as rejection by `passesEnvPair` — there is no silent pass path (§2.4).
  *
@@ -103,14 +120,19 @@ export const requireFrameId: EnvPairCheck = (_msg, sender) => typeof sender?.fra
  */
 export const middlewareByEnvPair: Partial<Record<EnvPair, EnvPairCheck[]>> = {
   // Popup, options page, sidepanel UI talking to the background SW.
-  "popup:background": [requireInternalSender],
+  "popup:background": [requireInternalSender, distinguishContentVsExtensionPage("tab-absent")],
   // Background SW talking back to a popup-shaped recipient — same shape on receive.
-  "background:popup": [requireInternalSender],
+  "background:popup": [requireInternalSender, distinguishContentVsExtensionPage("tab-absent")],
   // Content script in a tab talking to the background SW.
-  "content:background": [requireInternalSender, requireSenderTab, requireFrameId],
+  "content:background": [
+    requireInternalSender,
+    requireSenderTab,
+    requireFrameId,
+    distinguishContentVsExtensionPage("tab-present"),
+  ],
   // Background SW pushing to a content script — receiver-side, the sender shape
   // mirrors the popup-shaped one (no tab on the sender from the background's view).
-  "background:content": [requireInternalSender],
+  "background:content": [requireInternalSender, distinguishContentVsExtensionPage("tab-absent")],
 };
 
 /**

@@ -6,6 +6,7 @@ import {
   requireInternalSender,
   requireSenderTab,
   requireFrameId,
+  distinguishContentVsExtensionPage,
   __resetExtensionOriginForTests,
   middlewareByEnvPair,
 } from "./env-pair";
@@ -69,6 +70,20 @@ describe("env-pair", () => {
     });
   });
 
+  describe("distinguishContentVsExtensionPage (Phase 3 §7.1)", () => {
+    it("tab-absent: accepts a popup-shaped sender, rejects a content-shaped one", () => {
+      const check = distinguishContentVsExtensionPage("tab-absent");
+      expect(check({}, popupSender())).toBe(true);
+      expect(check({}, contentSender())).toBe(false);
+    });
+
+    it("tab-present: accepts a content-shaped sender, rejects a popup-shaped one", () => {
+      const check = distinguishContentVsExtensionPage("tab-present");
+      expect(check({}, contentSender())).toBe(true);
+      expect(check({}, popupSender())).toBe(false);
+    });
+  });
+
   describe("requireFrameId", () => {
     it("accepts a sender with a numeric frameId", () => {
       expect(requireFrameId({}, contentSender())).toBe(true);
@@ -93,11 +108,11 @@ describe("env-pair", () => {
         expect(passesEnvPair({ _envPair: "popup:background" }, popupSender())).toBe(true);
       });
 
-      it("(Phase 0 soft-check gap) accepts a content-shaped sender claiming popup:background", () => {
-        // requireInternalSender is a faithful port of senderIsInternal — it does
-        // not check sender.tab. Phase 3's distinguishContentVsExtensionPage
-        // closes this gap; see plan §7.1.
-        expect(passesEnvPair({ _envPair: "popup:background" }, contentSender())).toBe(true);
+      it("rejects a content-shaped sender claiming popup:background (Phase 3 §7.1 closed)", () => {
+        // distinguishContentVsExtensionPage("tab-absent") on popup:background
+        // closes the old soft-check gap — a content-shaped sender (with tab)
+        // is now rejected by the chain.
+        expect(passesEnvPair({ _envPair: "popup:background" }, contentSender())).toBe(false);
       });
 
       it("rejects a foreign-origin sender claiming popup:background", () => {
