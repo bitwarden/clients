@@ -12,7 +12,8 @@ use futures::{SinkExt, StreamExt, TryFutureExt};
 // Non-Unix uses interprocess local sockets
 #[cfg(not(unix))]
 use interprocess::local_socket::{
-    GenericFilePath, ListenerOptions, prelude::LocalSocketListener, tokio::prelude::*, traits::Listener
+    prelude::LocalSocketListener, tokio::prelude::*, traits::Listener, GenericFilePath,
+    ListenerOptions,
 };
 // Unix uses tokio's UnixListener to access peer credentials
 #[cfg(unix)]
