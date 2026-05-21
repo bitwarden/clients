@@ -173,7 +173,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
-    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SharedUnlock);
+    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SharedUnlockPart2,
+    );
   }
 
   private getSharedUnlockDescriptionKey(): string {

@@ -94,7 +94,7 @@ export class AppComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     void (async () => {
-      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
+      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
         await this.sharedUnlockFollowerService.start();
       }
     })();

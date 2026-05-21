@@ -434,7 +434,11 @@ export class Main {
         });
 
         await this.sdkLoadService.loadAndInit();
-        await this.ipcService.init();
+
+        // Todo: Remove this check once the ipc service is implemented
+        if (this.ipcService != null) {
+          await this.ipcService.init();
+        }
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

@@ -314,6 +314,7 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -546,6 +547,7 @@ export default class MainBackground {
   sharedUnlockLeaderService: SharedUnlockLeaderService;
   sharedUnlockFollowerService: SharedUnlockFollowerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
+  unlockService: UnlockService;
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
@@ -1676,6 +1678,21 @@ export default class MainBackground {
       this.accountService,
     );
 
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      pinStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.stateProvider,
+      this.logService,
+      this.biometricsService,
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
+    );
+
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
     this.sharedUnlockLeaderService = new DefaultSharedUnlockLeaderService(
       this.ipcService,
@@ -1686,6 +1703,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.environmentService,
       this.sharedUnlockSettingsService,
+      this.unlockService,
     );
     this.sharedUnlockFollowerService = new DefaultSharedUnlockFollowerService(
       this.ipcService,
@@ -1696,6 +1714,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.environmentService,
       this.sharedUnlockSettingsService,
+      this.unlockService,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
