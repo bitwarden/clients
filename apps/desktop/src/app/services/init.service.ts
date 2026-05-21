@@ -69,11 +69,13 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
+    private ipcService: IpcService,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
+      await this.ipcService.init();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
