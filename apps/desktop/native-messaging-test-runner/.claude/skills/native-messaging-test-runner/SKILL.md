@@ -5,7 +5,7 @@ description: Use when the user wants to exercise the desktop app's native messag
 
 # Native Messaging Test Runner
 
-Drives the desktop app's native messaging IPC from a local Node process. Used to validate DuckDuckGo browser integration changes without needing the DuckDuckGo browser itself.
+Drives the desktop client's native messaging IPC from a local Node process. Used to validate DuckDuckGo browser integration changes without needing the DuckDuckGo browser itself.
 
 Reference: https://contributing.bitwarden.com/getting-started/clients/desktop/native-messaging-test-runner
 
