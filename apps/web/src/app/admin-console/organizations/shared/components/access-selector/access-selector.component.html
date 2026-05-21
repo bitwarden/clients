@@ -53,22 +53,6 @@
   </div>
 }
 
-@if (showRequireLeaseColumn() && !disabled() && !hideTable()) {
-  <div class="tw-mb-2 tw-flex tw-justify-end">
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      size="small"
-      data-testid="bulkRequireLeaseButton"
-      [disabled]="selectedItems().length === 0"
-      [bitAction]="bulkApplyRequireLease"
-    >
-      {{ "bulkRequireLeaseButton" | i18n }}
-    </button>
-  </div>
-}
-
 @if (!hideTable()) {
   <bit-table [formGroup]="formGroup">
     <ng-container header>
@@ -86,18 +70,6 @@
         }
         @if (showGroupColumn()) {
           <th bitCell id="groupColHeading">{{ "group" | i18n }}</th>
-        }
-        @if (showRequireLeaseColumn()) {
-          <th bitCell id="requireLeaseColHeading" class="tw-w-32">
-            <span
-              [bitTooltip]="'requireLeaseTooltip' | i18n"
-              tabindex="0"
-              class="tw-inline-flex tw-items-center tw-gap-1 tw-cursor-help"
-            >
-              {{ "requireLease" | i18n }}
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-            </span>
-          </th>
         }
         <th bitCell class="tw-w-20"></th>
       </tr>
@@ -175,27 +147,6 @@
           @if (showGroupColumn()) {
             <td bitCell>
               {{ $any(item).viaGroupName ?? "-" }}
-            </td>
-          }
-          @if (showRequireLeaseColumn()) {
-            <td bitCell>
-              @if (canEditItemRequireLease(item)) {
-                <label class="tw-mb-0 tw-inline-flex tw-items-center tw-gap-2">
-                  <input
-                    type="checkbox"
-                    bitCheckbox
-                    formControlName="requireLease"
-                    [attr.aria-label]="('requireLeaseAriaLabel' | i18n) + ' ' + item.labelName"
-                    [attr.data-testid]="'requireLease-' + item.id"
-                    (change)="onRequireLeaseChange(item.id, $any($event.target).checked)"
-                  />
-                  <span class="tw-sr-only">{{ "requireLease" | i18n }}</span>
-                </label>
-              } @else {
-                <span class="tw-text-muted">
-                  {{ ($any(item).initialRequireLease ? "on" : "off") | i18n }}
-                </span>
-              }
             </td>
           }
           <td bitCell class="tw-text-right">

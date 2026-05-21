@@ -3,11 +3,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
-  EventEmitter,
   forwardRef,
   inject,
   input,
-  Output,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -30,7 +28,6 @@ import {
   BadgeComponent,
   ButtonModule,
   CheckboxModule,
-  DialogService,
   FormFieldModule,
   IconButtonModule,
   SelectModule,
@@ -103,7 +100,6 @@ export enum PermissionMode {
 export class AccessSelectorComponent implements ControlValueAccessor {
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
-  private readonly dialogService = inject(DialogService);
 
   private readonly notifyOnChange = signal<((v: unknown) => void) | null>(null);
   private readonly notifyOnTouch = signal<(() => void) | null>(null);
@@ -233,20 +229,6 @@ export class AccessSelectorComponent implements ControlValueAccessor {
   readonly showGroupColumn = input<boolean>();
 
   /**
-   * Flag for if the Privileged Access Manager `require_lease` column should be present.
-   * Should only be turned on when `FeatureFlag.Pam` is enabled. When off, existing per-row
-   * `requireLease` values are preserved as-is (the column is hidden, not zeroed out).
-   */
-  readonly showRequireLeaseColumn = input<boolean>(false);
-
-  /**
-   * The organization-user id of the current user, if they are an org member. Used to detect
-   * a self-toggle (a manager turning on `require_lease` for themselves) so we can show an
-   * extra confirmation. Optional — omit if the toggling user isn't in this list.
-   */
-  readonly currentMemberId = input<string | null>(null);
-
-  /**
    * Hide the multi-select so that new items cannot be added
    */
   readonly hideMultiSelect = input(false);
@@ -275,14 +257,6 @@ export class AccessSelectorComponent implements ControlValueAccessor {
 
   /** Holds the last value passed to writeValue so it can be re-applied when items load */
   private readonly pendingValue = signal<AccessItemValue[] | null>(null);
-
-  /**
-   * Emits when the user confirms applying `require_lease` to every currently-selected row via
-   * the bulk action. Useful for stories/tests; the in-place form value is also updated.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() readonly bulkRequireLeaseApplied = new EventEmitter<void>();
 
   constructor() {
     this.permissionList = getPermissionList();
@@ -448,82 +422,6 @@ export class AccessSelectorComponent implements ControlValueAccessor {
 
   protected canEditItemPermission(item: AccessItemView) {
     return this.permissionMode() == PermissionMode.Edit && !item.readonly && !this.disabled();
-  }
-
-  protected canEditItemRequireLease(item: AccessItemView) {
-    return this.showRequireLeaseColumn() && !item.readonly && !this.disabled();
-  }
-
-  /**
-   * Handles a per-row `require_lease` toggle change. If the toggling user is also the target
-   * member and is enabling the toggle, show a confirmation dialog explaining that they'll need
-   * to lease their own access after this. If the user cancels, the toggle is reverted.
-   */
-  protected async onRequireLeaseChange(itemId: string, newValue: boolean): Promise<void> {
-    const isSelfToggle =
-      newValue === true && this.currentMemberId() != null && itemId === this.currentMemberId();
-
-    if (!isSelfToggle) {
-      return;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "requireLeaseSelfConfirmTitle" },
-      content: { key: "requireLeaseSelfConfirmContent" },
-      acceptButtonText: { key: "yesTurnOn" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      this.setRowRequireLease(itemId, false);
-    }
-  }
-
-  /**
-   * Opens a confirmation dialog and, on accept, sets `requireLease = true` on every currently
-   * selected row that isn't read-only. Atomic from the form's perspective — the change is
-   * pushed as a single notification to consumers.
-   */
-  protected readonly bulkApplyRequireLease = async (): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "bulkRequireLeaseConfirmTitle" },
-      content: { key: "bulkRequireLeaseConfirmContent" },
-      acceptButtonText: { key: "applyToAll" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.pauseChangeNotification.set(true);
-    this.selectionList.forEachControlItem((controlRow, item) => {
-      if (item.readonly) {
-        return;
-      }
-      const fg = controlRow as FormGroup<ControlsOf<AccessItemValue>>;
-      fg.controls.requireLease?.setValue(true, { emitEvent: false });
-    });
-    this.pauseChangeNotification.set(false);
-
-    const notify = this.notifyOnChange();
-    if (notify != undefined) {
-      notify(this.selectionList.formArray.value);
-    }
-    this.bulkRequireLeaseApplied.emit();
-  };
-
-  /** Set a single row's `requireLease` value without spuriously triggering external change. */
-  private setRowRequireLease(itemId: string, value: boolean): void {
-    this.selectionList.forEachControlItem((controlRow, item) => {
-      if (item.id !== itemId) {
-        return;
-      }
-      const fg = controlRow as FormGroup<ControlsOf<AccessItemValue>>;
-      fg.controls.requireLease?.setValue(value);
-    });
   }
 
   private _itemComparator(a: AccessItemView, b: AccessItemView) {

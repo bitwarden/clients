@@ -6,7 +6,6 @@ import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
-import { DialogService } from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
@@ -39,16 +38,6 @@ class TestableAccessSelectorComponent extends AccessSelectorComponent {
     });
   }
 
-  /** Test helper exposing the protected per-row require-lease handler. */
-  onRequireLeaseChange(itemId: string, newValue: boolean) {
-    return super.onRequireLeaseChange(itemId, newValue);
-  }
-
-  /** Test helper exposing the protected bulk-action handler. */
-  bulkApplyRequireLease() {
-    return super.bulkApplyRequireLease();
-  }
-
   getFormValue() {
     return this.selectionList.formArray.value;
   }
@@ -57,15 +46,12 @@ class TestableAccessSelectorComponent extends AccessSelectorComponent {
 describe("AccessSelectorComponent", () => {
   let component: TestableAccessSelectorComponent;
   let fixture: ComponentFixture<TestableAccessSelectorComponent>;
-  let dialogService: { openSimpleDialog: jest.Mock };
 
   beforeEach(() => {
-    dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
-      providers: [{ provide: DialogService, useValue: dialogService }],
     }).compileComponents();
   });
 
@@ -247,122 +233,5 @@ describe("AccessSelectorComponent", () => {
       },
     );
 
-    test.each([true, false])(
-      "should show the require-lease column when enabled",
-      (columnEnabled) => {
-        fixture.componentRef.setInput("showRequireLeaseColumn", columnEnabled);
-        fixture.detectChanges();
-
-        const colHeading = fixture.nativeElement.querySelector("#requireLeaseColHeading");
-        expect(!!colHeading).toEqual(columnEnabled);
-      },
-    );
-  });
-
-  describe("require_lease toggle", () => {
-    const memberItem = {
-      id: "m1",
-      type: AccessItemType.Member,
-      labelName: "Member 1",
-      listName: "Member 1 (m1@example.com)",
-      email: "m1@example.com",
-      role: OrganizationUserType.User,
-      status: OrganizationUserStatusType.Confirmed,
-      initialRequireLease: false,
-    };
-    const memberItem2 = {
-      id: "m2",
-      type: AccessItemType.Member,
-      labelName: "Member 2",
-      listName: "Member 2 (m2@example.com)",
-      email: "m2@example.com",
-      role: OrganizationUserType.User,
-      status: OrganizationUserStatusType.Confirmed,
-      initialRequireLease: false,
-    };
-
-    beforeEach(() => {
-      fixture.componentRef.setInput("items", [memberItem, memberItem2]);
-      fixture.componentRef.setInput("showRequireLeaseColumn", true);
-      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
-      fixture.detectChanges();
-    });
-
-    it("seeds the per-row requireLease control from initialRequireLease", () => {
-      fixture.componentRef.setInput("items", [{ ...memberItem, initialRequireLease: true }]);
-      fixture.detectChanges();
-      component.selectItems([{ id: "m1" } as any]);
-      expect(component.getFormValue()[0]).toHaveProperty("requireLease", true);
-    });
-
-    it("does not prompt for self-toggle when toggling another member", async () => {
-      component.selectItems([{ id: "m1" } as any]);
-      fixture.componentRef.setInput("currentMemberId", "self");
-
-      await component.onRequireLeaseChange("m1", true);
-
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    });
-
-    it("prompts and keeps the toggle on when the user confirms self-toggle", async () => {
-      component.selectItems([{ id: "m1" } as any]);
-      fixture.componentRef.setInput("currentMemberId", "m1");
-      // Simulate the user flipping the form control on
-      component["selectionList"].formArray.at(0).patchValue({ requireLease: true });
-      dialogService.openSimpleDialog.mockResolvedValueOnce(true);
-
-      await component.onRequireLeaseChange("m1", true);
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
-      expect(component.getFormValue()[0]).toHaveProperty("requireLease", true);
-    });
-
-    it("reverts the toggle when the user cancels self-toggle", async () => {
-      component.selectItems([{ id: "m1" } as any]);
-      fixture.componentRef.setInput("currentMemberId", "m1");
-      component["selectionList"].formArray.at(0).patchValue({ requireLease: true });
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
-
-      await component.onRequireLeaseChange("m1", true);
-
-      expect(component.getFormValue()[0]).toHaveProperty("requireLease", false);
-    });
-
-    it("does not prompt when self-toggling OFF", async () => {
-      component.selectItems([{ id: "m1" } as any]);
-      fixture.componentRef.setInput("currentMemberId", "m1");
-
-      await component.onRequireLeaseChange("m1", false);
-
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    });
-
-    it("bulk applies requireLease to every selected row after confirmation", async () => {
-      component.selectItems([{ id: "m1" } as any, { id: "m2" } as any]);
-      dialogService.openSimpleDialog.mockResolvedValueOnce(true);
-
-      const bulkEmitted = jest.fn();
-      component.bulkRequireLeaseApplied.subscribe(bulkEmitted);
-      const mockChange = jest.fn();
-      component.registerOnChange(mockChange);
-
-      await component.bulkApplyRequireLease();
-
-      const values = component.getFormValue();
-      expect(values.every((v: any) => v.requireLease === true)).toBe(true);
-      expect(bulkEmitted).toHaveBeenCalledTimes(1);
-      // Exactly one external change notification is emitted for the bulk apply
-      expect(mockChange).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not modify rows if the bulk action is cancelled", async () => {
-      component.selectItems([{ id: "m1" } as any, { id: "m2" } as any]);
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
-
-      await component.bulkApplyRequireLease();
-
-      const values = component.getFormValue();
-      expect(values.every((v: any) => v.requireLease === false)).toBe(true);
-    });
   });
 });
