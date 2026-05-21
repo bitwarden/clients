@@ -1,5 +1,7 @@
 name: Retrieve Current Desktop Rollout
 
+run-name: Retrieve Current Desktop Rollout${{ inputs.debug == true && ' - Debug' || '' }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -19,6 +21,7 @@ jobs:
           curl -sSfL -o latest.yml "https://artifacts.bitwarden.com/desktop/latest.yml"
           if [[ "${{ inputs.debug }}" == "true" ]]; then
             cat latest.yml
+            echo
           fi
           CURRENT_PCT=$(sed -r -n "s/stagingPercentage:\s([0-9]+)/\1/p" latest.yml)
           CURRENT_VERSION=$(sed -r -n "s/version:\s(.*)/\1/p" latest.yml)
