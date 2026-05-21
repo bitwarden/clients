@@ -1,5 +1,4 @@
 [workspace]
-# ci-cache-bust: force native module rebuild to validate lockfile fix
 resolver = "2"
 members = [
     "autofill_provider",
