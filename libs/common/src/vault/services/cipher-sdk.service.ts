@@ -72,7 +72,8 @@ export class DefaultCipherSdkService implements CipherSdkService {
               .admin()
               .edit(
                 sdkUpdateRequest,
-                originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
+                originalCipherView?.toSdkCipherView(sdkCiphersClient) ||
+                  new CipherView().toSdkCipherView(sdkCiphersClient),
               );
           } else {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
@@ -283,20 +284,18 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const sdkCipherView = cipherView.toSdkCipherView();
+          const sdkCipherView = cipherView.toSdkCipherView(sdkCiphersClient);
 
-          const result = await ref.value
-            .vault()
-            .ciphers()
-            .share_cipher(
-              sdkCipherView,
-              asUuid(organizationId),
-              collectionIds.map((id) => asUuid(id)),
-              originalCipherView?.toSdkCipherView(),
-            );
+          const result = await sdkCiphersClient.share_cipher(
+            sdkCipherView,
+            asUuid(organizationId),
+            collectionIds.map((id) => asUuid(id)),
+            originalCipherView?.toSdkCipherView(sdkCiphersClient),
+          );
 
-          return CipherView.fromSdkCipherView(result);
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to share cipher: ${error}`);
@@ -319,20 +318,18 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const sdkCipherViews = cipherViews.map((cv) => cv.toSdkCipherView());
+          const sdkCipherViews = cipherViews.map((cv) => cv.toSdkCipherView(sdkCiphersClient));
 
-          const results = await ref.value
-            .vault()
-            .ciphers()
-            .share_ciphers_bulk(
-              sdkCipherViews,
-              asUuid(organizationId),
-              collectionIds.map((id) => asUuid(id)),
-            );
+          const results = await sdkCiphersClient.share_ciphers_bulk(
+            sdkCipherViews,
+            asUuid(organizationId),
+            collectionIds.map((id) => asUuid(id)),
+          );
 
           return results
-            .map((c) => CipherView.fromSdkCipherView(c))
+            .map((c) => CipherView.fromSdkCipherView(c, sdkCiphersClient))
             .filter((c): c is CipherView => c !== undefined);
         }),
         catchError((error: unknown) => {
@@ -380,11 +377,14 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const decryptResult = await ref.value.vault().ciphers().get_all();
+          const decryptResult = await sdkCiphersClient.get_all();
 
           const successes = [...(decryptResult.successes ?? [])]
-            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
+            .map((sdkCipherView: any) =>
+              CipherView.fromSdkCipherView(sdkCipherView, sdkCiphersClient),
+            )
             .filter((v): v is CipherView => v !== undefined);
 
           const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {
@@ -449,15 +449,12 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          const result = await ref.value
-            .vault()
-            .ciphers()
-            .admin()
-            .update_collection(
-              asUuid(cipherId),
-              collectionIds.map((id) => asUuid(id)),
-            );
-          return CipherView.fromSdkCipherView(result);
+          const sdkCiphersClient = ref.value.vault().ciphers();
+          const result = await sdkCiphersClient.admin().update_collection(
+            asUuid(cipherId),
+            collectionIds.map((id) => asUuid(id)),
+          );
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher collections as admin: ${error}`);
@@ -479,15 +476,13 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          const result = await ref.value
-            .vault()
-            .ciphers()
-            .update_collection(
-              asUuid(cipherId),
-              collectionIds.map((id) => asUuid(id)),
-              false,
-            );
-          return CipherView.fromSdkCipherView(result);
+          const sdkCiphersClient = ref.value.vault().ciphers();
+          const result = await sdkCiphersClient.update_collection(
+            asUuid(cipherId),
+            collectionIds.map((id) => asUuid(id)),
+            false,
+          );
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher collections: ${error}`);
