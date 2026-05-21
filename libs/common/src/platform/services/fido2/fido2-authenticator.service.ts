@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { filter, firstValueFrom, map, timeout } from "rxjs";
 
+import { PureCrypto } from "@bitwarden/sdk-internal";
+
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
 import { CipherId } from "../../../types/guid";
@@ -25,6 +27,7 @@ import {
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
@@ -485,9 +488,11 @@ async function createKeyView(
     throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
   }
 
+  await SdkLoadService.Ready; // Required for PureCrypto.new_guid()
+
   const pkcs8Key = new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyValue));
   const fido2Credential = new Fido2CredentialView();
-  fido2Credential.credentialId = Utils.newGuid();
+  fido2Credential.credentialId = PureCrypto.new_guid();
   fido2Credential.keyType = "public-key";
   fido2Credential.keyAlgorithm = "ECDSA";
   fido2Credential.keyCurve = "P-256";
