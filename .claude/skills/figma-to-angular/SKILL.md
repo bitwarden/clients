@@ -214,6 +214,12 @@ needed. Common refinements:
 - **Never hardcode user-visible strings.** Every string goes through `I18nPipe`. This includes
   aria-labels and other accessibility text — they need localization too. Add keys to the locale file
   and provide mocks in stories.
+- **Validate user-visible copy against the content style guide.** Before emitting any user-visible
+  string (button labels, helper text, error messages, empty states, aria-labels), check it against
+  the `content-style-guide` skill — voice, tone, capitalization (sentence case for UI), no
+  ampersands, no "Click here" links, no spatial language, gender-neutral pronouns, etc. If a
+  Figma string clearly violates a rule, surface the issue with a proposed compliant alternative
+  and ask the user which to use. Do not silently rewrite Figma copy.
 - **Reuse existing components aggressively.** If the design has a button, use `bitButton`. If it
   has a label, use `bit-label`. Don't reimplement what exists.
 - **Explore before you build.** The codebase exploration step prevents most rework. Patterns vary
