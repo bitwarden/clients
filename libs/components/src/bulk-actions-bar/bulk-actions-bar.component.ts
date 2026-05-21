@@ -165,9 +165,9 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
     if (closeBtn == null) {
       return;
     }
-    const primaries = this.primaryButtons().filter((btn) => btn !== closeBtn);
-    const items: BulkActionButtonComponent[] = [closeBtn, ...primaries];
     const trigger = this.additionalActionsTrigger();
+    const primaries = this.primaryButtons().filter((btn) => btn !== closeBtn && btn !== trigger);
+    const items: BulkActionButtonComponent[] = [closeBtn, ...primaries];
     if (trigger) {
       items.push(trigger);
     }
