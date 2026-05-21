@@ -151,7 +151,7 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
     }
 
     if (!allFilled || this.internalForm.invalid) {
-      const fieldCount = values.filter((v) => !v).length;
+      const fieldCount = values.filter((v) => !v).length || 1;
       return { invalidDate: true, fieldCount };
     }
 
