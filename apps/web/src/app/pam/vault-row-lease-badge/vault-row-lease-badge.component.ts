@@ -18,7 +18,7 @@ type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
  * PAM dependency so the row component stays PAM-free: pass the cipher, get a
  * badge (or nothing) that stays in sync with the live lease state.
  *
- * Subscribes to `PamApiService.getCipherLeaseState$` so the badge reflects
+ * Subscribes to `PamApiService.getCipherAccessState$` so the badge reflects
  * approvals, denials, and lease expiries pushed by the API.
  */
 @Component({
@@ -54,15 +54,18 @@ export class VaultRowLeaseBadgeComponent {
       if (!cipherId || !enabled || !PamMockConfig.isEnabled() || !PamMockConfig.shouldGate(cipherId)) {
         return of(null);
       }
-      return this.pamApiService.getCipherLeaseState$(cipherId, userId).pipe(
-        map(({ activeLease }): LeaseBadgeView => {
-          if (activeLease != null) {
+      return this.pamApiService.getCipherAccessState$(cipherId, userId).pipe(
+        map(({ lease, evaluation }): LeaseBadgeView => {
+          if (lease.activeLease != null) {
             return {
               state: "gated_active_lease",
-              expiresAt: new Date(activeLease.notAfter),
+              expiresAt: new Date(lease.activeLease.notAfter),
             };
           }
-          return { state: "gated_no_lease", expiresAt: null };
+          return {
+            state: evaluation === "automated" ? "gated_no_lease_auto" : "gated_no_lease",
+            expiresAt: null,
+          };
         }),
       );
     }),

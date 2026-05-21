@@ -13,7 +13,24 @@
           class="tw-absolute -tw-bottom-0 -tw-right-0 tw-text-xxs tw-leading-none tw-bg-background tw-rounded-full"
         ></bit-icon>
       </span>
-      <span class="tw-sr-only">{{ "cipherLeaseRequiresApproval" | i18n }}</span>
+      <span class="tw-sr-only">{{ tooltip() }}</span>
+    </span>
+  }
+  @case ("gated_no_lease_auto") {
+    <span
+      class="tw-inline-flex tw-items-center tw-justify-center tw-text-muted"
+      [bitTooltip]="tooltip()"
+      tabindex="0"
+      data-testid="cipher-lease-badge-gated-auto"
+    >
+      <span class="tw-relative tw-inline-flex tw-size-5 tw-items-center tw-justify-center">
+        <bit-icon name="bwi-lock" class="tw-text-base"></bit-icon>
+        <bit-icon
+          name="bwi-cog"
+          class="tw-absolute -tw-bottom-0 -tw-right-0 tw-text-xxs tw-leading-none tw-bg-background tw-rounded-full"
+        ></bit-icon>
+      </span>
+      <span class="tw-sr-only">{{ tooltip() }}</span>
     </span>
   }
   @case ("gated_active_lease") {

@@ -50,6 +50,16 @@ export const PamMockConfig = {
     return this.stateForCipher(cipherId) === "active";
   },
 
+  /**
+   * Returns the effective policy evaluation kind for a gated cipher. Used by
+   * the vault-row pill to surface whether the user should expect a human
+   * approver or an automatic decision. Deterministic per cipher id; roughly
+   * half of gated ciphers fall into each bucket.
+   */
+  evaluationForCipher(cipherId: string): "human" | "automated" {
+    return hash(cipherId) % 2 === 0 ? "human" : "automated";
+  },
+
   /** ~20% of submitted requests auto-deny instead of auto-approve. */
   shouldAutoDeny(requestId: string): boolean {
     return hash(requestId) % 100 < 20;

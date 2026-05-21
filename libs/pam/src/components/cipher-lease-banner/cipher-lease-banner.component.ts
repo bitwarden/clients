@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { CipherLeaseState, PamApiService } from "../../abstractions/pam-api.service";
+import { CipherAccessState, PamApiService } from "../../abstractions/pam-api.service";
 import { LeaseExtensionRequest } from "../../services/requests/lease-extension.request";
 import { LeaseRevokeRequest } from "../../services/requests/lease-revoke.request";
 
@@ -42,14 +42,14 @@ export class CipherLeaseBannerComponent implements OnInit {
       getUserId(this.accountService.activeAccount$),
     ]).pipe(
       switchMap(([cipherId, userId]) =>
-        this.pamApiService.getCipherLeaseState$(cipherId, userId),
+        this.pamApiService.getCipherAccessState$(cipherId, userId),
       ),
     ),
-    { initialValue: {} as CipherLeaseState },
+    { initialValue: { lease: {}, evaluation: "human" } as CipherAccessState },
   );
 
-  protected readonly activeLease = computed(() => this.state().activeLease);
-  protected readonly pendingRequest = computed(() => this.state().pendingRequest);
+  protected readonly activeLease = computed(() => this.state().lease.activeLease);
+  protected readonly pendingRequest = computed(() => this.state().lease.pendingRequest);
 
   readonly leaseRemainingLabel = computed(() => {
     const lease = this.activeLease();

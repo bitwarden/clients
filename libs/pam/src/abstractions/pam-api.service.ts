@@ -6,6 +6,8 @@ import { LeaseExtensionRequest } from "../services/requests/lease-extension.requ
 import { LeaseRequestPatchRequest } from "../services/requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
 
+import { PolicyEvaluation } from "../helpers/classify-policy-evaluation";
+
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
 import { CollectionLeasingConfigResponse } from "./responses/collection-leasing.response";
 import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
@@ -29,20 +31,40 @@ export type BulkRevokeResult =
       failures: { leaseId: string; reason: string }[];
     };
 
-export type CipherLeaseState = {
+/**
+ * The caller's current lease standing for one cipher: whether they hold an
+ * active lease and/or have a pending request awaiting decision.
+ */
+export type LeaseState = {
   activeLease?: LeaseResponse;
   pendingRequest?: LeaseRequestResponse;
+};
+
+/**
+ * Everything the UI needs to render access controls for one cipher:
+ * the caller's lease standing and how the policy will be evaluated.
+ * Combines two independent concerns deliberately so callers get both off
+ * a single stream.
+ */
+export type CipherAccessState = {
+  lease: LeaseState;
+  /**
+   * Whether requesting access for this cipher will queue for a human
+   * approver or be decided automatically by server-evaluated rules.
+   * Defaults to "human" when the effective policy is unknown.
+   */
+  evaluation: PolicyEvaluation;
 };
 
 
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
   /**
-   * Observe the current user's lease state for one cipher: whether they have
-   * an active lease, a pending request, or neither. Emits on subscribe and
-   * again whenever the state changes.
+   * Observe the caller's access state for one cipher: lease standing
+   * (active lease / pending request) plus the policy evaluation kind.
+   * Emits on subscribe and again whenever lease state changes.
    */
-  abstract getCipherLeaseState$(cipherId: string, userId: string): Observable<CipherLeaseState>;
+  abstract getCipherAccessState$(cipherId: string, userId: string): Observable<CipherAccessState>;
 
   abstract patchLeaseRequest(
     id: string,

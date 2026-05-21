@@ -5,7 +5,12 @@ export {
   TimeWindow,
   parseLeasingPolicy,
 } from "./abstractions/leasing-policy";
-export { BulkRevokeResult, CipherLeaseState, PamApiService } from "./abstractions/pam-api.service";
+export {
+  BulkRevokeResult,
+  CipherAccessState,
+  LeaseState,
+  PamApiService,
+} from "./abstractions/pam-api.service";
 export { CollectionLeasingConfigResponse } from "./abstractions/responses/collection-leasing.response";
 export { InboxBadgeCountResponse } from "./abstractions/responses/inbox-badge-count.response";
 export { InboxLeaseRequestResponse } from "./abstractions/responses/inbox-lease-request.response";
@@ -41,5 +46,9 @@ export {
   flattenLeasingPolicy,
   formatLeasingPolicy,
 } from "./helpers/format-leasing-policy";
+export {
+  PolicyEvaluation,
+  classifyPolicyEvaluation,
+} from "./helpers/classify-policy-evaluation";
 
 export { CipherLeaseBannerComponent } from "./components/cipher-lease-banner/cipher-lease-banner.component";

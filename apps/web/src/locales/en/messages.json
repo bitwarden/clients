@@ -14643,6 +14643,9 @@
   "cipherLeaseRequiresApproval": {
     "message": "Requires approval to view"
   },
+  "cipherLeaseAutomatedEvaluation": {
+    "message": "Access is evaluated automatically"
+  },
   "cipherLeaseExpiresIn": {
     "message": "Leased — expires in $TIME$",
     "placeholders": {

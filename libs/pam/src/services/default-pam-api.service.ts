@@ -8,7 +8,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
-import { BulkRevokeResult, CipherLeaseState, PamApiService } from "../abstractions/pam-api.service";
+import { BulkRevokeResult, CipherAccessState, PamApiService } from "../abstractions/pam-api.service";
 import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
 import { InboxBadgeCountResponse } from "../abstractions/responses/inbox-badge-count.response";
 import { InboxLeaseRequestResponse } from "../abstractions/responses/inbox-lease-request.response";
@@ -96,9 +96,10 @@ export class DefaultPamApiService implements PamApiService {
     throw new Error(`Unexpected status ${response.status} from gated cipher fetch`);
   }
 
-  getCipherLeaseState$(_cipherId: string, _userId: string): Observable<CipherLeaseState> {
-    // Real implementation pending; see PM-37264 follow-up.
-    return of({});
+  getCipherAccessState$(_cipherId: string, _userId: string): Observable<CipherAccessState> {
+    // Real implementation pending; see PM-37264 follow-up. Default to
+    // "human" so callers fail closed on the more conservative pill variant.
+    return of({ lease: {}, evaluation: "human" });
   }
 
   async patchLeaseRequest(

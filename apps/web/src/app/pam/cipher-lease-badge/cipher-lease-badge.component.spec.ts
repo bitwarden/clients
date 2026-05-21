@@ -15,6 +15,7 @@ describe("CipherLeaseBadgeComponent", () => {
           provide: I18nService,
           useValue: new I18nMockService({
             cipherLeaseRequiresApproval: "Requires approval to view",
+            cipherLeaseAutomatedEvaluation: "Access is evaluated automatically",
             cipherLeaseExpiresIn: "Leased — expires in __$1__",
           }),
         },
@@ -27,7 +28,7 @@ describe("CipherLeaseBadgeComponent", () => {
   });
 
   const create = (
-    state: "unleased" | "gated_no_lease" | "gated_active_lease",
+    state: "unleased" | "gated_no_lease" | "gated_no_lease_auto" | "gated_active_lease",
     leaseExpiresAt: Date | null = null,
   ): ComponentFixture<CipherLeaseBadgeComponent> => {
     const fixture = TestBed.createComponent(CipherLeaseBadgeComponent);
@@ -46,7 +47,7 @@ describe("CipherLeaseBadgeComponent", () => {
     expect(fixture.nativeElement.textContent.trim()).toBe("");
   });
 
-  it("renders the gated badge with the approval tooltip when state is 'gated_no_lease'", () => {
+  it("renders the human-approval gated badge with clock icon and approval tooltip", () => {
     const fixture = create("gated_no_lease");
 
     const host = fixture.nativeElement.querySelector(
@@ -55,7 +56,21 @@ describe("CipherLeaseBadgeComponent", () => {
     expect(host).not.toBeNull();
     expect(host.querySelector(".bwi-lock")).not.toBeNull();
     expect(host.querySelector(".bwi-clock")).not.toBeNull();
+    expect(host.querySelector(".bwi-cog")).toBeNull();
     expect(tooltipContent(fixture)).toBe("Requires approval to view");
+  });
+
+  it("renders the automated gated badge with cog icon and automated tooltip", () => {
+    const fixture = create("gated_no_lease_auto");
+
+    const host = fixture.nativeElement.querySelector(
+      '[data-testid="cipher-lease-badge-gated-auto"]',
+    ) as HTMLElement;
+    expect(host).not.toBeNull();
+    expect(host.querySelector(".bwi-lock")).not.toBeNull();
+    expect(host.querySelector(".bwi-cog")).not.toBeNull();
+    expect(host.querySelector(".bwi-clock")).toBeNull();
+    expect(tooltipContent(fixture)).toBe("Access is evaluated automatically");
   });
 
   it("renders the active badge with the countdown tooltip and label when state is 'gated_active_lease'", () => {

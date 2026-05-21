@@ -4,7 +4,7 @@ import { map, Observable, startWith } from "rxjs";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import {
   BulkRevokeResult,
-  CipherLeaseState,
+  CipherAccessState,
   CollectionLeasingConfigResponse,
   CollectionLeasingRequest,
   GatedCipherFetchResult,
@@ -37,15 +37,18 @@ export class MockPamApiService extends PamApiService {
     super();
   }
 
-  getCipherLeaseState$(cipherId: string, _userId: string): Observable<CipherLeaseState> {
-    const snapshot = (): CipherLeaseState => {
+  getCipherAccessState$(cipherId: string, _userId: string): Observable<CipherAccessState> {
+    const snapshot = (): CipherAccessState => {
       const activeLease = this.store.leasesByCipher.get(cipherId);
       const pendingRequest = [...this.store.requests.values()].find(
         (r) => r.cipherId === cipherId && r.status === "pending",
       );
       return {
-        activeLease: activeLease?.status === "active" ? activeLease : undefined,
-        pendingRequest,
+        lease: {
+          activeLease: activeLease?.status === "active" ? activeLease : undefined,
+          pendingRequest,
+        },
+        evaluation: PamMockConfig.evaluationForCipher(cipherId),
       };
     };
 
@@ -69,6 +72,34 @@ export class MockPamApiService extends PamApiService {
         // stub satisfies the type without faking server-side decryption.
         cipher: new CipherResponse({}),
         leaseId: existingLease.id,
+      };
+    }
+    // Automated policies are evaluated server-side at open time — no Request
+    // Access modal, no waiting. The mock approves ~80% and denies ~20% to
+    // exercise both branches.
+    if (PamMockConfig.evaluationForCipher(id) === "automated") {
+      const requestId = this.store.mintId("req");
+      if (PamMockConfig.shouldAutoDeny(requestId)) {
+        return { kind: "denied", reason: "Outside policy window (mock auto-deny)" };
+      }
+      const now = new Date();
+      const lease = PamMockBuilders.buildLease({
+        id: this.store.mintId("lease"),
+        requestId,
+        cipherId: id,
+        collectionId: this.store.collectionFor(id),
+        granteeUserId: userId,
+        notBefore: now,
+        notAfter: new Date(now.getTime() + PamMockConfig.DEFAULT_LEASE_DURATION_MS),
+        status: "active",
+      });
+      this.store.leases.set(lease.id, lease);
+      this.store.leasesByCipher.set(id, lease);
+      this.store.events$.next({ kind: "approved", requestId });
+      return {
+        kind: "approved",
+        cipher: new CipherResponse({}),
+        leaseId: lease.id,
       };
     }
     const request = this.store.createPendingRequest(id, userId);

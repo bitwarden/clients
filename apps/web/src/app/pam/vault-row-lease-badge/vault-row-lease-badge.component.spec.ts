@@ -7,7 +7,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
-import { CipherLeaseState, LeaseResponse, PamApiService } from "@bitwarden/pam";
+import { CipherAccessState, LeaseResponse, PamApiService } from "@bitwarden/pam";
 
 import { PamMockConfig } from "../mock/pam-mock-config";
 
@@ -15,13 +15,13 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
 describe("VaultRowLeaseBadgeComponent", () => {
   let pamFlag$: BehaviorSubject<boolean>;
-  let leaseState$: Subject<CipherLeaseState>;
-  let pamApi: { getCipherLeaseState$: jest.Mock };
+  let accessState$: Subject<CipherAccessState>;
+  let pamApi: { getCipherAccessState$: jest.Mock };
 
   beforeEach(async () => {
     pamFlag$ = new BehaviorSubject<boolean>(true);
-    leaseState$ = new Subject<CipherLeaseState>();
-    pamApi = { getCipherLeaseState$: jest.fn(() => leaseState$.asObservable()) };
+    accessState$ = new Subject<CipherAccessState>();
+    pamApi = { getCipherAccessState$: jest.fn(() => accessState$.asObservable()) };
 
     const accountService = mock<AccountService>();
     (accountService as any).activeAccount$ = of({ id: "user-1" });
@@ -69,7 +69,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
     const fixture = create("any-cipher");
 
     expect(badgeEl(fixture)).toBeNull();
-    expect(pamApi.getCipherLeaseState$).not.toHaveBeenCalled();
+    expect(pamApi.getCipherAccessState$).not.toHaveBeenCalled();
   });
 
   it("renders nothing when the cipher is not gated", () => {
@@ -78,14 +78,14 @@ describe("VaultRowLeaseBadgeComponent", () => {
     const fixture = create("ungated-cipher");
 
     expect(badgeEl(fixture)).toBeNull();
-    expect(pamApi.getCipherLeaseState$).not.toHaveBeenCalled();
+    expect(pamApi.getCipherAccessState$).not.toHaveBeenCalled();
   });
 
   it("renders the gated-no-lease badge when the cipher has neither lease nor request", () => {
     jest.spyOn(PamMockConfig, "shouldGate").mockReturnValue(true);
 
     const fixture = create("gated-cipher");
-    leaseState$.next({});
+    accessState$.next({ lease: {}, evaluation: "human" });
     fixture.detectChanges();
 
     expect(badgeEl(fixture)).not.toBeNull();
@@ -104,7 +104,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
     } as unknown as LeaseResponse;
 
     const fixture = create("gated-cipher");
-    leaseState$.next({ activeLease });
+    accessState$.next({ lease: { activeLease }, evaluation: "human" });
     fixture.detectChanges();
 
     expect(
@@ -116,19 +116,22 @@ describe("VaultRowLeaseBadgeComponent", () => {
     jest.spyOn(PamMockConfig, "shouldGate").mockReturnValue(true);
     const fixture = create("gated-cipher");
 
-    leaseState$.next({});
+    accessState$.next({ lease: {}, evaluation: "human" });
     fixture.detectChanges();
     expect(
       fixture.nativeElement.querySelector('[data-testid="cipher-lease-badge-gated"]'),
     ).not.toBeNull();
 
-    leaseState$.next({
-      activeLease: {
-        cipherId: "gated-cipher",
-        granteeUserId: "user-1",
-        status: "active",
-        notAfter: new Date(Date.now() + 60_000).toISOString(),
-      } as unknown as LeaseResponse,
+    accessState$.next({
+      lease: {
+        activeLease: {
+          cipherId: "gated-cipher",
+          granteeUserId: "user-1",
+          status: "active",
+          notAfter: new Date(Date.now() + 60_000).toISOString(),
+        } as unknown as LeaseResponse,
+      },
+      evaluation: "human",
     });
     fixture.detectChanges();
     expect(
