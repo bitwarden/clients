@@ -10,17 +10,16 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
 import {
   CryptoClient,
   ipcRegisterBiometricsHandlers,
   SymmetricKey,
-  UserId,
+  UserId as SdkUserId,
   BiometricsUnlock,
   BiometricsStatus as SdkBiometricsStatus,
 } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
-import { UserId as TSUserId } from "@bitwarden/user-core";
+import { UserId } from "@bitwarden/user-core";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
@@ -37,11 +36,11 @@ export function createBiometricsDriver(
   unlockService: UnlockService,
 ): BiometricsUnlock {
   return {
-    async get_biometrics_status(user_id: UserId): Promise<SdkBiometricsStatus> {
+    async get_biometrics_status(user_id: SdkUserId): Promise<SdkBiometricsStatus> {
       const status = await biometricsService.getBiometricsStatusForUser(fromSdkUserId(user_id));
       return toSdkBiometricsStatus(status);
     },
-    async unlock_biometrics(user_id: UserId): Promise<SymmetricKey | undefined> {
+    async unlock_biometrics(user_id: SdkUserId): Promise<SymmetricKey | undefined> {
       const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
       if (key == null) {
         return undefined;
@@ -80,7 +79,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.getBiometricsStatus();
   }
 
-  async unlockWithBiometricsForUser(userId: TSUserId): Promise<UserKey | null> {
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     const userKey = await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
     if (userKey == null) {
       return null;
@@ -89,7 +88,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return SymmetricCryptoKey.fromJSON(userKey) as UserKey;
   }
 
-  async getBiometricsStatusForUser(id: TSUserId): Promise<BiometricsStatus> {
+  async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     if ((await firstValueFrom(this.tokenService.hasAccessToken$(id))) === false) {
       return BiometricsStatus.NotEnabledInConnectedDesktopApp;
     }
@@ -98,7 +97,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async setBiometricProtectedUnlockKeyForUser(
-    userId: TSUserId,
+    userId: UserId,
     value: SymmetricCryptoKey,
   ): Promise<void> {
     return await ipc.keyManagement.biometric.setBiometricProtectedUnlockKeyForUser(
@@ -107,7 +106,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     );
   }
 
-  async deleteBiometricUnlockKeyForUser(userId: TSUserId): Promise<void> {
+  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
     return await ipc.keyManagement.biometric.deleteBiometricUnlockKeyForUser(userId);
   }
 
@@ -132,7 +131,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     ].includes(biometricStatus);
   }
 
-  async enrollPersistent(userId: TSUserId, key: SymmetricCryptoKey): Promise<void> {
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
     await SdkLoadService.Ready;
     const keyId = CryptoClient.get_key_id_for_symmetric_key(key.toEncoded());
@@ -146,7 +145,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     }
   }
 
-  async hasPersistentKey(userId: TSUserId): Promise<boolean> {
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
     return await ipc.keyManagement.biometric.hasPersistentKey(userId);
   }
 
