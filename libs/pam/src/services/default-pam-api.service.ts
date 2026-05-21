@@ -1,7 +1,9 @@
+import { Observable, of } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
-import { PamApiService } from "../abstractions/pam-api.service";
+import { CipherLeaseState, PamApiService } from "../abstractions/pam-api.service";
 import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
 import { LeaseRequestResponse } from "../abstractions/responses/lease-request.response";
 
@@ -23,6 +25,11 @@ export class DefaultPamApiService implements PamApiService {
   // which would log the user out on every "denied" verdict.
   fetchGatedCipher(_id: string): Promise<GatedCipherFetchResult> {
     return Promise.reject(new Error("fetchGatedCipher is not implemented yet; see PM-37264"));
+  }
+
+  getCipherLeaseState$(_cipherId: string, _userId: string): Observable<CipherLeaseState> {
+    // Real implementation pending; see PM-37264 follow-up.
+    return of({});
   }
 
   async patchLeaseRequest(

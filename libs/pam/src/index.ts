@@ -5,7 +5,7 @@ export {
   TimeWindow,
   parseLeasingPolicy,
 } from "./abstractions/leasing-policy";
-export { PamApiService } from "./abstractions/pam-api.service";
+export { CipherLeaseState, PamApiService } from "./abstractions/pam-api.service";
 export { CollectionLeasingConfigResponse } from "./abstractions/responses/collection-leasing.response";
 export {
   LeaseRequestResponse,
@@ -26,3 +26,5 @@ export {
   deriveGatedState,
 } from "./helpers/derive-gated-state";
 export { LeaseRequestForApproval, UserForApproval, canApprove } from "./helpers/can-approve";
+
+export { CipherLeaseBannerComponent } from "./components/cipher-lease-banner/cipher-lease-banner.component";

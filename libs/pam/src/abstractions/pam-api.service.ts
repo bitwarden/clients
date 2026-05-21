@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { CollectionLeasingRequest } from "../services/requests/collection-leasing.request";
 import { LeaseDecisionRequest } from "../services/requests/lease-decision.request";
 import { LeaseExtensionRequest } from "../services/requests/lease-extension.request";
@@ -8,8 +10,20 @@ import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
 import { CollectionLeasingConfigResponse } from "./responses/collection-leasing.response";
 import { LeaseRequestResponse } from "./responses/lease-request.response";
 
+export type CipherLeaseState = {
+  activeLease?: LeaseResponse;
+  pendingRequest?: LeaseRequestResponse;
+};
+
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
+
+  /**
+   * Observe the current user's lease state for one cipher: whether they have
+   * an active lease, a pending request, or neither. Emits on subscribe and
+   * again whenever the state changes.
+   */
+  abstract getCipherLeaseState$(cipherId: string, userId: string): Observable<CipherLeaseState>;
   abstract patchLeaseRequest(
     id: string,
     request: LeaseRequestPatchRequest,

@@ -13874,5 +13874,32 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pamPendingBannerTitle": {
+    "message": "Lease request pending — awaiting approval"
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "Active lease — expires in $REMAINING$",
+    "placeholders": {
+      "remaining": { "content": "$1", "example": "45m" }
+    }
+  },
+  "pamEndLeaseTitle": {
+    "message": "End lease"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Are you sure you want to end this lease? You will lose access to the credentials immediately."
+  },
+  "pamEndLeaseButton": {
+    "message": "End lease"
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Lease ended"
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend lease"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Lease extended by 1 hour"
   }
 }
