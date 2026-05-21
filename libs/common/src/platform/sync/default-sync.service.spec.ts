@@ -21,6 +21,7 @@ import { InternalOrganizationServiceAbstraction } from "../../admin-console/abst
 import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
+import { OrganizationUserStatusType } from "../../admin-console/enums";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
@@ -626,6 +627,92 @@ describe("DefaultSyncService", () => {
 
         expect(newPolicyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+    });
+
+    describe("organization sync", () => {
+      it("syncs organizations from profile.organizations when organizationsNew is absent", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            Organizations: [{ Id: "org1", Status: OrganizationUserStatusType.Confirmed }],
+            ProviderOrganizations: [] as any[],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            org1: expect.objectContaining({
+              id: "org1",
+              status: OrganizationUserStatusType.Confirmed,
+              isMember: true,
+              isProviderUser: false,
+            }),
+          },
+          user1,
+        );
+      });
+
+      it("prefers organizationsNew over organizations when both are present", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            Organizations: [{ Id: "old-org", Status: OrganizationUserStatusType.Confirmed }],
+            OrganizationsNew: [{ Id: "new-org", Status: OrganizationUserStatusType.Accepted }],
+            ProviderOrganizations: [] as any[],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            "new-org": expect.objectContaining({
+              id: "new-org",
+              status: OrganizationUserStatusType.Accepted,
+              isMember: true,
+              isProviderUser: false,
+            }),
+          },
+          user1,
+        );
+      });
+
+      it("merges provider organizations regardless of source", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            Organizations: [] as any[],
+            OrganizationsNew: [{ Id: "org1", Status: OrganizationUserStatusType.Accepted }],
+            ProviderOrganizations: [
+              { Id: "provider-org", Status: OrganizationUserStatusType.Confirmed },
+            ],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            org1: expect.objectContaining({
+              id: "org1",
+              status: OrganizationUserStatusType.Accepted,
+              isMember: true,
+              isProviderUser: false,
+            }),
+            "provider-org": expect.objectContaining({
+              id: "provider-org",
+              isMember: false,
+              isProviderUser: true,
+            }),
+          },
           user1,
         );
       });

@@ -806,6 +806,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       if (vaultFilter.cipherType === CipherType.SshKey) {
         return "searchSshKey";
       }
+      if (vaultFilter.cipherType === CipherType.Passport) {
+        return "searchPassport";
+      }
+      if (vaultFilter.cipherType === CipherType.BankAccount) {
+        return "searchBankAccount";
+      }
       return "searchType";
     }
     if (vaultFilter.folderId != null && vaultFilter.folderId !== "none") {

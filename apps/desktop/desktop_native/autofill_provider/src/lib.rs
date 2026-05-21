@@ -644,7 +644,8 @@ mod tests {
                 .unwrap();
             rt.block_on(async move {
                 tracing::debug!(?server_path, "Starting server");
-                let server = desktop_core::ipc::server::Server::start(&server_path, tx).unwrap();
+                let server =
+                    desktop_core::ipc::server::Server::start(vec![server_path], tx).unwrap();
 
                 // Signal to main thread that the server is ready to process messages.
                 tracing::debug!("Server started");
