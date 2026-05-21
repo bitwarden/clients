@@ -38,6 +38,7 @@ type MappedOptions = {
     fastmail: ApiOptions & EmailPrefixOptions & IntegrationRequest;
     firefoxRelay: ApiOptions & IntegrationRequest;
     forwardEmail: ApiOptions & EmailDomainOptions & IntegrationRequest;
+    proxiedMail: ApiOptions & EmailDomainOptions & IntegrationRequest;
     simpleLogin: SelfHostedApiOptions & IntegrationRequest;
   };
 };
@@ -55,6 +56,7 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
     private readonly fastmail: GeneratorService<ApiOptions & EmailPrefixOptions, NoPolicy>,
     private readonly firefoxRelay: GeneratorService<ApiOptions, NoPolicy>,
     private readonly forwardEmail: GeneratorService<ApiOptions & EmailDomainOptions, NoPolicy>,
+    private readonly proxiedMail: GeneratorService<ApiOptions & EmailDomainOptions, NoPolicy>,
     private readonly simpleLogin: GeneratorService<SelfHostedApiOptions, NoPolicy>,
   ) {}
 
@@ -101,6 +103,9 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
         return this.firefoxRelay.generate(stored.forwarders.firefoxRelay);
       case Forwarders.ForwardEmail.id:
         return this.forwardEmail.generate(stored.forwarders.forwardEmail);
+      case Forwarders.ProxiedMail.id:
+      case Vendor.proxiedmail:
+        return this.proxiedMail.generate(stored.forwarders.proxiedMail);
       case Forwarders.SimpleLogin.id:
         return this.simpleLogin.generate(stored.forwarders.simpleLogin);
     }
@@ -129,6 +134,8 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
           this.firefoxRelay.defaults$(account.id),
           this.forwardEmail.options$(account.id),
           this.forwardEmail.defaults$(account.id),
+          this.proxiedMail.options$(account.id),
+          this.proxiedMail.defaults$(account.id),
           this.simpleLogin.options$(account.id),
           this.simpleLogin.defaults$(account.id),
         ]),
@@ -153,6 +160,8 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
           firefoxRelayDefaults,
           forwardEmailOptions,
           forwardEmailDefaults,
+          proxiedMailOptions,
+          proxiedMailDefaults,
           simpleLoginOptions,
           simpleLoginDefaults,
         ]) =>
@@ -169,6 +178,7 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
               fastmail: fastmailOptions ?? fastmailDefaults,
               firefoxRelay: firefoxRelayOptions ?? firefoxRelayDefaults,
               forwardEmail: forwardEmailOptions ?? forwardEmailDefaults,
+              proxiedMail: proxiedMailOptions ?? proxiedMailDefaults,
               simpleLogin: simpleLoginOptions ?? simpleLoginDefaults,
             },
           }),
@@ -252,6 +262,10 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
       case Forwarders.ForwardEmail.id:
         await this.forwardEmail.saveOptions(account, options.forwarders.forwardEmail);
         return true;
+      case Forwarders.ProxiedMail.id:
+      case Vendor.proxiedmail:
+        await this.proxiedMail.saveOptions(account, options.forwarders.proxiedMail);
+        return true;
       case Forwarders.SimpleLogin.id:
         await this.simpleLogin.saveOptions(account, options.forwarders.simpleLogin);
         return true;
@@ -283,6 +297,11 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
       forwardEmail: {
         token: options.forwardedForwardEmailApiToken,
         domain: options.forwardedForwardEmailDomain,
+        website: options.website,
+      },
+      proxiedMail: {
+        token: options.forwardedProxiedMailApiToken,
+        domain: options.forwardedProxiedMailDomain,
         website: options.website,
       },
       simpleLogin: {
@@ -336,6 +355,8 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
       forwardedFastmailApiToken: options.forwarders.fastmail.token,
       forwardedForwardEmailApiToken: options.forwarders.forwardEmail.token,
       forwardedForwardEmailDomain: options.forwarders.forwardEmail.domain,
+      forwardedProxiedMailApiToken: options.forwarders.proxiedMail.token,
+      forwardedProxiedMailDomain: options.forwarders.proxiedMail.domain,
       forwardedSimpleLoginApiKey: options.forwarders.simpleLogin.token,
       forwardedSimpleLoginBaseUrl: options.forwarders.simpleLogin.baseUrl,
     } as UsernameGeneratorOptions;

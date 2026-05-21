@@ -54,6 +54,13 @@ export const Forwarders = Object.freeze({
     validForSelfHosted: true,
   } as ForwarderMetadata),
 
+  /** For https://proxiedmail.com/ */
+  ProxiedMail: Object.freeze({
+    id: "proxiedmail",
+    name: "ProxiedMail",
+    validForSelfHosted: false,
+  } as ForwarderMetadata),
+
   /** For https://simplelogin.io/ */
   SimpleLogin: Object.freeze({
     id: "simplelogin",

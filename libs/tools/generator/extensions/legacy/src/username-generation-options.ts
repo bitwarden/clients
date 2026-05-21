@@ -21,6 +21,8 @@ export type UsernameGeneratorOptions = EffUsernameGenerationOptions &
     forwardedFastmailApiToken?: string;
     forwardedForwardEmailApiToken?: string;
     forwardedForwardEmailDomain?: string;
+    forwardedProxiedMailApiToken?: string;
+    forwardedProxiedMailDomain?: string;
     forwardedSimpleLoginApiKey?: string;
     forwardedSimpleLoginBaseUrl?: string;
   };

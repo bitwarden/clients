@@ -113,6 +113,18 @@ export function legacyUsernameGenerationServiceFactory(
     policyService,
   );
 
+  const proxiedMail = new DefaultGeneratorService(
+    new ForwarderGeneratorStrategy(
+      Integrations.ProxiedMail,
+      restClient,
+      i18nService,
+      sdkService,
+      keyService,
+      stateProvider,
+    ),
+    policyService,
+  );
+
   const simpleLogin = new DefaultGeneratorService(
     new ForwarderGeneratorStrategy(
       Integrations.SimpleLogin,
@@ -138,6 +150,7 @@ export function legacyUsernameGenerationServiceFactory(
     fastmail,
     firefoxRelay,
     forwardEmail,
+    proxiedMail,
     simpleLogin,
   );
 }

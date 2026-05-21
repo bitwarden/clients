@@ -10,6 +10,7 @@ import { DuckDuckGo } from "../integration/duck-duck-go";
 import { Fastmail } from "../integration/fastmail";
 import { FirefoxRelay } from "../integration/firefox-relay";
 import { ForwardEmail } from "../integration/forward-email";
+import { ProxiedMail } from "../integration/proxiedmail";
 import { SimpleLogin } from "../integration/simple-login";
 
 /** Fixed list of integrations available to the application
@@ -25,6 +26,7 @@ export const Integrations = Object.freeze({
   Fastmail,
   FirefoxRelay,
   ForwardEmail,
+  ProxiedMail,
   SimpleLogin,
 } as const);
 

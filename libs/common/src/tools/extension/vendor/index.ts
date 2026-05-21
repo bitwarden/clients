@@ -6,6 +6,7 @@ import { DuckDuckGo, DuckDuckGoExtensions } from "./duckduckgo";
 import { Fastmail, FastmailExtensions } from "./fastmail";
 import { ForwardEmail, ForwardEmailExtensions } from "./forwardemail";
 import { Mozilla, MozillaExtensions } from "./mozilla";
+import { ProxiedMail, ProxiedMailExtensions } from "./proxiedmail";
 import { SimpleLogin, SimpleLoginExtensions } from "./simplelogin";
 
 export const Vendors = deepFreeze([
@@ -15,6 +16,7 @@ export const Vendors = deepFreeze([
   Fastmail,
   ForwardEmail,
   Mozilla,
+  ProxiedMail,
   SimpleLogin,
 ]);
 
@@ -25,6 +27,7 @@ export const VendorExtensions = deepFreeze(
     FastmailExtensions,
     ForwardEmailExtensions,
     MozillaExtensions,
+    ProxiedMailExtensions,
     SimpleLoginExtensions,
   ].flat(),
 );

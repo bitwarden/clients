@@ -7,5 +7,6 @@ export const Vendor = Object.freeze({
   fastmail: "fastmail" as VendorId,
   forwardemail: "forwardemail" as VendorId,
   mozilla: "mozilla" as VendorId,
+  proxiedmail: "proxiedmail" as VendorId,
   simplelogin: "simplelogin" as VendorId,
 } as const);
