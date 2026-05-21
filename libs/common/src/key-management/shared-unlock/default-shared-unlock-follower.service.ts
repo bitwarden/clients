@@ -38,6 +38,7 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
     const sharedUnlockDriver = createSharedUnlockDriver(
       this.accountService,
       this.lockService,
+      this.unlockService,
       this.keyService,
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,

@@ -7,6 +7,7 @@ import { UserId as TSUserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
@@ -24,6 +25,7 @@ function fromSdkUserId(userId: UserId): TSUserId {
 export function createSharedUnlockDriver(
   accountService: AccountService,
   lockService: LockService,
+  unlockService: UnlockService,
   keyService: KeyService,
   platformUtilsService: PlatformUtilsService,
   vaultTimeoutSettingsService: VaultTimeoutSettingsService,
@@ -43,9 +45,9 @@ export function createSharedUnlockDriver(
         return;
       }
 
-      await keyService.setUserKey(
-        SymmetricCryptoKey.fromSdk(user_key) as UserKey,
+      await unlockService.unlockWithDecryptedUserKey(
         fromSdkUserId(user_id),
+        SymmetricCryptoKey.fromSdk(user_key) as UserKey,
       );
     },
     async get_user_key(user_id: UserId): Promise<SymmetricKey | undefined> {
