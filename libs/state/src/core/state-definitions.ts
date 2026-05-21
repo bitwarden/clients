@@ -240,6 +240,13 @@ export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // KM
 
