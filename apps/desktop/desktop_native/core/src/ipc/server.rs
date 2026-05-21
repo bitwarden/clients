@@ -11,7 +11,9 @@ use anyhow::Result;
 use futures::{SinkExt, StreamExt, TryFutureExt};
 // Non-Unix uses interprocess local sockets
 #[cfg(not(unix))]
-use interprocess::local_socket::{tokio::prelude::*, GenericFilePath, ListenerOptions};
+use interprocess::local_socket::{
+    prelude::LocalSocketListener, tokio::prelude::*, GenericFilePath, ListenerOptions,
+};
 // Unix uses tokio's UnixListener to access peer credentials
 #[cfg(unix)]
 use tokio::net::UnixListener;
@@ -233,7 +235,7 @@ async fn listen_incoming_unix(
 
 #[cfg(not(unix))]
 async fn listen_incoming_non_unix(
-    listener: interprocess::local_socket::LocalSocketListener,
+    listener: LocalSocketListener,
     client_to_server_send: mpsc::Sender<Message>,
     server_to_clients_recv: broadcast::Receiver<String>,
     cancel_token: CancellationToken,
