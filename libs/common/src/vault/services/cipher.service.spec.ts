@@ -1351,7 +1351,7 @@ describe("Cipher Service", () => {
     const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
 
     it("should call apiService.send when feature flag is disabled", async () => {
-      sdkCrudFeatureFlag$.next(false);
+      sdkAdminOpsFeatureFlag$.next(false);
 
       const apiSpy = jest.spyOn(apiService, "send").mockResolvedValue({ data: [] });
 
@@ -1367,7 +1367,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to list assigned organization ciphers when feature flag is enabled", async () => {
-      sdkCrudFeatureFlag$.next(true);
+      sdkAdminOpsFeatureFlag$.next(true);
 
       const mockCipher1 = new Cipher(cipherData);
       const mockCipher2 = new Cipher(cipherData);
@@ -1402,7 +1402,7 @@ describe("Cipher Service", () => {
     });
 
     it("should return empty array when SDK path throws", async () => {
-      sdkCrudFeatureFlag$.next(true);
+      sdkAdminOpsFeatureFlag$.next(true);
 
       jest
         .spyOn(cipherSdkService, "getManyFromApiForOrganization")
@@ -1423,7 +1423,7 @@ describe("Cipher Service", () => {
     const testCollectionIds = ["7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId];
 
     it("should call apiService.send when feature flag is disabled", async () => {
-      sdkCrudFeatureFlag$.next(false);
+      sdkAdminOpsFeatureFlag$.next(false);
 
       const apiSpy = jest.spyOn(apiService, "send").mockResolvedValue(undefined);
 
@@ -1445,7 +1445,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to bulk update collections when feature flag is enabled", async () => {
-      sdkCrudFeatureFlag$.next(true);
+      sdkAdminOpsFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "bulkUpdateCollectionsWithServer")
@@ -1481,7 +1481,7 @@ describe("Cipher Service", () => {
     const testFolderId = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24";
 
     it("should call apiService.putMoveCiphers when feature flag is disabled", async () => {
-      sdkCrudFeatureFlag$.next(false);
+      sdkAdminOpsFeatureFlag$.next(false);
 
       const apiSpy = jest.spyOn(apiService, "putMoveCiphers").mockResolvedValue(undefined);
 
@@ -1491,7 +1491,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to move ciphers when feature flag is enabled", async () => {
-      sdkCrudFeatureFlag$.next(true);
+      sdkAdminOpsFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "moveManyWithServer")
