@@ -48,6 +48,17 @@ export abstract class UnlockService {
   ): Promise<void>;
 
   /**
+   * Unlocks the user's account with a decrypted user key
+   * Note: Where possible use other unlock methods.
+   *
+   * @param userId - The user's id
+   * @param userKey - The decrypted user key to unlock with
+   * @throws If the SDK is not available
+   * @throws If decryption fails or the key is invalid
+   */
+  abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
+
+  /**
    * Registers an action to be run when a user is unlocked through this service.
    *
    * @param action Callback invoked after a successful unlock with the user id and the
