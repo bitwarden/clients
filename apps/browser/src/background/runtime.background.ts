@@ -12,6 +12,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -493,6 +494,10 @@ export default class RuntimeBackground {
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
         ) {
+          if (!devFlagEnabled("skipWelcomeOnInstall")) {
+            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+          }
+
           await this.autofillSettingsService.setInlineMenuVisibility(
             AutofillOverlayVisibility.OnFieldFocus,
           );
