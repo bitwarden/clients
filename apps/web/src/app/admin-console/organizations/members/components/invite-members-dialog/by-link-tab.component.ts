@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -56,6 +57,7 @@ export class ByLinkTabComponent {
 
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
+  private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
@@ -89,12 +91,29 @@ export class ByLinkTabComponent {
     domains: ["", Validators.required],
   });
 
+  private readonly prefillAttempted = signal(false);
+
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
         this.form.controls.domains.setValue(inviteLink.allowedDomains.join(", "));
+      } else if (inviteLink == null && !this.form.dirty && !this.prefillAttempted()) {
+        this.prefillAttempted.set(true);
+        void this.prefillFromVerifiedDomains();
       }
     });
+  }
+
+  private async prefillFromVerifiedDomains(): Promise<void> {
+    const allDomains = await this.orgDomainApiService.getAllByOrgId(this.organizationId());
+    const verifiedDomainNames = allDomains
+      .filter((d) => d.verifiedDate != null)
+      .map((d) => d.domainName);
+
+    if (verifiedDomainNames.length > 0) {
+      this.form.controls.domains.setValue(verifiedDomainNames.join(", "));
+      this.form.controls.domains.markAsDirty();
+    }
   }
 
   readonly save = async () => {
