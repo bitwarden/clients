@@ -69,7 +69,6 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
-    private ipcService: IpcService,
   ) {}
 
   init() {
