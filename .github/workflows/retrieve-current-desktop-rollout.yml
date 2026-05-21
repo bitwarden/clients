@@ -2,6 +2,11 @@ name: Retrieve Current Desktop Rollout
 
 on:
   workflow_dispatch:
+    inputs:
+      debug:
+        description: "Print full latest.yml contents to the log"
+        type: boolean
+        default: false
 
 jobs:
   rollout:
@@ -12,6 +17,9 @@ jobs:
       - name: Get current rollout percentage
         run: |
           curl -sSfL -o latest.yml "https://artifacts.bitwarden.com/desktop/latest.yml"
+          if [[ "${{ inputs.debug }}" == "true" ]]; then
+            cat latest.yml
+          fi
           CURRENT_PCT=$(sed -r -n "s/stagingPercentage:\s([0-9]+)/\1/p" latest.yml)
           CURRENT_VERSION=$(sed -r -n "s/version:\s(.*)/\1/p" latest.yml)
           echo "Desktop ${CURRENT_VERSION} rollout percentage is ${CURRENT_PCT}%" | tee -a "$GITHUB_STEP_SUMMARY"
