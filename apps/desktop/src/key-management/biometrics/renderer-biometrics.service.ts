@@ -68,7 +68,6 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     private tokenService: TokenService,
     private biometricStateService: BiometricStateService,
     private ipcService: IpcService,
-    private logService: LogService,
   ) {
     super();
   }
