@@ -14,6 +14,9 @@ import { POLICIES_NEW } from "./policy-state";
 export class DefaultNewPolicyService implements InternalNewPolicyService {
   constructor(
     private stateProvider: StateProvider,
+    // This callback is used to avoid a circular dependency error.
+    // PM-35986 addresses the root cause of the circular dependency.
+    // The callback can be removed after that is merged.
     private sdkService: () => SdkService,
     private organizationService: OrganizationService,
   ) {}

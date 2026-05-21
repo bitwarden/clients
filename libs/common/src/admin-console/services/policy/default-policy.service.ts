@@ -33,6 +33,11 @@ export class DefaultPolicyService implements PolicyService {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private newPolicyService: InternalNewPolicyService,
+
+    // This callback is used to avoid a circular dependency error.
+    // PM-35986 addresses the root cause of the circular dependency.
+    // The callback can be removed after that is merged, or when
+    // the feature flag is removed, whichever is sooner.
     private configService: () => ConfigService,
   ) {}
 
