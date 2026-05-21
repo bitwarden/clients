@@ -9,6 +9,7 @@ import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 
 import { BackgroundBrowserBiometricsService } from "./background-browser-biometrics.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 describe("background browser biometrics service tests", function () {
   let service: BackgroundBrowserBiometricsService;
@@ -20,17 +21,21 @@ describe("background browser biometrics service tests", function () {
   const messagingService = mock<MessagingService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
   const pinService = mock<PinServiceAbstraction>();
+  const mockConfigService = mock<ConfigService>();
+  mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
   beforeEach(() => {
     jest.resetAllMocks();
     service = new BackgroundBrowserBiometricsService(
       () => nativeMessagingBackground,
+      () => mockConfigService,
       logService,
       keyService,
       biometricStateService,
       messagingService,
       vaultTimeoutSettingsService,
       pinService,
+      () => null as any,
     );
   });
 
