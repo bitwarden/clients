@@ -1,0 +1,27 @@
+<button
+  type="button"
+  class="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-border tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-medium tw-transition-colors tw-cursor-pointer"
+  [class.tw-border-success]="pillState() === 'active'"
+  [class.tw-text-success]="pillState() === 'active'"
+  [class.tw-bg-success-50]="pillState() === 'active'"
+  [class.tw-border-warning]="pillState() === 'extension_pending'"
+  [class.tw-text-warning]="pillState() === 'extension_pending'"
+  [class.tw-bg-warning-50]="pillState() === 'extension_pending'"
+  [bitTooltip]="tooltip()"
+  (click)="handleClick()"
+  data-testid="leased-pill"
+>
+  @if (pillState() === 'active') {
+    <span
+      class="tw-tabular-nums"
+      data-testid="leased-pill-countdown"
+      aria-live="off"
+    >{{ remainingLabel() }}</span>
+    <span class="tw-sr-only">{{ "leasedPillActiveLabel" | i18n: remainingLabel() }}</span>
+  }
+  @if (pillState() === 'extension_pending') {
+    <span data-testid="leased-pill-extension-pending">
+      {{ "leasedPillExtensionPendingLabel" | i18n }}
+    </span>
+  }
+</button>

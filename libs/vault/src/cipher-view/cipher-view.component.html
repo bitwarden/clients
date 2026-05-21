@@ -1,4 +1,6 @@
 @if (!!cipher()) {
+  <app-cipher-lease-banner [cipherId]="cipher().id" />
+
   @if (cardIsExpired()) {
     <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
       {{ "cardExpiredMessage" | i18n }}

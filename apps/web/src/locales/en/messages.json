@@ -4077,7 +4077,7 @@
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
   },
-  "inviteUserDescription":{
+  "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteMultipleEmailDesc": {
@@ -4415,7 +4415,7 @@
       }
     }
   },
-   "viewedLicenseNumberItemId": {
+  "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
       "id": {
@@ -5533,7 +5533,7 @@
   "inviteLinkCopied": {
     "message": "Invite link copied"
   },
-"inviteLinkRegenerated": {
+  "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
   "regenerateInviteLink": {
@@ -8565,10 +8565,10 @@
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
-  "scimDescriptionV2":{
+  "scimDescriptionV2": {
     "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
   },
-  "scimLearnMore":{
+  "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
@@ -8638,7 +8638,7 @@
       }
     }
   },
-  "anotherIntegrationWithSameTypeExists":{
+  "anotherIntegrationWithSameTypeExists": {
     "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
     "placeholders": {
       "type": {
@@ -8646,7 +8646,6 @@
         "example": "HEC"
       }
     }
-
   },
   "inputRequired": {
     "message": "Input is required."
@@ -11202,7 +11201,7 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
-  "integrationConnectedSuccessfully":{
+  "integrationConnectedSuccessfully": {
     "message": "$INTEGRATION$ connected successfully.",
     "placeholders": {
       "integration": {
@@ -13369,7 +13368,7 @@
   "transferItemsToOrganizationAction": {
     "message": "Click accept to transfer ownership of your items."
   },
-   "openTransferItemsHelpArticle": {
+  "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
@@ -13875,6 +13874,772 @@
   "copy": {
     "message": "Copy"
   },
+  "pamAccessDeniedTitle": {
+    "message": "Access denied"
+  },
+  "pamAccessDeniedNoReason": {
+    "message": "Access to this item was denied."
+  },
+  "pamLeaseRequestPending": {
+    "message": "Lease request submitted. You'll be notified when it's approved."
+  },
+  "requestDetailModalTitle": {
+    "message": "Request access"
+  },
+  "requestDetailModalDescription": {
+    "message": "Amend the access window and optional reason before your approver reviews the request."
+  },
+  "requestDetailModalNotBefore": {
+    "message": "Access from"
+  },
+  "requestDetailModalNotAfter": {
+    "message": "Access until"
+  },
+  "requestDetailModalNotAfterHint": {
+    "message": "When you need access to end."
+  },
+  "requestDetailModalReason": {
+    "message": "Reason (optional)"
+  },
+  "requestDetailModalReasonPlaceholder": {
+    "message": "e.g. Incident response"
+  },
+  "requestDetailModalReasonHint": {
+    "message": "Visible to approvers."
+  },
+  "requestDetailModalSubmit": {
+    "message": "Request access"
+  },
+  "requestDetailModalCancelRequest": {
+    "message": "Cancel request"
+  },
+  "requestDetailModalDismiss": {
+    "message": "Dismiss"
+  },
+  "requestDetailModalSubmitSuccess": {
+    "message": "Request submitted."
+  },
+  "requestDetailModalSubmitError": {
+    "message": "Couldn't submit the request."
+  },
+  "requestDetailModalCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "requestDetailModalCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "pendingStateTitle": {
+    "message": "Pending approval — submitted $TIME$ ago",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "5m"
+      }
+    }
+  },
+  "pendingStateNotified": {
+    "message": "Notified"
+  },
+  "pendingStateApproversTbd": {
+    "message": "Awaiting approval"
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pendingStateCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "denialStateTitle": {
+    "message": "Access denied"
+  },
+  "denialStateNoReason": {
+    "message": "Access to this item was denied."
+  },
+  "leasedPillActiveLabel": {
+    "message": "Leased — expires in $TIME$",
+    "placeholders": {
+      "time": { "content": "$1", "example": "47m" }
+    }
+  },
+  "leasedPillActiveTooltip": {
+    "message": "Active lease — expires in $TIME$. Click to request extension.",
+    "placeholders": {
+      "time": { "content": "$1", "example": "47m" }
+    }
+  },
+  "leasedPillExtensionPendingLabel": {
+    "message": "Extension pending"
+  },
+  "leasedPillExtensionPendingTooltip": {
+    "message": "Extension request submitted. Awaiting approval."
+  },
+  "leaseExtensionModalTitle": {
+    "message": "Request extension"
+  },
+  "leaseExtensionModalDescription": {
+    "message": "Request an extension to your active lease. Enter the new window and an optional reason."
+  },
+  "leaseExtensionModalWindowStart": {
+    "message": "New window start"
+  },
+  "leaseExtensionModalWindowEnd": {
+    "message": "New window end"
+  },
+  "leaseExtensionModalReasonLabel": {
+    "message": "Reason (optional)"
+  },
+  "leaseExtensionModalReasonPlaceholder": {
+    "message": "Why do you need more time?"
+  },
+  "leaseExtensionModalSubmit": {
+    "message": "Request extension"
+  },
+  "leaseExtensionModalAutoApprovedToast": {
+    "message": "Lease extended."
+  },
+  "leaseExtensionModalPendingToast": {
+    "message": "Extension request submitted. Awaiting approval."
+  },
+  "leaseExtensionModalErrorToast": {
+    "message": "Could not submit the extension request. Try again."
+  },
+  "pamMyRequestsPageTitle": {
+    "message": "My requests"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Pending"
+  },
+  "pamMyRequestsRecentSection": {
+    "message": "Recent (last 7 days)"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "No pending requests."
+  },
+  "pamMyRequestsRecentEmpty": {
+    "message": "No requests resolved in the last 7 days."
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "No access requests yet"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "When you request access to a leased credential, it will show up here."
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Couldn't load your access requests. Try again later."
+  },
+  "pamMyRequestsCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "pamStatusApproved": {
+    "message": "Approved"
+  },
+  "pamStatusDenied": {
+    "message": "Denied"
+  },
+  "pamStatusCancelled": {
+    "message": "Cancelled"
+  },
+  "pamStatusExpired": {
+    "message": "Expired"
+  },
+  "pamStatusPending": {
+    "message": "Pending"
+  },
+  "pamColumnItem": {
+    "message": "Item"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Requested window"
+  },
+  "pamColumnSubmitted": {
+    "message": "Submitted"
+  },
+  "pamColumnApprovers": {
+    "message": "Approvers"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnResolver": {
+    "message": "Resolver"
+  },
+  "pamColumnComment": {
+    "message": "Comment"
+  },
+  "pamColumnResolved": {
+    "message": "Resolved"
+  },
+  "pamApproversTbd": {
+    "message": "Awaiting approval"
+  },
+  "pamResolverPolicy": {
+    "message": "Policy"
+  },
+  "pamWindowUntil": {
+    "message": "Until $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "1/5/26, 3:30 PM"
+      }
+    }
+  },
+  "pamWindowTtlSeconds": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "3600"
+      }
+    }
+  },
+  "activeLeasesTitle": {
+    "message": "Active leases"
+  },
+  "activeLeasesEmptyTitle": {
+    "message": "No active leases"
+  },
+  "activeLeasesEmptyBody": {
+    "message": "Leases that you can revoke will appear here while they are active."
+  },
+  "activeLeasesLoadFailed": {
+    "message": "Couldn't load active leases. Please try again."
+  },
+  "leaseRevoked": {
+    "message": "Lease revoked."
+  },
+  "leaseRevokeFailed": {
+    "message": "Couldn't revoke the lease. Please try again."
+  },
+  "revoke": {
+    "message": "Revoke"
+  },
+  "revoked": {
+    "message": "Revoked"
+  },
+  "confirmRevoke": {
+    "message": "Confirm revoke"
+  },
+  "revokeLeaseTooltip": {
+    "message": "Revoke this lease for everyone using it."
+  },
+  "revokeReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "requester": {
+    "message": "Requester"
+  },
+  "window": {
+    "message": "Time remaining"
+  },
+  "pamUnavailableTitle": {
+    "message": "Privileged access management is not available"
+  },
+  "pamUnavailableBody": {
+    "message": "Credential leasing is not enabled for your account."
+  },
+  "leaseCipherColumn": {
+    "message": "Cipher"
+  },
+  "leaseActionsColumn": {
+    "message": "Actions"
+  },
+  "pamInboxNav": {
+    "message": "Access requests"
+  },
+  "pamInboxTitle": {
+    "message": "Access requests"
+  },
+  "pamInboxSubtitle": {
+    "message": "Approve or deny lease requests for the collections you manage."
+  },
+  "pamInboxInCollection": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxRequester": {
+    "message": "Requester"
+  },
+  "pamInboxWindow": {
+    "message": "Requested window"
+  },
+  "pamInboxWindowAsap": {
+    "message": "As soon as possible"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Reason"
+  },
+  "pamInboxReasonMissing": {
+    "message": "(no reason given)"
+  },
+  "pamInboxApprove": {
+    "message": "Approve"
+  },
+  "pamInboxDeny": {
+    "message": "Deny"
+  },
+  "pamInboxConfirmApprove": {
+    "message": "Approve this request?"
+  },
+  "pamInboxConfirmDeny": {
+    "message": "Deny this request?"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Confirm approve"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Confirm deny"
+  },
+  "pamInboxCommentLabel": {
+    "message": "Comment (optional)"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Optional message for the requester"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Request approved"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Request denied"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Couldn't submit your decision. Try again."
+  },
+  "pamInboxLoadFailed": {
+    "message": "Couldn't load the inbox."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "No requests waiting."
+  },
+  "pamInboxEmptyDescription": {
+    "message": "When someone requests access to a vault item in a collection you manage, it'll show up here."
+  },
+  "pamInboxNotApproverTitle": {
+    "message": "You're not designated to approve requests for any collections."
+  },
+  "pamInboxNotApproverDescription": {
+    "message": "Ask an organization admin to grant you Manage on collections that use leasing."
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "You can't approve your own requests."
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$COUNT$ min ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$COUNT$ h ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedDays": {
+    "message": "$COUNT$ d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "emailApprovalCipherLabel": {
+    "message": "Item"
+  },
+  "emailApprovalLoadFailed": {
+    "message": "Couldn't load the access request."
+  },
+  "lockedVaultApprovalBanner": {
+    "message": "Vault locked — approval mode"
+  },
+  "lockedVaultApprovalTitle": {
+    "message": "Access request"
+  },
+  "lockedVaultApprovalSubtitle": {
+    "message": "Your vault is locked. You can still approve or deny this request."
+  },
+  "lockedVaultApprovalApproved": {
+    "message": "Request approved."
+  },
+  "lockedVaultApprovalDenied": {
+    "message": "Request denied."
+  },
+  "lockedVaultApprovalUnlockVault": {
+    "message": "Unlock vault"
+  },
+  "lockedVaultApprovalReturnToInbox": {
+    "message": "Return to inbox"
+  },
+  "pamLeasingTabLabel": {
+    "message": "Leasing"
+  },
+  "pamLeasingTabDescription": {
+    "message": "Require members to request a time-bound lease before they can decrypt items in this collection. Leasing supplements collection-level access controls; it does not replace them."
+  },
+  "pamLeasingEnabledLabel": {
+    "message": "Require a lease to access items in this collection"
+  },
+  "pamLeasingEnabledHint": {
+    "message": "When on, members with access will need an approved lease to decrypt items. Turn it off to fall back to standard collection access."
+  },
+  "pamLeasingDisabledCallout": {
+    "message": "Leasing is off. Members with access to this collection can decrypt items normally."
+  },
+  "pamLeasingPolicyModeLabel": {
+    "message": "Lease approval mode"
+  },
+  "pamLeasingModeHumanApproval": {
+    "message": "Human approval"
+  },
+  "pamLeasingModeIpAllowlist": {
+    "message": "IP allowlist"
+  },
+  "pamLeasingModeTimeOfDay": {
+    "message": "Time of day"
+  },
+  "pamLeasingModeAllOf": {
+    "message": "Custom (combine rules)"
+  },
+  "pamLeasingHumanApprovalDescription": {
+    "message": "Each lease request must be approved by another member with Manage on this collection."
+  },
+  "pamLeasingManageApproversLink": {
+    "message": "Manage who can approve in the Access tab"
+  },
+  "pamLeasingEditorComingSoon": {
+    "message": "This mode's editor is not available yet. Saving will keep leasing on for this collection but leave this mode's rules blank until the editor ships."
+  },
+  "pamLeasingTurnOffTitle": {
+    "message": "Turn off leasing?"
+  },
+  "pamLeasingTurnOffContent": {
+    "message": "In-flight leases will keep working until they expire, but no new lease requests will be accepted for this collection."
+  },
+  "pamLeasingTurnOffAccept": {
+    "message": "Turn off leasing"
+  },
+  "pamLeasingSaved": {
+    "message": "Leasing settings saved"
+  },
+  "pamLeasingSaveFailed": {
+    "message": "Could not save leasing settings"
+  },
+  "policyIpAllowlistHelpText": {
+    "message": "Auto-approve when the request comes from one of these network ranges. Otherwise the request is denied."
+  },
+  "policyIpAllowlistCidrLabel": {
+    "message": "CIDR range $INDEX$",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "policyIpAllowlistCidrPlaceholder": {
+    "message": "e.g. 10.0.0.0/8 or 2001:db8::/32"
+  },
+  "policyIpAllowlistAddRow": {
+    "message": "Add CIDR range"
+  },
+  "policyIpAllowlistRemoveRow": {
+    "message": "Remove CIDR range"
+  },
+  "policyIpAllowlistInvalidCidr": {
+    "message": "Enter a valid IPv4 or IPv6 CIDR range (e.g. 10.0.0.0/8)"
+  },
+  "policyIpAllowlistDuplicateCidr": {
+    "message": "Duplicate CIDR ranges are not allowed"
+  },
+  "policyIpAllowlistAtLeastOne": {
+    "message": "At least one CIDR range is required"
+  },
+  "policyTimeOfDayDescription": {
+    "message": "Auto-approve during these windows. Outside them, requests are denied."
+  },
+  "policyTimeOfDayTimezoneLabel": {
+    "message": "Timezone"
+  },
+  "policyTimeOfDayDaysLabel": {
+    "message": "Days of week"
+  },
+  "policyTimeOfDayFrom": {
+    "message": "From"
+  },
+  "policyTimeOfDayTo": {
+    "message": "To"
+  },
+  "policyTimeOfDayFromBeforeTo": {
+    "message": "\"From\" must be earlier than \"To\""
+  },
+  "policyTimeOfDayWindowLabel": {
+    "message": "Window $1"
+  },
+  "policyTimeOfDayAddWindow": {
+    "message": "Add window"
+  },
+  "policyTimeOfDayRemoveWindow": {
+    "message": "Remove window"
+  },
+  "policyTimeOfDayAtLeastOne": {
+    "message": "At least one time window is required."
+  },
+  "policyHumanApprovalDescription": {
+    "message": "Every access requires a manager to approve. Used when you need a human in the loop every time."
+  },
+  "policyCompositeDescription": {
+    "message": "All conditions must be met. If any condition needs a human, the request goes to a human."
+  },
+  "policyCompositeMinChildrenWarning": {
+    "message": "At least two conditions are required."
+  },
+  "policyCompositeConditionLabel": {
+    "message": "Condition"
+  },
+  "policyCompositeAddCondition": {
+    "message": "Add condition"
+  },
+  "policyCompositeRemoveCondition": {
+    "message": "Remove condition"
+  },
+  "policyCompositeAllConditionsAdded": {
+    "message": "All available condition types have been added."
+  },
+  "policyCompositeDuplicateKindError": {
+    "message": "This condition type is already in use. Choose a different type or remove the duplicate."
+  },
+  "pamLeasingMode_human_approval": {
+    "message": "Human approval"
+  },
+  "pamLeasingMode_ip_allowlist": {
+    "message": "IP allowlist"
+  },
+  "pamLeasingMode_time_of_day": {
+    "message": "Time of day"
+  },
+  "policyStubIpAllowlistLabel": {
+    "message": "IP allowlist (scaffold)"
+  },
+  "policyStubIpAllowlistHint": {
+    "message": "This editor is a scaffold. It will be replaced by the real PM-37273 component at integration."
+  },
+  "policyStubIpAllowlistCidrLabel": {
+    "message": "CIDR ranges"
+  },
+  "policyStubIpAllowlistCidrHint": {
+    "message": "Enter one CIDR range per line or separate with commas."
+  },
+  "policyStubTimeOfDayLabel": {
+    "message": "Time of day (scaffold)"
+  },
+  "policyStubTimeOfDayDescription": {
+    "message": "This editor is a scaffold showing a fixed window. It will be replaced by the real PM-37274 component at integration."
+  },
+  "requireLease": {
+    "message": "Require lease"
+  },
+  "requireLeaseTooltip": {
+    "message": "When on, this member needs an approved lease to view ciphers in this collection."
+  },
+  "requireLeaseAriaLabel": {
+    "message": "Require lease for"
+  },
+  "bulkRequireLeaseButton": {
+    "message": "Set require-lease on all current members"
+  },
+  "bulkRequireLeaseConfirmTitle": {
+    "message": "Require lease for all current members?"
+  },
+  "bulkRequireLeaseConfirmContent": {
+    "message": "Everyone currently assigned to this collection will need an approved lease to view ciphers. This does not affect future members."
+  },
+  "applyToAll": {
+    "message": "Apply to all"
+  },
+  "requireLeaseSelfConfirmTitle": {
+    "message": "Require a lease for yourself?"
+  },
+  "requireLeaseSelfConfirmContent": {
+    "message": "You'll need to lease your own access after this."
+  },
+  "yesTurnOn": {
+    "message": "Yes, turn on"
+  },
+  "pamGovernanceTitle": {
+    "message": "Credential leasing governance"
+  },
+  "pamGovernanceDescription": {
+    "message": "Review every leasing-enabled collection, its policy, and current leasing activity for this organization."
+  },
+  "pamLeasingEnabledCollections": {
+    "message": "Leasing-enabled collections"
+  },
+  "pamPendingRequests": {
+    "message": "Pending requests"
+  },
+  "pamActiveLeases": {
+    "message": "Active leases"
+  },
+  "pamPolicySummary": {
+    "message": "Policy"
+  },
+  "pamPolicySummaryTooltip": {
+    "message": "Open the collection's leasing settings to inspect or edit the policy."
+  },
+  "pamColumnRequireLease": {
+    "message": "Members requiring a lease"
+  },
+  "pamColumnPending": {
+    "message": "Pending"
+  },
+  "pamColumnActive": {
+    "message": "Active"
+  },
+  "pamColumnLastActivity": {
+    "message": "Last activity"
+  },
+  "pamNoActivity": {
+    "message": "No activity yet"
+  },
+  "pamPolicyNone": {
+    "message": "No policy configured"
+  },
+  "pamPolicyHumanApproval": {
+    "message": "Human approval"
+  },
+  "pamPolicyIpAllowlist": {
+    "message": "IP allowlist, $COUNT$ ranges",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamPolicyTimeOfDay": {
+    "message": "Time-of-day, $COUNT$ windows",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamPolicyAllOf": {
+    "message": "All of $COUNT$ checks",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamPolicyEmpty": {
+    "message": "No checks configured"
+  },
+  "pamPolicySeparator": {
+    "message": " + "
+  },
+  "pamGovernanceEmptyTitle": {
+    "message": "No leasing-enabled collections"
+  },
+  "pamGovernanceEmptyMessage": {
+    "message": "Turn on credential leasing for a collection to start governing privileged access here."
+  },
+  "pamGovernanceLoadError": {
+    "message": "We couldn't load the governance summary. Try again in a moment."
+  },
+  "killSwitchDangerZoneTitle": {
+    "message": "Danger zone"
+  },
+  "killSwitchDangerZoneDescription": {
+    "message": "Immediately revoke all active leases across the entire organization. This action cannot be undone and will be recorded in the audit log."
+  },
+  "killSwitchButtonLabel": {
+    "message": "Revoke all active leases"
+  },
+  "killSwitchDialogTitle": {
+    "message": "Revoke all active leases"
+  },
+  "killSwitchDialogWarning": {
+    "message": "This will immediately revoke every active lease in the organization. All users currently holding a lease will lose access. This action is permanent and cannot be undone."
+  },
+  "killSwitchDialogConfirmPrompt": {
+    "message": "To confirm, type the organization name: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "killSwitchDialogInputLabel": {
+    "message": "Organization name"
+  },
+  "killSwitchConfirmButtonLabel": {
+    "message": "Revoke all leases"
+  },
+  "killSwitchSuccessTitle": {
+    "message": "All leases revoked"
+  },
+  "killSwitchSuccessMessage": {
+    "message": "$COUNT$ lease(s) revoked successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "killSwitchPartialTitle": {
+    "message": "Partial revocation"
+  },
+  "killSwitchPartialMessage": {
+    "message": "$REVOKED$ lease(s) revoked. $FAILED$ lease(s) could not be revoked — check the audit log for details.",
+    "placeholders": {
+      "revoked": {
+        "content": "$1",
+        "example": "8"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "killSwitchErrorMessage": {
+    "message": "Failed to revoke leases. Try again in a moment."
+  },
   "cipherLeaseRequiresApproval": {
     "message": "Requires approval to view"
   },
@@ -13886,5 +14651,80 @@
         "example": "47m"
       }
     }
+  },
+  "requestDetailModalDuration": {
+    "message": "How long do you need access?"
+  },
+  "requestDetailModalDuration15m": {
+    "message": "15 minutes"
+  },
+  "requestDetailModalDuration30m": {
+    "message": "30 minutes"
+  },
+  "requestDetailModalDuration1h": {
+    "message": "1 hour"
+  },
+  "requestDetailModalDuration4h": {
+    "message": "4 hours"
+  },
+  "requestDetailModalDuration8h": {
+    "message": "8 hours"
+  },
+  "requestDetailModalDuration1d": {
+    "message": "1 day"
+  },
+  "requestDetailModalSetCustomWindow": {
+    "message": "Set a custom window"
+  },
+  "requestDetailModalUsePreset": {
+    "message": "Use a preset duration instead"
+  },
+  "requestDetailModalCustomDate": {
+    "message": "Date"
+  },
+  "requestDetailModalCustomStart": {
+    "message": "Start time"
+  },
+  "requestDetailModalCustomStartHour": {
+    "message": "Start hour"
+  },
+  "requestDetailModalCustomStartMinute": {
+    "message": "Start minute"
+  },
+  "requestDetailModalCustomEnd": {
+    "message": "End time"
+  },
+  "requestDetailModalCustomEndHour": {
+    "message": "End hour"
+  },
+  "requestDetailModalCustomEndMinute": {
+    "message": "End minute"
+  },
+  "pamPendingBannerTitle": {
+    "message": "Lease request pending — awaiting approval"
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "Active lease — expires in $REMAINING$",
+    "placeholders": {
+      "remaining": { "content": "$1", "example": "45m" }
+    }
+  },
+  "pamEndLeaseTitle": {
+    "message": "End lease"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Are you sure you want to end this lease? You will lose access to the credentials immediately."
+  },
+  "pamEndLeaseButton": {
+    "message": "End lease"
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Lease ended"
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend lease"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Lease extended by 1 hour"
   }
 }

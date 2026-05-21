@@ -36,13 +36,8 @@
     >
       {{ cipher.name }}
     </button>
-    @if ((showLeaseBadge$ | async) && leaseState() !== "unleased") {
-      <app-cipher-lease-badge
-        class="tw-ml-2"
-        [state]="leaseState()"
-        [leaseExpiresAt]="leaseExpiresAt()"
-      />
-    }
+    <app-vault-row-lease-badge class="tw-ml-2" [cipherId]="$any(cipher.id)" />
+
     @if (hasAttachments) {
       <ng-container>
         <i

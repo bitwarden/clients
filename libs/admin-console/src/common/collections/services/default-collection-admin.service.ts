@@ -114,10 +114,12 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     const request = new BulkCollectionAccessRequest();
     request.collectionIds = collectionIds;
     request.users = users.map(
-      (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
+      (u) =>
+        new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage, u.requireLease),
     );
     request.groups = groups.map(
-      (g) => new SelectionReadOnlyRequest(g.id, g.readOnly, g.hidePasswords, g.manage),
+      (g) =>
+        new SelectionReadOnlyRequest(g.id, g.readOnly, g.hidePasswords, g.manage, g.requireLease),
     );
 
     await this.apiService.send(
@@ -183,12 +185,24 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
 
     const groups = model.groups.map(
       (group) =>
-        new SelectionReadOnlyRequest(group.id, group.readOnly, group.hidePasswords, group.manage),
+        new SelectionReadOnlyRequest(
+          group.id,
+          group.readOnly,
+          group.hidePasswords,
+          group.manage,
+          group.requireLease,
+        ),
     );
 
     const users = model.users.map(
       (user) =>
-        new SelectionReadOnlyRequest(user.id, user.readOnly, user.hidePasswords, user.manage),
+        new SelectionReadOnlyRequest(
+          user.id,
+          user.readOnly,
+          user.hidePasswords,
+          user.manage,
+          user.requireLease,
+        ),
     );
 
     if (editMode) {

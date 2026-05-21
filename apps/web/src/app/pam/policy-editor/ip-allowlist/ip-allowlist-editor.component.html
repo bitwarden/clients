@@ -1,0 +1,57 @@
+<p class="tw-mb-3 tw-text-muted">
+  {{ "policyIpAllowlistHelpText" | i18n }}
+</p>
+
+<div class="tw-flex tw-flex-col tw-gap-2">
+  @for (control of cidrArray.controls; track $index) {
+    <div class="tw-flex tw-items-start tw-gap-2">
+      <bit-form-field class="tw-mb-0 tw-flex-1">
+        <bit-label class="tw-sr-only">{{ "policyIpAllowlistCidrLabel" | i18n: $index + 1 }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          [formControl]="$any(control)"
+          [placeholder]="'policyIpAllowlistCidrPlaceholder' | i18n"
+          [attr.aria-label]="'policyIpAllowlistCidrLabel' | i18n: $index + 1"
+          [readonly]="readonly()"
+          (input)="onRowChange()"
+        />
+        @if (control.touched && control.hasError('invalidCidr')) {
+          <bit-error>{{ "policyIpAllowlistInvalidCidr" | i18n }}</bit-error>
+        }
+      </bit-form-field>
+
+      @if (!readonly()) {
+        <button
+          bitIconButton="bwi-trash"
+          type="button"
+          buttonType="dangerGhost"
+          [title]="'policyIpAllowlistRemoveRow' | i18n"
+          [attr.aria-label]="'policyIpAllowlistRemoveRow' | i18n"
+          (click)="removeRow($index)"
+        ></button>
+      }
+    </div>
+  }
+</div>
+
+@if (cidrArray.touched && cidrArray.hasError('duplicateCidrs')) {
+  <p class="tw-mt-1 tw-text-danger">{{ "policyIpAllowlistDuplicateCidr" | i18n }}</p>
+}
+
+@if (cidrArray.touched && cidrArray.length === 0) {
+  <p class="tw-mt-1 tw-text-danger">{{ "policyIpAllowlistAtLeastOne" | i18n }}</p>
+}
+
+@if (!readonly()) {
+  <button
+    bitButton
+    type="button"
+    buttonType="secondary"
+    startIcon="bwi-plus"
+    class="tw-mt-3"
+    (click)="addRow()"
+  >
+    {{ "policyIpAllowlistAddRow" | i18n }}
+  </button>
+}

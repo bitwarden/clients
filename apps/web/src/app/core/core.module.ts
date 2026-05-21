@@ -129,6 +129,12 @@ import {
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
+import { DefaultPamApiService, LeaseEventService, PamApiService } from "@bitwarden/pam";
+
+// DEMO ONLY: mock layer for the PAM API surface.
+import { MockLeaseEventService } from "../pam/mock/mock-lease-event.service";
+import { MockPamApiService } from "../pam/mock/mock-pam-api.service";
+import { PamMockConfig } from "../pam/mock/pam-mock-config";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import {
@@ -512,6 +518,24 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       KeyServiceAbstraction,
     ],
+  }),
+  // DEMO ONLY: when `localStorage.pam-mock === "true"`, swap in the mock layer
+  // so a fraction of ciphers prompt for access and pending requests auto-decide
+  // after a short delay. See apps/web/src/app/pam/mock/pam-mock-config.ts.
+  safeProvider({
+    provide: PamApiService,
+    useFactory: (apiService: ApiService, mock: MockPamApiService) =>
+      PamMockConfig.isEnabled() ? mock : new DefaultPamApiService(apiService),
+    deps: [ApiService, MockPamApiService],
+  }),
+  // The mock LeaseEventService is registered unconditionally — when the mock
+  // toggle is off, its Subject simply never emits (no upstream feed wired in
+  // the demo). Production wiring of DefaultLeaseEventService is tracked
+  // separately as a PM-37262 follow-up.
+  safeProvider({
+    provide: LeaseEventService,
+    useExisting: MockLeaseEventService,
+    deps: [],
   }),
 ];
 

@@ -12,12 +12,15 @@ import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstra
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { PopoverModule, SvgModule } from "@bitwarden/components";
+import { BadgeModule, PopoverModule, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { ApproverInboxBadgeService } from "../pam/approver-inbox/approver-inbox-badge.service";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
@@ -33,6 +36,7 @@ import { WebLayoutModule } from "./web-layout.module";
     JslibModule,
     WebLayoutModule,
     SvgModule,
+    BadgeModule,
     BillingFreeFamiliesNavItemComponent,
     PopoverModule,
     CoachmarkComponent,
@@ -45,6 +49,8 @@ export class UserLayoutComponent implements OnInit {
     map((disableSend) => !disableSend),
   );
   protected subscriptionRoute$: Observable<string | null>;
+  protected readonly pamEnabled$: Observable<boolean>;
+  protected readonly pamInboxBadgeCount: Signal<number>;
 
   protected readonly coachmarkService = inject(CoachmarkService);
 
@@ -67,6 +73,8 @@ export class UserLayoutComponent implements OnInit {
     private policyService: PolicyService,
     private sendPolicyService: SendPolicyService,
     private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
+    private configService: ConfigService,
+    private approverInboxBadgeService: ApproverInboxBadgeService,
   ) {
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
@@ -76,6 +84,10 @@ export class UserLayoutComponent implements OnInit {
     );
 
     this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
+    this.pamEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
+    this.pamInboxBadgeCount = toSignal(this.approverInboxBadgeService.count$, {
+      initialValue: 0,
+    });
   }
 
   async ngOnInit() {

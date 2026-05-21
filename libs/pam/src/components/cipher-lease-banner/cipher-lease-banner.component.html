@@ -1,0 +1,38 @@
+@if (activeLease()) {
+  <div
+    class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
+  >
+    <span class="tw-text-sm tw-font-medium">{{
+      "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel()
+    }}</span>
+    <span class="tw-flex tw-items-center tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        [bitAction]="extendLease"
+      >
+        {{ "pamExtendLeaseButton" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="danger" size="small" [bitAction]="endLease">
+        {{ "pamEndLeaseButton" | i18n }}
+      </button>
+    </span>
+  </div>
+} @else if (pendingRequest()) {
+  <div
+    class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-warning-600 tw-bg-warning-100 tw-px-4 tw-py-2 tw-text-warning-700"
+  >
+    <span class="tw-text-sm tw-font-medium">{{ "pamPendingBannerTitle" | i18n }}</span>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      size="small"
+      [bitAction]="cancelLeaseRequest"
+    >
+      {{ "pendingStateCancelRequest" | i18n }}
+    </button>
+  </div>
+}

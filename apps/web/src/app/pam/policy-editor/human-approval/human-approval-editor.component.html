@@ -1,0 +1,12 @@
+<p class="tw-mb-1 tw-font-semibold">{{ "pamLeasingModeHumanApproval" | i18n }}</p>
+<p class="tw-text-muted">{{ "policyHumanApprovalDescription" | i18n }}</p>
+<p class="tw-text-muted">
+  <a
+    bitLink
+    linkType="primary"
+    href="#"
+    (click)="$event.preventDefault(); onManageMembersClicked()"
+  >
+    {{ "pamLeasingManageApproversLink" | i18n }}
+  </a>
+</p>

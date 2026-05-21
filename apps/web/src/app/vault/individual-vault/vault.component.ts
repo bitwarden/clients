@@ -113,6 +113,13 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { CipherOpenInterceptorService } from "../../pam/cipher-open-interceptor.service";
+// DEMO ONLY: mock membership data + modal opener wired in below.
+import { MockCipherMembershipService } from "../../pam/mock/mock-cipher-membership.service";
+import {
+  RequestDetailModalComponent,
+  RequestDetailModalResult,
+} from "../../pam/request-detail-modal/request-detail-modal.component";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
@@ -323,6 +330,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
+    private cipherOpenInterceptorService: CipherOpenInterceptorService,
+    private mockCipherMembership: MockCipherMembershipService,
   ) {}
 
   async ngOnInit() {
@@ -1084,6 +1093,61 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
+    // PM-37264: when FeatureFlag.Pam is on, gated cipher opens must round-trip
+    // to the server (200/202/403 → reveal / pending / denied). The interceptor
+    // returns "passthrough" when the flag is off or the cipher is unleased, so
+    // non-gated opens are unaffected.
+    //
+    // DEMO ONLY: real membership/active-lease wiring is a PM-37264 follow-up.
+    // `MockCipherMembershipService` supplies non-empty arrays only when the
+    // `pam-mock` localStorage toggle is on AND the cipher hashes into the
+    // gated bucket; otherwise returns `{ [], [] }` so production behaviour is
+    // byte-identical with the previous hard-coded placeholders.
+    const { memberships, activeLeases } = this.mockCipherMembership.forCipher(
+      cipher.id,
+      activeUserId,
+    );
+    const decision = await this.cipherOpenInterceptorService.open({
+      cipherId: cipher.id,
+      memberships,
+      activeLeases,
+      userId: activeUserId,
+    });
+
+    if (decision.kind === "denied") {
+      await this.handleGatedCipherDenied(decision.reason, cipher.id);
+      return;
+    }
+
+    if (decision.kind === "pending") {
+      // PM-37265 modal: lets the requester amend the window/reason. The
+      // pending request is already stored server-side (the 202 created it);
+      // dismissing the modal leaves it untouched.
+      const dialogRef = RequestDetailModalComponent.open(this.dialogService, {
+        request: decision.request,
+      });
+      const result = await firstValueFrom(dialogRef.closed);
+      if (result === RequestDetailModalResult.Cancelled) {
+        // User cancelled the request server-side; return to the vault list.
+        await this.go(
+          { cipherId: null, itemId: null, action: null },
+          this.configureRouterFocusToCipher(cipher.id),
+        );
+        return;
+      }
+      // Submitted or Dismissed: the request stays pending. The
+      // pending-state block (when wired into the cipher view) will subscribe
+      // to LeaseEventService.events$(request.id) and re-fetch on approve.
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
+      return;
+    }
+
+    // decision.kind === "reveal" or "passthrough" → open the view dialog as
+    // before. The "leased pill" placeholder for "reveal" is PM-37266.
+
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
@@ -1094,6 +1158,25 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       "view",
       cipherFormConfig,
       this.selectedCollection?.node.id as CollectionId,
+    );
+  }
+
+  /**
+   * PM-37264: surface the server-provided denial reason verbatim (no retry
+   * button) and clear the cipher route params so the user lands back on the
+   * vault list.
+   */
+  private async handleGatedCipherDenied(reason: string, cipherId: string): Promise<void> {
+    await this.dialogService.openSimpleDialog({
+      title: { key: "pamAccessDeniedTitle" },
+      content: reason.length > 0 ? reason : this.i18nService.t("pamAccessDeniedNoReason"),
+      type: "warning",
+      acceptButtonText: { key: "ok" },
+      cancelButtonText: null,
+    });
+    await this.go(
+      { cipherId: null, itemId: null, action: null },
+      this.configureRouterFocusToCipher(cipherId),
     );
   }
 

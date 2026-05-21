@@ -6,6 +6,20 @@
     @if (sendEnabled$ | async) {
       <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
     }
+    @if (pamEnabled$ | async) {
+      <bit-nav-item
+        icon="bwi-bell"
+        [text]="'pamInboxNav' | i18n"
+        route="pam/approver-inbox"
+        data-testid="pam-inbox-nav-item"
+      >
+        @if (pamInboxBadgeCount() > 0) {
+          <span slot="end" class="tw-flex tw-items-center" data-testid="pam-inbox-badge">
+            <span bitBadge variant="primary">{{ pamInboxBadgeCount() }}</span>
+          </span>
+        }
+      </bit-nav-item>
+    }
     <bit-nav-group
       icon="bwi-wrench"
       [text]="'tools' | i18n"
