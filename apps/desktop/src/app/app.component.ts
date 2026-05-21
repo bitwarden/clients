@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
+  EMPTY,
   filter,
   firstValueFrom,
   lastValueFrom,
@@ -197,6 +198,21 @@ export class AppComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });
+
+    // Pre-warm the decrypted cipher list cache for the active user. `cipherListViews$`
+    // is wrapped in a per-user shareReplay; the first subscription is what triggers
+    // SDK decryption of the entire vault. If we wait until the vault page subscribes,
+    // the user sees an empty list (and unresponsive search) for the duration of that
+    // first decrypt. Subscribing here means decryption starts as soon as keys are
+    // available, so the cache is hot by the time the vault page renders.
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          account?.id ? this.cipherService.cipherListViews$(account.id) : EMPTY,
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
