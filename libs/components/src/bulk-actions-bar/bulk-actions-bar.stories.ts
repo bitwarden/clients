@@ -67,7 +67,7 @@ type Row = { id: number; name: string; type: string };
       <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
       <bit-bulk-action [action]="archive" icon="bwi-archive" label="Archive" />
       <bit-bulk-action [action]="onDelete" icon="bwi-trash" label="Delete" />
-      <bit-bulk-additional-action [action]="onExport" icon="bwi-cloud" label="Export" />
+      <bit-bulk-additional-action [action]="onExport" icon="bwi-upload" label="Export" />
       <bit-bulk-additional-action [action]="onShare" label="Share" />
     </bit-bulk-actions-bar>
   `,
@@ -214,7 +214,7 @@ export const WithAdditionalActions: Story = {
         <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
         <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
 
-        <bit-bulk-additional-action [action]="noop" icon="bwi-cloud" label="Export" />
+        <bit-bulk-additional-action [action]="noop" icon="bwi-upload" label="Export" />
         <bit-bulk-additional-action [action]="noop" icon="bwi-share" label="Share" />
         <bit-bulk-additional-action [action]="noop" label="Move to organization" />
       </bit-bulk-actions-bar>

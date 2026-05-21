@@ -325,7 +325,7 @@ describe("BulkActionsBarComponent", () => {
     <bit-bulk-actions-bar [selectedCount]="count()">
       <bit-bulk-action [action]="first" icon="bwi-folder" label="First" />
       @if (showAdditional()) {
-        <bit-bulk-additional-action [action]="onExport" icon="bwi-cloud" label="Export" />
+        <bit-bulk-additional-action [action]="onExport" icon="bwi-upload" label="Export" />
         <bit-bulk-additional-action [action]="onShare" label="Share" />
       }
     </bit-bulk-actions-bar>
