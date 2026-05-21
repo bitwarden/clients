@@ -33,7 +33,7 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
   // bitOverflowList can discover this tab-link as one of its items.
   hostDirectives: [OverflowItemDirective],
   host: {
-    class: "tw-block",
+    class: "tw-block tw-max-w-fit",
     "[class]":
       "overflowItem.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'",
   },
@@ -84,8 +84,8 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   /** Roving tabindex value — parent nav-bar sets one link to 0 and the rest to -1. */
   readonly tabIndex = signal(-1);
 
-  @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
-    if (event.code === "Space") {
+  @HostListener("keydown", ["$event"]) onKeyDown(event: Event) {
+    if ((event as KeyboardEvent).code === "Space") {
       this.tabItem().click();
     }
   }

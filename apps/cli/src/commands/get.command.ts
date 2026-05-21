@@ -24,6 +24,7 @@ import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { IdentityExport } from "@bitwarden/common/models/export/identity.export";
 import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export";
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
+import { PassportExport } from "@bitwarden/common/models/export/passport.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -602,6 +603,16 @@ export class GetCommand extends DownloadCommand {
           return Response.badRequest("Driver's license item type is not available.");
         }
         template = DriversLicenseExport.template();
+        break;
+      }
+      case "item.passport": {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.badRequest("Passport item type is not available.");
+        }
+        template = PassportExport.template();
         break;
       }
       case "folder":
