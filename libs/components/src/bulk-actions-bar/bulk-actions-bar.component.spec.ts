@@ -459,4 +459,44 @@ describe("BulkActionsBarComponent — additional actions", () => {
     fixture.detectChanges();
     expect(document.activeElement).toBe(trigger());
   });
+
+  it("rebuilds the toolbar's items when additional actions are toggled off after mount", () => {
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    expect(trigger()).toBeNull();
+
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    // After toggling additional actions off, the trigger is gone and the only
+    // remaining bulk-action button without `icon="bwi-clear"` is the primary.
+    const primary = fixture.nativeElement.querySelector(
+      'button[bitBulkAction]:not([icon="bwi-clear"])',
+    ) as HTMLButtonElement;
+
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(primary);
+  });
+
+  it("rebuilds the toolbar's items when additional actions are toggled on after mount", () => {
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    host.showAdditional.set(true);
+    fixture.detectChanges();
+    expect(trigger()).not.toBeNull();
+
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(trigger());
+  });
 });

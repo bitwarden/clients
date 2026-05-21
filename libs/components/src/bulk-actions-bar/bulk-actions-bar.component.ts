@@ -1,24 +1,22 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { DOCUMENT } from "@angular/common";
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
-  OnDestroy,
   afterNextRender,
   computed,
   contentChildren,
+  effect,
   inject,
   input,
   signal,
   viewChild,
   viewChildren,
 } from "@angular/core";
-import { outputFromObservable } from "@angular/core/rxjs-interop";
+import { outputFromObservable, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -57,7 +55,7 @@ const COMPACT_THRESHOLD_BUFFER_PX = 48;
   },
   providers: [{ provide: BULK_ACTIONS_BAR_CONTEXT, useExisting: BulkActionsBarComponent }],
 })
-export class BulkActionsBarComponent implements BulkActionsBarContext, AfterViewInit, OnDestroy {
+export class BulkActionsBarComponent implements BulkActionsBarContext {
   private readonly document = inject(DOCUMENT);
   private readonly i18nService = inject(I18nService);
 
@@ -126,7 +124,6 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
   private readonly keyManager = signal<FocusKeyManager<BulkActionButtonComponent> | undefined>(
     undefined,
   );
-  private readonly destroy$ = new Subject<void>();
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -137,12 +134,9 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
         return;
       }
 
-      // Measure the bar's intrinsic width once. Pinning `min-width: max-content`
-      // for the read prevents the bar's flex parent from shrinking it below its
-      // content size when the bar mounts in a constrained context. Even if the
-      // measurement is slightly off, the `COMPACT_THRESHOLD_BUFFER_PX` below
-      // absorbs the imprecision — the bar is never width-capped, so an
-      // under-read just causes compact mode to engage a few pixels earlier.
+      // Pin `min-width: max-content` for the read so the flex parent can't
+      // shrink the bar below content size when mounted in a constrained
+      // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
       const previousMinWidth = barEl.style.minWidth;
       barEl.style.minWidth = "max-content";
       this.initialBarWidth.set(Math.ceil(barEl.getBoundingClientRect().width));
@@ -155,44 +149,34 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
       observer.observe(wrapperEl);
       this.destroyRef.onDestroy(() => observer.disconnect());
     });
-  }
 
-  ngAfterViewInit(): void {
-    // Built in ngAfterViewInit (not ngAfterContentInit) so the rendered primary
-    // buttons, close button, and additional-actions trigger — which only exist
-    // after the bar's @for and @if blocks tick through — are available.
-    const closeBtn = this.closeBtn();
-    if (closeBtn == null) {
-      return;
-    }
-    const trigger = this.additionalActionsTrigger();
-    const primaries = this.primaryButtons().filter((btn) => btn !== closeBtn && btn !== trigger);
-    const items: BulkActionButtonComponent[] = [closeBtn, ...primaries];
-    if (trigger) {
-      items.push(trigger);
-    }
+    // FocusKeyManager captures button references at construction. Rebuild it
+    // whenever the projected action set changes so it tracks the current
+    // buttons; onCleanup destroys the previous manager on each rebuild and
+    // on component destroy.
+    effect((onCleanup) => {
+      const closeBtn = this.closeBtn();
+      if (closeBtn == null) {
+        return;
+      }
+      const trigger = this.additionalActionsTrigger();
+      const primaries = this.primaryButtons().filter((b) => b !== closeBtn && b !== trigger);
+      const items = trigger ? [closeBtn, ...primaries, trigger] : [closeBtn, ...primaries];
 
-    const manager = new FocusKeyManager<BulkActionButtonComponent>(items)
-      .withHorizontalOrientation("ltr")
-      .withWrap()
-      .withHomeAndEnd();
-    this.keyManager.set(manager);
+      const manager = new FocusKeyManager<BulkActionButtonComponent>(items)
+        .withHorizontalOrientation("ltr")
+        .withWrap()
+        .withHomeAndEnd();
+      this.keyManager.set(manager);
+      manager.updateActiveItem(0);
+      this.applyRovingTabIndex(0, items);
 
-    // Make the first item the toolbar's tab stop. updateActiveItem sets
-    // the active index without calling .focus(), which is what we want at
-    // init — focus only moves when the user actually navigates.
-    manager.updateActiveItem(0);
-    this.applyRovingTabIndex(0, items);
+      manager.change
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((idx) => this.applyRovingTabIndex(idx, items));
 
-    manager.change.pipe(takeUntil(this.destroy$)).subscribe((activeIdx) => {
-      this.applyRovingTabIndex(activeIdx, items);
+      onCleanup(() => manager.destroy());
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.keyManager()?.destroy();
   }
 
   protected onClear(): void {
