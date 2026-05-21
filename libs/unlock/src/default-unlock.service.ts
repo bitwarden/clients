@@ -67,7 +67,7 @@ export class DefaultUnlockService implements UnlockService {
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
   ) {
-    biometricsService.setUnlockService(this);
+    void biometricsService.setUnlockService(this);
   }
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {

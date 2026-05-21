@@ -66,7 +66,7 @@ export abstract class BiometricsService {
   abstract hasPersistentKey(userId: UserId): Promise<boolean>;
 
   // Cannot be DI injected because of circular dependency
-  setUnlockService(service: UnlockService): void {
+  async setUnlockService(service: UnlockService): Promise<void> {
     this.unlockService = service;
   }
 }

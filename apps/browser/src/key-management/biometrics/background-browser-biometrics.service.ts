@@ -124,15 +124,21 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
             fromTsUserId(userId),
           );
           if (response.user_key) {
+            const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
+            if (!(await this.keyService.validateUserKey(userKey, userId))) {
+              this.logService.info("Biometric unlock for user failed: invalid user key");
+              return null;
+            }
+
             await this.biometricStateService.setBiometricUnlockEnabled(true);
             await this.keyService.setUserKey(
-              SymmetricCryptoKey.fromSdk(response.user_key) as UserKey,
+              userKey,
               userId,
             );
             await this.pinService.userUnlocked(userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
-            return SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
+            return userKey;
           } else {
             return null;
           }
