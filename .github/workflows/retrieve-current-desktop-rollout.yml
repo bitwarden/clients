@@ -6,6 +6,7 @@ on:
 jobs:
   rollout:
     name: Retrieve Rollout Percentage
+    permissions: {}
     runs-on: ubuntu-24.04
     steps:
       - name: Get current rollout percentage
