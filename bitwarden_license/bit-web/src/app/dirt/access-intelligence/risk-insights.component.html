@@ -51,6 +51,10 @@
             }
             <div
               class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-flex-wrap tw-items-center tw-gap-2"
+              [bitPopoverAnchorFor]="runReportCoachmark.popover()"
+              [popoverOpen]="runReportOpen()"
+              [position]="'below-center'"
+              [spotlight]="true"
             >
               <bit-icon
                 name="bwi-exclamation-triangle"
@@ -75,13 +79,25 @@
                 </button>
               </span>
             </div>
+            <app-ai-coachmark #runReportCoachmark stepId="runReport"></app-ai-coachmark>
           </div>
 
           <div class="tw-flex-1 tw-flex tw-flex-col">
             <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
               <bit-tab label="{{ 'activity' | i18n }}">
+                <ng-template bitTabLabel>
+                  <span
+                    [bitPopoverAnchorFor]="activityCoachmark.popover()"
+                    [popoverOpen]="monitorActivityOpen()"
+                    [position]="'below-start'"
+                    [spotlight]="true"
+                    class="tw-flex tw-items-center tw-gap-1"
+                    >{{ "activity" | i18n }}</span
+                  >
+                </ng-template>
                 <dirt-all-activity [organizationId]="this.organizationId"></dirt-all-activity>
               </bit-tab>
+              <app-ai-coachmark #activityCoachmark stepId="monitorActivity"></app-ai-coachmark>
               @if (milestone11Enabled) {
                 <bit-tab label="{{ 'applications' | i18n }}">
                   <dirt-applications></dirt-applications>
@@ -97,8 +113,23 @@
                     (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
                   "
                 >
+                  <ng-template bitTabLabel>
+                    <span
+                      [bitPopoverAnchorFor]="criticalAppsCoachmark.popover()"
+                      [popoverOpen]="criticalApplicationsOpen()"
+                      [position]="'below-start'"
+                      [spotlight]="true"
+                      class="tw-flex tw-items-center tw-gap-1"
+                    >
+                      {{ "criticalApplications" | i18n }}
+                    </span>
+                  </ng-template>
                   <dirt-critical-applications></dirt-critical-applications>
                 </bit-tab>
+                <app-ai-coachmark
+                  #criticalAppsCoachmark
+                  stepId="criticalApplications"
+                ></app-ai-coachmark>
               }
             </bit-tab-group>
           </div>
@@ -111,6 +142,7 @@
     <dirt-dev-menu
       (beginPostImportTour)="beginPostImportTour()"
       (beginNewAdminWelcomeTour)="beginNewAdminWelcomeTour()"
+      (beginCoachmarksTour)="beginCoachmarksTour()"
       (importData)="goToImportPage()"
     ></dirt-dev-menu>
   }

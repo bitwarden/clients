@@ -12,6 +12,7 @@ import {
   DIALOG_DATA,
 } from "@bitwarden/components";
 
+import { AccessIntelligenceCoachmarkService } from "./access-intelligence-coachmark.service";
 import { PostImportModalDialogComponent } from "./post-import-modal-dialog.component";
 import { OnboardingService } from "./services/onboarding.service";
 
@@ -35,6 +36,7 @@ const mockOnboardingService = {
 describe("PostImportModalDialogComponent", () => {
   let component: PostImportModalDialogComponent;
   let fixture: ComponentFixture<PostImportModalDialogComponent>;
+  let mockCoachmarkService: jest.Mocked<AccessIntelligenceCoachmarkService>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -47,6 +49,7 @@ describe("PostImportModalDialogComponent", () => {
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: DialogService, useValue: mockDialogService },
         { provide: DIALOG_DATA, useValue: { organizationId: mockOrganizationId } },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
       ],
     }).compileComponents();
 

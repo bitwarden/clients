@@ -8,10 +8,12 @@ import {
   DrawerType,
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, PopoverModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "../../activity/activity-card.component";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 
 import { NewApplicationsDialogV2Component } from "./new-applications-dialog-v2/new-applications-dialog-v2.component";
@@ -36,12 +38,15 @@ import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/pas
     SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricV2Component,
+    AccessIntelligenceCoachmarkComponent,
+    PopoverModule,
   ],
 })
 export class ActivityTabComponent {
   private readonly accessIntelligenceService = inject(AccessIntelligenceDataService);
   private readonly drawerStateService = inject(DrawerStateService);
   private readonly dialogService = inject(DialogService);
+  private readonly coachmarkService = inject(AccessIntelligenceCoachmarkService);
 
   readonly organizationId = input.required<OrganizationId>();
 
@@ -122,6 +127,10 @@ export class ActivityTabComponent {
     }
     return "default";
   });
+
+  protected readonly prioritizeRisksOpen = computed(
+    () => this.coachmarkService.activeStepId() === "prioritizeRisks",
+  );
 
   /**
    * Handles the review new applications button click.

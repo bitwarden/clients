@@ -1,18 +1,22 @@
 <ng-template #tabLabelContent let-tab="tab">
-  <span [class]="tabLabelContentClasses">
-    @if (tab.startIcon()) {
-      <bit-icon [name]="tab.startIcon()" class="tw-text-base" />
-    }
-    <span class="tw-min-w-0 tw-truncate">
-      {{ tab.textLabel() }}
+  @if (tab.labelContent()) {
+    <ng-container [ngTemplateOutlet]="tab.labelContent() ?? null"></ng-container>
+  } @else {
+    <span [class]="tabLabelContentClasses">
+      @if (tab.startIcon()) {
+        <bit-icon [name]="tab.startIcon()" class="tw-text-base" />
+      }
+      <span class="tw-min-w-0 tw-truncate">
+        {{ tab.textLabel() }}
+      </span>
+      @if (tab.berryValue()) {
+        <bit-berry [value]="tab.berryValue()" />
+      }
+      @if (tab.endIcon()) {
+        <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
+      }
     </span>
-    @if (tab.berryValue()) {
-      <bit-berry [value]="tab.berryValue()" />
-    }
-    @if (tab.endIcon()) {
-      <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
-    }
-  </span>
+  }
 </ng-template>
 
 <bit-tab-header (keydown)="keyManager()?.onKeydown($event)">

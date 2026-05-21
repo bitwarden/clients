@@ -19,6 +19,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
+
 import { ActivityTabComponent } from "./activity-tab.component";
 import {
   NewApplicationsDialogResultType,
@@ -43,6 +45,7 @@ describe("ActivityTabComponent", () => {
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockDialogService: jest.Mocked<DialogService>;
   let mockI18nService: jest.Mocked<I18nService>;
+  let mockCoachmarkService: jest.Mocked<AccessIntelligenceCoachmarkService>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -82,6 +85,7 @@ describe("ActivityTabComponent", () => {
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     }).compileComponents();

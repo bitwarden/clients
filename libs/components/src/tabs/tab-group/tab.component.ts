@@ -4,6 +4,7 @@ import {
   OnInit,
   TemplateRef,
   ViewContainerRef,
+  contentChild,
   input,
   signal,
   viewChild,
@@ -11,6 +12,7 @@ import {
 } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
+import { TabLabelDirective } from "./tab-label.directive";
 
 /** Used to generate unique IDs for each tab component */
 let nextTabId = 0;
@@ -43,6 +45,8 @@ export class TabComponent implements OnInit {
   readonly contentTabIndex = input<number | undefined>();
 
   readonly implicitContent = viewChild.required(TemplateRef);
+
+  readonly labelContent = contentChild(TabLabelDirective, { read: TemplateRef });
 
   private readonly _contentPortal = signal<TemplatePortal | null>(null);
 

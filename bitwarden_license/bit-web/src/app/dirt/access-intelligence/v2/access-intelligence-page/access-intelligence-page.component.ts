@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnDestroy,
   OnInit,
@@ -37,21 +38,27 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   AsyncActionsModule,
+  BerryComponent,
   ButtonModule,
   DialogRef,
   DialogService,
   IconComponent,
+  PopoverModule,
   TabsModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
+import { NewAdminWelcomeDialogComponent } from "../../onboarding/new-admin-welcome-dialog.component";
 import { PostImportModalDialogComponent } from "../../onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
+import { NewApplicationsDialogV2Component } from "../activity-tab/new-applications-dialog-v2/new-applications-dialog-v2.component";
 import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
 import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
 import { CriticalApplicationsTabComponent } from "../critical-applications-tab/critical-applications-tab.component";
@@ -74,9 +81,11 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
+    AccessIntelligenceCoachmarkComponent,
     ActivityTabComponent,
     AllApplicationsTabComponent,
     ApplicationsTabComponent,
+    BerryComponent,
     CriticalApplicationsTabComponent,
     AsyncActionsModule,
     ButtonModule,
@@ -86,6 +95,7 @@ type ProgressStep = ReportProgress | null;
     JslibModule,
     HeaderModule,
     PageLoadingComponent,
+    PopoverModule,
     TabsModule,
     ReportLoadingComponent,
     DevMenuComponent,
@@ -166,6 +176,18 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected readonly isDevMode = signal<boolean>(isDevMode());
 
+  protected readonly monitorActivityOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorActivity",
+  );
+
+  protected readonly criticalApplicationsOpen = computed(
+    () => this.coachmarkService.activeStepId() === "criticalApplications",
+  );
+
+  protected readonly runReportOpen = computed(
+    () => this.coachmarkService.activeStepId() === "runReport",
+  );
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -176,6 +198,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
     private readonly injector: Injector,
+    private readonly coachmarkService: AccessIntelligenceCoachmarkService,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -212,6 +235,30 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       )
       .subscribe((step) => {
         this.currentProgressStep.set(step);
+      });
+
+    effect(() => {
+      const tabIndex = this.coachmarkService.requiredTabIndex();
+      if (tabIndex !== null) {
+        this.tabIndex.set(tabIndex);
+      }
+    });
+
+    this.coachmarkService.tourCompleted$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((tourCompleted) => {
+        if (tourCompleted) {
+          const report = this.report();
+          if (!report) {
+            return;
+          }
+          NewApplicationsDialogV2Component.open(this.dialogService, {
+            newApplications: report.getNewApplications(),
+            organizationId: this.organizationId(),
+            hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
+          });
+          this.tabIndex.set(RiskInsightsTabType.AllActivity);
+        }
       });
   }
 
@@ -430,7 +477,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginOnboardingTour();
+      await this.beginPostImportTour();
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -446,7 +493,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected async beginOnboardingTour(): Promise<void> {
+  protected async beginPostImportTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
       await PostImportModalDialogComponent.showDialog(
         this.injector,
@@ -454,5 +501,19 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         this.organizationId(),
       );
     }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await NewAdminWelcomeDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginCoachmarksTour(): Promise<void> {
+    await this.coachmarkService.startTour(this.organizationId());
   }
 }
