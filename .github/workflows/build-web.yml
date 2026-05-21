@@ -56,31 +56,9 @@ permissions:
   contents: read
 
 jobs:
-  check-release-tag:
-    name: Check release tag
-    if: github.event_name == 'release'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Check tag
-        env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
-        run: |
-          if [[ "$TAG_NAME" == web-v* ]]; then
-            echo "### ✅ Web release detected" >> "$GITHUB_STEP_SUMMARY"
-            echo "Tag \`$TAG_NAME\` matches \`web-v*\`. Proceeding with build." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "### ⏭️ Build skipped" >> "$GITHUB_STEP_SUMMARY"
-            echo "Tag \`$TAG_NAME\` does not match \`web-v*\`. This release is not for Web, skipping." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
   setup:
     name: Setup
-    needs: check-release-tag
-    if: |
-      always()
-      && (needs.check-release-tag.result == 'skipped'
-        || (needs.check-release-tag.result == 'success'
-          && startsWith(github.event.release.tag_name, 'web-v')))
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'web-v')
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.value }}
