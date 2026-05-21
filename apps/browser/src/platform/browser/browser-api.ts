@@ -48,6 +48,9 @@ export class BrowserApi {
    * @param sender - The message sender to validate. `undefined` or a sender without `origin` returns `false`.
    * @param logger - Optional logger; rejections are reported at `warning` level, acceptance at `info`.
    * @returns `true` if the sender appears to be internal to the extension; `false` otherwise.
+   * @deprecated Phase 2 framework cutover replaces this with `classifySender`
+   * in `apps/browser/src/autofill/security/sender.ts`. Kept for legacy port-
+   * handshake call sites — do not introduce new callers.
    */
   static senderIsInternal(
     sender: chrome.runtime.MessageSender | undefined,

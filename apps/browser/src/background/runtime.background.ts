@@ -37,6 +37,7 @@ import BrowserInitialInstallService from "../platform/services/browser-initial-i
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
+import { runSecurityPreflight } from "./security-preflight";
 
 export default class RuntimeBackground {
   private autofillTimeout: any;
@@ -84,6 +85,13 @@ export default class RuntimeBackground {
       sender: chrome.runtime.MessageSender,
       sendResponse: (response: any) => void,
     ) => {
+      // Phase 2 cutover (§6.1): preflight runs before any dispatch. Strict for
+      // env-paired traffic, soft for legacy (only the threat-model row 4 reject
+      // applies to messages without `_envPair`).
+      if (!runSecurityPreflight(msg, sender)) {
+        return false;
+      }
+
       const messagesWithResponse = [
         BiometricsCommands.AuthenticateWithBiometrics,
         BiometricsCommands.GetBiometricsStatus,

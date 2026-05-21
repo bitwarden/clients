@@ -1,5 +1,11 @@
 export const EXTERNAL_SOURCE_TAG = Symbol("externalSource");
 
+/**
+ * @deprecated Phase 2 framework cutover replaces this with classifySender +
+ * the env-paired pipeline. Kept for legacy call-site compatibility — do not
+ * introduce new callers. See
+ * `apps/browser/src/autofill/security/sender.ts#classifySender`.
+ */
 export const isExternalMessage = (message: Record<PropertyKey, unknown>) => {
   return message?.[EXTERNAL_SOURCE_TAG] === true;
 };
