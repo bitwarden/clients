@@ -11,7 +11,11 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
+import {
+  MessageListener,
+  getWebExtSender,
+  isExternalMessage,
+} from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -432,8 +436,9 @@ export default class RuntimeBackground {
       return;
     }
 
+    const webExtSender = getWebExtSender(message) as chrome.runtime.MessageSender | undefined;
     const isValidVaultReferrer = await this.isValidVaultReferrer(
-      Utils.getHostname(message?.webExtSender?.origin),
+      Utils.getHostname(webExtSender?.origin),
     );
 
     // When the referrer is not a known vault and the message is external, reject the message

@@ -34,7 +34,7 @@ import {
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { MessageListener, getWebExtSender } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -122,20 +122,20 @@ export default class AutofillService implements AutofillServiceInterface {
             message.tab.id === tab.id &&
             message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable,
         ),
-        scan(
-          (acc: PageDetail[], message): PageDetail[] =>
-            message.webExtSender?.frameId === undefined
-              ? acc
-              : [
-                  ...acc,
-                  {
-                    frameId: message.webExtSender.frameId,
-                    tab: message.tab,
-                    details: message.details,
-                  },
-                ],
-          [] as PageDetail[],
-        ),
+        scan((acc: PageDetail[], message): PageDetail[] => {
+          const sender = getWebExtSender(message) as chrome.runtime.MessageSender | undefined;
+          if (sender?.frameId === undefined) {
+            return acc;
+          }
+          return [
+            ...acc,
+            {
+              frameId: sender.frameId,
+              tab: message.tab,
+              details: message.details,
+            },
+          ];
+        }, [] as PageDetail[]),
       );
 
     void BrowserApi.tabSendMessage(

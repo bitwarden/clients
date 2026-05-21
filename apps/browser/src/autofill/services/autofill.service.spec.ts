@@ -26,7 +26,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { MessageListener, WEB_EXT_SENDER } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   FakeStateProvider,
@@ -200,11 +200,15 @@ describe("AutofillService", () => {
       webExtSender: chrome.runtime.MessageSender = mock<chrome.runtime.MessageSender>(),
       sender: string = AutofillMessageSender.collectPageDetailsFromTabObservable,
     ): CollectPageDetailsResponseMessage {
-      return mock<CollectPageDetailsResponseMessage>({
+      // The runtime adapter stamps the sender under the WEB_EXT_SENDER Symbol
+      // (not as a plain `webExtSender` property — that path was forgeable). The
+      // mock must do the same so production code's `getWebExtSender` sees it.
+      const message = mock<CollectPageDetailsResponseMessage>({
         tab,
-        webExtSender,
         sender,
       });
+      (message as unknown as Record<PropertyKey, unknown>)[WEB_EXT_SENDER] = webExtSender;
+      return message;
     }
 
     beforeEach(() => {
