@@ -23,7 +23,7 @@ If a runner fix appears to require touching any of those, stop and surface the c
 
 Before running any command, confirm the environment is ready. Run these checks in order and stop at the first failure.
 
-### 1a. Desktop app must be running locally
+### 1a. Desktop client must be running locally
 
 The runner talks to the running desktop process over an IPC socket. If the app isn't running, every command will hang or time out.
 
