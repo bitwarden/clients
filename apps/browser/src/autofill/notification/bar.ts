@@ -12,6 +12,8 @@ import { NotificationContainer } from "../content/components/notification/contai
 import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
+import { NotificationBarInboundSchema } from "../security/schemas/notification-bar";
+import { logSecurityEvent } from "../security/security-event";
 
 import {
   NotificationBarWindowMessageHandlers,
@@ -415,18 +417,32 @@ function setupWindowMessageListener() {
 }
 
 function handleWindowMessage(event: MessageEvent) {
+  // Phase 4 §8.2 #4: object-identity check against globalThis.parent. The bar
+  // is the inner iframe; its only legitimate sender is the parent window.
   if (event?.source !== globalThis.parent) {
     return;
   }
 
-  const message = event.data as NotificationBarWindowMessage;
-  if (!message?.command) {
+  // Phase 4 §8.2 #3: hard-reject empty/null origins even when they "match".
+  // event.origin === "" (e.g. a data:/blob:/sandboxed-iframe sender) would
+  // tautologically equal an empty windowMessageOrigin and slip through; null
+  // origins should never reach here in the first place. Defense in depth.
+  if (!event.origin || event.origin === "null") {
+    logSecurityEvent("iframe-origin-mismatch", { command: (event.data as any)?.command });
     return;
   }
 
   if (!windowMessageOrigin || event.origin !== windowMessageOrigin) {
     return;
   }
+
+  // Phase 4 §8.2 #2: validate the payload before any further property access.
+  const parsed = NotificationBarInboundSchema.parse(event.data);
+  if (!parsed.ok) {
+    logSecurityEvent("schema-parse-failed", { command: (event.data as any)?.command });
+    return;
+  }
+  const message = parsed.value as NotificationBarWindowMessage;
 
   if (
     message.command === "initNotificationBar" &&

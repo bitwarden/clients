@@ -163,6 +163,30 @@ describe("validators", () => {
       }
     });
 
+    describe("passthrough mode", () => {
+      it("copies extra (own) keys through to the output", () => {
+        const Loose = v.object({ command: v.string() }, { passthrough: true });
+        const r = Loose.parse({ command: "x", extraA: 1, extraB: "y" });
+        expect(r.ok).toBe(true);
+        if (r.ok) {
+          expect((r.value as any).extraA).toBe(1);
+          expect((r.value as any).extraB).toBe("y");
+        }
+      });
+
+      it("still rejects __proto__ / constructor / prototype keys", () => {
+        const Loose = v.object({ command: v.string() }, { passthrough: true });
+        // Real attacker payload: try to slip __proto__ in via a relay step.
+        const polluted = JSON.parse('{"command":"x","__proto__":{"isAdmin":true}}');
+        expect(Loose.parse(polluted).ok).toBe(false);
+      });
+
+      it("still validates declared keys strictly", () => {
+        const Loose = v.object({ n: v.number() }, { passthrough: true });
+        expect(Loose.parse({ n: "not-a-number", extra: 1 }).ok).toBe(false);
+      });
+    });
+
     it("strips undefined optional fields rather than materializing them", () => {
       const Schema = v.object({ a: v.string(), b: v.optional(v.string()) });
       const r = Schema.parse({ a: "x" });

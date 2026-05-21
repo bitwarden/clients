@@ -1,6 +1,8 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
+import { InlineMenuInboundSchema } from "../../../../security/schemas/inline-menu";
+import { logSecurityEvent } from "../../../../security/security-event";
 import { generateRandomChars, setElementStyles } from "../../../../utils";
 import {
   InitAutofillInlineMenuElementMessage,
@@ -209,10 +211,14 @@ export class AutofillInlineMenuContainer {
    * @param event - The message event.
    */
   private handleWindowMessage = (event: MessageEvent<AutofillInlineMenuContainerWindowMessage>) => {
-    const message = event.data;
-    if (!message?.command) {
+    // Phase 4 §8.1: validate shape before any property access. The iframe lives
+    // in an untrusted host page; `event.data` is fully attacker-controlled.
+    const parsed = InlineMenuInboundSchema.parse(event.data);
+    if (!parsed.ok) {
+      logSecurityEvent("schema-parse-failed", { command: (event.data as any)?.command });
       return;
     }
+    const message = parsed.value as AutofillInlineMenuContainerWindowMessage;
     if (this.isForeignWindowMessage(event)) {
       return;
     }
@@ -287,8 +293,17 @@ export class AutofillInlineMenuContainer {
     if (!this.inlineMenuPageIframe) {
       return false;
     }
-    // only trust the specific iframe we created
-    return this.inlineMenuPageIframe.contentWindow === event.source;
+    // Trust the specific iframe we created, AND that it speaks from our
+    // extension origin (§8.1: origin validation on the iframe→background
+    // relay path; previously only the inbound paths checked origin).
+    if (this.inlineMenuPageIframe.contentWindow !== event.source) {
+      return false;
+    }
+    if (this.extensionOrigin && event.origin !== this.extensionOrigin) {
+      logSecurityEvent("iframe-origin-mismatch", { command: event.data?.command });
+      return false;
+    }
+    return true;
   }
 
   /**

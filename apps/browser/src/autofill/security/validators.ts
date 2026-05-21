@@ -112,12 +112,28 @@ const enumValidator = <E extends readonly string[]>(values: E): Validator<E[numb
   },
 });
 
+interface ObjectOpts {
+  /**
+   * When true, additional (own) keys on the input that aren't declared in the
+   * schema pass through to the output unchanged. Off by default — strict
+   * rejection is the prototype-pollution-safe choice.
+   *
+   * Only opt in when the consumer (a) genuinely doesn't know all the keys at
+   * schema-write time AND (b) doesn't read those extra keys — e.g. a relay
+   * step that forwards an opaque payload to a downstream validator. The
+   * downstream validator must itself be strict.
+   */
+  passthrough?: boolean;
+}
+
 const object = <S extends Record<string, Validator<any>>>(
   schema: S,
+  opts: ObjectOpts = {},
 ): Validator<{ [K in keyof S]: S[K] extends Validator<infer U> ? U : never }> => {
   // Snapshot schema keys at definition time. Iterating the schema (not the input)
   // is what makes object validation prototype-pollution safe.
   const schemaKeys = Object.keys(schema);
+  const { passthrough = false } = opts;
   return {
     parse(input) {
       if (input === null || typeof input !== "object" || Array.isArray(input)) {
@@ -136,12 +152,23 @@ const object = <S extends Record<string, Validator<any>>>(
           out[key] = parsed.value;
         }
       }
-      // Reject extra (own) keys the schema does not declare. Walk only own keys —
-      // `for…in` would surface inherited (potentially polluted) properties.
+      // Walk only own keys — `for…in` would surface inherited (potentially
+      // polluted) properties. Either reject extras (strict) or copy them
+      // through (passthrough); the latter still skips inherited keys.
       for (const key of Object.keys(src)) {
-        if (!Object.hasOwn(schema, key)) {
+        if (Object.prototype.hasOwnProperty.call(schema, key)) {
+          continue;
+        }
+        if (!passthrough) {
           return err(`unknown key: ${key}`);
         }
+        // Skip dangerous well-known keys even in passthrough mode — the prototype
+        // chain on the output is null, but downstream consumers may merge into a
+        // normal object where these would re-establish pollution.
+        if (key === "__proto__" || key === "constructor" || key === "prototype") {
+          return err(`forbidden key in passthrough: ${key}`);
+        }
+        out[key] = src[key];
       }
       return ok(out as { [K in keyof S]: S[K] extends Validator<infer U> ? U : never });
     },
