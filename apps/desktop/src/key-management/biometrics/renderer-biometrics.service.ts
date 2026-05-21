@@ -43,7 +43,11 @@ export function createBiometricsDriver(
     },
     async unlock_biometrics(user_id: UserId): Promise<SymmetricKey | undefined> {
       const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
-      if (key != null && SET_USERKEY_UNLOCK) {
+      if (key == null) {
+        return undefined;
+      }
+
+      if (SET_USERKEY_UNLOCK) {
         await unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
       }
       return key.toSdk();
@@ -157,7 +161,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
 
   async setUnlockService(service: UnlockService): Promise<void> {
     super.setUnlockService(service);
-    const driver = createBiometricsDriver(this, this.unlockService);
+    const driver = createBiometricsDriver(this, service);
     this.logService.info("Registering biometrics IPC driver");
     await ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
   }
