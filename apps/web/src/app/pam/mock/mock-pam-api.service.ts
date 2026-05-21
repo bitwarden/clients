@@ -37,7 +37,7 @@ export class MockPamApiService extends PamApiService {
     super();
   }
 
-  getCipherLeaseState$(cipherId: string, userId: string): Observable<CipherLeaseState> {
+  getCipherLeaseState$(cipherId: string, _userId: string): Observable<CipherLeaseState> {
     const snapshot = (): CipherLeaseState => {
       const activeLease = this.store.leasesByCipher.get(cipherId);
       const pendingRequest = [...this.store.requests.values()].find(
@@ -49,14 +49,8 @@ export class MockPamApiService extends PamApiService {
       };
     };
 
-    if (PamMockConfig.isEnabled()) {
-      const state = PamMockConfig.stateForCipher(cipherId);
-      if (state === "active") {
-        this.store.ensureSeedLease(cipherId, userId);
-      } else if (state === "pre_pending") {
-        this.store.ensureSeedPendingRequest(cipherId, userId);
-      }
-    }
+    // Read path is side-effect free: the badge only reflects leases/requests
+    // that exist because the user explicitly went through the request flow.
 
     // Re-emit on any lease event so the banner reflects approvals/denials/etc.
     return this.store.events$.pipe(
@@ -67,7 +61,6 @@ export class MockPamApiService extends PamApiService {
 
   async fetchGatedCipher(id: string): Promise<GatedCipherFetchResult> {
     const userId = this.store.currentUserId ?? "demo-user";
-    this.store.ensureSeedLease(id, userId);
     const existingLease = this.store.leasesByCipher.get(id);
     if (existingLease && existingLease.status === "active") {
       return {
@@ -96,6 +89,11 @@ export class MockPamApiService extends PamApiService {
     if (request.reason !== undefined) {
       existing.reason = request.reason;
     }
+    // Submitting the Request Access modal patches the request — that's the
+    // signal the user actually confirmed, so kick off auto-decision now.
+    if (existing.status === "pending") {
+      this.store.scheduleAutoDecideFor(existing.id);
+    }
     return existing;
   }
 
@@ -112,6 +110,9 @@ export class MockPamApiService extends PamApiService {
     const userId = this.store.currentUserId ?? parent.granteeUserId;
     const child = this.store.createPendingRequest(parent.cipherId, userId);
     child.leaseId = parent.id;
+    // Extension modal submits in one step — no separate patch — so kick off
+    // auto-decision immediately.
+    this.store.scheduleAutoDecideFor(child.id);
     return child;
   }
 

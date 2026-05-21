@@ -106,8 +106,9 @@ export class PamMockStore {
   }
 
   /**
-   * Create a new pending request for a gated cipher and schedule its
-   * auto-decision. Returns the freshly-created request.
+   * Create a new pending request for a gated cipher. Auto-decision is NOT
+   * scheduled here — call {@link scheduleAutoDecideFor} once the user has
+   * actually confirmed the request via the Request Access modal.
    */
   createPendingRequest(cipherId: string, userId: string): LeaseRequestResponse {
     this.currentUserId ??= userId;
@@ -126,8 +127,12 @@ export class PamMockStore {
       submittedAt: now,
     });
     this.requests.set(id, request);
-    this.scheduleAutoDecide(id);
     return request;
+  }
+
+  /** Public entry point so the API layer can trigger auto-decide on submit. */
+  scheduleAutoDecideFor(requestId: string): void {
+    this.scheduleAutoDecide(requestId);
   }
 
   /**
