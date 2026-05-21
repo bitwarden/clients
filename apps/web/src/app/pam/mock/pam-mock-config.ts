@@ -17,14 +17,37 @@ export const PamMockConfig = {
     return localStorage.getItem("pam-mock") !== "false";
   },
 
-  /** ~15% of ciphers are gated. Deterministic per cipher ID. */
-  shouldGate(cipherId: string): boolean {
-    return hash(cipherId) % 100 < 15;
+  /**
+   * Returns the PAM state for a cipher. Roughly one third of ciphers fall into
+   * each gated bucket; the rest are passthrough (not gated at all).
+   *
+   * - "active"        → pre-seeded active lease; opens with the active-lease banner.
+   * - "pre_pending"   → pre-seeded pending request (30 min old); opens with pending banner.
+   * - "needs_request" → gated but no request yet; triggers the request-access form.
+   * - "passthrough"   → not gated; opens normally.
+   */
+  stateForCipher(cipherId: string): "active" | "pre_pending" | "needs_request" | "passthrough" {
+    const h = hash(cipherId);
+    if (h % 6 === 0) {
+      return "active";
+    }
+    if (h % 6 === 1) {
+      return "pre_pending";
+    }
+    if (h % 6 === 2) {
+      return "needs_request";
+    }
+    return "passthrough";
   },
 
-  /** Of the gated ciphers, ~25% start with an active lease for the current user. */
+  /** @deprecated Use stateForCipher instead. */
+  shouldGate(cipherId: string): boolean {
+    return this.stateForCipher(cipherId) !== "passthrough";
+  },
+
+  /** @deprecated Use stateForCipher instead. */
   shouldStartWithActiveLease(cipherId: string): boolean {
-    return hash(cipherId + ":lease") % 100 < 25;
+    return this.stateForCipher(cipherId) === "active";
   },
 
   /** ~20% of submitted requests auto-deny instead of auto-approve. */

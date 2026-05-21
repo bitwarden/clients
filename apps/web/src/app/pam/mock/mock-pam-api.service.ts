@@ -1,8 +1,10 @@
 import { Injectable } from "@angular/core";
+import { map, Observable, startWith } from "rxjs";
 
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import {
   BulkRevokeResult,
+  CipherLeaseState,
   CollectionLeasingConfigResponse,
   CollectionLeasingRequest,
   GatedCipherFetchResult,
@@ -33,6 +35,34 @@ import { PamMockBuilders, PamMockStore } from "./pam-mock-store";
 export class MockPamApiService extends PamApiService {
   constructor(private readonly store: PamMockStore) {
     super();
+  }
+
+  getCipherLeaseState$(cipherId: string, userId: string): Observable<CipherLeaseState> {
+    const snapshot = (): CipherLeaseState => {
+      const activeLease = this.store.leasesByCipher.get(cipherId);
+      const pendingRequest = [...this.store.requests.values()].find(
+        (r) => r.cipherId === cipherId && r.status === "pending",
+      );
+      return {
+        activeLease: activeLease?.status === "active" ? activeLease : undefined,
+        pendingRequest,
+      };
+    };
+
+    if (PamMockConfig.isEnabled()) {
+      const state = PamMockConfig.stateForCipher(cipherId);
+      if (state === "active") {
+        this.store.ensureSeedLease(cipherId, userId);
+      } else if (state === "pre_pending") {
+        this.store.ensureSeedPendingRequest(cipherId, userId);
+      }
+    }
+
+    // Re-emit on any lease event so the banner reflects approvals/denials/etc.
+    return this.store.events$.pipe(
+      map(() => snapshot()),
+      startWith(snapshot()),
+    );
   }
 
   async fetchGatedCipher(id: string): Promise<GatedCipherFetchResult> {

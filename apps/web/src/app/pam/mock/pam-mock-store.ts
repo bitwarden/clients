@@ -77,6 +77,35 @@ export class PamMockStore {
   }
 
   /**
+   * Ensures a pre-existing pending request exists for a cipher (simulating a
+   * request submitted ~30 minutes ago in a prior session). Idempotent.
+   */
+  ensureSeedPendingRequest(cipherId: string, userId: string): void {
+    this.currentUserId ??= userId;
+    if (
+      [...this.requests.values()].some((r) => r.cipherId === cipherId && r.status === "pending")
+    ) {
+      return;
+    }
+    const id = this.mintId("req");
+    const now = new Date();
+    const submittedAt = new Date(now.getTime() - 30 * 60 * 1000);
+    const notAfter = new Date(now.getTime() + PamMockConfig.DEFAULT_LEASE_DURATION_MS);
+    const request = buildLeaseRequest({
+      id,
+      cipherId,
+      collectionId: this.collectionFor(cipherId),
+      requesterUserId: userId,
+      status: "pending",
+      requestedNotBefore: now,
+      requestedNotAfter: notAfter,
+      requestedTtlSeconds: Math.floor(PamMockConfig.DEFAULT_LEASE_DURATION_MS / 1000),
+      submittedAt,
+    });
+    this.requests.set(id, request);
+  }
+
+  /**
    * Create a new pending request for a gated cipher and schedule its
    * auto-decision. Returns the freshly-created request.
    */
