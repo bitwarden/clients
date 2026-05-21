@@ -674,7 +674,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
     if (useSdk) {
       return this.getManyFromApiForOrganizationUsingSdk(organizationId);
     }
@@ -1271,7 +1271,7 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: CollectionId[],
     removeCollections: boolean = false,
   ): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
       await this.cipherSdkService.bulkUpdateCollectionsWithServer(
@@ -1378,7 +1378,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
       await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
