@@ -1,34 +1,32 @@
-<form [formGroup]="form" [bitSubmit]="submit">
-  <bit-dialog>
-    <ng-container bitDialogTitle>
-      {{ "rotateAccountEncryptionKey" | i18n }}
-    </ng-container>
-    <ng-container bitDialogContent>
-      <p bitTypography="body1">
-        {{ "rotateAccountEncryptionDialogDescription" | i18n }}
-      </p>
-      <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
-      <bit-form-field class="tw-mt-2">
-        <bit-label>{{ "masterPass" | i18n }}</bit-label>
-        <input
-          type="password"
-          formControlName="masterPassword"
-          bitInput
-          name="masterPassword"
-          class="tw-font-mono"
-          required
-          appInputVerbatim
-        />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-      </bit-form-field>
-    </ng-container>
-    <ng-container bitDialogFooter>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
-        {{ "rotateKey" | i18n }}
-      </button>
-      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
-        {{ "cancel" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
+<form [formGroup]="form" [bitSubmit]="submit" bit-dialog>
+  <ng-container bitDialogTitle>
+    {{ "rotateAccountEncryptionKey" | i18n }}
+  </ng-container>
+  <ng-container bitDialogContent>
+    <p bitTypography="body1">
+      {{ "rotateAccountEncryptionDialogDescription" | i18n }}
+    </p>
+    <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
+    <bit-form-field class="tw-mt-2">
+      <bit-label>{{ "masterPass" | i18n }}</bit-label>
+      <input
+        type="password"
+        formControlName="masterPassword"
+        bitInput
+        name="masterPassword"
+        class="tw-font-mono"
+        required
+        appInputVerbatim
+      />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button type="submit" bitButton bitFormButton buttonType="primary">
+      {{ "rotateKey" | i18n }}
+    </button>
+    <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
 </form>
