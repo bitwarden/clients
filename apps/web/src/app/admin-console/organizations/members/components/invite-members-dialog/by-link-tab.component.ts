@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   combineLatest,
   filter,
@@ -9,6 +9,7 @@ import {
   map,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
 } from "rxjs";
 
@@ -22,11 +23,11 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
-  DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkComponent,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import {
   OrganizationInviteLink,
@@ -49,6 +50,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     IconButtonModule,
     ReactiveFormsModule,
     LinkComponent,
+    TooltipDirective,
   ],
 })
 export class ByLinkTabComponent {
@@ -61,7 +63,6 @@ export class ByLinkTabComponent {
   private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly dialogService = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
 
@@ -85,19 +86,28 @@ export class ByLinkTabComponent {
     ),
   );
 
-  readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLinkUrl$.pipe(
-    map((inviteLink) => inviteLink != undefined),
+  readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLink$.pipe(
+    map((inviteLink) => inviteLink != null),
   );
 
   readonly form = this.fb.group({
-    domains: [""],
+    domains: ["", Validators.required],
   });
+
+  readonly domainsEmpty = toSignal(
+    this.form.controls.domains.valueChanges.pipe(
+      map((v) => !v || v.trim().length === 0),
+      startWith(true),
+    ),
+    { initialValue: true },
+  );
 
   private readonly prefillAttempted = signal(false);
 
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
+        this.prefillAttempted.set(true);
         this.form.controls.domains.setValue(inviteLink.allowedDomains.join(", "));
       } else if (inviteLink == null && !this.form.dirty && !this.prefillAttempted()) {
         this.prefillAttempted.set(true);
@@ -137,32 +147,6 @@ export class ByLinkTabComponent {
 
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
-    if (domains.length === 0) {
-      if (!inviteLink) {
-        this.form.controls.domains.setErrors({ required: true });
-        return;
-      }
-
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "invalidateInviteLink" },
-        content: { key: "invalidateInviteLinkDesc" },
-        type: "warning",
-        acceptButtonText: { key: "invalidateLink" },
-        cancelButtonText: { key: "cancel" },
-      });
-
-      if (!confirmed) {
-        return;
-      }
-
-      await this.inviteLinkService.delete(userId, this.organizationId());
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("inviteLinkInvalidated"),
-      });
-      return;
-    }
-
     if (inviteLink) {
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains);
     } else {
@@ -198,6 +182,15 @@ export class ByLinkTabComponent {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("inviteLinkRegenerated"),
+    });
+  };
+
+  readonly deactivateLink = async () => {
+    const userId = await firstValueFrom(this.userId$);
+    await this.inviteLinkService.delete(userId, this.organizationId());
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("inviteLinkInvalidated"),
     });
   };
 }
