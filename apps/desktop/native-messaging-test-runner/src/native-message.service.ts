@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import "module-alias/register";
 
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
@@ -190,7 +190,7 @@ export default class NativeMessageService {
 
     const commonFields: MessageCommon = {
       // Create a messageId that can be used as a lookup when we get a response
-      messageId: uuidv4(),
+      messageId: randomUUID(),
       version: this.apiVersion,
     };
     const fullMessage: UnencryptedMessage | EncryptedMessage = {
