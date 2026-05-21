@@ -1,6 +1,6 @@
 <app-header>
   @if (!selfHosted) {
-    <bit-tab-nav-bar class="tw-mt-4" slot="tabs">
+    <bit-tab-nav-bar slot="tabs">
       <bit-tab-link
         [route]="(showSubscriptionPageLink$ | async) ? 'user-subscription' : 'premium'"
         >{{ "subscription" | i18n }}</bit-tab-link

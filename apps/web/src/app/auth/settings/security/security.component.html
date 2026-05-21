@@ -1,5 +1,5 @@
 <app-header>
-  <bit-tab-nav-bar class="tw-mt-4" slot="tabs">
+  <bit-tab-nav-bar slot="tabs">
     <bit-tab-link route="session-timeout">{{ "sessionTimeoutHeader" | i18n }}</bit-tab-link>
     @if (showChangePassword) {
       <bit-tab-link [route]="changePasswordRoute">{{ "masterPassword" | i18n }}</bit-tab-link>
