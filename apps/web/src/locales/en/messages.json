@@ -13438,9 +13438,6 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
-  "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "This setting is being managed by the Bitwarden browser extension"
-  },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
   },
