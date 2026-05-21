@@ -14,6 +14,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -57,6 +58,7 @@ export class InitService {
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
+    private ipcService: IpcService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
@@ -67,6 +69,7 @@ export class InitService {
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
+      await this.ipcService.init();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process

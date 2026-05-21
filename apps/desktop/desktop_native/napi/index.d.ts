@@ -194,6 +194,8 @@ export declare namespace ipc {
      * receiving the message.
      */
     send(message: string): number
+    /** Send a message to a specific connected client by ID. */
+    sendTo(clientId: number, message: string): void
   }
   export interface IpcMessage {
     clientId: number
