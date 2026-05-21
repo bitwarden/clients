@@ -15,6 +15,10 @@
         "notifications": { "type": "string" },
         "events": { "type": "string" }
       }
+    },
+    "skipWelcomeOnInstall": {
+      "type": "boolean",
+      "description": "When true, suppresses the welcome tab that opens on first install."
     }
   }
 }

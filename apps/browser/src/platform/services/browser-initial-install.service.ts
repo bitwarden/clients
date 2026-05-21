@@ -15,6 +15,8 @@ const EXTENSION_INSTALLED = new KeyDefinition<boolean>(
   },
 );
 
+const SKIP_WELCOME_ON_INSTALL_POLICY_KEY = "skipWelcomeOnInstall";
+
 export default class BrowserInitialInstallService {
   private extensionInstalled: GlobalState<boolean> =
     this.stateProvider.getGlobal(EXTENSION_INSTALLED);
@@ -27,5 +29,25 @@ export default class BrowserInitialInstallService {
 
   async setExtensionInstalled(value: boolean) {
     await this.extensionInstalled.update(() => value);
+  }
+
+  isWelcomeScreenDisabledByPolicy(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (chrome.storage?.managed == null) {
+        return resolve(false);
+      }
+
+      try {
+        chrome.storage.managed.get(SKIP_WELCOME_ON_INSTALL_POLICY_KEY, (result) => {
+          if (chrome.runtime.lastError) {
+            return resolve(false);
+          }
+
+          resolve(result?.[SKIP_WELCOME_ON_INSTALL_POLICY_KEY] === true);
+        });
+      } catch {
+        resolve(false);
+      }
+    });
   }
 }

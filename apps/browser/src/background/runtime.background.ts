@@ -489,27 +489,35 @@ export default class RuntimeBackground {
     setTimeout(async () => {
       void this.autofillService.loadAutofillScriptsOnInstall();
 
-      if (this.onInstalledReason != null) {
-        if (
-          this.onInstalledReason === "install" &&
-          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
-        ) {
-          if (!devFlagEnabled("skipWelcomeOnInstall")) {
-            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
-          }
-
-          await this.autofillSettingsService.setInlineMenuVisibility(
-            AutofillOverlayVisibility.OnFieldFocus,
-          );
-
-          if (await this.environmentService.hasManagedEnvironment()) {
-            await this.environmentService.setUrlsToManagedEnvironment();
-          }
-          await this.browserInitialInstallService.setExtensionInstalled(true);
-        }
-
-        this.onInstalledReason = null;
+      if (this.onInstalledReason == null) {
+        return;
       }
+
+      const isFreshInstall =
+        this.onInstalledReason === "install" &&
+        !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$));
+      this.onInstalledReason = null;
+
+      if (!isFreshInstall) {
+        return;
+      }
+
+      const welcomeTabSuppressed =
+        devFlagEnabled("skipWelcomeOnInstall") ||
+        (await this.browserInitialInstallService.isWelcomeScreenDisabledByPolicy());
+
+      if (!welcomeTabSuppressed) {
+        void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+      }
+
+      await this.autofillSettingsService.setInlineMenuVisibility(
+        AutofillOverlayVisibility.OnFieldFocus,
+      );
+
+      if (await this.environmentService.hasManagedEnvironment()) {
+        await this.environmentService.setUrlsToManagedEnvironment();
+      }
+      await this.browserInitialInstallService.setExtensionInstalled(true);
     }, 100);
   }
 
