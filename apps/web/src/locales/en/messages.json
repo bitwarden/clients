@@ -141,6 +141,9 @@
   "noCriticalApplicationsMarkedYet": {
     "message": "You haven't marked any critical applications yet. Head to Review applications to get started."
   },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here."
+  },
   "viewAtRiskMembers": {
     "message": "View at-risk members"
   },
