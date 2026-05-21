@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { BulkActionComponent } from "./bulk-action.component";
+import { BulkActionButtonComponent } from "./bulk-action-button.component";
 
 @Component({
-  imports: [BulkActionComponent],
+  imports: [BulkActionButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
@@ -26,7 +26,7 @@ class HostComponent {
   }
 }
 
-describe("BulkActionComponent", () => {
+describe("BulkActionButtonComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
 

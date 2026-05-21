@@ -5,13 +5,13 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { CheckboxModule } from "../checkbox";
-import { MenuModule } from "../menu";
 import { TableDataSource } from "../table/table-data-source";
 import { TableModule } from "../table/table.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BulkActionComponent } from "./bulk-action.component";
 import { BulkActionsBarComponent } from "./bulk-actions-bar.component";
+import { BulkAdditionalActionComponent } from "./bulk-additional-action.component";
 
 type Row = { id: number; name: string; type: string };
 
@@ -22,9 +22,9 @@ type Row = { id: number; name: string; type: string };
     CommonModule,
     TableModule,
     CheckboxModule,
-    MenuModule,
     BulkActionsBarComponent,
     BulkActionComponent,
+    BulkAdditionalActionComponent,
   ],
   template: /*html*/ `
     <bit-table [dataSource]="dataSource">
@@ -64,13 +64,11 @@ type Row = { id: number; name: string; type: string };
     </bit-table>
 
     <bit-bulk-actions-bar [selectedCount]="selectedCount()" (clear)="clearAll()">
-      <button bitBulkAction icon="bwi-folder" type="button">Move</button>
-      <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
-      <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
-      <bit-menu>
-        <a bitMenuItem href="javascript:void(0)">Export</a>
-        <a bitMenuItem href="javascript:void(0)">Share</a>
-      </bit-menu>
+      <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
+      <bit-bulk-action [action]="archive" icon="bwi-archive" label="Archive" />
+      <bit-bulk-action [action]="onDelete" icon="bwi-trash" label="Delete" />
+      <bit-bulk-additional-action [action]="onExport" icon="bwi-cloud" label="Export" />
+      <bit-bulk-additional-action [action]="onShare" label="Share" />
     </bit-bulk-actions-bar>
   `,
 })
@@ -84,6 +82,20 @@ class StoryBulkActionsTableComponent {
     () => this.selectedCount() > 0 && this.selectedCount() === this.dataSource.data.length,
   );
   protected readonly someSelected = computed(() => this.selectedCount() > 0 && !this.allSelected());
+
+  protected readonly move = () => {
+    /* noop in story */
+  };
+  protected readonly archive = () => {
+    /* noop in story */
+  };
+  protected readonly onDelete = () => this.clearAll();
+  protected readonly onExport = () => {
+    /* noop in story */
+  };
+  protected readonly onShare = () => {
+    /* noop in story */
+  };
 
   constructor() {
     this.dataSource.data = [
@@ -132,10 +144,10 @@ export default {
     moduleMetadata({
       imports: [
         BulkActionComponent,
+        BulkAdditionalActionComponent,
         CommonModule,
         TableModule,
         CheckboxModule,
-        MenuModule,
         StoryBulkActionsTableComponent,
       ],
       providers: [
@@ -170,39 +182,41 @@ export default {
 
 type Story = StoryObj<BulkActionsBarComponent>;
 
+const noop = () => {
+  /* story callback */
+};
+
 export const Default: Story = {
   render: (args) => ({
-    props: args,
+    props: { ...args, noop },
     template: /*html*/ `
       <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
-        <button bitBulkAction icon="bwi-folder" type="button">Move</button>
-        <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
-        <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
+        <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+        <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
+        <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
       </bit-bulk-actions-bar>
     `,
   }),
 };
 
 /**
- * Wrap `<a bitMenuItem>` (or `<button bitMenuItem>`) entries in a `<bit-menu>`
- * inside the bar's content. When a `bit-menu` is present, the bar renders an
- * icon-only "Additional actions" trigger at the end of the action row that
- * opens the consumer-provided menu.
+ * Project `<bit-bulk-additional-action>` entries alongside the primary `<bit-bulk-action>`
+ * data-holders. When at least one additional action is present, the bar renders an icon-only
+ * "Additional actions" trigger at the end of the action row that opens a bar-owned menu. The
+ * optional `[icon]` input renders a leading icon inside the menu item.
  */
 export const WithAdditionalActions: Story = {
   render: (args) => ({
-    props: args,
+    props: { ...args, noop },
     template: /*html*/ `
       <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
-        <button bitBulkAction icon="bwi-folder" type="button">Move</button>
-        <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
-        <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
+        <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+        <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
+        <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
 
-        <bit-menu>
-          <a bitMenuItem href="javascript:void(0)">Export</a>
-          <a bitMenuItem href="javascript:void(0)">Share</a>
-          <a bitMenuItem href="javascript:void(0)">Move to organization</a>
-        </bit-menu>
+        <bit-bulk-additional-action [action]="noop" icon="bwi-cloud" label="Export" />
+        <bit-bulk-additional-action [action]="noop" icon="bwi-share" label="Share" />
+        <bit-bulk-additional-action [action]="noop" label="Move to organization" />
       </bit-bulk-actions-bar>
     `,
   }),
@@ -226,16 +240,16 @@ export const WithTableSelection: Story = {
  */
 export const Compact: Story = {
   render: (args) => ({
-    props: args,
+    props: { ...args, noop },
     template: /*html*/ `
       <div
         class="tw-relative tw-w-[325px] tw-h-32"
         style="transform: translateX(0)"
       >
         <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
-          <button bitBulkAction icon="bwi-folder" type="button">Move</button>
-          <button bitBulkAction icon="bwi-archive" type="button">Archive</button>
-          <button bitBulkAction icon="bwi-trash" type="button">Delete</button>
+          <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+          <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
+          <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
         </bit-bulk-actions-bar>
       </div>
     `,

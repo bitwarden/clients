@@ -5,7 +5,11 @@ import * as stories from "./bulk-actions-bar.stories";
 <Meta of={stories} />
 
 ```ts
-import { BulkActionComponent, BulkActionsBarComponent } from "@bitwarden/components";
+import {
+  BulkActionComponent,
+  BulkActionsBarComponent,
+  BulkAdditionalActionComponent,
+} from "@bitwarden/components";
 ```
 
 <Title />
@@ -13,15 +17,28 @@ import { BulkActionComponent, BulkActionsBarComponent } from "@bitwarden/compone
 <Primary />
 <Controls />
 
-## Action buttons
+## Declaring actions
 
-Use the `bitBulkAction` attribute on a `<button>` or `<a>` for each action you project into the bar.
-The `[icon]` input is required — a bulk action without an icon is not a valid use of this component.
-The consumer keeps full control of `(click)`, `[disabled]`, and other host concerns.
+Project `<bit-bulk-action>` elements into the bar — one per action. Each is a data holder: it
+renders no DOM itself; the bar reads its inputs and renders the toolbar button.
 
 ```html
-<button bitBulkAction icon="bwi-trash" (click)="deleteSelected()">Delete</button>
+<bit-bulk-actions-bar [selectedCount]="selectedCount()" (clear)="clearAll()">
+  <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
+  <bit-bulk-action [action]="delete" icon="bwi-trash" label="Delete" [disabled]="allReadOnly()" />
+</bit-bulk-actions-bar>
 ```
+
+- `[action]` — required callback `() => void`. The bar invokes it when the user clicks the rendered
+  button (or activates it via keyboard).
+- `[label]` — required string. Becomes the button's visible text and, in compact mode, its tooltip /
+  aria-label.
+- `[icon]` — required `BitwardenIcon`. Every action in the toolbar row carries an icon so it has
+  something to fall back to when compact mode collapses labels.
+- `[disabled]` — optional boolean; propagates to the rendered button.
+
+The consumer's `[action]` callback is the only place a primary action's click logic lives. There is
+no `(click)` event on `<bit-bulk-action>`.
 
 ## Visibility
 
@@ -37,17 +54,26 @@ CDK `SelectionModel.clear()` call.
 
 ## Additional actions
 
-Wrap `<a bitMenuItem>` or `<button bitMenuItem>` entries in a `<bit-menu>` projected into the bar
-alongside your `bitBulkAction` buttons. When a `bit-menu` is present, the bar auto-renders an
-icon-only "Additional actions" trigger at the end of the action row that opens the consumer-provided
-menu.
+Project `<bit-bulk-additional-action>` entries to add menu-only actions — items that live in the
+overflow / "Additional actions" menu, not in the toolbar row. When at least one is present, the bar
+renders an icon-only ellipsis trigger at the end of the toolbar that opens a bar-owned menu
+containing those entries.
+
+The `[icon]` input is **optional** on additional actions (unlike primary actions, where it's
+required) — menu items can be label-only. When provided, the icon renders as a leading affordance
+inside the menu item.
+
+```html
+<bit-bulk-additional-action [action]="share" icon="bwi-share" label="Share" />
+<bit-bulk-additional-action [action]="export" label="Export" />
+```
 
 <Canvas of={stories.WithAdditionalActions} />
 
 ## Compact mode
 
 When the bar's container is narrower than the bar's natural width, a `ResizeObserver` flips the bar
-into compact mode: action labels collapse and each `bitBulkAction` exposes its label via tooltip
+into compact mode: action labels collapse and each rendered button exposes its label via tooltip
 instead. No consumer wiring is required.
 
 <Canvas of={stories.Compact} />

@@ -9,12 +9,12 @@ import {
   OnDestroy,
   afterNextRender,
   computed,
-  contentChild,
   contentChildren,
   inject,
   input,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 import { outputFromObservable } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
@@ -23,11 +23,15 @@ import { takeUntil } from "rxjs/operators";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconComponent } from "../icon/icon.component";
+import { MenuItemComponent } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
 
+import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
 import { BULK_ACTIONS_BAR_CONTEXT, BulkActionsBarContext } from "./bulk-actions-bar-context";
+import { BulkAdditionalActionComponent } from "./bulk-additional-action.component";
 
 /**
  * Slack between the bar's intrinsic width and the wrapper width that triggers
@@ -39,7 +43,14 @@ const COMPACT_THRESHOLD_BUFFER_PX = 48;
 @Component({
   selector: "bit-bulk-actions-bar",
   templateUrl: "./bulk-actions-bar.component.html",
-  imports: [I18nPipe, BulkActionComponent, MenuTriggerForDirective],
+  imports: [
+    I18nPipe,
+    BulkActionButtonComponent,
+    MenuComponent,
+    MenuItemComponent,
+    MenuTriggerForDirective,
+    IconComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(document:keydown)": "handleShortcut($event)",
@@ -57,14 +68,21 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
 
   protected readonly bar = viewChild<ElementRef<HTMLElement>>("bar");
   protected readonly wrapper = viewChild.required<ElementRef<HTMLElement>>("wrapper");
-  protected readonly closeBtn = viewChild(BulkActionComponent);
+  protected readonly closeBtn = viewChild(BulkActionButtonComponent);
 
   readonly additionalActionsTrigger = viewChild("additionalActionsTrigger", {
-    read: BulkActionComponent,
+    read: BulkActionButtonComponent,
   });
 
-  private readonly actions = contentChildren(BulkActionComponent);
-  protected readonly additionalActionsMenu = contentChild(MenuComponent);
+  // Data-holder children projected by the consumer. The bar reads their inputs and renders
+  // both the toolbar buttons and the menu items itself from this data.
+  protected readonly primaryActions = contentChildren(BulkActionComponent);
+  protected readonly additionalActions = contentChildren(BulkAdditionalActionComponent);
+  protected readonly hasAdditionalActions = computed(() => this.additionalActions().length > 0);
+
+  // The toolbar buttons the bar renders for each primary data holder. Sourced via viewChildren
+  // (not contentChildren) because the bar renders them itself via @for.
+  private readonly primaryButtons = viewChildren(BulkActionButtonComponent);
 
   protected readonly visible = computed(() => this.selectedCount() > 0);
 
@@ -105,7 +123,9 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
   // uses internally).
   private readonly previousFocus = signal<HTMLElement | null>(null);
 
-  private readonly keyManager = signal<FocusKeyManager<BulkActionComponent> | undefined>(undefined);
+  private readonly keyManager = signal<FocusKeyManager<BulkActionButtonComponent> | undefined>(
+    undefined,
+  );
   private readonly destroy$ = new Subject<void>();
   private readonly destroyRef = inject(DestroyRef);
 
@@ -138,21 +158,21 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
   }
 
   ngAfterViewInit(): void {
-    // Built in ngAfterViewInit (not ngAfterContentInit) so the additional-
-    // actions trigger — which only renders once the consumer-provided
-    // bit-menu content child resolves and the @if branch ticks through —
-    // is available.
+    // Built in ngAfterViewInit (not ngAfterContentInit) so the rendered primary
+    // buttons, close button, and additional-actions trigger — which only exist
+    // after the bar's @for and @if blocks tick through — are available.
     const closeBtn = this.closeBtn();
     if (closeBtn == null) {
       return;
     }
-    const items: BulkActionComponent[] = [closeBtn, ...this.actions()];
+    const primaries = this.primaryButtons().filter((btn) => btn !== closeBtn);
+    const items: BulkActionButtonComponent[] = [closeBtn, ...primaries];
     const trigger = this.additionalActionsTrigger();
     if (trigger) {
       items.push(trigger);
     }
 
-    const manager = new FocusKeyManager<BulkActionComponent>(items)
+    const manager = new FocusKeyManager<BulkActionButtonComponent>(items)
       .withHorizontalOrientation("ltr")
       .withWrap()
       .withHomeAndEnd();
@@ -184,6 +204,14 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
     this.keyManager()?.onKeydown(event);
   }
 
+  /** Invoke the consumer-provided callback on a primary or additional action. */
+  protected handleClick(item: BulkActionComponent | BulkAdditionalActionComponent): void {
+    if (item.disabled()) {
+      return;
+    }
+    item.action()();
+  }
+
   protected handleShortcut(event: KeyboardEvent): void {
     if (!this.visible()) {
       return;
@@ -207,7 +235,7 @@ export class BulkActionsBarComponent implements BulkActionsBarContext, AfterView
     this.keyManager()?.setFirstItemActive();
   }
 
-  private applyRovingTabIndex(activeIdx: number | null, items: BulkActionComponent[]): void {
+  private applyRovingTabIndex(activeIdx: number | null, items: BulkActionButtonComponent[]): void {
     items.forEach((item, i) => {
       item.tabIndex.set(i === activeIdx ? 0 : -1);
     });

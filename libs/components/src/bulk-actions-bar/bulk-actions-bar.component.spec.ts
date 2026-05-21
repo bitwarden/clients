@@ -4,11 +4,11 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { MenuModule } from "../menu";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BulkActionComponent } from "./bulk-action.component";
 import { BulkActionsBarComponent } from "./bulk-actions-bar.component";
+import { BulkAdditionalActionComponent } from "./bulk-additional-action.component";
 
 // JSDOM does not implement ResizeObserver — provide a no-op stub so the
 // component can construct without throwing.
@@ -25,16 +25,21 @@ global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
   template: `
     <button id="outside" type="button">Outside</button>
     <bit-bulk-actions-bar [selectedCount]="count()" (clear)="onClear()">
-      <button id="first-action" bitBulkAction icon="bwi-folder" type="button">First</button>
-      <button id="second-action" bitBulkAction icon="bwi-trash" type="button">Second</button>
+      <bit-bulk-action [action]="first" icon="bwi-folder" label="First" />
+      <bit-bulk-action [action]="second" icon="bwi-trash" label="Second" />
     </bit-bulk-actions-bar>
   `,
 })
 class HostComponent {
   readonly count = signal(0);
   readonly cleared = signal(0);
+  readonly firstClicks = signal(0);
+  readonly secondClicks = signal(0);
 
   readonly bar = viewChild.required(BulkActionsBarComponent);
+
+  readonly first = () => this.firstClicks.update((v) => v + 1);
+  readonly second = () => this.secondClicks.update((v) => v + 1);
 
   onClear() {
     this.cleared.update((v) => v + 1);
@@ -48,8 +53,13 @@ describe("BulkActionsBarComponent", () => {
   const innerBar = () =>
     fixture.debugElement.query(By.css('[role="toolbar"]')).nativeElement as HTMLElement;
   const outside = () => fixture.nativeElement.querySelector("#outside") as HTMLButtonElement;
-  const firstAction = () =>
-    fixture.nativeElement.querySelector("#first-action") as HTMLButtonElement;
+  const primaryButtons = (): HTMLButtonElement[] =>
+    Array.from(
+      innerBar().querySelectorAll<HTMLButtonElement>(
+        'button[bitBulkAction]:not([icon="bwi-clear"]):not([icon="bwi-ellipsis-v"])',
+      ),
+    );
+  const firstAction = () => primaryButtons()[0];
   const closeBtn = () =>
     fixture.nativeElement.querySelector(
       'button[bitBulkAction][icon="bwi-clear"]',
@@ -116,6 +126,15 @@ describe("BulkActionsBarComponent", () => {
     );
   });
 
+  it("renders one toolbar button per projected <bit-bulk-action>", () => {
+    host.count.set(2);
+    fixture.detectChanges();
+    const buttons = primaryButtons();
+    expect(buttons.length).toBe(2);
+    expect(buttons[0].textContent?.trim()).toBe("First");
+    expect(buttons[1].textContent?.trim()).toBe("Second");
+  });
+
   it("renders the clear button regardless of (clear) binding", () => {
     expect(closeBtn()).toBeTruthy();
   });
@@ -125,6 +144,16 @@ describe("BulkActionsBarComponent", () => {
     fixture.detectChanges();
     closeBtn().click();
     expect(host.cleared()).toBe(1);
+  });
+
+  it("invokes the consumer-provided [action] callback when a primary button is clicked", () => {
+    host.count.set(2);
+    fixture.detectChanges();
+    primaryButtons()[0].click();
+    expect(host.firstClicks()).toBe(1);
+    expect(host.secondClicks()).toBe(0);
+    primaryButtons()[1].click();
+    expect(host.secondClicks()).toBe(1);
   });
 
   describe("focus shortcut", () => {
@@ -211,7 +240,7 @@ describe("BulkActionsBarComponent", () => {
         new KeyboardEvent("keydown", { key: "ArrowRight", keyCode: 39, bubbles: true }),
       );
       fixture.detectChanges();
-      expect((document.activeElement as HTMLElement).id).toBe("first-action");
+      expect(document.activeElement).toBe(primaryButtons()[0]);
     });
 
     it("ArrowLeft wraps from the first item (close button) to the last", () => {
@@ -220,7 +249,7 @@ describe("BulkActionsBarComponent", () => {
         new KeyboardEvent("keydown", { key: "ArrowLeft", keyCode: 37, bubbles: true }),
       );
       fixture.detectChanges();
-      expect((document.activeElement as HTMLElement).id).toBe("second-action");
+      expect(document.activeElement).toBe(primaryButtons()[1]);
     });
 
     it("Home jumps to the first item (close button) from anywhere in the toolbar", () => {
@@ -238,7 +267,7 @@ describe("BulkActionsBarComponent", () => {
         new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
       );
       fixture.detectChanges();
-      expect((document.activeElement as HTMLElement).id).toBe("second-action");
+      expect(document.activeElement).toBe(primaryButtons()[1]);
     });
 
     it("does not react to plain Escape", fakeAsync(() => {
@@ -290,16 +319,14 @@ describe("BulkActionsBarComponent", () => {
 });
 
 @Component({
-  imports: [BulkActionsBarComponent, BulkActionComponent, MenuModule],
+  imports: [BulkActionsBarComponent, BulkActionComponent, BulkAdditionalActionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-bulk-actions-bar [selectedCount]="count()">
-      <button id="first-action" bitBulkAction icon="bwi-folder" type="button">First</button>
+      <bit-bulk-action [action]="first" icon="bwi-folder" label="First" />
       @if (showAdditional()) {
-        <bit-menu>
-          <a id="export" bitMenuItem href="#">Export</a>
-          <a id="share" bitMenuItem href="#">Share</a>
-        </bit-menu>
+        <bit-bulk-additional-action [action]="onExport" icon="bwi-cloud" label="Export" />
+        <bit-bulk-additional-action [action]="onShare" label="Share" />
       }
     </bit-bulk-actions-bar>
   `,
@@ -309,6 +336,13 @@ class AdditionalActionsHostComponent {
   readonly showAdditional = signal(true);
 
   readonly bar = viewChild.required(BulkActionsBarComponent);
+
+  readonly exportClicks = signal(0);
+  readonly shareClicks = signal(0);
+
+  readonly first = () => {};
+  readonly onExport = () => this.exportClicks.update((v) => v + 1);
+  readonly onShare = () => this.shareClicks.update((v) => v + 1);
 }
 
 describe("BulkActionsBarComponent — additional actions", () => {
@@ -319,6 +353,9 @@ describe("BulkActionsBarComponent — additional actions", () => {
     fixture.nativeElement.querySelector(
       'button[bitBulkAction][icon="bwi-ellipsis-v"]',
     ) as HTMLButtonElement | null;
+
+  const menuItems = (): HTMLButtonElement[] =>
+    Array.from(document.querySelectorAll<HTMLButtonElement>("button[bitMenuItem]"));
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -353,13 +390,13 @@ describe("BulkActionsBarComponent — additional actions", () => {
     document.body.removeAttribute("tabindex");
   });
 
-  it("does not render the trigger when no bit-menu is projected", () => {
+  it("does not render the trigger when no <bit-bulk-additional-action> is projected", () => {
     host.showAdditional.set(false);
     fixture.detectChanges();
     expect(trigger()).toBeNull();
   });
 
-  it("renders an ellipsis trigger when a bit-menu is projected", () => {
+  it("renders an ellipsis trigger when at least one additional action is projected", () => {
     const btn = trigger();
     expect(btn).not.toBeNull();
     expect(btn!.querySelector("bit-icon")).not.toBeNull();
@@ -376,18 +413,42 @@ describe("BulkActionsBarComponent — additional actions", () => {
     expect(labelSpan.textContent?.trim()).toBe("Additional actions");
   });
 
-  it("opens the menu when the trigger is clicked", () => {
+  it("opens the menu when the trigger is clicked and renders one item per projected additional action", () => {
     const btn = trigger()!;
     expect(btn.getAttribute("aria-expanded")).toBe("false");
     btn.click();
     fixture.detectChanges();
     expect(btn.getAttribute("aria-expanded")).toBe("true");
+
+    const items = menuItems();
+    expect(items.length).toBe(2);
+    expect(items[0].textContent?.replace(/\s+/g, " ").trim()).toBe("Export");
+    expect(items[1].textContent?.trim()).toBe("Share");
+  });
+
+  it("renders a leading icon only on additional actions that declare one", () => {
+    trigger()!.click();
+    fixture.detectChanges();
+    const items = menuItems();
+    expect(items[0].querySelector('bit-icon[slot="start"]')).not.toBeNull();
+    expect(items[1].querySelector('bit-icon[slot="start"]')).toBeNull();
+  });
+
+  it("invokes the consumer-provided [action] callback when a menu item is clicked", () => {
+    trigger()!.click();
+    fixture.detectChanges();
+    const items = menuItems();
+    items[0].click();
+    expect(host.exportClicks()).toBe(1);
+    expect(host.shareClicks()).toBe(0);
+    items[1].click();
+    expect(host.shareClicks()).toBe(1);
   });
 
   it("includes the trigger in the toolbar's roving tabindex", () => {
     // `End` jumps to the last item in the FocusKeyManager — if the trigger
     // were missing from the items list, focus would land on the last
-    // bitBulkAction instead.
+    // primary button instead.
     const closeBtn = fixture.nativeElement.querySelector(
       'button[icon="bwi-clear"]',
     ) as HTMLButtonElement;

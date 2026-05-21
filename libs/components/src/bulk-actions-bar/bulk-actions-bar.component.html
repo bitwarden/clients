@@ -33,15 +33,25 @@
     </button>
 
     <div class="tw-flex tw-items-center tw-gap-2">
-      <ng-content></ng-content>
+      @for (primary of primaryActions(); track primary) {
+        <button
+          bitBulkAction
+          type="button"
+          [icon]="primary.icon()"
+          [disabled]="primary.disabled()"
+          (click)="handleClick(primary)"
+        >
+          {{ primary.label() }}
+        </button>
+      }
 
-      @if (additionalActionsMenu(); as menu) {
+      @if (hasAdditionalActions()) {
         <button
           #additionalActionsTrigger
           bitBulkAction
           icon="bwi-ellipsis-v"
           type="button"
-          [bitMenuTriggerFor]="menu"
+          [bitMenuTriggerFor]="additionalActionsMenu"
           position="above-end"
           [attr.aria-label]="'additionalActions' | i18n"
         >
@@ -50,4 +60,23 @@
       }
     </div>
   </div>
+
+  <!-- Keeps projected data-holders attached to the view; they render no DOM (display: none). -->
+  <ng-content></ng-content>
 </div>
+
+<bit-menu #additionalActionsMenu>
+  @for (additional of additionalActions(); track additional) {
+    <button
+      bitMenuItem
+      type="button"
+      [disabled]="additional.disabled()"
+      (click)="handleClick(additional)"
+    >
+      @if (additional.icon(); as iconName) {
+        <bit-icon slot="start" [name]="iconName" />
+      }
+      {{ additional.label() }}
+    </button>
+  }
+</bit-menu>
