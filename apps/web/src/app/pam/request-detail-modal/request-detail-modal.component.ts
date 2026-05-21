@@ -1,14 +1,6 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnInit,
-  computed,
-  inject,
-  signal,
-} from "@angular/core";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, Inject, OnInit, inject, signal } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -20,6 +12,7 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  LinkModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -46,9 +39,9 @@ export type RequestDetailModalResult =
  * Modal opened immediately on a 202 (pending) gated-cipher fetch (PM-37265).
  *
  * Lets the requester amend the access window and optional reason before the
- * approver sees the request. "Submit" patches the server-side LeaseRequest;
- * "Cancel request" deletes it. Dismissing leaves the server-side LeaseRequest
- * intact with its defaults — the cipher view falls back to the pending-state block.
+ * approver sees the request. "Request access" patches the server-side LeaseRequest;
+ * dismissing leaves it intact. A "Set custom window" link reveals date + start/end
+ * time fields as an alternative to the preset duration dropdown.
  */
 @Component({
   standalone: true,
@@ -61,6 +54,7 @@ export type RequestDetailModalResult =
     DialogModule,
     ButtonModule,
     FormFieldModule,
+    LinkModule,
     TypographyModule,
     I18nPipe,
   ],
@@ -73,13 +67,22 @@ export class RequestDetailModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   protected readonly submitting = signal(false);
-  protected readonly cancelling = signal(false);
+  protected readonly showCustomWindow = signal(false);
 
-  protected readonly minDate = computed(() => toDateTimeLocal(new Date()));
+  protected readonly durationOptions: { minutes: number; labelKey: string }[] = [
+    { minutes: 15, labelKey: "requestDetailModalDuration15m" },
+    { minutes: 30, labelKey: "requestDetailModalDuration30m" },
+    { minutes: 60, labelKey: "requestDetailModalDuration1h" },
+    { minutes: 240, labelKey: "requestDetailModalDuration4h" },
+    { minutes: 480, labelKey: "requestDetailModalDuration8h" },
+    { minutes: 1440, labelKey: "requestDetailModalDuration1d" },
+  ];
 
   protected readonly form = this.fb.group({
-    notBefore: this.fb.control<string>(""),
-    notAfter: this.fb.control<string>("", [Validators.required]),
+    durationMinutes: this.fb.control<number>(60),
+    customDate: this.fb.control<string>(""),
+    customStart: this.fb.control<string>(""),
+    customEnd: this.fb.control<string>(""),
     reason: this.fb.control<string>(""),
   });
 
@@ -90,18 +93,31 @@ export class RequestDetailModalComponent implements OnInit {
 
   ngOnInit(): void {
     const req = this.data.request;
-    const now = new Date();
-    const defaultAfter = new Date(now.getTime() + 60 * 60 * 1000);
+    let durationMinutes = 60;
+    if (req.requestedNotBefore && req.requestedNotAfter) {
+      const diffMs =
+        new Date(req.requestedNotAfter).getTime() - new Date(req.requestedNotBefore).getTime();
+      const diffMinutes = Math.round(diffMs / 60000);
+      const match = this.durationOptions.find((o) => o.minutes === diffMinutes);
+      if (match) {
+        durationMinutes = match.minutes;
+      }
+    }
+    this.form.patchValue({ durationMinutes, reason: req.reason ?? "" });
+  }
 
-    this.form.patchValue({
-      notBefore: req.requestedNotBefore
-        ? toDateTimeLocal(new Date(req.requestedNotBefore))
-        : toDateTimeLocal(now),
-      notAfter: req.requestedNotAfter
-        ? toDateTimeLocal(new Date(req.requestedNotAfter))
-        : toDateTimeLocal(defaultAfter),
-      reason: req.reason ?? "",
-    });
+  protected toggleCustomWindow(): void {
+    const next = !this.showCustomWindow();
+    if (next) {
+      const now = new Date();
+      const end = new Date(now.getTime() + (this.form.value.durationMinutes ?? 60) * 60000);
+      this.form.patchValue({
+        customDate: toDateString(now),
+        customStart: toTimeString(now),
+        customEnd: toTimeString(end),
+      });
+    }
+    this.showCustomWindow.set(next);
   }
 
   protected async submit(): Promise<void> {
@@ -110,14 +126,25 @@ export class RequestDetailModalComponent implements OnInit {
     }
 
     this.submitting.set(true);
-    const { notBefore, notAfter, reason } = this.form.getRawValue();
+    const { durationMinutes, customDate, customStart, customEnd, reason } = this.form.getRawValue();
+
+    let notBefore: Date;
+    let notAfter: Date;
+
+    if (this.showCustomWindow() && customDate && customStart && customEnd) {
+      notBefore = new Date(`${customDate}T${customStart}`);
+      notAfter = new Date(`${customDate}T${customEnd}`);
+    } else {
+      notBefore = new Date();
+      notAfter = new Date(notBefore.getTime() + (durationMinutes ?? 60) * 60000);
+    }
 
     try {
       await this.pamApi.patchLeaseRequest(
         this.data.request.id,
         new LeaseRequestPatchRequest({
-          notBefore: notBefore ? new Date(notBefore) : undefined,
-          notAfter: notAfter ? new Date(notAfter) : undefined,
+          notBefore,
+          notAfter,
           reason: reason?.trim() || undefined,
         }),
       );
@@ -125,7 +152,7 @@ export class RequestDetailModalComponent implements OnInit {
         variant: "success",
         message: this.i18nService.t("requestDetailModalSubmitSuccess"),
       });
-      this.dialogRef.close(RequestDetailModalResult.Submitted);
+      void this.dialogRef.close(RequestDetailModalResult.Submitted);
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
@@ -137,31 +164,8 @@ export class RequestDetailModalComponent implements OnInit {
     }
   }
 
-  protected async cancelRequest(): Promise<void> {
-    if (this.cancelling()) {
-      return;
-    }
-    this.cancelling.set(true);
-    try {
-      await this.pamApi.cancelLeaseRequest(this.data.request.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("requestDetailModalCancelSuccess"),
-      });
-      this.dialogRef.close(RequestDetailModalResult.Cancelled);
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("requestDetailModalCancelError"),
-      });
-    } finally {
-      this.cancelling.set(false);
-    }
-  }
-
   protected dismiss(): void {
-    this.dialogRef.close(RequestDetailModalResult.Dismissed);
+    void this.dialogRef.close(RequestDetailModalResult.Dismissed);
   }
 
   /** Opens this modal and returns the ref. Used by the cipher view (PM-37265). */
@@ -176,7 +180,15 @@ export class RequestDetailModalComponent implements OnInit {
   }
 }
 
-/** Converts a Date to `YYYY-MM-DDTHH:mm` for `<input type="datetime-local">`. */
-export function toDateTimeLocal(date: Date): string {
-  return date.toISOString().slice(0, 16);
+/** Returns `YYYY-MM-DD` for a Date (local time). */
+function toDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Returns `HH:mm` for a Date (local time). */
+function toTimeString(date: Date): string {
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }

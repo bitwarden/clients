@@ -7,28 +7,73 @@
     </p>
 
     <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap-4">
-      <bit-form-field>
-        <bit-label>{{ "requestDetailModalNotBefore" | i18n }}</bit-label>
-        <input
-          bitInput
-          type="datetime-local"
-          formControlName="notBefore"
-          [min]="minDate()"
-          data-testid="request-not-before"
-        />
+      <bit-form-field [hidden]="showCustomWindow()">
+        <bit-label>{{ "requestDetailModalDuration" | i18n }}</bit-label>
+        <select bitInput formControlName="durationMinutes" data-testid="request-duration">
+          @for (opt of durationOptions; track opt.minutes) {
+            <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
+          }
+        </select>
+        <bit-hint>
+          <a
+            bitLink
+            linkType="primary"
+            href="#"
+            (click)="$event.preventDefault(); toggleCustomWindow()"
+            data-testid="show-custom-window"
+          >
+            <i class="bwi bwi-clock tw-mr-1" aria-hidden="true"></i>
+            {{ "requestDetailModalSetCustomWindow" | i18n }}
+          </a>
+        </bit-hint>
       </bit-form-field>
 
-      <bit-form-field>
-        <bit-label>{{ "requestDetailModalNotAfter" | i18n }}</bit-label>
-        <input
-          bitInput
-          type="datetime-local"
-          formControlName="notAfter"
-          [min]="minDate()"
-          data-testid="request-not-after"
-        />
-        <bit-hint>{{ "requestDetailModalNotAfterHint" | i18n }}</bit-hint>
-      </bit-form-field>
+      <div
+        [hidden]="!showCustomWindow()"
+        class="tw-flex tw-flex-col tw-gap-3"
+        data-testid="custom-window-section"
+      >
+        <bit-form-field>
+          <bit-label>{{ "requestDetailModalCustomDate" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="date"
+            formControlName="customDate"
+            data-testid="request-custom-date"
+          />
+        </bit-form-field>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <bit-form-field>
+            <bit-label>{{ "requestDetailModalCustomStart" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="time"
+              formControlName="customStart"
+              data-testid="request-custom-start"
+            />
+            <bit-hint>
+              <a
+                bitLink
+                linkType="primary"
+                href="#"
+                (click)="$event.preventDefault(); toggleCustomWindow()"
+                data-testid="use-preset-duration"
+              >
+                {{ "requestDetailModalUsePreset" | i18n }}
+              </a>
+            </bit-hint>
+          </bit-form-field>
+          <bit-form-field>
+            <bit-label>{{ "requestDetailModalCustomEnd" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="time"
+              formControlName="customEnd"
+              data-testid="request-custom-end"
+            />
+          </bit-form-field>
+        </div>
+      </div>
 
       <bit-form-field>
         <bit-label>{{ "requestDetailModalReason" | i18n }}</bit-label>
@@ -49,7 +94,7 @@
       type="button"
       bitButton
       buttonType="primary"
-      [disabled]="form.invalid || submitting() || cancelling()"
+      [disabled]="form.invalid || submitting()"
       [loading]="submitting()"
       (click)="submit()"
       data-testid="request-submit"
@@ -60,20 +105,8 @@
     <button
       type="button"
       bitButton
-      buttonType="danger"
-      [disabled]="cancelling() || submitting()"
-      [loading]="cancelling()"
-      (click)="cancelRequest()"
-      data-testid="request-cancel"
-    >
-      {{ "requestDetailModalCancelRequest" | i18n }}
-    </button>
-
-    <button
-      type="button"
-      bitButton
       buttonType="secondary"
-      [disabled]="submitting() || cancelling()"
+      [disabled]="submitting()"
       (click)="dismiss()"
       data-testid="request-dismiss"
     >

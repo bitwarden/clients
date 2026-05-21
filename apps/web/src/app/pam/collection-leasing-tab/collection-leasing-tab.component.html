@@ -16,12 +16,6 @@
     <bit-hint>{{ "pamLeasingEnabledHint" | i18n }}</bit-hint>
   </bit-form-control>
 
-  @if (!leasingEnabled()) {
-    <bit-callout type="info">
-      {{ "pamLeasingDisabledCallout" | i18n }}
-    </bit-callout>
-  }
-
   <fieldset
     class="tw-mt-4"
     [attr.aria-disabled]="!leasingEnabled() || !canManage() ? 'true' : null"
@@ -73,10 +67,4 @@
       }
     </div>
   </fieldset>
-
-  <div class="tw-mt-4">
-    <button type="button" bitButton buttonType="primary" [bitAction]="save" [disabled]="!canSave()">
-      {{ "save" | i18n }}
-    </button>
-  </div>
 }

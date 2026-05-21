@@ -49,6 +49,7 @@ describe("ApproverInboxComponent", () => {
     badgeService = mock<ApproverInboxBadgeService>();
 
     pamApiService.listInboxRequests.mockResolvedValue([]);
+    pamApiService.listInboxHistory.mockResolvedValue([]);
 
     const accountService = mock<AccountService>();
     (accountService as unknown as { activeAccount$: BehaviorSubject<unknown> }).activeAccount$ =

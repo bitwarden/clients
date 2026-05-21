@@ -4,22 +4,18 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  DIALOG_DATA,
-  DialogRef,
-  I18nMockService,
-  ToastService,
-} from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, I18nMockService, ToastService } from "@bitwarden/components";
 import { LeaseRequestResponse, PamApiService } from "@bitwarden/pam";
 
 import {
   RequestDetailModalComponent,
   RequestDetailModalData,
   RequestDetailModalResult,
-  toDateTimeLocal,
 } from "./request-detail-modal.component";
 
-function makeRequest(overrides: Partial<ConstructorParameters<typeof LeaseRequestResponse>[0]> = {}): LeaseRequestResponse {
+function makeRequest(
+  overrides: Partial<ConstructorParameters<typeof LeaseRequestResponse>[0]> = {},
+): LeaseRequestResponse {
   return new LeaseRequestResponse({
     Id: "req-1",
     CipherId: "cipher-1",
@@ -42,7 +38,7 @@ function makeRequest(overrides: Partial<ConstructorParameters<typeof LeaseReques
 describe("RequestDetailModalComponent", () => {
   let fixture: ComponentFixture<RequestDetailModalComponent>;
   let component: RequestDetailModalComponent;
-  let pamApi: jest.Mocked<Pick<PamApiService, "patchLeaseRequest" | "cancelLeaseRequest">>;
+  let pamApi: jest.Mocked<Pick<PamApiService, "patchLeaseRequest">>;
   let dialogRef: jest.Mocked<Pick<DialogRef<RequestDetailModalResult>, "close">>;
   let toastService: jest.Mocked<Pick<ToastService, "showToast">>;
 
@@ -51,7 +47,6 @@ describe("RequestDetailModalComponent", () => {
   const setupComponent = (data: RequestDetailModalData = defaultData) => {
     pamApi = {
       patchLeaseRequest: jest.fn().mockResolvedValue(makeRequest({ Status: "pending" })),
-      cancelLeaseRequest: jest.fn().mockResolvedValue(undefined),
     };
     dialogRef = { close: jest.fn() };
     toastService = { showToast: jest.fn() };
@@ -70,19 +65,20 @@ describe("RequestDetailModalComponent", () => {
             new I18nMockService({
               requestDetailModalTitle: "Request access",
               requestDetailModalDescription: "Amend the access window and reason.",
-              requestDetailModalNotBefore: "Access from",
-              requestDetailModalNotAfter: "Access until",
-              requestDetailModalNotAfterHint: "When your access window ends.",
+              requestDetailModalDuration: "How long do you need access?",
+              requestDetailModalDuration15m: "15 minutes",
+              requestDetailModalDuration30m: "30 minutes",
+              requestDetailModalDuration1h: "1 hour",
+              requestDetailModalDuration4h: "4 hours",
+              requestDetailModalDuration8h: "8 hours",
+              requestDetailModalDuration1d: "1 day",
               requestDetailModalReason: "Reason (optional)",
               requestDetailModalReasonPlaceholder: "e.g. Incident response",
               requestDetailModalReasonHint: "Visible to approvers.",
-              requestDetailModalSubmit: "Submit",
-              requestDetailModalCancelRequest: "Cancel request",
+              requestDetailModalSubmit: "Request access",
               requestDetailModalDismiss: "Dismiss",
               requestDetailModalSubmitSuccess: "Request submitted.",
               requestDetailModalSubmitError: "Couldn't submit.",
-              requestDetailModalCancelSuccess: "Request cancelled.",
-              requestDetailModalCancelError: "Couldn't cancel.",
             }),
         },
       ],
@@ -99,16 +95,14 @@ describe("RequestDetailModalComponent", () => {
     expect(fixture.debugElement).toBeTruthy();
   });
 
-  it("pre-populates notAfter to now+1h when request has no window", () => {
-    const notAfterInput = fixture.debugElement.query(
-      By.css("[data-testid='request-not-after']"),
-    )?.nativeElement as HTMLInputElement;
-    expect(notAfterInput?.value).toBeTruthy();
+  it("defaults duration to 60 minutes when request has no window", () => {
+    const form = component["form"];
+    expect(form.getRawValue().durationMinutes).toBe(60);
   });
 
-  it("pre-populates fields from request when window is set", () => {
+  it("pre-populates duration from request when window matches a preset", () => {
     const now = new Date("2026-06-01T12:00:00Z");
-    const after = new Date("2026-06-01T13:00:00Z");
+    const after = new Date("2026-06-01T16:00:00Z"); // 4 hours later
     setupComponent({
       request: makeRequest({
         RequestedNotBefore: now.toISOString(),
@@ -118,18 +112,31 @@ describe("RequestDetailModalComponent", () => {
     });
 
     const form = component["form"];
-    expect(form.getRawValue().notBefore).toBe(toDateTimeLocal(now));
-    expect(form.getRawValue().notAfter).toBe(toDateTimeLocal(after));
+    expect(form.getRawValue().durationMinutes).toBe(240);
     expect(form.getRawValue().reason).toBe("Incident triage");
   });
 
-  it("calls patchLeaseRequest with form values and closes with Submitted on submit", async () => {
-    const form = component["form"];
-    form.patchValue({ reason: "Test reason" });
+  it("falls back to 60-minute default when window does not match a preset", () => {
+    const now = new Date("2026-06-01T12:00:00Z");
+    const after = new Date("2026-06-01T12:45:00Z"); // 45 minutes — not a preset
+    setupComponent({
+      request: makeRequest({
+        RequestedNotBefore: now.toISOString(),
+        RequestedNotAfter: after.toISOString(),
+      }),
+    });
 
-    const submitBtn = fixture.debugElement.query(
-      By.css("[data-testid='request-submit']"),
-    )?.nativeElement as HTMLButtonElement;
+    const form = component["form"];
+    expect(form.getRawValue().durationMinutes).toBe(60);
+  });
+
+  it("calls patchLeaseRequest with notBefore/notAfter derived from duration and closes with Submitted", async () => {
+    const before = Date.now();
+    const form = component["form"];
+    form.patchValue({ durationMinutes: 240, reason: "Test reason" });
+
+    const submitBtn = fixture.debugElement.query(By.css("[data-testid='request-submit']"))
+      ?.nativeElement as HTMLButtonElement;
     submitBtn.click();
     await fixture.whenStable();
 
@@ -137,6 +144,9 @@ describe("RequestDetailModalComponent", () => {
       "req-1",
       expect.objectContaining({ reason: "Test reason" }),
     );
+    const patch = pamApi.patchLeaseRequest.mock.calls[0][1];
+    expect(patch.notAfter!.getTime() - patch.notBefore!.getTime()).toBeCloseTo(240 * 60000, -3);
+    expect(patch.notBefore!.getTime()).toBeGreaterThanOrEqual(before);
     expect(dialogRef.close).toHaveBeenCalledWith(RequestDetailModalResult.Submitted);
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "success" }),
@@ -146,9 +156,8 @@ describe("RequestDetailModalComponent", () => {
   it("shows error toast and does not close on patchLeaseRequest failure", async () => {
     pamApi.patchLeaseRequest.mockRejectedValue(new Error("network error"));
 
-    const submitBtn = fixture.debugElement.query(
-      By.css("[data-testid='request-submit']"),
-    )?.nativeElement as HTMLButtonElement;
+    const submitBtn = fixture.debugElement.query(By.css("[data-testid='request-submit']"))
+      ?.nativeElement as HTMLButtonElement;
     submitBtn.click();
     await fixture.whenStable();
 
@@ -158,48 +167,12 @@ describe("RequestDetailModalComponent", () => {
     );
   });
 
-  it("calls cancelLeaseRequest and closes with Cancelled when cancel is clicked", async () => {
-    const cancelBtn = fixture.debugElement.query(
-      By.css("[data-testid='request-cancel']"),
-    )?.nativeElement as HTMLButtonElement;
-    cancelBtn.click();
-    await fixture.whenStable();
-
-    expect(pamApi.cancelLeaseRequest).toHaveBeenCalledWith("req-1");
-    expect(dialogRef.close).toHaveBeenCalledWith(RequestDetailModalResult.Cancelled);
-  });
-
-  it("shows error toast and does not close on cancelLeaseRequest failure", async () => {
-    pamApi.cancelLeaseRequest.mockRejectedValue(new Error("network error"));
-
-    const cancelBtn = fixture.debugElement.query(
-      By.css("[data-testid='request-cancel']"),
-    )?.nativeElement as HTMLButtonElement;
-    cancelBtn.click();
-    await fixture.whenStable();
-
-    expect(dialogRef.close).not.toHaveBeenCalled();
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error" }),
-    );
-  });
-
   it("closes with Dismissed when dismiss button is clicked — no network call", () => {
-    const dismissBtn = fixture.debugElement.query(
-      By.css("[data-testid='request-dismiss']"),
-    )?.nativeElement as HTMLButtonElement;
+    const dismissBtn = fixture.debugElement.query(By.css("[data-testid='request-dismiss']"))
+      ?.nativeElement as HTMLButtonElement;
     dismissBtn.click();
 
     expect(pamApi.patchLeaseRequest).not.toHaveBeenCalled();
-    expect(pamApi.cancelLeaseRequest).not.toHaveBeenCalled();
     expect(dialogRef.close).toHaveBeenCalledWith(RequestDetailModalResult.Dismissed);
-  });
-});
-
-describe("toDateTimeLocal", () => {
-  it("formats a date as YYYY-MM-DDTHH:mm", () => {
-    const date = new Date("2026-06-01T09:30:00.000Z");
-    const result = toDateTimeLocal(date);
-    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
   });
 });

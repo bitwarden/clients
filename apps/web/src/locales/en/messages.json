@@ -13889,6 +13889,55 @@
   "requestDetailModalDescription": {
     "message": "Amend the access window and optional reason before your approver reviews the request."
   },
+  "requestDetailModalDuration": {
+    "message": "How long do you need access?"
+  },
+  "requestDetailModalDuration15m": {
+    "message": "15 minutes"
+  },
+  "requestDetailModalDuration30m": {
+    "message": "30 minutes"
+  },
+  "requestDetailModalDuration1h": {
+    "message": "1 hour"
+  },
+  "requestDetailModalDuration4h": {
+    "message": "4 hours"
+  },
+  "requestDetailModalDuration8h": {
+    "message": "8 hours"
+  },
+  "requestDetailModalDuration1d": {
+    "message": "1 day"
+  },
+  "requestDetailModalSetCustomWindow": {
+    "message": "Set a custom window"
+  },
+  "requestDetailModalUsePreset": {
+    "message": "Use a preset duration instead"
+  },
+  "requestDetailModalCustomDate": {
+    "message": "Date"
+  },
+  "requestDetailModalCustomStart": {
+    "message": "Start time"
+  },
+  "requestDetailModalCustomStartHour": {
+    "message": "Start hour"
+  },
+  "requestDetailModalCustomStartMinute": {
+    "message": "Start minute"
+  },
+  "requestDetailModalCustomEnd": {
+    "message": "End time"
+  },
+  "requestDetailModalCustomEndHour": {
+    "message": "End hour"
+  },
+  "requestDetailModalCustomEndMinute": {
+    "message": "End minute"
+  },
+
   "requestDetailModalNotBefore": {
     "message": "Access from"
   },

@@ -52,14 +52,19 @@ describe("sortInbox", () => {
 });
 
 describe("ApproverInboxService", () => {
-  let pamApiService: jest.Mocked<Pick<PamApiService, "listInboxRequests" | "submitDecision">>;
+  let pamApiService: jest.Mocked<
+    Pick<PamApiService, "listInboxRequests" | "listInboxHistory" | "submitDecision">
+  >;
   let service: ApproverInboxService;
 
   beforeEach(() => {
     pamApiService = {
       listInboxRequests: jest.fn(),
+      listInboxHistory: jest.fn().mockResolvedValue([]),
       submitDecision: jest.fn(),
-    } as jest.Mocked<Pick<PamApiService, "listInboxRequests" | "submitDecision">>;
+    } as jest.Mocked<
+      Pick<PamApiService, "listInboxRequests" | "listInboxHistory" | "submitDecision">
+    >;
 
     TestBed.configureTestingModule({
       providers: [ApproverInboxService, { provide: PamApiService, useValue: pamApiService }],
