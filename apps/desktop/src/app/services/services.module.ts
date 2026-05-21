@@ -174,7 +174,6 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
-import { IpcRendererService } from "../../platform/services/ipc-renderer.service";
 import {
   DefaultServerCommunicationConfigService,
   ServerCommunicationConfigPlatformApiService,
@@ -678,8 +677,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: IpcService,
-    useClass: IpcRendererService,
-    deps: [],
+    useClass: NoopIpcService,
+    deps: [LogServiceAbstraction, IpcSessionRepository],
   }),
 ];
 

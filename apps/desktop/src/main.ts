@@ -20,7 +20,7 @@ import {
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService, IpcSessionRepository, NoopIpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -350,6 +350,7 @@ export class Main {
       this.logService,
       this.windowMain,
     );
+    this.ipcService = new NoopIpcService(this.logService, new IpcSessionRepository(stateProvider));
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
@@ -434,11 +435,7 @@ export class Main {
         });
 
         await this.sdkLoadService.loadAndInit();
-
-        // Todo: Remove this check once the ipc service is implemented
-        if (this.ipcService != null) {
-          await this.ipcService.init();
-        }
+        await this.ipcService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
