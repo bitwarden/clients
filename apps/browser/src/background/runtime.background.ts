@@ -28,6 +28,7 @@ import {
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../platform/browser/browser-api";
+import { ExtensionInstallType } from "../platform/browser/extension-install-type";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
@@ -494,7 +495,12 @@ export default class RuntimeBackground {
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
         ) {
-          if (!devFlagEnabled("skipWelcomeOnInstall")) {
+          // We use the install type here because it is available at install time, versus
+          // specific MDM-delivered settings, which are eventually consistent on extension load.
+          const installType = await BrowserApi.getInstallType();
+          const isManagedInstall = installType === ExtensionInstallType.Admin;
+
+          if (!devFlagEnabled("skipWelcomeOnInstall") && !isManagedInstall) {
             void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
           }
 
