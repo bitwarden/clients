@@ -46,4 +46,10 @@ export abstract class PamApiService {
    * Pending lease-request count visible to the caller, for the nav badge.
    */
   abstract getInboxBadgeCount(): Promise<InboxBadgeCountResponse>;
+  /**
+   * List resolved (approved / denied / expired / cancelled) lease requests
+   * for collections the caller can Manage — the approver history view.
+   * Sorted newest-first by resolvedAt.
+   */
+  abstract listInboxHistory(): Promise<InboxLeaseRequestResponse[]>;
 }

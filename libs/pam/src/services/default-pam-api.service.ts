@@ -87,6 +87,17 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
+  async listInboxHistory(): Promise<InboxLeaseRequestResponse[]> {
+    const response = (await this.send(
+      "GET",
+      "/leasing/requests/inbox/history",
+      null,
+      true,
+    )) as unknown;
+    const rows = Array.isArray(response) ? response : [];
+    return rows.map((row) => new InboxLeaseRequestResponse(row));
+  }
+
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {
     return this.apiService.send(method, path, body, true, hasResponse);
   }
