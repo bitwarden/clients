@@ -179,7 +179,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   );
 
   readonly freeTrial = computed(
-    () => this.selectedPlan()?.trialPeriodDays != null || this.trialLength() !== undefined,
+    () => (this.trialLength() ?? this.selectedPlan()?.trialPeriodDays ?? 0) > 0,
   );
 
   readonly planOffersSecretsManager = computed(() => this.selectedSecretsManagerPlan() != null);

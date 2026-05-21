@@ -2062,6 +2062,43 @@ describe("OrganizationPlansComponent", () => {
       expect(mockI18nService.t).toHaveBeenCalledWith("paymentChargedWithTrialSpecificLength", 14);
     });
 
+    it("should not show trial when trialLength input is 0", () => {
+      fixture.componentRef.setInput("trialLength", 0);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      component.changedProduct();
+
+      expect(component.freeTrial()).toBe(false);
+    });
+
+    it("should not show trial when trialPeriodDays is 0", () => {
+      component["passwordManagerPlans"] = [
+        {
+          type: PlanType.EnterpriseAnnually,
+          productTier: ProductTierType.Enterprise,
+          name: "Enterprise",
+          isAnnual: true,
+          canBeUsedByBusiness: true,
+          trialPeriodDays: 0,
+          upgradeSortOrder: 4,
+          displaySortOrder: 4,
+          PasswordManager: {
+            basePrice: 0,
+            seatPrice: 72,
+            hasAdditionalSeatsOption: true,
+            hasAdditionalStorageOption: true,
+            hasPremiumAccessOption: true,
+            baseStorageGb: 1,
+            additionalStoragePricePerGb: 4,
+            premiumAccessOptionPrice: 40,
+          },
+          SecretsManager: null,
+        } as PlanResponse,
+      ];
+      component["formGroup"].controls.plan.setValue(PlanType.EnterpriseAnnually);
+
+      expect(component.freeTrial()).toBe(false);
+    });
+
     it("should display tax ID field for business plans", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
       expect(component["showTaxIdField"]()).toBe(false);
