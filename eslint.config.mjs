@@ -253,6 +253,66 @@ export default tseslint.config(
       ],
     },
   },
+
+  // Phase 5 §9 — messaging-framework enforcement.
+  //
+  // Currently `warn`. Promote to `error` after all chrome.runtime.sendMessage /
+  // chrome.tabs.sendMessage callsites in the framework-owned globs have either
+  // migrated to `defineNotice` / `defineRequest` (or content-script equivalents
+  // in platform/messaging/handles-content) or are explicitly carved out with an
+  // inline `// eslint-disable-next-line` and a one-line justification.
+  //
+  // Pitfall (§9): ESLint flat-config does not merge `no-restricted-syntax`
+  // across matching blocks — the later matching block fully replaces the
+  // earlier. The `files:` glob below is therefore narrowed to framework-
+  // owned subtrees so it does NOT overlap the global addListener-rule block
+  // above. The addListener rule continues to apply unchanged on files outside
+  // this glob (e.g. apps/browser/src/platform/browser/browser-api.ts).
+  //
+  // As channels migrate, expand this glob outward. When the glob would cover
+  // every file already covered by the addListener block, fold the two blocks
+  // together using the const-spread pattern §9 describes.
+  //
+  // TODO: custom-rule plugin work (§9 #3 — no-cross-env-handle-import, §9 #4
+  // — handle-envpair-matches-filepath) requires a new `@bitwarden/platform-
+  // eslint` package and is tracked separately from this rule promotion.
+  {
+    files: [
+      "apps/browser/src/autofill/**/*.ts",
+      "apps/browser/src/background/**/*.ts",
+      "apps/browser/src/popup/**/*.ts",
+    ],
+    ignores: ["apps/browser/src/**/*.spec.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "warn",
+        {
+          message:
+            "Use defineNotice/defineRequest from apps/browser/src/platform/browser/browser-api.middleware (or defineContentNotice/defineContentRequest from platform/messaging/handles-content for content scripts) — direct chrome.runtime.sendMessage will be promoted to error once all call sites have migrated.",
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.object.name='chrome'][callee.object.property.name='runtime'][callee.property.name='sendMessage']",
+        },
+        {
+          message:
+            "Use defineNotice/defineRequest's notifyTab/askTab from apps/browser/src/platform/browser/browser-api.middleware — direct chrome.tabs.sendMessage will be promoted to error once all call sites have migrated.",
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.object.name='chrome'][callee.object.property.name='tabs'][callee.property.name='sendMessage']",
+        },
+        {
+          message:
+            "chrome.runtime.connect must go through a `definePort`-style factory once the port-transfer epic lands (Phase 4 #1 / §11 items 7 & 8 deferred). Until then, document the call site in your PR.",
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.object.name='chrome'][callee.object.property.name='runtime'][callee.property.name='connect']",
+        },
+        {
+          message:
+            "window.postMessage must go through a `definePostMessage`-style factory once the iframe-transport work lands (Phase 4 #1 / §11 items 7 & 8 deferred). Until then, document the call site in your PR.",
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.name='window'][callee.property.name='postMessage']",
+        },
+      ],
+    },
+  },
   {
     files: ["**/src/**/*.ts"],
     rules: {
