@@ -100,11 +100,7 @@ impl Server {
                 let listener = match UnixListener::bind(path) {
                     Ok(l) => l,
                     Err(e) => {
-                        info!(
-                            "Failed to bind IPC socket {}: {}",
-                            path.display(),
-                            e
-                        );
+                        info!("Failed to bind IPC socket {}: {}", path.display(), e);
                         continue;
                     }
                 };
