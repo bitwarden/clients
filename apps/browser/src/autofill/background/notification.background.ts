@@ -1031,7 +1031,8 @@ export default class NotificationBackground {
 
     // @TODO handle empty strings / incomplete data structure
     const submittedPassword = data.newPassword || data.password;
-    const formHasUsername = !Utils.isNullOrWhitespace(data.username);
+    const formHasNoUsername =
+      data.username === null || data.username === undefined || data.username === "";
 
     // IMPORTANT! The order of statements matters here; later evaluations
     // depend on the assumptions of the early exits in preceding logic
@@ -1056,7 +1057,7 @@ export default class NotificationBackground {
         newLoginNotificationIsEnabled
       ) {
         const scenarioRequiresUsername = inputScenario !== inputScenarios.passwordNewPassword;
-        if (scenarioRequiresUsername && !formHasUsername) {
+        if (scenarioRequiresUsername && formHasNoUsername) {
           return false;
         }
         await this.pushAddLoginToQueue(
@@ -1195,7 +1196,7 @@ export default class NotificationBackground {
         inputScenario === inputScenarios.usernamePasswordNewPassword &&
         newLoginNotificationIsEnabled
       ) {
-        if (!formHasUsername) {
+        if (formHasNoUsername) {
           return false;
         }
         await this.pushAddLoginToQueue(
@@ -1230,7 +1231,7 @@ export default class NotificationBackground {
         ] as InputScenario[]
       ).includes(inputScenario);
 
-      if (passwordOnlyMatchWithFormUsername && formHasUsername) {
+      if (passwordOnlyMatchWithFormUsername && !formHasNoUsername) {
         const passwordMatchCipherIdsWithoutStoredUsername = ciphersForURL
           .filter(
             (c) =>
