@@ -56,23 +56,36 @@ export class BrowserApi {
     sender: chrome.runtime.MessageSender | undefined,
     logger?: LogService,
   ): boolean {
-    if (!sender?.origin) {
-      logger?.warning("[BrowserApi] Message sender has no origin");
+    if (sender == null) {
+      logger?.warning("[BrowserApi] Message sender is null/undefined");
       return false;
     }
-    // Empty path yields the extension's base URL; coalesce to empty string so the guard below fires on a missing runtime.
-    const extensionUrl = BrowserApi.getRuntimeURL("") ?? "";
-
-    if (!extensionUrl) {
-      logger?.warning("[BrowserApi] Unable to determine extension URL");
+    // Primary trust: kernel-stamped sender.id. Available on every supported
+    // Chrome and Firefox version. See `apps/browser/src/autofill/security/
+    // sender.ts` for the full rationale.
+    if (sender.id !== chrome.runtime.id) {
+      logger?.warning(`[BrowserApi] Message sender id (${sender.id}) is not this extension's id`);
       return false;
     }
-
-    if (!urlOriginsMatch(extensionUrl, sender.origin)) {
-      logger?.warning(
-        `[BrowserApi] Message sender origin (${sender.origin}) does not match extension URL (${extensionUrl})`,
-      );
-      return false;
+    // COMPAT(firefox-pre-126): defense-in-depth origin equality, only when the
+    // kernel actually supplied an origin. Firefox 91-125 ships without
+    // sender.origin for legitimate messages (Bugzilla 1787379 added origin in
+    // Firefox 126). On those versions sender.id from above is the sole trust
+    // signal. Never derive a fallback origin from `sender.url`. When
+    // `strict_min_version` is bumped to ≥ 126.0, this guard can become
+    // unconditional (drop the `!== undefined` clause).
+    if (sender.origin !== undefined) {
+      const extensionUrl = BrowserApi.getRuntimeURL("") ?? "";
+      if (!extensionUrl) {
+        logger?.warning("[BrowserApi] Unable to determine extension URL");
+        return false;
+      }
+      if (!urlOriginsMatch(extensionUrl, sender.origin)) {
+        logger?.warning(
+          `[BrowserApi] Message sender origin (${sender.origin}) does not match extension URL (${extensionUrl})`,
+        );
+        return false;
+      }
     }
 
     // frameId is absent for popups, so use an 'in' check rather than direct comparison.

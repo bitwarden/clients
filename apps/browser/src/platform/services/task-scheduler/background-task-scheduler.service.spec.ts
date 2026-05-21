@@ -32,6 +32,10 @@ function createInternalPortSpyMock(name: string) {
     postMessage: jest.fn(),
     disconnect: jest.fn(),
     sender: {
+      // sender.id is the primary trust signal in BrowserApi.senderIsInternal —
+      // a mock without it fails the new id-first check. Match chrome.runtime.id
+      // so the port handshake is treated as internal.
+      id: chrome.runtime.id,
       url: chrome.runtime.getURL(""),
       origin: chrome.runtime.getURL(""),
     },

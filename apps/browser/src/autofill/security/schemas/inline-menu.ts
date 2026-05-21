@@ -40,27 +40,26 @@ const RELAY_COMMANDS = [
   "viewSelectedCipher",
 ] as const;
 
+// Required fields are the ones the container itself reads in
+// `handleInitInlineMenuIframe`. Other declared fields on the type
+// (authStatus, theme, translations, ciphers, token) are forwarded to the
+// inline-menu page but never accessed here — they're allowed through via
+// passthrough so adding a new optional init field doesn't require a schema
+// change here.
 const InitMessageBase = {
   command: v.union(
     v.literal("initAutofillInlineMenuButton"),
     v.literal("initAutofillInlineMenuList"),
   ),
-  portKey: v.string({ min: 1, max: 200 }),
-  token: v.string({ min: 1, max: 200 }),
   iframeUrl: v.string({ min: 1, max: 2048 }),
   pageTitle: v.string({ max: 200 }),
-  authStatus: v.number({ int: true, min: 0, max: 4 }),
-  styleSheetUrl: v.string({ max: 2048 }),
-  theme: v.string({ max: 50 }),
-  translations: v.object({}, { passthrough: true }),
-  // ciphers may be null (pre-unlock) or an array of opaque cipher view records;
-  // the init handler does not access cipher internals at the boundary.
-  ciphers: v.optional(v.array(v.object({}, { passthrough: true }))),
   portName: v.string({ min: 1, max: 200 }),
+  portKey: v.optional(v.string({ max: 200 })),
+  styleSheetUrl: v.optional(v.string({ max: 2048 })),
   extensionOrigin: v.optional(v.string({ max: 200 })),
 };
 
-export const InlineMenuInitSchema = v.object(InitMessageBase);
+export const InlineMenuInitSchema = v.object(InitMessageBase, { passthrough: true });
 
 /**
  * Relay messages have a known `command` (one of 15 in `RELAY_COMMANDS`), a
@@ -71,7 +70,10 @@ export const InlineMenuRelaySchema = v.object(
   {
     command: v.enum(RELAY_COMMANDS),
     portKey: v.string({ min: 1, max: 200 }),
-    token: v.string({ min: 1, max: 200 }),
+    // token is only present on the iframe → background path; parent → iframe
+    // forwarded messages don't carry it. `isValidSessionToken` is the explicit
+    // gate on the iframe → background path that enforces presence.
+    token: v.optional(v.string({ min: 1, max: 200 })),
   },
   { passthrough: true },
 );

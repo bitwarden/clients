@@ -59,13 +59,26 @@ describe("runSecurityPreflight", () => {
 
   describe("strict env-paired path", () => {
     it("rejects a popup:background claim that fails the predicate chain", () => {
-      // No origin → requireInternalSender fails.
+      // Present-but-mismatched origin is now the load-bearing failure mode.
+      // (Note: `origin: undefined` is the Firefox 91-125 path and is legitimate
+      // when sender.id matches — covered by the COMPAT test below.)
+      expect(
+        runSecurityPreflight(
+          { command: "x", _envPair: "popup:background" },
+          sender({ origin: "https://evil.example.com" }),
+        ),
+      ).toBe(false);
+    });
+
+    // COMPAT(firefox-pre-126): origin undefined + matching id MUST succeed.
+    // Remove with the strict_min_version bump.
+    it("(COMPAT firefox-pre-126) accepts a popup:background claim with origin undefined", () => {
       expect(
         runSecurityPreflight(
           { command: "x", _envPair: "popup:background" },
           sender({ origin: undefined }),
         ),
-      ).toBe(false);
+      ).toBe(true);
     });
 
     it("allows a popup:background claim from a correctly-shaped sender", () => {

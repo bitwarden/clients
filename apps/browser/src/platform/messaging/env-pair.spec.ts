@@ -12,10 +12,12 @@ import {
 } from "./env-pair";
 
 describe("env-pair", () => {
+  const ourId = "test-id";
   const extensionOrigin = "chrome-extension://test-id";
 
   beforeEach(() => {
     __resetExtensionOriginForTests();
+    (chrome.runtime as any).id = ourId;
     (chrome.runtime.getURL as jest.Mock).mockImplementation(
       (path: string) => `${extensionOrigin}/${path}`,
     );
@@ -24,28 +26,40 @@ describe("env-pair", () => {
   const popupSender = (
     overrides: Partial<chrome.runtime.MessageSender> = {},
   ): chrome.runtime.MessageSender =>
-    ({ origin: extensionOrigin, ...overrides }) as chrome.runtime.MessageSender;
+    ({ id: ourId, origin: extensionOrigin, ...overrides }) as chrome.runtime.MessageSender;
 
   const contentSender = (
     overrides: Partial<chrome.runtime.MessageSender> = {},
   ): chrome.runtime.MessageSender =>
     ({
+      id: ourId,
       origin: extensionOrigin,
       tab: { id: 1 } as chrome.tabs.Tab,
       frameId: 0,
       ...overrides,
     }) as chrome.runtime.MessageSender;
 
+  // COMPAT(firefox-pre-126): synthetic sender with origin undefined. Legitimate
+  // on Firefox 91-125 — the predicate must accept it when sender.id matches.
+  const firefoxPopupSender = (
+    overrides: Partial<chrome.runtime.MessageSender> = {},
+  ): chrome.runtime.MessageSender =>
+    ({ id: ourId, origin: undefined, ...overrides }) as chrome.runtime.MessageSender;
+
   describe("requireInternalSender", () => {
-    it("accepts an extension-origin popup sender", () => {
+    it("accepts a sender carrying our extension id with matching origin", () => {
       expect(requireInternalSender({}, popupSender())).toBe(true);
     });
 
-    it("rejects a sender without an origin", () => {
+    it("rejects a sender with a foreign extension id (primary trust signal)", () => {
+      expect(requireInternalSender({}, popupSender({ id: "other-extension" }))).toBe(false);
+    });
+
+    it("rejects a sender missing both id and origin", () => {
       expect(requireInternalSender({}, {} as chrome.runtime.MessageSender)).toBe(false);
     });
 
-    it("rejects a foreign origin", () => {
+    it("rejects a foreign origin even when id matches", () => {
       expect(requireInternalSender({}, popupSender({ origin: "https://evil.example.com" }))).toBe(
         false,
       );
@@ -57,6 +71,17 @@ describe("env-pair", () => {
 
     it("tolerates a present frameId of zero", () => {
       expect(requireInternalSender({}, popupSender({ frameId: 0 }))).toBe(true);
+    });
+
+    // COMPAT(firefox-pre-126): when origin is undefined, sender.id alone is
+    // the trust signal. These would have failed under the old sender.url-
+    // fallback design. Remove with the strict_min_version bump.
+    it("(COMPAT firefox-pre-126) accepts a Firefox 91-125 popup with our id but no origin", () => {
+      expect(requireInternalSender({}, firefoxPopupSender())).toBe(true);
+    });
+
+    it("(COMPAT firefox-pre-126) rejects a Firefox 91-125 sender with foreign id", () => {
+      expect(requireInternalSender({}, firefoxPopupSender({ id: "other-extension" }))).toBe(false);
     });
   });
 

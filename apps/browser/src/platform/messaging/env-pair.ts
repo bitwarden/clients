@@ -71,15 +71,27 @@ export function __resetExtensionOriginForTests(): void {
 /**
  * The message claims to come from an extension-owned context.
  *
+ * Primary trust signal is `sender.id` — see the rationale in `sender.ts`. The
+ * origin check is defense-in-depth and only runs when the kernel supplied one.
+ *
  * `frameId` is absent for popups/options pages, so the check is "present implies
  * zero" rather than "must equal zero" — see invariant §2.3 reasoning in
  * `sender.ts` for the analogous classifier branch.
  */
 export const requireInternalSender: EnvPairCheck = (_msg, sender) => {
-  if (!sender?.origin) {
+  // Primary: extension-membership via the kernel-stamped `sender.id`. Reliable
+  // on every supported Chrome and Firefox version.
+  if (sender?.id !== chrome.runtime.id) {
     return false;
   }
-  if (sender.origin !== extensionOrigin()) {
+  // COMPAT(firefox-pre-126): on Firefox 91-125 `sender.origin` is undefined
+  // for legitimate messages — Bugzilla 1787379 shipped origin in Firefox 126.
+  // The strict origin equality below only runs when the kernel populated
+  // origin. Removing this guard (and the explicit `undefined` clause) becomes
+  // safe when `strict_min_version` is bumped to ≥ 126.0. Never derive a
+  // fallback origin from `sender.url`: for content-script messages the URL
+  // is the page URL (attacker-controlled).
+  if (sender.origin !== undefined && sender.origin !== extensionOrigin()) {
     return false;
   }
   if ("frameId" in sender && sender.frameId !== 0 && sender.frameId !== undefined) {

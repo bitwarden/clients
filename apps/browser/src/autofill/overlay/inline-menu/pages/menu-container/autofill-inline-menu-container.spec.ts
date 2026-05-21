@@ -150,7 +150,9 @@ describe("AutofillInlineMenuContainer", () => {
       const token = autofillInlineMenuContainer["token"];
       const message = { command: "checkInlineMenuButtonFocused", portKey, token };
 
-      postWindowMessage(message, "null", iframe.contentWindow as any);
+      // §8.1 #2 — the iframe→background relay now validates event.origin.
+      // Real Chrome stamps chrome-extension origins on iframe-to-iframe traffic.
+      postWindowMessage(message, extensionOrigin, iframe.contentWindow as any);
 
       expect(port.postMessage).toHaveBeenCalledWith(message);
     });

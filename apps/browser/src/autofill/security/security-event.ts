@@ -18,7 +18,12 @@ export type SecurityEventReason =
   | "nonce-replay"
   | "rate-limited"
   | "iframe-origin-mismatch"
-  | "iframe-source-mismatch";
+  | "iframe-source-mismatch"
+  // COMPAT(firefox-pre-126): emitted when classifySender takes the
+  // absent-origin path. Useful for measuring how often the legacy code path
+  // fires before bumping `strict_min_version` to 126.0. Delete this reason
+  // (and every COMPAT(firefox-pre-126) marker site) when the bump lands.
+  | "legacy-firefox-classification";
 
 export interface SecurityEventContext {
   command?: string;

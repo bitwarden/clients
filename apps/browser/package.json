@@ -63,6 +63,10 @@
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
-    "update:dev:chrome": "./scripts/update-manifest-dev.sh"
+    "update:dev:chrome": "./scripts/update-manifest-dev.sh",
+    "build:channel-manifest": "node ./scripts/build-channel-manifest.mjs",
+    "build:channel-manifest:markdown": "node ./scripts/build-channel-manifest.mjs --markdown",
+    "build:channel-manifest:check": "node ./scripts/build-channel-manifest.mjs --check",
+    "build:channel-manifest:test": "node ./scripts/build-channel-manifest.spec.mjs"
   }
 }
