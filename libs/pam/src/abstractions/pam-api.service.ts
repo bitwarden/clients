@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { CollectionLeasingRequest } from "../services/requests/collection-leasing.request";
 import { LeaseDecisionRequest } from "../services/requests/lease-decision.request";
 import { LeaseExtensionRequest } from "../services/requests/lease-extension.request";
@@ -27,8 +29,23 @@ export type BulkRevokeResult =
       failures: { leaseId: string; reason: string }[];
     };
 
+/**
+ * Snapshot of the current user's relationship to a single cipher's lease:
+ * whether they hold an active lease, have a pending request, or neither.
+ */
+export type CipherLeaseState = {
+  activeLease?: LeaseResponse;
+  pendingRequest?: LeaseRequestResponse;
+};
+
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
+
+  /**
+   * Observe the current user's lease state for one cipher. Emits on subscribe
+   * and again whenever the state changes (approval, denial, expiry, revoke).
+   */
+  abstract getCipherLeaseState$(cipherId: string, userId: string): Observable<CipherLeaseState>;
   abstract patchLeaseRequest(
     id: string,
     request: LeaseRequestPatchRequest,

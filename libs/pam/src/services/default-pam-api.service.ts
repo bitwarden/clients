@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, NEVER, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,7 +8,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
-import { BulkRevokeResult, PamApiService } from "../abstractions/pam-api.service";
+import {
+  BulkRevokeResult,
+  CipherLeaseState,
+  PamApiService,
+} from "../abstractions/pam-api.service";
 import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
 import { InboxBadgeCountResponse } from "../abstractions/responses/inbox-badge-count.response";
 import { InboxLeaseRequestResponse } from "../abstractions/responses/inbox-lease-request.response";
@@ -49,6 +53,12 @@ export class DefaultPamApiService implements PamApiService {
    * {@link ApiService.fetch}, which is just the platform-headered pipeline
    * around the native `fetch`, and surface the raw {@link Response}.
    */
+  // TODO(PM-XXXXX): wire to push channel once the server emits lease events.
+  // Until then the live transport has no signal to surface, so we never emit.
+  getCipherLeaseState$(_cipherId: string, _userId: string): Observable<CipherLeaseState> {
+    return NEVER;
+  }
+
   async fetchGatedCipher(id: string): Promise<GatedCipherFetchResult> {
     if (this.environmentService == null || this.accountService == null) {
       // Surface a clear error when DI didn't provide the collaborators the

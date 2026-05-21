@@ -9,7 +9,7 @@ import { CopyCipherFieldDirective, VaultItemCopyActionsComponent } from "@bitwar
 
 import { CollectionNameBadgeComponent } from "../../../admin-console/organizations/collections";
 import { GroupBadgeModule } from "../../../admin-console/organizations/collections/group-badge/group-badge.module";
-import { CipherLeaseBadgeComponent } from "../../../pam/cipher-lease-badge/cipher-lease-badge.component";
+import { VaultRowLeaseBadgeComponent } from "../../../pam/vault-row-lease-badge/vault-row-lease-badge.component";
 import { SharedModule } from "../../../shared/shared.module";
 import { OrganizationBadgeModule } from "../../individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../../individual-vault/pipes/pipes.module";
@@ -34,7 +34,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     VaultItemCopyActionsComponent,
     ScrollLayoutDirective,
     PremiumBadgeComponent,
-    CipherLeaseBadgeComponent,
+    VaultRowLeaseBadgeComponent,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultItemsComponent],

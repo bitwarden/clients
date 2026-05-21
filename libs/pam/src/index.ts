@@ -5,7 +5,11 @@ export {
   TimeWindow,
   parseLeasingPolicy,
 } from "./abstractions/leasing-policy";
-export { BulkRevokeResult, PamApiService } from "./abstractions/pam-api.service";
+export {
+  BulkRevokeResult,
+  CipherLeaseState,
+  PamApiService,
+} from "./abstractions/pam-api.service";
 export { CollectionLeasingConfigResponse } from "./abstractions/responses/collection-leasing.response";
 export { InboxBadgeCountResponse } from "./abstractions/responses/inbox-badge-count.response";
 export { InboxLeaseRequestResponse } from "./abstractions/responses/inbox-lease-request.response";
