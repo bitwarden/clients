@@ -21,6 +21,7 @@ import {
   first,
   map,
   shareReplay,
+  skip,
   startWith,
   switchMap,
   take,
@@ -550,6 +551,16 @@ export class VaultComponent implements OnInit, OnDestroy {
           refreshing || processing || !firstLoadComplete,
       ),
     );
+
+    // When Angular reuses this component instance on an org switch (same route definition),
+    // ngOnInit does not re-run and refreshingSubject$ stays false after the initial load,
+    // which causes the filter(([,,,refreshing]) => refreshing) guard in allCiphers$ and
+    // allCollectionsWithoutUnassigned$ to block all subsequent fetches.
+    // Resetting to true on every org change (skipping the first emission that bootstraps
+    // the initial load) ensures the reactive chain re-fires for the new organization.
+    this.organizationId$
+      .pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this.refreshingSubject$.next(true));
   }
 
   async ngOnInit() {
