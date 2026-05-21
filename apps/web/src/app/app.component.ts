@@ -133,7 +133,7 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           }
           case "locked":
-            this.router.navigate(["/"]);
+            await this.router.navigate(["/"]);
             await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
