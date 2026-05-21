@@ -27,7 +27,7 @@ Before running any command, confirm the environment is ready. Run these checks i
 
 The runner talks to the running desktop process over an IPC socket. If the app isn't running, every command will hang or time out.
 
-Check for a running desktop dev build. The dev build runs as `Electron` (not `Bitwarden`) from the repo's `node_modules`, so match on the install path:
+Check for a running desktop client built in developer mode. The dev build runs as `Electron` (not `Bitwarden`, which is what the release build runs as) from the repo's `node_modules`, so match on the install path:
 
 ```bash
 pgrep -fl "node_modules/electron/dist/Electron" | grep -v grep
