@@ -158,7 +158,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async setUnlockService(service: UnlockService): Promise<void> {
-    super.setUnlockService(service);
+    await super.setUnlockService(service);
     const driver = createBiometricsDriver(this, service);
     await ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
   }
