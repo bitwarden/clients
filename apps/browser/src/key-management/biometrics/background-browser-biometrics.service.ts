@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/key-management";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
-import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
@@ -68,10 +67,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
-    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
-      return BiometricsStatus.NativeMessagingPermissionMissing;
-    }
-
     try {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.GetBiometricsStatus,
