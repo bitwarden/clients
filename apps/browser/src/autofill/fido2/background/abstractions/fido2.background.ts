@@ -45,7 +45,6 @@ type Fido2BackgroundExtensionMessageHandlers = {
 
 interface Fido2Background {
   init(): void;
-  isCredentialRequestInProgress(tabId: number): boolean;
   shouldDeferVaultNotificationsForPasskeyUi(tabId: number): boolean;
   isPasskeySettingEnabled(): Promise<boolean>;
 }

@@ -72,9 +72,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   }
 
   /**
-   * Returns true when a user visible passkey picker is active for the tab.
-   * Conditional WebAuthn mediation may hold an active credential request with zero
-   * passkeys which shouldn't block notifications.
+   * Returns true when vault notifications should defer for visible FIDO2 UI.
    */
   shouldDeferVaultNotificationsForPasskeyUi(tabId: number): boolean {
     if (!this.activeCredentialRequests.has(tabId)) {
@@ -82,8 +80,11 @@ export class Fido2Background implements Fido2BackgroundInterface {
     }
 
     const activeRequest = this.fido2ActiveRequestManager.getActiveRequest(tabId);
+    if (activeRequest == null) {
+      return true;
+    }
 
-    return activeRequest != null && activeRequest.credentials.length > 0;
+    return activeRequest.credentials.length > 0;
   }
 
   /**
