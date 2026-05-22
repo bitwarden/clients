@@ -22,6 +22,8 @@ import {
 } from "./abstractions/notification-bar";
 import { isAtRiskPasswordNotification } from "./utils";
 
+import "./bar.scss";
+
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
 
