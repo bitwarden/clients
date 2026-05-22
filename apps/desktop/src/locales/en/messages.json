@@ -718,11 +718,14 @@
   "addWebsite": {
     "message": "Add website"
   },
-  "application": {
-    "message": "Application"
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
   },
   "deleteWebsite": {
     "message": "Delete website"
+  },
+  "application": {
+    "message": "Application"
   },
   "owner": {
     "message": "Owner"
@@ -5303,8 +5306,5 @@
   },
   "licenseClass": {
     "message": "License class"
-  },
-  "addWebsiteOrApp": {
-    "message": "Add website or app"
   }
 }

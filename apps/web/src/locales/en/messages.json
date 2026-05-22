@@ -641,6 +641,9 @@
   "deleteWebsite": {
     "message": "Delete website"
   },
+  "application": {
+    "message": "Application"
+  },
   "defaultLabel": {
     "message": "Default ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",

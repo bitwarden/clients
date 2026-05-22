@@ -5438,11 +5438,11 @@
   "addWebsiteOrApp": {
     "message": "Add website or app"
   },
-  "application": {
-    "message": "Application"
-  },
   "deleteWebsite": {
     "message": "Delete website"
+  },
+  "application": {
+    "message": "Application"
   },
   "defaultLabel": {
     "message": "Default ($VALUE$)",
