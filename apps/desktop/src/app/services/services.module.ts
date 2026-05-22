@@ -336,7 +336,6 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       LogService,
       AuthServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -394,7 +393,6 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       DesktopBiometricsService,
       AccountCryptographicStateService,
-      IpcService,
     ],
   }),
   safeProvider({
