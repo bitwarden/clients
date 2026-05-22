@@ -36,19 +36,11 @@ export class BrowserKeeperSsoTabMonitor implements KeeperSsoTabMonitor {
 
         this.detach();
 
-        chrome.scripting
-          .executeScript({
-            target: { tabId },
-            func: () => ({
-              bodyText: document.body?.innerText ?? "",
-              bodyHtml: document.body?.innerHTML ?? "",
-            }),
-          })
-          .then((results) => {
-            const payload = results?.[0]?.result as
-              | { bodyText: string; bodyHtml: string }
-              | undefined;
-
+        BrowserApi.executeFunctionInTab<{ bodyText: string; bodyHtml: string }>(tabId, () => ({
+          bodyText: document.body?.innerText ?? "",
+          bodyHtml: document.body?.innerHTML ?? "",
+        }))
+          .then((payload) => {
             if (!payload) {
               reject(new Error("Failed to extract SSO token from callback page"));
               return;
