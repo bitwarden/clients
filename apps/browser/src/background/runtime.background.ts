@@ -495,14 +495,7 @@ export default class RuntimeBackground {
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
         ) {
-          // We use the install type here because it is available at install time, versus
-          // specific MDM-delivered settings, which are eventually consistent on extension load.
-          const installType = await BrowserApi.getInstallType();
-          const isManagedInstall = installType === ExtensionInstallType.Admin;
-
-          if (!devFlagEnabled("skipWelcomeOnInstall") && !isManagedInstall) {
-            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
-          }
+          await this.displayWelcomePage();
 
           await this.autofillSettingsService.setInlineMenuVisibility(
             AutofillOverlayVisibility.OnFieldFocus,
@@ -517,6 +510,24 @@ export default class RuntimeBackground {
         this.onInstalledReason = null;
       }
     }, 100);
+  }
+
+  private async displayWelcomePage() {
+    // We use the install type here because it is available at install time, versus
+    // specific MDM-delivered settings, which are eventually consistent on extension load.
+    const installType = await BrowserApi.getInstallType();
+
+    // We want to disable showing the welcome page if the extension is administratively
+    // installed or installed via sideload. The dev flag lets developers silence the welcome
+    // tab when working with an unpacked extension.
+    const isUnattendedInstall =
+      installType === ExtensionInstallType.Admin || installType === ExtensionInstallType.Sideload;
+
+    // We also have a dev override to allow local testing of the start tab,
+    // rather than preventing it on development installs.
+    if (!devFlagEnabled("skipWelcomeOnInstall") && !isUnattendedInstall) {
+      void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+    }
   }
 
   /** Returns the browser tabs that have the web vault open */

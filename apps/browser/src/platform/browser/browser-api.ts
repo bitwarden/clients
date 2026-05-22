@@ -36,7 +36,9 @@ export class BrowserApi {
 
   /**
    * Returns how this extension was installed on the current browser. Use
-   * {@link ExtensionInstallType.Admin} to detect enterprise-policy installs.
+   * {@link ExtensionInstallType.Admin} to detect enterprise-policy installs and
+   * {@link ExtensionInstallType.Sideload} to detect extensions installed by other software
+   * on the machine.
    *
    * `management.getSelf()` is the only `chrome.management` method that does
    * not require the "management" manifest permission.
