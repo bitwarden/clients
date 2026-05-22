@@ -38,6 +38,8 @@ describe("DefaultCipherSdkService", () => {
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_assigned_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      update_collection: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
     };
     mockCiphersSdk = {
@@ -54,7 +56,10 @@ describe("DefaultCipherSdkService", () => {
       decrypt_fido2_credentials: jest.fn(),
       decrypt_fido2_private_key: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      update_collection: jest.fn(),
       delete_attachment: jest.fn(),
+      bulk_update_collections: jest.fn().mockResolvedValue(undefined),
+      move_many: jest.fn().mockResolvedValue(undefined),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -78,6 +83,37 @@ describe("DefaultCipherSdkService", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  const createMockSdkCipherView = (id: string, collectionIds: CollectionId[] = []): any => ({
+    id,
+    organizationId: orgId,
+    folderId: null,
+    collectionIds,
+    key: null,
+    name: "EncryptedString",
+    notes: null,
+    type: CipherType.Login,
+    login: null,
+    identity: null,
+    card: null,
+    secureNote: null,
+    sshKey: null,
+    data: null,
+    favorite: false,
+    reprompt: 0,
+    organizationUseTotp: false,
+    edit: true,
+    permissions: null,
+    viewPassword: true,
+    localData: null,
+    attachments: null,
+    fields: null,
+    passwordHistory: null,
+    creationDate: "2022-01-01T12:00:00.000Z",
+    deletedDate: null,
+    archivedDate: null,
+    revisionDate: "2022-01-31T12:00:00.000Z",
   });
 
   describe("createWithServer()", () => {
@@ -617,44 +653,13 @@ describe("DefaultCipherSdkService", () => {
     const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
     const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
 
-    const createMockSdkCipher = (id: string): any => ({
-      id: id,
-      organizationId: orgId,
-      folderId: null,
-      collectionIds: [],
-      key: null,
-      name: "EncryptedString",
-      notes: null,
-      type: CipherType.Login,
-      login: null,
-      identity: null,
-      card: null,
-      secureNote: null,
-      sshKey: null,
-      data: null,
-      favorite: false,
-      reprompt: 0,
-      organizationUseTotp: false,
-      edit: true,
-      permissions: null,
-      viewPassword: true,
-      localData: null,
-      attachments: null,
-      fields: null,
-      passwordHistory: null,
-      creationDate: "2022-01-01T12:00:00.000Z",
-      deletedDate: null,
-      archivedDate: null,
-      revisionDate: "2022-01-31T12:00:00.000Z",
-    });
-
     it("should share cipher using SDK", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
       cipherView.name = "Test Cipher";
 
-      const mockSdkCipher = createMockSdkCipher(cipherId);
+      const mockSdkCipher = createMockSdkCipherView(cipherId);
       mockCiphersSdk.share_cipher.mockResolvedValue(mockSdkCipher);
 
       const result = await cipherSdkService.shareWithServer(
@@ -687,7 +692,7 @@ describe("DefaultCipherSdkService", () => {
       originalCipherView.id = cipherId;
       originalCipherView.name = "Original Cipher";
 
-      const mockSdkCipher = createMockSdkCipher(cipherId);
+      const mockSdkCipher = createMockSdkCipherView(cipherId);
       mockCiphersSdk.share_cipher.mockResolvedValue(mockSdkCipher);
 
       await cipherSdkService.shareWithServer(
@@ -738,37 +743,6 @@ describe("DefaultCipherSdkService", () => {
     const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
     const cipherId2 = "8ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b25" as CipherId;
 
-    const createMockSdkCipher = (id: string): any => ({
-      id: id,
-      organizationId: orgId,
-      folderId: null,
-      collectionIds: [],
-      key: null,
-      name: "EncryptedString",
-      notes: null,
-      type: CipherType.Login,
-      login: null,
-      identity: null,
-      card: null,
-      secureNote: null,
-      sshKey: null,
-      data: null,
-      favorite: false,
-      reprompt: 0,
-      organizationUseTotp: false,
-      edit: true,
-      permissions: null,
-      viewPassword: true,
-      localData: null,
-      attachments: null,
-      fields: null,
-      passwordHistory: null,
-      creationDate: "2022-01-01T12:00:00.000Z",
-      deletedDate: null,
-      archivedDate: null,
-      revisionDate: "2022-01-31T12:00:00.000Z",
-    });
-
     it("should share multiple ciphers using SDK", async () => {
       const cipherView1 = new CipherView();
       cipherView1.id = cipherId;
@@ -780,7 +754,10 @@ describe("DefaultCipherSdkService", () => {
       cipherView2.type = CipherType.Login;
       cipherView2.name = "Test Cipher 2";
 
-      const mockSdkCiphers = [createMockSdkCipher(cipherId), createMockSdkCipher(cipherId2)];
+      const mockSdkCiphers = [
+        createMockSdkCipherView(cipherId),
+        createMockSdkCipherView(cipherId2),
+      ];
       mockCiphersSdk.share_ciphers_bulk.mockResolvedValue(mockSdkCiphers);
 
       const result = await cipherSdkService.shareManyWithServer(
@@ -1085,6 +1062,263 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list organization ciphers"),
+      );
+    });
+  });
+
+  describe("saveCollectionsWithServerAdmin()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+
+    it("should update cipher collections using the admin SDK", async () => {
+      const collectionIds = [collectionId1, collectionId2];
+      const mockSdkCipherView = createMockSdkCipherView(cipherId, collectionIds);
+      mockAdminSdk.update_collection.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.saveCollectionsWithServerAdmin(
+        cipherId,
+        collectionIds,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.update_collection).toHaveBeenCalledWith(cipherId, collectionIds);
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.saveCollectionsWithServerAdmin(cipherId, [collectionId1], userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher collections as admin"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.update_collection.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.saveCollectionsWithServerAdmin(cipherId, [collectionId1], userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher collections as admin"),
+      );
+    });
+  });
+
+  describe("saveCollectionsWithServer()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+
+    it("should update cipher collections using the regular SDK client", async () => {
+      const collectionIds = [collectionId1, collectionId2];
+      const mockSdkCipherView = createMockSdkCipherView(cipherId, collectionIds);
+      mockCiphersSdk.update_collection.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.saveCollectionsWithServer(
+        cipherId,
+        collectionIds,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.update_collection).toHaveBeenCalledWith(cipherId, collectionIds, false);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.saveCollectionsWithServer(cipherId, [collectionId1], userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher collections"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.update_collection.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.saveCollectionsWithServer(cipherId, [collectionId1], userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher collections"),
+      );
+    });
+  });
+
+  describe("getManyFromApiForOrganization()", () => {
+    const mockSdkCipher: any = {
+      id: cipherId,
+      name: "2.encryptedName|iv|data",
+      type: CipherType.Login,
+      organizationId: orgId,
+      folderId: null,
+      favorite: false,
+      edit: true,
+      viewPassword: true,
+      organizationUseTotp: false,
+      revisionDate: new Date().toISOString(),
+      creationDate: new Date().toISOString(),
+      collectionIds: [],
+      deletedDate: null,
+      reprompt: 0,
+      key: null,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      notes: null,
+      login: null,
+      secureNote: null,
+      card: null,
+      identity: null,
+      sshKey: null,
+      permissions: null,
+    };
+
+    it("should list assigned organization ciphers using SDK admin API", async () => {
+      const mockListView: any = { id: cipherId, name: "Org Cipher" };
+      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
+        ciphers: [mockSdkCipher],
+        listViews: [mockListView],
+      });
+
+      const result = await cipherSdkService.getManyFromApiForOrganization(orgId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.list_assigned_org_ciphers).toHaveBeenCalledWith(orgId);
+      const [ciphers, listViews] = result;
+      expect(ciphers).toHaveLength(1);
+      expect(ciphers[0]).toBeInstanceOf(Cipher);
+      expect(listViews).toHaveLength(1);
+    });
+
+    it("should return empty arrays when SDK returns no ciphers", async () => {
+      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
+        ciphers: [],
+        listViews: [],
+      });
+
+      const [ciphers, listViews] = await cipherSdkService.getManyFromApiForOrganization(
+        orgId,
+        userId,
+      );
+
+      expect(ciphers).toHaveLength(0);
+      expect(listViews).toHaveLength(0);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.list_assigned_org_ciphers.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.getManyFromApiForOrganization(orgId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list assigned organization ciphers"),
+      );
+    });
+  });
+
+  describe("bulkUpdateCollectionsWithServer()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+    const cipherId1 = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const cipherId2 = "8ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b25" as CipherId;
+
+    it("should add collections via SDK when removeCollections is false", async () => {
+      await cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        userId,
+        [cipherId1, cipherId2],
+        [collectionId1, collectionId2],
+        false,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.bulk_update_collections).toHaveBeenCalledWith(
+        orgId,
+        [cipherId1, cipherId2],
+        [collectionId1, collectionId2],
+        false,
+      );
+    });
+
+    it("should remove collections via SDK when removeCollections is true", async () => {
+      await cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        userId,
+        [cipherId1],
+        [collectionId1],
+        true,
+      );
+
+      expect(mockCiphersSdk.bulk_update_collections).toHaveBeenCalledWith(
+        orgId,
+        [cipherId1],
+        [collectionId1],
+        true,
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.bulk_update_collections.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.bulkUpdateCollectionsWithServer(
+          orgId,
+          userId,
+          [cipherId1],
+          [collectionId1],
+          false,
+        ),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to bulk update cipher collections"),
+      );
+    });
+  });
+
+  describe("moveManyWithServer()", () => {
+    const folderId = "9ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b26";
+    const cipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+      "8ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b25",
+    ];
+
+    it("should move ciphers to a folder via SDK", async () => {
+      await cipherSdkService.moveManyWithServer(cipherIds, folderId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.move_many).toHaveBeenCalledWith(cipherIds, folderId);
+    });
+
+    it("should pass undefined when folderId is null (clear folder)", async () => {
+      await cipherSdkService.moveManyWithServer(cipherIds, null, userId);
+
+      expect(mockCiphersSdk.move_many).toHaveBeenCalledWith(cipherIds, undefined);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.move_many.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.moveManyWithServer(cipherIds, folderId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to move multiple ciphers"),
       );
     });
   });

@@ -235,6 +235,8 @@ import {
   SendPasswordService,
 } from "@bitwarden/common/key-management/sends";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -562,6 +564,10 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       MasterPasswordServiceAbstraction,
       SyncService,
+      KeyService,
+      BiometricsService,
+      BiometricStateService,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1235,6 +1241,11 @@ const safeProviders: SafeProvider[] = [
     useExisting: InternalMasterPasswordServiceAbstraction,
   }),
   safeProvider({
+    provide: V2UpgradeTokenStateService,
+    useClass: DefaultV2UpgradeTokenStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: MasterPasswordUnlockService,
     useClass: DefaultMasterPasswordUnlockService,
     deps: [InternalMasterPasswordServiceAbstraction, KeyService, LogService],
@@ -1316,6 +1327,7 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       OrganizationInviteLinkApiService,
       StateProvider,
+      EnvironmentService,
     ],
   }),
   safeProvider({
