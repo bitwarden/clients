@@ -23,19 +23,20 @@
     <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
   </bit-form-field>
 
-  @if (form.dirty) {
-    <button
-      type="button"
-      bitButton
-      bitFormButton
-      buttonType="primary"
-      [bitAction]="save"
-      class="tw-mt-[10px]"
-      data-testid="saveDomains"
-    >
-      {{ "save" | i18n }}
-    </button>
-  }
+  <button
+    type="button"
+    bitButton
+    bitFormButton
+    buttonType="primary"
+    [bitAction]="save"
+    [disabled]="domainsEmpty()"
+    [bitTooltip]="domainsEmpty() ? ('mustEnterAtLeastOneDomain' | i18n) : ''"
+    tooltipPosition="left-center"
+    class="tw-mt-[10px]"
+    data-testid="saveDomains"
+  >
+    {{ "save" | i18n }}
+  </button>
 </div>
 
 @let inviteLink = inviteLink$ | async;
@@ -55,6 +56,7 @@
         type="text"
         disabled="true"
         [value]="inviteLinkUrl"
+        [class.tw-select-none]="domainsEmpty()"
         data-testid="inviteLink"
       />
       <button
@@ -63,6 +65,7 @@
         bitIconButton="bwi-refresh"
         [label]="'regenerateInviteLink' | i18n"
         [bitAction]="refreshLink"
+        [disabled]="domainsEmpty()"
       ></button>
       <button
         type="button"
@@ -70,7 +73,7 @@
         bitIconButton="bwi-clone"
         [label]="'copyLink' | i18n"
         [bitAction]="copyLink"
-        [disabled]="form.dirty"
+        [disabled]="domainsEmpty() || form.dirty"
       ></button>
       <bit-hint>{{
         "lastGenerated" | i18n: (inviteLink.creationDate | date: "shortDate")

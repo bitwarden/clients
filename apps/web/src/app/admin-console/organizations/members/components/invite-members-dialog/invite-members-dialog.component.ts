@@ -135,6 +135,10 @@ export class InviteMembersDialogComponent {
     await this.byLinkTab()?.copyLink();
   };
 
+  readonly deactivateLink = async () => {
+    await this.byLinkTab()?.deactivateLink();
+  };
+
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],
     type: OrganizationUserType.User,
