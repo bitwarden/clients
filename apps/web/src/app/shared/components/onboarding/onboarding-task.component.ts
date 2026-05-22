@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { BitwardenIcon } from "@bitwarden/components";
 
@@ -10,7 +10,7 @@ import { BitwardenIcon } from "@bitwarden/components";
   selector: "app-onboarding-task",
   templateUrl: "./onboarding-task.component.html",
   host: {
-    class: "tw-max-w-max",
+    class: "tw-block",
     role: "listitem",
   },
   standalone: false,
@@ -34,17 +34,34 @@ export class OnboardingTaskComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
+  subtitle?: string;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
   route: string | any[];
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  ctaText?: string;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  ctaIcon?: BitwardenIcon;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   isDisabled: boolean = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output()
+  ctaClick = new EventEmitter<void>();
+
   handleClick(ev: MouseEvent) {
-    /**
-     * If the main `ng-content` is clicked, we don't want to trigger the task's click handler.
-     */
     ev.stopPropagation();
   }
 }
