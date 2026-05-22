@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { Observable, of, switchMap } from "rxjs";
 
@@ -9,6 +10,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ChipFilterComponent } from "@bitwarden/components";
 
 import { SendListFiltersService } from "../services/send-list-filters.service";
+import { SendPolicyService } from "../services/send-policy.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -21,11 +23,15 @@ export class SendListFiltersComponent implements OnDestroy {
   protected filterForm = this.sendListFiltersService.filterForm;
   protected sendTypes = this.sendListFiltersService.sendTypes;
   protected canAccessPremium$: Observable<boolean>;
+  readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
+    initialValue: null,
+  });
 
   constructor(
     private sendListFiltersService: SendListFiltersService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
+    private sendPolicyService: SendPolicyService,
   ) {
     this.canAccessPremium$ = accountService.activeAccount$.pipe(
       switchMap((account) =>

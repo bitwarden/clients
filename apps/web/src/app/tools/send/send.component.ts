@@ -47,6 +47,7 @@ import {
   SendListComponent,
   SendListState,
   SendListFiltersService,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -149,6 +150,10 @@ export class SendComponent implements OnDestroy {
 
   private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
 
+  protected readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
+    initialValue: null,
+  });
+
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
@@ -167,6 +172,7 @@ export class SendComponent implements OnDestroy {
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
     private validationService: ValidationService,
+    private sendPolicyService: SendPolicyService,
   ) {
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 

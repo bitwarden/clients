@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, computed, Inject, inject, signal, viewChild } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -145,9 +144,6 @@ export class SendAddEditDialogComponent {
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
   private readonly sendPolicyService = inject(SendPolicyService);
-  private readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
-    initialValue: null,
-  });
 
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,

@@ -8,10 +8,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule } from "@bitwarden/components";
-import { SendListFiltersService } from "@bitwarden/send-ui";
+import { SendListFiltersService, SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { SendFiltersNavComponent } from "./send-filters-nav.component";
@@ -39,6 +40,8 @@ describe("SendFiltersNavComponent", () => {
   let harness: RouterTestingHarness;
   let filterFormValueSubject: BehaviorSubject<{ sendType: SendType | null }>;
   let mockSendListFiltersService: Partial<SendListFiltersService>;
+  let mockSendPolicyService: Partial<SendPolicyService>;
+  const restrictedSendType = new BehaviorSubject<SendTypeRestriction | null>(null);
 
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
@@ -60,6 +63,10 @@ describe("SendFiltersNavComponent", () => {
         }),
       } as any,
       filters$: filterFormValueSubject.asObservable(),
+    };
+
+    mockSendPolicyService = {
+      restrictedSendType$: restrictedSendType,
     };
 
     await TestBed.configureTestingModule({
@@ -96,6 +103,10 @@ describe("SendFiltersNavComponent", () => {
         {
           provide: AccountService,
           useValue: { activeAccount$: new BehaviorSubject({ id: "test-user-id" }) },
+        },
+        {
+          provide: SendPolicyService,
+          useValue: mockSendPolicyService,
         },
       ],
     }).compileComponents();
@@ -225,5 +236,18 @@ describe("SendFiltersNavComponent", () => {
         sendType: null,
       });
     });
+  });
+
+  it("shows Send nav item instead of group when Send type is restricted by policy", async () => {
+    expect(fixture.debugElement.children.length).toEqual(1);
+    expect(fixture.debugElement.children[0].name).toEqual("bit-nav-group");
+    expect(fixture.debugElement.children[0].attributes["icon"]).toEqual("bwi-send");
+
+    restrictedSendType.next(SendTypeRestriction.TextOnly);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.children.length).toEqual(1);
+    expect(fixture.debugElement.children[0].name).toEqual("bit-nav-item");
+    expect(fixture.debugElement.children[0].attributes["icon"]).toEqual("bwi-send");
   });
 });
