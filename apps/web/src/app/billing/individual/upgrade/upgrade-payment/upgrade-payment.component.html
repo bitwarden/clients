@@ -54,19 +54,19 @@
       </div>
     </section>
 
-      <section>
-        <billing-cart-summary
-          #cartSummaryComponent
-          [cart]="cart()"
-          [showDiscountBadges]="true"
-        ></billing-cart-summary>
-        @if (isFamiliesPlan()) {
-          <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
-            {{ "paymentChargedWithTrialSpecificLength" | i18n: defaultTrialDays }}
-          </p>
-        }
-      </section>
-    </ng-container>
+    <section>
+      <billing-cart-summary
+        #cartSummaryComponent
+        [cart]="cart()"
+        [showDiscountBadges]="true"
+      ></billing-cart-summary>
+      @if (isFamiliesPlan()) {
+        <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
+          {{ "paymentChargedWithTrialSpecificLength" | i18n: defaultTrialDays }}
+        </p>
+      }
+    </section>
+  </ng-container>
 
   <ng-container bitDialogFooter>
     <button
