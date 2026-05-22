@@ -138,6 +138,7 @@ import {
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import {
   CipherFormGenerationService,
@@ -454,6 +455,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       EnvironmentService,
       SharedUnlockSettingsService,
+      UnlockService,
     ],
   }),
   safeProvider({
