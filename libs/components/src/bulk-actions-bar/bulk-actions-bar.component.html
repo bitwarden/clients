@@ -3,9 +3,10 @@
     {{ announcement() }}
   </div>
 
+  <!-- 17px gap need to visually align clear button divider element spacing -->
   <div
     #bar
-    class="tw-mb-4 tw-flex tw-items-center tw-gap-4 tw-p-2 tw-rounded-xl tw-bg-bg-brand-stronger tw-transition-[transform,opacity] tw-duration-200 tw-ease-out"
+    class="tw-mb-4 tw-flex tw-items-center tw-gap-[17px] tw-p-2 tw-rounded-xl tw-bg-bg-brand-stronger tw-transition-[transform,opacity] tw-duration-200 tw-ease-out"
     [class]="barStateClasses()"
     [attr.inert]="!visible() ? '' : null"
     [attr.aria-hidden]="!visible() ? 'true' : null"
@@ -14,6 +15,7 @@
     [attr.aria-label]="'bulkActionsBar' | i18n"
     (keydown)="onToolbarKeydown($event)"
   >
+    <!-- <div class=""></div> -->
     <span class="tw-px-2 tw-text-sm" [class]="elementWithDividerClasses">
       <span class="tw-font-semibold tw-text-fg-contrast">
         {{ selectedCount() }}
