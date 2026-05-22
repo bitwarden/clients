@@ -32,11 +32,14 @@ export enum FeatureFlag {
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  EnableAutofillTriage = "enable-autofill-triage",
+  FillAssistTargetingRules = "fill-assist-targeting-rules",
+
+  /* Desktop Native */
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
-  EnableAutofillTriage = "enable-autofill-triage",
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
+  SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -72,6 +75,7 @@ export enum FeatureFlag {
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
   AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
+  AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
 
   /* Vault */
@@ -130,11 +134,14 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
+  [FeatureFlag.EnableAutofillTriage]: FALSE,
+  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
+
+  /* Desktop Native */
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
-  [FeatureFlag.EnableAutofillTriage]: FALSE,
-  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
+  [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
@@ -151,6 +158,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
+  [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
 
   /* Vault */
