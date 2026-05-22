@@ -660,7 +660,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SecureNote]: "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
         [CipherType.BankAccount]: "viewItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "viewItemHeaderDriversLicense",
+        [CipherType.DriversLicense]: "viewItemHeaderLicense",
         [CipherType.Passport]: "viewItemHeaderPassport",
       },
       new: {
@@ -680,7 +680,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SecureNote]: "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
         [CipherType.BankAccount]: "editItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "editItemHeaderDriversLicense",
+        [CipherType.DriversLicense]: "editItemHeaderLicense",
         [CipherType.Passport]: "editItemHeaderPassport",
       },
     };
