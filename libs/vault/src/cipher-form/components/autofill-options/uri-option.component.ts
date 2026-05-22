@@ -35,6 +35,8 @@ import {
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
+export type UriType = "website" | "app";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -70,6 +72,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected uriForm = this.formBuilder.group({
     uri: [null as string],
     matchDetection: [null as UriMatchStrategySetting],
+    uriType: [null as UriType | null],
   });
 
   protected uriMatchOptions: {
@@ -156,6 +159,11 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
+    if (this.uriForm.controls.uriType.value === "app") {
+      return this.index === 0
+        ? this.i18nService.t("appUri")
+        : this.i18nService.t("appUriCount", this.index + 1);
+    }
     return this.index === 0
       ? this.i18nService.t("websiteUri")
       : this.i18nService.t("websiteUriCount", this.index + 1);
@@ -232,12 +240,17 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   // NG_VALUE_ACCESSOR implementation
-  writeValue(value: { uri: string; matchDetection: UriMatchStrategySetting | null }): void {
+  writeValue(value: {
+    uri: string;
+    matchDetection: UriMatchStrategySetting | null;
+    uriType?: UriType | null;
+  }): void {
     if (value) {
       this.uriForm.setValue(
         {
           uri: value.uri ?? "",
           matchDetection: value.matchDetection ?? null,
+          uriType: value.uriType ?? "website",
         },
         { emitEvent: false },
       );

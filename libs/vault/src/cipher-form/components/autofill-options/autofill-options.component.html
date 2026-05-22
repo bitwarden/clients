@@ -28,11 +28,27 @@
         bitLink
         linkType="primary"
         [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
-        (click)="addUri({ uri: null, matchDetection: null }, true)"
+        [bitMenuTriggerFor]="addUriMenu"
         startIcon="bwi-plus"
       >
-        {{ "addWebsite" | i18n }}
+        {{ "addWebsiteOrApp" | i18n }}
       </button>
+      <bit-menu #addUriMenu>
+        <button
+          type="button"
+          bitMenuItem
+          (click)="addUri({ uri: null, matchDetection: null, uriType: 'website' }, true)"
+        >
+          {{ "website" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitMenuItem
+          (click)="addUri({ uri: null, matchDetection: null, uriType: 'app' }, true)"
+        >
+          {{ "application" | i18n }}
+        </button>
+      </bit-menu>
     }
 
     @if (autofillOnPageLoadEnabled$ | async) {

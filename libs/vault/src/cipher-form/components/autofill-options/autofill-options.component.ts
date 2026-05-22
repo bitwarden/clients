@@ -22,6 +22,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
+  MenuModule,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -29,12 +30,17 @@ import {
 
 import { CipherFormContainer } from "../../cipher-form-container";
 
-import { UriOptionComponent } from "./uri-option.component";
+import { UriOptionComponent, UriType } from "./uri-option.component";
 
 interface UriField {
   uri: string;
   matchDetection: UriMatchStrategySetting;
+  uriType: UriType;
 }
+
+const APP_URI_PREFIX = "app://";
+const URI_TYPE_APP: UriType = "app";
+const URI_TYPE_WEBSITE: UriType = "website";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -53,6 +59,7 @@ interface UriField {
     IconButtonModule,
     UriOptionComponent,
     LinkModule,
+    MenuModule,
     AsyncPipe,
   ],
 })
@@ -168,6 +175,7 @@ export class AutofillOptionsComponent implements OnInit {
         {
           uri: uri.uri,
           matchDetection: uri.match,
+          uriType: uri.uri?.startsWith(APP_URI_PREFIX) ? URI_TYPE_APP : URI_TYPE_WEBSITE,
         },
         false,
         false,
@@ -191,6 +199,7 @@ export class AutofillOptionsComponent implements OnInit {
         this.addUri({
           uri: this.cipherFormContainer.config.initialValues.loginUri,
           matchDetection: null,
+          uriType: URI_TYPE_WEBSITE,
         });
       }
     }
@@ -200,6 +209,7 @@ export class AutofillOptionsComponent implements OnInit {
     this.addUri({
       uri: this.cipherFormContainer.config.initialValues?.loginUri ?? null,
       matchDetection: null,
+      uriType: URI_TYPE_WEBSITE,
     });
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: null,
@@ -232,7 +242,7 @@ export class AutofillOptionsComponent implements OnInit {
    * @param emitEvent When false, prevents the `valueChanges` & `statusChanges` observables from firing.
    */
   addUri(
-    uriFieldValue: UriField = { uri: null, matchDetection: null },
+    uriFieldValue: UriField = { uri: null, matchDetection: null, uriType: URI_TYPE_WEBSITE },
     focusNewInput = false,
     emitEvent = true,
   ) {

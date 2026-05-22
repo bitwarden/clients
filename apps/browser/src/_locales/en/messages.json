@@ -5416,11 +5416,27 @@
       }
     }
   },
+  "appUri": {
+    "message": "Application (URI)"
+  },
+  "appUriCount": {
+    "message": "Application (URI) $COUNT$",
+    "description": "Label for an input field that contains an application URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
     "message": "Add website"
+  },
+  "application": {
+    "message": "Application"
   },
   "deleteWebsite": {
     "message": "Delete website"

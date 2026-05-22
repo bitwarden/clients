@@ -18,6 +18,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+const APP_URI_PREFIX = "app://";
+const APP_URI_LABEL = "application";
+const WEBSITE_URI_LABEL = "website";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -46,6 +50,10 @@ export class AutofillOptionsViewComponent {
     private cipherService: CipherService,
     private accountService: AccountService,
   ) {}
+
+  protected getUriLabel(uri: LoginUriView): string {
+    return uri.uri?.startsWith(APP_URI_PREFIX) ? APP_URI_LABEL : WEBSITE_URI_LABEL;
+  }
 
   async openWebsite(selectedUri: string) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
