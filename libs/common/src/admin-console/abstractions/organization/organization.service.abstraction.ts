@@ -98,10 +98,22 @@ export function getOrganizationById(id: string) {
  */
 export abstract class OrganizationService {
   /**
-   * Publishes state for all organizations under the specified user.
+   * Publishes state for organizations where the user is in the Confirmed status.
+   * This means that they are a full member of the organization.
    * @returns An observable list of organizations
    */
   abstract organizations$(userId: UserId): Observable<Organization[]>;
+
+  /**
+   * Publishes state for organizations where the user is in the Accepted status.
+   * This means they have accepted their invite but have not been confirmed by
+   * an admin. The user does not have access to organization encryption keys
+   * yet and cannot decrypt data.
+   *
+   * You probably do not want this - consider {@link organizations$} instead.
+   * @returns An observable list of organizations
+   */
+  abstract acceptedOrganizations$(userId: UserId): Observable<Organization[]>;
 
   // @todo Clean these up. Continuing to expand them is not recommended.
   // @see https://bitwarden.atlassian.net/browse/AC-2252
