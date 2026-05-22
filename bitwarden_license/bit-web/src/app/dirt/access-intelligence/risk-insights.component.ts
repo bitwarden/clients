@@ -183,7 +183,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     effect(() => {
       // coachmarks are running, so set tab index to the coachmark's required tab
       const tabIndex = this.coachmarkService.requiredTabIndex();
-      if (tabIndex !== this.tabIndex()) {
+      if (tabIndex !== null && tabIndex !== this.tabIndex()) {
         this.tabIndex.set(tabIndex);
       }
     });

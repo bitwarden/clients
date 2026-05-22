@@ -33,10 +33,28 @@ const mockOnboardingService = {
   isPostImportDialogAcknowledged: jest.fn().mockResolvedValue(false),
 };
 
+const mockCoachmarkService = {
+  activeStepId: jest.fn(),
+  currentStepNumber: jest.fn(),
+  totalSteps: jest.fn(),
+  isRunning: jest.fn(),
+  requiredTabIndex: jest.fn(),
+  tourCompleted$: jest.fn(),
+  startTour: jest.fn(),
+  nextStep: jest.fn(),
+  previousStep: jest.fn(),
+  skipTour: jest.fn(),
+  completeTour: jest.fn(),
+  getStepConfig: jest.fn(),
+  getStepTitle: jest.fn(),
+  getStepDescription: jest.fn(),
+  getStepLearnMoreUrl: jest.fn(),
+  getStepPosition: jest.fn(),
+};
+
 describe("PostImportModalDialogComponent", () => {
   let component: PostImportModalDialogComponent;
   let fixture: ComponentFixture<PostImportModalDialogComponent>;
-  let mockCoachmarkService: jest.Mocked<AccessIntelligenceCoachmarkService>;
 
   beforeEach(async () => {
     jest.clearAllMocks();

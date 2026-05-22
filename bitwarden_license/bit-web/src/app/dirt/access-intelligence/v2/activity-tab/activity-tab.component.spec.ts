@@ -38,6 +38,25 @@ type MockAccessIntelligenceDataService = {
   initializeForOrganization$: jest.Mock;
 };
 
+const mockCoachmarkService = {
+  activeStepId: jest.fn(),
+  currentStepNumber: jest.fn(),
+  totalSteps: jest.fn(),
+  isRunning: jest.fn(),
+  requiredTabIndex: jest.fn(),
+  tourCompleted$: jest.fn(),
+  startTour: jest.fn(),
+  nextStep: jest.fn(),
+  previousStep: jest.fn(),
+  skipTour: jest.fn(),
+  completeTour: jest.fn(),
+  getStepConfig: jest.fn(),
+  getStepTitle: jest.fn(),
+  getStepDescription: jest.fn(),
+  getStepLearnMoreUrl: jest.fn(),
+  getStepPosition: jest.fn(),
+};
+
 describe("ActivityTabComponent", () => {
   let component: ActivityTabComponent;
   let fixture: ComponentFixture<ActivityTabComponent>;
@@ -45,7 +64,6 @@ describe("ActivityTabComponent", () => {
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockDialogService: jest.Mocked<DialogService>;
   let mockI18nService: jest.Mocked<I18nService>;
-  let mockCoachmarkService: jest.Mocked<AccessIntelligenceCoachmarkService>;
 
   /**
    * Helper to access protected/private members for testing.
