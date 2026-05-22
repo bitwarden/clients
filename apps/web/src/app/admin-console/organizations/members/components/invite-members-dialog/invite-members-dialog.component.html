@@ -33,6 +33,9 @@
       >
         {{ "invite" | i18n }}
       </button>
+      <button type="button" bitButton buttonType="secondary" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
     } @else {
       <button
         type="button"
@@ -43,10 +46,18 @@
       >
         {{ "copyLink" | i18n }}
       </button>
+      @if (byLinkTabHasUrl$ | async) {
+        <button
+          type="button"
+          bitButton
+          buttonType="dangerGhost"
+          startIcon="bwi-trash"
+          [bitAction]="deactivateLink"
+        >
+          {{ "deactivateLink" | i18n }}
+        </button>
+      }
     }
-    <button type="button" bitButton buttonType="secondary" (click)="cancel()">
-      {{ "cancel" | i18n }}
-    </button>
   </ng-container>
 
   <ng-template #byEmailForm let-organization="organization">
