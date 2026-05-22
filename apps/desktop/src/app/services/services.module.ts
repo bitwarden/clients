@@ -211,11 +211,6 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: IpcService,
-    useClass: NoopIpcService,
-    deps: [LogServiceAbstraction, IpcSessionRepository],
-  }),
-  safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
     deps: [TokenService, BiometricStateService, IpcService],
