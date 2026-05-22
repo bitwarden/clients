@@ -12,6 +12,7 @@ import {
   Injector,
   isDevMode,
   effect,
+  afterNextRender,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -222,7 +223,10 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       // to be launched when report generation is complete
       // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import
       if (this.currentProgressStep() === null && this.mustBeginPostImportTour()) {
-        void this.beginPostImportTour();
+        this.mustBeginPostImportTour.set(false);
+
+        // open the dialog only after the rendering of the report is complete
+        afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
       }
     });
   }
