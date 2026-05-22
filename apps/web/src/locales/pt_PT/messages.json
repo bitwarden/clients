@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Apps críticas em risco"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Aplicações críticas em risco"
+  },
   "allCriticalApps": {
     "message": "Todas as apps críticas"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Não é possível restaurar o acesso à organização"
   },
-  "allApplicationsWithCount": {
-    "message": "Todas as aplicações ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Criar nova credencial"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Aplicações críticas ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "aplicações críticas marcadas"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Os seus dados já estão disponíveis. Vamos colocá-los em ação."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Faça uma visita rápida ao Inteligência de Acesso e veja exatamente como transformar os dados da sua organização em ações concretas."
+  },
+  "startTour": {
+    "message": "Iniciar visita guiada"
   },
   "noDataInOrgTitle": {
     "message": "Não foram encontrados dados"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Estes membros têm acesso a itens vulneráveis de aplicações críticas."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Membros com palavras-passe em risco"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ membros têm palavras-passe em risco em $CRITICALAPPCOUNT$ aplicações críticas",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Os membros da sua organização serão atribuídos a uma tarefa para alterar palavras-passe vulneráveis. Receberão uma notificação na extensão do Bitwarden do navegador."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "de um total de $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Número do passaporte"
+  },
+  "sex": {
+    "message": "Género"
+  },
+  "copySex": {
+    "message": "Copiar género"
+  },
+  "birthPlace": {
+    "message": "Local de nascimento"
+  },
+  "nationality": {
+    "message": "Nacionalidade"
+  },
+  "copyNationality": {
+    "message": "Copiar nacionalidade"
+  },
+  "passportType": {
+    "message": "Tipo de passaporte"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Número do cartão de cidadão"
   },
   "licenseNumber": {
     "message": "Número da carta de condução"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "Dados bancários"
   },
+  "typePassport": {
+    "message": "Passaporte"
+  },
+  "passportDetails": {
+    "message": "Detalhes do passaporte"
+  },
+  "passportAdded": {
+    "message": "Passaporte adicionado"
+  },
+  "typePassportSubtitle": {
+    "message": "Documento de viagem"
+  },
   "folderSubtitle": {
     "message": "Organize os seus itens"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "Copiar endereço"
   },
+  "copyBirthPlace": {
+    "message": "Copiar local de nascimento"
+  },
   "copyPhone": {
     "message": "Copiar telefone"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "Copiar número do passaporte"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copiar número do cartão de cidadão"
+  },
+  "copyPassportType": {
+    "message": "Copiar tipo de passaporte"
   },
   "copyFirstName": {
     "message": "Copiar nome próprio"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Copiar impressão digital"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copiar autoridade / entidade emissora"
+  },
+  "copyIssuingCountry": {
+    "message": "Copiar país de emissão"
   },
   "copyName": {
     "message": "Copiar nome"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Nenhum valor introduzido",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Não existem valores para copiar"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "O seu período experimental gratuito de 7 dias de $PLAN$ será convertido numa subscrição paga após 7 dias.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "O seu período experimental gratuito de $TRIAL_LENGTH$ dias do plano $PLAN$ será convertido numa subscrição paga após $TRIAL_LENGTH$ dias.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Send de texto criado"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Send de texto criado com verificação por e-mail",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Send de texto criado com palavra-passe",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Send de ficheiro criado",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Send de ficheiro criado com verificação por e-mail",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Send de ficheiro criado com palavra-passe",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Item $ID$ movido para uma organização.",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "Copiou o PIN do item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Copiou o número do passaporte do item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Visualizou o número do passaporte do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "Um ou mais e-mails pertencem a membros com acesso revogado. Restaure o acesso para os voltar a convidar."
   },
-  "revocationReasonUnknown": {
-    "message": "Motivo desconhecido"
+  "revocationReasonNotLogged": {
+    "message": "Motivo não registado"
   },
   "revocationReasonManual": {
     "message": "Revogado por um administrador"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Não está em conformidade com a política de organização única"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Transferência de item para a organização recusada"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revogado o acesso à organização para $ID$ por incumprimento da política de verificação de dois passos.",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Transferência para propriedade da organização aceite."
-  },
-  "userDeclinedTransfer": {
-    "message": "Revogado por recusa de transferência para propriedade da organização."
   },
   "invitedUserId": {
     "message": "Utilizador $ID$ convidado.",
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "Enviar notificações para alterar palavras-passe"
   },
+  "sendNotifications": {
+    "message": "Enviar notificações"
+  },
   "assignToCollections": {
     "message": "Atribuir às coleções"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "O seu período experimental de 7 dias do plano $PLAN$ começa hoje. Adicione um método de pagamento agora para continuar a utilizar estas funcionalidades após o fim do período experimental: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "O seu período experimental de $TRIAL_LENGTH$ dias do plano $PLAN$ começa hoje. Adicione um método de pagamento agora para continuar a utilizar estas funcionalidades após o fim do período experimental: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13560,7 +13680,7 @@
     "message": "Armazene todas as suas palavras-passe e informações pessoais no seu cofre Bitwarden. Vamos mostrar-lhe como funciona."
   },
   "vaultWelcomeDialogPrimaryCta": {
-    "message": "Iniciar tour"
+    "message": "Iniciar visita guiada"
   },
   "vaultWelcomeDialogDismissCta": {
     "message": "Saltar"
@@ -13663,6 +13783,9 @@
   },
   "searchBankAccount": {
     "message": "Pesquisar conta bancária"
+  },
+  "searchPassport": {
+    "message": "Pesquisar passaportes"
   },
   "copyAccountNumber": {
     "message": "Copiar número da conta"
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "Mais"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "A sua conta bancária tem de ser verificada antes de poder ser utilizada para esta atualização. Por favei, verifique a sua conta bancária ou escolha outro método de pagamento."
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "Ignorar link"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Regenerar chave de encriptação da conta"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "callout": {
     "message": "Aviso",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   },
   "searchDriversLicense": {
     "message": "Pesquisar cartas de condução"
