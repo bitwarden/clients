@@ -12,7 +12,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -28,7 +27,6 @@ import {
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import { ExtensionInstallType } from "../platform/browser/extension-install-type";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
@@ -495,7 +493,7 @@ export default class RuntimeBackground {
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
         ) {
-          await this.displayWelcomePage();
+          await this.browserInitialInstallService.displayWelcomePage();
 
           await this.autofillSettingsService.setInlineMenuVisibility(
             AutofillOverlayVisibility.OnFieldFocus,
@@ -510,24 +508,6 @@ export default class RuntimeBackground {
         this.onInstalledReason = null;
       }
     }, 100);
-  }
-
-  private async displayWelcomePage() {
-    // We use the install type here because it is available at install time, versus
-    // specific MDM-delivered settings, which are eventually consistent on extension load.
-    const installType = await BrowserApi.getInstallType();
-
-    // We want to disable showing the welcome page if the extension is administratively
-    // installed or installed via sideload. The dev flag lets developers silence the welcome
-    // tab when working with an unpacked extension.
-    const isUnattendedInstall =
-      installType === ExtensionInstallType.Admin || installType === ExtensionInstallType.Sideload;
-
-    // We also have a dev override to allow local testing of the start tab,
-    // rather than preventing it on development installs.
-    if (!devFlagEnabled("skipWelcomeOnInstall") && !isUnattendedInstall) {
-      void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
-    }
   }
 
   /** Returns the browser tabs that have the web vault open */
