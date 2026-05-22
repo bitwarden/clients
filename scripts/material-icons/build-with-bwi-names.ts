@@ -11,6 +11,7 @@ import { BWI_TO_FIGMA, FIGMA_VARIANTS } from "./migration-map";
 
 const ICONS_DIR = path.join(__dirname, "../../libs/assets/src/material-icons");
 const SCSS_PATH = path.join(__dirname, "../../libs/angular/src/scss/bwicons/styles/style.scss");
+const CSS_PATH = path.join(__dirname, "../../libs/angular/src/scss/bwicons/styles/style.css");
 const ICON_TS_PATH = path.join(__dirname, "../../libs/components/src/shared/icon.ts");
 
 function buildIconFont(): void {
@@ -76,7 +77,9 @@ function buildIconFont(): void {
         if (!glyph) {
           return [];
         } // Skip if Figma name not in glyphMap
-        return legacyNames.map((legacy) => ({ legacy, glyph }));
+        return legacyNames
+          .filter((legacy) => !glyphMap[legacy]) // skip if name is already a Figma icon
+          .map((legacy) => ({ legacy, glyph }));
       })
       .sort((a, b) => a.legacy.localeCompare(b.legacy))
       .map(({ legacy, glyph }) => {
@@ -99,7 +102,12 @@ ${entries.join(",\n")}${legacyEntries.length > 0 ? ",\n" + legacyEntries.join(",
 
     fs.writeFileSync(SCSS_PATH, scssContent, "utf-8");
 
-    // Step 4: Update TypeScript icon array
+    // Step 4: Compile SCSS to CSS
+    // eslint-disable-next-line no-console
+    console.log("\nCompiling SCSS to CSS...");
+    execSync(`npx sass ${SCSS_PATH} ${CSS_PATH} --no-source-map`, { stdio: "inherit" });
+
+    // Step 5: Update TypeScript icon array
     // eslint-disable-next-line no-console
     console.log("\nUpdating TypeScript icon array...");
 

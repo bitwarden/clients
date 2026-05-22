@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeDriversLicense": {
+    "message": "Шофьорска книжка"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Шофьорска книжка"
+  },
   "typeLoginSubtitle": {
     "message": "Уеб сайт или приложение"
   },
@@ -1166,9 +1172,9 @@
     "message": "Редактиране на банковата сметка",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Редактиране на шофьорската книжка",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "Редактиране на лиценза",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Редактиране на паспорта",
@@ -1206,9 +1212,9 @@
     "message": "Преглед на банковата сметка",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Преглед на шофьорската книжка",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "Преглед на лиценза",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Преглед на паспорта",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "Копиране на номера на паспорта"
+  },
+  "copyFirstName": {
+    "message": "Копиране на първото име"
+  },
+  "copyMiddleName": {
+    "message": "Копиране на средното име"
+  },
+  "copyLastName": {
+    "message": "Копиране на последното име"
   },
   "copyLicenseNumber": {
     "message": "Копиране на номера на свидетелството"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "Номерът на лиценза от запис $ID$ е прегледан.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Номерът на лиценза от запис $ID$ е копиран.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Запис № $ID$ е ползван за автоматично дописване.",
     "placeholders": {
@@ -5486,6 +5519,26 @@
   "domainsEdited": {
     "message": "Домейните са редактирани"
   },
+  "inviteLink": {
+    "message": "Връзка за покана"
+  },
+  "lastGenerated": {
+    "message": "Последно създаване: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Връзката за покана е копирана"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Връзката за покана е създадена наново"
+  },
+  "regenerateInviteLink": {
+    "message": "Създаване на връзката за покана наново"
+  },
   "inviteByLinkDesc": {
     "message": "Поканете членове в организацията си чрез връзка. Ако все още не е определена роля, те ще бъдат добавени като обикновени потребители."
   },
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Сваляне на прикачените файлове"
+  },
+  "troubleshooting": {
+    "message": "Отстраняване на проблеми"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Имате проблем? Свалете и после споделете доклада от диагностиката чрез"
+  },
+  "bitwardenSupport": {
+    "message": "поддръжката на Битуорден",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Сваляне"
   },
   "sendAccessPasswordTitle": {
     "message": "Въведете паролата, за да видите това Изпращане",
@@ -7974,7 +8040,7 @@
     "message": "Self-hosting"
   },
   "selfHostingEnterpriseOrganizationSectionCopy": {
-    "message": "To set-up your organization on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up billing sync."
+    "message": "За да настроите организацията си на собствен сървър, трябва да качите своя файл с лиценз. Ако искате да поддържате безплатни Семейни планове и разширени опции за таксуване в своята организация със собствен хостинг, ще трябва да настроите синхронизиране на плащанията."
   },
   "billingSyncApiKeyRotated": {
     "message": "Идентификаторът е пресъздаден."
@@ -8583,6 +8649,21 @@
   },
   "inputRequired": {
     "message": "Полето е задължително да бъде попълнено."
+  },
+  "enterMonth": {
+    "message": "Въведете месец."
+  },
+  "enterDay": {
+    "message": "Въведете ден."
+  },
+  "enterYear": {
+    "message": "Въведете година."
+  },
+  "invalidDay": {
+    "message": "Въведете правилен ден."
+  },
+  "invalidYear": {
+    "message": "Въведете правилна година."
   },
   "inputEmail": {
     "message": "Въведеният в полето текст не е адрес на е-поща."
@@ -9382,6 +9463,9 @@
   },
   "inviteMember": {
     "message": "Покана на член"
+  },
+  "inviteMembers": {
+    "message": "Канене на членове"
   },
   "addSponsorship": {
     "message": "Add sponsorship"
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Търсене на лицензи"
+  },
+  "driversLicenseDetails": {
+    "message": "Подробности за лиценза"
+  },
+  "dateOfBirth": {
+    "message": "Дата на раждане"
+  },
+  "birthMonth": {
+    "message": "Месец на раждане"
+  },
+  "birthDay": {
+    "message": "Ден на раждане"
+  },
+  "birthYear": {
+    "message": "Година на раждане"
+  },
+  "issuingCountry": {
+    "message": "Страна издател"
+  },
+  "issuingState": {
+    "message": "Щат/провинция издател"
+  },
+  "issueDate": {
+    "message": "Дата на издаване"
+  },
+  "issueMonth": {
+    "message": "Месец на издаване"
+  },
+  "issueDay": {
+    "message": "Ден на издаване"
+  },
+  "issueYear": {
+    "message": "Година на издаване"
+  },
+  "expirationDay": {
+    "message": "Ден на изтичане"
+  },
+  "issuingAuthority": {
+    "message": "Институция издател"
+  },
+  "licenseClass": {
+    "message": "Клас на лиценза"
   },
   "copy": {
     "message": "Копиране"
