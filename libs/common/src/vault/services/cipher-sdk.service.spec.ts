@@ -45,6 +45,7 @@ describe("DefaultCipherSdkService", () => {
     mockCiphersSdk = {
       create: jest.fn(),
       edit: jest.fn(),
+      edit_partial: jest.fn(),
       delete: jest.fn().mockResolvedValue(undefined),
       delete_many: jest.fn().mockResolvedValue(undefined),
       soft_delete: jest.fn().mockResolvedValue(undefined),
@@ -225,12 +226,13 @@ describe("DefaultCipherSdkService", () => {
   });
 
   describe("updateWithServer()", () => {
-    it("should update cipher using SDK when orgAdmin is false", async () => {
+    it("should update cipher using SDK edit when orgAdmin is false and cipher.edit is true", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
       cipherView.name = "Updated Cipher";
       cipherView.organizationId = orgId;
+      cipherView.edit = true;
 
       const mockSdkCipherView = cipherView.toSdkCipherView();
       mockCiphersSdk.edit.mockResolvedValue(mockSdkCipherView);
@@ -245,8 +247,54 @@ describe("DefaultCipherSdkService", () => {
           name: cipherView.name,
         }),
       );
+      expect(mockCiphersSdk.edit_partial).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
       expect(result.name).toBe(cipherView.name);
+    });
+
+    it("should partial update cipher using SDK edit_partial when orgAdmin is false and cipher.edit is false", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "View-Only Cipher";
+      cipherView.organizationId = orgId;
+      cipherView.edit = false;
+      cipherView.favorite = true;
+
+      const mockSdkCipherView = cipherView.toSdkCipherView();
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: expect.anything(),
+          favorite: true,
+        }),
+      );
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should partial update cipher when orgAdmin is false and cipher.edit defaults to false", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Default Edit Cipher";
+      cipherView.organizationId = orgId;
+
+      const mockSdkCipherView = cipherView.toSdkCipherView();
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
+
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
     });
 
     it("should update cipher using SDK admin API when orgAdmin is true", async () => {
@@ -316,6 +364,7 @@ describe("DefaultCipherSdkService", () => {
       cipherView.type = CipherType.Login;
       cipherView.name = "Updated Cipher";
       cipherView.organizationId = orgId;
+      cipherView.edit = true;
 
       // Build an SDK response that includes encrypted FIDO2 credentials
       const mockSdkResponse = {
@@ -361,8 +410,25 @@ describe("DefaultCipherSdkService", () => {
     it("should throw error and log when SDK throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
+      cipherView.edit = true;
 
       mockCiphersSdk.edit.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.updateWithServer(cipherView, userId, undefined, false),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher"),
+      );
+    });
+
+    it("should throw error and log when SDK edit_partial throws an error", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.name = "Test Cipher";
+      cipherView.edit = false;
+
+      mockCiphersSdk.edit_partial.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.updateWithServer(cipherView, userId, undefined, false),
