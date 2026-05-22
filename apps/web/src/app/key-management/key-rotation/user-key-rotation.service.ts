@@ -4,6 +4,12 @@ import { firstValueFrom, Observable } from "rxjs";
 import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
+import { V1UserCryptographicState } from "@bitwarden/common/key-management/account-keys/types/v1-cryptographic-state";
+import {
+  fromSdkV2KeysToV2UserCryptographicState,
+  V2UserCryptographicState,
+} from "@bitwarden/common/key-management/account-keys/types/v2-cryptographic-state";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -45,16 +51,10 @@ import { OrganizationUserResetPasswordService } from "../../admin-console/organi
 import { WebauthnLoginAdminService } from "../../auth/core";
 import { EmergencyAccessService } from "../../auth/emergency-access";
 
-import { AccountKeysRequest } from "./request/account-keys.request";
 import { MasterPasswordUnlockDataRequest } from "./request/master-password-unlock-data.request";
 import { RotateUserAccountKeysRequest } from "./request/rotate-user-account-keys.request";
 import { UnlockDataRequest } from "./request/unlock-data.request";
 import { UserDataRequest } from "./request/userdata.request";
-import { V1UserCryptographicState } from "./types/v1-cryptographic-state";
-import {
-  fromSdkV2KeysToV2UserCryptographicState,
-  V2UserCryptographicState,
-} from "./types/v2-cryptographic-state";
 import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 
 type MasterPasswordAuthenticationAndUnlockData = {

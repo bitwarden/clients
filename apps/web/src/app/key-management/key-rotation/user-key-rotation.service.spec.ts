@@ -6,6 +6,9 @@ import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
+import { V1UserCryptographicState } from "@bitwarden/common/key-management/account-keys/types/v1-cryptographic-state";
+import { V2UserCryptographicState } from "@bitwarden/common/key-management/account-keys/types/v2-cryptographic-state";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -58,6 +61,7 @@ import {
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
+
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth";
 import { EmergencyAccessService } from "../../auth/emergency-access";
@@ -65,12 +69,9 @@ import { EmergencyAccessStatusType } from "../../auth/emergency-access/enums/eme
 import { EmergencyAccessType } from "../../auth/emergency-access/enums/emergency-access-type";
 import { EmergencyAccessWithIdRequest } from "../../auth/emergency-access/request/emergency-access-update.request";
 
-import { AccountKeysRequest } from "./request/account-keys.request";
 import { MasterPasswordUnlockDataRequest } from "./request/master-password-unlock-data.request";
 import { UnlockDataRequest } from "./request/unlock-data.request";
 import { UserDataRequest } from "./request/userdata.request";
-import { V1UserCryptographicState } from "./types/v1-cryptographic-state";
-import { V2UserCryptographicState } from "./types/v2-cryptographic-state";
 import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 import {
   UserKeyRotationService,

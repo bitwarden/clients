@@ -24,6 +24,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -37,7 +38,7 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { UnsignedPublicKey, WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
@@ -145,7 +146,7 @@ describe("DefaultSetInitialPasswordService", () => {
     let userKeyEncryptedPrivateKey: EncString;
 
     let keyPair: [string, EncString];
-    let keysRequest: KeysRequest;
+    let accountKeysRequest: AccountKeysRequest;
 
     let organizationKeys: OrganizationKeysResponse;
     let orgPublicKeyEncryptedUserKey: EncString;
@@ -180,7 +181,13 @@ describe("DefaultSetInitialPasswordService", () => {
       userKeyEncryptedPrivateKey = new EncString("userKeyEncryptedPrivateKey");
 
       keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+      accountKeysRequest = AccountKeysRequest.fromV1CryptographicState({
+        userKey: masterKeyEncryptedUserKey[0],
+        publicKeyEncryptionKeyPair: {
+          wrappedPrivateKey: keyPair[1].encryptedString as string as WrappedPrivateKey,
+          publicKey: Utils.fromB64ToArray(keyPair[0]) as UnsignedPublicKey,
+        },
+      });
 
       organizationKeys = {
         privateKey: "orgPrivateKey",
@@ -216,7 +223,7 @@ describe("DefaultSetInitialPasswordService", () => {
         unlockData,
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
-        keysRequest,
+        accountKeysRequest,
       );
 
       enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
@@ -322,10 +329,14 @@ describe("DefaultSetInitialPasswordService", () => {
             unlockData,
             credentials.newPasswordHint,
             credentials.orgSsoIdentifier,
-            new KeysRequest(
-              Utils.fromBufferToB64(existingUserPublicKey),
-              userKeyEncryptedPrivateKey.encryptedString,
-            ),
+            AccountKeysRequest.fromV1CryptographicState({
+              userKey: masterKeyEncryptedUserKey[0],
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey:
+                  userKeyEncryptedPrivateKey.encryptedString as string as WrappedPrivateKey,
+                publicKey: existingUserPublicKey as unknown as UnsignedPublicKey,
+              },
+            }),
           );
 
           setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
@@ -1244,7 +1255,7 @@ describe("DefaultSetInitialPasswordService", () => {
         unlockData,
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
-        null, // no KeysRequest for TDE user because they already have a key pair
+        null, // no AccountKeysRequest for TDE user because they already have a key pair
       );
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: false });

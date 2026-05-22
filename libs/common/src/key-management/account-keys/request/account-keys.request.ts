@@ -4,10 +4,11 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { PublicKeyEncryptionKeyPairRequestModel } from "../model/public-key-encryption-key-pair-request.model";
-import { SignatureKeyPairRequestModel } from "../model/signature-key-pair-request-request.model";
 import { V1UserCryptographicState } from "../types/v1-cryptographic-state";
 import { V2UserCryptographicState } from "../types/v2-cryptographic-state";
+
+import { PublicKeyEncryptionKeyPairRequestModel } from "./public-key-encryption-key-pair-request.model";
+import { SignatureKeyPairRequestModel } from "./signature-key-pair-request.model";
 
 // This request contains other account-owned keys that are encrypted with the user key.
 export class AccountKeysRequest {

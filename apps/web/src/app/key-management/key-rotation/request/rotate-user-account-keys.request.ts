@@ -1,4 +1,5 @@
-import { AccountKeysRequest } from "./account-keys.request";
+import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
+
 import { UnlockDataRequest } from "./unlock-data.request";
 import { UserDataRequest as AccountDataRequest } from "./userdata.request";
 

@@ -18,6 +18,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -28,9 +29,10 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { UnsignedPublicKey, WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -113,7 +115,7 @@ describe("WebSetInitialPasswordService", () => {
     let masterKeyEncryptedUserKey: [UserKey, EncString];
 
     let keyPair: [string, EncString];
-    let keysRequest: KeysRequest;
+    let accountKeysRequest: AccountKeysRequest;
 
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
@@ -141,7 +143,13 @@ describe("WebSetInitialPasswordService", () => {
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
       keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+      accountKeysRequest = AccountKeysRequest.fromV1CryptographicState({
+        userKey: masterKeyEncryptedUserKey[0],
+        publicKeyEncryptionKeyPair: {
+          wrappedPrivateKey: keyPair[1].encryptedString as string as WrappedPrivateKey,
+          publicKey: Utils.fromB64ToArray(keyPair[0]) as UnsignedPublicKey,
+        },
+      });
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
@@ -171,7 +179,7 @@ describe("WebSetInitialPasswordService", () => {
         unlockData,
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
-        keysRequest,
+        accountKeysRequest,
       );
     });
 
