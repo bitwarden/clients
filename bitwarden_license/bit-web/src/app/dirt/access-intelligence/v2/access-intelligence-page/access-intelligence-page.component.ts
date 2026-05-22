@@ -17,7 +17,7 @@ import {
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, debounceTime, delay, finalize, skip, take } from "rxjs/operators";
+import { concatMap, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -257,10 +257,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     combineLatest([
       toObservable(this.hasReportData, { injector: this.injector }),
       toObservable(this.hasCiphers, { injector: this.injector }),
+      toObservable(this.initializing, { injector: this.injector }),
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        debounceTime(100),
+        filter(([_, __, initializing]) => !initializing), // Wait until initialization is complete
         filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
         take(1),
       )
