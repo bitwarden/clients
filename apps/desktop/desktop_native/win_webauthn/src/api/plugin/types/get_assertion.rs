@@ -1,10 +1,8 @@
-use std::marker::PhantomData;
-
 use windows::{core::GUID, Win32::Foundation::HWND};
 
 use crate::{
     api::{
-        plugin::WebAuthnCtapCborAuthenticatorOptions,
+        plugin::{crypto::OwnedRequestHash, WebAuthnCtapCborAuthenticatorOptions},
         sys::plugin::{
             webauthn_decode_get_assertion_request, webauthn_free_decoded_get_assertion_request,
             WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
@@ -20,9 +18,16 @@ pub struct PluginGetAssertionRequest<'a> {
     inner: *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST<'a>,
     pub window_handle: HWND,
     pub transaction_id: GUID,
+    operation_request_hash: Vec<u8>,
 }
 
 impl<'a> PluginGetAssertionRequest<'a> {
+    /// The SHA-256 hash of the original plugin operation request. This must be
+    /// used when performing user verification requests for this request.
+    pub fn operation_request_hash(&self) -> &[u8] {
+        &self.operation_request_hash
+    }
+
     pub fn rp_id(&self) -> &str {
         let inner = self.as_ref();
         unsafe {
@@ -64,6 +69,7 @@ impl<'a> PluginGetAssertionRequest<'a> {
     /// A request can be considered valid if the signature is verified as coming from the OS.
     pub(super) unsafe fn try_from_ptr(
         value: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<PluginGetAssertionRequest<'a>, WinWebAuthnError> {
         if !matches!(value.requestType, WEBAUTHN_PLUGIN_REQUEST_TYPE::CTAP2_CBOR) {
             return Err(WinWebAuthnError::new(
@@ -103,6 +109,7 @@ impl<'a> PluginGetAssertionRequest<'a> {
             inner: assertion_request as *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
             window_handle: value.hWnd,
             transaction_id: value.transactionId,
+            operation_request_hash: request_hash.0,
         })
     }
 }

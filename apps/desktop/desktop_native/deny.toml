@@ -8,6 +8,10 @@ ignore = [
   # rand 0.8.5 pulled transitively by num-bigint-dig (via rsa, ssh-key, oo7). No updated version available.
   # Not affected: no custom log::Log logger uses rand in this codebase.
   { id = "RUSTSEC-2026-0097", reason = "Transitive dep via num-bigint-dig; no fix available. Not exploitable: no custom logger uses rand." },
+  # time 0.3.44 via tracing-appender 0.2.5 in windows_plugin_authenticator. Fix (time >= 0.3.47) conflicts
+  # with the workspace-pinned serde = "=1.0.209". Not exploitable: Rotation::NEVER is used, so no
+  # RFC 2822 time parsing is invoked.
+  { id = "RUSTSEC-2026-0009", reason = "Transitive dep via tracing-appender; fix conflicts with workspace-pinned serde. Not exploitable: Rotation::NEVER used, no RFC 2822 parsing triggered." },
 ]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html

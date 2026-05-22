@@ -3,7 +3,14 @@ const child_process = require("child_process");
 
 exports.default = async function (configuration) {
   const ext = configuration.path.split(".").at(-1);
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe", "dll", "node"].includes(ext)) {
+  const releaseChannel =  process.env.BITWARDEN_RELEASE_CHANNEL ?? "stable";
+  const allowedExtensions = ["exe", "dll", "node"];
+  // Allow signing in CI for Appx only
+  if (releaseChannel == "beta") {
+    allowedExtensions.push("appx");
+  }
+  // CI Signing
+  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && allowedExtensions.includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
     child_process.execFileSync(
       "azuresigntool",
@@ -25,7 +32,9 @@ exports.default = async function (configuration) {
         stdio: "inherit",
       },
     );
-  } else if (
+  }
+  // Local signing
+  else if (
     process.env.ELECTRON_BUILDER_SIGN_CERT &&
     ["exe", "dll", "node", "appx"].includes(ext)
   ) {

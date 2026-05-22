@@ -96,6 +96,13 @@ function buildImporterBinaries(target, release = true) {
     }
 }
 
+function buildWindowsPluginBin(target, release = true) {
+    // This binary is only built for Windows, so we can skip it on other platforms
+    if (effectivePlatform(target) == "win32") {
+        cargoBuild("windows_plugin_authenticator", target, release)
+    }
+}
+
 function buildProcessIsolation() {
     if (process.platform !== "linux") {
         return;
@@ -128,9 +135,10 @@ function effectivePlatform(target) {
 
 if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
-    buildNapiModule(false, mode === "release");
-    buildProxyBin(false, mode === "release");
-    buildImporterBinaries(false, mode === "release");
+    buildNapiModule(false, isRelease);
+    buildWindowsPluginBin(null, isRelease);
+    buildProxyBin(false, isRelease);
+    buildImporterBinaries(false, isRelease);
     buildProcessIsolation();
     return;
 }
@@ -139,6 +147,7 @@ if (target) {
     console.log(`Building for target: ${target} in ${mode} mode`);
     installTarget(target);
     buildNapiModule(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
@@ -158,6 +167,7 @@ if (process.platform === "linux") {
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();

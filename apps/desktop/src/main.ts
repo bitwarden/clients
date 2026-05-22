@@ -133,6 +133,8 @@ export class Main {
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
 
+    this.logService.debug("Release channel:", BIT_RELEASE_CHANNEL);
+
     const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
     const cachedBackend = new CachedBackend(electronStoreBackend);
 
@@ -333,7 +335,10 @@ export class Main {
     new ChromiumImporterService();
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
-    void this.nativeAutofillMain.init();
+    void app.whenReady().then(async () => {
+      this.logService.debug("Initializing native autofill");
+      await this.nativeAutofillMain.init();
+    });
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,

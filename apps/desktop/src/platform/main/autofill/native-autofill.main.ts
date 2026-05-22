@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
 
@@ -60,6 +60,18 @@ export class NativeAutofillMain {
   }
 
   async init() {
+    if (process.platform === "win32") {
+      try {
+        passkey_authenticator.register();
+      } catch (err) {
+        this.logService.error("Failed to register windows passkey plugin:", err);
+        return JSON.stringify({
+          type: "error",
+          message: "Failed to register windows passkey plugin",
+        });
+      }
+    }
+
     ipcMain.handle(
       "autofill.runCommand",
       <C extends CommandDefinition>(
@@ -115,13 +127,39 @@ export class NativeAutofillMain {
       (error, clientId, sequenceNumber, status) => {
         if (error) {
           this.logService.error("autofill.IpcServer.nativeStatus", error);
-          this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
         this.safeSend("autofill.nativeStatus", {
           clientId,
           sequenceNumber,
           status,
+        });
+      },
+      // LockStatusQueryCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.lockStatusQuery", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.safeSend("autofill.lockStatusQuery", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
+      // WindowHandleQueryCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.windowHandleQuery", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.safeSend("autofill.windowHandleQuery", {
+          clientId,
+          sequenceNumber,
+          request,
         });
       },
     );
@@ -144,6 +182,18 @@ export class NativeAutofillMain {
       this.logService.debug("autofill.completePasskeyAssertion", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer?.completeAssertion(clientId, sequenceNumber, response);
+    });
+
+    ipcMain.on("autofill.completeLockStatusQuery", (event, data) => {
+      this.logService.debug("autofill.completeLockStatusQuery", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeLockStatusQuery(clientId, sequenceNumber, response);
+    });
+
+    ipcMain.on("autofill.completeWindowHandleQuery", (event, data) => {
+      this.logService.debug("autofill.completeWindowHandleQuery", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeWindowHandleQuery(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completeError", (event, data) => {

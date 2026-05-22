@@ -1,0 +1,301 @@
+use std::{
+    collections::HashMap,
+    sync::{
+        mpsc::{self, Sender},
+        Arc, Mutex,
+    },
+    thread,
+    time::Duration,
+};
+
+use autofill_provider::{
+    AutofillProviderClient, ConnectionStatus, LockStatusResponse, TimedCallback,
+    WindowHandleQueryResponse,
+};
+use base64::engine::{general_purpose::STANDARD, Engine as _};
+use win_webauthn::plugin::{
+    Clsid, PluginAuthenticator, PluginCancelOperationRequest, PluginGetAssertionRequest,
+    PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
+};
+use windows::{
+    core::{GUID, HSTRING},
+    Foundation::Uri,
+    System::Launcher,
+    Win32::{
+        Foundation::HWND,
+        System::Threading::{AttachThreadInput, GetCurrentThreadId},
+        UI::WindowsAndMessaging::{
+            BringWindowToTop, GetForegroundWindow, GetWindowThreadProcessId,
+        },
+    },
+};
+
+pub(super) fn run_server(clsid: Clsid) -> Result<WebAuthnPlugin, String> {
+    tracing::debug!("Setting up COM server");
+
+    // TODO: write config to local file, or bake into binary
+    // let clsid = CLSID.try_into().expect("valid GUID string");
+    let authenticator_handler = BitwardenPluginAuthenticator {
+        client: Mutex::new(None),
+        callbacks: Arc::new(Mutex::new(HashMap::new())),
+    };
+    let mut plugin = WebAuthnPlugin::new(clsid);
+
+    let r = plugin
+        .register_server(authenticator_handler)
+        .map_err(|err| err.to_string())?;
+    tracing::debug!("Registered the com library: {:?}", r);
+    Ok(plugin)
+}
+
+struct BitwardenPluginAuthenticator {
+    /// Client to communicate with desktop app over IPC.
+    client: Mutex<Option<Arc<AutofillProviderClient>>>,
+
+    /// Map of transaction IDs to cancellation tokens
+    callbacks: Arc<Mutex<HashMap<GUID, Sender<()>>>>,
+}
+
+impl BitwardenPluginAuthenticator {
+    fn get_client(&self) -> Result<Arc<AutofillProviderClient>, String> {
+        {
+            let mut client = self.client.lock().unwrap();
+            match client.as_ref().map(|c| c.get_connection_status()) {
+                Some(ConnectionStatus::Connected | ConnectionStatus::Connecting) => {
+                    return Ok(client.as_ref().unwrap().clone());
+                }
+                Some(ConnectionStatus::Disconnected) => {
+                    tracing::debug!("IPC connection dropped, reconnecting");
+                    *client = None;
+                }
+                None => {}
+            }
+        }
+        self.do_connect()
+    }
+
+    fn do_connect(&self) -> Result<Arc<AutofillProviderClient>, String> {
+        // 20 * 200ms = 4 seconds
+        for i in 1..=20 {
+            if !AutofillProviderClient::is_available() {
+                if i == 1 {
+                    tracing::debug!("Launching desktop app");
+                    let uri =
+                        Uri::CreateUri(&HSTRING::from("bitwarden://webauthn")).expect("valid URI");
+                    _ = Launcher::LaunchUriAsync(&uri);
+                }
+                let wait_time = Duration::from_millis(200);
+                tracing::debug!(
+                    "Waiting for IPC availability, attempt {i}, retrying in {wait_time:?}"
+                );
+                thread::sleep(wait_time);
+                continue;
+            }
+            let mut client = self.client.lock().unwrap();
+            if let Some(c) = client.as_ref() {
+                return Ok(c.clone()); // another thread connected while we slept
+            }
+            tracing::debug!("Connecting to desktop app via IPC");
+            let c = Arc::new(AutofillProviderClient::connect());
+            tracing::debug!(
+                "Initiated IPC connection attempt. The connection should resolve later."
+            );
+            *client = Some(c.clone());
+            return Ok(c);
+        }
+        Err("Timed out waiting for IPC to become available".to_string())
+    }
+
+    fn wait_for_connected_client(
+        &self,
+        client: &Arc<AutofillProviderClient>,
+    ) -> Result<(), String> {
+        // 50 * 200ms = 10 seconds
+        for _ in 0..50 {
+            if let ConnectionStatus::Connected = client.get_connection_status() {
+                return Ok(());
+            }
+            thread::sleep(Duration::from_millis(200));
+        }
+        // Reset so the next get_client() starts a fresh connection attempt.
+        *self.client.lock().unwrap() = None;
+        Err("Timed out waiting for IPC connection to be established".to_string())
+    }
+}
+
+impl PluginAuthenticator for BitwardenPluginAuthenticator {
+    fn make_credential(
+        &self,
+        request: PluginMakeCredentialRequest,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        tracing::debug!("Received MakeCredential: {request:?}");
+        let client = self.get_client()?;
+
+        self.wait_for_connected_client(&client)?;
+        let plugin_window = get_window_details(&client)?;
+        unsafe {
+            let dw_current_thread = GetCurrentThreadId();
+            let dw_fg_thread = GetWindowThreadProcessId(GetForegroundWindow(), None);
+            let result = AttachThreadInput(dw_current_thread, dw_fg_thread, true);
+            tracing::debug!("AttachThreadInput() - attach? {result:?}");
+            let result = BringWindowToTop(plugin_window.handle);
+            tracing::debug!("BringWindowToTop? {result:?}");
+            let result = AttachThreadInput(dw_current_thread, dw_fg_thread, false);
+            tracing::debug!("AttachThreadInput() - detach? {result:?}");
+        };
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+        let transaction_id = request.transaction_id;
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .insert(transaction_id, cancel_tx);
+        let response = crate::make_credential::make_credential(&client, request, cancel_rx);
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .remove(&transaction_id);
+        response
+    }
+
+    fn get_assertion(
+        &self,
+        request: PluginGetAssertionRequest,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        tracing::debug!("Received GetAssertion: {request:?}");
+        let client = self.get_client()?;
+
+        self.wait_for_connected_client(&client)?;
+        let is_unlocked = get_lock_status(&client).map_or(false, |response| response.is_unlocked);
+        // Don't mess with the window unless we're going to need it: if the
+        // vault is locked or if we need to show credential selection dialog.
+
+        let needs_ui = !is_unlocked || request.allow_credentials().count() != 1;
+        if needs_ui {
+            unsafe {
+                let plugin_window = get_window_details(&client)?;
+                let dw_current_thread = GetCurrentThreadId();
+                let dw_fg_thread = GetWindowThreadProcessId(GetForegroundWindow(), None);
+                let result = AttachThreadInput(dw_current_thread, dw_fg_thread, true);
+                tracing::debug!("AttachThreadInput() - attach? {result:?}");
+                let result = BringWindowToTop(plugin_window.handle);
+                tracing::debug!("BringWindowToTop? {result:?}");
+                let result = AttachThreadInput(dw_current_thread, dw_fg_thread, false);
+                tracing::debug!("AttachThreadInput() - detach? {result:?}");
+            };
+        }
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+        let transaction_id = request.transaction_id;
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .insert(transaction_id, cancel_tx);
+        let response = crate::assert::get_assertion(&client, request, cancel_rx);
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .remove(&transaction_id);
+        response
+    }
+
+    fn cancel_operation(
+        &self,
+        request: PluginCancelOperationRequest,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let transaction_id = request.transaction_id();
+        tracing::debug!(?transaction_id, "Received CancelOperation");
+
+        if let Some(cancellation_token) = self
+            .callbacks
+            .lock()
+            .expect("not poisoned")
+            .get(&request.transaction_id())
+        {
+            _ = cancellation_token.send(());
+            let client = self.get_client()?;
+            let context = STANDARD.encode(transaction_id.to_u128().to_le_bytes().to_vec());
+            tracing::debug!("Sending cancel operation for context: {context}");
+            client.send_native_status("cancel-operation".to_string(), context);
+        }
+        Ok(())
+    }
+
+    fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
+        // If the IPC pipe is not open, then the client is not open and must be locked/logged out.
+        if !AutofillProviderClient::is_available() {
+            return Ok(PluginLockStatus::PluginLocked);
+        }
+        let client = self.get_client()?;
+        if let ConnectionStatus::Disconnected = client.get_connection_status() {
+            return Ok(PluginLockStatus::PluginLocked);
+        }
+
+        get_lock_status(&client)
+            .map(|response| {
+                if response.is_unlocked {
+                    PluginLockStatus::PluginUnlocked
+                } else {
+                    PluginLockStatus::PluginLocked
+                }
+            })
+            .or_else(|err| {
+                tracing::error!(%err, "Failed to retrieve lock status, returning locked");
+                Ok(PluginLockStatus::PluginLocked)
+            })
+    }
+}
+
+fn get_lock_status(client: &AutofillProviderClient) -> Result<LockStatusResponse, String> {
+    let callback = Arc::new(TimedCallback::new());
+    client.get_lock_status(callback.clone());
+    match callback.wait_for_response(Duration::from_secs(3), None) {
+        Ok(Ok(response)) => Ok(response),
+        Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
+        Err(_) => Err(format!("GetLockStatus() call timed out").into()),
+    }
+}
+
+fn get_window_details(client: &AutofillProviderClient) -> Result<WindowDetails, String> {
+    tracing::debug!("Attempting to retrieve window handle");
+    let window_handle_callback = Arc::new(TimedCallback::new());
+    client.get_window_handle(window_handle_callback.clone());
+    let callback_response = window_handle_callback
+        .wait_for_response(Duration::from_secs(30), None)
+        .map_err(|err| format!("Callback failed waiting for a window handle: {err}"))?;
+    let response = callback_response
+        .map_err(|err| format!("Failed to get window details: {err}"))?
+        .try_into();
+    tracing::debug!("Got Window Handle: {response:?}");
+    response
+}
+
+#[derive(Debug)]
+struct WindowDetails {
+    _is_visible: bool,
+    _is_focused: bool,
+    handle: HWND,
+}
+
+impl TryFrom<WindowHandleQueryResponse> for WindowDetails {
+    type Error = String;
+
+    fn try_from(value: WindowHandleQueryResponse) -> Result<Self, Self::Error> {
+        unsafe {
+            // SAFETY: We check to make sure that the vec is the expected size
+            // before converting it. If the handle is invalid when passed to
+            // Windows, the request will be rejected.
+            let handle = if value.handle.len() == size_of::<HWND>() {
+                *value.handle.as_ptr().cast()
+            } else {
+                return Err(format!(
+                    "Invalid window handle received: {:?}",
+                    value.handle
+                ));
+            };
+            Ok(Self {
+                _is_visible: value.is_visible,
+                _is_focused: value.is_focused,
+                handle,
+            })
+        }
+    }
+}

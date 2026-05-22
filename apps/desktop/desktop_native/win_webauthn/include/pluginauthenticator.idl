@@ -1,0 +1,83 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+import "oaidl.idl";
+import "objidl.idl";
+import "wtypes.idl";
+
+typedef enum _WEBAUTHN_PLUGIN_REQUEST_TYPE {
+    WEBAUTHN_PLUGIN_REQUEST_TYPE_CTAP2_CBOR = 0x01  // CBOR encoded CTAP2 message. Refer to the FIDO Specifications: Client to Authenticator Protocol (CTAP)
+} WEBAUTHN_PLUGIN_REQUEST_TYPE;
+
+typedef struct _WEBAUTHN_PLUGIN_OPERATION_REQUEST {
+    // Handle of the top level Window of the caller
+    HWND hWnd;
+
+    // Transaction ID
+    GUID transactionId;
+
+    // Request Hash Signature Bytes Buffer Size
+    DWORD cbRequestSignature;
+
+    // Request Hash Signature Bytes Buffer - Signature verified using the "pbOpSignPubKey" in PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE
+    [size_is(cbRequestSignature)] byte* pbRequestSignature;
+
+    // Request Type - Determines the encoding of the request and response buffers
+    WEBAUTHN_PLUGIN_REQUEST_TYPE requestType;
+
+    // Encoded Request Buffer Size
+    DWORD cbEncodedRequest;
+
+    // Encoded Request Buffer - Encoding type is determined by the requestType
+    [size_is(cbEncodedRequest)] byte* pbEncodedRequest;
+} WEBAUTHN_PLUGIN_OPERATION_REQUEST, *PWEBAUTHN_PLUGIN_OPERATION_REQUEST;
+typedef const WEBAUTHN_PLUGIN_OPERATION_REQUEST *PCWEBAUTHN_PLUGIN_OPERATION_REQUEST;
+
+typedef struct _WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+    // Encoded Response Buffer Size
+    DWORD cbEncodedResponse;
+
+    // Encoded Response Buffer - Encoding type must match the request
+    [size_is(cbEncodedResponse)] byte* pbEncodedResponse;
+} WEBAUTHN_PLUGIN_OPERATION_RESPONSE, *PWEBAUTHN_PLUGIN_OPERATION_RESPONSE;
+typedef const WEBAUTHN_PLUGIN_OPERATION_RESPONSE *PCWEBAUTHN_PLUGIN_OPERATION_RESPONSE;
+
+typedef struct _WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+    // Transaction ID
+    GUID transactionId;
+
+    // Request Hash Signature Bytes Buffer Size
+    DWORD cbRequestSignature;
+
+    // Request Hash Signature Bytes Buffer - Signature verified using the "pbOpSignPubKey" in PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE
+    [size_is(cbRequestSignature)] byte* pbRequestSignature;
+} WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, *PWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST;
+typedef const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST *PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST;
+
+typedef enum _PLUGIN_LOCK_STATUS {
+    PluginLocked = 0,
+    PluginUnlocked
+} PLUGIN_LOCK_STATUS;
+
+[
+    object,
+    uuid(d26bcf6f-b54c-43ff-9f06-d5bf148625f7),
+    version(1.0),
+    pointer_default(ref)
+]
+interface IPluginAuthenticator : IUnknown
+{
+    HRESULT MakeCredential(
+        [in] PCWEBAUTHN_PLUGIN_OPERATION_REQUEST request,
+        [out, retval] PWEBAUTHN_PLUGIN_OPERATION_RESPONSE response);
+
+    HRESULT GetAssertion(
+        [in] PCWEBAUTHN_PLUGIN_OPERATION_REQUEST request,
+        [out, retval] PWEBAUTHN_PLUGIN_OPERATION_RESPONSE response);
+
+    HRESULT CancelOperation(
+        [in] PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST request);
+
+    HRESULT GetLockStatus(
+        [out, retval] PLUGIN_LOCK_STATUS* lockStatus);
+}

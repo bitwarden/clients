@@ -116,7 +116,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   async ngOnDestroy(): Promise<void> {
     this.destroy$.next();
     this.destroy$.complete();
-    await this.closeModal();
+    // If we want to hide the UI while prompting for UV from the OS, we cannot call closeModal().
+    // await this.closeModal();
   }
 
   async addCredentialToCipher(cipher: CipherView): Promise<void> {
@@ -126,7 +127,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       if (!this.session) {
         throw new Error("Missing session");
       }
-
       this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
@@ -142,9 +142,15 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         throw new Error("Missing session");
       }
 
-      this.session.notifyConfirmCreateCredential(true);
+      const username = await this.session.getUserName();
+      const isConfirmed = await this.session.promptForUserVerification(
+        username,
+        "Verify it's you to create a new credential",
+      );
+      this.session.notifyConfirmCreateCredential(isConfirmed);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
+      return;
     }
 
     await this.closeModal();
@@ -213,7 +219,11 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    return true;
+    const username = cipher.login.username ?? cipher.name;
+    return this.session.promptForUserVerification(
+      username,
+      "Verify it's you to overwrite a credential",
+    );
   }
 
   private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {
