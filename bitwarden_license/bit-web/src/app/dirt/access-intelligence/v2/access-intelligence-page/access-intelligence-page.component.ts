@@ -11,11 +11,12 @@ import {
   ChangeDetectionStrategy,
   Injector,
   isDevMode,
+  effect,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, delay, finalize, skip } from "rxjs/operators";
+import { concatMap, debounceTime, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -102,6 +103,7 @@ type ProgressStep = ReportProgress | null;
 })
 export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly mustBeginPostImportTour = signal(false);
 
   protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
@@ -214,6 +216,18 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       .subscribe((step) => {
         this.currentProgressStep.set(step);
       });
+
+    effect(() => {
+      // determine if we need to begin the post import tour
+      // to be launched when report generation is complete
+      // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import
+      if (
+        this.currentProgressStep() === ReportProgress.Complete &&
+        this.mustBeginPostImportTour()
+      ) {
+        void this.beginPostImportTour();
+      }
+    });
   }
 
   async ngOnInit() {
@@ -236,6 +250,24 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
     // Close any open dialogs (happens when navigating between orgs)
     void this.currentDialogRef()?.close();
+
+    // determine if we need to launch the new admin welcome tour
+    // launch when there are no reports and no ciphers.
+    combineLatest([
+      toObservable(this.hasReportData, { injector: this.injector }),
+      toObservable(this.hasCiphers, { injector: this.injector }),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(100),
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
 
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
       await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
@@ -431,7 +463,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginPostImportTour();
+      this.mustBeginPostImportTour.set(true);
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -449,6 +481,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected async beginPostImportTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
+      this.mustBeginPostImportTour.set(false);
       await PostImportModalDialogComponent.showDialog(
         this.injector,
         this.dialogService,

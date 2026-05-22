@@ -7,13 +7,14 @@ import {
   DestroyRef,
   OnDestroy,
   OnInit,
+  afterNextRender,
   inject,
   signal,
   ChangeDetectionStrategy,
   isDevMode,
   Injector,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concat, EMPTY, firstValueFrom, of } from "rxjs";
 import {
@@ -101,6 +102,7 @@ type ProgressStep = ReportProgress | null;
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
+  private readonly mustBeginPostImportTour = signal(false);
   protected ReportStatusEnum = ReportStatus;
   protected milestone11Enabled: boolean = false;
   protected adoptionUxImprovementsEnabled: boolean = false;
@@ -200,17 +202,38 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.dataLastUpdated = report?.creationDate ?? null;
       });
 
-    // Show error toast when report generation or save fails
-    this.dataService.reportStatus$
+    // Show error toast or begin post-import tour based on report status and loading state.
+    // combineLatest naturally waits for both conditions: status must be Error/Complete,
+    // and the progress loader must be done (currentProgressStep === null) before the tour opens.
+    // distinctUntilChanged on status prevents duplicate firings if currentProgressStep keeps
+    // changing while status stays the same (e.g. Error).
+    combineLatest([
+      this.dataService.reportStatus$,
+      toObservable(this.currentProgressStep, { injector: this.injector }),
+    ])
       .pipe(
-        filter((status) => status === ReportStatus.Error),
+        filter(
+          ([reportStatus, step]) =>
+            reportStatus === ReportStatus.Error ||
+            (reportStatus === ReportStatus.Complete && step === null),
+        ),
+        distinctUntilChanged(
+          ([prevReportStatus], [currentReportStatus]) => prevReportStatus === currentReportStatus,
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => {
-        this.toastService.showToast({
-          message: this.i18nService.t("reportGenerationFailed"),
-          variant: "error",
-        });
+      .subscribe(([status]) => {
+        if (status === ReportStatus.Error) {
+          this.toastService.showToast({
+            message: this.i18nService.t("reportGenerationFailed"),
+            variant: "error",
+          });
+        } else if (this.mustBeginPostImportTour()) {
+          this.mustBeginPostImportTour.set(false);
+
+          // open the dialog only after the rendering of the report is complete
+          afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
+        }
       });
 
     // Subscribe to drawer state changes
@@ -404,7 +427,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginPostImportTour();
+      this.mustBeginPostImportTour.set(true);
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
