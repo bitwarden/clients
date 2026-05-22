@@ -105,7 +105,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
-import { IpcService, IpcSessionRepository, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -668,10 +668,11 @@ const safeProviders: SafeProvider[] = [
       DialogService,
     ],
   }),
+
   safeProvider({
     provide: IpcService,
     useClass: NoopIpcService,
-    deps: [LogServiceAbstraction, IpcSessionRepository],
+    deps: [LogServiceAbstraction],
   }),
 ];
 

@@ -16,7 +16,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -93,11 +92,6 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-    void (async () => {
-      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
-        await this.sharedUnlockFollowerService.start();
-      }
-    })();
     this.ngZone.runOutsideAngular(() => {
       window.onmousemove = () => this.recordActivity();
       window.onmousedown = () => this.recordActivity();
