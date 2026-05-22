@@ -169,11 +169,20 @@ libs/common/src/autofill @bitwarden/team-autofill-dev
 ## Desktop Native team files ##
 apps/desktop/src/autofill @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-desktop-native-dev
+
+## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
-apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/services/ssh-agent.service.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/services/ssh-agent.service.spec.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/main/main-ssh-agent.service.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/main/main-ssh-agent.service.spec.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/models/ssh-agent-setting.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/components/approve-ssh-request.html @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/components/approve-ssh-request.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
 
 ## Desktop Native + Skunkworks co-owned files
 apps/desktop/desktop_native/autofill_provider @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
