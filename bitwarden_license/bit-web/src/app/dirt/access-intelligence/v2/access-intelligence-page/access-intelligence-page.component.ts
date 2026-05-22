@@ -238,8 +238,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       });
 
     effect(() => {
+      // coachmarks are running, so set tab index to the coachmark's required tab
       const tabIndex = this.coachmarkService.requiredTabIndex();
-      if (tabIndex !== null) {
+      if (tabIndex !== this.tabIndex()) {
         this.tabIndex.set(tabIndex);
       }
     });
@@ -257,7 +258,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
             organizationId: this.organizationId(),
             hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
           });
-          this.tabIndex.set(RiskInsightsTabType.AllActivity);
         }
       });
   }
