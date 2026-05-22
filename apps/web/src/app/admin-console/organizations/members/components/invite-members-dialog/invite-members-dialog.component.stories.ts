@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,6 +17,7 @@ import { OrganizationInviteLinkService } from "@bitwarden/organization-invite-li
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, UserAdminService } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { MemberActionsService } from "../../services/member-actions/member-actions.service";
 
 import {
   InviteMembersDialogComponent,
@@ -39,13 +41,6 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     ...overrides,
   } as unknown as Organization;
 }
-
-const dialogParams: InviteMembersDialogParams = {
-  organizationId: "org-1",
-  isOnSecretsManagerStandalone: false,
-  occupiedSeatCount: 3,
-  allOrganizationUsers: [] as OrganizationUserView[],
-};
 
 const mockAccountService = {
   activeAccount$: of({ id: "user-1" as UserId, email: "test@example.com" }),
@@ -82,6 +77,11 @@ const mockUserAdminService = {
   invite: () => Promise.resolve(),
 };
 
+const mockMemberActionsService = {
+  invite: () => Promise.resolve({ success: true }),
+  isProcessing: { set: () => {} },
+};
+
 const mockCollections = [
   { id: "col-1", name: "Engineering", canEditUserAccess: () => true },
   { id: "col-2", name: "Marketing", canEditUserAccess: () => true },
@@ -101,14 +101,62 @@ const mockInviteLinkServiceNoLink = {
   refreshInviteLink: () => Promise.resolve(),
 };
 
+type StoryArgs = {
+  /** Whether the org has the invite links feature enabled (shows the By Link tab). */
+  useInviteLinks: boolean;
+  /** Whether the org has groups enabled. */
+  useGroups: boolean;
+  /** Whether the org has Secrets Manager enabled (shows the SM checkbox). */
+  useSecretsManager: boolean;
+  /** Whether the org allows custom permissions (enables the Custom role option). */
+  useCustomPermissions: boolean;
+  /** Total seat count for the organization. */
+  seats: number;
+  /** Number of seats already occupied. */
+  occupiedSeatCount: number;
+};
+
 export default {
   title: "Web/Organizations/Members/Invite Members Dialog",
   component: InviteMembersDialogComponent,
+  args: {
+    useInviteLinks: true,
+    useGroups: true,
+    useSecretsManager: false,
+    useCustomPermissions: false,
+    seats: 10,
+    occupiedSeatCount: 3,
+  },
+  argTypes: {
+    useInviteLinks: {
+      control: "boolean",
+      description: "Enables the By Link tab (org feature flag).",
+    },
+    useGroups: {
+      control: "boolean",
+      description: "Enables group assignment in More Settings.",
+    },
+    useSecretsManager: {
+      control: "boolean",
+      description: "Shows the Secrets Manager checkbox.",
+    },
+    useCustomPermissions: {
+      control: "boolean",
+      description: "Enables the Custom role option in the role dropdown.",
+    },
+    seats: {
+      control: { type: "number", min: 1, step: 1 },
+      description: "Total seat count for the organization.",
+    },
+    occupiedSeatCount: {
+      control: { type: "number", min: 0, step: 1 },
+      description: "Seats already occupied; affects the remaining-seat hint.",
+    },
+  },
   decorators: [
     moduleMetadata({
       imports: [InviteMembersDialogComponent],
       providers: [
-        { provide: DIALOG_DATA, useValue: dialogParams },
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: DialogService, useValue: mockDialogService },
         { provide: AccountService, useValue: mockAccountService },
@@ -117,57 +165,78 @@ export default {
         { provide: UserAdminService, useValue: mockUserAdminService },
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: MemberActionsService, useValue: mockMemberActionsService },
+        {
+          provide: OrgDomainApiServiceAbstraction,
+          useValue: { getAllByOrgId: () => Promise.resolve([]) },
+        },
       ],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
     }),
   ],
-} as Meta<InviteMembersDialogComponent>;
+} as Meta<StoryArgs>;
 
-type Story = StoryObj<InviteMembersDialogComponent>;
+type Story = StoryObj<StoryArgs>;
+
+const render: Story["render"] = (args) => ({
+  moduleMetadata: {
+    providers: [
+      {
+        provide: DIALOG_DATA,
+        useValue: {
+          organizationId: "org-1",
+          isOnSecretsManagerStandalone: false,
+          occupiedSeatCount: args.occupiedSeatCount,
+          allOrganizationUsers: [] as OrganizationUserView[],
+        } as InviteMembersDialogParams,
+      },
+      {
+        provide: OrganizationService,
+        useValue: {
+          organizations$: () =>
+            of([
+              mockOrganization({
+                useInviteLinks: args.useInviteLinks,
+                useGroups: args.useGroups,
+                useSecretsManager: args.useSecretsManager,
+                useCustomPermissions: args.useCustomPermissions,
+                seats: args.seats,
+              }),
+            ]),
+        },
+      },
+      { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceNoLink },
+    ],
+  },
+  template: `<app-invite-members-dialog></app-invite-members-dialog>`,
+});
 
 /**
  * Dialog with both tabs — email tab is active by default.
  * Organization has useInviteLinks: true.
  */
 export const WithInviteLinks: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [
-        {
-          provide: OrganizationService,
-          useValue: {
-            organizations$: () => of([mockOrganization({ useInviteLinks: true })]),
-          },
-        },
-        { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceNoLink },
-      ],
-    }),
-  ],
-  render: () => ({
-    template: `<app-invite-members-dialog></app-invite-members-dialog>`,
-  }),
+  render,
 };
 
 /**
  * Legacy email-only view — no tabs rendered because useInviteLinks is false.
  */
 export const EmailOnlyNoTabs: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [
-        {
-          provide: OrganizationService,
-          useValue: {
-            organizations$: () => of([mockOrganization({ useInviteLinks: false })]),
-          },
-        },
-        { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceNoLink },
-      ],
-    }),
-  ],
-  render: () => ({
-    template: `<app-invite-members-dialog></app-invite-members-dialog>`,
-  }),
+  args: {
+    useInviteLinks: false,
+  },
+  render,
+};
+
+/**
+ * Organization with Secrets Manager enabled — shows the SM access checkbox.
+ */
+export const WithSecretsManager: Story = {
+  args: {
+    useSecretsManager: true,
+  },
+  render,
 };
