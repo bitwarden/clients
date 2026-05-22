@@ -1,6 +1,6 @@
 import { combineLatest, map, Observable } from "rxjs";
 
-import { PolicyOrganizationContext } from "@bitwarden/sdk-internal";
+import { OrganizationUserPolicyContext } from "@bitwarden/sdk-internal";
 
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
@@ -44,7 +44,7 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
         const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
         const sdkOrganizationContext = confirmedOrganizations
           .concat(acceptedOrganizations)
-          .map((o) => DefaultNewPolicyService.toSdkPolicyOrganizationContext(o));
+          .map((o) => DefaultNewPolicyService.toSdkOrganizationUserPolicyContext(o));
         const filteredViews = sdkClient
           .policies()
           .filter_by_type(sdkPolicies, sdkOrganizationContext, policyType);
@@ -82,9 +82,9 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
    * Converts organization sync data to the SDK context model.
    * This belongs in this service because it is specific to the policy domain.
    */
-  private static toSdkPolicyOrganizationContext(
+  private static toSdkOrganizationUserPolicyContext(
     organization: Organization,
-  ): PolicyOrganizationContext {
+  ): OrganizationUserPolicyContext {
     return {
       id: organization.id,
       status: organization.status,
