@@ -1,65 +1,31 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { RouterModule } from "@angular/router";
 
-import { BitwardenIcon } from "@bitwarden/components";
+import { BadgeComponent, BitwardenIcon, ButtonComponent } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-onboarding-task",
   templateUrl: "./onboarding-task.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, RouterModule, BadgeComponent, ButtonComponent, I18nPipe],
   host: {
     class: "tw-block",
     role: "listitem",
   },
-  standalone: false,
 })
 export class OnboardingTaskComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  completed = false;
+  readonly completed = input(false);
+  readonly icon = input<BitwardenIcon>("bwi-info-circle");
+  readonly title = input.required<string>();
+  readonly subtitle = input<string>();
+  readonly route = input<string | unknown[]>();
+  readonly ctaText = input<string>();
+  readonly ctaIcon = input<BitwardenIcon>();
+  readonly isDisabled = input(false);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  icon: BitwardenIcon = "bwi-info-circle";
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  title: string;
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  subtitle?: string;
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  route: string | any[];
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  ctaText?: string;
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  ctaIcon?: BitwardenIcon;
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  isDisabled: boolean = false;
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output()
-  ctaClick = new EventEmitter<void>();
+  readonly ctaClick = output<void>();
 
   handleClick(ev: MouseEvent) {
     ev.stopPropagation();

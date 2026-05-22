@@ -1,4 +1,4 @@
-@if (isNewAccount && showOnboarding && onboardingTasks$ | async; as onboardingTasks) {
+@if (isNewAccount() && showOnboarding() && onboardingTasks$ | async; as onboardingTasks) {
   <div class="tw-mb-6">
     @if (onboardingTasks) {
       <app-onboarding
