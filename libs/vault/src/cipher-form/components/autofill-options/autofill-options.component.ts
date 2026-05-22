@@ -301,10 +301,11 @@ export class AutofillOptionsComponent implements OnInit {
   async reorderUriItems(event: KeyboardEvent, previousIndex: number, direction: "Up" | "Down") {
     const currentIndex = previousIndex + (direction === "Up" ? -1 : 1);
     event.preventDefault();
+
+    // TODO: PM-37983 - Update label to be type-aware (app vs. website) once screen reader approach is decided
     await this.liveAnnouncer.announce(
       this.i18nService.t(
         `reorderField${direction}`,
-        // TODO(PM-33362): Update label to be type-aware (app vs. website) once screen reader approach is decided.
         this.i18nService.t("websiteUri"),
         currentIndex + 1,
         this.uriControls.length,
