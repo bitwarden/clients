@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DatePipe, formatCurrency } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
@@ -21,7 +22,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import {
+  BillingSubscriptionItemResponse,
+  ScheduledSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -83,6 +87,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private dialogService: DialogService,
     private toastService: ToastService,
     private organizationUserApiService: OrganizationUserApiService,
+    private datePipe: DatePipe,
   ) {}
 
   async ngOnInit() {
@@ -161,6 +166,15 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     if (this.showSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+
+      // TODO: Remove this mock before merging
+      if (this.sub?.subscription) {
+        this.sub.subscription.scheduledSubscription = new ScheduledSubscriptionResponse({
+          effectiveDate: "2026-07-01",
+          pricePerSeatPerMonth: 7.0,
+        });
+      }
+
       this.lineItems = this.sub?.subscription?.items;
 
       if (this.lineItems && this.lineItems.length) {
@@ -213,6 +227,30 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get subscription() {
     return this.sub != null ? this.sub.subscription : null;
+  }
+
+  get priceIncreaseCalloutMessage(): string | null {
+    const scheduledSubscription = this.subscription?.scheduledSubscription;
+    if (this.subscription?.status !== "active" || !scheduledSubscription) {
+      return null;
+    }
+
+    const formattedPrice = formatCurrency(
+      scheduledSubscription.pricePerSeatPerMonth,
+      this.locale,
+      "$",
+      "USD",
+    );
+    const formattedDate = this.datePipe.transform(
+      scheduledSubscription.effectiveDate,
+      "mediumDate",
+    );
+
+    const key = this.sub.plan.isAnnual
+      ? "subscriptionPriceIncreaseAnnually"
+      : "subscriptionPriceIncreaseMonthly";
+
+    return this.i18nService.t(key, formattedPrice, formattedDate);
   }
 
   get subscriptionLineItems() {
