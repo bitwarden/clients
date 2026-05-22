@@ -361,7 +361,11 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       if (control instanceof FormGroup) {
         return count + this.countInvalidFields(control);
       }
-      return count + (control.invalid ? 1 : 0);
+
+      // Complex child components may have multiple fields.
+      // They can pass `fieldCount` in the errors object to specify how many fields are invalid.
+      const fieldCount = control.invalid ? ((control.errors?.["fieldCount"] as number) ?? 1) : 0;
+      return count + fieldCount;
     }, 0);
   }
 
