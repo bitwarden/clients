@@ -1700,7 +1700,7 @@
     "message": "Passkey authentication failed. Please try again."
   },
   "useDifferentLoginMethod": {
-    "message": "Use a different log in method"
+    "message": "Use different login method"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
