@@ -111,11 +111,11 @@ export class BillingSubscriptionUpcomingInvoiceResponse extends BaseResponse {
 
 export class ScheduledSubscriptionResponse extends BaseResponse {
   effectiveDate: string;
-  pricePerSeatPerMonth: number;
+  price: number;
 
   constructor(response: any) {
     super(response);
     this.effectiveDate = this.getResponseProperty("EffectiveDate");
-    this.pricePerSeatPerMonth = this.getResponseProperty("PricePerSeatPerMonth");
+    this.price = this.getResponseProperty("Price");
   }
 }

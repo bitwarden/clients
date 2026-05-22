@@ -224,12 +224,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       return null;
     }
 
-    const formattedPrice = formatCurrency(
-      scheduledSubscription.pricePerSeatPerMonth,
-      this.locale,
-      "$",
-      "USD",
-    );
+    const formattedPrice = formatCurrency(scheduledSubscription.price, this.locale, "$", "USD");
     const formattedDate = this.datePipe.transform(
       scheduledSubscription.effectiveDate,
       "mediumDate",
