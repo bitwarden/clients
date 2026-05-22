@@ -22,10 +22,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import {
-  BillingSubscriptionItemResponse,
-  ScheduledSubscriptionResponse,
-} from "@bitwarden/common/billing/models/response/subscription.response";
+import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -166,14 +163,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     if (this.showSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-
-      // TODO: Remove this mock before merging
-      if (this.sub?.subscription) {
-        this.sub.subscription.scheduledSubscription = new ScheduledSubscriptionResponse({
-          effectiveDate: "2026-07-01",
-          pricePerSeatPerMonth: 7.0,
-        });
-      }
 
       this.lineItems = this.sub?.subscription?.items;
 
