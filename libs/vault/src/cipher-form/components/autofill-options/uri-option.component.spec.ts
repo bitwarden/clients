@@ -3,6 +3,7 @@ import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { of } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
@@ -14,6 +15,7 @@ describe("UriOptionComponent", () => {
   let fixture: ComponentFixture<UriOptionComponent>;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let dialogRefMock: jest.Mocked<DialogRef<boolean>>;
+  let configServiceMock: jest.Mocked<ConfigService>;
 
   const getToggleMatchDetectionBtn = () =>
     fixture.nativeElement.querySelector(
@@ -31,6 +33,10 @@ describe("UriOptionComponent", () => {
     ) as HTMLButtonElement;
 
   beforeEach(async () => {
+    configServiceMock = {
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+    } as unknown as jest.Mocked<ConfigService>;
+
     dialogServiceMock = {
       open: jest.fn().mockReturnValue(dialogRefMock),
     } as unknown as jest.Mocked<DialogService>;
@@ -43,6 +49,7 @@ describe("UriOptionComponent", () => {
     await TestBed.configureTestingModule({
       imports: [UriOptionComponent],
       providers: [
+        { provide: ConfigService, useValue: configServiceMock },
         { provide: DialogService, useValue: dialogServiceMock },
         {
           provide: I18nService,
@@ -126,13 +133,14 @@ describe("UriOptionComponent", () => {
   });
 
   it("should update form when `writeValue` is invoked", () => {
-    expect(component["uriForm"].value).toEqual({ uri: null, matchDetection: null });
+    expect(component["uriForm"].value).toEqual({ uri: null, matchDetection: null, uriType: null });
 
     component.writeValue({ uri: "example.com", matchDetection: UriMatchStrategy.Exact });
 
     expect(component["uriForm"].value).toEqual({
       uri: "example.com",
       matchDetection: UriMatchStrategy.Exact,
+      uriType: "website",
     });
   });
 

@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -34,6 +35,7 @@ describe("AutofillOptionsComponent", () => {
   let domainSettingsService: MockProxy<DomainSettingsService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let configService: MockProxy<ConfigService>;
   const getInitialCipherView = jest.fn((): any => null);
   const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
@@ -43,6 +45,8 @@ describe("AutofillOptionsComponent", () => {
     cipherFormContainer.formStatusChange$ = formStatusChange$.asObservable();
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.resolvedDefaultUriMatchStrategy$ = new BehaviorSubject(null);
 
@@ -62,6 +66,7 @@ describe("AutofillOptionsComponent", () => {
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
@@ -89,7 +94,9 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     component.autofillOptionsForm.patchValue({
-      uris: [{ uri: "https://example.com", matchDetection: UriMatchStrategy.Exact }],
+      uris: [
+        { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact, uriType: "website" },
+      ],
       autofillOnPageLoad: true,
     });
 
@@ -131,7 +138,7 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris).toEqual([
-      { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact },
+      { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact, uriType: "website" },
     ]);
     expect(component.autofillOptionsForm.value.autofillOnPageLoad).toEqual(true);
   });
@@ -142,7 +149,7 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris).toEqual([
-      { uri: "https://example.com", matchDetection: null },
+      { uri: "https://example.com", matchDetection: null, uriType: "website" },
     ]);
     expect(component.autofillOptionsForm.value.autofillOnPageLoad).toEqual(null);
   });
@@ -164,8 +171,8 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris).toEqual([
-      { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact },
-      { uri: "https://new-website.com", matchDetection: null },
+      { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact, uriType: "website" },
+      { uri: "https://new-website.com", matchDetection: null, uriType: "website" },
     ]);
     expect(component.autofillOptionsForm.value.autofillOnPageLoad).toEqual(true);
   });
@@ -187,7 +194,7 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris).toEqual([
-      { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact },
+      { uri: "https://example.com", matchDetection: UriMatchStrategy.Exact, uriType: "website" },
     ]);
     expect(component.autofillOptionsForm.value.autofillOnPageLoad).toEqual(true);
   });
@@ -197,7 +204,9 @@ describe("AutofillOptionsComponent", () => {
 
     fixture.detectChanges();
 
-    expect(component.autofillOptionsForm.value.uris).toEqual([{ uri: null, matchDetection: null }]);
+    expect(component.autofillOptionsForm.value.uris).toEqual([
+      { uri: null, matchDetection: null, uriType: "website" },
+    ]);
   });
 
   it("updates the default autofill on page load label", () => {
@@ -293,9 +302,9 @@ describe("AutofillOptionsComponent", () => {
       component.autofillOptionsForm.controls.uris.clear();
 
       // Add exactly three URIs that we want to test reordering on.
-      component.addUri({ uri: "https://first.com", matchDetection: null });
-      component.addUri({ uri: "https://second.com", matchDetection: null });
-      component.addUri({ uri: "https://third.com", matchDetection: null });
+      component.addUri({ uri: "https://first.com", matchDetection: null, uriType: "website" });
+      component.addUri({ uri: "https://second.com", matchDetection: null, uriType: "website" });
+      component.addUri({ uri: "https://third.com", matchDetection: null, uriType: "website" });
       fixture.detectChanges();
     });
 
@@ -324,8 +333,8 @@ describe("AutofillOptionsComponent", () => {
     it("should reorder URI input via keyboard ArrowUp", async () => {
       // Clear and add exactly two URIs.
       component.autofillOptionsForm.controls.uris.clear();
-      component.addUri({ uri: "https://first.com", matchDetection: null });
-      component.addUri({ uri: "https://second.com", matchDetection: null });
+      component.addUri({ uri: "https://first.com", matchDetection: null, uriType: "website" });
+      component.addUri({ uri: "https://second.com", matchDetection: null, uriType: "website" });
       fixture.detectChanges();
 
       // Simulate pressing ArrowUp on the second URI (index 1)
@@ -359,9 +368,9 @@ describe("AutofillOptionsComponent", () => {
     it("should reorder URI input via keyboard ArrowDown", async () => {
       // Clear and add exactly three URIs.
       component.autofillOptionsForm.controls.uris.clear();
-      component.addUri({ uri: "https://first.com", matchDetection: null });
-      component.addUri({ uri: "https://second.com", matchDetection: null });
-      component.addUri({ uri: "https://third.com", matchDetection: null });
+      component.addUri({ uri: "https://first.com", matchDetection: null, uriType: "website" });
+      component.addUri({ uri: "https://second.com", matchDetection: null, uriType: "website" });
+      component.addUri({ uri: "https://third.com", matchDetection: null, uriType: "website" });
       fixture.detectChanges();
 
       // Simulate pressing ArrowDown on the second URI (index 1)

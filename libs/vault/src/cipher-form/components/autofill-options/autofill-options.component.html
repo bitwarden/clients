@@ -23,32 +23,45 @@
     </ng-container>
 
     @if (autofillOptionsForm.enabled) {
-      <button
-        type="button"
-        bitLink
-        linkType="primary"
-        [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
-        [bitMenuTriggerFor]="addUriMenu"
-        startIcon="bwi-plus"
-      >
-        {{ "addWebsiteOrApp" | i18n }}
-      </button>
-      <bit-menu #addUriMenu>
+      @if (windowsDesktopAutotypeGA$ | async) {
         <button
           type="button"
-          bitMenuItem
+          bitLink
+          linkType="primary"
+          [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
+          [bitMenuTriggerFor]="addUriMenu"
+          startIcon="bwi-plus"
+        >
+          {{ "addWebsiteOrApp" | i18n }}
+        </button>
+        <bit-menu #addUriMenu>
+          <button
+            type="button"
+            bitMenuItem
+            (click)="addUri({ uri: null, matchDetection: null, uriType: 'website' }, true)"
+          >
+            {{ "website" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitMenuItem
+            (click)="addUri({ uri: null, matchDetection: null, uriType: 'app' }, true)"
+          >
+            {{ "application" | i18n }}
+          </button>
+        </bit-menu>
+      } @else {
+        <button
+          type="button"
+          bitLink
+          linkType="primary"
+          [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
           (click)="addUri({ uri: null, matchDetection: null, uriType: 'website' }, true)"
+          startIcon="bwi-plus"
         >
-          {{ "website" | i18n }}
+          {{ "addWebsite" | i18n }}
         </button>
-        <button
-          type="button"
-          bitMenuItem
-          (click)="addUri({ uri: null, matchDetection: null, uriType: 'app' }, true)"
-        >
-          {{ "application" | i18n }}
-        </button>
-      </bit-menu>
+      }
     }
 
     @if (autofillOnPageLoadEnabled$ | async) {

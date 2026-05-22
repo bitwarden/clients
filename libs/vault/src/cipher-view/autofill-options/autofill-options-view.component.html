@@ -29,16 +29,18 @@
             data-testid="launch-website"
             [label]="('launch' | i18n) + ' ' + login.hostOrUri"
           ></button>
-          <button
-            bitIconButton="bwi-clone"
-            bitSuffix
-            type="button"
-            [appCopyClick]="login.uri"
-            [valueLabel]="'website' | i18n"
-            showToast
-            [label]="'copyWebsite' | i18n"
-            data-testid="copy-website"
-          ></button>
+          @if (!isAppUri(login)) {
+            <button
+              bitIconButton="bwi-clone"
+              bitSuffix
+              type="button"
+              [appCopyClick]="login.uri"
+              [valueLabel]="'website' | i18n"
+              showToast
+              [label]="'copyWebsite' | i18n"
+              data-testid="copy-website"
+            ></button>
+          }
         </bit-form-field>
       </ng-container>
     }

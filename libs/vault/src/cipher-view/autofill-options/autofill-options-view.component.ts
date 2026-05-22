@@ -2,11 +2,14 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -45,14 +48,30 @@ export class AutofillOptionsViewComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipherId: string;
 
+  private windowsDesktopAutotypeGA = false;
+
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private cipherService: CipherService,
     private accountService: AccountService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA)
+      .pipe(takeUntilDestroyed())
+      .subscribe((enabled) => {
+        this.windowsDesktopAutotypeGA = enabled;
+      });
+  }
 
   protected getUriLabel(uri: LoginUriView): string {
-    return uri.uri?.startsWith(APP_URI_PREFIX) ? APP_URI_LABEL : WEBSITE_URI_LABEL;
+    return this.windowsDesktopAutotypeGA && uri.uri?.startsWith(APP_URI_PREFIX)
+      ? APP_URI_LABEL
+      : WEBSITE_URI_LABEL;
+  }
+
+  protected isAppUri(uri: LoginUriView): boolean {
+    return this.windowsDesktopAutotypeGA && (uri.uri?.startsWith(APP_URI_PREFIX) ?? false);
   }
 
   async openWebsite(selectedUri: string) {

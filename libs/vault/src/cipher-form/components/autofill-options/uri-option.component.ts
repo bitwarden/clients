@@ -20,10 +20,12 @@ import {
 import { concatMap, pairwise } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DialogService,
@@ -68,6 +70,8 @@ export class UriOptionComponent implements ControlValueAccessor {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("matchDetectionSelect")
   private matchDetectionSelect: SelectComponent<UriMatchStrategySetting>;
+
+  private windowsDesktopAutotypeGA = false;
 
   protected uriForm = this.formBuilder.group({
     uri: [null as string],
@@ -159,7 +163,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
-    if (this.uriForm.controls.uriType.value === "app") {
+    if (this.windowsDesktopAutotypeGA && this.uriForm.controls.uriType.value === "app") {
       return this.index === 0
         ? this.i18nService.t("appUri")
         : this.i18nService.t("appUriCount", this.index + 1);
@@ -189,7 +193,15 @@ export class UriOptionComponent implements ControlValueAccessor {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA)
+      .pipe(takeUntilDestroyed())
+      .subscribe((enabled) => {
+        this.windowsDesktopAutotypeGA = enabled;
+      });
+
     this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.onChange(value);
     });

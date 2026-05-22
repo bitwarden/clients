@@ -12,7 +12,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -93,6 +95,10 @@ export class AutofillOptionsComponent implements OnInit {
 
   protected autofillOnPageLoadEnabled$ = this.autofillSettingsService.autofillOnPageLoad$;
 
+  protected windowsDesktopAutotypeGA$ = this.configService.getFeatureFlag$(
+    FeatureFlag.WindowsDesktopAutotypeGA,
+  );
+
   protected autofillOptions: { label: string; value: boolean | null }[] = [
     { label: this.i18nService.t("default"), value: null },
     { label: this.i18nService.t("yes"), value: true },
@@ -112,6 +118,7 @@ export class AutofillOptionsComponent implements OnInit {
     private domainSettingsService: DomainSettingsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
   ) {
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 
@@ -297,6 +304,7 @@ export class AutofillOptionsComponent implements OnInit {
     await this.liveAnnouncer.announce(
       this.i18nService.t(
         `reorderField${direction}`,
+        // TODO(PM-33362): Update label to be type-aware (app vs. website) once screen reader approach is decided.
         this.i18nService.t("websiteUri"),
         currentIndex + 1,
         this.uriControls.length,
