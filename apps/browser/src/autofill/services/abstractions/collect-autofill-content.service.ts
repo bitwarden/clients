@@ -1,3 +1,4 @@
+import { AutofillMonitor } from "../../content/abstractions/autofill-monitor";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
@@ -14,14 +15,13 @@ type UpdateAutofillDataAttributeParams = {
   dataTargetKey?: string;
 };
 
-interface CollectAutofillContentService {
+interface CollectAutofillContentService extends AutofillMonitor {
   autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
   applyExternalTargetedFields(
     targetedFields: { selector: string; fieldType: string }[],
   ): Promise<void>;
-  destroy(): void;
 }
 
 export {
