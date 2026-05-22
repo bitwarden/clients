@@ -41,6 +41,7 @@ describe("BrowserInitialInstallService", () => {
   describe("displayWelcomePage", () => {
     it.each([
       ["Normal", ExtensionInstallType.Normal],
+      ["Development", ExtensionInstallType.Development],
       ["Unknown", ExtensionInstallType.Unknown],
     ])("opens the welcome page for %s installs", async (_, installType) => {
       getInstallTypeSpy.mockResolvedValue(installType);
@@ -54,12 +55,24 @@ describe("BrowserInitialInstallService", () => {
     it.each([
       ["Admin", ExtensionInstallType.Admin],
       ["Sideload", ExtensionInstallType.Sideload],
-      ["Development", ExtensionInstallType.Development],
       ["Other", ExtensionInstallType.Other],
+    ])("does not open the welcome page for %s installs", async (_, installType) => {
+      getInstallTypeSpy.mockResolvedValue(installType);
+
+      await service.displayWelcomePage();
+
+      expect(createNewTabSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["Normal", ExtensionInstallType.Normal],
+      ["Development", ExtensionInstallType.Development],
+      ["Unknown", ExtensionInstallType.Unknown],
     ])(
-      "does not open the welcome page for %s installs when the dev flag is off",
+      "does not open the welcome page for %s installs when the skipWelcomeOnInstall dev flag is on",
       async (_, installType) => {
         getInstallTypeSpy.mockResolvedValue(installType);
+        devFlagEnabledMock.mockImplementation((flag) => flag === "skipWelcomeOnInstall");
 
         await service.displayWelcomePage();
 
@@ -67,30 +80,12 @@ describe("BrowserInitialInstallService", () => {
       },
     );
 
-    it.each([
-      ["Admin", ExtensionInstallType.Admin],
-      ["Sideload", ExtensionInstallType.Sideload],
-      ["Development", ExtensionInstallType.Development],
-      ["Other", ExtensionInstallType.Other],
-    ])(
-      "opens the welcome page for %s installs when the enableWelcomeOnInstall dev flag is on",
-      async (_, installType) => {
-        getInstallTypeSpy.mockResolvedValue(installType);
-        devFlagEnabledMock.mockImplementation((flag) => flag === "enableWelcomeOnInstall");
-
-        await service.displayWelcomePage();
-
-        expect(createNewTabSpy).toHaveBeenCalledTimes(1);
-        expect(createNewTabSpy).toHaveBeenCalledWith("https://bitwarden.com/browser-start/");
-      },
-    );
-
-    it("checks the enableWelcomeOnInstall dev flag", async () => {
-      getInstallTypeSpy.mockResolvedValue(ExtensionInstallType.Admin);
+    it("checks the skipWelcomeOnInstall dev flag", async () => {
+      getInstallTypeSpy.mockResolvedValue(ExtensionInstallType.Normal);
 
       await service.displayWelcomePage();
 
-      expect(devFlagEnabledMock).toHaveBeenCalledWith("enableWelcomeOnInstall");
+      expect(devFlagEnabledMock).toHaveBeenCalledWith("skipWelcomeOnInstall");
     });
   });
 });

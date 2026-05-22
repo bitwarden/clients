@@ -44,14 +44,16 @@ export default class BrowserInitialInstallService {
     // specific MDM-delivered settings, which are eventually consistent on extension load.
     const installType = await BrowserApi.getInstallType();
 
-    // We only want to show the welcome page if the extension is initiated by the user
-    // and not if it's installed administratively.
-    // We also enable it for Unknown install types, to handle browsers
-    // that don't expose the install type for us.
+    // We only want to show the welcome page for user-initiated installs and not for
+    // administrative or sideloaded installs. We also enable it for Development installs
+    // so unpacked builds (including integration test harnesses) still exercise the
+    // welcome flow, and for Unknown to handle browsers that don't expose the install type.
     const isUserInitiatedInstall =
-      installType === ExtensionInstallType.Normal || installType === ExtensionInstallType.Unknown;
+      installType === ExtensionInstallType.Normal ||
+      installType === ExtensionInstallType.Development ||
+      installType === ExtensionInstallType.Unknown;
 
-    if (isUserInitiatedInstall || devFlagEnabled("enableWelcomeOnInstall")) {
+    if (isUserInitiatedInstall && !devFlagEnabled("skipWelcomeOnInstall")) {
       void BrowserApi.createNewTab(WELCOME_PAGE_URL);
     }
   }
