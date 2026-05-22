@@ -1,11 +1,13 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verbatim.directive";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
@@ -16,6 +18,7 @@ import {
   DialogModule,
   DialogService,
   FormFieldModule,
+  TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -35,16 +38,20 @@ import { KeyRotationDialogService } from "./key-rotation-dialog.service";
     CalloutModule,
     BitIconButtonComponent,
     InputVerbatimDirective,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KeyRotationDialogComponent {
+export class KeyRotationDialogComponent implements OnInit {
   protected readonly form = new FormGroup({
     masterPassword: new FormControl("", {
       validators: [Validators.required],
       updateOn: "submit",
     }),
   });
+
+  protected readonly isMasterPasswordEncryptionUser = signal(false);
+  protected readonly isKeyConnectorEncryptionUser = signal(false);
 
   private readonly keyRotationDialogService = inject(KeyRotationDialogService);
   private readonly accountService = inject(AccountService);
@@ -53,12 +60,32 @@ export class KeyRotationDialogComponent {
   private readonly dialogRef = inject(DialogRef<KeyRotationDialogComponent>);
   private readonly validationService = inject(ValidationService);
   private readonly logService = inject(LogService);
+  private readonly keyConnectorService = inject(KeyConnectorService);
+  private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
 
-  protected readonly submit = async () => {
-    this.form.markAllAsTouched();
-    if (this.form.invalid || !this.form.value.masterPassword) {
+  async ngOnInit() {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const usesKeyConnector = await this.keyConnectorService.getUsesKeyConnector(userId);
+
+    if (usesKeyConnector) {
+      this.isKeyConnectorEncryptionUser.set(true);
       return;
     }
+
+    const hasMasterPassword = await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
+    );
+    this.isMasterPasswordEncryptionUser.set(hasMasterPassword);
+  }
+
+  protected readonly submit = async () => {
+    if (this.isMasterPasswordEncryptionUser()) {
+      this.form.markAllAsTouched();
+      if (this.form.invalid || !this.form.value.masterPassword) {
+        return;
+      }
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.dialogRef.disableClose = true;
@@ -69,10 +96,16 @@ export class KeyRotationDialogComponent {
         return;
       }
 
-      const closeDialog = await this.keyRotationDialogService.rotateKeys(
-        this.form.value.masterPassword,
-        userId,
-      );
+      let closeDialog = false;
+      if (this.isMasterPasswordEncryptionUser()) {
+        closeDialog = await this.keyRotationDialogService.rotateKeys(
+          this.form.value.masterPassword!,
+          userId,
+        );
+      } else if (this.isKeyConnectorEncryptionUser()) {
+        closeDialog = await this.keyRotationDialogService.rotateKeysForKeyConnector(userId);
+      }
+
       if (closeDialog) {
         this.dialogRef.close();
       }

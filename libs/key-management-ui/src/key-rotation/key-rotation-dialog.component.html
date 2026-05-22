@@ -7,19 +7,21 @@
       {{ "rotateAccountEncryptionDialogDescription" | i18n }}
     </p>
     <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
-    <bit-form-field class="tw-mt-2">
-      <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input
-        type="password"
-        formControlName="masterPassword"
-        bitInput
-        name="masterPassword"
-        class="tw-font-mono"
-        required
-        appInputVerbatim
-      />
-      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-    </bit-form-field>
+    @if (isMasterPasswordEncryptionUser()) {
+      <bit-form-field class="tw-mt-2">
+        <bit-label>{{ "masterPass" | i18n }}</bit-label>
+        <input
+          type="password"
+          formControlName="masterPassword"
+          bitInput
+          name="masterPassword"
+          class="tw-font-mono"
+          required
+          appInputVerbatim
+        />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+      </bit-form-field>
+    }
   </ng-container>
   <ng-container bitDialogFooter>
     <button type="submit" bitButton bitFormButton buttonType="primary">
