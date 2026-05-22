@@ -14,7 +14,7 @@ export enum PolicyType {
   DisablePersonalVaultExport = 10, // Disable personal vault export
   ActivateAutofill = 11, // Activates autofill with page load on the browser extension
   AutomaticAppLogIn = 12, // Enables automatic log in of apps from configured identity provider
-  FreeFamiliesSponsorshipPolicy = 13, // Disables free families plan for organization
+  FreeFamiliesSponsorship = 13, // Disables free families plan for organization
   RemoveUnlockWithPin = 14, // Do not allow members to unlock their account with a PIN.
   RestrictedItemTypes = 15, // Restricts item types that can be created within an organization
   UriMatchDefaults = 16, // Sets the default URI matching strategy for all users within an organization

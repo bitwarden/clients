@@ -611,14 +611,14 @@ describe("PolicyService", () => {
 
     test.each([
       PolicyType.PasswordGenerator,
-      PolicyType.FreeFamiliesSponsorshipPolicy,
+      PolicyType.FreeFamiliesSponsorship,
       PolicyType.RestrictedItemTypes,
       PolicyType.RemoveUnlockWithPin,
     ])("returns true and owners are not exempt from policy %s", async (policyType) => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org2", PolicyType.PasswordGenerator, true),
-          policyData("policy2", "org2", PolicyType.FreeFamiliesSponsorshipPolicy, true),
+          policyData("policy2", "org2", PolicyType.FreeFamiliesSponsorship, true),
           policyData("policy3", "org2", PolicyType.RestrictedItemTypes, true),
           policyData("policy4", "org2", PolicyType.RemoveUnlockWithPin, true),
         ]),

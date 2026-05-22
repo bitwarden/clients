@@ -302,7 +302,7 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.PasswordGenerator:
         // password generation policy
         return false;
-      case PolicyType.FreeFamiliesSponsorshipPolicy:
+      case PolicyType.FreeFamiliesSponsorship:
         // free Bitwarden families policy
         return false;
       case PolicyType.RestrictedItemTypes:
