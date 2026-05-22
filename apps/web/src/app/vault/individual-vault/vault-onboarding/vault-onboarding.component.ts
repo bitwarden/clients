@@ -8,8 +8,8 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
-  SimpleChanges,
   OnChanges,
+  SimpleChanges,
 } from "@angular/core";
 import { Subject, takeUntil, Observable, firstValueFrom, fromEvent, switchMap } from "rxjs";
 
@@ -190,7 +190,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   setInstallExtLink() {
     if (this.platformUtilsService.isChrome()) {
       this.extensionUrl =
-        "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb";
+        "https://chromewebstore.google.com/detail/bitwarden-password-manager/nngceckbapebfimnlniiiahkandclblb";
     } else if (this.platformUtilsService.isFirefox()) {
       this.extensionUrl =
         "https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/";
