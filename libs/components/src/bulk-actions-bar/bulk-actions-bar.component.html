@@ -24,7 +24,7 @@
     </span>
     <button
       [class]="elementWithDividerClasses"
-      bitBulkAction
+      bitBulkActionButton
       icon="bwi-clear"
       (click)="onClear()"
       type="button"
@@ -35,11 +35,11 @@
     <div class="tw-flex tw-items-center tw-gap-2">
       @for (primary of primaryActions(); track primary) {
         <button
-          bitBulkAction
+          bitBulkActionButton
           type="button"
           [icon]="primary.icon()"
           [disabled]="primary.disabled()"
-          (click)="handleClick(primary)"
+          (click)="primary.action()()"
         >
           {{ primary.label() }}
         </button>
@@ -48,7 +48,7 @@
       @if (hasAdditionalActions()) {
         <button
           #additionalActionsTrigger
-          bitBulkAction
+          bitBulkActionButton
           icon="bwi-ellipsis-v"
           type="button"
           [bitMenuTriggerFor]="additionalActionsMenu"
@@ -71,7 +71,7 @@
       bitMenuItem
       type="button"
       [disabled]="additional.disabled()"
-      (click)="handleClick(additional)"
+      (click)="additional.action()()"
     >
       @if (additional.icon(); as iconName) {
         <bit-icon slot="start" [name]="iconName" />

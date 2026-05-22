@@ -160,7 +160,7 @@ export default {
               clear: "Clear",
               bulkActionsBar: "Bulk actions",
               bulkActionsBarAnnouncement:
-                "__$1__ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press __$2__+B to toggle focus to the bulk action bar.",
+                "__$1__ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press __$2__ to toggle focus to the bulk action bar.",
               close: "Close",
               loading: "Loading",
               move: "Move",

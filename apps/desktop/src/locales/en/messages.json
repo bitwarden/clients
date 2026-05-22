@@ -1963,15 +1963,15 @@
     "message": "Bulk actions"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTKEY$+B to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
       },
-      "shortcutKey": {
+      "shortcutBinding": {
         "content": "$2",
-        "example": "Ctrl"
+        "example": "Ctrl+B"
       }
     }
   },

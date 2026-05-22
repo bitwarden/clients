@@ -94,12 +94,11 @@ export class BulkActionsBarComponent implements BulkActionsBarContext {
   /** True when the wrapper is narrower than the bar's intrinsic width. */
   readonly compact = signal(false);
 
-  private readonly shortcutKey = computed(() => {
+  private readonly shortcutBinding = (() => {
     const nav = this.document.defaultView?.navigator;
-    return nav?.platform?.startsWith("Mac") || /Macintosh/.test(nav?.userAgent ?? "")
-      ? "Command"
-      : "Ctrl";
-  });
+    const isMac = nav?.platform?.startsWith("Mac") || /Macintosh/.test(nav?.userAgent ?? "");
+    return isMac ? "Command+B" : "Ctrl+B";
+  })();
 
   protected readonly announcement = computed(() => {
     if (this.selectedCount() === 0) {
@@ -108,7 +107,7 @@ export class BulkActionsBarComponent implements BulkActionsBarContext {
     return this.i18nService.t(
       "bulkActionsBarAnnouncement",
       this.selectedCount(),
-      this.shortcutKey(),
+      this.shortcutBinding,
     );
   });
 
@@ -127,28 +126,7 @@ export class BulkActionsBarComponent implements BulkActionsBarContext {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    afterNextRender(() => {
-      const barEl = this.bar()?.nativeElement;
-      const wrapperEl = this.wrapper().nativeElement;
-      if (!barEl) {
-        return;
-      }
-
-      // Pin `min-width: max-content` for the read so the flex parent can't
-      // shrink the bar below content size when mounted in a constrained
-      // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
-      const previousMinWidth = barEl.style.minWidth;
-      barEl.style.minWidth = "max-content";
-      this.initialBarWidth.set(Math.ceil(barEl.getBoundingClientRect().width));
-      barEl.style.minWidth = previousMinWidth;
-
-      const observer = new ResizeObserver(() => {
-        const threshold = this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX;
-        this.compact.set(wrapperEl.clientWidth < threshold);
-      });
-      observer.observe(wrapperEl);
-      this.destroyRef.onDestroy(() => observer.disconnect());
-    });
+    this.initResizeObserver();
 
     // FocusKeyManager captures button references at construction. Rebuild it
     // whenever the projected action set changes so it tracks the current
@@ -188,12 +166,29 @@ export class BulkActionsBarComponent implements BulkActionsBarContext {
     this.keyManager()?.onKeydown(event);
   }
 
-  /** Invoke the consumer-provided callback on a primary or additional action. */
-  protected handleClick(item: BulkActionComponent | BulkAdditionalActionComponent): void {
-    if (item.disabled()) {
-      return;
-    }
-    item.action()();
+  private initResizeObserver(): void {
+    afterNextRender(() => {
+      const barEl = this.bar()?.nativeElement;
+      const wrapperEl = this.wrapper().nativeElement;
+      if (!barEl) {
+        return;
+      }
+
+      // Pin `min-width: max-content` for the read so the flex parent can't
+      // shrink the bar below content size when mounted in a constrained
+      // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
+      const previousMinWidth = barEl.style.minWidth;
+      barEl.style.minWidth = "max-content";
+      this.initialBarWidth.set(Math.ceil(barEl.getBoundingClientRect().width));
+      barEl.style.minWidth = previousMinWidth;
+
+      const observer = new ResizeObserver(() => {
+        const threshold = this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX;
+        this.compact.set(wrapperEl.clientWidth < threshold);
+      });
+      observer.observe(wrapperEl);
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   protected handleShortcut(event: KeyboardEvent): void {

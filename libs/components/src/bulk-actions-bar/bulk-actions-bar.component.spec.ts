@@ -56,13 +56,13 @@ describe("BulkActionsBarComponent", () => {
   const primaryButtons = (): HTMLButtonElement[] =>
     Array.from(
       innerBar().querySelectorAll<HTMLButtonElement>(
-        'button[bitBulkAction]:not([icon="bwi-clear"]):not([icon="bwi-ellipsis-v"])',
+        'button[bitBulkActionButton]:not([icon="bwi-clear"]):not([icon="bwi-ellipsis-v"])',
       ),
     );
   const firstAction = () => primaryButtons()[0];
   const closeBtn = () =>
     fixture.nativeElement.querySelector(
-      'button[bitBulkAction][icon="bwi-clear"]',
+      'button[bitBulkActionButton][icon="bwi-clear"]',
     ) as HTMLButtonElement;
   const liveRegion = () => fixture.nativeElement.querySelector('[role="status"]') as HTMLElement;
 
@@ -80,7 +80,7 @@ describe("BulkActionsBarComponent", () => {
               clearSelection: "Clear selection",
               bulkActionsBar: "Bulk actions",
               bulkActionsBarAnnouncement:
-                "__$1__ items selected. The bulk actions bar is now available at the bottom of the screen. Press __$2__+B to toggle focus to the bulk action bar.",
+                "__$1__ items selected. The bulk actions bar is now available at the bottom of the screen. Press __$2__ to toggle focus to the bulk action bar.",
               close: "Close",
               loading: "Loading",
             }),
@@ -351,7 +351,7 @@ describe("BulkActionsBarComponent — additional actions", () => {
 
   const trigger = () =>
     fixture.nativeElement.querySelector(
-      'button[bitBulkAction][icon="bwi-ellipsis-v"]',
+      'button[bitBulkActionButton][icon="bwi-ellipsis-v"]',
     ) as HTMLButtonElement | null;
 
   const menuItems = (): HTMLButtonElement[] =>
@@ -369,7 +369,7 @@ describe("BulkActionsBarComponent — additional actions", () => {
               selectionCleared: "Selection cleared",
               clear: "Clear",
               bulkActionsBar: "Bulk actions",
-              bulkActionsBarAnnouncement: "__$1__ items selected. Press __$2__+B.",
+              bulkActionsBarAnnouncement: "__$1__ items selected. Press __$2__.",
               additionalActions: "Additional actions",
             }),
         },
@@ -471,7 +471,7 @@ describe("BulkActionsBarComponent — additional actions", () => {
     // After toggling additional actions off, the trigger is gone and the only
     // remaining bulk-action button without `icon="bwi-clear"` is the primary.
     const primary = fixture.nativeElement.querySelector(
-      'button[bitBulkAction]:not([icon="bwi-clear"])',
+      'button[bitBulkActionButton]:not([icon="bwi-clear"])',
     ) as HTMLButtonElement;
 
     closeBtn.focus();

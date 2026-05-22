@@ -1,6 +1,5 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -19,8 +18,9 @@ import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 import { BULK_ACTIONS_BAR_CONTEXT } from "./bulk-actions-bar-context";
 
+/** @internal Used only by `BulkActionsBarComponent` to render its toolbar buttons. */
 @Component({
-  selector: "button[bitBulkAction], a[bitBulkAction]",
+  selector: "button[bitBulkActionButton], a[bitBulkActionButton]",
   templateUrl: "./bulk-action-button.component.html",
   imports: [IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +30,7 @@ import { BULK_ACTIONS_BAR_CONTEXT } from "./bulk-actions-bar-context";
     "[attr.tabindex]": "tabIndex()",
   },
 })
-export class BulkActionButtonComponent implements FocusableOption, AfterViewInit {
+export class BulkActionButtonComponent implements FocusableOption {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly parent = inject(BULK_ACTIONS_BAR_CONTEXT, { optional: true });
   private readonly tooltip = inject(TooltipDirective, { self: true });
@@ -43,7 +43,9 @@ export class BulkActionButtonComponent implements FocusableOption, AfterViewInit
   readonly tabIndex = signal(-1);
 
   private readonly label = viewChild<ElementRef<HTMLSpanElement>>("label");
-  private readonly labelText = signal("");
+  private readonly labelText = computed(
+    () => this.label()?.nativeElement.textContent?.trim() ?? "",
+  );
 
   protected readonly compact = computed(
     () => this.parent?.additionalActionsTrigger() === this || (this.parent?.compact() ?? false),
@@ -65,10 +67,6 @@ export class BulkActionButtonComponent implements FocusableOption, AfterViewInit
         el.removeAttribute("aria-label");
       }
     });
-  }
-
-  ngAfterViewInit(): void {
-    this.labelText.set(this.label()?.nativeElement.textContent?.trim() ?? "");
   }
 
   focus(): void {
