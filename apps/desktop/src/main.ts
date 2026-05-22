@@ -13,6 +13,10 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
+import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -94,6 +98,7 @@ export class Main {
   clipboardMain: ClipboardMain;
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
@@ -308,6 +313,8 @@ export class Main {
       this.biometricsService,
       this.logService,
     );
+
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
 
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,

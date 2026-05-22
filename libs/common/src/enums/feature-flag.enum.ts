@@ -47,6 +47,11 @@ export enum FeatureFlag {
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   SdkKeyRotation = "pm-30144-sdk-key-rotation",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
+  // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
+  // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
+  // get to use the feature.
+  SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
+  SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
@@ -54,6 +59,7 @@ export enum FeatureFlag {
   UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   UnlockViaSDK = "unlock-via-sdk",
+  BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
@@ -187,6 +193,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.SdkKeyRotation]: FALSE,
+  [FeatureFlag.SharedUnlockPart1]: FALSE,
+  [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
@@ -196,6 +204,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.UnlockViaSDK]: FALSE,
+  [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,

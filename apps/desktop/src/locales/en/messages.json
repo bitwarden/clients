@@ -4912,6 +4912,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5074,6 +5077,9 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "unlockTogetherWithBrowserExtension": {
+    "message": "Unlock together with the browser extension"
   },
   "more": {
     "message": "More"

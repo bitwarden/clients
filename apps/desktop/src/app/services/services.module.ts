@@ -32,6 +32,7 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
   LoginEmailService,
   SsoUrlService,
   UserDecryptionOptionsServiceAbstraction,
@@ -73,6 +74,12 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import {
+  SharedUnlockLeaderService,
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
@@ -131,6 +138,7 @@ import {
   DefaultWebAuthnPrfUnlockService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
@@ -206,12 +214,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService],
+    deps: [TokenService, BiometricStateService, IpcService],
   }),
   safeProvider({
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService],
+    deps: [TokenService, BiometricStateService, IpcService],
   }),
   safeProvider({
     provide: DeviceManagementComponentServiceAbstraction,
@@ -386,6 +394,26 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopSettingsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockLeaderService,
+    useClass: DefaultSharedUnlockLeaderService,
+    deps: [
+      IpcService,
+      AccountService,
+      LockService,
+      KeyServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      VaultTimeoutSettingsService,
+      EnvironmentService,
+      SharedUnlockSettingsService,
+      UnlockService,
+    ],
   }),
   safeProvider({
     provide: DesktopAutofillSettingsService,

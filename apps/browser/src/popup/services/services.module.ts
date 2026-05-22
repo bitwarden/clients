@@ -94,6 +94,10 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import {
   VaultTimeoutService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -535,6 +539,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
     useClass: UserNotificationSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
     deps: [StateProvider],
   }),
   safeProvider({
