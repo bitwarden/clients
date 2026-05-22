@@ -192,13 +192,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((tourCompleted) => {
         if (tourCompleted) {
-          this.generateReport();
           NewApplicationsDialogComponent.open(this.dialogService, {
             newApplications: this.newApplications,
             organizationId: this.organizationId,
             hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
           });
-          // this.tabIndex.set(RiskInsightsTabType.AllActivity);
         }
       });
   }

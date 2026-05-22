@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
-  AI_COACHMARK_STEPS,
+  ACCESS_INTELLIGENCE_COACHMARK_STEPS,
   AccessIntelligenceCoachmarkStep,
   AccessIntelligenceCoachmarkStepId,
 } from "./access-intelligence-coachmark-step";
@@ -23,11 +23,11 @@ export class AccessIntelligenceCoachmarkService {
     if (!activeId) {
       return 0;
     }
-    const index = AI_COACHMARK_STEPS.findIndex((s) => s.id === activeId);
+    const index = ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex((s) => s.id === activeId);
     return index >= 0 ? index + 1 : 0;
   });
 
-  readonly totalSteps = computed(() => AI_COACHMARK_STEPS.length);
+  readonly totalSteps = computed(() => ACCESS_INTELLIGENCE_COACHMARK_STEPS.length);
 
   readonly isRunning = computed(() => this.activeStepId() !== null);
 
@@ -47,18 +47,20 @@ export class AccessIntelligenceCoachmarkService {
     if (completed) {
       return;
     }
-    this.activeStepId.set(AI_COACHMARK_STEPS[0].id);
+    this.activeStepId.set(ACCESS_INTELLIGENCE_COACHMARK_STEPS[0].id);
   }
 
   async nextStep(): Promise<void> {
     if (!this.isRunning()) {
       return;
     }
-    const currentIndex = AI_COACHMARK_STEPS.findIndex((s) => s.id === this.activeStepId());
-    if (currentIndex >= AI_COACHMARK_STEPS.length - 1) {
+    const currentIndex = ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex(
+      (s) => s.id === this.activeStepId(),
+    );
+    if (currentIndex >= ACCESS_INTELLIGENCE_COACHMARK_STEPS.length - 1) {
       await this.completeTour();
     } else {
-      this.activeStepId.set(AI_COACHMARK_STEPS[currentIndex + 1].id);
+      this.activeStepId.set(ACCESS_INTELLIGENCE_COACHMARK_STEPS[currentIndex + 1].id);
     }
   }
 
@@ -66,9 +68,11 @@ export class AccessIntelligenceCoachmarkService {
     if (!this.isRunning()) {
       return;
     }
-    const currentIndex = AI_COACHMARK_STEPS.findIndex((s) => s.id === this.activeStepId());
+    const currentIndex = ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex(
+      (s) => s.id === this.activeStepId(),
+    );
     if (currentIndex > 0) {
-      this.activeStepId.set(AI_COACHMARK_STEPS[currentIndex - 1].id);
+      this.activeStepId.set(ACCESS_INTELLIGENCE_COACHMARK_STEPS[currentIndex - 1].id);
     }
   }
 
@@ -89,7 +93,7 @@ export class AccessIntelligenceCoachmarkService {
     if (!id) {
       return undefined;
     }
-    return AI_COACHMARK_STEPS.find((s) => s.id === id);
+    return ACCESS_INTELLIGENCE_COACHMARK_STEPS.find((s) => s.id === id);
   }
 
   getStepTitle(id: AccessIntelligenceCoachmarkStepId | null): string {

@@ -3,7 +3,7 @@ import { TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { AI_COACHMARK_STEPS } from "./access-intelligence-coachmark-step";
+import { ACCESS_INTELLIGENCE_COACHMARK_STEPS } from "./access-intelligence-coachmark-step";
 import { AccessIntelligenceCoachmarkService } from "./access-intelligence-coachmark.service";
 import { OnboardingService } from "./services/onboarding.service";
 
@@ -128,7 +128,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
       const completed = jest.fn();
       service.tourCompleted$.subscribe(completed);
 
-      for (let i = 0; i < AI_COACHMARK_STEPS.length; i++) {
+      for (let i = 0; i < ACCESS_INTELLIGENCE_COACHMARK_STEPS.length; i++) {
         await service.nextStep();
         tick();
       }
@@ -236,7 +236,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
   describe("getStepConfig", () => {
     it("returns config for a known step", () => {
       const config = service.getStepConfig("monitorActivity");
-      expect(config).toEqual(AI_COACHMARK_STEPS[0]);
+      expect(config).toEqual(ACCESS_INTELLIGENCE_COACHMARK_STEPS[0]);
     });
 
     it("returns undefined for null", () => {

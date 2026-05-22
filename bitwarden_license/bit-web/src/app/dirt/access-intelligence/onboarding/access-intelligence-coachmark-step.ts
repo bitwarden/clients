@@ -16,7 +16,7 @@ export interface AccessIntelligenceCoachmarkStep {
   tabIndex?: number;
 }
 
-export const AI_COACHMARK_STEPS: AccessIntelligenceCoachmarkStep[] = [
+export const ACCESS_INTELLIGENCE_COACHMARK_STEPS: AccessIntelligenceCoachmarkStep[] = [
   {
     id: "monitorActivity",
     titleKey: "aiCoachmarkMonitorActivityTitle",
