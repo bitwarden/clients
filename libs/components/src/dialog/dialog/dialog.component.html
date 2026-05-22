@@ -67,9 +67,9 @@
     }
     <div
       cdkScrollable
+      class="tw-py-2 tw-ps-6 tw-pe-6"
       [ngClass]="{
-        'tw-py-2 tw-ps-6 tw-pe-6': !disablePadding(),
-        'tw-pb-4': !hasFooter() && !disablePadding(),
+        'tw-pb-4': !hasFooter(),
         'tw-overflow-y-auto': !loading(),
         'tw-invisible tw-overflow-y-hidden': loading(),
         'tw-py-4': background() === 'alt',
