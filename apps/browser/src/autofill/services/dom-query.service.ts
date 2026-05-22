@@ -10,9 +10,15 @@ import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
+type ScanVerdict =
+  | { branch: "shortCircuit"; foundNewRoot: false }
+  | { branch: "narrow"; foundNewRoot: boolean }
+  | { branch: "fullScan"; foundNewRoot: boolean };
+
 export class DomQueryService implements DomQueryServiceInterface {
-  /** Non-null asserted. */
+  /** One-way ratchet; reset only by `resetObservedShadowRoots()`. */
   private pageContainsShadowDom!: boolean;
+  // FIXME: merge with `knownShadowRoots` into one registry (needs WeakSet + iteration).
   private observedShadowRoots = new WeakSet<ShadowRoot>();
   /**
    * An iterable mirror of `observedShadowRoots` used by `deepQueryElements`
@@ -116,55 +122,54 @@ export class DomQueryService implements DomQueryServiceInterface {
     });
   };
 
-  /**
-   * Queries the DOM for shadow roots and checks if any are not being observed.
-   * This is an expensive operation that should be debounced.
-   * @returns True if any new shadow roots are found that aren't being observed
-   */
+  /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
   checkForNewShadowRoots = (addedElements?: Element[]): boolean => {
-    // Short-circuit: if we have already confirmed the page has no shadow DOM,
-    // skip the expensive querySelectorAll(":defined") + getShadowRoot scan entirely.
-    // FIXME: this disables all checks after the page initializes; introduce a
-    // less-expensive means to update `pageContainsShadowDom`.
-    if (!this.pageContainsShadowDom) {
-      return false;
+    const verdict = this.classifyShadowRootScan(addedElements);
+    // Only `narrow` can yield foundNewRoot with the latch false: `fullScan` is
+    // unreachable while the latch is false (short-circuit catches it), and
+    // `shortCircuit` always reports false.
+    if (verdict.foundNewRoot && !this.pageContainsShadowDom) {
+      this.markShadowDomPresent();
     }
+    return verdict.foundNewRoot;
+  };
 
-    // When added elements are provided (from a mutation batch), only check those
-    // elements and their descendants instead of scanning the entire document.
-    // This reduces the number of chrome.dom.openOrClosedShadowRoot() calls from
-    // potentially hundreds of thousands to typically 1–10 per mutation batch.
-    if (addedElements && addedElements.length > 0) {
-      for (const el of addedElements) {
-        const root = this.getShadowRoot(el);
-        if (root && !this.observedShadowRoots.has(root)) {
-          return true;
-        }
-        for (const child of el.querySelectorAll("*")) {
-          const childRoot = this.getShadowRoot(child);
-          if (childRoot && !this.observedShadowRoots.has(childRoot)) {
-            return true;
-          }
-        }
+  private classifyShadowRootScan = (addedElements?: Element[]): ScanVerdict => {
+    const hasAddedElements = !!addedElements && addedElements.length > 0;
+    // With a batch present, scan even if the latch is false — shadow DOM may
+    // have attached after init().
+    if (!this.pageContainsShadowDom && !hasAddedElements) {
+      return { branch: "shortCircuit", foundNewRoot: false };
+    }
+    return hasAddedElements
+      ? this.findNewShadowRootInBatch(addedElements!)
+      : this.findNewShadowRootInDocument();
+  };
+
+  private findNewShadowRootInBatch = (elements: Element[]): ScanVerdict => {
+    for (const el of elements) {
+      if (this.scanForNewShadowRootInSubtree(el, 0)) {
+        return { branch: "narrow", foundNewRoot: true };
       }
-      return false;
     }
+    return { branch: "narrow", foundNewRoot: false };
+  };
 
-    // Full scan fallback when no specific elements are provided.
-    let currentRoots: ShadowRoot[];
+  private findNewShadowRootInDocument = (): ScanVerdict => {
+    let roots: ShadowRoot[];
     try {
-      currentRoots = this.recursivelyQueryShadowRoots(globalThis.document.body);
+      roots = this.recursivelyQueryShadowRoots(globalThis.document.body);
     } catch {
-      currentRoots = this.queryShadowRoots(globalThis.document.body);
+      roots = this.queryShadowRoots(globalThis.document.body);
     }
+    return {
+      branch: "fullScan",
+      foundNewRoot: roots.some((r) => !this.observedShadowRoots.has(r)),
+    };
+  };
 
-    for (const root of currentRoots) {
-      if (!this.observedShadowRoots.has(root)) {
-        return true;
-      }
-    }
-
-    return false;
+  private markShadowDomPresent = (): void => {
+    this.pageContainsShadowDom = true;
   };
 
   /**
@@ -289,6 +294,43 @@ export class DomQueryService implements DomQueryServiceInterface {
     // returns an empty NodeList when nothing matches, at no extra cost.
     return Array.from(root.querySelectorAll(queryString)) as T[];
   }
+
+  // No cycle guard — `attachShadow` throws on re-attach, `ShadowRoot.host` is
+  // read-only. See https://dom.spec.whatwg.org/#dom-element-attachshadow.
+  private scanForNewShadowRootInSubtree = (
+    subtree: Element | ShadowRoot,
+    depth: number,
+  ): boolean => {
+    if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
+      return false;
+    }
+    // Host check — `querySelectorAll("*")` excludes the scope element, so
+    // we'd miss the host's own root without this branch.
+    if (subtree instanceof Element) {
+      const root = this.getShadowRoot(subtree);
+      if (root) {
+        if (!this.observedShadowRoots.has(root)) {
+          return true;
+        }
+        if (this.scanForNewShadowRootInSubtree(root, depth + 1)) {
+          return true;
+        }
+      }
+    }
+    // querySelectorAll doesn't pierce shadow boundaries — recurse per boundary.
+    for (const child of subtree.querySelectorAll("*")) {
+      const childRoot = this.getShadowRoot(child);
+      if (childRoot) {
+        if (!this.observedShadowRoots.has(childRoot)) {
+          return true;
+        }
+        if (this.scanForNewShadowRootInSubtree(childRoot, depth + 1)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
 
   /**
    * Recursively queries all shadow roots found within the given root element.

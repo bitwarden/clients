@@ -61,7 +61,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly overlaySetupDelayMs = 100;
   private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
   private pendingShadowDomCheck = false;
-  private pendingMutationAddedElements: Element[] = [];
+  /** Set, not array: duplicates only cost redundant `getShadowRoot` calls. */
+  private pendingMutationAddedElements: Set<Element> = new Set();
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckTimeoutMs = 500;
@@ -1240,7 +1241,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes ?? []) {
         if (node instanceof Element) {
-          this.pendingMutationAddedElements.push(node);
+          this.pendingMutationAddedElements.add(node);
         }
       }
     }
@@ -1255,7 +1256,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.shadowDomCheckTimeout = setTimeout(() => {
         this.handleNewShadowRoots();
         this.pendingShadowDomCheck = false;
-        this.pendingMutationAddedElements = [];
+        this.pendingMutationAddedElements.clear();
       }, this.shadowDomCheckTimeoutMs);
     }
 
@@ -1350,9 +1351,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleNewShadowRoots = () => {
-    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(
-      this.pendingMutationAddedElements,
-    );
+    // Hosts added by mutation may have been removed during the 500ms debounce.
+    const connected: Element[] = [];
+    for (const el of this.pendingMutationAddedElements) {
+      if (el.isConnected) {
+        connected.push(el);
+      }
+    }
+    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
     if (hasNewShadowRoots) {
       this.debouncedRequirePageDetailsUpdate();
     }

@@ -274,5 +274,142 @@ describe("DomQueryService", () => {
 
       expect(result).toBe(false);
     });
+
+    it("returns true via narrow-scan and does not flip pageContainsShadowDom when latch was already true", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const host = document.createElement("custom-element");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      const result = domQueryService.checkForNewShadowRoots([host]);
+
+      expect(result).toBe(true);
+      expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+    });
+
+    it("flips pageContainsShadowDom from false to true when narrow-scan discovers a root", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+      const host = document.createElement("custom-element");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      const result = domQueryService.checkForNewShadowRoots([host]);
+
+      expect(result).toBe(true);
+      expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+    });
+
+    it("preserves the cheap-page short-circuit when latch is false and addedElements is empty", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+
+      const result = domQueryService.checkForNewShadowRoots([]);
+
+      expect(result).toBe(false);
+      expect(domQueryService["pageContainsShadowDom"]).toBe(false);
+    });
+
+    it("returns true when a new root is nested inside a known root (PM-29033)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const outerHost = document.createElement("outer-host");
+      const outerRoot = outerHost.attachShadow({ mode: "open" });
+      // Regression case: a single-level narrow scan would miss this.
+      domQueryService["observedShadowRoots"].add(outerRoot);
+      document.body.appendChild(outerHost);
+
+      const innerHost = document.createElement("inner-host");
+      innerHost.attachShadow({ mode: "open" });
+      outerRoot.appendChild(innerHost);
+
+      const result = domQueryService.checkForNewShadowRoots([outerHost]);
+
+      expect(result).toBe(true);
+    });
+
+    it("bails at MAX_DEEP_QUERY_RECURSION_DEPTH without throwing on pathological nesting", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const root0 = document.createElement("host-0");
+      const shadow0 = root0.attachShadow({ mode: "open" });
+      domQueryService["observedShadowRoots"].add(shadow0);
+      document.body.appendChild(root0);
+
+      let parentShadow: ShadowRoot = shadow0;
+      // 6 observed nestings + a final unobserved root past the depth cap (4).
+      for (let i = 1; i <= 6; i++) {
+        const host = document.createElement(`host-${i}`);
+        const shadow = host.attachShadow({ mode: "open" });
+        if (i < 6) {
+          domQueryService["observedShadowRoots"].add(shadow);
+        }
+        parentShadow.appendChild(host);
+        parentShadow = shadow;
+      }
+
+      expect(() => domQueryService.checkForNewShadowRoots([root0])).not.toThrow();
+    });
+
+    it("handles a disconnected element in addedElements without crashing", () => {
+      // External callers may not filter by `isConnected` like
+      // `collect-autofill-content.service.ts` does.
+      domQueryService["pageContainsShadowDom"] = false;
+      const host = document.createElement("disconnected-host");
+      host.attachShadow({ mode: "open" });
+      expect(host.isConnected).toBe(false);
+
+      expect(() => domQueryService.checkForNewShadowRoots([host])).not.toThrow();
+    });
+
+    it("handles duplicate entries in addedElements (defensive — Set-side dedup makes this rare)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const host = document.createElement("dup-host");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      const result = domQueryService.checkForNewShadowRoots([host, host]);
+
+      expect(result).toBe(true);
+    });
+
+    describe("classifyShadowRootScan (pure classifier)", () => {
+      it("returns shortCircuit verdict when latch is false and no added elements", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+
+        const verdict = domQueryService["classifyShadowRootScan"]();
+
+        expect(verdict).toEqual({
+          branch: "shortCircuit",
+          foundNewRoot: false,
+        });
+      });
+
+      it("returns a narrow verdict (not shortCircuit) when addedElements is non-empty even with latch false", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+        const host = document.createElement("custom-element");
+
+        const verdict = domQueryService["classifyShadowRootScan"]([host]);
+
+        expect(verdict.branch).toBe("narrow");
+      });
+
+      it("does not mutate pageContainsShadowDom", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+        const host = document.createElement("custom-element");
+        host.attachShadow({ mode: "open" });
+        document.body.appendChild(host);
+
+        domQueryService["classifyShadowRootScan"]([host]);
+
+        expect(domQueryService["pageContainsShadowDom"]).toBe(false);
+      });
+    });
+
+    describe("markShadowDomPresent (named transition)", () => {
+      it("flips pageContainsShadowDom to true", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+
+        domQueryService["markShadowDomPresent"]();
+
+        expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+      });
+    });
   });
 });
