@@ -16,7 +16,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -24,7 +23,8 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -48,7 +48,6 @@ export class InitService {
     private twoFactorService: TwoFactorService,
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsServiceAbstraction,
-    private stateService: StateServiceAbstraction,
     private keyService: KeyServiceAbstraction,
     private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
@@ -65,6 +64,8 @@ export class InitService {
     private sharedUnlockLeaderService: SharedUnlockLeaderService,
     private configService: ConfigService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
+    private biometricsService: BiometricsService,
+    private unlockService: UnlockService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
@@ -75,6 +76,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
+      await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
