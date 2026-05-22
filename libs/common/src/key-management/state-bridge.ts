@@ -25,7 +25,7 @@ import {
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
   USER_KEY_ENCRYPTED_PIN,
 } from "./pin/pin.state";
-import { V2_UPGRADE_TOKEN } from "./v2-upgrade-token.state";
+import { V2_UPGRADE_TOKEN } from "./upgrade-token/v2-upgrade-token.state";
 
 // Helper functions to work around unrealiable state. KM state values correctness over speed
 // and eventual consistency is not acceptable.

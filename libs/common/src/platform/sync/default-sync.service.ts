@@ -350,7 +350,8 @@ export class DefaultSyncService extends CoreSyncService {
 
   private async syncProfileOrganizations(response: ProfileResponse, userId: UserId) {
     const organizations: { [id: string]: OrganizationData } = {};
-    response.organizations.forEach((o) => {
+    const source = response.organizationsNew ?? response.organizations ?? [];
+    source.forEach((o) => {
       organizations[o.id] = new OrganizationData(o, {
         isMember: true,
         isProviderUser: false,
