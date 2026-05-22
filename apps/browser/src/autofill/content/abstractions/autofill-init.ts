@@ -4,6 +4,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { AutofillOverlayElementType } from "../../enums/autofill-overlay.enum";
 import AutofillScript from "../../models/autofill-script";
 
+import { AutofillMonitor } from "./autofill-monitor";
+
 export type AutofillExtensionMessage = {
   command: string;
   tab?: chrome.tabs.Tab;
@@ -36,9 +38,11 @@ export type AutofillExtensionMessageHandlers = {
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
   collectAutofillTriage: () => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
+  startAutofillMonitors: () => void;
+  stopAutofillMonitors: () => void;
 };
 
-export interface AutofillInit {
+export interface AutofillInit extends AutofillMonitor {
   init(): void;
   destroy(): void;
 }
