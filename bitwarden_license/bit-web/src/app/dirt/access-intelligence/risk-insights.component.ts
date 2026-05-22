@@ -305,6 +305,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     combineLatest([this.dataService.hasReportData$, this.dataService.hasCiphers$])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        filter(([hasReportData, hasCiphers]) => hasReportData !== null && hasCiphers !== null),
         filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
         take(1),
       )

@@ -221,10 +221,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       // determine if we need to begin the post import tour
       // to be launched when report generation is complete
       // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import
-      if (
-        this.currentProgressStep() === ReportProgress.Complete &&
-        this.mustBeginPostImportTour()
-      ) {
+      if (this.currentProgressStep() === null && this.mustBeginPostImportTour()) {
         void this.beginPostImportTour();
       }
     });
