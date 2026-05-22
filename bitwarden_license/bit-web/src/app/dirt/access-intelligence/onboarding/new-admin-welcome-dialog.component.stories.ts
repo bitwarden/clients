@@ -17,7 +17,10 @@ import { NewAdminWelcomeDialogComponent } from "./new-admin-welcome-dialog.compo
 import { OnboardingService } from "./services/onboarding.service";
 
 const mockDialogRef = { close: async () => {} };
-const mockOnboardingService = { setCarouselAcknowledged: async () => {} };
+const mockOnboardingService = {
+  setPostImportDialogAcknowledged: async () => {},
+  setNewAdminWelcomeDialogAcknowledged: async () => {},
+};
 const mockOrganizationId = "story-org-id" as OrganizationId;
 
 const mockI18nService = new I18nMockService({

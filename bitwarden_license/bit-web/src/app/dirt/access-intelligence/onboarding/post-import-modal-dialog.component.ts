@@ -13,7 +13,6 @@ import {
   DialogRef,
   DialogService,
   TypographyModule,
-  DIALOG_DATA,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -32,9 +31,8 @@ export type WelcomeModalDialogData = {
 })
 export class PostImportModalDialogComponent {
   private readonly dialogRef = inject(DialogRef<PostImportModalDialogComponent>);
-  private readonly dialogService = inject(DialogService);
   private readonly onboardingService = inject(OnboardingService);
-  private readonly data = inject<WelcomeModalDialogData>(DIALOG_DATA);
+  private readonly logger = inject(LogService);
 
   protected async onStartTour(): Promise<void> {
     await this.dialogRef.close();
@@ -46,7 +44,12 @@ export class PostImportModalDialogComponent {
       .then(() => {
         return this.dialogRef.close();
       })
-      .catch(() => {});
+      .catch((error: unknown) => {
+        this.logger.error(
+          "[Post Import Modal Dialog] Error acknowledging post-import dialog",
+          error,
+        );
+      });
   }
 
   static async showDialog(

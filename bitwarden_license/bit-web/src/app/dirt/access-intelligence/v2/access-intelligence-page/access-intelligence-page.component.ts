@@ -47,6 +47,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { NewAdminWelcomeDialogComponent } from "../../onboarding/new-admin-welcome-dialog.component";
 import { PostImportModalDialogComponent } from "../../onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
@@ -430,7 +431,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginOnboardingTour();
+      await this.beginPostImportTour();
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -446,9 +447,19 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected async beginOnboardingTour(): Promise<void> {
+  protected async beginPostImportTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
       await PostImportModalDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await NewAdminWelcomeDialogComponent.showDialog(
         this.injector,
         this.dialogService,
         this.organizationId(),

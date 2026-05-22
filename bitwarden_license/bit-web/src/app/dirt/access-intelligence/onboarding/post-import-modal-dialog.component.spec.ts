@@ -11,6 +11,7 @@ import {
   TypographyModule,
   DIALOG_DATA,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 
 import { PostImportModalDialogComponent } from "./post-import-modal-dialog.component";
 import { OnboardingService } from "./services/onboarding.service";
@@ -32,6 +33,10 @@ const mockOnboardingService = {
   isPostImportDialogAcknowledged: jest.fn().mockResolvedValue(false),
 };
 
+const mockLogger = {
+  error: jest.fn(),
+};
+
 describe("PostImportModalDialogComponent", () => {
   let component: PostImportModalDialogComponent;
   let fixture: ComponentFixture<PostImportModalDialogComponent>;
@@ -47,6 +52,7 @@ describe("PostImportModalDialogComponent", () => {
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: DialogService, useValue: mockDialogService },
         { provide: DIALOG_DATA, useValue: { organizationId: mockOrganizationId } },
+        { provide: LogService, useValue: mockLogger },
       ],
     }).compileComponents();
 
