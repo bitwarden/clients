@@ -311,7 +311,7 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.RemoveUnlockWithPin:
         // Remove Unlock with PIN policy
         return false;
-      case PolicyType.AutoConfirm:
+      case PolicyType.AutomaticUserConfirmation:
         return false;
       case PolicyType.MasterPassword:
         // MasterPassword policy applies to everyone, including admins and owners

@@ -1,5 +1,7 @@
 import { combineLatest, map, Observable } from "rxjs";
 
+import { PolicyOrganizationContext } from "@bitwarden/sdk-internal";
+
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
@@ -7,6 +9,7 @@ import { OrganizationService } from "../../abstractions/organization/organizatio
 import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
+import { Organization } from "../../models/domain/organization";
 import { Policy } from "../../models/domain/policy";
 
 import { POLICIES_NEW } from "./policy-state";
@@ -39,10 +42,12 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
         }
 
         const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
-        const sdkOrgs = confirmedOrganizations
+        const sdkOrganizationContext = confirmedOrganizations
           .concat(acceptedOrganizations)
-          .map((o) => o.toSdkProfileOrganization());
-        const filteredViews = sdkClient.policies().filter_by_type(sdkPolicies, sdkOrgs, policyType);
+          .map((o) => DefaultNewPolicyService.toSdkPolicyOrganizationContext(o));
+        const filteredViews = sdkClient
+          .policies()
+          .filter_by_type(sdkPolicies, sdkOrganizationContext, policyType);
 
         const result = filteredViews.map((v) => Policy.fromSdkPolicyView(v));
 
@@ -71,5 +76,22 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
 
   async replace(policies: { [id: string]: PolicyData }, userId: UserId): Promise<void> {
     await this.stateProvider.setUserState(POLICIES_NEW, policies, userId);
+  }
+
+  /**
+   * Converts organization sync data to the SDK context model.
+   * This belongs in this service because it is specific to the policy domain.
+   */
+  private static toSdkPolicyOrganizationContext(
+    organization: Organization,
+  ): PolicyOrganizationContext {
+    return {
+      id: organization.id,
+      status: organization.status,
+      role: organization.type,
+      enabled: organization.enabled,
+      usePolicies: organization.usePolicies,
+      isProviderUser: organization.isProviderUser,
+    };
   }
 }

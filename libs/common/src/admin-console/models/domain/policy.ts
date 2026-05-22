@@ -49,22 +49,22 @@ export class Policy extends Domain {
   static fromSdkPolicyView(obj: SdkPolicyView): Policy {
     const policy = new Policy();
     policy.id = uuidAsString(obj.id) as PolicyId;
-    policy.organizationId = uuidAsString(obj.organization_id) as OrganizationId;
+    policy.organizationId = uuidAsString(obj.organizationId) as OrganizationId;
     policy.type = obj.type as PolicyType;
     policy.data = obj.data == null ? null : JSON.parse(obj.data);
     policy.enabled = obj.enabled;
-    policy.revisionDate = obj.revision_date == null ? undefined : new Date(obj.revision_date);
+    policy.revisionDate = obj.revisionDate == null ? undefined : new Date(obj.revisionDate);
     return policy;
   }
 
   toSdkPolicyView(): SdkPolicyView {
     return {
       id: asUuid(this.id),
-      organization_id: asUuid(this.organizationId),
+      organizationId: asUuid(this.organizationId),
       type: this.type as number,
       data: this.data == null ? undefined : JSON.stringify(this.data),
       enabled: this.enabled,
-      revision_date: this.revisionDate == null ? undefined : this.revisionDate.toISOString(),
+      revisionDate: this.revisionDate == null ? undefined : this.revisionDate.toISOString(),
     };
   }
 }

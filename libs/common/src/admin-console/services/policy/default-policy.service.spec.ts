@@ -679,7 +679,7 @@ describe("PolicyService", () => {
         singleUserState.nextState(
           arrayToRecord([
             policyData("policy1", "org6", PolicyType.SingleOrg, true),
-            policyData("policy2", "org6", PolicyType.AutoConfirm, true),
+            policyData("policy2", "org6", PolicyType.AutomaticUserConfirmation, true),
           ]),
         );
 
@@ -718,7 +718,7 @@ describe("PolicyService", () => {
         singleUserState.nextState(
           arrayToRecord([
             policyData("policy1", "org6", PolicyType.SingleOrg, true),
-            policyData("policy2", "org1", PolicyType.AutoConfirm, true),
+            policyData("policy2", "org1", PolicyType.AutomaticUserConfirmation, true),
           ]),
         );
 
