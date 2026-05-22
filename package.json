@@ -13,7 +13,7 @@
   },
   "homepage": "https://bitwarden.com",
   "scripts": {
-    "prepare": "husky",
+    "prepare": "git config set --local include.path \"../.gitconfig\"",
     "lint": "eslint . --cache --cache-strategy content && prettier --check .",
     "lint:fix": "eslint . --cache --cache-strategy content --fix",
     "lint:clear": "rimraf .eslintcache",
@@ -124,7 +124,6 @@
     "html-loader": "5.1.0",
     "html-webpack-injector": "1.1.4",
     "html-webpack-plugin": "5.6.6",
-    "husky": "9.1.7",
     "jest": "30.3.0",
     "jest-diff": "30.3.0",
     "jest-environment-jsdom": "29.7.0",

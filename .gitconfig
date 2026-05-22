@@ -1,0 +1,3 @@
+[hook "linter"]
+	event = pre-commit
+	command = npx lint-staged
