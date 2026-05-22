@@ -81,13 +81,13 @@
           </ng-template>
         </bit-table>
       </div>
-      <ng-container *ngIf="priceIncreaseCalloutMessage">
-        <div class="tw-mt-6">
+      @if (priceIncreaseCalloutMessage) {
+        <div class="tw-mt-4">
           <bit-callout type="info">
             <span>{{ priceIncreaseCalloutMessage }}</span>
           </bit-callout>
         </div>
-      </ng-container>
+      }
     </ng-container>
 
     <ng-container *ngIf="userOrg.canEditSubscription">
