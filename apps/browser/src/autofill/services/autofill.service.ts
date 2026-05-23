@@ -292,11 +292,14 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (accountIsUnlocked) {
-      await BrowserApi.tabSendMessage(
+      // Fire-and-forget: the bootstrap is already injected at this point,
+      // and awaiting the send only matters if the caller needs a response,
+      // which it does not. Errors are reported rather than swallowed.
+      BrowserApi.tabSendMessage(
         tab,
         { command: AutofillLifecycleCommand.start },
         { frameId },
-      );
+      ).catch((error) => this.logService.error(error));
     }
   }
 
@@ -3212,7 +3215,11 @@ export default class AutofillService implements AutofillServiceInterface {
       targets.set(`${tab.id}:${frameId ?? -1}`, { tab, frameId });
     });
     targets.forEach(({ tab, frameId }) => {
-      void BrowserApi.tabSendMessage(tab, message, frameId !== undefined ? { frameId } : undefined);
+      BrowserApi.tabSendMessage(
+        tab,
+        message,
+        frameId !== undefined ? { frameId } : undefined,
+      ).catch((error) => this.logService.error(error));
     });
   }
 }
