@@ -42,6 +42,7 @@ describe("WebEnvironmentService", () => {
         notifications: "https://notifications.bitwarden.com",
         events: "https://events.bitwarden.com",
         scim: "https://scim.bitwarden.com",
+        send: "https://send.bitwarden.com/#",
       } as Urls;
 
       const mockProdUSBaseUrl = "https://vault.bitwarden.com";
@@ -148,6 +149,7 @@ describe("WebEnvironmentService", () => {
         notifications: "https://notifications.bitwarden.eu",
         events: "https://events.bitwarden.eu",
         scim: "https://scim.bitwarden.eu",
+        send: "https://vault.bitwarden.eu/#/send/",
       } as Urls;
 
       const mockProdEUBaseUrl = "https://vault.bitwarden.eu";
@@ -158,7 +160,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";
-      const expectedSendUrl = expectedProdEUUrls.webVault + "/#/send/";
+      const expectedSendUrl = expectedProdEUUrls.send;
 
       const prodEURegionConfig = PRODUCTION_REGIONS.find((r) => r.key === Region.EU);
 

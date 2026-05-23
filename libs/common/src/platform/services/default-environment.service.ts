@@ -32,6 +32,7 @@ export class EnvironmentUrls {
   events: string = null;
   webVault: string = null;
   keyConnector: string = null;
+  send: string = null;
 }
 
 class EnvironmentState {
@@ -95,6 +96,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.com",
       events: "https://events.bitwarden.com",
       scim: "https://scim.bitwarden.com",
+      send: "https://send.bitwarden.com/#",
     },
   },
   {
@@ -109,6 +111,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.eu",
       events: "https://events.bitwarden.eu",
       scim: "https://scim.bitwarden.eu",
+      send: "https://vault.bitwarden.eu/#/send/",
     },
   },
 ];
@@ -253,6 +256,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
           notifications: urls.notifications,
           events: urls.events,
           keyConnector: urls.keyConnector,
+          send: null,
         },
       }));
 
@@ -374,6 +378,7 @@ abstract class UrlEnvironment implements Environment {
       events: this.urls.events,
       keyConnector: this.urls.keyConnector,
       scim: this.urls.scim,
+      send: this.urls.send,
     };
   }
 
