@@ -2516,13 +2516,19 @@ describe("AutofillOverlayContentService", () => {
           jest
             .spyOn(iframe, "getBoundingClientRect")
             .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // `calculateSubFramePositioning` calls `getCurrentTabFrameId` via
+          // `sendExtensionMessage`; that response is appended to
+          // `parentFrameIds`. The outer beforeEach mocks the spy to resolve
+          // `undefined`, so without an explicit override here the push is
+          // skipped and the assertion below fails.
+          sendExtensionMessageSpy.mockResolvedValue(4);
           const subFrameData = {
             url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
-            subFrameDepth: expect.any(Number),
+            subFrameDepth: 0,
           };
 
           postWindowMessage(
