@@ -369,6 +369,7 @@ import { OffscreenDocumentService } from "../platform/offscreen-document/abstrac
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserTaskSchedulerService } from "../platform/services/abstractions/browser-task-scheduler.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
@@ -417,6 +418,7 @@ export default class MainBackground {
   apiService: ApiServiceAbstraction;
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
+  availableRegionsService: DefaultAvailableRegionsService;
   cipherSdkService: CipherSdkService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
@@ -878,6 +880,11 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
     );
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(

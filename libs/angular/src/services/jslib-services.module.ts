@@ -286,6 +286,8 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -782,6 +784,11 @@ const safeProviders: SafeProvider[] = [
     provide: EnvironmentService,
     useClass: DefaultEnvironmentService,
     deps: [StateProvider, AccountServiceAbstraction, ENV_ADDITIONAL_REGIONS],
+  }),
+  safeProvider({
+    provide: AvailableRegionsService,
+    useClass: DefaultAvailableRegionsService,
+    deps: [EnvironmentService, ConfigService],
   }),
   safeProvider({
     provide: InternalUserDecryptionOptionsServiceAbstraction,
