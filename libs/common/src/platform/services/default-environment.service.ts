@@ -434,15 +434,15 @@ abstract class UrlEnvironment implements Environment {
       return this.urls.scim + "/v2";
     }
 
-    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
-      ? "https://scim.bitwarden.com/v2"
-      : this.getWebVaultUrl() + "/scim/v2";
+    return this.getWebVaultUrl() + "/scim/v2";
   }
 
   getSendUrl() {
-    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
-      ? "https://send.bitwarden.com/#"
-      : this.getWebVaultUrl() + "/#/send/";
+    if (this.urls.send != null) {
+      return this.urls.send;
+    }
+
+    return this.getWebVaultUrl() + "/#/send/";
   }
 
   /**
