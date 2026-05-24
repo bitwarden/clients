@@ -77,7 +77,7 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
       return;
     }
 
-    await this.leader.handle_device_event({
+    await this.leader!.handle_device_event({
       ManualUnlock: {
         user_id: asUuid(userId),
         user_key: userKey.toSdk(),

@@ -78,7 +78,7 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
       return;
     }
 
-    await this.follower.handle_device_event({
+    await this.follower!.handle_device_event({
       ManualUnlock: {
         user_id: asUuid(userId),
         user_key: userKey.toSdk(),
