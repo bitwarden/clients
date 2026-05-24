@@ -534,12 +534,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
-   * @param filter - The current substring filter applied to the cipher list.
+   * @param filterValue - The current substring filter applied to the cipher list.
    */
   private updateListItems({
     ciphers = [],
     showInlineMenuAccountCreation = false,
-    filter = "",
+    filterValue = "",
   }: UpdateAutofillInlineMenuListCiphersParams) {
     if (this.isPasskeyAuthInProgress) {
       return;
@@ -551,7 +551,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.resetInlineMenuContainer();
 
     if (!this.ciphers?.length) {
-      this.buildNoResultsInlineMenuList(filter);
+      this.buildNoResultsInlineMenuList(filterValue);
       return;
     }
 
@@ -589,17 +589,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   /**
    * Inline menu view that is presented when no ciphers are found for a given page.
-   * When a non-empty `filter` is provided the message reflects that the empty list
+   * When a non-empty `filterValue` is provided the message reflects that the empty list
    * is the result of the active filter; otherwise the generic "no items" message
    * is shown. Facilitates the ability to add a new vault item from the inline menu.
    *
-   * @param filter - The current substring filter applied to the cipher list.
+   * @param filterValue - The current substring filter applied to the cipher list.
    */
-  private buildNoResultsInlineMenuList(filter: string = "") {
+  private buildNoResultsInlineMenuList(filterValue: string = "") {
     const noItemsMessage = globalThis.document.createElement("div");
     noItemsMessage.classList.add("no-items", "inline-menu-list-message");
-    if (filter) {
-      this.setNoMatchesMessageContent(noItemsMessage, filter);
+    if (filterValue) {
+      this.setNoMatchesMessageContent(noItemsMessage, filterValue);
     } else {
       noItemsMessage.textContent = this.getTranslation("noItemsToShow");
     }
@@ -615,15 +615,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * interpreted as HTML.
    *
    * @param target - The element to receive the message content.
-   * @param filter - The current substring filter applied to the cipher list.
+   * @param filterValue - The current substring filter applied to the cipher list.
    */
-  private setNoMatchesMessageContent(target: HTMLElement, filter: string) {
+  private setNoMatchesMessageContent(target: HTMLElement, filterValue: string) {
     const template = this.getTranslation("inlineMenuNoMatches");
     target.textContent = "";
 
     if (!template) {
       // Translation missing — fall back to a plain, escaped representation.
-      target.textContent = filter;
+      target.textContent = filterValue;
       return;
     }
 
@@ -639,7 +639,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (before) {
       target.appendChild(globalThis.document.createTextNode(before));
     }
-    target.appendChild(globalThis.document.createTextNode(filter));
+    target.appendChild(globalThis.document.createTextNode(filterValue));
     if (after) {
       target.appendChild(globalThis.document.createTextNode(after));
     }

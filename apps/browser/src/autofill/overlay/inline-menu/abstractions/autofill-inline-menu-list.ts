@@ -13,7 +13,7 @@ export type UpdateAutofillInlineMenuListCiphersParams = {
    * and the resulting `ciphers` array is empty, the list iframe renders a
    * "no matches" empty-state that includes this string.
    */
-  filter?: string;
+  filterValue?: string;
 };
 
 export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage &

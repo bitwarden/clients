@@ -176,7 +176,7 @@ describe("AutofillInlineMenuList", () => {
           postWindowMessage({
             command: "updateAutofillInlineMenuListCiphers",
             ciphers: [],
-            filter: "exa",
+            filterValue: "exa",
             portKey,
             token: "test-token",
           });
@@ -193,7 +193,7 @@ describe("AutofillInlineMenuList", () => {
           postWindowMessage({
             command: "updateAutofillInlineMenuListCiphers",
             ciphers: [],
-            filter: "<img src=x onerror=alert(1)>",
+            filterValue: "<img src=x onerror=alert(1)>",
             portKey,
             token: "test-token",
           });

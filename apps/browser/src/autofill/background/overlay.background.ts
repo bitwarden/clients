@@ -166,12 +166,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * on inline-menu close, and on full vault refresh. Treated as PII; never
    * logged.
    */
-  private inlineMenuFilter: string = "";
+  private inlineMenuFilterValue: string = "";
   /**
    * Defensive upper bound on the stored filter length. Field values can be
    * arbitrarily long; we don't need more than a short query for matching.
    */
-  private readonly inlineMenuFilterMaxLength = 256;
+  private readonly inlineMenuFilterValueMaxLength = 256;
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
     AutofillOverlayPort.ButtonMessageConnector,
@@ -228,8 +228,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     deletedCipher: () => this.updateOverlayCiphers(),
     bgSaveCipher: () => this.updateOverlayCiphers(),
     updateOverlayCiphers: () => this.updateOverlayCiphers(),
-    updateAutofillInlineMenuFilter: ({ message, sender }) =>
-      this.updateInlineMenuFilter(message, sender),
+    filterInlineMenuCiphers: ({ message, sender }) =>
+      this.filterInlineMenuCiphers(message, sender),
     fido2AbortRequest: ({ sender }) =>
       void this.withSenderTab(sender, (tab) => this.abortFido2ActiveRequest(tab.id)),
   };
@@ -412,7 +412,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus === AuthenticationStatus.Unlocked) {
       this.inlineMenuCiphers = new Map();
-      this.resetInlineMenuFilter();
+      this.resetInlineMenuFilterValue();
       this.updateOverlayCiphers$.next({ updateAllCipherTypes, refocusField });
     }
   }
@@ -488,7 +488,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation: this.shouldShowInlineMenuAccountCreation(),
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
       focusedFieldHasValue: await this.checkFocusedFieldHasValue(tab),
-      filter: this.inlineMenuFilter,
+      filterValue: this.inlineMenuFilterValue,
     });
   }
 
@@ -500,7 +500,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param message - The extension message carrying the new filter value
    * @param sender - The sender of the message; tab is used to scope the update
    */
-  private async updateInlineMenuFilter(
+  private async filterInlineMenuCiphers(
     message: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
@@ -508,14 +508,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const rawFilter = typeof message.filter === "string" ? message.filter : "";
-    const nextFilter = rawFilter.slice(0, this.inlineMenuFilterMaxLength);
+    const rawFilter = typeof message.filterValue === "string" ? message.filterValue : "";
+    const nextFilter = rawFilter.slice(0, this.inlineMenuFilterValueMaxLength);
 
-    if (nextFilter === this.inlineMenuFilter) {
+    if (nextFilter === this.inlineMenuFilterValue) {
       return;
     }
 
-    this.inlineMenuFilter = nextFilter;
+    this.inlineMenuFilterValue = nextFilter;
     await this.updateInlineMenuListCiphers(sender.tab);
   }
 
@@ -524,8 +524,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * closes, the focused field changes, or the underlying cipher set is
    * refreshed.
    */
-  private resetInlineMenuFilter(): void {
-    this.inlineMenuFilter = "";
+  private resetInlineMenuFilterValue(): void {
+    this.inlineMenuFilterValue = "";
   }
 
   /**
@@ -605,7 +605,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Strips out unnecessary data from the ciphers and returns an array of
    * objects that contain the cipher data needed for the inline menu list.
    *
-   * Applies the current `inlineMenuFilter` (a user-typed substring) against
+   * Applies the current `inlineMenuFilterValue` (a user-typed substring) against
    * the in-memory cipher set before projection. The filter must always be
    * applied to the raw `CipherView` set so that the existing TOTP/passkey/
    * grouping logic in {@link buildInlineMenuCiphers} continues to operate
@@ -641,24 +641,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Returns the inline-menu cipher entries, optionally filtered by the current
-   * `inlineMenuFilter` via `SearchService.searchCiphersBasic`. When the filter
+   * `inlineMenuFilterValue` via `SearchService.searchCiphersBasic`. When the filter
    * is empty or too short to be searchable, the full set is returned and all
    * existing behavior is preserved unchanged.
    */
   private async getFilteredInlineMenuCiphers(): Promise<[string, CipherView][]> {
     const entries = Array.from(this.inlineMenuCiphers);
-    const filter = this.inlineMenuFilter;
-    if (!filter) {
+    const filterValue = this.inlineMenuFilterValue;
+    if (!filterValue) {
       return entries;
     }
 
-    const isSearchable = await this.searchService.isSearchable(filter);
+    const isSearchable = await this.searchService.isSearchable(filterValue);
     if (!isSearchable) {
       return entries;
     }
 
     const cipherViews = entries.map(([, cipher]) => cipher);
-    const matched = new Set(this.searchService.searchCiphersBasic(cipherViews, filter));
+    const matched = new Set(this.searchService.searchCiphersBasic(cipherViews, filterValue));
     return entries.filter(([, cipher]) => matched.has(cipher));
   }
 
@@ -1606,7 +1606,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const sendOptions = { frameId: 0 };
     const updateVisibilityDefaults = { overlayElement, isVisible: false, forceUpdate: true };
     this.clearGeneratedPassword$.next();
-    this.resetInlineMenuFilter();
+    this.resetInlineMenuFilterValue();
 
     if (forceCloseInlineMenu) {
       BrowserApi.tabSendMessage(tab, { command, overlayElement }, sendOptions).catch((error) =>
@@ -2032,7 +2032,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.isFieldCurrentlyFocused = true;
 
     if (previousFocusedFieldData?.focusedFieldOpid !== this.focusedFieldData.focusedFieldOpid) {
-      this.resetInlineMenuFilter();
+      this.resetInlineMenuFilterValue();
     }
 
     if (this.shouldUpdatePasswordGeneratorMenuOnFieldFocus()) {

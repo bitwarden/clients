@@ -508,8 +508,8 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuFilter", {
-            filter: "test",
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("filterInlineMenuCiphers", {
+            filterValue: "test",
           });
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("closeAutofillInlineMenu", {
             overlayElement: AutofillOverlayElement.List,
@@ -527,8 +527,8 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuFilter", {
-            filter: "",
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("filterInlineMenuCiphers", {
+            filterValue: "",
           });
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
         });
@@ -560,7 +560,7 @@ describe("AutofillOverlayContentService", () => {
             forceCloseInlineMenu: true,
           });
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
-            "updateAutofillInlineMenuFilter",
+            "filterInlineMenuCiphers",
             expect.anything(),
           );
         });

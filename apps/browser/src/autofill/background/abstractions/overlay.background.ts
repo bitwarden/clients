@@ -157,7 +157,7 @@ export type OverlayBackgroundExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
-  filter?: string;
+  filterValue?: string;
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &
@@ -278,7 +278,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   deletedCipher: () => void;
   bgSaveCipher: () => void;
   updateOverlayCiphers: () => void;
-  updateAutofillInlineMenuFilter: ({
+  filterInlineMenuCiphers: ({
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;

@@ -817,8 +817,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (this.shouldFilterInlineMenuOnInput(formFieldElement)) {
-      await this.sendExtensionMessage("updateAutofillInlineMenuFilter", {
-        filter: formFieldElement.value ?? "",
+      await this.sendExtensionMessage("filterInlineMenuCiphers", {
+        filterValue: formFieldElement.value ?? "",
       });
       return;
     }

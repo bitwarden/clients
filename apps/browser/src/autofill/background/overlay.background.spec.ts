@@ -961,7 +961,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
-        filter: "",
+        filterValue: "",
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
         focusedFieldHasValue: false,
@@ -1028,7 +1028,7 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenLastCalledWith(
           expect.objectContaining({
             command: "updateAutofillInlineMenuListCiphers",
-            filter: "",
+            filterValue: "",
             showInlineMenuAccountCreation: expectedShowInlineMenuAccountCreation,
             ciphers: expect.arrayContaining([
               expect.objectContaining({
@@ -1057,7 +1057,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
-        filter: "",
+        filterValue: "",
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
         focusedFieldHasValue: false,
@@ -1096,7 +1096,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
-          filter: "",
+          filterValue: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1138,7 +1138,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
-          filter: "",
+          filterValue: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1211,7 +1211,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
-          filter: "",
+          filterValue: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1252,7 +1252,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
-          filter: "",
+          filterValue: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1281,7 +1281,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
-        filter: "",
+        filterValue: "",
         ciphers: [
           {
             id: "inline-menu-cipher-0",
@@ -1371,7 +1371,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
-        filter: "",
+        filterValue: "",
         ciphers: [
           {
             id: "inline-menu-cipher-0",
@@ -1439,7 +1439,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
-        filter: "",
+        filterValue: "",
         ciphers: [
           {
             id: "inline-menu-cipher-0",
@@ -2103,7 +2103,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
-          filter: "",
+          filterValue: "",
           ciphers: [],
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
@@ -2521,7 +2521,7 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("updateAutofillInlineMenuFilter message handler", () => {
+    describe("filterInlineMenuCiphers message handler", () => {
       let sender: chrome.runtime.MessageSender;
       let listCipher: CipherView;
       let updateInlineMenuListCiphersSpy: jest.SpyInstance;
@@ -2547,17 +2547,17 @@ describe("OverlayBackground", () => {
 
       it("stores the filter and re-renders the list with the filter forwarded to the iframe", async () => {
         sendMockExtensionMessage(
-          { command: "updateAutofillInlineMenuFilter", filter: "exa" },
+          { command: "filterInlineMenuCiphers", filterValue: "exa" },
           sender,
         );
         await flushPromises();
 
-        expect(overlayBackground["inlineMenuFilter"]).toBe("exa");
+        expect(overlayBackground["inlineMenuFilterValue"]).toBe("exa");
         expect(updateInlineMenuListCiphersSpy).toHaveBeenCalledWith(sender.tab);
         expect(listPortSpy.postMessage).toHaveBeenCalledWith(
           expect.objectContaining({
             command: "updateAutofillInlineMenuListCiphers",
-            filter: "exa",
+            filterValue: "exa",
           }),
         );
       });
@@ -2567,14 +2567,14 @@ describe("OverlayBackground", () => {
         searchService.searchCiphersBasic.mockReturnValue([]);
 
         sendMockExtensionMessage(
-          { command: "updateAutofillInlineMenuFilter", filter: "zzz" },
+          { command: "filterInlineMenuCiphers", filterValue: "zzz" },
           sender,
         );
         await flushPromises();
 
         expect(searchService.searchCiphersBasic).toHaveBeenCalledWith([listCipher], "zzz");
         expect(listPortSpy.postMessage).toHaveBeenCalledWith(
-          expect.objectContaining({ ciphers: [], filter: "zzz" }),
+          expect.objectContaining({ ciphers: [], filterValue: "zzz" }),
         );
       });
 
@@ -2582,7 +2582,7 @@ describe("OverlayBackground", () => {
         searchService.isSearchable.mockResolvedValue(false);
 
         sendMockExtensionMessage(
-          { command: "updateAutofillInlineMenuFilter", filter: "x" },
+          { command: "filterInlineMenuCiphers", filterValue: "x" },
           sender,
         );
         await flushPromises();
@@ -2591,11 +2591,11 @@ describe("OverlayBackground", () => {
       });
 
       it("ignores duplicate filter values without re-rendering", async () => {
-        overlayBackground["inlineMenuFilter"] = "exa";
+        overlayBackground["inlineMenuFilterValue"] = "exa";
         updateInlineMenuListCiphersSpy.mockClear();
 
         sendMockExtensionMessage(
-          { command: "updateAutofillInlineMenuFilter", filter: "exa" },
+          { command: "filterInlineMenuCiphers", filterValue: "exa" },
           sender,
         );
         await flushPromises();
@@ -2606,18 +2606,18 @@ describe("OverlayBackground", () => {
       it("caps the filter at the configured max length to avoid retaining large field values", async () => {
         const longFilter = "a".repeat(1024);
         sendMockExtensionMessage(
-          { command: "updateAutofillInlineMenuFilter", filter: longFilter },
+          { command: "filterInlineMenuCiphers", filterValue: longFilter },
           sender,
         );
         await flushPromises();
 
-        expect(overlayBackground["inlineMenuFilter"].length).toBe(
-          overlayBackground["inlineMenuFilterMaxLength"],
+        expect(overlayBackground["inlineMenuFilterValue"].length).toBe(
+          overlayBackground["inlineMenuFilterValueMaxLength"],
         );
       });
 
       it("resets the filter when the inline menu is closed", async () => {
-        overlayBackground["inlineMenuFilter"] = "exa";
+        overlayBackground["inlineMenuFilterValue"] = "exa";
 
         sendMockExtensionMessage(
           { command: "closeAutofillInlineMenu", forceCloseInlineMenu: true },
@@ -2625,16 +2625,16 @@ describe("OverlayBackground", () => {
         );
         await flushPromises();
 
-        expect(overlayBackground["inlineMenuFilter"]).toBe("");
+        expect(overlayBackground["inlineMenuFilterValue"]).toBe("");
       });
 
       it("resets the filter when updateOverlayCiphers is called", async () => {
-        overlayBackground["inlineMenuFilter"] = "exa";
+        overlayBackground["inlineMenuFilterValue"] = "exa";
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
 
         await overlayBackground.updateOverlayCiphers();
 
-        expect(overlayBackground["inlineMenuFilter"]).toBe("");
+        expect(overlayBackground["inlineMenuFilterValue"]).toBe("");
       });
     });
 
