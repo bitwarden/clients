@@ -22,57 +22,67 @@ function fromSdkUserId(userId: UserId): TSUserId {
   return uuidAsString(userId) as TSUserId;
 }
 
-export function createSharedUnlockDriver(
-  accountService: AccountService,
-  lockService: LockService,
-  unlockService: UnlockService,
-  keyService: KeyService,
-  platformUtilsService: PlatformUtilsService,
-  vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-  environmentService: EnvironmentService,
-  sharedUnlockSettingsService: SharedUnlockSettingsService,
-): SharedUnlockDriver {
-  return {
-    async lock_user(user_id: UserId): Promise<void> {
-      if (!(await sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
-        return;
-      }
+/**
+ * A driver that exposes client capabilities (lock/unlock, user enumeration, etc.) to the SDK's
+ * shared unlock leader/follower.
+ */
+export class JsSharedUnlockDriver implements SharedUnlockDriver {
+  constructor(
+    private accountService: AccountService,
+    private lockService: LockService,
+    private unlockService: UnlockService,
+    private keyService: KeyService,
+    private platformUtilsService: PlatformUtilsService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private environmentService: EnvironmentService,
+    private sharedUnlockSettingsService: SharedUnlockSettingsService,
+  ) {}
 
-      await lockService.lock(fromSdkUserId(user_id));
-    },
-    async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
-      if (!(await sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
-        return;
-      }
+  async lock_user(user_id: UserId): Promise<void> {
+    if (!(await this.sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
+      return;
+    }
 
-      await unlockService.unlockWithDecryptedUserKey(
-        fromSdkUserId(user_id),
-        SymmetricCryptoKey.fromSdk(user_key) as UserKey,
-      );
-    },
-    async get_user_key(user_id: UserId): Promise<SymmetricKey | undefined> {
-      const typedUserId = fromSdkUserId(user_id);
-      return (await firstValueFrom(keyService.userKey$(typedUserId)))?.toSdk();
-    },
-    async list_users(): Promise<UserId[]> {
-      const accounts = await firstValueFrom(accountService.accounts$);
-      return Object.keys(accounts).map(asUuid<UserId>);
-    },
-    async suppress_vault_timeout(
-      user_id: UserId,
-      suppression_duration_milliseconds: number,
-    ): Promise<void> {
-      const until = Date.now() + suppression_duration_milliseconds;
-      await vaultTimeoutSettingsService.suppressVaultTimeout(until, fromSdkUserId(user_id));
-    },
-    async get_client_name(): Promise<string> {
-      return platformUtilsService.getClientType();
-    },
-    async get_vault_url(user_id: UserId): Promise<string> {
-      const environment = await firstValueFrom(
-        environmentService.getEnvironment$(fromSdkUserId(user_id)),
-      );
-      return environment.getWebVaultUrl();
-    },
-  };
+    await this.lockService.lock(fromSdkUserId(user_id));
+  }
+
+  async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
+    if (!(await this.sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
+      return;
+    }
+
+    await this.unlockService.unlockWithDecryptedUserKey(
+      fromSdkUserId(user_id),
+      SymmetricCryptoKey.fromSdk(user_key) as UserKey,
+    );
+  }
+
+  async get_user_key(user_id: UserId): Promise<SymmetricKey | undefined> {
+    const typedUserId = fromSdkUserId(user_id);
+    return (await firstValueFrom(this.keyService.userKey$(typedUserId)))?.toSdk();
+  }
+
+  async list_users(): Promise<UserId[]> {
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    return Object.keys(accounts).map(asUuid<UserId>);
+  }
+
+  async suppress_vault_timeout(
+    user_id: UserId,
+    suppression_duration_milliseconds: number,
+  ): Promise<void> {
+    const until = Date.now() + suppression_duration_milliseconds;
+    await this.vaultTimeoutSettingsService.suppressVaultTimeout(until, fromSdkUserId(user_id));
+  }
+
+  async get_client_name(): Promise<string> {
+    return this.platformUtilsService.getClientType();
+  }
+
+  async get_vault_url(user_id: UserId): Promise<string> {
+    const environment = await firstValueFrom(
+      this.environmentService.getEnvironment$(fromSdkUserId(user_id)),
+    );
+    return environment.getWebVaultUrl();
+  }
 }

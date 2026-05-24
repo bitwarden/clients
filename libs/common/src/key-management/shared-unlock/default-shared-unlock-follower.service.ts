@@ -14,7 +14,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
-import { createSharedUnlockDriver } from "./shared-unlock-driver";
+import { JsSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockFollowerService } from "./shared-unlock-follower.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 import { pollForUnlockEvents } from "./unlock-state-poll";
@@ -35,7 +35,7 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
   ) {}
 
   async start(): Promise<void> {
-    const sharedUnlockDriver = createSharedUnlockDriver(
+    const sharedUnlockDriver = new JsSharedUnlockDriver(
       this.accountService,
       this.lockService,
       this.unlockService,
