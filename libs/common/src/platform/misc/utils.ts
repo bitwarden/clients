@@ -514,6 +514,42 @@ export class Utils {
     return null;
   }
 
+  /**
+   * Returns true when the given URI's hostname is an IP address (IPv4 or IPv6)
+   * or the literal "localhost". These are typically used to address services on
+   * a local network where the port is what disambiguates services.
+   */
+  static isIpOrLocalhost(uriString: string | null | undefined): boolean {
+    if (Utils.isNullOrWhitespace(uriString)) {
+      return false;
+    }
+
+    try {
+      const parseResult = parse(uriString.trim(), {
+        validHosts: this.validHosts,
+        allowPrivateDomains: true,
+      });
+      if (parseResult == null) {
+        return false;
+      }
+      return parseResult.isIp === true || parseResult.hostname === "localhost";
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Returns the port for the given URI as a string, or an empty string when no
+   * explicit port is present (including default ports for the scheme).
+   */
+  static getPort(uriString: string | null | undefined): string {
+    const url = Utils.getUrl(uriString);
+    if (url == null) {
+      return "";
+    }
+    return url.port ?? "";
+  }
+
   static getQueryParams(uriString: string): Map<string, string> {
     const url = Utils.getUrl(uriString);
     if (url == null || url.search == null || url.search === "") {

@@ -202,6 +202,16 @@ export class LoginUriView implements View {
       return !Utils.DomainMatchBlacklist.get(this.domain)!.has(domainUrlHost);
     }
 
+    // When the saved URI targets an IP address or localhost, require the port
+    // to match as well. Without this, distinct local services that share an
+    // IP/host but listen on different ports (e.g. a private LAN address with
+    // one service on :8080 and another on :9090) all collapse into the same
+    // "domain" and Bitwarden cannot distinguish between them for autofill
+    // suggestions.
+    if (Utils.isIpOrLocalhost(this.uri) && Utils.isIpOrLocalhost(targetUri)) {
+      return Utils.getPort(this.uri) === Utils.getPort(targetUri);
+    }
+
     return true;
   }
 }
