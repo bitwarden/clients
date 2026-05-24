@@ -28,10 +28,10 @@ export abstract class UnlockService {
   abstract unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void>;
 
   /**
-   * Unlocks the user's account using a biometrics-protected copy of the user-key
+   * Unlocks the user's account using a biometrics-protected copy of the user-key.
+   * Returns without throwing if the user cancels the biometric prompt.
    * @param userId - The user's id
    * @throws If the SDK is not available
-   * @throws If biometric authentication fails
    */
   abstract unlockWithBiometrics(userId: UserId): Promise<void>;
 

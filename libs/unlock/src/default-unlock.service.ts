@@ -104,7 +104,8 @@ export class DefaultUnlockService implements UnlockService {
     // First, get the biometrics-protected user key. This will prompt the user to authenticate with biometrics.
     const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
     if (!userKey) {
-      throw new Error("Failed to unlock with biometrics");
+      // User cancelled the biometric prompt, or the key was not available — not an error.
+      return;
     }
 
     // Now that we have the biometrics-protected user key, we can initialize the SDK with it to complete the unlock process.

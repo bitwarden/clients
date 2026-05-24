@@ -265,12 +265,11 @@ describe("DefaultUnlockService", () => {
       });
     });
 
-    it("throws when biometrics returns null", async () => {
+    it("returns without throwing when biometrics returns null (user cancelled)", async () => {
       biometricsService.unlockWithBiometricsForUser.mockResolvedValue(null);
 
-      await expect(service.unlockWithBiometrics(mockUserId)).rejects.toThrow(
-        "Failed to unlock with biometrics",
-      );
+      await expect(service.unlockWithBiometrics(mockUserId)).resolves.toBeUndefined();
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
     });
 
     it("throws when SDK is not available", async () => {
