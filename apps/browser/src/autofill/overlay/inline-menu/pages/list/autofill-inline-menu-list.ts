@@ -527,14 +527,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   /**
    * Updates the list items with the passed ciphers.
-   * If no ciphers are passed, the no results inline menu is built.
+   * If no ciphers are passed, the no results inline menu is built. When a non-empty
+   * `filter` is provided (the substring the user has typed into the focused field),
+   * the no-results state surfaces that the empty list is due to the active filter
+   * rather than an empty vault.
    *
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
+   * @param filter - The current substring filter applied to the cipher list.
    */
   private updateListItems({
     ciphers = [],
     showInlineMenuAccountCreation = false,
+    filter = "",
   }: UpdateAutofillInlineMenuListCiphersParams) {
     if (this.isPasskeyAuthInProgress) {
       return;
@@ -546,7 +551,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.resetInlineMenuContainer();
 
     if (!this.ciphers?.length) {
-      this.buildNoResultsInlineMenuList();
+      this.buildNoResultsInlineMenuList(filter);
       return;
     }
 
@@ -584,16 +589,60 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   /**
    * Inline menu view that is presented when no ciphers are found for a given page.
-   * Facilitates the ability to add a new vault item from the inline menu.
+   * When a non-empty `filter` is provided the message reflects that the empty list
+   * is the result of the active filter; otherwise the generic "no items" message
+   * is shown. Facilitates the ability to add a new vault item from the inline menu.
+   *
+   * @param filter - The current substring filter applied to the cipher list.
    */
-  private buildNoResultsInlineMenuList() {
+  private buildNoResultsInlineMenuList(filter: string = "") {
     const noItemsMessage = globalThis.document.createElement("div");
     noItemsMessage.classList.add("no-items", "inline-menu-list-message");
-    noItemsMessage.textContent = this.getTranslation("noItemsToShow");
+    if (filter) {
+      this.setNoMatchesMessageContent(noItemsMessage, filter);
+    } else {
+      noItemsMessage.textContent = this.getTranslation("noItemsToShow");
+    }
 
     const newItemButton = this.buildNewItemButton();
 
     this.inlineMenuListContainer.append(noItemsMessage, newItemButton);
+  }
+
+  /**
+   * Renders the localized "no matches for $FILTER$" message into the given
+   * element, inserting the user-typed filter as a text node so it cannot be
+   * interpreted as HTML.
+   *
+   * @param target - The element to receive the message content.
+   * @param filter - The current substring filter applied to the cipher list.
+   */
+  private setNoMatchesMessageContent(target: HTMLElement, filter: string) {
+    const template = this.getTranslation("inlineMenuNoMatches");
+    target.textContent = "";
+
+    if (!template) {
+      // Translation missing — fall back to a plain, escaped representation.
+      target.textContent = filter;
+      return;
+    }
+
+    const placeholder = "$FILTER$";
+    const placeholderIndex = template.indexOf(placeholder);
+    if (placeholderIndex === -1) {
+      target.textContent = template;
+      return;
+    }
+
+    const before = template.slice(0, placeholderIndex);
+    const after = template.slice(placeholderIndex + placeholder.length);
+    if (before) {
+      target.appendChild(globalThis.document.createTextNode(before));
+    }
+    target.appendChild(globalThis.document.createTextNode(filter));
+    if (after) {
+      target.appendChild(globalThis.document.createTextNode(after));
+    }
   }
 
   /**

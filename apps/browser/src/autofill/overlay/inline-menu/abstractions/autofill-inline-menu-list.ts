@@ -8,6 +8,12 @@ type AutofillInlineMenuListMessage = { command: string };
 export type UpdateAutofillInlineMenuListCiphersParams = {
   ciphers: InlineMenuCipherData[];
   showInlineMenuAccountCreation?: boolean;
+  /**
+   * The current substring filter being applied to the cipher list. When non-empty
+   * and the resulting `ciphers` array is empty, the list iframe renders a
+   * "no matches" empty-state that includes this string.
+   */
+  filter?: string;
 };
 
 export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage &

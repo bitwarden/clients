@@ -167,6 +167,7 @@ const overlayPagesTranslations = {
   username: "username",
   view: "view",
   noItemsToShow: "noItemsToShow",
+  inlineMenuNoMatches: 'No matches for "$FILTER$"',
   newItem: "newItem",
   addNewVaultItem: "addNewVaultItem",
 };

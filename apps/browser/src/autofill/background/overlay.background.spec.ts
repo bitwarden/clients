@@ -36,6 +36,7 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -119,6 +120,7 @@ describe("OverlayBackground", () => {
   let totpService: MockProxy<TotpService>;
   let generatorService: MockProxy<CredentialGeneratorService>;
   let generatorHistoryService: MockProxy<GeneratorHistoryService>;
+  let searchService: MockProxy<SearchService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
   let pageDetailsForTabSpy: PageDetailsForTab;
@@ -231,6 +233,9 @@ describe("OverlayBackground", () => {
     );
     generatorHistoryService = mock<GeneratorHistoryService>();
     generatorHistoryService.track.mockResolvedValue(null);
+    searchService = mock<SearchService>();
+    searchService.isSearchable.mockResolvedValue(true);
+    searchService.searchCiphersBasic.mockImplementation((ciphers) => ciphers);
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -249,6 +254,7 @@ describe("OverlayBackground", () => {
       accountService,
       generatorHistoryService,
       generatorService,
+      searchService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -955,6 +961,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
+        filter: "",
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
         focusedFieldHasValue: false,
@@ -1021,6 +1028,7 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenLastCalledWith(
           expect.objectContaining({
             command: "updateAutofillInlineMenuListCiphers",
+            filter: "",
             showInlineMenuAccountCreation: expectedShowInlineMenuAccountCreation,
             ciphers: expect.arrayContaining([
               expect.objectContaining({
@@ -1049,6 +1057,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
+        filter: "",
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
         focusedFieldHasValue: false,
@@ -1087,6 +1096,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
+          filter: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1128,6 +1138,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
+          filter: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1200,6 +1211,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
+          filter: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1240,6 +1252,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
+          filter: "",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
           focusedFieldHasValue: false,
@@ -1268,6 +1281,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
+        filter: "",
         ciphers: [
           {
             id: "inline-menu-cipher-0",
@@ -1357,6 +1371,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
+        filter: "",
         ciphers: [
           {
             id: "inline-menu-cipher-0",
@@ -1424,6 +1439,7 @@ describe("OverlayBackground", () => {
 
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
+        filter: "",
         ciphers: [
           {
             id: "inline-menu-cipher-0",
@@ -2087,6 +2103,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
+          filter: "",
           ciphers: [],
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
@@ -2501,6 +2518,123 @@ describe("OverlayBackground", () => {
             topFrameSendOptions,
           );
         });
+      });
+    });
+
+    describe("updateAutofillInlineMenuFilter message handler", () => {
+      let sender: chrome.runtime.MessageSender;
+      let listCipher: CipherView;
+      let updateInlineMenuListCiphersSpy: jest.SpyInstance;
+
+      beforeEach(async () => {
+        await initOverlayElementPorts();
+        listCipher = mock<CipherView>({
+          id: "cipher-1",
+          type: CipherType.Login,
+          name: "Example",
+          login: { username: "user@example.com" } as any,
+        });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-0", listCipher]]);
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          inlineMenuFillType: CipherType.Login,
+        });
+        sender = mock<chrome.runtime.MessageSender>({ tab: createChromeTabMock({ id: 1 }) });
+        updateInlineMenuListCiphersSpy = jest.spyOn(
+          overlayBackground as any,
+          "updateInlineMenuListCiphers",
+        );
+      });
+
+      it("stores the filter and re-renders the list with the filter forwarded to the iframe", async () => {
+        sendMockExtensionMessage(
+          { command: "updateAutofillInlineMenuFilter", filter: "exa" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["inlineMenuFilter"]).toBe("exa");
+        expect(updateInlineMenuListCiphersSpy).toHaveBeenCalledWith(sender.tab);
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            command: "updateAutofillInlineMenuListCiphers",
+            filter: "exa",
+          }),
+        );
+      });
+
+      it("applies the stored filter to the cipher list via SearchService.searchCiphersBasic", async () => {
+        searchService.isSearchable.mockResolvedValue(true);
+        searchService.searchCiphersBasic.mockReturnValue([]);
+
+        sendMockExtensionMessage(
+          { command: "updateAutofillInlineMenuFilter", filter: "zzz" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(searchService.searchCiphersBasic).toHaveBeenCalledWith([listCipher], "zzz");
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ ciphers: [], filter: "zzz" }),
+        );
+      });
+
+      it("short-circuits filtering when the query is not searchable", async () => {
+        searchService.isSearchable.mockResolvedValue(false);
+
+        sendMockExtensionMessage(
+          { command: "updateAutofillInlineMenuFilter", filter: "x" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(searchService.searchCiphersBasic).not.toHaveBeenCalled();
+      });
+
+      it("ignores duplicate filter values without re-rendering", async () => {
+        overlayBackground["inlineMenuFilter"] = "exa";
+        updateInlineMenuListCiphersSpy.mockClear();
+
+        sendMockExtensionMessage(
+          { command: "updateAutofillInlineMenuFilter", filter: "exa" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(updateInlineMenuListCiphersSpy).not.toHaveBeenCalled();
+      });
+
+      it("caps the filter at the configured max length to avoid retaining large field values", async () => {
+        const longFilter = "a".repeat(1024);
+        sendMockExtensionMessage(
+          { command: "updateAutofillInlineMenuFilter", filter: longFilter },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["inlineMenuFilter"].length).toBe(
+          overlayBackground["inlineMenuFilterMaxLength"],
+        );
+      });
+
+      it("resets the filter when the inline menu is closed", async () => {
+        overlayBackground["inlineMenuFilter"] = "exa";
+
+        sendMockExtensionMessage(
+          { command: "closeAutofillInlineMenu", forceCloseInlineMenu: true },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["inlineMenuFilter"]).toBe("");
+      });
+
+      it("resets the filter when updateOverlayCiphers is called", async () => {
+        overlayBackground["inlineMenuFilter"] = "exa";
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+        await overlayBackground.updateOverlayCiphers();
+
+        expect(overlayBackground["inlineMenuFilter"]).toBe("");
       });
     });
 

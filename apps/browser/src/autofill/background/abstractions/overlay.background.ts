@@ -157,6 +157,7 @@ export type OverlayBackgroundExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
+  filter?: string;
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &
@@ -277,6 +278,10 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   deletedCipher: () => void;
   bgSaveCipher: () => void;
   updateOverlayCiphers: () => void;
+  updateAutofillInlineMenuFilter: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
   fido2AbortRequest: ({ sender }: BackgroundSenderParam) => void;
 };
 
