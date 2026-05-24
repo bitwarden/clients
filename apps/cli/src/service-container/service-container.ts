@@ -232,6 +232,7 @@ import {
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
@@ -1120,6 +1121,11 @@ export class ServiceContainer {
       new CliBiometricsService(),
       this.biometricStateService,
       this.platformUtilsService,
+      new CliUserKeyRotationService(),
+      this.organizationService,
+      this.cipherService,
+      this.apiService,
+      this.sdkService,
     );
   }
 

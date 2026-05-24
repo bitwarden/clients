@@ -38,7 +38,11 @@ export abstract class UserKeyRotationService {
    * @returns True if the key rotation was successful, false if the user denied trust.
    * @throws If the SDK call fails or the SDK is not available.
    */
-  abstract rotateUserKey(keyRotationMethod: KeyRotationMethod, userId: UserId): Promise<boolean>;
+  abstract rotateUserKey(
+    keyRotationMethod: KeyRotationMethod,
+    userId: UserId,
+    allowNoLogoutUpgrade: boolean,
+  ): Promise<boolean>;
 
   /**
    * Verifies the trust of organizations and emergency access users by prompting the user.

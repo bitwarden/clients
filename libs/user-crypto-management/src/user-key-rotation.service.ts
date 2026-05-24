@@ -73,7 +73,11 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     );
   }
 
-  async rotateUserKey(keyRotationMethod: KeyRotationMethod, userId: UserId): Promise<boolean> {
+  async rotateUserKey(
+    keyRotationMethod: KeyRotationMethod,
+    userId: UserId,
+    allowNoLogoutUpgrade: boolean,
+  ): Promise<boolean> {
     const { wasTrustDenied, trustedOrganizationPublicKeys, trustedEmergencyAccessUserPublicKeys } =
       await this.verifyTrust(userId);
     if (wasTrustDenied) {
@@ -96,6 +100,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
             key_rotation_method: keyRotationMethod,
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,
+            upgrade_token_action: allowNoLogoutUpgrade ? "CreateIfNeeded" : "None",
           } as RotateUserKeysRequest);
           return true;
         }),
