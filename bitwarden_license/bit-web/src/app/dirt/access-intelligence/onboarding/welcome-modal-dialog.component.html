@@ -1,0 +1,21 @@
+<bit-dialog dialogSize="large">
+  <div bitDialogContent class="tw-flex tw-flex-col tw-text-center tw-gap-4">
+    <div class="tw-flex tw-justify-center tw-items-center tw-mb-4 tw-w-full">
+      <img src="/images/access-intelligence/data-is-in.svg" class="tw-w-full tw-mx-auto" />
+    </div>
+    <div class="tw-flex tw-flex-col tw-w-[65%] tw-mx-auto">
+      <h2 bitTypography="h2">{{ "yourDataIsInLetsPutItToWork" | i18n }}</h2>
+      <p bitTypography="body1">
+        {{ "takeAQuickTourOfAccessIntelligence" | i18n }}
+      </p>
+      <div class="tw-flex tw-justify-center tw-gap-6 tw-m-4">
+        <button type="button" bitButton buttonType="secondary" (click)="onSkip()">
+          {{ "skip" | i18n }}
+        </button>
+        <button type="button" bitButton buttonType="primary" (click)="onStartTour()">
+          {{ "startTour" | i18n }}
+        </button>
+      </div>
+    </div>
+  </div>
+</bit-dialog>
