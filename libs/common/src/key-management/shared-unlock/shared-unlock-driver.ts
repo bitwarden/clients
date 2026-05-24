@@ -6,12 +6,12 @@ import { LockService } from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
+import { UserId as TSUserId } from "@bitwarden/user-core";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
-import { UserId as TSUserId } from "../../platform/common/types/guid";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../../types/key";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
