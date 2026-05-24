@@ -77,9 +77,6 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
     if (!(await this.enabled(userId))) {
       return;
     }
-    if (this.follower == null) {
-      return;
-    }
 
     await this.follower.handle_device_event({
       ManualUnlock: {

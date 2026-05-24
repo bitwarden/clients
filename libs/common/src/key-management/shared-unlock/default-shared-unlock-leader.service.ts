@@ -76,9 +76,6 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
     if (!(await this.enabled(userId))) {
       return;
     }
-    if (this.leader == null) {
-      return;
-    }
 
     await this.leader.handle_device_event({
       ManualUnlock: {
