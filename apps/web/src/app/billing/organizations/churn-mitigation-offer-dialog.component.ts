@@ -23,6 +23,10 @@ export type ChurnMitigationOfferDialogParams = {
   offer: ChurnMitigationOfferResponseModel;
   /** Subscription period-end date, shown as the access-end date if the user cancels. */
   accessEndDate: string | null;
+  /** Organization plan name displayed in the success state. */
+  planName: string;
+  /** Next charge date shown in the success state after the offer is applied. */
+  nextChargeDate: string | null;
 };
 
 export const ChurnMitigationOfferDialogResultType = Object.freeze({

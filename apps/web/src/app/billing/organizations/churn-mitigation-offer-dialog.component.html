@@ -1,67 +1,89 @@
-<bit-dialog dialogSize="large" *ngIf="!offerRedeemed()">
-  <h2 bitDialogTitle>{{ "churnOfferTitle" | i18n }}</h2>
-  <ng-container bitDialogContent>
-    <p class="tw-text-muted" bitTypography="body1">
-      {{ "churnOfferPreamble" | i18n }}
-      <strong>{{ params.accessEndDate | date: "mediumDate" }}</strong
-      >{{ "churnOfferPreambleSuffix" | i18n }}
-    </p>
-    <bit-card>
-      <div
-        class="tw-inline-flex tw-items-center tw-justify-center tw-rounded-xl tw-bg-secondary-100 tw-p-3 tw-mb-4"
+@if (offerRedeemed()) {
+  <bit-dialog>
+    <span bitDialogTitle>{{ "churnOfferSuccessTitle" | i18n }}</span>
+    <ng-container bitDialogContent>
+      <p bitTypography="body1" class="tw-text-muted">
+        {{ "churnOfferSuccessBody" | i18n: discountLabel : params.offer.durationDescription }}
+      </p>
+      <bit-card class="tw-bg-bg-secondary tw-border-light tw-shadow-none">
+        <dl class="tw-grid tw-grid-cols-2 tw-gap-y-2 tw-m-0">
+          <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+            {{ "plan" | i18n }}
+          </dt>
+          <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
+            {{ params.planName }}
+          </dd>
+          <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+            {{ "status" | i18n }}
+          </dt>
+          <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
+            {{ "active" | i18n }}
+          </dd>
+          <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+            {{ "discountApplied" | i18n }}
+          </dt>
+          <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
+            {{ discountLabel }} {{ "for" | i18n }} {{ params.offer.durationDescription }}
+          </dd>
+          @if (params.nextChargeDate) {
+            <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+              {{ "nextCharge" | i18n }}
+            </dt>
+            <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
+              {{ params.nextChargeDate | date: "mediumDate" }}
+            </dd>
+          }
+        </dl>
+      </bit-card>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="button" bitButton buttonType="primary" (click)="closeAfterAccept()">
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+} @else {
+  <bit-dialog dialogSize="large">
+    <h3 bitDialogTitle>{{ "churnOfferTitle" | i18n }}</h3>
+    <ng-container bitDialogContent>
+      <p class="tw-text-muted" bitTypography="body1">
+        {{ "churnOfferPreamble" | i18n }}
+        <strong>{{ params.accessEndDate | date: "mediumDate" }}</strong
+        >{{ "churnOfferPreambleSuffix" | i18n }}
+      </p>
+      <bit-card class="tw-bg-bg-brand-stronger">
+        <div
+          class="tw-inline-flex tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-brand-soft tw-p-3 tw-mb-4"
+        >
+          <i class="bwi bwi-globe tw-text-[36px] tw-text-primary-600" aria-hidden="true"></i>
+        </div>
+        <p bitTypography="h2" class="tw-mb-1 !tw-text-fg-white">
+          {{ "churnOfferDiscountHeading" | i18n: discountLabel }}
+        </p>
+        <span bitTypography="body2" class="tw-text-fg-contrast tw-font-normal">
+          {{ "churnOfferDiscountBody" | i18n: discountLabel : params.offer.durationDescription }}
+        </span>
+      </bit-card>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="acceptOffer"
+        [loading]="loading()"
       >
-        <i class="bwi bwi-globe tw-text-[32px] tw-text-primary-600" aria-hidden="true"></i>
-      </div>
-      <p bitTypography="h3" class="tw-mb-1">
-        {{ "churnOfferDiscountHeading" | i18n: discountLabel }}
-      </p>
-      <p bitTypography="body2">
-        {{ "churnOfferDiscountBody" | i18n: discountLabel : params.offer.durationDescription }}
-      </p>
-    </bit-card>
-  </ng-container>
-  <ng-container bitDialogFooter>
-    <button
-      type="button"
-      bitButton
-      buttonType="primary"
-      [bitAction]="acceptOffer"
-      [loading]="loading()"
-    >
-      {{ "churnOfferAccept" | i18n: discountLabel }}
-    </button>
-    <button
-      type="button"
-      bitButton
-      buttonType="dangerGhost"
-      (click)="decline()"
-      [disabled]="loading()"
-    >
-      {{ "churnOfferDecline" | i18n }}
-    </button>
-  </ng-container>
-</bit-dialog>
-
-<bit-dialog *ngIf="offerRedeemed()">
-  <span bitDialogTitle>{{ "churnOfferSuccessTitle" | i18n }}</span>
-  <ng-container bitDialogContent>
-    <p bitTypography="body1">
-      {{ "churnOfferSuccessBody" | i18n: discountLabel : params.offer.durationDescription }}
-    </p>
-    <bit-card class="tw-bg-secondary-100">
-      <dl class="tw-grid tw-grid-cols-2 tw-gap-y-2 tw-m-0">
-        <dt bitTypography="body2" class="tw-font-semibold">{{ "status" | i18n }}</dt>
-        <dd bitTypography="body2" class="tw-font-medium tw-m-0">{{ "active" | i18n }}</dd>
-        <dt bitTypography="body2" class="tw-font-semibold">{{ "discountApplied" | i18n }}</dt>
-        <dd bitTypography="body2" class="tw-font-medium tw-m-0">
-          {{ discountLabel }} {{ "for" | i18n }} {{ params.offer.durationDescription }}
-        </dd>
-      </dl>
-    </bit-card>
-  </ng-container>
-  <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary" (click)="closeAfterAccept()">
-      {{ "close" | i18n }}
-    </button>
-  </ng-container>
-</bit-dialog>
+        {{ "churnOfferAccept" | i18n: discountLabel }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="dangerGhost"
+        (click)="decline()"
+        [disabled]="loading()"
+      >
+        {{ "churnOfferDecline" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+}

@@ -358,6 +358,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           organizationId: this.organizationId as any,
           offer,
           accessEndDate: this.subscription?.periodEndDate ?? null,
+          planName: this.sub.plan.name,
+          nextChargeDate: this.subscription?.periodEndDate ?? null,
         },
       });
 

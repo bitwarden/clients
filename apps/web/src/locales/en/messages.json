@@ -3702,6 +3702,9 @@
   "discount": {
     "message": "discount"
   },
+  "discountApplied": {
+    "message": "Discount applied"
+  },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
   },

@@ -47,7 +47,7 @@ export class OrganizationBillingClient {
       CouponId: "test-coupon",
       PercentOff: 10,
       AmountOff: null,
-      DurationDescription: "year",
+      DurationDescription: "for 1 year",
       Name: "10% Off for 1 Year",
     });
     try {
@@ -68,6 +68,7 @@ export class OrganizationBillingClient {
   };
 
   redeemChurnOffer = async (organizationId: OrganizationId): Promise<void> => {
+    return;
     await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/churn-offer/redeem`,
