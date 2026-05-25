@@ -25,6 +25,7 @@ import { WindowMenu } from "./menu.window";
 export interface IMenubarMenu {
   id: string;
   label: string;
+  role?: MenuItemConstructorOptions["role"];
   visible?: boolean; // Assumes true if null
   items: MenuItemConstructorOptions[];
 }
@@ -40,6 +41,7 @@ export class Menubar {
           template.push({
             id: item.id,
             label: item.label,
+            role: item.role,
             submenu: item.items,
             visible: item.visible ?? true,
           });
