@@ -4,6 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -36,7 +37,6 @@ describe("KeyRotationDialogComponent", () => {
     jest.clearAllMocks();
 
     mockKeyRotationDialogService = mock<KeyRotationDialogService>();
-    const mockAccountService = mockAccountServiceWith(userId);
     mockDialogService = mock<DialogService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockDialogRef = mock<DialogRef<KeyRotationDialogComponent>>();
@@ -49,13 +49,16 @@ describe("KeyRotationDialogComponent", () => {
     mockKeyRotationDialogService.rotateKeys.mockResolvedValue(false);
     mockKeyRotationDialogService.rotateKeysForKeyConnector.mockResolvedValue(false);
     mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(false);
+    mockKeyConnectorService.getManagingOrganization.mockResolvedValue(
+      null as unknown as Organization,
+    );
     mockUserDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [KeyRotationDialogComponent],
       providers: [
         { provide: KeyRotationDialogService, useValue: mockKeyRotationDialogService },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         { provide: DialogService, useValue: mockDialogService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: DialogRef, useValue: mockDialogRef },
@@ -71,44 +74,50 @@ describe("KeyRotationDialogComponent", () => {
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
       .compileComponents();
-
-    fixture = TestBed.createComponent(KeyRotationDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  describe("ngOnInit", () => {
-    describe("master password user", () => {
-      it("sets isMasterPasswordEncryptionUser to true", async () => {
-        mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(false);
-        mockUserDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
+  async function createComponent() {
+    fixture = TestBed.createComponent(KeyRotationDialogComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
 
-        await component.ngOnInit();
+  describe("userPrimaryEncryptionType", () => {
+    it("resolves to 'masterPassword' when user has a master password", async () => {
+      mockUserDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
 
-        expect(component["isMasterPasswordEncryptionUser"]()).toBe(true);
-        expect(component["isKeyConnectorEncryptionUser"]()).toBe(false);
-      });
+      await createComponent();
 
-      it("sets isMasterPasswordEncryptionUser to false when user has no master password", async () => {
-        mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(false);
-        mockUserDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
-
-        await component.ngOnInit();
-
-        expect(component["isMasterPasswordEncryptionUser"]()).toBe(false);
-        expect(component["isKeyConnectorEncryptionUser"]()).toBe(false);
-      });
+      expect(component["userPrimaryEncryptionType"]()).toBe("masterPassword");
     });
 
-    describe("key connector user", () => {
-      it("sets isKeyConnectorEncryptionUser to true", async () => {
-        mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(true);
+    it("resolves to 'keyConnector' when user uses key connector with a managing organization", async () => {
+      mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(true);
+      mockKeyConnectorService.getManagingOrganization.mockResolvedValue({
+        id: "org-id",
+      } as unknown as Organization);
 
-        await component.ngOnInit();
+      await createComponent();
 
-        expect(component["isKeyConnectorEncryptionUser"]()).toBe(true);
-        expect(component["isMasterPasswordEncryptionUser"]()).toBe(false);
-      });
+      expect(component["userPrimaryEncryptionType"]()).toBe("keyConnector");
+    });
+
+    it("resolves to undefined when user has no master password and no key connector", async () => {
+      await createComponent();
+
+      expect(component["userPrimaryEncryptionType"]()).toBeUndefined();
+    });
+
+    it("resolves to undefined when user uses key connector but has no managing organization", async () => {
+      mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(true);
+      mockKeyConnectorService.getManagingOrganization.mockResolvedValue(
+        null as unknown as Organization,
+      );
+
+      await createComponent();
+
+      expect(component["userPrimaryEncryptionType"]()).toBeUndefined();
     });
   });
 
@@ -117,10 +126,24 @@ describe("KeyRotationDialogComponent", () => {
       await component["submit"]();
     }
 
+    describe("when encryption type is not yet resolved", () => {
+      it("returns early without performing any actions", async () => {
+        await createComponent();
+        // Override signal to simulate loading state
+        Object.defineProperty(component, "userPrimaryEncryptionType", {
+          value: (): undefined => undefined,
+        });
+
+        await callSubmit();
+
+        expect(mockKeyRotationDialogService.hasLegacyCipherAttachments).not.toHaveBeenCalled();
+      });
+    });
+
     describe("master password user", () => {
-      beforeEach(() => {
-        component["isMasterPasswordEncryptionUser"].set(true);
-        component["isKeyConnectorEncryptionUser"].set(false);
+      beforeEach(async () => {
+        mockUserDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
+        await createComponent();
       });
 
       describe("form validation", () => {
@@ -264,9 +287,12 @@ describe("KeyRotationDialogComponent", () => {
     });
 
     describe("key connector user", () => {
-      beforeEach(() => {
-        component["isMasterPasswordEncryptionUser"].set(false);
-        component["isKeyConnectorEncryptionUser"].set(true);
+      beforeEach(async () => {
+        mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(true);
+        mockKeyConnectorService.getManagingOrganization.mockResolvedValue({
+          id: "org-id",
+        } as unknown as Organization);
+        await createComponent();
       });
 
       it("calls rotateKeysForKeyConnector without requiring master password", async () => {

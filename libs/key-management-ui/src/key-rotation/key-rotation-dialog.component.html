@@ -3,28 +3,39 @@
     {{ "rotateAccountEncryptionKey" | i18n }}
   </ng-container>
   <ng-container bitDialogContent>
-    <p bitTypography="body1">
-      {{ "rotateAccountEncryptionDialogDescription" | i18n }}
-    </p>
-    <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
-    @if (isMasterPasswordEncryptionUser()) {
-      <bit-form-field class="tw-mt-2">
-        <bit-label>{{ "masterPass" | i18n }}</bit-label>
-        <input
-          type="password"
-          formControlName="masterPassword"
-          bitInput
-          name="masterPassword"
-          class="tw-font-mono"
-          required
-          appInputVerbatim
-        />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-      </bit-form-field>
+    @if (loading()) {
+      <div class="tw-text-center">
+        <i
+          class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </div>
+    } @else {
+      <p bitTypography="body1">
+        {{ "rotateAccountEncryptionDialogDescription" | i18n }}
+      </p>
+      <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
+      @if (userPrimaryEncryptionType() === "masterPassword") {
+        <bit-form-field class="tw-mt-2">
+          <bit-label>{{ "masterPass" | i18n }}</bit-label>
+          <input
+            type="password"
+            formControlName="masterPassword"
+            bitInput
+            name="masterPassword"
+            class="tw-font-mono"
+            required
+            appInputVerbatim
+          />
+          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        </bit-form-field>
+      }
     }
   </ng-container>
   <ng-container bitDialogFooter>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
+    <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">
       {{ "rotateKey" | i18n }}
     </button>
     <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
