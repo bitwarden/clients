@@ -1,3 +1,4 @@
+import { parse } from "tldts";
 import { Jsonify } from "type-fest";
 
 import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
@@ -7,6 +8,33 @@ import { View } from "../../../models/view/view";
 import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
+
+function isIpOrLocalhost(uriString: string | null | undefined): boolean {
+  if (Utils.isNullOrWhitespace(uriString)) {
+    return false;
+  }
+
+  try {
+    const parseResult = parse(uriString.trim(), {
+      validHosts: Utils.validHosts,
+      allowPrivateDomains: true,
+    });
+    if (parseResult == null) {
+      return false;
+    }
+    return parseResult.isIp === true || parseResult.hostname === "localhost";
+  } catch {
+    return false;
+  }
+}
+
+function getPort(uriString: string | null | undefined): string {
+  const url = Utils.getUrl(uriString);
+  if (url == null) {
+    return "";
+  }
+  return url.port ?? "";
+}
 
 export class LoginUriView implements View {
   match?: UriMatchStrategySetting;
@@ -208,8 +236,8 @@ export class LoginUriView implements View {
     // one service on :8080 and another on :9090) all collapse into the same
     // "domain" and Bitwarden cannot distinguish between them for autofill
     // suggestions.
-    if (Utils.isIpOrLocalhost(this.uri) && Utils.isIpOrLocalhost(targetUri)) {
-      return Utils.getPort(this.uri) === Utils.getPort(targetUri);
+    if (isIpOrLocalhost(this.uri) && isIpOrLocalhost(targetUri)) {
+      return getPort(this.uri) === getPort(targetUri);
     }
 
     return true;
