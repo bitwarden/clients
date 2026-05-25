@@ -74,7 +74,7 @@ describe("UnlockCommand", () => {
 
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
-    keyConnectorService.convertAccountRequired$ = of(false);
+    keyConnectorService.convertAccountRequired$.mockReturnValue(of(false));
     cryptoFunctionService.randomBytes.mockResolvedValue(mockSessionKey);
     configService.getFeatureFlag.mockResolvedValue(false);
 
@@ -161,7 +161,7 @@ describe("UnlockCommand", () => {
     describe("calls convertToKeyConnectorCommand if required", () => {
       let convertToKeyConnectorSpy: jest.SpyInstance;
       beforeEach(() => {
-        keyConnectorService.convertAccountRequired$ = of(true);
+        keyConnectorService.convertAccountRequired$.mockReturnValue(of(true));
         masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
       });
 

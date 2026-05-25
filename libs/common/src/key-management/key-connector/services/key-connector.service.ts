@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -8,7 +8,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LogoutReason,
 } from "@bitwarden/auth/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -77,10 +76,7 @@ export const NEW_SSO_USER_KEY_CONNECTOR_CONVERSION =
   );
 
 export class KeyConnectorService implements KeyConnectorServiceAbstraction {
-  readonly convertAccountRequired$: Observable<boolean>;
-
   constructor(
-    accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
     private apiService: ApiService,
@@ -95,22 +91,19 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private accountCryptographicStateService: AccountCryptographicStateService,
     private sdkService: SdkService,
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-  ) {
-    this.convertAccountRequired$ = accountService.activeAccount$.pipe(
-      filter((account) => account != null),
-      switchMap((account) =>
-        combineLatest([
-          of(account.id),
-          this.organizationService
-            .organizations$(account.id)
-            .pipe(filter((organizations) => organizations != null)),
-          this.stateProvider
-            .getUserState$(USES_KEY_CONNECTOR, account.id)
-            .pipe(filter((usesKeyConnector) => usesKeyConnector != null)),
-          tokenService.hasAccessToken$(account.id).pipe(filter((hasToken) => hasToken)),
-        ]),
-      ),
-      switchMap(async ([userId, organizations, usesKeyConnector]) => {
+  ) {}
+
+  convertAccountRequired$(userId: UserId): Observable<boolean> {
+    return combineLatest([
+      this.organizationService
+        .organizations$(userId)
+        .pipe(filter((organizations) => organizations != null)),
+      this.stateProvider
+        .getUserState$(USES_KEY_CONNECTOR, userId)
+        .pipe(filter((usesKeyConnector) => usesKeyConnector != null)),
+      this.tokenService.hasAccessToken$(userId).pipe(filter((hasToken) => hasToken)),
+    ]).pipe(
+      switchMap(async ([organizations, usesKeyConnector]) => {
         const loggedInUsingSso = await this.tokenService.getIsExternal(userId);
         const requiredByOrganization = this.findManagingOrganization(organizations) != null;
         const userIsNotUsingKeyConnector = !usesKeyConnector;
