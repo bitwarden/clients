@@ -34,14 +34,15 @@
   }
 
   /**
-   * Firefox renders the extension popup larger than Chrome — most noticeably
-   * on macOS displays scaled to "More Space" — because page zoom does not
-   * apply to extension popups and Firefox resolves CSS pixels differently
-   * against the backing scale factor. Shrinking the root font-size by 20%
-   * uniformly scales every rem-based dimension throughout the popup.
-   * Width is scaled separately in PopupSizeService.
+   * Firefox renders the extension popup larger than Chrome on HiDPI displays
+   * (e.g. macOS "More Space" scaling, Windows 1440p+ at 100% scale) because
+   * page zoom does not apply to extension popups and Firefox resolves CSS
+   * pixels differently against the backing scale factor. Shrinking the root
+   * font-size by 20% uniformly scales every rem-based dimension throughout
+   * the popup. Width is scaled separately in PopupSizeService. Gated on
+   * `devicePixelRatio > 1` so standard-DPI Firefox users are not affected.
    */
-  html.browser_firefox {
+  html.browser_firefox_hidpi {
     font-size: 12.8px;
     min-height: 480px;
 

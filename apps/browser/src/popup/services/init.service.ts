@@ -43,8 +43,8 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
 
-      if (this.platformUtilsService.isFirefox()) {
-        htmlEl.classList.add("browser_firefox");
+      if (this.platformUtilsService.isFirefox() && window.devicePixelRatio > 1) {
+        htmlEl.classList.add("browser_firefox_hidpi");
       }
 
       // Workaround for slow performance on external monitors on Chrome + MacOS

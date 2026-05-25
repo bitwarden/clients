@@ -100,23 +100,27 @@ export class PopupSizeService {
   }
 
   /**
-   * Firefox renders the extension popup larger than Chrome, especially on
-   * macOS displays scaled to "More Space". We shrink the popup by 20% on
-   * Firefox to keep parity. The popup's root font-size is scaled by the
-   * corresponding amount in `tailwind.css` under `html.browser_firefox`.
+   * Firefox renders the extension popup larger than Chrome on HiDPI displays
+   * (e.g. macOS "More Space" scaling, Windows 1440p+ at 100% scale). We
+   * shrink the popup by 20% on Firefox in that case to keep parity. The
+   * popup's root font-size is scaled by the corresponding amount in
+   * `tailwind.css` under `html.browser_firefox_hidpi`. Standard-DPI Firefox
+   * users (devicePixelRatio === 1) are not affected.
    */
   private static readonly FirefoxScale = 0.8;
 
   private static scalePxWidth(pxWidth: number): number {
-    if (PopupSizeService.isFirefox()) {
+    if (PopupSizeService.isFirefoxHiDpi()) {
       return Math.round(pxWidth * PopupSizeService.FirefoxScale);
     }
     return pxWidth;
   }
 
-  private static isFirefox(): boolean {
+  private static isFirefoxHiDpi(): boolean {
     const ua = globalThis.navigator?.userAgent ?? "";
-    return ua.indexOf(" Firefox/") !== -1 || ua.indexOf(" Gecko/") !== -1;
+    const isFirefox = ua.indexOf(" Firefox/") !== -1 || ua.indexOf(" Gecko/") !== -1;
+    const dpr = globalThis.devicePixelRatio ?? 1;
+    return isFirefox && dpr > 1;
   }
 
   /**
