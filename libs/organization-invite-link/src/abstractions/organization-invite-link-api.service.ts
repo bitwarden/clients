@@ -2,6 +2,7 @@ import { OrganizationInviteLinkCreateRequest } from "../models/requests/organiza
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
+import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
 import { OrganizationInviteLinkValidateEmailDomainResponse } from "../models/responses/organization-invite-link-validate-email-domain.response";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 
@@ -34,4 +35,7 @@ export abstract class OrganizationInviteLinkApiService {
   abstract validateEmailDomain(
     request: OrganizationInviteLinkValidateEmailDomainRequest,
   ): Promise<OrganizationInviteLinkValidateEmailDomainResponse>;
+
+  /** Get the public status of an invite link by its code (anonymous) */
+  abstract getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel>;
 }
