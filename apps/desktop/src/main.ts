@@ -352,6 +352,19 @@ export class Main {
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
+        // On Snap, electron-builder always registers an XDG autostart entry, so the only way to
+        // honor "Open at Login = off" is to detect the auto-start launch and quit before any UI
+        // comes up. The check is platform-agnostic — on other platforms this branch shouldn't fire,
+        // but quitting is still the correct response if it does.
+        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+        if (isAutostart) {
+          const openAtLogin = await firstValueFrom(this.desktopSettingsService.openAtLogin$);
+          if (!openAtLogin) {
+            app.quit();
+            return;
+          }
+        }
+
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
@@ -372,7 +385,6 @@ export class Main {
         ]);
 
         // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
-        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
         if (isAutostart) {
           await this.trayMain.hideToTray();
         }

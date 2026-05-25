@@ -204,6 +204,11 @@ export class MessagingMain {
     if (process.platform === "linux") {
       if (isFlatpak()) {
         autostart.setAutostart(false, []).catch((e) => {});
+      } else if (isSnapStore()) {
+        // electron-builder forces the autostart .desktop file to exist on Snap, so we can't remove
+        // it. Instead, keep the --autostart flag in the Exec line so main.ts detects the auto-start
+        // launch and quits when the user-facing setting is disabled.
+        this.updateSnapAutostartExec();
       } else {
         if (fs.existsSync(this.linuxStartupFile())) {
           fs.unlinkSync(this.linuxStartupFile());

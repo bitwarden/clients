@@ -600,10 +600,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   private showAutostartSetting(): boolean {
-    // Windows store does not support autostart
-    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
-    // Snap store has auto-start enabled through electron-builder ALWAYS
-    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
+    // Windows store does not support autostart.
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login.
+    // On Snap, electron-builder always registers the autostart entry; the "off" state is implemented
+    // by quitting immediately on auto-start (see main.ts), so the toggle is still exposed.
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
   }
 
   async saveOpenAtLogin() {
