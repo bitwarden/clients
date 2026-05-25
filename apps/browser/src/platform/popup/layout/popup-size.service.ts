@@ -81,7 +81,8 @@ export class PopupSizeService {
 
   private static async setStyle(width: PopupWidthOption) {
     const isInTab = await BrowserPopupUtils.isInTab();
-    const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
+    const basePxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
+    const pxWidth = PopupSizeService.scalePxWidth(basePxWidth);
 
     if (BrowserPopupUtils.inPopout(window)) {
       const currentWindow = await BrowserApi.getCurrentWindow();
@@ -96,6 +97,26 @@ export class PopupSizeService {
     }
 
     document.body.style.width = `${pxWidth}px`;
+  }
+
+  /**
+   * Firefox renders the extension popup larger than Chrome, especially on
+   * macOS displays scaled to "More Space". We shrink the popup by 20% on
+   * Firefox to keep parity. The popup's root font-size is scaled by the
+   * corresponding amount in `tailwind.css` under `html.browser_firefox`.
+   */
+  private static readonly FirefoxScale = 0.8;
+
+  private static scalePxWidth(pxWidth: number): number {
+    if (PopupSizeService.isFirefox()) {
+      return Math.round(pxWidth * PopupSizeService.FirefoxScale);
+    }
+    return pxWidth;
+  }
+
+  private static isFirefox(): boolean {
+    const ua = globalThis.navigator?.userAgent ?? "";
+    return ua.indexOf(" Firefox/") !== -1 || ua.indexOf(" Gecko/") !== -1;
   }
 
   /**

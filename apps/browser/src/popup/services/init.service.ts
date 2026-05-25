@@ -43,6 +43,10 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
 
+      if (this.platformUtilsService.isFirefox()) {
+        htmlEl.classList.add("browser_firefox");
+      }
+
       // Workaround for slow performance on external monitors on Chrome + MacOS
       // See: https://bugs.chromium.org/p/chromium/issues/detail?id=971701#c64
       if (

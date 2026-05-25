@@ -33,6 +33,39 @@
     }
   }
 
+  /**
+   * Firefox renders the extension popup larger than Chrome — most noticeably
+   * on macOS displays scaled to "More Space" — because page zoom does not
+   * apply to extension popups and Firefox resolves CSS pixels differently
+   * against the backing scale factor. Shrinking the root font-size by 20%
+   * uniformly scales every rem-based dimension throughout the popup.
+   * Width is scaled separately in PopupSizeService.
+   */
+  html.browser_firefox {
+    font-size: 12.8px;
+    min-height: 480px;
+
+    &.body-sm {
+      min-height: 400px;
+    }
+
+    &.body-xs {
+      min-height: 320px;
+    }
+
+    &.body-xxs {
+      min-height: 240px;
+    }
+
+    &.body-3xs {
+      min-height: 192px;
+    }
+
+    &.body-full {
+      min-height: unset;
+    }
+  }
+
   html.browser_safari {
     &.safari_height_fix {
       body {
