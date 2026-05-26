@@ -187,6 +187,10 @@ export class DomQueryService implements DomQueryServiceInterface {
       }
 
       if (i < segments.length - 1) {
+        // FIXME: When a targeting rule specifies `iframe#foo`, we should fail
+        // authoritatively if `#foo` does not resolve to an iframe (rather than
+        // falling back to shadow traversal). The current test-and-fallback can
+        // mask stale or inaccurate selectors.
         const next: Document | ShadowRoot | null =
           element instanceof HTMLIFrameElement
             ? element.contentDocument
