@@ -10,6 +10,6 @@ import { NestedCheckboxComponent } from "./nested-checkbox.component";
 @NgModule({
   declarations: [MemberDialogComponent, NestedCheckboxComponent],
   imports: [SharedOrganizationModule, RadioButtonModule],
-  exports: [MemberDialogComponent],
+  exports: [MemberDialogComponent, NestedCheckboxComponent],
 })
 export class UserDialogModule {}

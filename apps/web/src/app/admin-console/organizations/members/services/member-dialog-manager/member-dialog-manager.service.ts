@@ -28,6 +28,7 @@ import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-r
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
+import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import {
   MemberDialogResult,
@@ -67,7 +68,9 @@ export class MemberDialogManagerService {
         },
       });
       const result = await lastValueFrom(dialog.closed);
-      return result ?? MemberDialogResult.Canceled;
+      // TODO: Remove cast once MemberDialogComponent (the old dialog) is deleted and
+      // MemberDialogResult is unified as a const object across all dialogs.
+      return (result ?? MemberDialogResult.Canceled) as MemberDialogResult;
     }
 
     const dialog = openUserAddEditDialog(this.dialogService, {
@@ -90,6 +93,30 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
+    const generateInviteLink = await this.configService.getFeatureFlag(
+      FeatureFlag.GenerateInviteLink,
+    );
+
+    if (generateInviteLink) {
+      const dialog = EditMemberDialogComponent.open(this.dialogService, {
+        data: {
+          kind: "Edit",
+          name: this.userNamePipe.transform(user),
+          organizationId: organization.id,
+          organizationUserId: user.id,
+          usesKeyConnector: user.usesKeyConnector,
+          isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
+          initialTab: initialTab,
+          managedByOrganization: user.managedByOrganization,
+        },
+      });
+
+      const result = await lastValueFrom(dialog.closed);
+      // TODO: Remove cast once MemberDialogComponent (the old dialog) is deleted and
+      // MemberDialogResult is unified as a const object across all dialogs.
+      return (result ?? MemberDialogResult.Canceled) as MemberDialogResult;
+    }
+
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Edit",

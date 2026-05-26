@@ -24,6 +24,7 @@ import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/b
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
+import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import {
   MemberDialogComponent,
   MemberDialogResult,
@@ -152,58 +153,140 @@ describe("MemberDialogManagerService", () => {
   });
 
   describe("openEditDialog", () => {
-    it("should open the edit dialog with correct parameters", async () => {
-      const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
-      dialogService.open.mockReturnValue(mockDialogRef as any);
+    describe("when GenerateInviteLink flag is off", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+      });
 
-      const result = await service.openEditDialog(mockUser, mockOrganization, mockBillingMetadata);
+      it("should open the old dialog with correct parameters", async () => {
+        const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
+        dialogService.open.mockReturnValue(mockDialogRef as any);
 
-      expect(dialogService.open).toHaveBeenCalledWith(
-        MemberDialogComponent,
-        expect.objectContaining({
-          data: {
-            kind: "Edit",
-            name: "Test User",
-            organizationId: mockOrganization.id,
-            organizationUserId: mockUser.id,
-            usesKeyConnector: false,
-            isOnSecretsManagerStandalone: false,
-            initialTab: MemberDialogTab.Role,
-            managedByOrganization: false,
-          },
-        }),
-      );
-      expect(result).toBe(MemberDialogResult.Saved);
-    });
+        const result = await service.openEditDialog(
+          mockUser,
+          mockOrganization,
+          mockBillingMetadata,
+        );
 
-    it("should use custom initial tab when provided", async () => {
-      const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
-      dialogService.open.mockReturnValue(mockDialogRef as any);
-
-      await service.openEditDialog(
-        mockUser,
-        mockOrganization,
-        mockBillingMetadata,
-        MemberDialogTab.AccountRecovery,
-      );
-
-      expect(dialogService.open).toHaveBeenCalledWith(
-        MemberDialogComponent,
-        expect.objectContaining({
-          data: expect.objectContaining({
-            initialTab: 0, // MemberDialogTab.AccountRecovery is 0
+        expect(dialogService.open).toHaveBeenCalledWith(
+          MemberDialogComponent,
+          expect.objectContaining({
+            data: {
+              kind: "Edit",
+              name: "Test User",
+              organizationId: mockOrganization.id,
+              organizationUserId: mockUser.id,
+              usesKeyConnector: false,
+              isOnSecretsManagerStandalone: false,
+              initialTab: MemberDialogTab.Role,
+              managedByOrganization: false,
+            },
           }),
-        }),
-      );
+        );
+        expect(result).toBe(MemberDialogResult.Saved);
+      });
+
+      it("should use custom initial tab when provided", async () => {
+        const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
+        dialogService.open.mockReturnValue(mockDialogRef as any);
+
+        await service.openEditDialog(
+          mockUser,
+          mockOrganization,
+          mockBillingMetadata,
+          MemberDialogTab.Collections,
+        );
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          MemberDialogComponent,
+          expect.objectContaining({
+            data: expect.objectContaining({
+              initialTab: MemberDialogTab.Collections,
+            }),
+          }),
+        );
+      });
+
+      it("should return Canceled when dialog is closed without result", async () => {
+        const mockDialogRef = { closed: of(null) };
+        dialogService.open.mockReturnValue(mockDialogRef as any);
+
+        const result = await service.openEditDialog(
+          mockUser,
+          mockOrganization,
+          mockBillingMetadata,
+        );
+
+        expect(result).toBe(MemberDialogResult.Canceled);
+      });
     });
 
-    it("should return Canceled when dialog is closed without result", async () => {
-      const mockDialogRef = { closed: of(null) };
-      dialogService.open.mockReturnValue(mockDialogRef as any);
+    describe("when GenerateInviteLink flag is on", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+      });
 
-      const result = await service.openEditDialog(mockUser, mockOrganization, mockBillingMetadata);
+      it("should open the new edit dialog with correct parameters", async () => {
+        const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
+        dialogService.open.mockReturnValue(mockDialogRef as any);
 
-      expect(result).toBe(MemberDialogResult.Canceled);
+        const result = await service.openEditDialog(
+          mockUser,
+          mockOrganization,
+          mockBillingMetadata,
+        );
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          EditMemberDialogComponent,
+          expect.objectContaining({
+            data: {
+              kind: "Edit",
+              name: "Test User",
+              organizationId: mockOrganization.id,
+              organizationUserId: mockUser.id,
+              usesKeyConnector: false,
+              isOnSecretsManagerStandalone: false,
+              initialTab: MemberDialogTab.Role,
+              managedByOrganization: false,
+            },
+          }),
+        );
+        expect(result).toBe(MemberDialogResult.Saved);
+      });
+
+      it("should use custom initial tab when provided", async () => {
+        const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
+        dialogService.open.mockReturnValue(mockDialogRef as any);
+
+        await service.openEditDialog(
+          mockUser,
+          mockOrganization,
+          mockBillingMetadata,
+          MemberDialogTab.Collections,
+        );
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          EditMemberDialogComponent,
+          expect.objectContaining({
+            data: expect.objectContaining({
+              initialTab: MemberDialogTab.Collections,
+            }),
+          }),
+        );
+      });
+
+      it("should return Canceled when dialog is closed without result", async () => {
+        const mockDialogRef = { closed: of(null) };
+        dialogService.open.mockReturnValue(mockDialogRef as any);
+
+        const result = await service.openEditDialog(
+          mockUser,
+          mockOrganization,
+          mockBillingMetadata,
+        );
+
+        expect(result).toBe(MemberDialogResult.Canceled);
+      });
     });
   });
 
