@@ -141,7 +141,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     expect(mockStop.mock.calls.length).toBe(stopCalls);
   });
 
-  it("when feature is disabled, clears keys and stops the server", async () => {
+  it("when feature is disabled, stops the agent server", async () => {
     mockIsLoaded.mockResolvedValue(true);
     enabledSubject.next(true);
     accountSubject.next({ id: "user-1" as UserId });
@@ -173,7 +173,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     expect(mockReplace).toHaveBeenCalled();
   });
 
-  it("when all accounts log out, clears keys and stops the server", async () => {
+  it("when all accounts log out, stops the agent server", async () => {
     mockIsLoaded.mockResolvedValue(true);
     enabledSubject.next(true);
     accountSubject.next({ id: "user-1" as UserId });
@@ -216,12 +216,14 @@ describe("SshAgentService (v2 reactive key push)", () => {
     await flush();
 
     const stopBefore = mockStop.mock.calls.length;
+    const replaceBefore = mockReplace.mock.calls.length;
 
     // user-2 is locked by default in authStatusPerUser
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
     expect(mockStop.mock.calls.length).toBe(stopBefore);
+    expect(mockReplace.mock.calls.length).toBe(replaceBefore);
   });
 
   it("when an SSH key cipher is added, updates the agent keystore", async () => {
@@ -335,18 +337,18 @@ describe("SshAgentService (v2 reactive key push)", () => {
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
-  it("when service is destroyed, stops the agent", async () => {
-    mockIsLoaded.mockResolvedValue(true);
+  it("when service is destroyed, resets in-memory approval state", async () => {
     enabledSubject.next(true);
     accountSubject.next({ id: "user-1" as UserId });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockStop.mockClear();
+    (service as any).authorizedSshKeys = { "cipher-abc": new Date() };
+
     service.ngOnDestroy();
     await flush();
 
-    expect(mockStop).toHaveBeenCalled();
+    expect((service as any).authorizedSshKeys).toEqual({});
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {
@@ -357,5 +359,45 @@ describe("SshAgentService (v2 reactive key push)", () => {
     await flush();
 
     expect(mockInit).not.toHaveBeenCalled();
+  });
+
+  it("when the active account changes with feature enabled, resets in-memory approval state", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    (service as any).authorizedSshKeys = { "cipher-abc": new Date() };
+
+    accountSubject.next({ id: "user-2" as UserId });
+    await flush();
+
+    expect((service as any).authorizedSshKeys).toEqual({});
+  });
+
+  it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
+    accountSubject.next({ id: "user-1" as UserId });
+    await flush();
+
+    (service as any).authorizedSshKeys = { "cipher-abc": new Date() };
+
+    accountSubject.next({ id: "user-2" as UserId });
+    await flush();
+
+    expect((service as any).authorizedSshKeys).toEqual({});
+  });
+
+  it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    await flush();
+
+    const seeded = { "cipher-abc": new Date() };
+    (service as any).authorizedSshKeys = seeded;
+
+    accountSubject.next({ id: "user-1" as UserId });
+    await flush();
+
+    expect((service as any).authorizedSshKeys).toBe(seeded);
   });
 });
