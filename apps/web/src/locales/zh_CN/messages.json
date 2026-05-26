@@ -75,7 +75,7 @@
     "message": "审查存在风险的登录"
   },
   "dataLastUpdated": {
-    "message": "数据最后更新于：$DATE$",
+    "message": "数据上次更新：$DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -674,7 +674,7 @@
     "message": "护照号码"
   },
   "licenseNumber": {
-    "message": "许可证号码"
+    "message": "驾驶证号码"
   },
   "email": {
     "message": "电子邮箱"
@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "SSH 密钥"
   },
+  "typeDriversLicense": {
+    "message": "驾驶证"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "驾驶证或 ID"
+  },
   "typeLoginSubtitle": {
     "message": "网站或 App"
   },
@@ -1043,13 +1049,13 @@
     "message": "集合"
   },
   "firstName": {
-    "message": "名"
+    "message": "名字"
   },
   "middleName": {
     "message": "中间名"
   },
   "lastName": {
-    "message": "姓"
+    "message": "姓氏"
   },
   "fullName": {
     "message": "全名"
@@ -1076,7 +1082,7 @@
     "message": "ZIP / 邮政编码"
   },
   "country": {
-    "message": "国家"
+    "message": "国家 / 地区"
   },
   "shared": {
     "message": "已共享"
@@ -1127,7 +1133,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "新增许可证",
+    "message": "新增驾驶证",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -1135,11 +1141,11 @@
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "新建文本",
+    "message": "新增文本 Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "新建文件",
+    "message": "新增文件 Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1166,20 +1172,20 @@
     "message": "编辑银行账户",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "编辑驾驶员许可证",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "编辑许可证",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "编辑护照",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "编辑文本",
+    "message": "编辑文本 Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "编辑文件",
+    "message": "编辑文件 Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1206,9 +1212,9 @@
     "message": "查看银行账户",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "查看驾驶员许可证",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "查看许可证",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "查看护照",
@@ -1317,8 +1323,17 @@
   "copyPassportNumber": {
     "message": "复制护照号码"
   },
+  "copyFirstName": {
+    "message": "复制名字"
+  },
+  "copyMiddleName": {
+    "message": "复制中间名"
+  },
+  "copyLastName": {
+    "message": "复制姓氏"
+  },
   "copyLicenseNumber": {
-    "message": "复制许可证号码"
+    "message": "复制驾驶证号码"
   },
   "copyPrivateKey": {
     "message": "复制私钥"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "查看了项目 $ID$ 的许可证号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "复制了项目 $ID$ 的许可证号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "自动填充了项目 $ID$。",
     "placeholders": {
@@ -5478,13 +5511,33 @@
     "message": "允许的域名"
   },
   "allowedDomainsHint": {
-    "message": "如果输入多个域名，请使用逗号分隔"
+    "message": "多个域名请以逗号分隔"
   },
   "enterAllowedDomainsToGenerateInviteLink": {
     "message": "输入允许的域名以生成邀请链接"
   },
   "domainsEdited": {
-    "message": "域名已更新"
+    "message": "域名已编辑"
+  },
+  "inviteLink": {
+    "message": "邀请链接"
+  },
+  "lastGenerated": {
+    "message": "上次生成：$DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "邀请链接已复制"
+  },
+  "inviteLinkRegenerated": {
+    "message": "邀请链接已重新生成"
+  },
+  "regenerateInviteLink": {
+    "message": "重新生成邀请链接"
   },
   "inviteByLinkDesc": {
     "message": "通过链接邀请成员加入您的组织。如果尚未指定任何角色，他们将被添加为默认用户。"
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "下载附件"
+  },
+  "troubleshooting": {
+    "message": "故障排除"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "遇到问题了吗？下载诊断报告然后将其分享给"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden 支持",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "下载"
   },
   "sendAccessPasswordTitle": {
     "message": "输入密码后查看此 Send",
@@ -6906,7 +6972,7 @@
     }
   },
   "eventAccountRecoveryWithMasterPasswordInitiated": {
-    "message": "已通过主密码发起 $ID$ 账户的恢复流程。",
+    "message": "为 $ID$ 发起了主密码方式的账户恢复。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6915,7 +6981,7 @@
     }
   },
   "eventAccountRecoveryWithTwoStepLoginInitiated": {
-    "message": "已通过两步登录发起 $ID$ 账户的恢复流程。",
+    "message": "为 $ID$ 发起了两步登录方式的账户恢复。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8584,6 +8650,21 @@
   "inputRequired": {
     "message": "必须输入内容。"
   },
+  "enterMonth": {
+    "message": "输入月份。"
+  },
+  "enterDay": {
+    "message": "输入日号。"
+  },
+  "enterYear": {
+    "message": "输入年份。"
+  },
+  "invalidDay": {
+    "message": "请输入有效的日号。"
+  },
+  "invalidYear": {
+    "message": "请输入有效的年份。"
+  },
   "inputEmail": {
     "message": "输入的不是电子邮箱地址。"
   },
@@ -8786,7 +8867,7 @@
     "description": "Description for the Projects field."
   },
   "lastEdited": {
-    "message": "最后编辑于",
+    "message": "上次编辑",
     "description": "The label for the date and time when a item was last edited."
   },
   "editSecret": {
@@ -9383,6 +9464,9 @@
   "inviteMember": {
     "message": "邀请成员"
   },
+  "inviteMembers": {
+    "message": "邀请成员"
+  },
   "addSponsorship": {
     "message": "添加赞助"
   },
@@ -9516,7 +9600,7 @@
     "message": "成功上传了许可证"
   },
   "lastLicenseSync": {
-    "message": "最后一次许可证同步"
+    "message": "上次许可证同步"
   },
   "billingSyncHelp": {
     "message": "计费同步帮助"
@@ -10087,7 +10171,7 @@
     "message": "账户恢复成功！"
   },
   "userResetMasterPasswordThroughAccountRecovery": {
-    "message": "用户通过账户恢复重置了他们的主密码。"
+    "message": "用户通过账户恢复重置了主密码。"
   },
   "activatedAccessToSecretsManager": {
     "message": "激活了对 Secrets Manager 的访问权限",
@@ -13599,10 +13683,10 @@
     "message": "储蓄"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "定期存单"
+    "message": "定期存款"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "循环信用额度"
+    "message": "信用额度"
   },
   "bankAccountTypeInvestmentBrokerage": {
     "message": "投资/证券"
@@ -13704,20 +13788,20 @@
     "message": "要分享的文件"
   },
   "viewTextSendHeader": {
-    "message": "查看文本"
+    "message": "查看文本 Send"
   },
   "viewFileSendHeader": {
-    "message": "查看文件"
+    "message": "查看文件 Send"
   },
   "sendCreated": {
     "message": "Send 已创建",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "请输入数字"
+    "message": "必须输入数字"
   },
   "integerInputError": {
-    "message": "请输入整数"
+    "message": "必须输入整数"
   },
   "hideEmailPolicyInEffect": {
     "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "搜索许可证"
+  },
+  "driversLicenseDetails": {
+    "message": "驾驶证详细信息"
+  },
+  "dateOfBirth": {
+    "message": "出生日期"
+  },
+  "birthMonth": {
+    "message": "出生月份"
+  },
+  "birthDay": {
+    "message": "出生日期"
+  },
+  "birthYear": {
+    "message": "出生年份"
+  },
+  "issuingCountry": {
+    "message": "签发国家 / 地区"
+  },
+  "issuingState": {
+    "message": "签发州 / 省"
+  },
+  "issueDate": {
+    "message": "签发日期"
+  },
+  "issueMonth": {
+    "message": "签发月份"
+  },
+  "issueDay": {
+    "message": "签发日号"
+  },
+  "issueYear": {
+    "message": "签发年份"
+  },
+  "expirationDay": {
+    "message": "到期日期"
+  },
+  "issuingAuthority": {
+    "message": "签发机构 / 部门"
+  },
+  "licenseClass": {
+    "message": "许可证类型"
   },
   "copy": {
     "message": "复制"

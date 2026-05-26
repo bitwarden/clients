@@ -168,6 +168,34 @@ describe("buildCipherIcon", () => {
     });
   });
 
+  describe("Passport cipher", () => {
+    const cipher = {
+      type: CipherType.Passport,
+    } as any as CipherView;
+
+    it("returns bwi-passport icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-passport",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-passport icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-passport",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
+
   describe("DriversLicense cipher", () => {
     const cipher = {
       type: CipherType.DriversLicense,
