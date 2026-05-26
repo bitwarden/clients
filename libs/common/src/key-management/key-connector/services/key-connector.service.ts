@@ -8,6 +8,7 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LogoutReason,
 } from "@bitwarden/auth/common";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -94,6 +95,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   ) {}
 
   convertAccountRequired$(userId: UserId): Observable<boolean> {
+    assertNonNullish(userId, "userId");
     return combineLatest([
       this.organizationService
         .organizations$(userId)
