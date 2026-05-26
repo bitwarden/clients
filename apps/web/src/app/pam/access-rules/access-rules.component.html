@@ -14,6 +14,7 @@
           <th bitCell>{{ "pamAccessRuleName" | i18n }}</th>
           <th bitCell>{{ "pamAccessRuleKind" | i18n }}</th>
           <th bitCell>{{ "pamAccessRuleSummaryHeader" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleCollectionsColumn" | i18n }}</th>
           <th bitCell>{{ "lastEdited" | i18n }}</th>
           <th bitCell class="tw-w-0"></th>
         </tr>
@@ -36,6 +37,14 @@
             </td>
             <td bitCell>
               <pam-access-rule-summary [rule]="r.rule" />
+            </td>
+            <td bitCell>
+              @let names = collectionNamesByRule().get(r.id) ?? [];
+              @if (names.length === 0) {
+                <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
+              } @else {
+                {{ names.join(", ") }}
+              }
             </td>
             <td bitCell>{{ r.revisionDate | date: "mediumDate" }}</td>
             <td bitCell>

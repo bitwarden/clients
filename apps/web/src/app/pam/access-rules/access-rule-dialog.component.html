@@ -1,47 +1,92 @@
-<form bit-dialog [formGroup]="formGroup" [bitSubmit]="submit">
+<form bit-dialog [formGroup]="formGroup" [bitSubmit]="submit" disablePadding>
   <span bitDialogTitle>
     {{ (editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle") | i18n }}
   </span>
 
   <ng-container bitDialogContent>
-    <bit-form-field>
-      <bit-label>{{ "pamAccessRuleName" | i18n }}</bit-label>
-      <input bitInput type="text" formControlName="name" />
-    </bit-form-field>
+    <bit-tab-group [(selectedIndex)]="tabIndex">
+      <bit-tab [label]="'pamAccessRuleTabDetails' | i18n">
+        <bit-form-field>
+          <bit-label>{{ "pamAccessRuleName" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="name" />
+        </bit-form-field>
 
-    <bit-form-field>
-      <bit-label>{{ "pamAccessRuleDescription" | i18n }}</bit-label>
-      <textarea bitInput formControlName="description" rows="2"></textarea>
-    </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "pamAccessRuleDescription" | i18n }}</bit-label>
+          <textarea bitInput formControlName="description" rows="2"></textarea>
+        </bit-form-field>
 
-    <bit-radio-group formControlName="kind" [block]="true">
-      <bit-label>{{ "pamAccessRuleKind" | i18n }}</bit-label>
-      <bit-radio-button [value]="AccessRuleKind.HumanApproval">
-        <bit-label>{{ "pamAccessRuleKindHumanApproval" | i18n }}</bit-label>
-      </bit-radio-button>
-      <bit-radio-button [value]="AccessRuleKind.IpAllowlist">
-        <bit-label>{{ "pamAccessRuleKindIpAllowlist" | i18n }}</bit-label>
-      </bit-radio-button>
-      <bit-radio-button [value]="AccessRuleKind.TimeOfDay">
-        <bit-label>{{ "pamAccessRuleKindTimeOfDay" | i18n }}</bit-label>
-      </bit-radio-button>
-      <bit-radio-button [value]="AccessRuleKind.AllOf">
-        <bit-label>{{ "pamAccessRuleKindAllOf" | i18n }}</bit-label>
-      </bit-radio-button>
-    </bit-radio-group>
+        <bit-radio-group formControlName="kind" [block]="true">
+          <bit-label>{{ "pamAccessRuleKind" | i18n }}</bit-label>
+          <bit-radio-button [value]="AccessRuleKind.HumanApproval">
+            <bit-label>{{ "pamAccessRuleKindHumanApproval" | i18n }}</bit-label>
+          </bit-radio-button>
+          <bit-radio-button [value]="AccessRuleKind.IpAllowlist">
+            <bit-label>{{ "pamAccessRuleKindIpAllowlist" | i18n }}</bit-label>
+          </bit-radio-button>
+          <bit-radio-button [value]="AccessRuleKind.TimeOfDay">
+            <bit-label>{{ "pamAccessRuleKindTimeOfDay" | i18n }}</bit-label>
+          </bit-radio-button>
+          <bit-radio-button [value]="AccessRuleKind.AllOf">
+            <bit-label>{{ "pamAccessRuleKindAllOf" | i18n }}</bit-label>
+          </bit-radio-button>
+        </bit-radio-group>
 
-    @switch (formGroup.controls.kind.value) {
-      @case (AccessRuleKind.HumanApproval) {
-        <p bitTypography="body2" class="tw-mb-0">
-          {{ "pamAccessRuleHumanApprovalDescription" | i18n }}
-        </p>
-      }
-      @default {
-        <bit-callout type="info" [title]="'pamAccessRuleKindNotEditableYetTitle' | i18n">
-          {{ "pamAccessRuleKindNotEditableYet" | i18n }}
-        </bit-callout>
-      }
-    }
+        @switch (formGroup.controls.kind.value) {
+          @case (AccessRuleKind.HumanApproval) {
+            <p bitTypography="body2" class="tw-mb-0">
+              {{ "pamAccessRuleHumanApprovalDescription" | i18n }}
+            </p>
+          }
+          @default {
+            <bit-callout type="info" [title]="'pamAccessRuleKindNotEditableYetTitle' | i18n">
+              {{ "pamAccessRuleKindNotEditableYet" | i18n }}
+            </bit-callout>
+          }
+        }
+      </bit-tab>
+
+      <bit-tab [label]="'pamAccessRuleTabCollections' | i18n">
+        <p bitTypography="body2">{{ "pamAccessRuleCollectionsHint" | i18n }}</p>
+
+        <bit-form-field>
+          <bit-label>{{ "pamAccessRuleCollectionsAdd" | i18n }}</bit-label>
+          <bit-multi-select
+            class="tw-w-full"
+            [baseItems]="availableOptions()"
+            [removeSelectedItems]="true"
+            [loading]="collectionsLoading()"
+            (onItemsConfirmed)="addCollections($event)"
+          />
+        </bit-form-field>
+
+        @if (selectedCollections().length === 0) {
+          <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+            {{ "pamAccessRuleCollectionsEmpty" | i18n }}
+          </p>
+        } @else {
+          <ul class="tw-list-none tw-p-0 tw-m-0">
+            @for (collection of selectedCollections(); track collection.id) {
+              <li
+                class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-py-1 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 last:tw-border-b-0"
+              >
+                <span class="tw-flex tw-items-center tw-gap-2">
+                  <bit-icon name="bwi-collection-shared" class="tw-text-muted" />
+                  {{ collection.name }}
+                </span>
+                <button
+                  type="button"
+                  bitIconButton="bwi-close"
+                  size="small"
+                  [label]="'remove' | i18n"
+                  (click)="removeCollection(collection.id)"
+                ></button>
+              </li>
+            }
+          </ul>
+        }
+      </bit-tab>
+    </bit-tab-group>
   </ng-container>
 
   <ng-container bitDialogFooter>

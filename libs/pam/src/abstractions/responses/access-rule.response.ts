@@ -8,6 +8,7 @@ export class AccessRuleResponse extends BaseResponse {
   name: string;
   description: string | null;
   rule: AccessRule;
+  collections: string[];
   creationDate: string;
   revisionDate: string;
 
@@ -18,6 +19,8 @@ export class AccessRuleResponse extends BaseResponse {
     this.name = this.getResponseProperty("Name");
     this.description = this.getResponseProperty("Description") ?? null;
     this.rule = parseAccessRule(this.getResponseProperty("Rule"));
+    const collections = this.getResponseProperty("Collections");
+    this.collections = Array.isArray(collections) ? collections.map(String) : [];
     this.creationDate = this.getResponseProperty("CreationDate");
     this.revisionDate = this.getResponseProperty("RevisionDate");
   }

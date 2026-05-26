@@ -1,9 +1,19 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { lastValueFrom, map } from "rxjs";
+import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -58,10 +68,25 @@ export class AccessRulesComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly accountService = inject(AccountService);
+  private readonly collectionAdminService = inject(CollectionAdminService);
 
   protected readonly loading = signal(true);
   protected readonly rules = signal<AccessRuleResponse[]>([]);
   protected readonly AccessRuleKind = AccessRuleKind;
+  private readonly collectionNameById = signal<Map<string, string>>(new Map());
+
+  protected readonly collectionNamesByRule = computed<Map<string, string[]>>(() => {
+    const names = this.collectionNameById();
+    const result = new Map<string, string[]>();
+    for (const rule of this.rules()) {
+      result.set(
+        rule.id,
+        rule.collections.map((id) => names.get(id) ?? id).sort((a, b) => a.localeCompare(b)),
+      );
+    }
+    return result;
+  });
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
@@ -121,8 +146,13 @@ export class AccessRulesComponent {
   private async reload(organizationId: OrganizationId): Promise<void> {
     this.loading.set(true);
     try {
-      const response = await this.pamApi.listAccessRules(organizationId);
-      this.rules.set(response.data);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const [rulesResponse, collections] = await Promise.all([
+        this.pamApi.listAccessRules(organizationId),
+        firstValueFrom(this.collectionAdminService.collectionAdminViews$(organizationId, userId)),
+      ]);
+      this.collectionNameById.set(new Map(collections.map((c) => [c.id, c.name])));
+      this.rules.set(rulesResponse.data);
     } finally {
       this.loading.set(false);
     }

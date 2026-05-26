@@ -13983,5 +13983,26 @@
   },
   "pamNoAccessRulesYetDescription": {
     "message": "Create a access rule to gate access to collection items behind approval rules."
+  },
+  "pamAccessRuleTabDetails": {
+    "message": "Details"
+  },
+  "pamAccessRuleTabCollections": {
+    "message": "Collections"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Choose the collections this rule should gate. Items in these collections will require leasing."
+  },
+  "pamAccessRuleCollectionsAdd": {
+    "message": "Add collections"
+  },
+  "pamAccessRuleCollectionsEmpty": {
+    "message": "This rule isn't applied to any collections yet."
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Collections"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "None"
   }
 }
