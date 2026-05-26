@@ -14,10 +14,19 @@ type UpdateAutofillDataAttributeParams = {
   dataTargetKey?: string;
 };
 
+type ObserverStats = {
+  mutationsObserved: number;
+  mutationsCoalesced: number;
+  attrQueueHighWaterMark: number;
+  overflowEvents: number;
+  shadowRootsTracked: number;
+};
+
 interface CollectAutofillContentService {
   autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
+  getObserverStats(): Readonly<ObserverStats>;
   destroy(): void;
 }
 
@@ -25,5 +34,6 @@ export {
   AutofillFormElements,
   AutofillFieldElements,
   UpdateAutofillDataAttributeParams,
+  ObserverStats,
   CollectAutofillContentService,
 };

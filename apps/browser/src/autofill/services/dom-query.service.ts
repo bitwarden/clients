@@ -200,6 +200,8 @@ export class DomQueryService implements DomQueryServiceInterface {
     this.knownShadowRoots.clear();
   };
 
+  getKnownShadowRootCount = (): number => this.knownShadowRoots.size;
+
   /**
    * Queries the DOM for elements based on the given selector string.
    * Supports the special `>>>` combinator to indicate the need for
