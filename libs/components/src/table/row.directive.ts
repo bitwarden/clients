@@ -26,6 +26,7 @@ export class RowDirective {
       "tw-border-border-base",
       "tw-border-solid",
       "has-[input[type=checkbox]:hover]:tw-bg-bg-brand-softer",
+      "has-[input[type=checkbox]:focus-visible]:tw-bg-bg-brand-softer",
       "has-[input[type=checkbox]:checked]:tw-bg-bg-brand-soft",
       "last:tw-border-0",
       "tw-transition-colors",
