@@ -1,5 +1,4 @@
 import { LogService } from "@bitwarden/logging";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { PolicyService } from "../admin-console/abstractions/policy/policy.service.abstraction";
@@ -27,9 +26,6 @@ export type SystemServiceProvider = {
 
   /** Platform Service to inspect runtime environment */
   readonly environment: PlatformUtilsService;
-
-  /** SDK Service */
-  readonly sdk?: BitwardenClient;
 };
 
 /** Constructs a system service provider. */

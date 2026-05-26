@@ -2158,6 +2158,7 @@ export default class MainBackground {
       this.stateProvider,
       this.i18nService,
       this.apiService,
+      this.sdkService,
     );
 
     // LocalGeneratorHistoryService is always the correct implementation for the
