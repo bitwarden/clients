@@ -1,12 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  OnDestroy,
-  OnInit,
-  output,
-} from "@angular/core";
+import { Component, computed, inject, input, OnDestroy, OnInit, output } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
