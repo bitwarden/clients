@@ -2797,6 +2797,37 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("requirePageDetailsUpdate", () => {
+    it("sets the dirty flags but does not schedule a rebuild on its own", () => {
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      collectAutofillContentService["noFieldsFound"] = true;
+      jest.spyOn(collectAutofillContentService as any, "updateAutofillElementsAfterMutation");
+
+      collectAutofillContentService["requirePageDetailsUpdate"]();
+
+      expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      expect(collectAutofillContentService["noFieldsFound"]).toBe(false);
+      expect(
+        collectAutofillContentService["updateAutofillElementsAfterMutation"],
+      ).not.toHaveBeenCalled();
+    });
+
+    it("debounced wrapper schedules a rebuild after flipping flags", () => {
+      jest.useFakeTimers();
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      jest.spyOn(collectAutofillContentService as any, "updateAutofillElementsAfterMutation");
+
+      collectAutofillContentService["debouncedRequirePageDetailsUpdate"]();
+      jest.runAllTimers();
+
+      expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      expect(
+        collectAutofillContentService["updateAutofillElementsAfterMutation"],
+      ).toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+  });
+
   describe("handleWindowLocationMutation", () => {
     it("will set the current location to the global location href, set the dom recently mutated flag and the no fields found flag, clear out the autofill form and field maps, and update the autofill elements after mutation", () => {
       collectAutofillContentService["currentLocationHref"] = "https://example.com/login";

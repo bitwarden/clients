@@ -1417,24 +1417,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  /**
-   * Triggers several flags that indicate that a collection of page details should
-   * occur again on a subsequent call after a mutation has been observed in the DOM.
-   */
+  // Flag-only. Callers schedule explicitly so the rebuild funnel stays narrow.
   private requirePageDetailsUpdate() {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
-    this.updateAutofillElementsAfterMutation();
   }
 
-  /**
-   * Debounced version of requirePageDetailsUpdate to prevent excessive updates
-   */
   private debouncedRequirePageDetailsUpdate = debounce(() => {
     this.requirePageDetailsUpdate();
+    this.updateAutofillElementsAfterMutation();
   }, this.shadowDomCheckDebounceMs);
 
   /**
