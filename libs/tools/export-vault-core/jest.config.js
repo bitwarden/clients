@@ -6,7 +6,7 @@ const { compilerOptions } = require("../../../tsconfig.base");
 module.exports = {
   testMatch: ["**/+(*.)+(spec).+(ts)"],
   preset: "ts-jest",
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   setupFiles: ["<rootDir>/../../../libs/shared/polyfill-node-globals.ts"],
   moduleNameMapper: pathsToModuleNameMapper(
     { "@bitwarden/common/spec": ["libs/common/spec"], ...(compilerOptions?.paths ?? {}) },
