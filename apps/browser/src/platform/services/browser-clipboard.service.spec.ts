@@ -64,6 +64,16 @@ describe("BrowserClipboardService", () => {
 
       expect(consoleWarnSpy).toHaveBeenCalled();
     });
+
+    it("prints a warning message when execCommand('copy') returns false", async () => {
+      windowMock.document.queryCommandSupported.mockReturnValue(true);
+      windowMock.navigator.clipboard.writeText.mockRejectedValue(new Error("test"));
+      windowMock.document.execCommand.mockReturnValue(false);
+
+      await BrowserClipboardService.copy(windowMock as Window, "test");
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith("execCommand('copy') returned false");
+    });
   });
 
   describe("read", () => {
