@@ -9,7 +9,7 @@ export interface DefaultMenuPosition extends ConnectedPosition {
 /**
  * Order matters: CDK uses the first position that fits within the viewport.
  * Today's default is below-start; consumers can opt into any of the others
- * via `[position]` on `bitMenuTriggerFor`.
+ * via `[menuPosition]` on `bitMenuTriggerFor`.
  */
 export const defaultPositions: DefaultMenuPosition[] = [
   { id: "below-start", originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },

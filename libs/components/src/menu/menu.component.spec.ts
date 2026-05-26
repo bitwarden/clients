@@ -146,7 +146,7 @@ class TestAppComponent {}
 @Component({
   selector: "test-app-with-position",
   template: `
-    <button type="button" [bitMenuTriggerFor]="testMenu" position="above-end">Open menu</button>
+    <button type="button" [bitMenuTriggerFor]="testMenu" menuPosition="above-end">Open menu</button>
     <bit-menu #testMenu>
       <a id="item1" bitMenuItem>Item 1</a>
     </bit-menu>

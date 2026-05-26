@@ -70,7 +70,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   readonly menu = input.required<MenuComponent>({ alias: "bitMenuTriggerFor" });
 
   /** Preferred opening position. CDK falls back through the remaining positions if the preferred one doesn't fit. */
-  readonly position = input<MenuPositionIdentifier>();
+  readonly menuPosition = input<MenuPositionIdentifier>();
 
   private overlayRef: OverlayRef | null = null;
 
@@ -81,7 +81,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   private readonly hostTooltip = inject(TooltipDirective, { self: true, optional: true });
 
   private get positions(): ConnectedPosition[] {
-    const preferred = this.position();
+    const preferred = this.menuPosition();
     if (!preferred) {
       return defaultPositions;
     }
