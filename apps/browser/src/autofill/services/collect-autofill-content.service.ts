@@ -1245,21 +1245,26 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.debouncedRequirePageDetailsUpdate();
     }
 
-    this.collectAddedShadowRootCandidates(mutations);
+    // New-shadow-root detection only runs when a batch actually added nodes;
+    // attribute/character-data mutations can't introduce shadow roots.
+    const hasAddedNodes = mutations.some((m) => (m.addedNodes?.length ?? 0) > 0);
+    if (hasAddedNodes) {
+      this.collectAddedShadowRootCandidates(mutations);
 
-    if (!this.pendingShadowDomCheck) {
-      this.pendingShadowDomCheck = true;
+      if (!this.pendingShadowDomCheck) {
+        this.pendingShadowDomCheck = true;
 
-      if (this.shadowDomCheckTimeout) {
-        clearTimeout(this.shadowDomCheckTimeout);
+        if (this.shadowDomCheckTimeout) {
+          clearTimeout(this.shadowDomCheckTimeout);
+        }
+
+        this.shadowDomCheckTimeout = setTimeout(() => {
+          this.handleNewShadowRoots();
+          this.pendingShadowDomCheck = false;
+          this.pendingMutationAddedElements.clear();
+          this.pendingMutationAddedElementsOverflowed = false;
+        }, this.shadowDomCheckTimeoutMs);
       }
-
-      this.shadowDomCheckTimeout = setTimeout(() => {
-        this.handleNewShadowRoots();
-        this.pendingShadowDomCheck = false;
-        this.pendingMutationAddedElements.clear();
-        this.pendingMutationAddedElementsOverflowed = false;
-      }, this.shadowDomCheckTimeoutMs);
     }
 
     const shouldSchedule =

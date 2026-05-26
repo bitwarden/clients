@@ -2495,6 +2495,32 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["requirePageDetailsUpdate"]).toHaveBeenCalled();
     });
 
+    it("skips new-shadow-root detection on attribute-only batches", () => {
+      jest.useFakeTimers();
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(collectAutofillContentService as any, "collectAddedShadowRootCandidates");
+      const attributeMutation: MutationRecord = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nothing"),
+        attributeName: "value",
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([attributeMutation]);
+
+      expect(
+        collectAutofillContentService["collectAddedShadowRootCandidates"],
+      ).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
+      jest.useRealTimers();
+    });
+
     it("triggers debounced page details update when mutations occur in shadow roots", () => {
       jest.useFakeTimers();
       const mutationRecord: MutationRecord = {
