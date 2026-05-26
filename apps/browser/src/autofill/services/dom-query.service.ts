@@ -116,6 +116,11 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @returns True if any mutation occurred within a shadow root
    */
   checkMutationsInShadowRoots = (mutations: MutationRecord[]): boolean => {
+    // Latch is a one-way ratchet (see `markShadowDomPresent`); false here means no
+    // shadow root has been observed yet, so no mutation target can be inside one.
+    if (!this.pageContainsShadowDom) {
+      return false;
+    }
     return mutations.some((mutation) => {
       const root = (mutation.target as Node).getRootNode();
       return root instanceof ShadowRoot;

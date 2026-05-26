@@ -151,6 +151,7 @@ describe("DomQueryService", () => {
 
   describe("checkMutationsInShadowRoots", () => {
     it("returns true when a mutation occurred within a shadow root", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
       const input = document.createElement("input");
@@ -174,6 +175,7 @@ describe("DomQueryService", () => {
     });
 
     it("returns false when mutations occurred in the light DOM", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const div = document.createElement("div");
       document.body.appendChild(div);
 
@@ -195,6 +197,7 @@ describe("DomQueryService", () => {
     });
 
     it("returns true if any mutation in the array is in a shadow root", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
       const shadowInput = document.createElement("input");
@@ -230,6 +233,54 @@ describe("DomQueryService", () => {
       const result = domQueryService.checkMutationsInShadowRoots([lightMutation, shadowMutation]);
 
       expect(result).toBe(true);
+    });
+
+    it("returns false without walking targets when pageContainsShadowDom is false", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+      const target = document.createElement("div");
+      document.body.appendChild(target);
+      const getRootNodeSpy = jest.spyOn(target, "getRootNode");
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: NodeList.prototype,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: NodeList.prototype,
+        target,
+      };
+
+      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+
+      expect(result).toBe(false);
+      expect(getRootNodeSpy).not.toHaveBeenCalled();
+    });
+
+    it("still detects shadow-root mutations once markShadowDomPresent flips the latch", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+      const customElement = document.createElement("custom-element");
+      const shadowRoot = customElement.attachShadow({ mode: "open" });
+      const shadowInput = document.createElement("input");
+      shadowRoot.appendChild(shadowInput);
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: NodeList.prototype,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: NodeList.prototype,
+        target: shadowInput,
+      };
+
+      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(false);
+
+      domQueryService["markShadowDomPresent"]();
+
+      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(true);
     });
   });
 
