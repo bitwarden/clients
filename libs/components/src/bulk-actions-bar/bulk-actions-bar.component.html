@@ -28,6 +28,7 @@
       [class]="elementWithDividerClasses"
       bitBulkActionButton
       icon="bwi-clear"
+      [compact]="compact()"
       (click)="onClear()"
       type="button"
     >
@@ -40,6 +41,7 @@
           bitBulkActionButton
           type="button"
           [icon]="primary.icon()"
+          [compact]="compact()"
           [disabled]="primary.disabled()"
           (click)="primary.action()()"
         >
@@ -52,6 +54,7 @@
           #additionalActionsTrigger
           bitBulkActionButton
           icon="bwi-ellipsis-v"
+          [compact]="true"
           type="button"
           [bitMenuTriggerFor]="additionalActionsMenu"
           menuPosition="above-end"

@@ -16,8 +16,6 @@ import { IconComponent } from "../icon/icon.component";
 import { BitwardenIcon } from "../shared/icon";
 import { TooltipDirective } from "../tooltip/tooltip.directive";
 
-import { BULK_ACTIONS_BAR_CONTEXT } from "./bulk-actions-bar-context";
-
 /** @internal Used only by `BulkActionsBarComponent` to render its toolbar buttons. */
 @Component({
   selector: "button[bitBulkActionButton], a[bitBulkActionButton]",
@@ -32,10 +30,10 @@ import { BULK_ACTIONS_BAR_CONTEXT } from "./bulk-actions-bar-context";
 })
 export class BulkActionButtonComponent implements FocusableOption {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly parent = inject(BULK_ACTIONS_BAR_CONTEXT, { optional: true });
   private readonly tooltip = inject(TooltipDirective, { self: true });
 
   readonly icon = input.required<BitwardenIcon>();
+  readonly compact = input(false);
 
   // Driven by the parent bar's FocusKeyManager to implement the toolbar
   // roving-tabindex pattern: only the active item is part of the document
@@ -45,10 +43,6 @@ export class BulkActionButtonComponent implements FocusableOption {
   private readonly label = viewChild<ElementRef<HTMLSpanElement>>("label");
   private readonly labelText = computed(
     () => this.label()?.nativeElement.textContent?.trim() ?? "",
-  );
-
-  protected readonly compact = computed(
-    () => this.parent?.additionalActionsTrigger() === this || (this.parent?.compact() ?? false),
   );
 
   constructor() {

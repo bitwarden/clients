@@ -28,7 +28,6 @@ import { MenuComponent } from "../menu/menu.component";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
-import { BULK_ACTIONS_BAR_CONTEXT, BulkActionsBarContext } from "./bulk-actions-bar-context";
 import { BulkAdditionalActionComponent } from "./bulk-additional-action.component";
 
 /**
@@ -53,9 +52,8 @@ const COMPACT_THRESHOLD_BUFFER_PX = 48;
   host: {
     "(document:keydown)": "handleShortcut($event)",
   },
-  providers: [{ provide: BULK_ACTIONS_BAR_CONTEXT, useExisting: BulkActionsBarComponent }],
 })
-export class BulkActionsBarComponent implements BulkActionsBarContext {
+export class BulkActionsBarComponent {
   private readonly document = inject(DOCUMENT);
   private readonly i18nService = inject(I18nService);
 
@@ -68,7 +66,7 @@ export class BulkActionsBarComponent implements BulkActionsBarContext {
   protected readonly wrapper = viewChild.required<ElementRef<HTMLElement>>("wrapper");
   protected readonly closeBtn = viewChild(BulkActionButtonComponent);
 
-  readonly additionalActionsTrigger = viewChild("additionalActionsTrigger", {
+  private readonly additionalActionsTrigger = viewChild("additionalActionsTrigger", {
     read: BulkActionButtonComponent,
   });
 
