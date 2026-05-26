@@ -19,41 +19,6 @@ import { TooltipDirective } from "../tooltip/tooltip.directive";
 import { MenuPositionIdentifier, defaultPositions } from "./default-positions";
 import { MenuComponent } from "./menu.component";
 
-/**
- * Position strategies for context menus.
- * Tries positions in order: below-right, above-right, below-left, above-left
- */
-const CONTEXT_MENU_POSITIONS: ConnectedPosition[] = [
-  // below-right
-  {
-    originX: "start",
-    originY: "top",
-    overlayX: "start",
-    overlayY: "top",
-  },
-  // above-right
-  {
-    originX: "start",
-    originY: "bottom",
-    overlayX: "start",
-    overlayY: "bottom",
-  },
-  // below-left
-  {
-    originX: "end",
-    originY: "top",
-    overlayX: "end",
-    overlayY: "top",
-  },
-  // above-left
-  {
-    originX: "end",
-    originY: "bottom",
-    overlayX: "end",
-    overlayY: "bottom",
-  },
-];
-
 @Directive({
   selector: "[bitMenuTriggerFor]",
   exportAs: "menuTrigger",
@@ -142,11 +107,14 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.hostTooltip?.suppressed.set(true);
 
     const baseConfig = this.defaultMenuConfig;
+    // For a zero-size point anchor (right-click), originX/originY collapse onto the
+    // click coordinate — only overlayX/overlayY drive placement, so the same positions
+    // we use for element anchors work here too.
     const positionStrategy = event
       ? this.overlay
           .position()
           .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
-          .withPositions(CONTEXT_MENU_POSITIONS)
+          .withPositions(this.positions)
           .withLockedPosition(false)
           .withFlexibleDimensions(false)
           .withPush(true)
@@ -186,14 +154,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
-      .withPositions([
-        {
-          originX: "start",
-          originY: "top",
-          overlayX: "start",
-          overlayY: "top",
-        },
-      ]);
+      .withPositions(this.positions);
 
     this.overlayRef.updatePositionStrategy(positionStrategy);
   }

@@ -86,6 +86,14 @@ describe("Menu", () => {
     expect(getBitMenuPanel()).toBeFalsy();
   });
 
+  it("opens on right-click using the shared default positions", () => {
+    getMenuTriggerDirective().toggleMenuOnRightClick(
+      new MouseEvent("contextmenu", { clientX: 10, clientY: 10 }),
+    );
+
+    expect(getBitMenuPanel()).toBeTruthy();
+  });
+
   describe("position preference", () => {
     // The `positions` getter is private; the unknown cast lets us assert
     // ordering without depending on CDK overlay internals.
