@@ -670,7 +670,7 @@ describe("KeyConnectorService", () => {
           const expectedKdfConfig =
             kdfType == KdfType.PBKDF2_SHA256
               ? new PBKDF2KdfConfig(kdfIterations)
-              : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+              : new Argon2KdfConfig(kdfIterations, kdfMemory!, kdfParallelism!);
 
           const conversion: NewSsoUserKeyConnectorConversion = {
             kdfConfig: expectedKdfConfig,
