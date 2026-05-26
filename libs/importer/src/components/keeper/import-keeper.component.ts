@@ -31,7 +31,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { KeeperRegion } from "../../importers/keeper/access";
+import { KeeperAuthError, KeeperAuthErrorCode, KeeperRegion } from "../../importers/keeper/access";
 import { ImportResult } from "../../models";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
@@ -174,28 +174,16 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   }
 
   private getValidationErrorI18nKey(error: unknown): string {
-    const message = typeof error === "string" ? error : (error as Error)?.message;
-    switch (message) {
-      case "Authentication cancelled":
-      case "Authentication cancelled by user":
-      case "Device approval cancelled":
-      case "Device approval cancelled by user":
-      case "Two-factor authentication cancelled by user":
-      case "SSO authentication cancelled by user":
-      case "MFA cancelled":
-        return "multifactorAuthenticationCancelled";
-      case "No data found":
-      case "Vault has not opened any accounts.":
-        return "noKeeperDataFound";
-      case "Invalid username":
-      case "Invalid password":
-      case "Invalid credentials":
-        return "incorrectUsernameOrPassword";
-      case "MFA failed":
-      case "Device approval failed":
-        return "multifactorAuthenticationFailed";
-      default:
-        return "errorOccurred";
+    if (error instanceof KeeperAuthError) {
+      switch (error.code) {
+        case KeeperAuthErrorCode.Cancelled:
+          return "multifactorAuthenticationCancelled";
+        case KeeperAuthErrorCode.MfaFailed:
+          return "multifactorAuthenticationFailed";
+        case KeeperAuthErrorCode.UnsupportedTwoFactorMethod:
+          return "keeperUnsupported2faMethod";
+      }
     }
+    return "errorOccurred";
   }
 }

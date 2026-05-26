@@ -7,6 +7,7 @@ import {
 } from "@bufbuild/protobuf";
 
 import { DeviceApprovalChannel, DuoMethod, TwoFactorMethod } from "../enums";
+import { KeeperAuthError, KeeperAuthErrorCode } from "../errors";
 import {
   ApiRequestSchema,
   type ApiRequestPayload,
@@ -305,7 +306,10 @@ export class Client {
     while (true) {
       const passwordOrCancel = await this.ui.promptForPassword({ previousPasswordRejected });
       if (passwordOrCancel === Cancel) {
-        throw new Error("Authentication cancelled by user");
+        throw new KeeperAuthError(
+          KeeperAuthErrorCode.Cancelled,
+          "Authentication cancelled by user",
+        );
       }
 
       this.password = passwordOrCancel;
@@ -331,7 +335,10 @@ export class Client {
     const ssoUrl = await this.buildCloudSsoUrl(response.url, messageSessionUid);
     const tokenOrCancel = await this.ui.ssoLogin(ssoUrl);
     if (tokenOrCancel === Cancel) {
-      throw new Error("SSO authentication cancelled by user");
+      throw new KeeperAuthError(
+        KeeperAuthErrorCode.Cancelled,
+        "SSO authentication cancelled by user",
+      );
     }
 
     const ssoResponse = await this.decryptCloudSsoResponse(tokenOrCancel);
@@ -527,7 +534,10 @@ export class Client {
                 TwoFactorValueType.TWO_FA_CODE_NONE,
               );
             } else {
-              throw new Error("Device approval failed or timed out");
+              throw new KeeperAuthError(
+                KeeperAuthErrorCode.MfaFailed,
+                "Device approval failed or timed out",
+              );
             }
           } else {
             try {
@@ -548,7 +558,10 @@ export class Client {
           continue;
         }
         if (updatedToken === undefined) {
-          throw new Error("Device approval failed unexpectedly");
+          throw new KeeperAuthError(
+            KeeperAuthErrorCode.MfaFailed,
+            "Device approval failed unexpectedly",
+          );
         }
         return await this.resumeLogin(updatedToken, deviceToken, messageSessionUid);
       }
@@ -630,7 +643,10 @@ export class Client {
         continue;
       }
 
-      throw new Error("Device approval failed or timed out");
+      throw new KeeperAuthError(
+        KeeperAuthErrorCode.MfaFailed,
+        "Device approval failed or timed out",
+      );
     }
   }
 
@@ -768,19 +784,28 @@ export class Client {
 
     if (methods.length === 0) {
       await this.ui.showError("keeperUnsupported2faMethod");
-      throw new Error("Two-factor authentication cancelled by user");
+      throw new KeeperAuthError(
+        KeeperAuthErrorCode.UnsupportedTwoFactorMethod,
+        "No supported two-factor methods available",
+      );
     }
 
     twoFactor: while (true) {
       const methodOrCancel = await this.ui.selectTwoFactorMethod(methods);
       if (methodOrCancel === Cancel) {
-        throw new Error("Two-factor authentication cancelled by user");
+        throw new KeeperAuthError(
+          KeeperAuthErrorCode.Cancelled,
+          "Two-factor authentication cancelled by user",
+        );
       }
 
       const method = this.twoFactorMethodFromUi.get(methodOrCancel);
       const channel = response.channels.find((ch) => ch.channelType === method);
       if (!channel) {
-        throw new Error("Selected two-factor method not available");
+        throw new KeeperAuthError(
+          KeeperAuthErrorCode.UnsupportedTwoFactorMethod,
+          "Selected two-factor method not available",
+        );
       }
 
       switch (method) {
@@ -850,10 +875,16 @@ export class Client {
                 TwoFactorValueType.TWO_FA_CODE_DNA,
               );
             } else {
-              throw new Error("Keeper DNA authentication failed or timed out");
+              throw new KeeperAuthError(
+                KeeperAuthErrorCode.MfaFailed,
+                "Keeper DNA authentication failed or timed out",
+              );
             }
           } else {
-            throw new Error("Keeper DNA authentication cancelled");
+            throw new KeeperAuthError(
+              KeeperAuthErrorCode.Cancelled,
+              "Keeper DNA authentication cancelled",
+            );
           }
 
           break;
@@ -898,10 +929,16 @@ export class Client {
                 if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
                   currentLoginToken = base64UrlDecode(encryptedLoginToken);
                 } else {
-                  throw new Error("DUO authentication failed or timed out");
+                  throw new KeeperAuthError(
+                    KeeperAuthErrorCode.MfaFailed,
+                    "DUO authentication failed or timed out",
+                  );
                 }
               } else {
-                throw new Error("DUO authentication cancelled");
+                throw new KeeperAuthError(
+                  KeeperAuthErrorCode.Cancelled,
+                  "DUO authentication cancelled",
+                );
               }
               break;
             }
@@ -949,13 +986,19 @@ export class Client {
               break;
             }
             default:
-              throw new Error("Unsupported two-factor method selected");
+              throw new KeeperAuthError(
+                KeeperAuthErrorCode.UnsupportedTwoFactorMethod,
+                "Unsupported two-factor method selected",
+              );
           }
 
           break;
         }
         default:
-          throw new Error("Unsupported two-factor method selected");
+          throw new KeeperAuthError(
+            KeeperAuthErrorCode.UnsupportedTwoFactorMethod,
+            "Unsupported two-factor method selected",
+          );
       }
 
       return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
@@ -1023,7 +1066,7 @@ export class Client {
 
   private throwIfCancel<T>(anyOrCancel: T | typeof Cancel, what: string): T {
     if (anyOrCancel === Cancel) {
-      throw new Error(`${what} cancelled by user`);
+      throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, `${what} cancelled by user`);
     }
     return anyOrCancel;
   }
