@@ -1,31 +1,27 @@
 /**
  * Contract for services participating in the content-script monitoring
- * lifecycle. Implementors observe the page only between `startMonitoring()`
- * and `stopMonitoring()`.
+ * lifecycle. Implementors examine the page only between
+ * `startMonitoring()` and `stopMonitoring()`.
  *
- * - Construction is inert: no I/O, no listeners attached to globals.
- * - Monitoring may be started and stopped many times across the life of
- *   the content script.
- * - Both methods are idempotent. Implementors guard via an
- *   `isMonitoring` flag and may additionally rely on operations being
- *   inherently safe on empty/disconnected resources (e.g. disconnecting
- *   an already-disconnected observer, clearing a null timeout).
- *   `destroy()` may chain through `stopMonitoring()` unconditionally.
- * - Cached observation state is monitoring-scoped: cleared in
- *   `stopMonitoring()` so a future `startMonitoring()` starts fresh
- *   against the current page.
- * - Implementors must not populate monitoring-scoped state from
- *   operational paths invoked while stopped. Controllers are
- *   responsible for gating those calls; see
- *   `AutofillInit.getExtensionMessageHandler` for the canonical gate.
- * - When a monitor is composed under a controller (as the
- *   content-script services are under `AutofillInit`), the controller
- *   is the sole caller of `startMonitoring()` / `stopMonitoring()` on
- *   the sub-monitors.
- * - For implementors that also expose `destroy()`, the identity holds:
- *   `destroy()` ≡ `stopMonitoring()` + graph disposal.
+ * When composed under a controller (as the content-script services are
+ * under `AutofillInit`), the controller is the sole caller of these
+ * methods on its sub-monitors.
+ *
+ * See `apps/browser/src/autofill/content/lifecycle.design.md` for the
+ * rationale, broader invariants, and end-to-end protocol.
  */
 export interface AutofillMonitor {
+  /**
+   * Attach observation surfaces and begin examining the page. Safe to
+   * call when already monitoring — callers do not need to track state.
+   */
   startMonitoring(): void;
+
+  /**
+   * Detach observation surfaces, cancel pending work, and clear
+   * monitoring-scoped caches. Safe to call when already stopped, and
+   * safe to chain through from `destroy()` without checking state
+   * first.
+   */
   stopMonitoring(): void;
 }
