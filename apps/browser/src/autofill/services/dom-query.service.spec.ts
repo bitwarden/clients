@@ -286,10 +286,8 @@ describe("DomQueryService", () => {
 
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
-      // Clear any shadow roots from previous tests
       document.body.innerHTML = "";
-      // Reset the observed shadow roots set
-      domQueryService["observedShadowRoots"] = new WeakSet<ShadowRoot>();
+      domQueryService["knownShadowRoots"].clear();
     });
 
     it("returns true when a shadow root is not in the observed set", () => {
@@ -310,7 +308,7 @@ describe("DomQueryService", () => {
       document.body.appendChild(customElement);
 
       // Simulate the shadow root being observed by adding it to the tracked set
-      domQueryService["observedShadowRoots"].add(shadowRoot);
+      domQueryService["knownShadowRoots"].add(shadowRoot);
 
       const result = domQueryService.checkForNewShadowRoots();
 
@@ -364,7 +362,7 @@ describe("DomQueryService", () => {
       const outerHost = document.createElement("outer-host");
       const outerRoot = outerHost.attachShadow({ mode: "open" });
       // Regression case: a single-level narrow scan would miss this.
-      domQueryService["observedShadowRoots"].add(outerRoot);
+      domQueryService["knownShadowRoots"].add(outerRoot);
       document.body.appendChild(outerHost);
 
       const innerHost = document.createElement("inner-host");
@@ -380,7 +378,7 @@ describe("DomQueryService", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const root0 = document.createElement("host-0");
       const shadow0 = root0.attachShadow({ mode: "open" });
-      domQueryService["observedShadowRoots"].add(shadow0);
+      domQueryService["knownShadowRoots"].add(shadow0);
       document.body.appendChild(root0);
 
       let parentShadow: ShadowRoot = shadow0;
@@ -389,7 +387,7 @@ describe("DomQueryService", () => {
         const host = document.createElement(`host-${i}`);
         const shadow = host.attachShadow({ mode: "open" });
         if (i < 6) {
-          domQueryService["observedShadowRoots"].add(shadow);
+          domQueryService["knownShadowRoots"].add(shadow);
         }
         parentShadow.appendChild(host);
         parentShadow = shadow;

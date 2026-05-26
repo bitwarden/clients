@@ -18,16 +18,8 @@ type ScanVerdict =
 export class DomQueryService implements DomQueryServiceInterface {
   /** One-way ratchet; reset only by `resetObservedShadowRoots()`. */
   private pageContainsShadowDom!: boolean;
-  // FIXME: merge with `knownShadowRoots` into one registry (needs WeakSet + iteration).
-  private observedShadowRoots = new WeakSet<ShadowRoot>();
-  /**
-   * An iterable mirror of `observedShadowRoots` used by `deepQueryElements`
-   * so it can reuse already-discovered shadow roots without a costly full-page
-   * re-scan on every intersection / page-detail event.
-   *
-   * Stale entries (roots removed from the DOM) are harmless: querying them
-   * returns an empty NodeList.  The set is cleared on `resetObservedShadowRoots`.
-   */
+  // Stale entries (roots whose hosts left the DOM) are harmless — querying them
+  // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
   private knownShadowRoots = new Set<ShadowRoot>();
   private ignoredTreeWalkerNodes = new Set([
     "svg",
@@ -188,7 +180,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
     return {
       branch: "fullScan",
-      foundNewRoot: roots.some((r) => !this.observedShadowRoots.has(r)),
+      foundNewRoot: roots.some((r) => !this.knownShadowRoots.has(r)),
     };
   };
 
@@ -201,7 +193,6 @@ export class DomQueryService implements DomQueryServiceInterface {
    * observer is recreated or on significant lifecycle events (like navigation).
    */
   resetObservedShadowRoots = (): void => {
-    this.observedShadowRoots = new WeakSet<ShadowRoot>();
     this.knownShadowRoots.clear();
   };
 
@@ -300,9 +291,7 @@ export class DomQueryService implements DomQueryServiceInterface {
           childList: true,
           subtree: true,
         });
-        this.observedShadowRoots.add(shadowRoot);
       }
-      // Always keep the iterable set current.
       this.knownShadowRoots.add(shadowRoot);
     }
 
@@ -334,7 +323,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     if (subtree instanceof Element) {
       const root = this.getShadowRoot(subtree);
       if (root) {
-        if (!this.observedShadowRoots.has(root)) {
+        if (!this.knownShadowRoots.has(root)) {
           return true;
         }
         if (this.scanForNewShadowRootInSubtree(root, depth + 1)) {
@@ -346,7 +335,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     for (const child of subtree.querySelectorAll("*")) {
       const childRoot = this.getShadowRoot(child);
       if (childRoot) {
-        if (!this.observedShadowRoots.has(childRoot)) {
+        if (!this.knownShadowRoots.has(childRoot)) {
           return true;
         }
         if (this.scanForNewShadowRootInSubtree(childRoot, depth + 1)) {
@@ -525,10 +514,7 @@ export class DomQueryService implements DomQueryServiceInterface {
               childList: true,
               subtree: true,
             });
-            this.observedShadowRoots.add(nodeShadowRoot);
           }
-          // Keep the iterable cache current so deepQueryElements can avoid
-          // a full re-scan on subsequent calls.
           this.knownShadowRoots.add(nodeShadowRoot);
 
           this.buildTreeWalkerNodesQueryResults(
