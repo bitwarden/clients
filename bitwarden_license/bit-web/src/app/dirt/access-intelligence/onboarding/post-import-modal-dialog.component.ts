@@ -49,7 +49,12 @@ export class PostImportModalDialogComponent {
       .then(() => {
         return this.dialogRef.close();
       })
-      .catch(() => {});
+      .catch((error: unknown) => {
+        this.logger.error(
+          "[Post Import Modal Dialog] Error acknowledging post-import dialog",
+          error,
+        );
+      });
   }
 
   static async showDialog(
