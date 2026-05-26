@@ -310,6 +310,10 @@ export class Organization {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
   }
 
+  get canManageLeasingPolicies() {
+    return this.isAdmin;
+  }
+
   get canManageUsers() {
     return this.isAdmin || this.permissions.manageUsers;
   }

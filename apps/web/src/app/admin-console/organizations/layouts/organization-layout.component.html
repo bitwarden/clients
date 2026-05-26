@@ -83,6 +83,17 @@
       *ngIf="integrationPageEnabled$ | async"
     ></bit-nav-item>
     <bit-nav-group
+      icon="bwi-shield"
+      [text]="'pam' | i18n"
+      route="pam"
+      *ngIf="(pamFeatureFlagEnabled$ | async) && organization.canManageLeasingPolicies"
+    >
+      <bit-nav-item
+        [text]="'pamLeasingPolicies' | i18n"
+        route="pam/leasing-policies"
+      ></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-group
       icon="bwi-cog"
       [text]="'settings' | i18n"
       route="settings"

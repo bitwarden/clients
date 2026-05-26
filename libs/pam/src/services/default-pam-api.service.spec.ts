@@ -3,11 +3,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LeasingPolicy } from "../abstractions/leasing-policy";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
-import { CollectionLeasingRequest } from "./requests/collection-leasing.request";
 import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
 import { LeaseRequestPatchRequest } from "./requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
+import { LeasingPolicyRequest } from "./requests/leasing-policy.request";
 
 describe("DefaultPamApiService", () => {
   let apiService: jest.Mocked<Pick<ApiService, "send">>;
@@ -118,28 +118,131 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("setCollectionLeasingConfig", () => {
-    it("PUTs /collections/{id}/leasing and wraps the response", async () => {
+  describe("listLeasingPolicies", () => {
+    it("GETs /organizations/{orgId}/leasing-policies and wraps in ListResponse", async () => {
       apiService.send.mockResolvedValue({
-        CollectionId: "col-1",
-        LeasingEnabled: true,
-        Policy: { Kind: "human_approval" },
+        Data: [
+          {
+            Id: "pol-1",
+            OrganizationId: "org-1",
+            Name: "Human approval",
+            Description: null,
+            Policy: { Kind: "human_approval" },
+            CreationDate: "2026-05-25T00:00:00Z",
+            RevisionDate: "2026-05-25T00:00:00Z",
+          },
+        ],
+        ContinuationToken: null,
       });
-      const policy: LeasingPolicy = { kind: "human_approval" };
-      const req = new CollectionLeasingRequest({ leasingEnabled: true, policy });
 
-      const result = await service.setCollectionLeasingConfig("col-1", req);
+      const result = await service.listLeasingPolicies("org-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
-        "PUT",
-        "/collections/col-1/leasing",
+        "GET",
+        "/organizations/org-1/leasing-policies",
+        null,
+        true,
+        true,
+      );
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe("pol-1");
+      expect(result.data[0].policy.kind).toBe("human_approval");
+    });
+  });
+
+  describe("getLeasingPolicy", () => {
+    it("GETs /organizations/{orgId}/leasing-policies/{id} and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "pol-1",
+        OrganizationId: "org-1",
+        Name: "Human approval",
+        Description: null,
+        Policy: { Kind: "human_approval" },
+        CreationDate: "2026-05-25T00:00:00Z",
+        RevisionDate: "2026-05-25T00:00:00Z",
+      });
+
+      const result = await service.getLeasingPolicy("org-1", "pol-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/leasing-policies/pol-1",
+        null,
+        true,
+        true,
+      );
+      expect(result.id).toBe("pol-1");
+      expect(result.policy.kind).toBe("human_approval");
+    });
+  });
+
+  describe("createLeasingPolicy", () => {
+    it("POSTs /organizations/{orgId}/leasing-policies and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "pol-1",
+        OrganizationId: "org-1",
+        Name: "Human approval",
+        Description: null,
+        Policy: { Kind: "human_approval" },
+        CreationDate: "2026-05-25T00:00:00Z",
+        RevisionDate: "2026-05-25T00:00:00Z",
+      });
+      const policy: LeasingPolicy = { kind: "human_approval" };
+      const req = new LeasingPolicyRequest({ name: "Human approval", policy });
+
+      const result = await service.createLeasingPolicy("org-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/leasing-policies",
         req,
         true,
         true,
       );
-      expect(result.collectionId).toBe("col-1");
-      expect(result.leasingEnabled).toBe(true);
-      expect(result.policy?.kind).toBe("human_approval");
+      expect(result.id).toBe("pol-1");
+    });
+  });
+
+  describe("updateLeasingPolicy", () => {
+    it("PUTs /organizations/{orgId}/leasing-policies/{id} and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "pol-1",
+        OrganizationId: "org-1",
+        Name: "Human approval (updated)",
+        Description: null,
+        Policy: { Kind: "human_approval" },
+        CreationDate: "2026-05-25T00:00:00Z",
+        RevisionDate: "2026-05-26T00:00:00Z",
+      });
+      const policy: LeasingPolicy = { kind: "human_approval" };
+      const req = new LeasingPolicyRequest({ name: "Human approval (updated)", policy });
+
+      const result = await service.updateLeasingPolicy("org-1", "pol-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-1/leasing-policies/pol-1",
+        req,
+        true,
+        true,
+      );
+      expect(result.name).toBe("Human approval (updated)");
+    });
+  });
+
+  describe("deleteLeasingPolicy", () => {
+    it("DELETEs /organizations/{orgId}/leasing-policies/{id} without expecting a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.deleteLeasingPolicy("org-1", "pol-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/leasing-policies/pol-1",
+        null,
+        true,
+        false,
+      );
     });
   });
 });

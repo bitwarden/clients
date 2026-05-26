@@ -1,12 +1,14 @@
-import { CollectionLeasingRequest } from "../services/requests/collection-leasing.request";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+
 import { LeaseDecisionRequest } from "../services/requests/lease-decision.request";
 import { LeaseExtensionRequest } from "../services/requests/lease-extension.request";
 import { LeaseRequestPatchRequest } from "../services/requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
+import { LeasingPolicyRequest } from "../services/requests/leasing-policy.request";
 
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
-import { CollectionLeasingConfigResponse } from "./responses/collection-leasing.response";
 import { LeaseRequestResponse } from "./responses/lease-request.response";
+import { LeasingPolicyResponse } from "./responses/leasing-policy.response";
 
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
@@ -21,8 +23,19 @@ export abstract class PamApiService {
     request: LeaseDecisionRequest,
   ): Promise<LeaseRequestResponse>;
   abstract revokeLease(id: string, request: LeaseRevokeRequest): Promise<void>;
-  abstract setCollectionLeasingConfig(
+
+  abstract listLeasingPolicies(
+    organizationId: string,
+  ): Promise<ListResponse<LeasingPolicyResponse>>;
+  abstract getLeasingPolicy(organizationId: string, id: string): Promise<LeasingPolicyResponse>;
+  abstract createLeasingPolicy(
+    organizationId: string,
+    request: LeasingPolicyRequest,
+  ): Promise<LeasingPolicyResponse>;
+  abstract updateLeasingPolicy(
+    organizationId: string,
     id: string,
-    request: CollectionLeasingRequest,
-  ): Promise<CollectionLeasingConfigResponse>;
+    request: LeasingPolicyRequest,
+  ): Promise<LeasingPolicyResponse>;
+  abstract deleteLeasingPolicy(organizationId: string, id: string): Promise<void>;
 }

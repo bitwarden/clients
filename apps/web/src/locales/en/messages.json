@@ -13874,5 +13874,114 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamLeasingPolicies": {
+    "message": "Leasing policies"
+  },
+  "pamLeasingPolicyNew": {
+    "message": "New policy"
+  },
+  "pamLeasingPolicyCreateTitle": {
+    "message": "New leasing policy"
+  },
+  "pamLeasingPolicyEditTitle": {
+    "message": "Edit leasing policy"
+  },
+  "pamLeasingPolicyName": {
+    "message": "Name"
+  },
+  "pamLeasingPolicyNamePlaceholder": {
+    "message": "e.g. VPN + business hours"
+  },
+  "pamLeasingPolicyDescription": {
+    "message": "Description"
+  },
+  "pamLeasingPolicyKind": {
+    "message": "Policy kind"
+  },
+  "pamLeasingPolicySummaryHeader": {
+    "message": "Summary"
+  },
+  "pamLeasingModeHumanApproval": {
+    "message": "Human approval"
+  },
+  "pamLeasingModeIpAllowlist": {
+    "message": "IP allowlist"
+  },
+  "pamLeasingModeTimeOfDay": {
+    "message": "Time of day"
+  },
+  "pamLeasingModeAllOf": {
+    "message": "All of"
+  },
+  "pamLeasingPolicyHumanApprovalDescription": {
+    "message": "Every lease request will require an org admin to approve it manually."
+  },
+  "pamLeasingPolicyKindNotEditableYetTitle": {
+    "message": "Not yet available"
+  },
+  "pamLeasingPolicyKindNotEditableYet": {
+    "message": "This policy kind isn't editable yet. The editor for this kind ships in a follow-up story."
+  },
+  "pamLeasingPolicySummaryHumanApproval": {
+    "message": "Requires human approval for every request."
+  },
+  "pamLeasingPolicySummaryIpAllowlist": {
+    "message": "Auto-approve from $COUNT$ allowed CIDRs.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamLeasingPolicySummaryTimeOfDay": {
+    "message": "Auto-approve in $COUNT$ window(s) ($TZ$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "tz": {
+        "content": "$2",
+        "example": "Europe/Copenhagen"
+      }
+    }
+  },
+  "pamLeasingPolicySummaryAllOf": {
+    "message": "All of $COUNT$ sub-policies must approve.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamLeasingPolicyCreated": {
+    "message": "Leasing policy created."
+  },
+  "pamLeasingPolicyUpdated": {
+    "message": "Leasing policy updated."
+  },
+  "pamLeasingPolicyDeleteConfirmTitle": {
+    "message": "Delete leasing policy?"
+  },
+  "pamLeasingPolicyDeleteConfirmContent": {
+    "message": "Delete \"$NAME$\"? Any collections using this policy will have leasing disabled.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoPoliciesYetTitle": {
+    "message": "No leasing policies yet"
+  },
+  "pamNoPoliciesYetDescription": {
+    "message": "Create a leasing policy to gate access to collection items behind approval rules."
   }
 }

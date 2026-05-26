@@ -1,15 +1,16 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { PamApiService } from "../abstractions/pam-api.service";
-import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
 import { LeaseRequestResponse } from "../abstractions/responses/lease-request.response";
+import { LeasingPolicyResponse } from "../abstractions/responses/leasing-policy.response";
 
-import { CollectionLeasingRequest } from "./requests/collection-leasing.request";
 import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
 import { LeaseRequestPatchRequest } from "./requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
+import { LeasingPolicyRequest } from "./requests/leasing-policy.request";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -57,12 +58,52 @@ export class DefaultPamApiService implements PamApiService {
     await this.send("POST", `/leasing/leases/${id}/revoke`, request, false);
   }
 
-  async setCollectionLeasingConfig(
+  async listLeasingPolicies(organizationId: string): Promise<ListResponse<LeasingPolicyResponse>> {
+    const r = await this.send(
+      "GET",
+      `/organizations/${organizationId}/leasing-policies`,
+      null,
+      true,
+    );
+    return new ListResponse(r, LeasingPolicyResponse);
+  }
+
+  async getLeasingPolicy(organizationId: string, id: string): Promise<LeasingPolicyResponse> {
+    return new LeasingPolicyResponse(
+      await this.send("GET", `/organizations/${organizationId}/leasing-policies/${id}`, null, true),
+    );
+  }
+
+  async createLeasingPolicy(
+    organizationId: string,
+    request: LeasingPolicyRequest,
+  ): Promise<LeasingPolicyResponse> {
+    return new LeasingPolicyResponse(
+      await this.send("POST", `/organizations/${organizationId}/leasing-policies`, request, true),
+    );
+  }
+
+  async updateLeasingPolicy(
+    organizationId: string,
     id: string,
-    request: CollectionLeasingRequest,
-  ): Promise<CollectionLeasingConfigResponse> {
-    return new CollectionLeasingConfigResponse(
-      await this.send("PUT", `/collections/${id}/leasing`, request, true),
+    request: LeasingPolicyRequest,
+  ): Promise<LeasingPolicyResponse> {
+    return new LeasingPolicyResponse(
+      await this.send(
+        "PUT",
+        `/organizations/${organizationId}/leasing-policies/${id}`,
+        request,
+        true,
+      ),
+    );
+  }
+
+  async deleteLeasingPolicy(organizationId: string, id: string): Promise<void> {
+    await this.send(
+      "DELETE",
+      `/organizations/${organizationId}/leasing-policies/${id}`,
+      null,
+      false,
     );
   }
 

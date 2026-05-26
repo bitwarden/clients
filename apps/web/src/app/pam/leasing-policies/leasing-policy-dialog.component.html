@@ -1,0 +1,61 @@
+<form bit-dialog [formGroup]="formGroup" [bitSubmit]="submit">
+  <span bitDialogTitle>
+    {{ (editing ? "pamLeasingPolicyEditTitle" : "pamLeasingPolicyCreateTitle") | i18n }}
+  </span>
+
+  <ng-container bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "pamLeasingPolicyName" | i18n }}</bit-label>
+      <input bitInput type="text" formControlName="name" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "pamLeasingPolicyDescription" | i18n }}</bit-label>
+      <textarea bitInput formControlName="description" rows="2"></textarea>
+    </bit-form-field>
+
+    <bit-radio-group formControlName="kind" [block]="true">
+      <bit-label>{{ "pamLeasingPolicyKind" | i18n }}</bit-label>
+      <bit-radio-button [value]="LeasingPolicyKind.HumanApproval">
+        <bit-label>{{ "pamLeasingModeHumanApproval" | i18n }}</bit-label>
+      </bit-radio-button>
+      <bit-radio-button [value]="LeasingPolicyKind.IpAllowlist">
+        <bit-label>{{ "pamLeasingModeIpAllowlist" | i18n }}</bit-label>
+      </bit-radio-button>
+      <bit-radio-button [value]="LeasingPolicyKind.TimeOfDay">
+        <bit-label>{{ "pamLeasingModeTimeOfDay" | i18n }}</bit-label>
+      </bit-radio-button>
+      <bit-radio-button [value]="LeasingPolicyKind.AllOf">
+        <bit-label>{{ "pamLeasingModeAllOf" | i18n }}</bit-label>
+      </bit-radio-button>
+    </bit-radio-group>
+
+    @switch (formGroup.controls.kind.value) {
+      @case (LeasingPolicyKind.HumanApproval) {
+        <p bitTypography="body2" class="tw-mb-0">
+          {{ "pamLeasingPolicyHumanApprovalDescription" | i18n }}
+        </p>
+      }
+      @default {
+        <bit-callout type="info" [title]="'pamLeasingPolicyKindNotEditableYetTitle' | i18n">
+          {{ "pamLeasingPolicyKindNotEditableYet" | i18n }}
+        </bit-callout>
+      }
+    }
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="submit"
+      bitButton
+      buttonType="primary"
+      bitFormButton
+      [disabled]="!kindIsEditableYet()"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>
