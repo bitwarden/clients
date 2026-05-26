@@ -20,6 +20,7 @@ import {
   DialogModule,
   DialogService,
   FormFieldModule,
+  SpinnerComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -43,6 +44,7 @@ type UserPrimaryEncryptionType = "masterPassword" | "keyConnector" | "TDE";
     BitIconButtonComponent,
     InputVerbatimDirective,
     TypographyModule,
+    SpinnerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -69,7 +71,7 @@ export class KeyRotationDialogComponent {
       getUserId,
       switchMap((userId) =>
         forkJoin([
-          this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
+          firstValueFrom(this.userDecryptionOptionsService.hasMasterPasswordById$(userId)),
           this.keyConnectorService.getUsesKeyConnector(userId),
           this.keyConnectorService.getManagingOrganization(userId),
         ]).pipe(
