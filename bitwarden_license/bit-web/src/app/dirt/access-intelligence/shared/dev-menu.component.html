@@ -16,31 +16,60 @@
         Import Data from Access Intelligence
       </button>
     </div>
+    <hr />
     <div>
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
-        (click)="onBeginTour()"
+        (click)="onBeginNewAdminWelcomeTour()"
       >
-        Begin Tour
+        Begin New Admin Welcome Tour
       </button>
     </div>
     <div>
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
-        (click)="onResetWelcomeDialogAck()"
+        (click)="onResetNewAdminWelcomeDialogAck()"
       >
-        Undo Welcome Dialog Acknowledgement
+        Undo New Admin Welcome Dialog Acknowledgement
       </button>
     </div>
     <div>
       <button
         type="button"
         class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
-        (click)="onShowWelcomeDialogAckState()"
+        (click)="onShowNewAdminWelcomeDialogAckState()"
       >
-        Acknowledged? {{ welcomeDialogAcked() }}
+        New Admin Welcome Acknowledged? {{ newAdminWelcomeDialogAcked() }}
+        <bit-badge variant="secondary">Click to refresh</bit-badge>
+      </button>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
+        (click)="onBeginPostImportTour()"
+      >
+        Begin Post Import Tour
+      </button>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
+        (click)="onResetPostImportDialogAck()"
+      >
+        Undo Post Import Dialog Acknowledgement
+      </button>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="tw-block tw-w-full tw-cursor-pointer tw-border-none tw-bg-background tw-px-3 tw-py-1.5 tw-text-left !tw-text-main hover:tw-bg-hover-default"
+        (click)="onShowPostImportDialogAckState()"
+      >
+        Post Import Dialog Acknowledged? {{ postImportDialogAcked() }}
         <bit-badge variant="secondary">Click to refresh</bit-badge>
       </button>
     </div>

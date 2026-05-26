@@ -11,11 +11,13 @@ import {
   ChangeDetectionStrategy,
   Injector,
   isDevMode,
+  effect,
+  afterNextRender,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, delay, finalize, skip } from "rxjs/operators";
+import { concatMap, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -47,7 +49,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
-import { WelcomeModalDialogComponent } from "../../onboarding/welcome-modal-dialog.component";
+import { NewAdminWelcomeDialogComponent } from "../../onboarding/new-admin-welcome-dialog.component";
+import { PostImportModalDialogComponent } from "../../onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
@@ -101,6 +104,7 @@ type ProgressStep = ReportProgress | null;
 })
 export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly mustBeginPostImportTour = signal(false);
 
   protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
@@ -213,6 +217,18 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       .subscribe((step) => {
         this.currentProgressStep.set(step);
       });
+
+    effect(() => {
+      // determine if we need to begin the post import tour
+      // to be launched when report generation is complete
+      // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import
+      if (this.currentProgressStep() === null && this.mustBeginPostImportTour()) {
+        this.mustBeginPostImportTour.set(false);
+
+        // open the dialog only after the rendering of the report is complete
+        afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
+      }
+    });
   }
 
   async ngOnInit() {
@@ -235,6 +251,25 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
     // Close any open dialogs (happens when navigating between orgs)
     void this.currentDialogRef()?.close();
+
+    // determine if we need to launch the new admin welcome tour
+    // launch when there are no reports and no ciphers.
+    combineLatest([
+      toObservable(this.hasReportData, { injector: this.injector }),
+      toObservable(this.hasCiphers, { injector: this.injector }),
+      toObservable(this.initializing, { injector: this.injector }),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(([_, __, initializing]) => !initializing), // Wait until initialization is complete
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
 
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
       await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
@@ -430,7 +465,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginOnboardingTour();
+      this.mustBeginPostImportTour.set(true);
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -446,9 +481,24 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected async beginOnboardingTour(): Promise<void> {
+  protected async beginPostImportTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
-      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
+      this.mustBeginPostImportTour.set(false);
+      await PostImportModalDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await NewAdminWelcomeDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
     }
   }
 }

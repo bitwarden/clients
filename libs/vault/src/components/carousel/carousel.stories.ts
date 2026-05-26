@@ -76,3 +76,29 @@ export const KeyboardNavigation: Story = {
     `,
   }),
 };
+
+export const HideArrowsWithActions: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: `
+      <vault-carousel [hideArrows]="true" label="Actions Demo">
+        <vault-carousel-slide label="First Slide">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+            <h2 bitTypography="h2">Slide Without Arrows</h2>
+            <p bitTypography="body1">Dots only — no navigation arrows</p>
+          </div>
+        </vault-carousel-slide>
+        <vault-carousel-slide label="Second Slide">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+            <h2 bitTypography="h2">Second Slide</h2>
+            <p bitTypography="body1">Buttons projected below the dots via carouselActions slot</p>
+          </div>
+        </vault-carousel-slide>
+        <div carouselActions class="tw-flex tw-justify-center tw-gap-4 tw-mt-4">
+          <button bitButton buttonType="secondary">Back</button>
+          <button bitButton buttonType="primary">Next</button>
+        </div>
+      </vault-carousel>
+    `,
+  }),
+};

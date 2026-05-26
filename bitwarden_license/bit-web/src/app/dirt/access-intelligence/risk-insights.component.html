@@ -109,7 +109,8 @@
 
   @if (isDevMode || adoptionUxImprovementsEnabled) {
     <dirt-dev-menu
-      (beginTour)="beginOnboardingTour()"
+      (beginPostImportTour)="beginPostImportTour()"
+      (beginNewAdminWelcomeTour)="beginNewAdminWelcomeTour()"
       (importData)="goToImportPage()"
     ></dirt-dev-menu>
   }

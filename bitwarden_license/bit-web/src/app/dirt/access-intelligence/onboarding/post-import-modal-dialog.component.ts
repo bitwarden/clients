@@ -6,6 +6,7 @@ import {
   runInInjectionContext,
 } from "@angular/core";
 
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   DialogModule,
@@ -18,38 +19,48 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OnboardingService } from "./services/onboarding.service";
 
+export type WelcomeModalDialogData = {
+  organizationId: OrganizationId;
+};
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-welcome-modal-dialog",
+  selector: "app-post-import-modal-dialog",
   imports: [ButtonModule, TypographyModule, DialogModule, I18nPipe],
-  templateUrl: "./welcome-modal-dialog.component.html",
+  templateUrl: "./post-import-modal-dialog.component.html",
 })
-export class WelcomeModalDialogComponent {
-  private readonly dialogRef = inject(DialogRef<WelcomeModalDialogComponent>);
+export class PostImportModalDialogComponent {
+  private readonly dialogRef = inject(DialogRef<PostImportModalDialogComponent>);
   private readonly onboardingService = inject(OnboardingService);
+  private readonly logger = inject(LogService);
 
-  protected async onStartTour() {
-    // invoke the dialog here
+  protected async onStartTour(): Promise<void> {
     await this.dialogRef.close();
   }
 
-  protected async onSkip() {
+  protected async onSkip(): Promise<void> {
     await this.onboardingService
-      .setWelcomeDialogAcknowledged()
+      .setPostImportDialogAcknowledged()
       .then(() => {
         return this.dialogRef.close();
       })
-      .catch(() => {});
+      .catch((error: unknown) => {
+        this.logger.error(
+          "[Post Import Modal Dialog] Error acknowledging post-import dialog",
+          error,
+        );
+      });
   }
 
-  static async showWelcomeDialog(
+  static async showDialog(
     injector: Injector,
     dialogService: DialogService,
-  ): Promise<DialogRef<unknown, WelcomeModalDialogComponent> | undefined> {
+    organizationId: OrganizationId,
+  ): Promise<DialogRef<unknown, PostImportModalDialogComponent> | undefined> {
     return runInInjectionContext(injector, async () => {
       const logger = inject(LogService);
       const onboardingService = inject(OnboardingService);
-      const acknowledged = await onboardingService.isWelcomeDialogAcknowledged();
+      const acknowledged = await onboardingService.isPostImportDialogAcknowledged();
       if (acknowledged) {
         logger.info(
           "[Access Intelligence Onboarding] Welcome dialog already acknowledged, skipping dialog display.",
@@ -57,7 +68,8 @@ export class WelcomeModalDialogComponent {
         return;
       }
 
-      const dialog = dialogService.open(WelcomeModalDialogComponent, {
+      const dialog = dialogService.open(PostImportModalDialogComponent, {
+        data: { organizationId } satisfies WelcomeModalDialogData,
         width: "600px",
         disableClose: true,
       });
