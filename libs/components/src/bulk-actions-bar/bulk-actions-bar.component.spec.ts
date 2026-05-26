@@ -286,6 +286,31 @@ describe("BulkActionsBarComponent", () => {
     }));
   });
 
+  describe("modifier label", () => {
+    beforeEach(() => {
+      host.count.set(3);
+      fixture.detectChanges();
+    });
+
+    it("seeds the announcement modifier from the navigator (JSDOM is non-Mac)", () => {
+      expect(liveRegion().textContent).toContain("Ctrl+B");
+    });
+
+    it("self-corrects to Command after observing a metaKey-only keydown", () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Meta", metaKey: true }));
+      fixture.detectChanges();
+      expect(liveRegion().textContent).toContain("Command+B");
+    });
+
+    it("does not flip the label when both Cmd and Ctrl are held (ambiguous)", () => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "b", ctrlKey: true, metaKey: true }),
+      );
+      fixture.detectChanges();
+      expect(liveRegion().textContent).toContain("Ctrl+B");
+    });
+  });
+
   describe("compact mode", () => {
     const labelSpan = (action: HTMLElement) =>
       action.querySelector("span") as HTMLSpanElement | null;

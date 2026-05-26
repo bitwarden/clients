@@ -92,11 +92,10 @@ export class BulkActionsBarComponent {
   /** True when the wrapper is narrower than the bar's intrinsic width. */
   readonly compact = signal(false);
 
-  private readonly shortcutBinding = (() => {
-    const nav = this.document.defaultView?.navigator;
-    const isMac = nav?.platform?.startsWith("Mac") || /Macintosh/.test(nav?.userAgent ?? "");
-    return isMac ? "Command+B" : "Ctrl+B";
-  })();
+  // Seeded from navigator so the first announcement (which can fire before any
+  // keypress) has a sensible label; `handleShortcut` upgrades this to ground
+  // truth as soon as a real Cmd/Ctrl-bearing keydown is observed.
+  private readonly modifierKey = signal<"Command" | "Ctrl">(this.detectInitialModifier());
 
   protected readonly announcement = computed(() => {
     if (this.selectedCount() === 0) {
@@ -105,7 +104,7 @@ export class BulkActionsBarComponent {
     return this.i18nService.t(
       "bulkActionsBarAnnouncement",
       this.selectedCount(),
-      this.shortcutBinding,
+      `${this.modifierKey()}+B`,
     );
   });
 
@@ -190,6 +189,15 @@ export class BulkActionsBarComponent {
   }
 
   protected handleShortcut(event: KeyboardEvent): void {
+    // Real keydown events are the source of truth for the announcement
+    // label, overriding the navigator-based initial guess. Runs even when
+    // hidden so the label is primed before the first announcement.
+    if (event.metaKey && !event.ctrlKey) {
+      this.modifierKey.set("Command");
+    } else if (event.ctrlKey && !event.metaKey) {
+      this.modifierKey.set("Ctrl");
+    }
+
     if (!this.visible()) {
       return;
     }
@@ -230,6 +238,12 @@ export class BulkActionsBarComponent {
 
   private isFocusable(el: HTMLElement): boolean {
     return !el.hasAttribute("disabled") && el.tabIndex !== -1;
+  }
+
+  private detectInitialModifier(): "Command" | "Ctrl" {
+    const nav = this.document.defaultView?.navigator;
+    const isMac = nav?.platform?.startsWith("Mac") || /Macintosh/.test(nav?.userAgent ?? "");
+    return isMac ? "Command" : "Ctrl";
   }
 
   protected readonly elementWithDividerClasses = [
