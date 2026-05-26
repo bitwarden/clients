@@ -56,7 +56,7 @@
     "@electron/notarize": "3.0.1",
     "@electron/rebuild": "4.0.3",
     "@eslint/compat": "2.0.5",
-    "@lit-labs/signals": "0.2.0",
+    "@lit-labs/signals": "0.3.0",
     "@ngtools/webpack": "21.2.9",
     "@nx/devkit": "22.6.5",
     "@nx/eslint": "22.6.5",
