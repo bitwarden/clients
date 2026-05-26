@@ -13,6 +13,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -37,6 +39,7 @@ export class UnlockCommand {
     private masterPasswordUnlockService: MasterPasswordUnlockService,
     private unlockService: UnlockService,
     private configService: ConfigService,
+    private userAutoUnlockKeyService: UserAutoUnlockKeyService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -56,14 +59,12 @@ export class UnlockCommand {
     }
     const userId = activeAccount.id;
 
+    let userKey: UserKey | undefined;
     try {
       if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
         await this.unlockService.unlockWithMasterPassword(userId, password);
       } else {
-        const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-          password,
-          userId,
-        );
+        userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(password, userId);
 
         await this.keyService.setUserKey(userKey, userId);
       }
@@ -87,6 +88,18 @@ export class UnlockCommand {
     }
 
     await this.encryptedMigrator.runMigrations(userId, password);
+
+    // Verify the returned session key can decrypt the auto-unlock entry, otherwise
+    // subsequent commands will see "locked". Recover by re-writing if possible.
+    if (!(await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId))) {
+      if (userKey == null) {
+        return Response.error("Failed to persist new session key. Please try again.");
+      }
+      await this.keyService.setUserKey(userKey, userId);
+      if (!(await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId))) {
+        return Response.error("Failed to persist new session key. Please try again.");
+      }
+    }
 
     return this.successResponse();
   }

@@ -184,6 +184,7 @@ export abstract class BaseProgram {
         this.serviceContainer.masterPasswordUnlockService,
         this.serviceContainer.unlockService,
         this.serviceContainer.configService,
+        this.serviceContainer.userAutoUnlockKeyService,
       );
       const response = await command.run(null, null);
       if (!response.success) {
