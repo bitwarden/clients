@@ -104,8 +104,8 @@ describe("LockComponent", () => {
     mockI18nService.t.mockImplementation((key: string) => key);
 
     // Mock observables that cause timeouts
-    mockBiometricStateService.promptAutomatically$ = of(false);
-    mockBiometricStateService.promptCancelled$ = of(false);
+    mockBiometricStateService.promptAutomatically$.mockReturnValue(of(false));
+    mockBiometricStateService.promptCancelled$.mockReturnValue(of(false));
     mockBiometricStateService.resetUserPromptCancelled.mockResolvedValue();
     mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(null));
     mockSyncService.fullSync.mockResolvedValue(true);
@@ -268,7 +268,7 @@ describe("LockComponent", () => {
         mockLockComponentService.getPreviousUrl.mockReturnValue(null);
 
         jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
-          await mockBiometricStateService.resetUserPromptCancelled();
+          await mockBiometricStateService.resetUserPromptCancelled(userId);
           mockMessagingService.send("unlocked");
           await mockSyncService.fullSync(false);
           await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
@@ -287,7 +287,7 @@ describe("LockComponent", () => {
       mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
 
       jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
-        await mockBiometricStateService.resetUserPromptCancelled();
+        await mockBiometricStateService.resetUserPromptCancelled(userId);
         mockMessagingService.send("unlocked");
         await mockSyncService.fullSync(false);
         await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
