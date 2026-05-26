@@ -424,7 +424,9 @@ describe("DomQueryService", () => {
       iframeDoc.body.appendChild(input);
 
       expect(
-        domQueryService.queryDeepSelector("#shadow-host >>> #shadowed-iframe >>> #iframe-input"),
+        domQueryService.queryDeepSelector(
+          "#shadow-host >>> iframe#shadowed-iframe >>> input#iframe-input",
+        ),
       ).toBe(input);
     });
 
@@ -456,7 +458,7 @@ describe("DomQueryService", () => {
 
       expect(
         domQueryService.queryDeepSelector(
-          "#outer-iframe >>> #inner-iframe >>> #nested-iframe-input",
+          "iframe#outer-iframe >>> iframe#inner-iframe >>> input#nested-iframe-input",
         ),
       ).toBe(input);
     });
