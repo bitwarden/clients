@@ -258,7 +258,11 @@ export default class AutofillService implements AutofillServiceInterface {
     // if not guarded by an active account check (e.g. the user is logged in)
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    // Two gates: the autofiller script injects only when the vault is
+    // unlocked (auto-fill-on-page-load requires it). The monitor start
+    // follow-up runs whenever a user is logged in, locked or unlocked.
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
+    const accountIsLoggedIn = authStatus !== AuthenticationStatus.LoggedOut;
     let autoFillOnPageLoadIsEnabled = false;
 
     const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
@@ -291,7 +295,7 @@ export default class AutofillService implements AutofillServiceInterface {
       });
     }
 
-    if (accountIsUnlocked) {
+    if (accountIsLoggedIn) {
       // Fire-and-forget: the bootstrap is already injected at this point,
       // and awaiting the send only matters if the caller needs a response,
       // which it does not. Errors are reported rather than swallowed.
@@ -3169,25 +3173,31 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Broadcasts monitor lifecycle commands to every currently-connected
    * autofill content script when the active account's authentication
-   * status crosses the `Unlocked` boundary. On `* → Unlocked`, sends
-   * `startAutofillMonitors`. On `Unlocked → *`, sends both
-   * `stopAutofillMonitors` and `disableAutofiller` so any
-   * already-running autofiller actor on an open tab is halted.
+   * status crosses the `LoggedOut` boundary. On `LoggedOut → logged-in`,
+   * sends `startAutofillMonitors`. On `logged-in → LoggedOut`, sends
+   * both `stopAutofillMonitors` and `disableAutofiller` so any
+   * already-running autofiller actor is halted. Lock and unlock
+   * transitions emit no broadcast — monitors run across the lock
+   * boundary, and a running autofiller survives a lock (its fill
+   * requests are ignored by the background until unlock).
    */
   private handleAuthStatusTransition(
     previousStatus: AuthenticationStatus | undefined,
     currentStatus: AuthenticationStatus | undefined,
   ) {
-    if (previousStatus === currentStatus) {
+    if (previousStatus === undefined || previousStatus === currentStatus) {
+      // The first emission paired with `startWith(undefined)` is not a
+      // transition — it's the seed. Skip it so a service-worker boot
+      // into any auth state is silent.
       return;
     }
-    const wasUnlocked = previousStatus === AuthenticationStatus.Unlocked;
-    const isUnlocked = currentStatus === AuthenticationStatus.Unlocked;
-    if (!wasUnlocked && isUnlocked) {
+    const wasLoggedOut = previousStatus === AuthenticationStatus.LoggedOut;
+    const isLoggedOut = currentStatus === AuthenticationStatus.LoggedOut;
+    if (wasLoggedOut && !isLoggedOut) {
       this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.start });
       return;
     }
-    if (wasUnlocked && !isUnlocked) {
+    if (!wasLoggedOut && isLoggedOut) {
       this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.stop });
       this.broadcastToInjectedScripts({ command: AutofillerCommand.disable });
     }

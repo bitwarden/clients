@@ -70,7 +70,7 @@ This composition keeps each scope focused. Anything reversible belongs to monito
 
 ## The autofiller actor
 
-`apps/browser/src/autofill/content/autofiller.ts` is a separate content script that performs auto-fill-on-page-load. By design it acts only at page-load time; once a page is loaded and the autofill attempt has happened, the actor has nothing further to do until the URL changes. Because filling is bound to page load, an actor can be "disabled" without a reciprocal "enable" — disabling halts the URL-change poll, and the next page-load injection (gated separately) decides whether a fresh actor appears.
+`apps/browser/src/autofill/content/autofiller.ts` is a separate content script that performs auto-fill-on-page-load. By design it acts only at page-load time; once a page is loaded and the autofill attempt has happened, the actor has nothing further to do until the URL changes. Because filling is bound to page load, an actor can be disabled without a reciprocal enable — disabling halts the URL-change poll, and the next page-load injection (gated separately) decides whether a fresh actor appears.
 
 The actor is **not** an `AutofillMonitor`; it triggers fills, it does not examine field data. Its lifecycle is asymmetric in three respects:
 
@@ -89,7 +89,7 @@ Lifecycle messages flow one-way from the background to content scripts. Three co
 - **stop monitors** — content scripts pause examination
 - **disable autofiller** — running autofiller actors halt
 
-The first two are paired and symmetric; the third is asymmetric (re-enabling happens by re-injection on the next page load, not by message). All three commands are idempotent at their receivers, so the broadcast layer can fan out without worrying about exact receiver state.
+The first two are paired and symmetric; the third is asymmetric. All three commands are idempotent at their receivers, so the broadcast layer can fan out without worrying about exact receiver state.
 
 ### Routing
 
@@ -99,11 +99,11 @@ The background maintains one routing-relevant data structure: the set of current
 
 Two events emit lifecycle commands. One auth-state boundary drives all of the broadcast traffic:
 
-| Trigger                                     | Condition                                     | Commands sent                                                                  |
-| ------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| Per-tab injection                           | Sent at injection time, to one `(tab, frame)` | `start monitors` if the user is logged in (Locked or Unlocked); otherwise none |
-| Auth state crosses the `LoggedOut` boundary | `LoggedOut → logged-in`                       | `start monitors`, broadcast to every `(tab, frame)`                            |
-| Auth state crosses the `LoggedOut` boundary | `logged-in → LoggedOut`                       | `stop monitors` _and_ `disable autofiller`, broadcast to every `(tab, frame)`  |
+| Trigger           | Target               | Commands sent                                                                  |
+| ----------------- | -------------------- | ------------------------------------------------------------------------------ |
+| Per-tab injection | One `(tab, frame)`   | `start monitors` if the user is logged in (Locked or Unlocked); otherwise none |
+| Login             | Every `(tab, frame)` | `start monitors`                                                               |
+| Logout            | Every `(tab, frame)` | `stop monitors` _and_ `disable autofiller`                                     |
 
 The `Unlocked` boundary participates separately, but only at injection time: it gates whether a fresh navigation gets an autofiller. Transitions across `Unlocked` (lock and unlock events) do not emit any broadcast.
 
