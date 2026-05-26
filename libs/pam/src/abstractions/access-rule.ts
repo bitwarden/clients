@@ -1,10 +1,10 @@
-export const LeasingPolicyKind = Object.freeze({
+export const AccessRuleKind = Object.freeze({
   HumanApproval: "human_approval",
   IpAllowlist: "ip_allowlist",
   TimeOfDay: "time_of_day",
   AllOf: "all_of",
 } as const);
-export type LeasingPolicyKind = (typeof LeasingPolicyKind)[keyof typeof LeasingPolicyKind];
+export type AccessRuleKind = (typeof AccessRuleKind)[keyof typeof AccessRuleKind];
 
 export const DayOfWeek = Object.freeze({
   Mon: "mon",
@@ -25,27 +25,27 @@ export type TimeWindow = {
   to: string;
 };
 
-export type LeasingPolicy =
+export type AccessRule =
   | { kind: "human_approval" }
   | { kind: "ip_allowlist"; cidrs: string[] }
   | { kind: "time_of_day"; tz: string; windows: TimeWindow[] }
-  | { kind: "all_of"; policies: LeasingPolicy[] };
+  | { kind: "all_of"; rules: AccessRule[] };
 
 const get = (obj: Record<string, unknown>, key: string): unknown =>
   obj[key] ?? obj[key.charAt(0).toUpperCase() + key.slice(1)];
 
 function parseTimeWindow(json: unknown): TimeWindow {
   if (json == null || typeof json !== "object") {
-    throw new Error("Invalid leasing policy: time window is not an object");
+    throw new Error("Invalid access rule: time window is not an object");
   }
   const obj = json as Record<string, unknown>;
   const days = get(obj, "days");
   if (!Array.isArray(days)) {
-    throw new Error("Invalid leasing policy: time window 'days' is not an array");
+    throw new Error("Invalid access rule: time window 'days' is not an array");
   }
   const typedDays = days.map((d): DayOfWeek => {
     if (typeof d !== "string" || !DAYS_OF_WEEK.has(d as DayOfWeek)) {
-      throw new Error(`Invalid leasing policy: unknown day "${String(d)}"`);
+      throw new Error(`Invalid access rule: unknown day "${String(d)}"`);
     }
     return d as DayOfWeek;
   });
@@ -56,29 +56,29 @@ function parseTimeWindow(json: unknown): TimeWindow {
   };
 }
 
-export function parseLeasingPolicy(json: unknown): LeasingPolicy {
+export function parseAccessRule(json: unknown): AccessRule {
   if (json == null || typeof json !== "object") {
-    throw new Error("Invalid leasing policy: not an object");
+    throw new Error("Invalid access rule: not an object");
   }
   const obj = json as Record<string, unknown>;
   const kind = get(obj, "kind");
   switch (kind) {
-    case LeasingPolicyKind.HumanApproval:
+    case AccessRuleKind.HumanApproval:
       return { kind: "human_approval" };
-    case LeasingPolicyKind.IpAllowlist:
+    case AccessRuleKind.IpAllowlist:
       return { kind: "ip_allowlist", cidrs: get(obj, "cidrs") as string[] };
-    case LeasingPolicyKind.TimeOfDay:
+    case AccessRuleKind.TimeOfDay:
       return {
         kind: "time_of_day",
         tz: get(obj, "tz") as string,
         windows: (get(obj, "windows") as unknown[]).map(parseTimeWindow),
       };
-    case LeasingPolicyKind.AllOf:
+    case AccessRuleKind.AllOf:
       return {
         kind: "all_of",
-        policies: (get(obj, "policies") as unknown[]).map(parseLeasingPolicy),
+        rules: (get(obj, "rules") as unknown[]).map(parseAccessRule),
       };
     default:
-      throw new Error(`Invalid leasing policy: unknown kind "${String(kind)}"`);
+      throw new Error(`Invalid access rule: unknown kind "${String(kind)}"`);
   }
 }

@@ -1,56 +1,56 @@
-<app-header [title]="'pamLeasingPolicies' | i18n">
+<app-header [title]="'pamAccessRules' | i18n">
   @if (!loading()) {
     <button type="button" bitButton buttonType="primary" [bitAction]="openCreate">
-      {{ "pamLeasingPolicyNew" | i18n }}
+      {{ "pamAccessRuleNew" | i18n }}
     </button>
   }
 </app-header>
 
 @if (!loading()) {
-  @if (policies().length > 0) {
+  @if (rules().length > 0) {
     <bit-table>
       <ng-container header>
         <tr>
-          <th bitCell>{{ "pamLeasingPolicyName" | i18n }}</th>
-          <th bitCell>{{ "pamLeasingPolicyKind" | i18n }}</th>
-          <th bitCell>{{ "pamLeasingPolicySummaryHeader" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleName" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleKind" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleSummaryHeader" | i18n }}</th>
           <th bitCell>{{ "lastEdited" | i18n }}</th>
           <th bitCell class="tw-w-0"></th>
         </tr>
       </ng-container>
       <ng-template body>
-        @for (p of policies(); track p.id) {
+        @for (r of rules(); track r.id) {
           <tr bitRow>
             <td bitCell>
-              <button type="button" bitLink linkType="primary" (click)="openEdit(p)">
-                {{ p.name }}
+              <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
+                {{ r.name }}
               </button>
-              @if (p.description) {
+              @if (r.description) {
                 <div class="tw-text-sm tw-text-muted">
-                  {{ p.description }}
+                  {{ r.description }}
                 </div>
               }
             </td>
             <td bitCell>
-              <span bitBadge variant="secondary">{{ kindLabel(p.policy.kind) }}</span>
+              <span bitBadge variant="secondary">{{ kindLabel(r.rule.kind) }}</span>
             </td>
             <td bitCell>
-              <pam-leasing-policy-summary [policy]="p.policy" />
+              <pam-access-rule-summary [rule]="r.rule" />
             </td>
-            <td bitCell>{{ p.revisionDate | date: "mediumDate" }}</td>
+            <td bitCell>{{ r.revisionDate | date: "mediumDate" }}</td>
             <td bitCell>
               <button
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 [bitMenuTriggerFor]="rowMenu"
-                [attr.aria-label]="'options' | i18n"
+                label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #rowMenu>
-                <button type="button" bitMenuItem (click)="openEdit(p)">
+                <button type="button" bitMenuItem (click)="openEdit(r)">
                   <i class="bwi bwi-pencil-square tw-text-muted" aria-hidden="true"></i>
                   {{ "edit" | i18n }}
                 </button>
-                <button type="button" bitMenuItem (click)="remove(p)">
+                <button type="button" bitMenuItem (click)="remove(r)">
                   <i class="bwi bwi-trash tw-text-danger" aria-hidden="true"></i>
                   <span class="tw-text-danger">{{ "delete" | i18n }}</span>
                 </button>
@@ -62,10 +62,10 @@
     </bit-table>
   } @else {
     <bit-no-items>
-      <ng-container slot="title">{{ "pamNoPoliciesYetTitle" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "pamNoPoliciesYetDescription" | i18n }}</ng-container>
+      <ng-container slot="title">{{ "pamNoAccessRulesYetTitle" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "pamNoAccessRulesYetDescription" | i18n }}</ng-container>
       <button slot="button" type="button" bitButton buttonType="primary" [bitAction]="openCreate">
-        {{ "pamLeasingPolicyNew" | i18n }}
+        {{ "pamAccessRuleNew" | i18n }}
       </button>
     </bit-no-items>
   }

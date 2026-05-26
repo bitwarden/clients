@@ -3,14 +3,14 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { PamApiService } from "../abstractions/pam-api.service";
+import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
 import { LeaseRequestResponse } from "../abstractions/responses/lease-request.response";
-import { LeasingPolicyResponse } from "../abstractions/responses/leasing-policy.response";
 
+import { AccessRuleRequest } from "./requests/access-rule.request";
 import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
 import { LeaseRequestPatchRequest } from "./requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
-import { LeasingPolicyRequest } from "./requests/leasing-policy.request";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -58,53 +58,38 @@ export class DefaultPamApiService implements PamApiService {
     await this.send("POST", `/leasing/leases/${id}/revoke`, request, false);
   }
 
-  async listLeasingPolicies(organizationId: string): Promise<ListResponse<LeasingPolicyResponse>> {
-    const r = await this.send(
-      "GET",
-      `/organizations/${organizationId}/leasing-policies`,
-      null,
-      true,
-    );
-    return new ListResponse(r, LeasingPolicyResponse);
+  async listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>> {
+    const r = await this.send("GET", `/organizations/${organizationId}/access-rules`, null, true);
+    return new ListResponse(r, AccessRuleResponse);
   }
 
-  async getLeasingPolicy(organizationId: string, id: string): Promise<LeasingPolicyResponse> {
-    return new LeasingPolicyResponse(
-      await this.send("GET", `/organizations/${organizationId}/leasing-policies/${id}`, null, true),
+  async getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse> {
+    return new AccessRuleResponse(
+      await this.send("GET", `/organizations/${organizationId}/access-rules/${id}`, null, true),
     );
   }
 
-  async createLeasingPolicy(
+  async createAccessRule(
     organizationId: string,
-    request: LeasingPolicyRequest,
-  ): Promise<LeasingPolicyResponse> {
-    return new LeasingPolicyResponse(
-      await this.send("POST", `/organizations/${organizationId}/leasing-policies`, request, true),
+    request: AccessRuleRequest,
+  ): Promise<AccessRuleResponse> {
+    return new AccessRuleResponse(
+      await this.send("POST", `/organizations/${organizationId}/access-rules`, request, true),
     );
   }
 
-  async updateLeasingPolicy(
+  async updateAccessRule(
     organizationId: string,
     id: string,
-    request: LeasingPolicyRequest,
-  ): Promise<LeasingPolicyResponse> {
-    return new LeasingPolicyResponse(
-      await this.send(
-        "PUT",
-        `/organizations/${organizationId}/leasing-policies/${id}`,
-        request,
-        true,
-      ),
+    request: AccessRuleRequest,
+  ): Promise<AccessRuleResponse> {
+    return new AccessRuleResponse(
+      await this.send("PUT", `/organizations/${organizationId}/access-rules/${id}`, request, true),
     );
   }
 
-  async deleteLeasingPolicy(organizationId: string, id: string): Promise<void> {
-    await this.send(
-      "DELETE",
-      `/organizations/${organizationId}/leasing-policies/${id}`,
-      null,
-      false,
-    );
+  async deleteAccessRule(organizationId: string, id: string): Promise<void> {
+    await this.send("DELETE", `/organizations/${organizationId}/access-rules/${id}`, null, false);
   }
 
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {

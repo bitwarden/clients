@@ -86,12 +86,9 @@
       icon="bwi-shield"
       [text]="'pam' | i18n"
       route="pam"
-      *ngIf="(pamFeatureFlagEnabled$ | async) && organization.canManageLeasingPolicies"
+      *ngIf="(pamFeatureFlagEnabled$ | async) && organization.canManageAccessRules"
     >
-      <bit-nav-item
-        [text]="'pamLeasingPolicies' | i18n"
-        route="pam/leasing-policies"
-      ></bit-nav-item>
+      <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules"></bit-nav-item>
     </bit-nav-group>
     <bit-nav-group
       icon="bwi-cog"

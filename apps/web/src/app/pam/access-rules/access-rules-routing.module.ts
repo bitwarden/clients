@@ -6,25 +6,25 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { organizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
 
-import { LeasingPoliciesComponent } from "./leasing-policies.component";
+import { AccessRulesComponent } from "./access-rules.component";
 
 const routes: Routes = [
   {
     path: "",
     canActivate: [
       canAccessFeature(FeatureFlag.Pam),
-      organizationPermissionsGuard((org) => org.canManageLeasingPolicies),
+      organizationPermissionsGuard((org) => org.canManageAccessRules),
     ],
     children: [
       {
         path: "",
         pathMatch: "full",
-        redirectTo: "leasing-policies",
+        redirectTo: "access-rules",
       },
       {
-        path: "leasing-policies",
-        component: LeasingPoliciesComponent,
-        data: { titleId: "pamLeasingPolicies" },
+        path: "access-rules",
+        component: AccessRulesComponent,
+        data: { titleId: "pamAccessRules" },
       },
     ],
   },
@@ -34,4 +34,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class LeasingPoliciesRoutingModule {}
+export class AccessRulesRoutingModule {}

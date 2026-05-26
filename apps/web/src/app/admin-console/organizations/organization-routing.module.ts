@@ -74,8 +74,8 @@ const routes: Routes = [
       {
         path: "pam",
         loadChildren: () =>
-          import("../../pam/leasing-policies/leasing-policies-routing.module").then(
-            (m) => m.LeasingPoliciesRoutingModule,
+          import("../../pam/access-rules/access-rules-routing.module").then(
+            (m) => m.AccessRulesRoutingModule,
           ),
       },
     ],

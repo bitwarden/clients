@@ -19,23 +19,23 @@ import {
   TableModule,
   ToastService,
 } from "@bitwarden/components";
-import { LeasingPolicyKind, LeasingPolicyResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRuleKind, AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
-import { LeasingPolicyDialogData , LeasingPolicyDialogComponent } from "./leasing-policy-dialog.component";
-import { LeasingPolicySummaryComponent } from "./leasing-policy-summary.component";
+import { AccessRuleDialogData, AccessRuleDialogComponent } from "./access-rule-dialog.component";
+import { AccessRuleSummaryComponent } from "./access-rule-summary.component";
 
-const KIND_LABEL_KEYS: Record<LeasingPolicyKind, string> = {
-  [LeasingPolicyKind.HumanApproval]: "pamLeasingModeHumanApproval",
-  [LeasingPolicyKind.IpAllowlist]: "pamLeasingModeIpAllowlist",
-  [LeasingPolicyKind.TimeOfDay]: "pamLeasingModeTimeOfDay",
-  [LeasingPolicyKind.AllOf]: "pamLeasingModeAllOf",
+const KIND_LABEL_KEYS: Record<AccessRuleKind, string> = {
+  [AccessRuleKind.HumanApproval]: "pamAccessRuleKindHumanApproval",
+  [AccessRuleKind.IpAllowlist]: "pamAccessRuleKindIpAllowlist",
+  [AccessRuleKind.TimeOfDay]: "pamAccessRuleKindTimeOfDay",
+  [AccessRuleKind.AllOf]: "pamAccessRuleKindAllOf",
 };
 
 @Component({
-  templateUrl: "./leasing-policies.component.html",
+  templateUrl: "./access-rules.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -49,10 +49,10 @@ const KIND_LABEL_KEYS: Record<LeasingPolicyKind, string> = {
     NoItemsModule,
     TableModule,
     I18nPipe,
-    LeasingPolicySummaryComponent,
+    AccessRuleSummaryComponent,
   ],
 })
-export class LeasingPoliciesComponent {
+export class AccessRulesComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly pamApi = inject(PamApiService);
   private readonly dialogService = inject(DialogService);
@@ -60,8 +60,8 @@ export class LeasingPoliciesComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly loading = signal(true);
-  protected readonly policies = signal<LeasingPolicyResponse[]>([]);
-  protected readonly LeasingPolicyKind = LeasingPolicyKind;
+  protected readonly rules = signal<AccessRuleResponse[]>([]);
+  protected readonly AccessRuleKind = AccessRuleKind;
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
@@ -74,21 +74,21 @@ export class LeasingPoliciesComponent {
     });
   }
 
-  protected kindLabel(kind: LeasingPolicyKind): string {
+  protected kindLabel(kind: AccessRuleKind): string {
     return this.i18nService.t(KIND_LABEL_KEYS[kind] ?? "");
   }
 
   protected readonly openCreate = (): Promise<void> => this.openDialog({});
 
-  protected readonly openEdit = (policy: LeasingPolicyResponse): Promise<void> =>
-    this.openDialog({ policy });
+  protected readonly openEdit = (rule: AccessRuleResponse): Promise<void> =>
+    this.openDialog({ existing: rule });
 
-  protected readonly remove = async (policy: LeasingPolicyResponse): Promise<void> => {
+  protected readonly remove = async (rule: AccessRuleResponse): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamLeasingPolicyDeleteConfirmTitle" },
+      title: { key: "pamAccessRuleDeleteConfirmTitle" },
       content: {
-        key: "pamLeasingPolicyDeleteConfirmContent",
-        placeholders: [policy.name],
+        key: "pamAccessRuleDeleteConfirmContent",
+        placeholders: [rule.name],
       },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
@@ -98,8 +98,8 @@ export class LeasingPoliciesComponent {
       return;
     }
     try {
-      await this.pamApi.deleteLeasingPolicy(this.organizationId(), policy.id);
-      this.policies.update((list) => list.filter((p) => p.id !== policy.id));
+      await this.pamApi.deleteAccessRule(this.organizationId(), rule.id);
+      this.rules.update((list) => list.filter((r) => r.id !== rule.id));
     } catch (e) {
       const message =
         e instanceof ErrorResponse
@@ -109,8 +109,8 @@ export class LeasingPoliciesComponent {
     }
   };
 
-  private async openDialog(data: Omit<LeasingPolicyDialogData, "organizationId">): Promise<void> {
-    const ref = LeasingPolicyDialogComponent.open(this.dialogService, {
+  private async openDialog(data: Omit<AccessRuleDialogData, "organizationId">): Promise<void> {
+    const ref = AccessRuleDialogComponent.open(this.dialogService, {
       data: { organizationId: this.organizationId(), ...data },
     });
     if ((await lastValueFrom(ref.closed)) === "saved") {
@@ -121,8 +121,8 @@ export class LeasingPoliciesComponent {
   private async reload(organizationId: OrganizationId): Promise<void> {
     this.loading.set(true);
     try {
-      const response = await this.pamApi.listLeasingPolicies(organizationId);
-      this.policies.set(response.data);
+      const response = await this.pamApi.listAccessRules(organizationId);
+      this.rules.set(response.data);
     } finally {
       this.loading.set(false);
     }

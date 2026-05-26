@@ -13878,58 +13878,58 @@
   "pam": {
     "message": "PAM"
   },
-  "pamLeasingPolicies": {
-    "message": "Leasing policies"
+  "pamAccessRules": {
+    "message": "Access rules"
   },
-  "pamLeasingPolicyNew": {
-    "message": "New policy"
+  "pamAccessRuleNew": {
+    "message": "New rule"
   },
-  "pamLeasingPolicyCreateTitle": {
-    "message": "New leasing policy"
+  "pamAccessRuleCreateTitle": {
+    "message": "New access rule"
   },
-  "pamLeasingPolicyEditTitle": {
-    "message": "Edit leasing policy"
+  "pamAccessRuleEditTitle": {
+    "message": "Edit access rule"
   },
-  "pamLeasingPolicyName": {
+  "pamAccessRuleName": {
     "message": "Name"
   },
-  "pamLeasingPolicyNamePlaceholder": {
+  "pamAccessRuleNamePlaceholder": {
     "message": "e.g. VPN + business hours"
   },
-  "pamLeasingPolicyDescription": {
+  "pamAccessRuleDescription": {
     "message": "Description"
   },
-  "pamLeasingPolicyKind": {
-    "message": "Policy kind"
+  "pamAccessRuleKind": {
+    "message": "Rule kind"
   },
-  "pamLeasingPolicySummaryHeader": {
+  "pamAccessRuleSummaryHeader": {
     "message": "Summary"
   },
-  "pamLeasingModeHumanApproval": {
+  "pamAccessRuleKindHumanApproval": {
     "message": "Human approval"
   },
-  "pamLeasingModeIpAllowlist": {
+  "pamAccessRuleKindIpAllowlist": {
     "message": "IP allowlist"
   },
-  "pamLeasingModeTimeOfDay": {
+  "pamAccessRuleKindTimeOfDay": {
     "message": "Time of day"
   },
-  "pamLeasingModeAllOf": {
+  "pamAccessRuleKindAllOf": {
     "message": "All of"
   },
-  "pamLeasingPolicyHumanApprovalDescription": {
+  "pamAccessRuleHumanApprovalDescription": {
     "message": "Every lease request will require an org admin to approve it manually."
   },
-  "pamLeasingPolicyKindNotEditableYetTitle": {
+  "pamAccessRuleKindNotEditableYetTitle": {
     "message": "Not yet available"
   },
-  "pamLeasingPolicyKindNotEditableYet": {
-    "message": "This policy kind isn't editable yet. The editor for this kind ships in a follow-up story."
+  "pamAccessRuleKindNotEditableYet": {
+    "message": "This rule kind isn't editable yet. The editor for this kind ships in a follow-up story."
   },
-  "pamLeasingPolicySummaryHumanApproval": {
+  "pamAccessRuleSummaryHumanApproval": {
     "message": "Requires human approval for every request."
   },
-  "pamLeasingPolicySummaryIpAllowlist": {
+  "pamAccessRuleSummaryIpAllowlist": {
     "message": "Auto-approve from $COUNT$ allowed CIDRs.",
     "placeholders": {
       "count": {
@@ -13938,7 +13938,7 @@
       }
     }
   },
-  "pamLeasingPolicySummaryTimeOfDay": {
+  "pamAccessRuleSummaryTimeOfDay": {
     "message": "Auto-approve in $COUNT$ window(s) ($TZ$).",
     "placeholders": {
       "count": {
@@ -13951,8 +13951,8 @@
       }
     }
   },
-  "pamLeasingPolicySummaryAllOf": {
-    "message": "All of $COUNT$ sub-policies must approve.",
+  "pamAccessRuleSummaryAllOf": {
+    "message": "All of $COUNT$ sub-rules must approve.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -13960,17 +13960,17 @@
       }
     }
   },
-  "pamLeasingPolicyCreated": {
-    "message": "Leasing policy created."
+  "pamAccessRuleCreated": {
+    "message": "Access rule created."
   },
-  "pamLeasingPolicyUpdated": {
-    "message": "Leasing policy updated."
+  "pamAccessRuleUpdated": {
+    "message": "Access rule updated."
   },
-  "pamLeasingPolicyDeleteConfirmTitle": {
-    "message": "Delete leasing policy?"
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Delete access rule?"
   },
-  "pamLeasingPolicyDeleteConfirmContent": {
-    "message": "Delete \"$NAME$\"? Any collections using this policy will have leasing disabled.",
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -13978,10 +13978,10 @@
       }
     }
   },
-  "pamNoPoliciesYetTitle": {
-    "message": "No leasing policies yet"
+  "pamNoAccessRulesYetTitle": {
+    "message": "No access rules yet"
   },
-  "pamNoPoliciesYetDescription": {
-    "message": "Create a leasing policy to gate access to collection items behind approval rules."
+  "pamNoAccessRulesYetDescription": {
+    "message": "Create a access rule to gate access to collection items behind approval rules."
   }
 }

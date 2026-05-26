@@ -1,13 +1,13 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
-import { LeasingPolicy } from "../abstractions/leasing-policy";
+import { AccessRule } from "../abstractions/access-rule";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
+import { AccessRuleRequest } from "./requests/access-rule.request";
 import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
 import { LeaseRequestPatchRequest } from "./requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
-import { LeasingPolicyRequest } from "./requests/leasing-policy.request";
 
 describe("DefaultPamApiService", () => {
   let apiService: jest.Mocked<Pick<ApiService, "send">>;
@@ -118,8 +118,8 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("listLeasingPolicies", () => {
-    it("GETs /organizations/{orgId}/leasing-policies and wraps in ListResponse", async () => {
+  describe("listAccessRules", () => {
+    it("GETs /organizations/{orgId}/access-rules and wraps in ListResponse", async () => {
       apiService.send.mockResolvedValue({
         Data: [
           {
@@ -127,7 +127,7 @@ describe("DefaultPamApiService", () => {
             OrganizationId: "org-1",
             Name: "Human approval",
             Description: null,
-            Policy: { Kind: "human_approval" },
+            Rule: { Kind: "human_approval" },
             CreationDate: "2026-05-25T00:00:00Z",
             RevisionDate: "2026-05-25T00:00:00Z",
           },
@@ -135,66 +135,66 @@ describe("DefaultPamApiService", () => {
         ContinuationToken: null,
       });
 
-      const result = await service.listLeasingPolicies("org-1");
+      const result = await service.listAccessRules("org-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
-        "/organizations/org-1/leasing-policies",
+        "/organizations/org-1/access-rules",
         null,
         true,
         true,
       );
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe("pol-1");
-      expect(result.data[0].policy.kind).toBe("human_approval");
+      expect(result.data[0].rule.kind).toBe("human_approval");
     });
   });
 
-  describe("getLeasingPolicy", () => {
-    it("GETs /organizations/{orgId}/leasing-policies/{id} and wraps the response", async () => {
+  describe("getAccessRule", () => {
+    it("GETs /organizations/{orgId}/access-rules/{id} and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "Human approval",
         Description: null,
-        Policy: { Kind: "human_approval" },
+        Rule: { Kind: "human_approval" },
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
       });
 
-      const result = await service.getLeasingPolicy("org-1", "pol-1");
+      const result = await service.getAccessRule("org-1", "pol-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
-        "/organizations/org-1/leasing-policies/pol-1",
+        "/organizations/org-1/access-rules/pol-1",
         null,
         true,
         true,
       );
       expect(result.id).toBe("pol-1");
-      expect(result.policy.kind).toBe("human_approval");
+      expect(result.rule.kind).toBe("human_approval");
     });
   });
 
-  describe("createLeasingPolicy", () => {
-    it("POSTs /organizations/{orgId}/leasing-policies and wraps the response", async () => {
+  describe("createAccessRule", () => {
+    it("POSTs /organizations/{orgId}/access-rules and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "Human approval",
         Description: null,
-        Policy: { Kind: "human_approval" },
+        Rule: { Kind: "human_approval" },
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
       });
-      const policy: LeasingPolicy = { kind: "human_approval" };
-      const req = new LeasingPolicyRequest({ name: "Human approval", policy });
+      const rule: AccessRule = { kind: "human_approval" };
+      const req = new AccessRuleRequest({ name: "Human approval", rule });
 
-      const result = await service.createLeasingPolicy("org-1", req);
+      const result = await service.createAccessRule("org-1", req);
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/organizations/org-1/leasing-policies",
+        "/organizations/org-1/access-rules",
         req,
         true,
         true,
@@ -203,25 +203,25 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("updateLeasingPolicy", () => {
-    it("PUTs /organizations/{orgId}/leasing-policies/{id} and wraps the response", async () => {
+  describe("updateAccessRule", () => {
+    it("PUTs /organizations/{orgId}/access-rules/{id} and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "Human approval (updated)",
         Description: null,
-        Policy: { Kind: "human_approval" },
+        Rule: { Kind: "human_approval" },
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-26T00:00:00Z",
       });
-      const policy: LeasingPolicy = { kind: "human_approval" };
-      const req = new LeasingPolicyRequest({ name: "Human approval (updated)", policy });
+      const rule: AccessRule = { kind: "human_approval" };
+      const req = new AccessRuleRequest({ name: "Human approval (updated)", rule });
 
-      const result = await service.updateLeasingPolicy("org-1", "pol-1", req);
+      const result = await service.updateAccessRule("org-1", "pol-1", req);
 
       expect(apiService.send).toHaveBeenCalledWith(
         "PUT",
-        "/organizations/org-1/leasing-policies/pol-1",
+        "/organizations/org-1/access-rules/pol-1",
         req,
         true,
         true,
@@ -230,15 +230,15 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("deleteLeasingPolicy", () => {
-    it("DELETEs /organizations/{orgId}/leasing-policies/{id} without expecting a response body", async () => {
+  describe("deleteAccessRule", () => {
+    it("DELETEs /organizations/{orgId}/access-rules/{id} without expecting a response body", async () => {
       apiService.send.mockResolvedValue(undefined);
 
-      await service.deleteLeasingPolicy("org-1", "pol-1");
+      await service.deleteAccessRule("org-1", "pol-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
         "DELETE",
-        "/organizations/org-1/leasing-policies/pol-1",
+        "/organizations/org-1/access-rules/pol-1",
         null,
         true,
         false,

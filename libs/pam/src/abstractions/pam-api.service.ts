@@ -1,14 +1,14 @@
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
+import { AccessRuleRequest } from "../services/requests/access-rule.request";
 import { LeaseDecisionRequest } from "../services/requests/lease-decision.request";
 import { LeaseExtensionRequest } from "../services/requests/lease-extension.request";
 import { LeaseRequestPatchRequest } from "../services/requests/lease-request-patch.request";
 import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
-import { LeasingPolicyRequest } from "../services/requests/leasing-policy.request";
 
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
+import { AccessRuleResponse } from "./responses/access-rule.response";
 import { LeaseRequestResponse } from "./responses/lease-request.response";
-import { LeasingPolicyResponse } from "./responses/leasing-policy.response";
 
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
@@ -24,18 +24,16 @@ export abstract class PamApiService {
   ): Promise<LeaseRequestResponse>;
   abstract revokeLease(id: string, request: LeaseRevokeRequest): Promise<void>;
 
-  abstract listLeasingPolicies(
+  abstract listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>>;
+  abstract getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse>;
+  abstract createAccessRule(
     organizationId: string,
-  ): Promise<ListResponse<LeasingPolicyResponse>>;
-  abstract getLeasingPolicy(organizationId: string, id: string): Promise<LeasingPolicyResponse>;
-  abstract createLeasingPolicy(
-    organizationId: string,
-    request: LeasingPolicyRequest,
-  ): Promise<LeasingPolicyResponse>;
-  abstract updateLeasingPolicy(
+    request: AccessRuleRequest,
+  ): Promise<AccessRuleResponse>;
+  abstract updateAccessRule(
     organizationId: string,
     id: string,
-    request: LeasingPolicyRequest,
-  ): Promise<LeasingPolicyResponse>;
-  abstract deleteLeasingPolicy(organizationId: string, id: string): Promise<void>;
+    request: AccessRuleRequest,
+  ): Promise<AccessRuleResponse>;
+  abstract deleteAccessRule(organizationId: string, id: string): Promise<void>;
 }

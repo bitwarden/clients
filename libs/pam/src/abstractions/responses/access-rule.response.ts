@@ -1,13 +1,13 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-import { LeasingPolicy, parseLeasingPolicy } from "../leasing-policy";
+import { AccessRule, parseAccessRule } from "../access-rule";
 
-export class LeasingPolicyResponse extends BaseResponse {
+export class AccessRuleResponse extends BaseResponse {
   id: string;
   organizationId: string;
   name: string;
   description: string | null;
-  policy: LeasingPolicy;
+  rule: AccessRule;
   creationDate: string;
   revisionDate: string;
 
@@ -17,7 +17,7 @@ export class LeasingPolicyResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Name");
     this.description = this.getResponseProperty("Description") ?? null;
-    this.policy = parseLeasingPolicy(this.getResponseProperty("Policy"));
+    this.rule = parseAccessRule(this.getResponseProperty("Rule"));
     this.creationDate = this.getResponseProperty("CreationDate");
     this.revisionDate = this.getResponseProperty("RevisionDate");
   }

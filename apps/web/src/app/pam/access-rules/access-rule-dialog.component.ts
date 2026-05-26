@@ -18,26 +18,26 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  LeasingPolicy,
-  LeasingPolicyKind,
-  LeasingPolicyRequest,
-  LeasingPolicyResponse,
+  AccessRule,
+  AccessRuleKind,
+  AccessRuleRequest,
+  AccessRuleResponse,
   PamApiService,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type LeasingPolicyDialogData = {
+export type AccessRuleDialogData = {
   organizationId: string;
   /** Present in edit mode; absent for create. */
-  policy?: LeasingPolicyResponse;
+  existing?: AccessRuleResponse;
 };
 
-export type LeasingPolicyDialogResult = "saved";
+export type AccessRuleDialogResult = "saved";
 
 const NAME_MAX_LENGTH = 256;
 
 @Component({
-  templateUrl: "./leasing-policy-dialog.component.html",
+  templateUrl: "./access-rule-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -51,31 +51,31 @@ const NAME_MAX_LENGTH = 256;
     I18nPipe,
   ],
 })
-export class LeasingPolicyDialogComponent {
-  protected readonly data = inject<LeasingPolicyDialogData>(DIALOG_DATA);
+export class AccessRuleDialogComponent {
+  protected readonly data = inject<AccessRuleDialogData>(DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
   private readonly pamApi = inject(PamApiService);
-  private readonly dialogRef = inject<DialogRef<LeasingPolicyDialogResult>>(DialogRef);
+  private readonly dialogRef = inject<DialogRef<AccessRuleDialogResult>>(DialogRef);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
 
-  protected readonly LeasingPolicyKind = LeasingPolicyKind;
-  protected readonly editing = this.data.policy != null;
+  protected readonly AccessRuleKind = AccessRuleKind;
+  protected readonly editing = this.data.existing != null;
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     name: [
-      this.data.policy?.name ?? "",
+      this.data.existing?.name ?? "",
       [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)],
     ],
-    description: [this.data.policy?.description ?? ""],
+    description: [this.data.existing?.description ?? ""],
     kind: [
-      this.data.policy?.policy.kind ?? (LeasingPolicyKind.HumanApproval as LeasingPolicyKind),
+      this.data.existing?.rule.kind ?? (AccessRuleKind.HumanApproval as AccessRuleKind),
       [Validators.required],
     ],
   });
 
   protected readonly kindIsEditableYet = computed(() => {
-    return this.formGroup.controls.kind.value === LeasingPolicyKind.HumanApproval;
+    return this.formGroup.controls.kind.value === AccessRuleKind.HumanApproval;
   });
 
   protected readonly submit = async (): Promise<void> => {
@@ -85,36 +85,36 @@ export class LeasingPolicyDialogComponent {
     }
 
     const value = this.formGroup.getRawValue();
-    if (value.kind !== LeasingPolicyKind.HumanApproval) {
+    if (value.kind !== AccessRuleKind.HumanApproval) {
       // Other kinds need editor stories (PM-37272/3/4/5). The template disables
       // submit in that case, but guard here too in case the disabled state is
       // bypassed.
       return;
     }
 
-    const policy: LeasingPolicy = { kind: "human_approval" };
-    const request = new LeasingPolicyRequest({
+    const rule: AccessRule = { kind: "human_approval" };
+    const request = new AccessRuleRequest({
       name: value.name,
       description: value.description.length === 0 ? null : value.description,
-      policy,
+      rule,
     });
 
     try {
-      if (this.data.policy != null) {
-        await this.pamApi.updateLeasingPolicy(
+      if (this.data.existing != null) {
+        await this.pamApi.updateAccessRule(
           this.data.organizationId,
-          this.data.policy.id,
+          this.data.existing.id,
           request,
         );
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamLeasingPolicyUpdated"),
+          message: this.i18nService.t("pamAccessRuleUpdated"),
         });
       } else {
-        await this.pamApi.createLeasingPolicy(this.data.organizationId, request);
+        await this.pamApi.createAccessRule(this.data.organizationId, request);
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamLeasingPolicyCreated"),
+          message: this.i18nService.t("pamAccessRuleCreated"),
         });
       }
       await this.dialogRef.close("saved");
@@ -129,8 +129,8 @@ export class LeasingPolicyDialogComponent {
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<LeasingPolicyDialogData>,
-  ): DialogRef<LeasingPolicyDialogResult> {
-    return dialogService.open<LeasingPolicyDialogResult>(LeasingPolicyDialogComponent, config);
+    config: DialogConfig<AccessRuleDialogData>,
+  ): DialogRef<AccessRuleDialogResult> {
+    return dialogService.open<AccessRuleDialogResult>(AccessRuleDialogComponent, config);
   }
 }
