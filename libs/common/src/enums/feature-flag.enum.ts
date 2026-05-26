@@ -31,11 +31,14 @@ export enum FeatureFlag {
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  EnableAutofillTriage = "enable-autofill-triage",
+  FillAssistTargetingRules = "fill-assist-targeting-rules",
+
+  /* Desktop Native */
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
-  EnableAutofillTriage = "enable-autofill-triage",
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
+  SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -57,7 +60,6 @@ export enum FeatureFlag {
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
-  UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
   SendEventLogging = "pm-36560-send-event-logging",
@@ -129,14 +131,16 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
-  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
-  [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
+  /* Desktop Native */
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.SSHecdsa]: FALSE,
+
   /* Tools */
-  [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,

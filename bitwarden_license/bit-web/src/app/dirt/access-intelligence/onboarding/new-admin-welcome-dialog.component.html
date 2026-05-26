@@ -1,0 +1,116 @@
+<bit-dialog dialogSize="large">
+  <div bitDialogContent class="tw-text-center">
+    <vault-carousel
+      [hideArrows]="true"
+      [label]="'accessIntelligenceWelcomeTour' | i18n"
+      (slideChange)="onSlideChange($event)"
+      #carousel
+    >
+      <!-- Slide 1 -->
+      <vault-carousel-slide [label]="'yourEntireOrgsSecurityInOneView' | i18n" noFocusableChildren>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-text-center">
+          <img
+            src="/images/access-intelligence/data-is-in.svg"
+            class="tw-w-full tw-mx-auto"
+            alt=""
+            aria-hidden="true"
+          />
+          <h2 bitTypography="h2">{{ "yourEntireOrgsSecurityInOneView" | i18n }}</h2>
+          <p bitTypography="body1">{{ "accessIntelligenceGivesYouSinglePlace" | i18n }}</p>
+        </div>
+      </vault-carousel-slide>
+
+      <!-- Slide 2 -->
+      <vault-carousel-slide
+        [label]="'youSetThePrioritiesWeSurfaceTheRisks' | i18n"
+        noFocusableChildren
+      >
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-text-center">
+          <img
+            src="/images/access-intelligence/data-is-in.svg"
+            class="tw-w-full tw-mx-auto"
+            alt=""
+            aria-hidden="true"
+          />
+          <h2 bitTypography="h2">{{ "youSetThePrioritiesWeSurfaceTheRisks" | i18n }}</h2>
+          <p bitTypography="body1">{{ "youMarkWhichAppsAreMostCritical" | i18n }}</p>
+        </div>
+      </vault-carousel-slide>
+
+      <!-- Slide 3 -->
+      <vault-carousel-slide [label]="'trackImprovementsAcrossYourTeam' | i18n" noFocusableChildren>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-text-center">
+          <img
+            src="/images/access-intelligence/data-is-in.svg"
+            class="tw-w-full tw-mx-auto"
+            alt=""
+            aria-hidden="true"
+          />
+          <h2 bitTypography="h2">{{ "trackImprovementsAcrossYourTeam" | i18n }}</h2>
+          <p bitTypography="body1">{{ "membersAreAutomaticallyNotified" | i18n }}</p>
+        </div>
+      </vault-carousel-slide>
+
+      <!-- Slide 4 -->
+      <vault-carousel-slide [label]="'importYourOrgDataToGetStarted' | i18n" noFocusableChildren>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-text-center">
+          <img
+            src="/images/access-intelligence/data-is-in.svg"
+            class="tw-w-full tw-mx-auto"
+            alt=""
+            aria-hidden="true"
+          />
+          <h2 bitTypography="h2">{{ "importYourOrgDataToGetStarted" | i18n }}</h2>
+          <p bitTypography="body1">{{ "onceItHasTheVaultData" | i18n }}</p>
+        </div>
+      </vault-carousel-slide>
+
+      <!-- Action buttons projected below dots via carouselActions slot -->
+      <div carouselActions class="tw-flex tw-justify-center tw-gap-4 tw-mt-4">
+        @if (isFirstSlide()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            data-testid="skip-btn"
+            (click)="onSkip()"
+          >
+            {{ "skip" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            data-testid="back-btn"
+            (click)="carousel.prevSlide()"
+          >
+            {{ "back" | i18n }}
+          </button>
+        }
+
+        @if (isLastSlide()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            data-testid="import-btn"
+            (click)="onImportData()"
+          >
+            {{ "importData" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            data-testid="next-btn"
+            (click)="carousel.nextSlide()"
+          >
+            {{ "next" | i18n }}
+          </button>
+        }
+      </div>
+    </vault-carousel>
+  </div>
+</bit-dialog>
