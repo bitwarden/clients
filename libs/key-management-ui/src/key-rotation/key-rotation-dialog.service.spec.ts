@@ -73,6 +73,11 @@ describe("KeyRotationDialogService", () => {
 
       const result = await sut.rotateKeys(masterPassword, mockUserId);
 
+      expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
+        { Password: { password: masterPassword } },
+        "Skip",
+        mockUserId,
+      );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         title: "",
