@@ -1,6 +1,7 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
+import { stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -73,6 +74,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     attrQueueHighWaterMark: 0,
     overflowEvents: 0,
     shadowRootsReaped: 0,
+    fieldsReaped: 0,
   };
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
@@ -112,6 +114,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+    this.handleMutationObserverMutation = stopwatch(
+      "handleMutationObserverMutation",
+      this.handleMutationObserverMutation,
+    );
+    this.processMutations = stopwatch("processMutations", this.processMutations);
+    this.reapDetachedFieldMetadata = stopwatch(
+      "reapDetachedFieldMetadata",
+      this.reapDetachedFieldMetadata,
+    );
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -1373,7 +1384,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             }
           }
         }
-        this.reapDetachedFieldMetadata();
+        this.observerStats.fieldsReaped += this.reapDetachedFieldMetadata();
         this.observerStats.shadowRootsReaped += this.domQueryService.reapDetachedShadowRoots();
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
@@ -1406,23 +1417,28 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  private reapDetachedFieldMetadata(): void {
+  private reapDetachedFieldMetadata = (): number => {
+    let removed = 0;
     for (const el of this._autofillFormElements.keys()) {
       if (!el.isConnected) {
         this._autofillFormElements.delete(el);
+        removed++;
       }
     }
     for (const el of this.autofillFieldElements.keys()) {
       if (!el.isConnected) {
         this.autofillFieldElements.delete(el);
+        removed++;
       }
     }
     for (const [opid, el] of this.autofillFieldsByOpid) {
       if (!el.isConnected) {
         this.autofillFieldsByOpid.delete(opid);
+        removed++;
       }
     }
-  }
+    return removed;
+  };
 
   // Flag-only. Callers schedule explicitly so the rebuild funnel stays narrow.
   private requirePageDetailsUpdate() {

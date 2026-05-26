@@ -21,6 +21,7 @@ type ObserverStats = {
   overflowEvents: number;
   shadowRootsTracked: number;
   shadowRootsReaped: number;
+  fieldsReaped: number;
 };
 
 interface CollectAutofillContentService {

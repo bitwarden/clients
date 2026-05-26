@@ -2948,8 +2948,11 @@ describe("CollectAutofillContentService", () => {
         ["detached", detachedField],
       ]);
 
-      collectAutofillContentService["reapDetachedFieldMetadata"]();
+      const removed = collectAutofillContentService["reapDetachedFieldMetadata"]();
 
+      // Three Maps each lose one entry for the detached form, the detached field, and the
+      // detached opid index — one element produces multiple Map deletions.
+      expect(removed).toBe(3);
       expect(collectAutofillContentService["_autofillFormElements"].size).toBe(1);
       expect(collectAutofillContentService["_autofillFormElements"].has(attachedForm)).toBe(true);
       expect(collectAutofillContentService["autofillFieldElements"].size).toBe(1);
@@ -3283,6 +3286,20 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
     });
 
+    it("accumulates the field reaper return value into observerStats", () => {
+      const detachedField = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [detachedField, createAutofillFieldMock({})],
+      ]);
+      collectAutofillContentService["pendingChildListUpdate"] = true;
+      collectAutofillContentService["observerStats"].fieldsReaped = 0;
+
+      collectAutofillContentService["processMutations"]();
+      jest.runAllTimers();
+
+      expect(collectAutofillContentService["observerStats"].fieldsReaped).toBe(1);
+    });
+
     it("accumulates the shadow-root reaper return value into observerStats", () => {
       collectAutofillContentService["pendingChildListUpdate"] = true;
       collectAutofillContentService["observerStats"].shadowRootsReaped = 0;
@@ -3350,6 +3367,7 @@ describe("CollectAutofillContentService", () => {
         attrQueueHighWaterMark: 5,
         overflowEvents: 1,
         shadowRootsReaped: 4,
+        fieldsReaped: 6,
       };
       jest.spyOn(domQueryService, "getKnownShadowRootCount").mockReturnValue(2);
 
@@ -3361,6 +3379,7 @@ describe("CollectAutofillContentService", () => {
         attrQueueHighWaterMark: 5,
         overflowEvents: 1,
         shadowRootsReaped: 4,
+        fieldsReaped: 6,
         shadowRootsTracked: 2,
       });
     });
