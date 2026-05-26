@@ -45,6 +45,7 @@ export class KeyRotationDialogService {
 
     const success = await this.userKeyRotationService.rotateUserKey(
       { Password: { password: masterPassword } },
+      "Skip",
       userId,
     );
 
