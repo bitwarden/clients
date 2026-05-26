@@ -30,11 +30,11 @@ import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-r
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
+import { openUserAddEditDialog } from "../../components/member-dialog";
 import {
   MemberDialogResult,
   MemberDialogTab,
-  openUserAddEditDialog,
-} from "../../components/member-dialog";
+} from "../../components/member-dialog/member-dialog.types";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
 import { BulkActionResult } from "../member-actions/member-actions.types";
 
@@ -68,9 +68,7 @@ export class MemberDialogManagerService {
         },
       });
       const result = await lastValueFrom(dialog.closed);
-      // TODO: Remove cast once MemberDialogComponent (the old dialog) is deleted and
-      // MemberDialogResult is unified as a const object across all dialogs.
-      return (result ?? MemberDialogResult.Canceled) as MemberDialogResult;
+      return result ?? MemberDialogResult.Canceled;
     }
 
     const dialog = openUserAddEditDialog(this.dialogService, {
@@ -112,9 +110,7 @@ export class MemberDialogManagerService {
       });
 
       const result = await lastValueFrom(dialog.closed);
-      // TODO: Remove cast once MemberDialogComponent (the old dialog) is deleted and
-      // MemberDialogResult is unified as a const object across all dialogs.
-      return (result ?? MemberDialogResult.Canceled) as MemberDialogResult;
+      return result ?? MemberDialogResult.Canceled;
     }
 
     const dialog = openUserAddEditDialog(this.dialogService, {
