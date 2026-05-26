@@ -13,6 +13,11 @@ impl PeerInfo {
     /// Looks up the process name for `pid` via sysinfo and constructs a [`PeerInfo`].
     /// Returns `None` if the process cannot be found or its name is not valid UTF-8.
     pub(crate) fn from_pid(pid: u32) -> Option<Self> {
+        #[cfg(target_os = "macos")]
+        if let Some(process_name) = macos_process_name(pid) {
+            return Some(Self { pid, process_name });
+        }
+
         let mut system = System::new();
         system.refresh_processes(
             sysinfo::ProcessesToUpdate::Some(&[Pid::from_u32(pid)]),
@@ -33,6 +38,16 @@ impl PeerInfo {
     pub(crate) fn process_name(&self) -> &str {
         &self.process_name
     }
+}
+
+#[cfg(target_os = "macos")]
+fn macos_process_name(pid: u32) -> Option<String> {
+    let path = libproc::proc_pid::pidpath(pid as i32).ok()?;
+    std::path::Path::new(&path)
+        .file_name()
+        .and_then(|s| s.to_str())
+        .map(str::to_string)
+        .or(Some(path))
 }
 
 #[cfg(test)]
