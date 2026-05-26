@@ -3283,6 +3283,18 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
     });
 
+    it("accumulates the shadow-root reaper return value into observerStats", () => {
+      collectAutofillContentService["pendingChildListUpdate"] = true;
+      collectAutofillContentService["observerStats"].shadowRootsReaped = 0;
+      jest.spyOn(domQueryService, "reapDetachedShadowRoots").mockReturnValue(3);
+
+      collectAutofillContentService["processMutations"]();
+      jest.runAllTimers();
+
+      expect(domQueryService.reapDetachedShadowRoots).toHaveBeenCalled();
+      expect(collectAutofillContentService["observerStats"].shadowRootsReaped).toBe(3);
+    });
+
     it("returns without scheduling work when nothing is pending", () => {
       collectAutofillContentService["pendingAttributeMutations"] = new Map();
       collectAutofillContentService["pendingTopLayerTargets"] = new Set();
@@ -3337,6 +3349,7 @@ describe("CollectAutofillContentService", () => {
         mutationsCoalesced: 3,
         attrQueueHighWaterMark: 5,
         overflowEvents: 1,
+        shadowRootsReaped: 4,
       };
       jest.spyOn(domQueryService, "getKnownShadowRootCount").mockReturnValue(2);
 
@@ -3347,6 +3360,7 @@ describe("CollectAutofillContentService", () => {
         mutationsCoalesced: 3,
         attrQueueHighWaterMark: 5,
         overflowEvents: 1,
+        shadowRootsReaped: 4,
         shadowRootsTracked: 2,
       });
     });

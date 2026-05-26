@@ -284,6 +284,38 @@ describe("DomQueryService", () => {
     });
   });
 
+  describe("reapDetachedShadowRoots", () => {
+    it("removes only entries whose host has left the document", () => {
+      const attachedHost = document.createElement("attached-host");
+      const attachedRoot = attachedHost.attachShadow({ mode: "open" });
+      document.body.appendChild(attachedHost);
+
+      const detachedHost = document.createElement("detached-host");
+      const detachedRoot = detachedHost.attachShadow({ mode: "open" });
+      // detachedHost is never appended to the document, so host.isConnected is false.
+
+      domQueryService["knownShadowRoots"].add(attachedRoot);
+      domQueryService["knownShadowRoots"].add(detachedRoot);
+
+      const removed = domQueryService.reapDetachedShadowRoots();
+
+      expect(removed).toBe(1);
+      expect(domQueryService["knownShadowRoots"].size).toBe(1);
+      expect(domQueryService["knownShadowRoots"].has(attachedRoot)).toBe(true);
+      expect(domQueryService["knownShadowRoots"].has(detachedRoot)).toBe(false);
+    });
+
+    it("returns 0 when every host is still connected", () => {
+      const host = document.createElement("attached-host");
+      const root = host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService["knownShadowRoots"].add(root);
+
+      expect(domQueryService.reapDetachedShadowRoots()).toBe(0);
+      expect(domQueryService["knownShadowRoots"].size).toBe(1);
+    });
+  });
+
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
       document.body.innerHTML = "";

@@ -198,6 +198,18 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   getKnownShadowRootCount = (): number => this.knownShadowRoots.size;
 
+  // `ShadowRoot.host` is non-nullable per spec; persists after host removal from document.
+  reapDetachedShadowRoots = (): number => {
+    let removed = 0;
+    for (const root of this.knownShadowRoots) {
+      if (!root.host.isConnected) {
+        this.knownShadowRoots.delete(root);
+        removed++;
+      }
+    }
+    return removed;
+  };
+
   /**
    * Queries the DOM for elements based on the given selector string.
    * Supports the special `>>>` combinator to indicate the need for

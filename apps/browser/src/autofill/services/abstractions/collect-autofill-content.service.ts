@@ -20,6 +20,7 @@ type ObserverStats = {
   attrQueueHighWaterMark: number;
   overflowEvents: number;
   shadowRootsTracked: number;
+  shadowRootsReaped: number;
 };
 
 interface CollectAutofillContentService {

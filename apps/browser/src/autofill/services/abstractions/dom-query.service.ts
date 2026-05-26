@@ -11,5 +11,6 @@ export interface DomQueryService {
   checkForNewShadowRoots(addedElements?: Element[]): boolean;
   resetObservedShadowRoots(): void;
   getKnownShadowRootCount(): number;
+  reapDetachedShadowRoots(): number;
   queryDeepSelector(selector: string): Element | null;
 }

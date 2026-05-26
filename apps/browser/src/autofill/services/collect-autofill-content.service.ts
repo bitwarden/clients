@@ -72,6 +72,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     mutationsCoalesced: 0,
     attrQueueHighWaterMark: 0,
     overflowEvents: 0,
+    shadowRootsReaped: 0,
   };
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
@@ -1373,6 +1374,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           }
         }
         this.reapDetachedFieldMetadata();
+        this.observerStats.shadowRootsReaped += this.domQueryService.reapDetachedShadowRoots();
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
