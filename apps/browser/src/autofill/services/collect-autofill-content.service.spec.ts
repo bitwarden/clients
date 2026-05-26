@@ -2680,6 +2680,124 @@ describe("CollectAutofillContentService", () => {
         done();
       }, 350);
     });
+
+    describe("collectAddedShadowRootCandidates (filter at observation)", () => {
+      const buildMutation = (added: Node[]): MutationRecord =>
+        ({
+          type: "childList",
+          addedNodes: added as unknown as NodeList,
+          attributeName: null,
+          attributeNamespace: null,
+          nextSibling: null,
+          oldValue: null,
+          previousSibling: null,
+          removedNodes: document.querySelectorAll("nonexistent"),
+          target: document.body,
+        }) as MutationRecord;
+
+      beforeEach(() => {
+        collectAutofillContentService["pendingMutationAddedElements"].clear();
+        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = false;
+      });
+
+      it("retains elements that already have a shadowRoot", () => {
+        const host = document.createElement("div");
+        host.attachShadow({ mode: "open" });
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([host])]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].has(host)).toBe(true);
+      });
+
+      it("retains custom-element hosts by hyphenated tag name", () => {
+        const widget = document.createElement("my-widget");
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([
+          buildMutation([widget]),
+        ]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].has(widget)).toBe(
+          true,
+        );
+      });
+
+      it("retains plain elements that have descendants", () => {
+        const parent = document.createElement("section");
+        parent.appendChild(document.createElement("span"));
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([
+          buildMutation([parent]),
+        ]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].has(parent)).toBe(
+          true,
+        );
+      });
+
+      it("skips pure-leaf, non-custom elements with no children", () => {
+        const span = document.createElement("span");
+        const input = document.createElement("input");
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([
+          buildMutation([span, input]),
+        ]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
+      });
+
+      it("skips non-Element nodes (text)", () => {
+        const text = document.createTextNode("hello");
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([text])]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
+      });
+
+      it("trips the overflow flag at the cap and stops adding", () => {
+        const cap = collectAutofillContentService["pendingMutationAddedElementsCap"];
+        const widgets = Array.from({ length: cap + 50 }, () => document.createElement("my-widget"));
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation(widgets)]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(true);
+        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(cap);
+      });
+
+      it("is a no-op once overflow has been tripped (later batches are ignored)", () => {
+        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = true;
+        const widget = document.createElement("my-widget");
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([
+          buildMutation([widget]),
+        ]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].has(widget)).toBe(
+          false,
+        );
+      });
+
+      it("resets pending state and overflow flag after the debounced check fires", () => {
+        jest.useFakeTimers();
+        collectAutofillContentService["currentLocationHref"] = window.location.href;
+        collectAutofillContentService["pendingShadowDomCheck"] = false;
+        jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+        jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+
+        const widget = document.createElement("my-widget");
+        document.body.appendChild(widget);
+        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = true;
+        collectAutofillContentService["pendingMutationAddedElements"].add(widget);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([widget])]);
+        jest.advanceTimersByTime(500);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
+        expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(false);
+
+        document.body.removeChild(widget);
+        jest.useRealTimers();
+      });
+    });
   });
 
   describe("setupOverlayListenersOnMutatedElements", () => {

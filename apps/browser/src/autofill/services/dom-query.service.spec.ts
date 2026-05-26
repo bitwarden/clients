@@ -348,8 +348,7 @@ describe("DomQueryService", () => {
     });
 
     it("handles a disconnected element in addedElements without crashing", () => {
-      // External callers may not filter by `isConnected` like
-      // `collect-autofill-content.service.ts` does.
+      // External callers may not filter by `isConnected`.
       domQueryService["pageContainsShadowDom"] = false;
       const host = document.createElement("disconnected-host");
       host.attachShadow({ mode: "open" });
@@ -409,6 +408,56 @@ describe("DomQueryService", () => {
         domQueryService["markShadowDomPresent"]();
 
         expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+      });
+    });
+
+    describe("suppressDescendantsInBatch (ancestor coverage)", () => {
+      it("returns the array unchanged when fewer than two elements", () => {
+        const only = document.createElement("div");
+
+        expect(domQueryService["suppressDescendantsInBatch"]([])).toEqual([]);
+        expect(domQueryService["suppressDescendantsInBatch"]([only])).toEqual([only]);
+      });
+
+      it("drops descendants whose ancestor is also in the batch", () => {
+        const parent = document.createElement("section");
+        const child = document.createElement("div");
+        parent.appendChild(child);
+
+        const roots = domQueryService["suppressDescendantsInBatch"]([parent, child]);
+
+        expect(roots).toEqual([parent]);
+      });
+
+      it("keeps unrelated siblings", () => {
+        const a = document.createElement("section");
+        const b = document.createElement("article");
+
+        const roots = domQueryService["suppressDescendantsInBatch"]([a, b]);
+
+        expect(roots).toEqual([a, b]);
+      });
+    });
+
+    describe("ancestor suppression cuts redundant subtree walks in findNewShadowRootInBatch", () => {
+      it("only scans the ancestor when a descendant is also in the batch", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const parent = document.createElement("section");
+        const child = document.createElement("div");
+        parent.appendChild(child);
+        document.body.appendChild(parent);
+        const scanSpy = jest.spyOn(
+          domQueryService as unknown as { scanForNewShadowRootInSubtree: jest.Mock },
+          "scanForNewShadowRootInSubtree",
+        );
+
+        domQueryService.checkForNewShadowRoots([parent, child]);
+
+        // First call is the parent at depth 0; without suppression we'd see
+        // a second top-level call for `child`.
+        const topLevelCalls = scanSpy.mock.calls.filter(([, depth]) => depth === 0);
+        expect(topLevelCalls.length).toBe(1);
+        expect(topLevelCalls[0][0]).toBe(parent);
       });
     });
   });

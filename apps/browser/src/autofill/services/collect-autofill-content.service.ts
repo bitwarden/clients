@@ -61,8 +61,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly overlaySetupDelayMs = 100;
   private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
   private pendingShadowDomCheck = false;
-  /** Set, not array: duplicates only cost redundant `getShadowRoot` calls. */
   private pendingMutationAddedElements: Set<Element> = new Set();
+  private pendingMutationAddedElementsOverflowed = false;
+  private readonly pendingMutationAddedElementsCap = 256;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckTimeoutMs = 500;
@@ -1235,16 +1236,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.debouncedRequirePageDetailsUpdate();
     }
 
-    // Collect added elements from this mutation batch so that the shadow DOM
-    // check can inspect only the newly-added subtrees instead of rescanning the
-    // entire document (performance fix for large DOMs).
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes ?? []) {
-        if (node instanceof Element) {
-          this.pendingMutationAddedElements.add(node);
-        }
-      }
-    }
+    this.collectAddedShadowRootCandidates(mutations);
 
     if (!this.pendingShadowDomCheck) {
       this.pendingShadowDomCheck = true;
@@ -1257,6 +1249,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.handleNewShadowRoots();
         this.pendingShadowDomCheck = false;
         this.pendingMutationAddedElements.clear();
+        this.pendingMutationAddedElementsOverflowed = false;
       }, this.shadowDomCheckTimeoutMs);
     }
 
@@ -1363,6 +1356,41 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.debouncedRequirePageDetailsUpdate();
     }
   };
+
+  // Edge case: a plain element added empty and given `attachShadow()` later
+  // with no further child mutations is dropped here. Rare for autofill content;
+  // the next mutation cycle catches it.
+  private collectAddedShadowRootCandidates(mutations: MutationRecord[]) {
+    if (this.pendingMutationAddedElementsOverflowed) {
+      return;
+    }
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes ?? []) {
+        if (!this.couldContainShadowRoot(node)) {
+          continue;
+        }
+        this.pendingMutationAddedElements.add(node);
+        if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
+          this.pendingMutationAddedElementsOverflowed = true;
+          return;
+        }
+      }
+    }
+  }
+
+  private couldContainShadowRoot(node: Node): node is Element {
+    if (!(node instanceof Element)) {
+      return false;
+    }
+    if (node.shadowRoot) {
+      return true;
+    }
+    // Custom element — `attachShadow` may run after observation.
+    if (node.tagName.includes("-")) {
+      return true;
+    }
+    return node.firstElementChild !== null;
+  }
 
   /**
    * Processes a single mutation record and updates the autofill elements if necessary.

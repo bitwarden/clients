@@ -125,9 +125,6 @@ export class DomQueryService implements DomQueryServiceInterface {
   /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
   checkForNewShadowRoots = (addedElements?: Element[]): boolean => {
     const verdict = this.classifyShadowRootScan(addedElements);
-    // Only `narrow` can yield foundNewRoot with the latch false: `fullScan` is
-    // unreachable while the latch is false (short-circuit catches it), and
-    // `shortCircuit` always reports false.
     if (verdict.foundNewRoot && !this.pageContainsShadowDom) {
       this.markShadowDomPresent();
     }
@@ -136,8 +133,7 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   private classifyShadowRootScan = (addedElements?: Element[]): ScanVerdict => {
     const hasAddedElements = !!addedElements && addedElements.length > 0;
-    // With a batch present, scan even if the latch is false — shadow DOM may
-    // have attached after init().
+    // Batch present: scan even with latch false (shadow DOM may attach post-init).
     if (!this.pageContainsShadowDom && !hasAddedElements) {
       return { branch: "shortCircuit", foundNewRoot: false };
     }
@@ -147,12 +143,35 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   private findNewShadowRootInBatch = (elements: Element[]): ScanVerdict => {
-    for (const el of elements) {
+    // Drop descendants of other batch elements — same subtree, re-walked.
+    const roots = this.suppressDescendantsInBatch(elements);
+    for (const el of roots) {
       if (this.scanForNewShadowRootInSubtree(el, 0)) {
         return { branch: "narrow", foundNewRoot: true };
       }
     }
     return { branch: "narrow", foundNewRoot: false };
+  };
+
+  /** O(N²) over the batch — N is bounded upstream by `pendingMutationAddedElementsCap`. */
+  private suppressDescendantsInBatch = (elements: Element[]): Element[] => {
+    if (elements.length < 2) {
+      return elements;
+    }
+    const roots: Element[] = [];
+    for (const candidate of elements) {
+      let coveredByAnotherElement = false;
+      for (const other of elements) {
+        if (other !== candidate && other.contains(candidate)) {
+          coveredByAnotherElement = true;
+          break;
+        }
+      }
+      if (!coveredByAnotherElement) {
+        roots.push(candidate);
+      }
+    }
+    return roots;
   };
 
   private findNewShadowRootInDocument = (): ScanVerdict => {
@@ -304,8 +323,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
       return false;
     }
-    // Host check — `querySelectorAll("*")` excludes the scope element, so
-    // we'd miss the host's own root without this branch.
+    // Host check — `querySelectorAll("*")` excludes the scope element.
     if (subtree instanceof Element) {
       const root = this.getShadowRoot(subtree);
       if (root) {
