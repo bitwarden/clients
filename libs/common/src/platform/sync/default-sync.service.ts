@@ -296,7 +296,7 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$(response.id))) {
       this.messageSender.send("convertAccountToKeyConnector");
     }
   }

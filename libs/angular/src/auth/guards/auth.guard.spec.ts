@@ -30,7 +30,9 @@ describe("AuthGuard", () => {
     authService.getAuthStatus.mockResolvedValue(authStatus);
     const messagingService: MockProxy<MessagingService> = mock<MessagingService>();
     const keyConnectorService: MockProxy<KeyConnectorService> = mock<KeyConnectorService>();
-    keyConnectorService.convertAccountRequired$ = of(keyConnectorServiceRequiresAccountConversion);
+    keyConnectorService.convertAccountRequired$.mockReturnValue(
+      of(keyConnectorServiceRequiresAccountConversion),
+    );
     const configService: MockProxy<ConfigService> = mock<ConfigService>();
     const accountService: MockProxy<AccountService> = mock<AccountService>();
     const activeAccountSubject = new BehaviorSubject<Account | null>(null);

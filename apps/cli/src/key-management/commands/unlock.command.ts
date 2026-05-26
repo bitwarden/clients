@@ -71,7 +71,7 @@ export class UnlockCommand {
       return Response.error(e.message);
     }
 
-    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$(userId))) {
       const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
         userId,
         this.keyConnectorService,

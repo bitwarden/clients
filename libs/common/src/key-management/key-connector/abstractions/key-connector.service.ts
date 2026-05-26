@@ -28,5 +28,5 @@ export abstract class KeyConnectorService {
     userId: UserId,
   ): Observable<KeyConnectorDomainConfirmation | null>;
 
-  abstract convertAccountRequired$: Observable<boolean>;
+  abstract convertAccountRequired$(userId: UserId): Observable<boolean>;
 }

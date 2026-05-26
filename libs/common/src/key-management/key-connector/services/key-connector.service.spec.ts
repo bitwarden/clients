@@ -90,7 +90,6 @@ describe("KeyConnectorService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     keyConnectorService = new KeyConnectorService(
-      accountService,
       masterPasswordService,
       keyService,
       apiService,
@@ -358,7 +357,7 @@ describe("KeyConnectorService", () => {
 
     it("should return true when user logged in with sso, belong to organization using key connector and user does not use key connector", async () => {
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(true);
     });
 
@@ -366,7 +365,7 @@ describe("KeyConnectorService", () => {
       tokenService.getIsExternal.mockResolvedValue(false);
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(false);
     });
 
@@ -381,7 +380,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of([organization]));
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(false);
     });
 
@@ -396,7 +395,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of([organization]));
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(false);
     });
 
@@ -411,7 +410,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of([organization]));
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(false);
     });
 
@@ -426,7 +425,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of([organization]));
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(false);
     });
 
@@ -434,23 +433,15 @@ describe("KeyConnectorService", () => {
       await stateProvider.getUser(mockUserId, USES_KEY_CONNECTOR).update(() => true);
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).resolves.toEqual(false);
-    });
-
-    it("should not return any value when user not logged in", async () => {
-      await accountService.switchAccount(null as unknown as UserId);
-
-      await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
-      ).rejects.toBeInstanceOf(TimeoutError);
     });
 
     it("should not return any value when organization state is empty", async () => {
       organizationService.organizations$.mockReturnValue(of(null as unknown as Organization[]));
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).rejects.toBeInstanceOf(TimeoutError);
     });
 
@@ -458,7 +449,7 @@ describe("KeyConnectorService", () => {
       await stateProvider.getUser(mockUserId, USES_KEY_CONNECTOR).update(() => null);
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).rejects.toBeInstanceOf(TimeoutError);
     });
 
@@ -466,7 +457,7 @@ describe("KeyConnectorService", () => {
       tokenService.hasAccessToken$.mockReturnValue(of(false));
 
       await expect(
-        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+        firstValueFrom(keyConnectorService.convertAccountRequired$(mockUserId).pipe(timeout(100))),
       ).rejects.toBeInstanceOf(TimeoutError);
     });
   });
@@ -679,7 +670,7 @@ describe("KeyConnectorService", () => {
           const expectedKdfConfig =
             kdfType == KdfType.PBKDF2_SHA256
               ? new PBKDF2KdfConfig(kdfIterations)
-              : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+              : new Argon2KdfConfig(kdfIterations, kdfMemory!, kdfParallelism!);
 
           const conversion: NewSsoUserKeyConnectorConversion = {
             kdfConfig: expectedKdfConfig,

@@ -99,7 +99,7 @@ describe("DefaultSyncService", () => {
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
-    keyConnectorService.convertAccountRequired$ = of(false);
+    keyConnectorService.convertAccountRequired$.mockReturnValue(of(false));
     providerService = mock();
     folderApiService = mock();
     organizationService = mock();
@@ -481,7 +481,7 @@ describe("DefaultSyncService", () => {
 
       it("uses the current time when a sync is forced", async () => {
         // Mock the value of this observable because it's used in `syncProfile`. Without it, the test breaks.
-        keyConnectorService.convertAccountRequired$ = of(false);
+        keyConnectorService.convertAccountRequired$.mockReturnValue(of(false));
 
         jest.useFakeTimers({ now: Date.now() });
 
