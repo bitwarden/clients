@@ -403,7 +403,7 @@ describe("BulkActionsBarComponent — additional actions", () => {
   });
 
   it("requests the menu open above the trigger (anchored to the trigger's end edge)", () => {
-    expect(trigger()!.getAttribute("position")).toBe("above-end");
+    expect(trigger()!.getAttribute("menuPosition")).toBe("above-end");
   });
 
   it("keeps the trigger label hidden even when the bar is not compact", () => {
