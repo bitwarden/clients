@@ -306,6 +306,10 @@ export class CipherViewLikeUtils {
         return !!cipher.passport?.passportNumber;
       case "nationalIdentificationNumber":
         return !!cipher.passport?.nationalIdentificationNumber;
+      case "givenName":
+        return !!cipher.passport?.givenName;
+      case "surname":
+        return !!cipher.passport?.surname;
       default:
         return false;
     }

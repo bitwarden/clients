@@ -1,31 +1,29 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="default">
-    <ng-container bitDialogTitle>
-      <span>{{ "createAccessToken" | i18n }}</span>
-      <span class="tw-text-sm tw-normal-case tw-text-muted">
-        {{ data.serviceAccountView.name }}
-      </span>
-    </ng-container>
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="default">
+  <ng-container bitDialogTitle>
+    <span>{{ "createAccessToken" | i18n }}</span>
+    <span class="tw-text-sm tw-normal-case tw-text-muted">
+      {{ data.serviceAccountView.name }}
+    </span>
+  </ng-container>
 
-    <div bitDialogContent>
-      <bit-form-field>
-        <bit-label>{{ "name" | i18n }}</bit-label>
-        <input bitInput appAutofocus formControlName="name" />
-      </bit-form-field>
-      <sm-expiration-options
-        formControlName="expirationDateControl"
-        [expirationDayOptions]="expirationDayOptions"
-        [touched]="formGroup.controls.expirationDateControl.touched"
-      ></sm-expiration-options>
-    </div>
+  <div bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input bitInput appAutofocus formControlName="name" />
+    </bit-form-field>
+    <sm-expiration-options
+      formControlName="expirationDateControl"
+      [expirationDayOptions]="expirationDayOptions"
+      [touched]="formGroup.controls.expirationDateControl.touched"
+    ></sm-expiration-options>
+  </div>
 
-    <ng-container bitDialogFooter>
-      <button class="tw-normal-case" type="submit" bitButton buttonType="primary" bitFormButton>
-        {{ "createAccessToken" | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
-        {{ "cancel" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
+  <ng-container bitDialogFooter>
+    <button class="tw-normal-case" type="submit" bitButton buttonType="primary" bitFormButton>
+      {{ "createAccessToken" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
 </form>
