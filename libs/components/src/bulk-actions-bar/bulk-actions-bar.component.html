@@ -1,0 +1,86 @@
+<div #wrapper class="tw-fixed tw-bottom-0 tw-inset-x-0 tw-z-50 tw-flex tw-justify-center">
+  <div role="status" aria-live="polite" class="tw-sr-only">
+    {{ announcement() }}
+  </div>
+
+  <!-- 17px gap need to visually align clear button divider element spacing -->
+  <div
+    #bar
+    class="tw-mb-4 tw-flex tw-items-center tw-gap-[17px] tw-p-2 tw-rounded-xl tw-bg-bg-brand-stronger tw-transition-[transform,opacity] tw-duration-200 tw-ease-out"
+    [class]="barStateClasses()"
+    [attr.inert]="!visible() ? '' : null"
+    [attr.aria-hidden]="!visible() ? 'true' : null"
+    role="toolbar"
+    aria-orientation="horizontal"
+    [attr.aria-label]="'bulkActionsBar' | i18n"
+    (keydown)="onToolbarKeydown($event)"
+  >
+    <span class="tw-flex tw-gap-1.5 tw-px-2 tw-text-sm" [class]="elementWithDividerClasses">
+      <span class="tw-font-semibold tw-text-fg-contrast">
+        {{ selectedCount() }}
+      </span>
+      <span class="tw-text-fg-contrast-strong">
+        {{ "selected" | i18n }}
+      </span>
+    </span>
+    <button
+      [class]="elementWithDividerClasses"
+      bitBulkActionButton
+      icon="bwi-clear"
+      [compact]="compact()"
+      (click)="onClear()"
+      type="button"
+    >
+      {{ "clear" | i18n }}
+    </button>
+
+    <div class="tw-flex tw-items-center tw-gap-2">
+      @for (primary of primaryActions(); track primary) {
+        <button
+          bitBulkActionButton
+          type="button"
+          [icon]="primary.icon()"
+          [compact]="compact()"
+          [disabled]="primary.disabled()"
+          (click)="primary.action()()"
+        >
+          {{ primary.label() }}
+        </button>
+      }
+
+      @if (hasAdditionalActions()) {
+        <button
+          #additionalActionsTrigger
+          bitBulkActionButton
+          icon="bwi-ellipsis-v"
+          [compact]="true"
+          type="button"
+          [bitMenuTriggerFor]="additionalActionsMenu"
+          menuPosition="above-end"
+          [attr.aria-label]="'additionalActions' | i18n"
+        >
+          {{ "additionalActions" | i18n }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Keeps projected data-holders attached to the view; they render no DOM (display: none). -->
+  <ng-content></ng-content>
+</div>
+
+<bit-menu #additionalActionsMenu>
+  @for (additional of additionalActions(); track additional) {
+    <button
+      bitMenuItem
+      type="button"
+      [disabled]="additional.disabled()"
+      (click)="additional.action()()"
+    >
+      @if (additional.icon(); as iconName) {
+        <bit-icon slot="start" [name]="iconName" />
+      }
+      {{ additional.label() }}
+    </button>
+  }
+</bit-menu>

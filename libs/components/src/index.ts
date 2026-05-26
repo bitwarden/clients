@@ -10,6 +10,7 @@ export * from "./badge";
 export * from "./banner";
 export * from "./berry";
 export * from "./breadcrumbs";
+export * from "./bulk-actions-bar";
 export * from "./button";
 export * from "./callout";
 export * from "./card";
