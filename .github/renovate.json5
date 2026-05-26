@@ -116,7 +116,7 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["ed25519", "mockall", "pkcs8", "serial_test"],
+      matchPackageNames: ["mockall", "serial_test"],
       description: "Autofill-Desktop owned dependencies",
       commitMessagePrefix: "[deps] Desktop Native:",
       reviewers: ["team:team-desktop-native-dev"],
