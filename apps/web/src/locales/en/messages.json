@@ -3616,13 +3616,13 @@
     "message": "Subscription canceled"
   },
   "churnOfferTitle": {
-    "message": "Special Offer before you go"
+    "message": "Special offer before you go"
   },
   "churnOfferPreamble": {
     "message": "If you cancel now, your access continues until"
   },
   "churnOfferPreambleSuffix": {
-    "message": ". But as a long-time customer we'd like to offer you something first."
+    "message": ". But as a long-time customer, we'd like to offer you something first."
   },
   "churnOfferDiscountHeading": {
     "message": "Get $DISCOUNT$ off your subscription",

@@ -47,7 +47,7 @@ export class OrganizationBillingClient {
       CouponId: "test-coupon",
       PercentOff: 10,
       AmountOff: null,
-      DurationDescription: "for 1 year",
+      DurationDescription: "1 year",
       Name: "10% Off for 1 Year",
     });
     try {

@@ -5,32 +5,32 @@
       <p bitTypography="body1" class="tw-text-muted">
         {{ "churnOfferSuccessBody" | i18n: discountLabel : params.offer.durationDescription }}
       </p>
-      <bit-card class="tw-bg-bg-secondary tw-border-light tw-shadow-none">
+      <bit-card class="tw-bg-bg-secondary tw-shadow-none">
         <dl class="tw-grid tw-grid-cols-2 tw-gap-y-2 tw-m-0">
-          <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+          <dt bitTypography="body1" class="tw-font-normal tw-text-fg-body-subtle">
             {{ "plan" | i18n }}
           </dt>
           <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
             {{ params.planName }}
           </dd>
-          <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+          <dt bitTypography="body1" class="tw-font-normal tw-text-fg-body-subtle">
             {{ "status" | i18n }}
           </dt>
           <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
             {{ "active" | i18n }}
           </dd>
-          <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+          <dt bitTypography="body1" class="tw-font-normal tw-text-fg-body-subtle">
             {{ "discountApplied" | i18n }}
           </dt>
           <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
             {{ discountLabel }} {{ "for" | i18n }} {{ params.offer.durationDescription }}
           </dd>
           @if (params.nextChargeDate) {
-            <dt bitTypography="body1" class="tw-font-light tw-text-fg-body-subtle">
+            <dt bitTypography="body1" class="tw-font-normal tw-text-fg-body-subtle">
               {{ "nextCharge" | i18n }}
             </dt>
             <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
-              {{ params.nextChargeDate | date: "mediumDate" }}
+              {{ params.nextChargeDate | date: "longDate" }}
             </dd>
           }
         </dl>
@@ -48,21 +48,29 @@
     <ng-container bitDialogContent>
       <p class="tw-text-muted" bitTypography="body1">
         {{ "churnOfferPreamble" | i18n }}
-        <strong>{{ params.accessEndDate | date: "mediumDate" }}</strong
-        >{{ "churnOfferPreambleSuffix" | i18n }}
+        <strong>{{ params.accessEndDate | date: "longDate" }}</strong>
+        {{ "churnOfferPreambleSuffix" | i18n }}
       </p>
-      <bit-card class="tw-bg-bg-brand-stronger">
-        <div
-          class="tw-inline-flex tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-brand-soft tw-p-3 tw-mb-4"
-        >
-          <i class="bwi bwi-globe tw-text-[36px] tw-text-primary-600" aria-hidden="true"></i>
+      <bit-card class="tw-relative tw-overflow-hidden !tw-shadow-none !tw-border-none">
+        <img
+          src="../../../images/globe-bg.png"
+          alt=""
+          aria-hidden="true"
+          class="tw-absolute tw-inset-0 tw-w-full tw-h-full tw-object-cover tw-pointer-events-none"
+        />
+        <div class="tw-relative">
+          <div
+            class="tw-inline-flex tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-brand-soft tw-p-3 tw-mb-4"
+          >
+            <i class="bwi bwi-gift tw-text-[36px] tw-text-primary-600" aria-hidden="true"></i>
+          </div>
+          <p bitTypography="h3" class="tw-mb-1 !tw-text-fg-white">
+            {{ "churnOfferDiscountHeading" | i18n: discountLabel }}
+          </p>
+          <span bitTypography="body1" class="tw-text-fg-contrast tw-font-normal">
+            {{ "churnOfferDiscountBody" | i18n: discountLabel : params.offer.durationDescription }}
+          </span>
         </div>
-        <p bitTypography="h2" class="tw-mb-1 !tw-text-fg-white">
-          {{ "churnOfferDiscountHeading" | i18n: discountLabel }}
-        </p>
-        <span bitTypography="body2" class="tw-text-fg-contrast tw-font-normal">
-          {{ "churnOfferDiscountBody" | i18n: discountLabel : params.offer.durationDescription }}
-        </span>
       </bit-card>
     </ng-container>
     <ng-container bitDialogFooter>
