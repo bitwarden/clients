@@ -5,7 +5,7 @@ import { Client, base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey }
 export class Vault {
   static async open(username: string, options: ClientOptions): Promise<Vault> {
     const client = new Client(options);
-    const loginResult = await client.login(username, options);
+    const loginResult = await client.login(username);
 
     const pages = await client.syncDown(loginResult.sessionToken);
     const merged = Vault.mergeSyncDownPages(pages);

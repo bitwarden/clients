@@ -4353,9 +4353,6 @@
   "keeperUnsupported2faMethod": {
     "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
-  "noKeeperDataFound": {
-    "message": "No Keeper data found"
-  },
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"

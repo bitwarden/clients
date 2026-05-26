@@ -33,7 +33,6 @@ export interface Ui {
     method: DeviceApprovalChannel,
     options?: ProvideApprovalCodeOptions,
   ): Promise<string | Cancel | Resend | TryAnother>;
-  closeApprovalDialog(): void;
 
   // 2FA flow
   selectTwoFactorMethod(channels: TwoFactorMethod[]): Promise<TwoFactorMethod | Cancel>;
@@ -45,16 +44,13 @@ export interface Ui {
   // DUO specific actions
   selectDuoMethod(methods: DuoMethod[], phoneNumber: string): Promise<DuoMethod | Cancel>;
   waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | typeof TryAnother | void>;
-  closeDuoPushDialog(): void;
 
   // Keeper DNA specific actions
   selectDnaMethod(methods: DnaMethod[]): Promise<DnaMethod | Cancel>;
   waitForDnaPush(): Promise<typeof Cancel | typeof TryAnother | void>;
-  closeDnaPushDialog(): void;
 
   // Cloud SSO flow
   ssoLogin(url: string): Promise<string | Cancel>;
-  closeSsoDialog(): void;
 
   // Password prompt (deferred until server requests it)
   promptForPassword(options?: PromptForPasswordOptions): Promise<string | Cancel>;

@@ -166,12 +166,6 @@ export class KeeperDirectImportUIService implements Ui {
     return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
   }
 
-  closeApprovalDialog(): void {
-    // No-op: the next Ui call sets the next stage. Going to "idle" mid-flow causes
-    // Angular to re-mount the email form, which re-fires the async validator and
-    // starts parallel Vault.open calls.
-  }
-
   //
   // 2FA flow
   //
@@ -242,10 +236,6 @@ export class KeeperDirectImportUIService implements Ui {
     }
   }
 
-  closeDuoPushDialog(): void {
-    // No-op — see closeApprovalDialog.
-  }
-
   //
   // Keeper DNA flow
   //
@@ -269,10 +259,6 @@ export class KeeperDirectImportUIService implements Ui {
     if (result === Cancel || result === TryAnother) {
       return result;
     }
-  }
-
-  closeDnaPushDialog(): void {
-    // No-op — see closeApprovalDialog.
   }
 
   //
@@ -301,10 +287,6 @@ export class KeeperDirectImportUIService implements Ui {
     } finally {
       this.ssoTabMonitor.cancel();
     }
-  }
-
-  closeSsoDialog(): void {
-    // No-op — see closeApprovalDialog.
   }
 
   //

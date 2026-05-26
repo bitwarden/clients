@@ -65,7 +65,6 @@ import {
   generateEcKey,
   generateEncryptionKey,
   getRandomBytes,
-  loadEcPrivateKey,
   unloadEcPublicKey,
 } from "./crypto";
 import { post } from "./http";
@@ -87,15 +86,8 @@ export class Client {
     this.ui = options.ui;
   }
 
-  async login(username: string, options: ClientOptions): Promise<LoginResult> {
-    if (options.publicKeyId) {
-      this.serverKeyId = options.publicKeyId;
-    }
-
-    const { deviceToken, devicePrivateKey } =
-      options.deviceToken && options.devicePrivateKey
-        ? await this.loadDeviceCredentials(options.deviceToken, options.devicePrivateKey)
-        : await this.registerDevice();
+  async login(username: string): Promise<LoginResult> {
+    const { deviceToken, devicePrivateKey } = await this.registerDevice();
 
     const messageSessionUid = getRandomBytes(16);
     const transmissionKey = generateEncryptionKey();
@@ -203,16 +195,6 @@ export class Client {
     }
 
     return pages;
-  }
-
-  private async loadDeviceCredentials(
-    deviceTokenBase64: string,
-    devicePrivateKeyBase64: string,
-  ): Promise<DeviceCredentials> {
-    const deviceToken = base64UrlDecode(deviceTokenBase64);
-    const privateKeyBytes = base64UrlDecode(devicePrivateKeyBase64);
-    const devicePrivateKey = await loadEcPrivateKey(privateKeyBytes);
-    return { deviceToken, devicePrivateKey };
   }
 
   private async registerDevice(): Promise<DeviceCredentials> {
@@ -345,8 +327,6 @@ export class Client {
     if (ssoResponse.encryptedLoginToken.length === 0) {
       throw new Error("SSO response missing login token");
     }
-
-    this.ui.closeSsoDialog();
 
     return await this.resumeLoginAfterSso(
       ssoResponse.encryptedLoginToken,
@@ -630,7 +610,6 @@ export class Client {
             const approvedByAdmin =
               message.message === "device_approved" && message.approved === true;
             if (message.command === "device_verified" || approvedByAdmin) {
-              this.ui.closeApprovalDialog();
               return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
             }
           }
@@ -857,8 +836,6 @@ export class Client {
 
           const dnaResult = await Promise.race([socket.waitForMessage(), this.ui.waitForDnaPush()]);
 
-          this.ui.closeDnaPushDialog();
-
           if (dnaResult === TryAnother) {
             continue twoFactor;
           }
@@ -914,8 +891,6 @@ export class Client {
                 socket.waitForMessage(),
                 this.ui.waitForDuoPush(duoMethod),
               ]);
-
-              this.ui.closeDuoPushDialog();
 
               if (result === TryAnother) {
                 continue twoFactor;

@@ -14150,6 +14150,18 @@
   "keeperUnsupported2faMethod": {
     "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
+  "multifactorAuthenticationCancelled": {
+    "message": "Multifactor authentication cancelled"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Multifactor authentication failed"
+  },
+  "importingYourAccount": {
+    "message": "Importing your account..."
+  },
+  "passcode": {
+    "message": "Passcode"
+  },
   "more": {
     "message": "More"
   },
