@@ -127,6 +127,7 @@ describe("KeyRotationDialogService", () => {
 
       expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
         { KeyConnector: { key_connector_url: mockKeyConnectorUrl } },
+        "Skip",
         mockUserId,
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({

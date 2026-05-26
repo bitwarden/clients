@@ -84,6 +84,7 @@ export class KeyRotationDialogService {
 
     const success = await this.userKeyRotationService.rotateUserKey(
       { KeyConnector: { key_connector_url: keyConnectorUrl } },
+      "Skip",
       userId,
     );
 
