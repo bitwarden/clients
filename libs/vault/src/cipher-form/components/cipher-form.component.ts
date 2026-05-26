@@ -48,6 +48,7 @@ import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
 import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
+import { PassportSectionComponent } from "./passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -77,6 +78,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     SshKeySectionComponent,
     BankAccountSectionComponent,
     DriversLicenseSectionComponent,
+    PassportSectionComponent,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
     NewItemNudgeComponent,
@@ -359,7 +361,11 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       if (control instanceof FormGroup) {
         return count + this.countInvalidFields(control);
       }
-      return count + (control.invalid ? 1 : 0);
+
+      // Complex child components may have multiple fields.
+      // They can pass `fieldCount` in the errors object to specify how many fields are invalid.
+      const fieldCount = control.invalid ? ((control.errors?.["fieldCount"] as number) ?? 1) : 0;
+      return count + fieldCount;
     }, 0);
   }
 
