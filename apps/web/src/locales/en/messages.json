@@ -4381,6 +4381,30 @@
     "message": "Created file Send with password",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Edited text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Edited file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Deleted text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Deleted file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Accessed text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Accessed file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Moved item $ID$ to an organization.",
     "placeholders": {
@@ -4603,14 +4627,8 @@
   "discardEditsConfirmation": {
     "message": "If you close this view, your unsaved edits will be discarded."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "keepEditing": {
     "message": "Keep editing"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
   },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",
