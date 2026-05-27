@@ -238,7 +238,7 @@
     "@angular-devkit/build-angular": {
       "jest-environment-jsdom": "29.7.0"
     },
-    "tmp": ">=0.2.4"
+    "tmp": "0.2.5"
   },
   "engines": {
     "node": ">=22.12.0",
