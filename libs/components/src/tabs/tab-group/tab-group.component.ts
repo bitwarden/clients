@@ -119,7 +119,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       tabs.forEach((tab, i) => {
         const label = labels[i];
         if (label) {
-          tab.elementRef.nativeElement = label.elementRef.nativeElement;
+          tab.popoverAnchorElementRef.nativeElement = label.elementRef.nativeElement;
         }
       });
     });

@@ -37,7 +37,7 @@ export class TabComponent implements OnInit, PopoverElementProvider {
   readonly endIcon = input<BitwardenIcon>();
 
   /** Popover anchor target. `TabGroupComponent` rebinds `nativeElement` to the rendered tab-list button. */
-  readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+  readonly popoverAnchorElementRef: ElementRef<HTMLElement> = inject(ElementRef);
   /**
    * Optional tabIndex for the tabPanel that contains this tab's content.
    *

@@ -22,7 +22,7 @@ import { SpotlightService } from "./spotlight.service";
 
 /** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
 export abstract class PopoverElementProvider {
-  abstract readonly elementRef: ElementRef<HTMLElement>;
+  abstract readonly popoverAnchorElementRef: ElementRef<HTMLElement>;
 }
 
 /**
@@ -76,7 +76,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     optional: true,
   });
   private readonly elementRef = this.popoverElementProvider
-    ? this.popoverElementProvider.elementRef
+    ? this.popoverElementProvider.popoverAnchorElementRef
     : inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly viewContainerRef = inject(ViewContainerRef);
