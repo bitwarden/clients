@@ -40,9 +40,6 @@ export class AccessIntelligenceCoachmarkService {
   readonly tourCompleted$ = this.tourCompleted.asObservable();
 
   async startTour(_organizationId: OrganizationId): Promise<void> {
-    // if (this.isRunning()) {
-    //   return;
-    // }
     const completed = await this.onboardingService.isAICoachmarkTourCompleted();
     if (completed) {
       return;
