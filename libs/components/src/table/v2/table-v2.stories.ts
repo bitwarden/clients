@@ -1,3 +1,4 @@
+import { SelectionModel } from "@angular/cdk/collections";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -165,6 +166,36 @@ export const Scrollable: Story = {
       </bit-layout>
     `,
   }),
+};
+
+/**
+ * Passing a `SelectionModel` to `[selection]` prepends an internal checkbox
+ * column. The header checkbox selects all currently-filtered rows; row
+ * checkboxes toggle individually. The model is owned by the consumer — the
+ * table reads and writes through it but does not construct it.
+ */
+export const Selectable: Story = {
+  render: () => {
+    const selection = new SelectionModel<{ id: number }>(true, []);
+    return {
+      props: {
+        dataSource: basic,
+        displayedColumns: ["id", "name", "other"],
+        selection,
+      },
+      template: `
+        <bit-table-v2
+          [dataSource]="dataSource"
+          [displayedColumns]="displayedColumns"
+          [selection]="selection"
+        >
+          <bit-column name="id" header="Id" />
+          <bit-column name="name" header="Name" />
+          <bit-column name="other" header="Other" />
+        </bit-table-v2>
+      `,
+    };
+  },
 };
 
 const filterable = new TableDataSource<{ value: string; name: string }>();

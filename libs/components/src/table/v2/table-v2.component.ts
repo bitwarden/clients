@@ -1,4 +1,4 @@
-import { isDataSource } from "@angular/cdk/collections";
+import { isDataSource, SelectionModel } from "@angular/cdk/collections";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -69,6 +69,13 @@ export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit,
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<unknown>>();
+
+  /**
+   * Selection model. When provided, the table prepends a checkbox column
+   * with a select-all header. Select-all targets the currently filtered
+   * rows (per `dataSource.filteredData`), matching CDK conventions.
+   */
+  readonly selection = input<SelectionModel<any>>();
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
 
@@ -187,6 +194,42 @@ export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit,
 
   protected cellValue(row: any, col: BitColumnComponent): unknown {
     return row?.[col.name()];
+  }
+
+  protected selectableRows(): any[] {
+    return this.dataSource()?.filteredData ?? this.dataSource()?.data ?? [];
+  }
+
+  protected isAllSelected(): boolean {
+    const sel = this.selection();
+    if (!sel) {
+      return false;
+    }
+    const rows = this.selectableRows();
+    return rows.length > 0 && rows.every((r) => sel.isSelected(r));
+  }
+
+  protected isIndeterminate(): boolean {
+    const sel = this.selection();
+    if (!sel) {
+      return false;
+    }
+    const rows = this.selectableRows();
+    const selected = rows.filter((r) => sel.isSelected(r)).length;
+    return selected > 0 && selected < rows.length;
+  }
+
+  protected toggleAll(): void {
+    const sel = this.selection();
+    if (!sel) {
+      return;
+    }
+    const rows = this.selectableRows();
+    if (this.isAllSelected()) {
+      rows.forEach((r) => sel.deselect(r));
+    } else {
+      rows.forEach((r) => sel.select(r));
+    }
   }
 
   protected readonly sortButtonClasses = [

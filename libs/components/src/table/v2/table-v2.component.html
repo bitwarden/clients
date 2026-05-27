@@ -3,6 +3,17 @@
     class="tw-border-0 tw-border-b-2 tw-border-solid tw-border-border-base tw-font-medium tw-text-muted"
   >
     <tr>
+      @if (selection()) {
+        <th bitCell class="tw-w-10">
+          <input
+            type="checkbox"
+            aria-label="Select all rows"
+            [checked]="isAllSelected()"
+            [indeterminate]="isIndeterminate()"
+            (change)="toggleAll()"
+          />
+        </th>
+      }
       @for (col of effectiveColumns(); track col.name()) {
         <th bitCell [style.width]="col.width()" [attr.aria-sort]="ariaSort(col)">
           @if (col.sortable()) {
@@ -42,6 +53,16 @@
       <ng-container *ngTemplateOutlet="header"></ng-container>
       <tbody>
         <tr bitRow *cdkVirtualFor="let row of rows$; trackBy: trackBy(); templateCacheSize: 0">
+          @if (selection(); as sel) {
+            <td bitCell class="tw-w-10">
+              <input
+                type="checkbox"
+                aria-label="Select row"
+                [checked]="sel.isSelected(row)"
+                (change)="sel.toggle(row)"
+              />
+            </td>
+          }
           @for (col of effectiveColumns(); track col.name()) {
             <td bitCell [style.width]="col.width()">
               <ng-container
@@ -59,6 +80,16 @@
     <tbody>
       @for (row of (rows$ | async) ?? []; track row) {
         <tr bitRow>
+          @if (selection(); as sel) {
+            <td bitCell class="tw-w-10">
+              <input
+                type="checkbox"
+                aria-label="Select row"
+                [checked]="sel.isSelected(row)"
+                (change)="sel.toggle(row)"
+              />
+            </td>
+          }
           @for (col of effectiveColumns(); track col.name()) {
             <td bitCell [style.width]="col.width()">
               <ng-container
