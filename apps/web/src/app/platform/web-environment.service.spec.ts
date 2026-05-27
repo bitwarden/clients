@@ -46,17 +46,20 @@ describe("WebEnvironmentService", () => {
 
       const mockProdUSBaseUrl = "https://vault.bitwarden.com";
 
+      const PROD_US_REGION = PRODUCTION_REGIONS.find((r) => r.key === Region.US);
+
       const expectedProdUSUrls: Urls = {
         ...mockInitialProdUSUrls,
         base: mockProdUSBaseUrl,
       };
 
       const expectedModifiedScimUrl = expectedProdUSUrls.scim + "/v2";
-      const expectedSendUrl = "https://send.bitwarden.com/#";
+      const expectedSendUrl = PROD_US_REGION.urls.send + "/#/";
 
-      const PROD_US_REGION = PRODUCTION_REGIONS.find((r) => r.key === Region.US);
-
-      const prodUSEnv = new WebCloudEnvironment(PROD_US_REGION, expectedProdUSUrls);
+      const prodUSEnv = new WebCloudEnvironment(PROD_US_REGION, {
+        ...expectedProdUSUrls,
+        send: PROD_US_REGION.urls.send,
+      });
 
       beforeEach(() => {
         window = mock<Window>();
@@ -136,6 +139,15 @@ describe("WebEnvironmentService", () => {
           );
         });
       });
+
+      it("envUrls.send takes precedence over config.urls.send when both are set", async () => {
+        const customSendUrl = "https://custom-send.example.com";
+        const env = new WebCloudEnvironment(PROD_US_REGION, {
+          ...expectedProdUSUrls,
+          send: customSendUrl,
+        });
+        expect(env.getSendUrl()).toEqual(customSendUrl + "/#/");
+      });
     });
 
     describe("EU Region", () => {
@@ -152,17 +164,20 @@ describe("WebEnvironmentService", () => {
 
       const mockProdEUBaseUrl = "https://vault.bitwarden.eu";
 
+      const prodEURegionConfig = PRODUCTION_REGIONS.find((r) => r.key === Region.EU);
+
       const expectedProdEUUrls: Urls = {
         ...mockInitialProdEUUrls,
         base: mockProdEUBaseUrl,
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";
-      const expectedSendUrl = "https://send.bitwarden.eu/#";
+      const expectedSendUrl = prodEURegionConfig.urls.send + "/#/";
 
-      const prodEURegionConfig = PRODUCTION_REGIONS.find((r) => r.key === Region.EU);
-
-      const prodEUEnv = new WebCloudEnvironment(prodEURegionConfig, expectedProdEUUrls);
+      const prodEUEnv = new WebCloudEnvironment(prodEURegionConfig, {
+        ...expectedProdEUUrls,
+        send: prodEURegionConfig.urls.send,
+      });
 
       beforeEach(() => {
         window = mock<Window>();
