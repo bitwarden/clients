@@ -1,6 +1,7 @@
 import { BehaviorSubject, EMPTY, of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -34,6 +35,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
   let mockInit: jest.Mock;
   let mockReplace: jest.Mock;
   let mockStop: jest.Mock;
+  let mockSetRichContextEnabled: jest.Mock;
 
   function authSubjectFor(userId: string): BehaviorSubject<AuthenticationStatus> {
     if (!authStatusPerUser.has(userId)) {
@@ -55,6 +57,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     mockInit = jest.fn().mockResolvedValue(undefined);
     mockReplace = jest.fn().mockResolvedValue(undefined);
     mockStop = jest.fn().mockResolvedValue(undefined);
+    mockSetRichContextEnabled = jest.fn().mockResolvedValue(undefined);
 
     (global as any).ipc = {
       autofill: {
@@ -65,6 +68,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
           stop: mockStop,
           signRequestResponse: jest.fn().mockResolvedValue(undefined),
           lock: jest.fn().mockResolvedValue(undefined),
+          setRichContextEnabled: mockSetRichContextEnabled,
         },
       },
       platform: { focusWindow: jest.fn() },
@@ -357,5 +361,126 @@ describe("SshAgentService (v2 reactive key push)", () => {
     await flush();
 
     expect(mockInit).not.toHaveBeenCalled();
+  });
+});
+
+describe("SshAgentService (rich-context flag plumbing)", () => {
+  let service: SshAgentService;
+
+  let accountSubject: BehaviorSubject<{ id: UserId } | null>;
+  let enabledSubject: BehaviorSubject<boolean>;
+  let cipherViewsSubject: BehaviorSubject<CipherView[] | null>;
+  let authStatusPerUser: Map<string, BehaviorSubject<AuthenticationStatus>>;
+  let mockSetRichContextEnabled: jest.Mock;
+  let mockConfigService: { getFeatureFlag: jest.Mock };
+
+  function authSubjectFor(userId: string): BehaviorSubject<AuthenticationStatus> {
+    if (!authStatusPerUser.has(userId)) {
+      authStatusPerUser.set(
+        userId,
+        new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked),
+      );
+    }
+    return authStatusPerUser.get(userId)!;
+  }
+
+  async function createService() {
+    const mockCipherService = {
+      cipherViews$: jest.fn().mockReturnValue(cipherViewsSubject.asObservable()),
+      getAllDecrypted: jest.fn().mockResolvedValue([]),
+    };
+    const mockLogService = { info: jest.fn(), error: jest.fn(), debug: jest.fn() };
+    const mockDialogService = { open: jest.fn() };
+    const mockMessageListener = { messages$: jest.fn().mockReturnValue(EMPTY) };
+    const mockAuthService = {
+      activeAccountStatus$: of(AuthenticationStatus.Locked),
+      authStatusFor$: jest
+        .fn()
+        .mockImplementation((userId: UserId) => authSubjectFor(userId as string).asObservable()),
+    };
+    const mockToastService = { showToast: jest.fn() };
+    const mockI18nService = { t: jest.fn().mockReturnValue("") };
+    const mockDesktopSettingsService = {
+      sshAgentEnabled$: enabledSubject.asObservable(),
+      sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
+    };
+    const mockAccountService = { activeAccount$: accountSubject.asObservable() };
+
+    const svc = new SshAgentService(
+      mockCipherService as any,
+      mockLogService as any,
+      mockDialogService as any,
+      mockMessageListener as any,
+      mockAuthService as any,
+      mockToastService as any,
+      mockI18nService as any,
+      mockDesktopSettingsService as any,
+      mockAccountService as any,
+      mockConfigService as any,
+    );
+
+    await svc.init();
+    return svc;
+  }
+
+  beforeEach(() => {
+    accountSubject = new BehaviorSubject<{ id: UserId } | null>(null);
+    enabledSubject = new BehaviorSubject<boolean>(false);
+    cipherViewsSubject = new BehaviorSubject<CipherView[] | null>(null);
+    authStatusPerUser = new Map();
+
+    mockSetRichContextEnabled = jest.fn().mockResolvedValue(undefined);
+
+    (global as any).ipc = {
+      autofill: {
+        sshAgent: {
+          isLoaded: jest.fn().mockResolvedValue(false),
+          init: jest.fn().mockResolvedValue(undefined),
+          replace: jest.fn().mockResolvedValue(undefined),
+          stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: jest.fn().mockResolvedValue(undefined),
+          lock: jest.fn().mockResolvedValue(undefined),
+          setRichContextEnabled: mockSetRichContextEnabled,
+        },
+      },
+      platform: { focusWindow: jest.fn() },
+    };
+
+    // Default: both flags on.
+    mockConfigService = { getFeatureFlag: jest.fn().mockResolvedValue(true) };
+  });
+
+  afterEach(() => {
+    service?.ngOnDestroy();
+    jest.clearAllMocks();
+  });
+
+  it("pushes rich-context flag to the agent when init runs after vault unlock", async () => {
+    service = await createService();
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockSetRichContextEnabled).toHaveBeenCalledWith(true);
+  });
+
+  it("passes false to setRichContextEnabled when SSHAgentRichContext flag is off", async () => {
+    mockConfigService.getFeatureFlag.mockImplementation(async (flag: string) => {
+      if (flag === FeatureFlag.SSHAgentRichContext) {
+        return false;
+      }
+      return true; // SSHAgentV2 and others stay on
+    });
+
+    service = await createService();
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockSetRichContextEnabled).toHaveBeenCalledWith(false);
   });
 });
