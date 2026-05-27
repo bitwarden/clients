@@ -7,6 +7,7 @@ import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -146,6 +147,10 @@ describe("NewApplicationsDialogV2Component", () => {
         { provide: EnvironmentService, useValue: mockEnvironmentService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: DIALOG_DATA, useValue: mockDialogData },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     });
@@ -543,6 +548,10 @@ describe("NewApplicationsDialogV2Component", () => {
           },
           { provide: ToastService, useValue: mockToastService },
           { provide: DIALOG_DATA, useValue: emptyDialogData },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          },
         ],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();
@@ -575,6 +584,10 @@ describe("NewApplicationsDialogV2Component", () => {
           },
           { provide: ToastService, useValue: mockToastService },
           { provide: DIALOG_DATA, useValue: dialogDataWithCritical },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          },
         ],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();
