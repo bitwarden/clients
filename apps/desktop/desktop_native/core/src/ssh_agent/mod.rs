@@ -47,6 +47,7 @@ pub struct BitwardenDesktopAgent {
     /// get a list of public keys
     needs_unlock: Arc<AtomicBool>,
     is_running: Arc<AtomicBool>,
+    rich_context_enabled: Arc<AtomicBool>,
 }
 
 pub struct SshAgentUIRequest {
@@ -204,6 +205,7 @@ impl BitwardenDesktopAgent {
             request_id: Arc::new(AtomicU32::new(0)),
             needs_unlock: Arc::new(AtomicBool::new(true)),
             is_running: Arc::new(AtomicBool::new(false)),
+            rich_context_enabled: Arc::new(AtomicBool::new(false)),
         }
     }
 
@@ -303,6 +305,16 @@ impl BitwardenDesktopAgent {
 
     pub fn is_running(&self) -> bool {
         self.is_running.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    pub fn set_rich_context_enabled(&self, enabled: bool) {
+        self.rich_context_enabled
+            .store(enabled, std::sync::atomic::Ordering::Relaxed);
+    }
+
+    pub fn rich_context_enabled(&self) -> bool {
+        self.rich_context_enabled
+            .load(std::sync::atomic::Ordering::Relaxed)
     }
 }
 
