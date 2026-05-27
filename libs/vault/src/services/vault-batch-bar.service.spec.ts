@@ -23,7 +23,7 @@ import {
   ASSIGN_COLLECTIONS_DIALOG,
   AssignCollectionsResult,
 } from "../tokens/assign-collections-dialog.token";
-import { BulkDeleteDialogResult } from "../tokens/bulk-delete-dialog.token";
+import { BULK_DELETE_DIALOG, BulkDeleteDialogResult } from "../tokens/bulk-delete-dialog.token";
 
 import { PasswordRepromptService } from "./password-reprompt.service";
 import { RoutedVaultFilterService } from "./routed-vault-filter.service";
@@ -96,6 +96,7 @@ describe("VaultBatchBarService", () => {
   let organizationsSubject: BehaviorSubject<Organization[]>;
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let mockAssignCollectionsDialogOpen: jest.Mock;
+  let mockBulkDeleteDialogOpen: jest.Mock;
 
   beforeEach(() => {
     filterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
@@ -113,6 +114,7 @@ describe("VaultBatchBarService", () => {
 
     mockAccountService.activeAccount$ = of({ id: userId } as Account);
     mockAssignCollectionsDialogOpen = jest.fn();
+    mockBulkDeleteDialogOpen = jest.fn();
     mockOrganizationService.organizations$.mockReturnValue(organizationsSubject);
     mockCipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject);
     mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
@@ -135,6 +137,7 @@ describe("VaultBatchBarService", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: { open: mockAssignCollectionsDialogOpen } },
+        { provide: BULK_DELETE_DIALOG, useValue: { open: mockBulkDeleteDialogOpen } },
       ],
     });
 
@@ -710,7 +713,7 @@ describe("VaultBatchBarService", () => {
 
       await service.bulkDelete();
 
-      expect(mockDialogService.open).not.toHaveBeenCalled();
+      expect(mockBulkDeleteDialogOpen).not.toHaveBeenCalled();
     });
 
     it("shows error toast when cipher lacks edit permission and no canEditAllCiphers", async () => {
@@ -721,7 +724,7 @@ describe("VaultBatchBarService", () => {
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
-      expect(mockDialogService.open).not.toHaveBeenCalled();
+      expect(mockBulkDeleteDialogOpen).not.toHaveBeenCalled();
     });
 
     it("shows error toast when collection cannot be deleted", async () => {
@@ -733,39 +736,29 @@ describe("VaultBatchBarService", () => {
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
-      expect(mockDialogService.open).not.toHaveBeenCalled();
+      expect(mockBulkDeleteDialogOpen).not.toHaveBeenCalled();
     });
 
     it("opens BulkDeleteDialog with permanent=false outside trash", async () => {
       service.selection.select(makeCipherItem());
-      mockDialogService.open.mockReturnValue({
-        closed: of(BulkDeleteDialogResult.Canceled),
-      } as any);
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
 
       await service.bulkDelete();
 
-      expect(mockDialogService.open).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          data: expect.objectContaining({ permanent: false }),
-        }),
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ permanent: false }),
       );
     });
 
     it("opens BulkDeleteDialog with permanent=true in trash", async () => {
       filterSubject.next({ type: "trash" });
       service.selection.select(makeCipherItem());
-      mockDialogService.open.mockReturnValue({
-        closed: of(BulkDeleteDialogResult.Canceled),
-      } as any);
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
 
       await service.bulkDelete();
 
-      expect(mockDialogService.open).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          data: expect.objectContaining({ permanent: true }),
-        }),
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ permanent: true }),
       );
     });
 
@@ -773,9 +766,7 @@ describe("VaultBatchBarService", () => {
       const completedSpy = jest.fn();
       service.completed$.subscribe(completedSpy);
       service.selection.select(makeCipherItem());
-      mockDialogService.open.mockReturnValue({
-        closed: of(BulkDeleteDialogResult.Deleted),
-      } as any);
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Deleted);
       await service.bulkDelete();
       expect(service.selectedCount()).toBe(0);
       expect(completedSpy).toHaveBeenCalled();
@@ -783,9 +774,7 @@ describe("VaultBatchBarService", () => {
 
     it("does NOT clear selection when dialog is cancelled", async () => {
       service.selection.select(makeCipherItem());
-      mockDialogService.open.mockReturnValue({
-        closed: of(BulkDeleteDialogResult.Canceled),
-      } as any);
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
 
       await service.bulkDelete();
 
