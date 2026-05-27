@@ -9,7 +9,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
-import { PublicKey } from "@bitwarden/sdk-internal";
+import { PublicKey, UpgradeTokenAction } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { DefaultUserKeyRotationService } from "./user-key-rotation.service";
@@ -299,6 +299,7 @@ describe("DefaultUserKeyRotationService", () => {
 
   describe("rotateUserKey", () => {
     const mockPasswordRotation = { Password: { password: "mockPassword" } };
+    const mockUpgradeTokenAction: UpgradeTokenAction = "Skip";
     const mockOrgKey = "mockOrgPublicKey" as PublicKey;
     const mockEaKey = "mockEaPublicKey" as PublicKey;
 
@@ -313,7 +314,7 @@ describe("DefaultUserKeyRotationService", () => {
     });
 
     it("calls verifyTrust with the correct userId", async () => {
-      await service.rotateUserKey(mockPasswordRotation, mockUserId);
+      await service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId);
 
       expect(verifyTrustSpy).toHaveBeenCalledWith(mockUserId);
     });
@@ -321,9 +322,9 @@ describe("DefaultUserKeyRotationService", () => {
     it("does not call rotate_user_keys when verifyTrust throws", async () => {
       verifyTrustSpy.mockRejectedValue(new Error("trust check failed"));
 
-      await expect(service.rotateUserKey(mockPasswordRotation, mockUserId)).rejects.toThrow(
-        "trust check failed",
-      );
+      await expect(
+        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
+      ).rejects.toThrow("trust check failed");
 
       expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
     });
@@ -335,7 +336,11 @@ describe("DefaultUserKeyRotationService", () => {
         trustedEmergencyAccessUserPublicKeys: [],
       });
 
-      const result = await service.rotateUserKey(mockPasswordRotation, mockUserId);
+      const result = await service.rotateUserKey(
+        mockPasswordRotation,
+        mockUpgradeTokenAction,
+        mockUserId,
+      );
 
       expect(result).toBe(false);
       expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
@@ -346,7 +351,11 @@ describe("DefaultUserKeyRotationService", () => {
     });
 
     it("returns true on successful rotation", async () => {
-      const result = await service.rotateUserKey(mockPasswordRotation, mockUserId);
+      const result = await service.rotateUserKey(
+        mockPasswordRotation,
+        mockUpgradeTokenAction,
+        mockUserId,
+      );
 
       expect(result).toBe(true);
       expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
@@ -354,6 +363,22 @@ describe("DefaultUserKeyRotationService", () => {
           key_rotation_method: mockPasswordRotation,
           trusted_organization_public_keys: [mockOrgKey],
           trusted_emergency_access_public_keys: [mockEaKey],
+          upgrade_token_action: mockUpgradeTokenAction,
+        }),
+      );
+    });
+
+    it("forwards a CreateIfNeeded upgrade token action to the SDK request", async () => {
+      const result = await service.rotateUserKey(
+        mockPasswordRotation,
+        "CreateIfNeeded",
+        mockUserId,
+      );
+
+      expect(result).toBe(true);
+      expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
+        expect.objectContaining({
+          upgrade_token_action: "CreateIfNeeded",
         }),
       );
     });
@@ -365,13 +390,14 @@ describe("DefaultUserKeyRotationService", () => {
         trustedEmergencyAccessUserPublicKeys: [],
       });
 
-      await service.rotateUserKey(mockPasswordRotation, mockUserId);
+      await service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId);
 
       expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
         expect.objectContaining({
           key_rotation_method: mockPasswordRotation,
           trusted_organization_public_keys: [],
           trusted_emergency_access_public_keys: [],
+          upgrade_token_action: mockUpgradeTokenAction,
         }),
       );
     });
@@ -379,18 +405,18 @@ describe("DefaultUserKeyRotationService", () => {
     it("throws when the SDK client is null", async () => {
       mockSdkService.userClient$.mockReturnValue(of(null) as any);
 
-      await expect(service.rotateUserKey(mockPasswordRotation, mockUserId)).rejects.toThrow(
-        "SDK not available",
-      );
+      await expect(
+        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
+      ).rejects.toThrow("SDK not available");
       expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
     });
 
     it("throws when rotate_user_keys rejects", async () => {
       mockUserCryptoManagement.rotate_user_keys.mockRejectedValue(new Error("rotation failed"));
 
-      await expect(service.rotateUserKey(mockPasswordRotation, mockUserId)).rejects.toThrow(
-        "rotation failed",
-      );
+      await expect(
+        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
+      ).rejects.toThrow("rotation failed");
     });
   });
 });
