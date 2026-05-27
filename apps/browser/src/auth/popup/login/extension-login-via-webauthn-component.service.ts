@@ -8,7 +8,6 @@ export class ExtensionLoginViaWebAuthnComponentService
   extends DefaultLoginViaWebAuthnComponentService
   implements LoginViaWebAuthnComponentService
 {
-  showPageIcons = false;
   showTroubleLoggingInText = false;
   leftAlignDescription = true;
 }

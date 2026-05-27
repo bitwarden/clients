@@ -52,7 +52,6 @@ export type State = "assert" | "assertFailed";
 })
 export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
-  protected showPageIcons = true;
   protected showTroubleLoggingInText = true;
   protected leftAlignDescription = false;
   private shouldAutoClosePopout = false;
@@ -88,7 +87,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private messagingService: MessagingService,
     private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
   ) {
-    this.showPageIcons = this.loginViaWebAuthnComponentService.showPageIcons;
     this.showTroubleLoggingInText = this.loginViaWebAuthnComponentService.showTroubleLoggingInText;
     this.leftAlignDescription = this.loginViaWebAuthnComponentService.leftAlignDescription;
   }
@@ -165,13 +163,13 @@ export class LoginViaWebAuthnComponent implements OnInit {
 
   private setDefaultIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.showPageIcons ? this.Icons.TwoFactorAuthSecurityKeyIcon : null,
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon, // layout decides whether to render it
     });
   }
 
   private setFailureIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.showPageIcons ? this.Icons.TwoFactorAuthSecurityKeyFailedIcon : null,
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon, // layout decides whether to render it
     });
   }
 }
