@@ -38,6 +38,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
+  SSHAgentRichContext = "ssh-agent-rich-context",
   SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
@@ -137,6 +138,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.SSHAgentRichContext]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
