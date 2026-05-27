@@ -67,7 +67,7 @@ export function canAccessOrgAdmin(org: Organization): boolean {
 
 export function canAccessEmergencyAccess(userId: UserId, policyService: PolicyService) {
   return policyService
-    .policyAppliesToUser$(PolicyType.AutoConfirm, userId)
+    .policyAppliesToUser$(PolicyType.AutomaticUserConfirmation, userId)
     .pipe(map((policyAppliesToUser) => !policyAppliesToUser));
 }
 
@@ -79,7 +79,7 @@ export function canAccessEmergencyAccess(userId: UserId, policyService: PolicySe
 export function singleOrganizationPolicyApplies$(userId: UserId, policyService: PolicyService) {
   return combineLatest([
     policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-    policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+    policyService.policyAppliesToUser$(PolicyType.AutomaticUserConfirmation, userId),
   ]).pipe(map(([singleOrg, autoConfirm]) => singleOrg || autoConfirm));
 }
 

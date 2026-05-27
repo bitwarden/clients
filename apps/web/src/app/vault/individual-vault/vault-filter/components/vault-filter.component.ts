@@ -162,7 +162,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
-            this.policyService.policiesByType$(PolicyType.AutoConfirm, userId).pipe(getFirstPolicy),
+            this.policyService
+              .policiesByType$(PolicyType.AutomaticUserConfirmation, userId)
+              .pipe(getFirstPolicy),
             this.policyService
               .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),

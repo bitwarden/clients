@@ -81,7 +81,9 @@ export class WebVaultPromptService {
     const policyEnabled$ = combineLatest([
       this.userId$.pipe(
         switchMap((userId) => this.policyService.policies$(userId)),
-        map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm && p.enabled)),
+        map((policies) =>
+          policies.find((p) => p.type === PolicyType.AutomaticUserConfirmation && p.enabled),
+        ),
       ),
       organization$,
     ]).pipe(
