@@ -9,6 +9,7 @@ import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstra
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -49,6 +50,7 @@ describe("NotificationsService", () => {
   let policyService: MockProxy<InternalPolicyService>;
   let newPolicyService: MockProxy<InternalNewPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -81,6 +83,7 @@ describe("NotificationsService", () => {
     policyService = mock<InternalPolicyService>();
     newPolicyService = mock<InternalNewPolicyService>();
     autoConfirmService = mock<AutomaticUserConfirmationService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
     configService.getFeatureFlag$.mockReturnValue(of(true));
@@ -136,6 +139,7 @@ describe("NotificationsService", () => {
       policyService,
       newPolicyService,
       autoConfirmService,
+      billingAccountProfileStateService,
     );
   });
 
@@ -582,6 +586,75 @@ describe("NotificationsService", () => {
           "target-org-user-id",
           "org-id",
         );
+      });
+    });
+
+    describe("NotificationType.PremiumStatusChanged", () => {
+      beforeEach(() => {
+        billingAccountProfileStateService.hasPremiumFromAnyOrganization$.mockReturnValue(of(false));
+        billingAccountProfileStateService.setHasPremium.mockResolvedValue();
+      });
+
+      it("should call setHasPremium with premium=true when notification payload is true", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(billingAccountProfileStateService.setHasPremium).toHaveBeenCalledWith(
+          true,
+          false,
+          mockUser1,
+        );
+      });
+
+      it("should call setHasPremium with premium=false when notification payload is false", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: false },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(billingAccountProfileStateService.setHasPremium).toHaveBeenCalledWith(
+          false,
+          false,
+          mockUser1,
+        );
+      });
+
+      it("should preserve existing hasPremiumFromAnyOrganization value", async () => {
+        billingAccountProfileStateService.hasPremiumFromAnyOrganization$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(billingAccountProfileStateService.setHasPremium).toHaveBeenCalledWith(
+          true,
+          true,
+          mockUser1,
+        );
+      });
+
+      it("should not trigger a full sync", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(syncService.fullSync).not.toHaveBeenCalled();
       });
     });
   });

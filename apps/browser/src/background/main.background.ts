@@ -1359,6 +1359,7 @@ export default class MainBackground {
       this.policyService,
       this.newPolicyService,
       this.autoConfirmService,
+      this.billingAccountProfileStateService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
