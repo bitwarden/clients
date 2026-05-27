@@ -423,11 +423,12 @@ abstract class UrlEnvironment implements Environment {
   }
 
   getSendUrl() {
-    if (this.urls.send != null) {
-      return this.urls.send + "/#/";
-    }
+    const url = this.getUrl("send", "/#/send/");
 
-    return this.getWebVaultUrl() + "/#/send/";
+    if (this.urls.send != null || !this.urls.base) {
+      return url + "/#/";
+    }
+    return url;
   }
 
   /**
