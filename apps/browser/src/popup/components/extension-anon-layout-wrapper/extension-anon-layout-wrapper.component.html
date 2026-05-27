@@ -25,14 +25,15 @@
     [maxWidth]="maxWidth"
     [hideFooter]="hideFooter"
     [hideCardWrapper]="hideCardWrapper"
+    [showPageIcon]="showPageIcon ?? true"
+    [contentPadding]="contentPadding ?? 'default'"
+    [heroAlignment]="heroAlignment ?? 'center'"
+    [secondaryContentLocation]="secondaryContentLocation ?? 'main'"
   >
     <router-outlet></router-outlet>
-    @if (adjustedLayout) {
-      <!-- If adjustedLayout is true, secondary content gets placed in the footer -->
-      <router-outlet slot="footer-secondary" name="secondary"></router-outlet>
-    } @else {
-      <router-outlet slot="secondary" name="secondary"></router-outlet>
-    }
+    <!-- Single statically-slotted outlet. The shared layout decides where to render it -->
+    <!-- based on secondaryContentLocation. -->
+    <router-outlet slot="secondary" name="secondary"></router-outlet>
     <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
   </auth-anon-layout>
 </popup-page>

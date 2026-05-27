@@ -6,6 +6,10 @@
   [maxWidth]="maxWidth"
   [hideCardWrapper]="hideCardWrapper"
   [hideBackgroundIllustration]="hideBackgroundIllustration"
+  [showPageIcon]="showPageIcon ?? true"
+  [contentPadding]="contentPadding ?? 'default'"
+  [heroAlignment]="heroAlignment ?? 'center'"
+  [secondaryContentLocation]="secondaryContentLocation ?? 'main'"
 >
   <router-outlet slot="header-actions" name="header-actions"></router-outlet>
   <router-outlet></router-outlet>

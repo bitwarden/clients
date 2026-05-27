@@ -95,6 +95,10 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected maxWidth?: LandingContentMaxWidthType | null;
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
+  protected showPageIcon?: boolean;
+  protected contentPadding?: "compact" | "default";
+  protected heroAlignment?: "left" | "center";
+  protected secondaryContentLocation?: "main" | "footer";
 
   constructor(
     private router: Router,
@@ -149,6 +153,16 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.maxWidth = firstChildRouteData["maxWidth"];
     this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
+
+    this.showPageIcon = firstChildRouteData["showPageIcon"];
+    this.contentPadding = firstChildRouteData["contentPadding"];
+    this.heroAlignment = firstChildRouteData["heroAlignment"];
+    this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
+
+    // Cache the route-data payload so resetToRouteData() can later restore it.
+    this.anonLayoutWrapperDataService.setRouteData(
+      firstChildRouteData as Partial<AnonLayoutWrapperData>,
+    );
   }
 
   private listenForServiceDataChanges() {
@@ -196,6 +210,19 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.maxWidth = data.maxWidth;
     }
 
+    if (data.showPageIcon !== undefined) {
+      this.showPageIcon = data.showPageIcon;
+    }
+    if (data.contentPadding !== undefined) {
+      this.contentPadding = data.contentPadding;
+    }
+    if (data.heroAlignment !== undefined) {
+      this.heroAlignment = data.heroAlignment;
+    }
+    if (data.secondaryContentLocation !== undefined) {
+      this.secondaryContentLocation = data.secondaryContentLocation;
+    }
+
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
     // when setting the page data from a service
     this.changeDetectorRef.detectChanges();
@@ -219,5 +246,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.maxWidth = null;
     this.hideCardWrapper = null;
     this.hideBackgroundIllustration = null;
+    this.showPageIcon = undefined;
+    this.contentPadding = undefined;
+    this.heroAlignment = undefined;
+    this.secondaryContentLocation = undefined;
   }
 }

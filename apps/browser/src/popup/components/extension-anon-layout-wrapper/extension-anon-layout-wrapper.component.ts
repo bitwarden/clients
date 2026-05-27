@@ -66,6 +66,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
   protected adjustedLayout = false;
+  protected showPageIcon?: boolean;
+  protected contentPadding?: "compact" | "default";
+  protected heroAlignment?: "left" | "center";
+  protected secondaryContentLocation?: "main" | "footer";
 
   protected theme: string;
   protected logo = BitwardenLogo;
@@ -147,6 +151,16 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (firstChildRouteData["adjustedLayout"] !== undefined) {
       this.adjustedLayout = Boolean(firstChildRouteData["adjustedLayout"]);
     }
+
+    this.showPageIcon = firstChildRouteData["showPageIcon"];
+    this.contentPadding = firstChildRouteData["contentPadding"];
+    this.heroAlignment = firstChildRouteData["heroAlignment"];
+    this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
+
+    // Cache the route-data payload so resetToRouteData() can later restore it.
+    this.extensionAnonLayoutWrapperDataService.setRouteData(
+      firstChildRouteData as Partial<AnonLayoutWrapperData>,
+    );
   }
 
   private listenForServiceDataChanges() {
@@ -206,6 +220,19 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.adjustedLayout !== undefined) {
       this.adjustedLayout = data.adjustedLayout;
     }
+
+    if (data.showPageIcon !== undefined) {
+      this.showPageIcon = data.showPageIcon;
+    }
+    if (data.contentPadding !== undefined) {
+      this.contentPadding = data.contentPadding;
+    }
+    if (data.heroAlignment !== undefined) {
+      this.heroAlignment = data.heroAlignment;
+    }
+    if (data.secondaryContentLocation !== undefined) {
+      this.secondaryContentLocation = data.secondaryContentLocation;
+    }
   }
 
   private handleStringOrTranslation(value: string | Translation): string {
@@ -230,6 +257,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hideFooter = null;
     this.hideCardWrapper = null;
     this.adjustedLayout = false;
+    this.showPageIcon = undefined;
+    this.contentPadding = undefined;
+    this.heroAlignment = undefined;
+    this.secondaryContentLocation = undefined;
   }
 
   ngOnDestroy() {
