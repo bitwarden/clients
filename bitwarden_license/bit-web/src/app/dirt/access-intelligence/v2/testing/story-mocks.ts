@@ -9,6 +9,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTask } from "@bitwarden/common/vault/tasks";
 import { I18nMockService } from "@bitwarden/components";
 
+import { AccessIntelligenceCoachmarkStepId } from "../../onboarding/access-intelligence-coachmark-step";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 
 /**
@@ -243,4 +244,8 @@ export class MockDialogService {
     return { closed: EMPTY };
   };
   openSimpleDialog = () => Promise.resolve(true);
+}
+
+export class MockAccessIntelligenceCoachmarkService {
+  readonly activeStepId = signal<AccessIntelligenceCoachmarkStepId | null>(null);
 }

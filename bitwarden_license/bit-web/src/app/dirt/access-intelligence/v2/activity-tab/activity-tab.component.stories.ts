@@ -23,6 +23,7 @@ import {
   MockDrawerStateService,
   MockSecurityTasksService,
   MockToastService,
+  MockAccessIntelligenceCoachmarkService,
   createAccessIntelligenceI18nMock,
 } from "../testing";
 
@@ -39,6 +40,11 @@ export default {
       providers: [
         { provide: I18nService, useFactory: createAccessIntelligenceI18nMock },
         { provide: ToastService, useClass: MockToastService },
+        { provide: AccessIntelligenceDataService, useClass: MockAccessIntelligenceDataService },
+        {
+          provide: MockAccessIntelligenceCoachmarkService,
+          useClass: MockAccessIntelligenceCoachmarkService,
+        },
       ],
     }),
     applicationConfig({
@@ -93,6 +99,10 @@ export const Default: Story = {
           { provide: DrawerStateService, useClass: MockDrawerStateService },
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
+          {
+            provide: MockAccessIntelligenceCoachmarkService,
+            useClass: MockAccessIntelligenceCoachmarkService,
+          },
         ],
       },
     };
@@ -114,6 +124,10 @@ export const Loading: Story = {
         { provide: DrawerStateService, useClass: MockDrawerStateService },
         { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
         { provide: DialogService, useClass: MockDialogService },
+        {
+          provide: MockAccessIntelligenceCoachmarkService,
+          useClass: MockAccessIntelligenceCoachmarkService,
+        },
       ],
     },
   }),
@@ -142,6 +156,10 @@ export const EmptyState: Story = {
           { provide: DrawerStateService, useClass: MockDrawerStateService },
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
+          {
+            provide: MockAccessIntelligenceCoachmarkService,
+            useClass: MockAccessIntelligenceCoachmarkService,
+          },
         ],
       },
     };
@@ -189,6 +207,10 @@ export const AllCaughtUp: Story = {
           { provide: DrawerStateService, useClass: MockDrawerStateService },
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
+          {
+            provide: MockAccessIntelligenceCoachmarkService,
+            useClass: MockAccessIntelligenceCoachmarkService,
+          },
         ],
       },
     };
@@ -240,6 +262,10 @@ export const NeedsReview: Story = {
           { provide: DrawerStateService, useClass: MockDrawerStateService },
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
+          {
+            provide: MockAccessIntelligenceCoachmarkService,
+            useClass: MockAccessIntelligenceCoachmarkService,
+          },
         ],
       },
     };
