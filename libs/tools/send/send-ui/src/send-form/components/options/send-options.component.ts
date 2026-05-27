@@ -1,15 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  OnInit,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   FormControl,
@@ -59,7 +51,7 @@ import { SendFormService } from "../../abstractions/send-form.service";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendOptionsComponent implements OnInit {
+export class SendOptionsComponent {
   protected readonly sendFormService = inject(SendFormService);
   private readonly sendPolicyService = inject(SendPolicyService);
   private readonly i18nService = inject(I18nService);
@@ -147,15 +139,6 @@ export class SendOptionsComponent implements OnInit {
         });
       });
     });
-  }
-
-  ngOnInit() {
-    if (
-      !this.sendFormService.sendFormConfig.areSendsAllowed ||
-      this.sendFormService.originalSendView()?.disabled
-    ) {
-      this.sendOptionsForm.disable();
-    }
   }
 
   isIntegerValidator(): ValidatorFn {

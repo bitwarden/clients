@@ -38,12 +38,14 @@ describe("DefaultCipherSdkService", () => {
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_assigned_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
     };
     mockCiphersSdk = {
       create: jest.fn(),
       edit: jest.fn(),
+      edit_partial: jest.fn(),
       delete: jest.fn().mockResolvedValue(undefined),
       delete_many: jest.fn().mockResolvedValue(undefined),
       soft_delete: jest.fn().mockResolvedValue(undefined),
@@ -57,6 +59,8 @@ describe("DefaultCipherSdkService", () => {
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn(),
+      bulk_update_collections: jest.fn().mockResolvedValue(undefined),
+      move_many: jest.fn().mockResolvedValue(undefined),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -222,12 +226,13 @@ describe("DefaultCipherSdkService", () => {
   });
 
   describe("updateWithServer()", () => {
-    it("should update cipher using SDK when orgAdmin is false", async () => {
+    it("should update cipher using SDK edit when orgAdmin is false and cipher.edit is true", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
       cipherView.name = "Updated Cipher";
       cipherView.organizationId = orgId;
+      cipherView.edit = true;
 
       const mockSdkCipherView = cipherView.toSdkCipherView();
       mockCiphersSdk.edit.mockResolvedValue(mockSdkCipherView);
@@ -242,8 +247,54 @@ describe("DefaultCipherSdkService", () => {
           name: cipherView.name,
         }),
       );
+      expect(mockCiphersSdk.edit_partial).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
       expect(result.name).toBe(cipherView.name);
+    });
+
+    it("should partial update cipher using SDK edit_partial when orgAdmin is false and cipher.edit is false", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "View-Only Cipher";
+      cipherView.organizationId = orgId;
+      cipherView.edit = false;
+      cipherView.favorite = true;
+
+      const mockSdkCipherView = cipherView.toSdkCipherView();
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: expect.anything(),
+          favorite: true,
+        }),
+      );
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should partial update cipher when orgAdmin is false and cipher.edit defaults to false", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Default Edit Cipher";
+      cipherView.organizationId = orgId;
+
+      const mockSdkCipherView = cipherView.toSdkCipherView();
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
+
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
     });
 
     it("should update cipher using SDK admin API when orgAdmin is true", async () => {
@@ -313,6 +364,7 @@ describe("DefaultCipherSdkService", () => {
       cipherView.type = CipherType.Login;
       cipherView.name = "Updated Cipher";
       cipherView.organizationId = orgId;
+      cipherView.edit = true;
 
       // Build an SDK response that includes encrypted FIDO2 credentials
       const mockSdkResponse = {
@@ -358,8 +410,25 @@ describe("DefaultCipherSdkService", () => {
     it("should throw error and log when SDK throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
+      cipherView.edit = true;
 
       mockCiphersSdk.edit.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.updateWithServer(cipherView, userId, undefined, false),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher"),
+      );
+    });
+
+    it("should throw error and log when SDK edit_partial throws an error", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.name = "Test Cipher";
+      cipherView.edit = false;
+
+      mockCiphersSdk.edit_partial.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.updateWithServer(cipherView, userId, undefined, false),
@@ -1149,6 +1218,173 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to update cipher collections"),
+      );
+    });
+  });
+
+  describe("getManyFromApiForOrganization()", () => {
+    const mockSdkCipher: any = {
+      id: cipherId,
+      name: "2.encryptedName|iv|data",
+      type: CipherType.Login,
+      organizationId: orgId,
+      folderId: null,
+      favorite: false,
+      edit: true,
+      viewPassword: true,
+      organizationUseTotp: false,
+      revisionDate: new Date().toISOString(),
+      creationDate: new Date().toISOString(),
+      collectionIds: [],
+      deletedDate: null,
+      reprompt: 0,
+      key: null,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      notes: null,
+      login: null,
+      secureNote: null,
+      card: null,
+      identity: null,
+      sshKey: null,
+      permissions: null,
+    };
+
+    it("should list assigned organization ciphers using SDK admin API", async () => {
+      const mockListView: any = { id: cipherId, name: "Org Cipher" };
+      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
+        ciphers: [mockSdkCipher],
+        listViews: [mockListView],
+      });
+
+      const result = await cipherSdkService.getManyFromApiForOrganization(orgId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.list_assigned_org_ciphers).toHaveBeenCalledWith(orgId);
+      const [ciphers, listViews] = result;
+      expect(ciphers).toHaveLength(1);
+      expect(ciphers[0]).toBeInstanceOf(Cipher);
+      expect(listViews).toHaveLength(1);
+    });
+
+    it("should return empty arrays when SDK returns no ciphers", async () => {
+      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
+        ciphers: [],
+        listViews: [],
+      });
+
+      const [ciphers, listViews] = await cipherSdkService.getManyFromApiForOrganization(
+        orgId,
+        userId,
+      );
+
+      expect(ciphers).toHaveLength(0);
+      expect(listViews).toHaveLength(0);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.list_assigned_org_ciphers.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.getManyFromApiForOrganization(orgId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list assigned organization ciphers"),
+      );
+    });
+  });
+
+  describe("bulkUpdateCollectionsWithServer()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+    const cipherId1 = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const cipherId2 = "8ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b25" as CipherId;
+
+    it("should add collections via SDK when removeCollections is false", async () => {
+      await cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        userId,
+        [cipherId1, cipherId2],
+        [collectionId1, collectionId2],
+        false,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.bulk_update_collections).toHaveBeenCalledWith(
+        orgId,
+        [cipherId1, cipherId2],
+        [collectionId1, collectionId2],
+        false,
+      );
+    });
+
+    it("should remove collections via SDK when removeCollections is true", async () => {
+      await cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        userId,
+        [cipherId1],
+        [collectionId1],
+        true,
+      );
+
+      expect(mockCiphersSdk.bulk_update_collections).toHaveBeenCalledWith(
+        orgId,
+        [cipherId1],
+        [collectionId1],
+        true,
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.bulk_update_collections.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.bulkUpdateCollectionsWithServer(
+          orgId,
+          userId,
+          [cipherId1],
+          [collectionId1],
+          false,
+        ),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to bulk update cipher collections"),
+      );
+    });
+  });
+
+  describe("moveManyWithServer()", () => {
+    const folderId = "9ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b26";
+    const cipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+      "8ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b25",
+    ];
+
+    it("should move ciphers to a folder via SDK", async () => {
+      await cipherSdkService.moveManyWithServer(cipherIds, folderId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.move_many).toHaveBeenCalledWith(cipherIds, folderId);
+    });
+
+    it("should pass undefined when folderId is null (clear folder)", async () => {
+      await cipherSdkService.moveManyWithServer(cipherIds, null, userId);
+
+      expect(mockCiphersSdk.move_many).toHaveBeenCalledWith(cipherIds, undefined);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.move_many.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.moveManyWithServer(cipherIds, folderId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to move multiple ciphers"),
       );
     });
   });

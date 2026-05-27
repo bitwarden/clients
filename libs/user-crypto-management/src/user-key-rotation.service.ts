@@ -9,7 +9,12 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
-import { PasswordChangeAndRotateUserKeysRequest } from "@bitwarden/sdk-internal";
+import {
+  KeyRotationMethod,
+  PasswordChangeAndRotateUserKeysRequest,
+  RotateUserKeysRequest,
+  UpgradeTokenAction,
+} from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -64,6 +69,41 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
         catchError((error: unknown) => {
           this.logService.error(`Failed to rotate user keys: ${error}`);
           return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async rotateUserKey(
+    keyRotationMethod: KeyRotationMethod,
+    upgradeTokenAction: UpgradeTokenAction,
+    userId: UserId,
+  ): Promise<boolean> {
+    const { wasTrustDenied, trustedOrganizationPublicKeys, trustedEmergencyAccessUserPublicKeys } =
+      await this.verifyTrust(userId);
+    if (wasTrustDenied) {
+      this.logService.info("[UserKeyRotationService] Trust was denied by user. Aborting!");
+      return false;
+    }
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          this.logService.info(
+            "[UserKeyRotationService] Re-encrypting user data with new user key...",
+          );
+          await ref.value.user_crypto_management().rotate_user_keys({
+            key_rotation_method: keyRotationMethod,
+            trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
+            trusted_organization_public_keys: trustedOrganizationPublicKeys,
+            upgrade_token_action: upgradeTokenAction,
+          } as RotateUserKeysRequest);
+          return true;
         }),
       ),
     );

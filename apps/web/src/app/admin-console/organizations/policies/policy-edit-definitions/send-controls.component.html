@@ -1,4 +1,3 @@
-<hr class="tw-border-secondary-100 tw-mb-4" />
 <bit-switch [formControl]="enabled" id="enableSendControlsPolicySwitch" class="tw-mt-4">
   <bit-label class="tw-text-sm" for="enableSendControlsPolicySwitch">{{
     "sendControlsPolicySwitchLabel" | i18n
@@ -46,7 +45,7 @@
         </bit-select>
       </bit-form-field>
     }
-    <bit-form-control>
+    <bit-form-control disableMargin>
       <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
       <bit-label>{{ "sendControlHideEmailDescription" | i18n }}</bit-label>
     </bit-form-control>

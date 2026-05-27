@@ -291,11 +291,11 @@ export class SendAddEditComponent {
         hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
         notes: originalSendView.notes,
         authType:
-          whoCanAccess === null
-            ? AuthType.None
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
             : whoCanAccess === WhoCanAccessType.PasswordProtected
               ? AuthType.Password
-              : AuthType.Email,
+              : AuthType.None,
       },
     };
     this.editSend();
