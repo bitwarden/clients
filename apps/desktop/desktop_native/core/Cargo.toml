@@ -28,10 +28,12 @@ cbc = { workspace = true, features = ["alloc"] }
 chacha20poly1305 = { workspace = true }
 dirs = { workspace = true }
 futures = { workspace = true }
+hmac = "=0.12.1"
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
 rsa = "=0.9.6"
+sha1 = "=0.10.6"
 sha2 = "=0.10.9"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
@@ -87,6 +89,7 @@ windows = { workspace = true, features = [
 windows-future = { workspace = true }
 
 [dev-dependencies]
+tempfile = "=3.20.0"
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 
 [lints]
