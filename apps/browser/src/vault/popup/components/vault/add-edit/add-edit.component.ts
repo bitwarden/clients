@@ -193,6 +193,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 })
 export class AddEditComponent implements OnInit, OnDestroy {
   readonly cipherFormComponent = viewChild(CipherFormComponent);
+
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;

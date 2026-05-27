@@ -32,37 +32,44 @@
   </vault-cipher-form>
 
   <popup-footer slot="footer">
-    <ng-container *ngIf="fillAfterSave; else defaultFooter">
+    @if (fillAfterSave) {
       <button [bitAction]="submitAndFill" type="button" bitButton buttonType="primary">
         {{ "saveAndFill" | i18n }}
       </button>
-      <button type="submit" form="cipherForm" bitButton buttonType="secondary">
-        {{ "save" | i18n }}
-      </button>
-      <button (click)="handleBackButton()" bitButton type="button" buttonType="ghost" slot="end">
+    }
+    <button
+      bitButton
+      type="submit"
+      form="cipherForm"
+      [buttonType]="fillAfterSave ? 'secondary' : 'primary'"
+      #submitBtn
+    >
+      {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
+    </button>
+    @if (fillAfterSave) {
+      <button
+        (click)="handleBackButton()"
+        bitButton
+        type="button"
+        buttonType="subtleGhost"
+        slot="end"
+      >
         {{ "cancel" | i18n }}
       </button>
-    </ng-container>
-    <ng-template #defaultFooter>
-      <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
-        {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
-      </button>
-
+    } @else {
       <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
         {{ "cancel" | i18n }}
       </button>
-
-      <ng-container slot="end">
-        @if (canDeleteCipher$ | async) {
-          <button
-            [bitAction]="delete"
-            type="button"
-            buttonType="dangerGhost"
-            bitIconButton="bwi-trash"
-            [label]="'delete' | i18n"
-          ></button>
-        }
-      </ng-container>
-    </ng-template>
+    }
+    @if (canDeleteCipher$ | async) {
+      <button
+        [bitAction]="delete"
+        type="button"
+        slot="end"
+        buttonType="dangerGhost"
+        bitIconButton="bwi-trash"
+        [label]="'delete' | i18n"
+      ></button>
+    }
   </popup-footer>
 </popup-page>
