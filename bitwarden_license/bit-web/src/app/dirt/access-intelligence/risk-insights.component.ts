@@ -198,15 +198,18 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.dataLastUpdated = report?.creationDate ?? null;
       });
 
-    // Show error toast when report generation or save fails
+    // Show error toast when report generation or load fails. Use distinct messages
+    // so the user can tell whether to retry generation or contact support.
     this.dataService.reportStatus$
       .pipe(
-        filter((status) => status === ReportStatus.Error),
+        filter((status) => status === ReportStatus.Error || status === ReportStatus.LoadError),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => {
+      .subscribe((status) => {
         this.toastService.showToast({
-          message: this.i18nService.t("reportGenerationFailed"),
+          message: this.i18nService.t(
+            status === ReportStatus.LoadError ? "reportLoadFailed" : "reportGenerationFailed",
+          ),
           variant: "error",
         });
       });
