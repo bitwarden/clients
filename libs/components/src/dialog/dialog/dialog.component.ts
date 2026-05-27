@@ -189,10 +189,17 @@ export class DialogComponent implements AfterViewInit {
   }
 
   handleEsc(event: Event) {
-    if (!this.dialogRef?.disableClose) {
-      void this.closeDialog();
-      event.stopPropagation();
+    if (this.dialogRef?.disableClose) {
+      return;
     }
+    // For drawers, Esc mirrors the back button — pop only the top entry.
+    // The X button still calls closeDialog() to tear down the whole stack.
+    if (this.dialogRef?.isDrawer) {
+      void this.dialogRef.close();
+    } else {
+      void this.closeDialog();
+    }
+    event.stopPropagation();
   }
 
   onAnimationEnd() {

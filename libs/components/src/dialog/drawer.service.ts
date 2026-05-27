@@ -75,13 +75,17 @@ export class DrawerService {
   }
 
   /**
-   * Close drawers top-to-bottom, stopping at the first whose closePredicate rejects.
-   * Drawers above the rejecting one are already closed by the time we return; that
-   * drawer and any below it remain. Returns true if the entire stack was closed.
+   * Close drawers top-to-bottom, stopping at the first whose closePredicate rejects
+   * or whose `disableClose` is true. Drawers above the blocking one are already closed
+   * by the time we return; that drawer and any below it remain. Returns true if the
+   * entire stack was closed.
    */
   async closeAll(): Promise<boolean> {
     while (this.stack().length > 0) {
       const top = this.stack()[this.stack().length - 1];
+      if (top.disableClose) {
+        return false;
+      }
       const { closed } = await top.close();
       if (!closed) {
         return false;
