@@ -255,6 +255,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
           notifications: urls.notifications,
           events: urls.events,
           keyConnector: urls.keyConnector,
+          send: urls.send,
         },
       }));
 

@@ -118,6 +118,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       identityUrl: ["", [onlyHttpsValidator()]],
       iconsUrl: ["", [onlyHttpsValidator()]],
       notificationsUrl: ["", [onlyHttpsValidator()]],
+      sendUrl: ["", [onlyHttpsValidator()]],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );
@@ -144,6 +145,10 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
   get notificationsUrl(): FormControl {
     return this.formGroup.get("notificationsUrl") as FormControl;
+  }
+
+  get sendUrl(): FormControl {
+    return this.formGroup.get("sendUrl") as FormControl;
   }
 
   showCustomEnv = false;
@@ -180,6 +185,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
             identityUrl: urls.identity || "",
             iconsUrl: urls.icons || "",
             notificationsUrl: urls.notifications || "",
+            sendUrl: urls.send || "",
           });
         },
       });
@@ -200,6 +206,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       webVault: this.webVaultUrl.value,
       icons: this.iconsUrl.value,
       notifications: this.notificationsUrl.value,
+      send: this.sendUrl.value || null,
     });
 
     await this.dialogRef.close(true);
