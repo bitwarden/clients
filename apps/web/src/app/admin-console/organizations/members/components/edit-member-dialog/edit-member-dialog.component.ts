@@ -509,22 +509,22 @@ export class EditMemberDialogComponent {
       if (!confirmed) {
         return false;
       }
-
-      const organization = await firstValueFrom(this.organization$);
-      const result = await this.memberActionsService.removeUser(
-        organization,
-        this.params.organizationUserId,
-      );
-      if (result.success === false) {
-        throw new Error(result.error);
-      }
-
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("removedUserId", this.params.name),
-      });
-      this.close(MemberDialogResult.Deleted);
     }
+
+    const organization = await firstValueFrom(this.organization$);
+    const result = await this.memberActionsService.removeUser(
+      organization,
+      this.params.organizationUserId,
+    );
+    if (result.success === false) {
+      throw new Error(result.error);
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("removedUserId", this.params.name),
+    });
+    this.close(MemberDialogResult.Deleted);
   };
 
   readonly delete = async () => {
