@@ -89,20 +89,42 @@ pub fn build(inputs: BuildInputs<'_>) -> RequestContext {
         known_hosts::find_match_in_files(&refs, inputs.host_key_bytes, candidate)
     };
 
-    let host = match (argv_host, known_match, fingerprint.clone()) {
-        (Some(a), Some(k), fp) => HostContext {
-            source: HostSource::KnownHosts,
-            hostname: Some(k.hostname.clone()),
-            hostname_unverified: if k.hostname != a.hostname {
-                Some(a.hostname)
+    let host = resolve_host(argv_host, known_match, fingerprint);
+    RequestContext { app, host }
+}
+
+/// Combine the argv-derived host candidate, known_hosts match, and host-key
+/// fingerprint into a single trust-labeled `HostContext`.
+fn resolve_host(
+    argv_host: Option<argv_parser::HostCandidate>,
+    known_match: Option<known_hosts::Match>,
+    fingerprint: Option<String>,
+) -> HostContext {
+    match (argv_host, known_match, fingerprint) {
+        (Some(a), Some(k), fp) => {
+            // known_hosts returns "<hashed>" when the entry is hashed and the
+            // argv candidate didn't hash-match — typically because the user's
+            // ssh_config aliases the typed hostname to a different canonical
+            // name (the canonical name is what was hashed). The key match is
+            // the cryptographic identity, so display the argv hostname (the
+            // label the user actually typed) and keep the entry as verified.
+            let (hostname, hostname_unverified) = if k.hostname == "<hashed>" {
+                (a.hostname.clone(), None)
+            } else if k.hostname != a.hostname {
+                (k.hostname.clone(), Some(a.hostname.clone()))
             } else {
-                None
-            },
-            port: a.port,
-            username: a.username,
-            key_fingerprint: fp,
-            known_hosts_match: true,
-        },
+                (k.hostname.clone(), None)
+            };
+            HostContext {
+                source: HostSource::KnownHosts,
+                hostname: Some(hostname),
+                hostname_unverified,
+                port: a.port,
+                username: a.username,
+                key_fingerprint: fp,
+                known_hosts_match: true,
+            }
+        }
         (None, Some(k), fp) => HostContext {
             source: HostSource::KnownHosts,
             hostname: Some(k.hostname),
@@ -131,9 +153,7 @@ pub fn build(inputs: BuildInputs<'_>) -> RequestContext {
             known_hosts_match: false,
         },
         (None, None, None) => HostContext::default(),
-    };
-
-    RequestContext { app, host }
+    }
 }
 
 /// Convenience: default `known_hosts` search paths for the running user.
@@ -220,5 +240,45 @@ mod tests {
         assert_eq!(ctx.host.source, HostSource::None);
         assert!(ctx.host.hostname.is_none());
         assert!(ctx.host.key_fingerprint.is_none());
+    }
+
+    #[test]
+    fn resolve_host_alias_case_uses_argv_hostname() {
+        // ssh_config aliases the typed name to a different canonical hostname,
+        // so known_hosts can only return "<hashed>" — we should still display
+        // the argv hostname (the label the user typed) as verified.
+        let argv = argv_parser::HostCandidate {
+            username: Some("user".to_string()),
+            hostname: "alias.example.com".to_string(),
+            port: None,
+        };
+        let km = known_hosts::Match {
+            hostname: "<hashed>".to_string(),
+        };
+        let host = resolve_host(Some(argv), Some(km), Some("SHA256:abc".to_string()));
+        assert_eq!(host.source, HostSource::KnownHosts);
+        assert_eq!(host.hostname.as_deref(), Some("alias.example.com"));
+        assert!(host.hostname_unverified.is_none());
+        assert!(host.known_hosts_match);
+    }
+
+    #[test]
+    fn resolve_host_known_hostname_differs_from_argv_surfaces_unverified() {
+        // Plain known_hosts match for hostname A, argv claims hostname B.
+        // Trust A (verified); surface B as unverified info.
+        let argv = argv_parser::HostCandidate {
+            username: None,
+            hostname: "claimed.example.com".to_string(),
+            port: None,
+        };
+        let km = known_hosts::Match {
+            hostname: "real.example.com".to_string(),
+        };
+        let host = resolve_host(Some(argv), Some(km), None);
+        assert_eq!(host.hostname.as_deref(), Some("real.example.com"));
+        assert_eq!(
+            host.hostname_unverified.as_deref(),
+            Some("claimed.example.com")
+        );
     }
 }
