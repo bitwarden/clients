@@ -91,29 +91,7 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
-    const generateInviteLink = await this.configService.getFeatureFlag(
-      FeatureFlag.GenerateInviteLink,
-    );
-
-    if (generateInviteLink) {
-      const dialog = EditMemberDialogComponent.open(this.dialogService, {
-        data: {
-          kind: "Edit",
-          name: this.userNamePipe.transform(user),
-          organizationId: organization.id,
-          organizationUserId: user.id,
-          usesKeyConnector: user.usesKeyConnector,
-          isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-          initialTab: initialTab,
-          managedByOrganization: user.managedByOrganization,
-        },
-      });
-
-      const result = await lastValueFrom(dialog.closed);
-      return result ?? MemberDialogResult.Canceled;
-    }
-
-    const dialog = openUserAddEditDialog(this.dialogService, {
+    const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),

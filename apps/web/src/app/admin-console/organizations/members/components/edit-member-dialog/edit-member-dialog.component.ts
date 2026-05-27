@@ -265,10 +265,17 @@ export class EditMemberDialogComponent {
 
         this.collectionAccessItems.set(collectionItems);
 
-        if (userDetails != undefined) {
-          this.loadOrganizationUser(userDetails, groups, collections, organization);
+        if (userDetails == undefined) {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("orgUserDetailsNotFound"),
+          });
+          this.close(MemberDialogResult.Canceled);
+          return;
         }
 
+        this.loadOrganizationUser(userDetails, groups, collections, organization);
         this.loading.set(false);
       });
   }
