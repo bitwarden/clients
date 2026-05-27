@@ -68,12 +68,12 @@ import {
 } from "../../../shared/components/access-selector";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
-import { UserDialogModule } from "../member-dialog/member-dialog.module";
 import {
   EditMemberDialogParams,
   MemberDialogResult,
   MemberDialogTab,
 } from "../member-dialog/member-dialog.types";
+import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.component";
 
 @Component({
   standalone: true,
@@ -94,7 +94,7 @@ import {
     SelectModule,
     TabsModule,
     AccessSelectorModule,
-    UserDialogModule,
+    NestedCheckboxComponent,
   ],
 })
 export class EditMemberDialogComponent {
