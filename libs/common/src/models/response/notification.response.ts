@@ -78,6 +78,9 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.AutoConfirmMember:
         this.payload = new AutoConfirmMemberNotification(payload);
         break;
+      case NotificationType.PremiumStatusChanged:
+        this.payload = new PremiumStatusChangedNotification(payload);
+        break;
       default:
         break;
     }
@@ -226,5 +229,16 @@ export class AutoConfirmMemberNotification extends BaseResponse {
     this.targetUserId = this.getResponseProperty("TargetUserId");
     this.userId = this.getResponseProperty("UserId");
     this.organizationId = this.getResponseProperty("OrganizationId");
+  }
+}
+
+export class PremiumStatusChangedNotification extends BaseResponse {
+  userId: string;
+  premium: boolean;
+
+  constructor(response: any) {
+    super(response);
+    this.userId = this.getResponseProperty("UserId");
+    this.premium = this.getResponseProperty("Premium");
   }
 }
