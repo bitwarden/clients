@@ -94,6 +94,7 @@ export enum FeatureFlag {
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
 
   /* Platform */
+  FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
@@ -204,6 +205,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UnlockViaSDK]: FALSE,
 
   /* Platform */
+  [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
