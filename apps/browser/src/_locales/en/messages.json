@@ -4527,6 +4527,16 @@
     "message": "No items to show",
     "description": "Text to show in overlay if there are no matching items"
   },
+  "inlineMenuNoMatches": {
+    "message": "No matches for \"$FILTER$\"",
+    "description": "Text shown in the inline autofill menu when the user has typed in a username/email field and no saved logins match the typed text. $FILTER$ is the user's typed text.",
+    "placeholders": {
+      "filter": {
+        "content": "$1",
+        "example": "exa"
+      }
+    }
+  },
   "newItem": {
     "message": "New item",
     "description": "Button text to display in overlay when there are no matching items"

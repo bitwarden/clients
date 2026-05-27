@@ -796,7 +796,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the inline menu list while the user is typing.
+   * vault item. For username/email/text login-like fields it streams the current
+   * field value to the background so the inline-menu list can filter ciphers as
+   * the user types; for password / TOTP / card / identity fields, the existing
+   * close-on-type behavior is preserved.
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
@@ -813,6 +816,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (this.shouldFilterInlineMenuOnInput(formFieldElement)) {
+      await this.sendExtensionMessage("filterInlineMenuCiphers", {
+        filterValue: formFieldElement.value ?? "",
+      });
+      return;
+    }
+
     await this.sendExtensionMessage("closeAutofillInlineMenu", {
       overlayElement: AutofillOverlayElement.List,
       forceCloseInlineMenu: true,
@@ -821,6 +831,48 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!formFieldElement?.value) {
       await this.sendExtensionMessage("openAutofillInlineMenu");
     }
+  }
+
+  /**
+   * Whether the focused field should drive a live filter of the inline-menu
+   * cipher list (rather than the legacy close-on-type behavior).
+   *
+   * Limited to login/account-creation **non-password** text-like fields so we
+   * (a) never pipe password keystrokes through the inline-menu plumbing, and
+   * (b) preserve current click-to-fill behavior for card/identity fields.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   */
+  private shouldFilterInlineMenuOnInput(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+  ): boolean {
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    if (!autofillFieldData) {
+      return false;
+    }
+
+    const fillType = autofillFieldData.inlineMenuFillType;
+    const isLoginUsernameContext =
+      fillType === CipherType.Login ||
+      fillType === InlineMenuFillTypes.AccountCreationUsername;
+    if (!isLoginUsernameContext) {
+      return false;
+    }
+
+    const inputType = (autofillFieldData.type ?? "").toLowerCase();
+    if (inputType === "password" || inputType === "hidden" || inputType === "totp") {
+      return false;
+    }
+
+    if (
+      autofillFieldData.accountCreationFieldType ===
+        InlineMenuAccountCreationFieldType.Password ||
+      autofillFieldData.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   /**

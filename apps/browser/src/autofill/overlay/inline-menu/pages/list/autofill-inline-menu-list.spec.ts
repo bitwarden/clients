@@ -162,6 +162,48 @@ describe("AutofillInlineMenuList", () => {
           expectedOrigin,
         );
       });
+
+      describe("when a filter is applied", () => {
+        beforeEach(async () => {
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({
+              authStatus: AuthenticationStatus.Unlocked,
+              ciphers: [],
+              portKey,
+            }),
+          );
+          await flushPromises();
+          postWindowMessage({
+            command: "updateAutofillInlineMenuListCiphers",
+            ciphers: [],
+            filterValue: "exa",
+            portKey,
+            token: "test-token",
+          });
+          await flushPromises();
+        });
+
+        it("renders the localized no-matches message instead of the generic empty-state", () => {
+          const message =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".no-items");
+          expect(message?.textContent).toBe('No matches for "exa"');
+        });
+
+        it("inserts the filter as a text node so it cannot be interpreted as HTML", () => {
+          postWindowMessage({
+            command: "updateAutofillInlineMenuListCiphers",
+            ciphers: [],
+            filterValue: "<img src=x onerror=alert(1)>",
+            portKey,
+            token: "test-token",
+          });
+
+          const message =
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".no-items");
+          expect(message?.querySelector("img")).toBeNull();
+          expect(message?.textContent).toContain("<img src=x onerror=alert(1)>");
+        });
+      });
     });
 
     describe("the list of ciphers for an authenticated user", () => {
