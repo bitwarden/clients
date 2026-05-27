@@ -381,13 +381,57 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.NAME),
-        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS),
+        htmlClass: this.getPropertyOrAttribute(formElement, "class") ?? "",
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
+        htmlAncestorHeadings: this.getAncestorHeadings(formElement),
       } as AutofillForm);
     }
 
     return this.getFormattedAutofillFormsData();
+  }
+
+  /**
+   * Headings inside the form's nearest section/article/main/aside/form ancestor,
+   * ordered by depth of common ancestor (closest first). Sibling-form headings skipped.
+   */
+  private getAncestorHeadings(formElement: HTMLFormElement): string[] {
+    const scope = formElement.parentElement?.closest("section, article, main, aside");
+    if (!scope) {
+      return [];
+    }
+
+    const ancestorDepths = new Map<Element, number>();
+    let cursor: Element | null = formElement;
+    let depth = 0;
+    while (cursor) {
+      ancestorDepths.set(cursor, depth++);
+      if (cursor === scope) {
+        break;
+      }
+      cursor = cursor.parentElement;
+    }
+
+    return Array.from(scope.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+      .flatMap((heading) => {
+        const f = heading.closest("form");
+        if (f !== null && f !== formElement) {
+          return [];
+        }
+        const text = this.getTextContentFromElement(heading);
+        if (!text) {
+          return [];
+        }
+        // Every retained heading lives under `scope`, and `scope` is in `ancestorDepths`,
+        // so the walk always terminates at a known ancestor.
+        let ancestor: Element = heading;
+        while (!ancestorDepths.has(ancestor)) {
+          ancestor = ancestor.parentElement!;
+        }
+        return [{ text, distance: ancestorDepths.get(ancestor)! }];
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .map((entry) => entry.text);
   }
 
   /**
@@ -538,7 +582,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       viewable: await this.domElementVisibilityService.isElementViewable(element),
       htmlID: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ID),
       htmlName: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.NAME),
-      htmlClass: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.CLASS),
+      htmlClass: this.getPropertyOrAttribute(element, "class"),
       tabindex: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TABINDEX),
       title: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TITLE),
       tagName: this.getAttributeLowerCase(element, "tagName"),
@@ -1164,7 +1208,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
-      /** Mutations to node attributes NOT on this list will not be observed! */
       attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
@@ -1237,25 +1280,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Handles the processing of all mutations in the mutations queue. Will trigger
-   * within an idle callback to help with performance and prevent excessive updates.
+   * within a single idle callback to help with performance and prevent excessive updates.
+   *
+   * Previously this scheduled one idle callback per queue batch, and each batch
+   * callback scheduled yet another idle callback per individual MutationRecord —
+   * creating a 3-level async chain that flooded the idle queue on dynamic pages.
+   * Now all pending work is flattened and processed in a single idle callback.
    */
   private processMutations = () => {
-    const queueLength = this.mutationsQueue.length;
+    // Flatten all pending batches into one array and clear the queue immediately
+    // so that any new mutations arriving during processing go into a fresh queue.
+    const allMutations = this.mutationsQueue.flat();
+    this.mutationsQueue = [];
 
-    for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
-      const mutations = this.mutationsQueue[queueIndex];
-      const processMutationRecords = () => {
-        this.processMutationRecords(mutations);
-
-        if (queueIndex === queueLength - 1 && this.domRecentlyMutated) {
-          this.updateAutofillElementsAfterMutation();
-        }
-      };
-
-      requestIdleCallbackPolyfill(processMutationRecords, { timeout: 500 });
+    if (!allMutations.length) {
+      return;
     }
 
-    this.mutationsQueue = [];
+    requestIdleCallbackPolyfill(
+      () => {
+        for (const mutation of allMutations) {
+          this.processMutationRecord(mutation);
+        }
+        if (this.domRecentlyMutated) {
+          this.updateAutofillElementsAfterMutation();
+        }
+      },
+      { timeout: 500 },
+    );
   };
 
   /**
@@ -1290,18 +1342,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.debouncedRequirePageDetailsUpdate();
     }
   };
-  /**
-   * Processes all mutation records encountered by the mutation observer.
-   *
-   * @param mutations - The mutation record to process
-   */
-  private processMutationRecords(mutations: MutationRecord[]) {
-    for (let mutationIndex = 0; mutationIndex < mutations.length; mutationIndex++) {
-      const mutation: MutationRecord = mutations[mutationIndex];
-      const processMutationRecord = () => this.processMutationRecord(mutation);
-      requestIdleCallbackPolyfill(processMutationRecord, { timeout: 500 });
-    }
-  }
 
   /**
    * Processes a single mutation record and updates the autofill elements if necessary.
@@ -1622,7 +1662,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       },
       name: () => updateAttribute("htmlName"),
       id: () => updateAttribute("htmlID"),
-      class: () => updateAttribute("htmlClass"),
+      // Note: `class` is intentionally omitted — it is excluded from the
+      // MutationObserver attributeFilter to avoid callback storms on dynamic pages.
+      // htmlClass is refreshed on the next full page-detail collection.
       method: () => updateAttribute("htmlMethod"),
     };
 

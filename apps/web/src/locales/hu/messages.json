@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeDriversLicense": {
+    "message": "Licensz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Jogosítvány szám vagy azonosító"
+  },
   "typeLoginSubtitle": {
     "message": "Webhely vagy alkalmazás"
   },
@@ -1011,6 +1017,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Szerver bejelentkezési token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banki adatok"
   },
   "folderSubtitle": {
     "message": "Elemek szervezése"
@@ -1029,6 +1038,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Biztonságos jegyzetek"
+  },
+  "typeBankAccount": {
+    "message": "Bankszámla"
   },
   "folders": {
     "message": "Mappák"
@@ -1116,12 +1128,24 @@
     "message": "Új SSH kulcs",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Új szöveges Send elem",
+  "newItemHeaderBankAccount": {
+    "message": "Új bankszámla",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Új licensz",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Új útlevél",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Új szöveg",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Új fájl Send elem",
+  "newItemHeaderFileSendV2": {
+    "message": "Új fájl",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1144,12 +1168,24 @@
     "message": "SSH kulcs szerkesztése",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send szöveg szerkesztése",
+  "editItemHeaderBankAccount": {
+    "message": "Bankszámla szerkesztése",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Licensz szerkesztése",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Útlevél szerkesztése",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Szöveg szerkesztése",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send fájl szerkesztése",
+  "editItemHeaderFileSendV2": {
+    "message": "Fájl szerkesztése",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1171,6 +1207,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH kulcs megtekintése",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankszámla megtekintése",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Licensz megtekintése",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Útlevél megtekintése",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Új",
@@ -1275,6 +1323,15 @@
   "copyPassportNumber": {
     "message": "Útlevélszám másolása"
   },
+  "copyFirstName": {
+    "message": "Személynév másolása"
+  },
+  "copyMiddleName": {
+    "message": "Középső név másolása"
+  },
+  "copyLastName": {
+    "message": "Családnév másolása"
+  },
   "copyLicenseNumber": {
     "message": "Vezetői engedély szám másolása"
   },
@@ -1304,6 +1361,38 @@
       "ciphername": {
         "content": "$2",
         "example": "Login Item"
+      }
+    }
+  },
+  "copyInfoTitle": {
+    "message": "Infó másolása - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Jegyzet másolása - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Nincsenek másolandó értékek."
+  },
+  "launchWebsiteName": {
+    "message": "$ITEMNAME$ webhely elindítása",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
       }
     }
   },
@@ -1415,6 +1504,24 @@
   },
   "deleteAttachment": {
     "message": "Melléklet törlése"
+  },
+  "deleteAttachmentName": {
+    "message": "$NAME$ melléklet törlése",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ letöltése",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Biztosan törlésre kerüljön ezt az elem?"
@@ -2163,6 +2270,18 @@
   "exportError": {
     "message": "Hiba történt a széf adatainak exportálása közben."
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "passwordGenerator": {
     "message": "Jelszó generátor"
   },
@@ -2538,6 +2657,9 @@
     "message": "Válasszuk ki az import fájlt"
   },
   "chooseFile": {
+    "message": "Fájl kiválasztása"
+  },
+  "chooseFileSentenceCase": {
     "message": "Fájl kiválasztása"
   },
   "noFileChosen": {
@@ -3949,8 +4071,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Meghívás"
+  },
   "inviteUserDesc": {
     "message": "Új felhasználó meghívása a szervezetéhez a Bitwarden fiók e-mail címének megadásával. Ha még nem rendelkezik Bitwarden-fiókkal, felkérjük új fiók létrehozására.\n"
+  },
+  "inviteUserDescription": {
+    "message": "Új felhasználók meghívása a szervezetbe az email cím megadásával lentebb."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Legfeljebb $COUNT$, egymástól vesszővel elválasztott email cím.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Adjunk meg akár $BATCHLIMIT$ email címet vesszővel elválasztva. ($REMAININGSEATS$ hely marad)",
@@ -4242,6 +4379,60 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "A számlaszám megtekintésre került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "A PIN kód megtekintésre került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "A számlaszám másolásra került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "A PIN kód másolásra került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "A licensz szám megtekintésre került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "A licensz szám másolásra került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "$ID$ azonosítójú elem automatikusan kitöltésre került.",
     "placeholders": {
@@ -4280,6 +4471,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Szerkesztések elvetése"
+  },
+  "discardEditsConfirmation": {
+    "message": "A nézetet bezárva a nem mentett szerkesztések elvetésre kerülnek."
+  },
+  "discardEdits": {
+    "message": "Szerkesztések elvetése"
+  },
+  "keepEditing": {
+    "message": "Szerkesztés folytatása"
+  },
+  "backToEditing": {
+    "message": "Vissza a szerkesztéshez"
   },
   "editedPolicyId": {
     "message": "$ID$ szabály szerkesztésre került.",
@@ -4355,6 +4561,45 @@
   },
   "revokedEmailError": {
     "message": "1 vagy több email cím a visszavont tagokhoz tartozik. Állítsuk vissza hozzáférésüket az ismételt meghíváshoz."
+  },
+  "revocationReasonUnknown": {
+    "message": "Ismeretlen ok"
+  },
+  "revocationReasonManual": {
+    "message": "Visszavonta egy adminisztrátor"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Nem felel meg a kétlépcsős bejelentkezési szabályzatnak."
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Nem felel meg az egységes szervezeti szabályzatnak."
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "A szervezet hozzáférés $ID$ elemhez visszavonásra került a kéttényezős szervezeti szabályzat be nem tartása miatt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "A szervezet hozzáférés $ID$ elemhez visszavonásra került az önálló szervezetre vonatkozó szabályzat be nem tartása miatt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "A szervezet hozzáférés $ID$ elemhez visszavonásra került a szervezet tulajdonjogára való átruházás elutasítása miatt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "$ID$ szervezeti hozzáférése helyreállításra került.",
@@ -4732,8 +4977,14 @@
   "reportGenerationDone": {
     "message": "Kész!"
   },
+  "reportGenerationFailed": {
+    "message": "Hiba történt a jelentés generálása közben. Próbáljuk újra."
+  },
   "riskInsightsRunReport": {
     "message": "Jelentés futtatása"
+  },
+  "goToAccessIntelligence": {
+    "message": "Igrás az Access Intelligence webhelyre"
   },
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
@@ -5255,6 +5506,41 @@
   },
   "byLink": {
     "message": "Hivakozással"
+  },
+  "allowedDomains": {
+    "message": "Engedélyezett tartományok"
+  },
+  "allowedDomainsHint": {
+    "message": "Több tartományba belépés esetén ezeket vesszővel válasszuk el."
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Adjuk meg az engedélyezett tartományokat meghívó hivatkozás generálásához."
+  },
+  "domainsEdited": {
+    "message": "A tartományok frissítésre kerültek."
+  },
+  "inviteLink": {
+    "message": "Meghívó hivatkozás"
+  },
+  "lastGenerated": {
+    "message": "Utolsó generálás: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "A meghívó hivatkozás másolásra került."
+  },
+  "inviteLinkRegenerated": {
+    "message": "A meghívó hivatkozás ismételten generálásra került."
+  },
+  "regenerateInviteLink": {
+    "message": "Meghívó hivatkozás ismételt generálása"
+  },
+  "inviteByLinkDesc": {
+    "message": "Hívjunk meg tagokat a szervezetbe egy hivatkozással. Ha még nincs megadva szerepkör, akkor alapértelmezett felhasználóként kerülnek hozzáadásra."
   },
   "byContinuingYouAgreeToThe": {
     "message": "A folytatással elfogadjuk"
@@ -5869,14 +6155,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "Új szöveges Send elem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Új fájl Send elem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "A Send szerkesztésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5969,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "Mellékletek letöltése"
+  },
+  "troubleshooting": {
+    "message": "Hibaelhárítás"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Problémát tapasztalunk? Töltsük le, majd osszuk meg a diagnosztikai jelentést:"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden támogatás",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Letöltés"
   },
   "sendAccessPasswordTitle": {
     "message": "Adjuk meg a jelszót a Send elem megtekintéséhez.",
@@ -6680,8 +6971,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "A mesterjelszó alaphelyzetbe került $ID$ felhasználónál.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "A fiók helyreállítása mesterjelszóval $ID$ érdekében elindult.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6689,8 +6980,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "A kétlépéses bejelentkezés alaphelyzetbe állítása $ID$ felhasználó számára.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "A fiók helyreállítása kétlépcsős bejelentkezéssel $ID$ érdekében elindult.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7851,26 +8142,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ e-mail címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Csak az egyéni széfben lévő elemek exportálhatók."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Csak$ORGANIZATION$ névvel társított szervezeti széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a személyes és más szervezeti széf elemek.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Csak $ORGANIZATION$ széfhez kapcsolódó elemek exportálhatók. Az egyes széfekben lévő elemek nem.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8281,9 +8557,19 @@
     "message": "SCIM ellátás",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "A felhasználók és csoportok automatikus biztosítása a preferált azonosság szolgáltató SCIM webcímmel és az API-kulccsal történő konfigurálásával."
+  },
+  "scimLearnMore": {
+    "message": "Bővebben a SCIM-ről"
   },
   "scimIntegrationDescription": {
     "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül. Támogatott integrációk keresése",
@@ -8363,6 +8649,21 @@
   },
   "inputRequired": {
     "message": "Az adatbevitel kötelező."
+  },
+  "enterMonth": {
+    "message": "A hónap megadása."
+  },
+  "enterDay": {
+    "message": "A nap megadása."
+  },
+  "enterYear": {
+    "message": "Az év megadása."
+  },
+  "invalidDay": {
+    "message": "Érvényes napot adjunk meg."
+  },
+  "invalidYear": {
+    "message": "Érvényes évet adjunk meg."
   },
   "inputEmail": {
     "message": "Az megadott adat nem email cím."
@@ -9163,6 +9464,9 @@
   "inviteMember": {
     "message": "Tag meghívása"
   },
+  "inviteMembers": {
+    "message": "Tagok meghívása"
+  },
   "addSponsorship": {
     "message": "Szponzorálás hozzáadása"
   },
@@ -9171,6 +9475,9 @@
   },
   "memberRole": {
     "message": "Tagi szerep"
+  },
+  "moreSettings": {
+    "message": "További beállítások"
   },
   "moreFromBitwarden": {
     "message": "További infó a Bitwardenről"
@@ -9354,6 +9661,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "A felhasználói hozzáférés bekapcsolása a Titkos kód kezelőhöz."
+  },
+  "grantSecretsManager": {
+    "message": "Hozzáférés kiosztása a Titkós kód kezelőhöz"
   },
   "userAccessSecretsManagerGA": {
     "message": "Ez a felhasználó elérheti a Titkos kód kezelőt"
@@ -9860,8 +10170,8 @@
   "recoverAccountSuccess": {
     "message": "A fiók helyreállítása sikeres volt."
   },
-  "updatedTempPassword": {
-    "message": "A felhasználó frissítette a fiók helyreállítás során kiadott jelszót."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "A felhasználó alaphelyzetbe állítja a mesterjelszavát a fiók helyreállításával."
   },
   "activatedAccessToSecretsManager": {
     "message": "A hozzáférés engedélyezése a Titkos kód kezelőhöz",
@@ -13329,6 +13639,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bank neve"
+  },
+  "nameOnAccount": {
+    "message": "Számlatulajdonos neve"
+  },
+  "bankRoutingNumber": {
+    "message": "Banki azonosító",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Fióktelep/intézmény szám"
+  },
+  "swiftCode": {
+    "message": "SWIFT-kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Banki kapcsolati telefon"
+  },
+  "searchBankAccount": {
+    "message": "Bankfiók keresése"
+  },
+  "copyAccountNumber": {
+    "message": "Számlaszám másolása"
+  },
+  "copyRoutingNumber": {
+    "message": "Banki azonosító másolása"
+  },
+  "copyPin": {
+    "message": "PIN kód másolása"
+  },
+  "copyIban": {
+    "message": "IBAN másolása"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Ellenőrzés"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Megtakarítások"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Áthelyezési igazolás"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Hitelkeret"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Befektetés/brókerügylet"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Pénzpiac"
+  },
+  "bankAccountTypeOther": {
+    "message": "Egyéb"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Banki adatok biztonságos tárolása"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Mentsük el a bankszámla adatokat, hogy könnyen és biztonságosan hozzáférhessünk az eszközökhöz."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Nincsenek visszakapott keresési eredmények."
   },
@@ -13396,14 +13770,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "A bankszámlát ellenőrizni kell, mielőtt felhasználható lenne ehhez a frissítéshez. Ellenőrizzük a bankszámlát vagy válasszunk más fizetési módot."
   },
-  "discardEdits": {
-    "message": "Szerkesztések elvetése"
-  },
   "discardEditsMessage": {
     "message": "A nézetet bezárva a nem mentett szerkesztések elvetésre kerülnek."
-  },
-  "backToEditing": {
-    "message": "Vissza a szerkesztéshez"
   },
   "sendHasUnsavedEdits": {
     "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
@@ -13412,6 +13780,31 @@
   "saveSendEditsFailed": {
     "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideMyEmail": {
+    "message": "Saját email cím elrejtése a címzettek elől."
+  },
+  "fileToShare": {
+    "message": "Megosztandó fájl"
+  },
+  "viewTextSendHeader": {
+    "message": "Szöveg megtekintése"
+  },
+  "viewFileSendHeader": {
+    "message": "Fájl megtekintése"
+  },
+  "sendCreated": {
+    "message": "Az új Send elem létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "A beviteli adat legyen numerikus."
+  },
+  "integerInputError": {
+    "message": "A beviteli adat legyen egész szám."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
   },
   "sideNavigation": {
     "message": "Oldal navigáció"
@@ -13426,5 +13819,53 @@
   "progressBar": {
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "Licenszek keresése"
+  },
+  "driversLicenseDetails": {
+    "message": "Licensz részletek"
+  },
+  "dateOfBirth": {
+    "message": "Születési dátum"
+  },
+  "birthMonth": {
+    "message": "Születési hónap"
+  },
+  "birthDay": {
+    "message": "Születési nap"
+  },
+  "birthYear": {
+    "message": "Születési év"
+  },
+  "issuingCountry": {
+    "message": "Kiállító ország"
+  },
+  "issuingState": {
+    "message": "Kiállító állam/tartomány"
+  },
+  "issueDate": {
+    "message": "Kiállítási dátum"
+  },
+  "issueMonth": {
+    "message": "Kiállítási hónap"
+  },
+  "issueDay": {
+    "message": "Kiállítási nap"
+  },
+  "issueYear": {
+    "message": "Kiállítási év"
+  },
+  "expirationDay": {
+    "message": "Lejárati dátum"
+  },
+  "issuingAuthority": {
+    "message": "Kiállító hatóság"
+  },
+  "licenseClass": {
+    "message": "Licensz osztály"
+  },
+  "copy": {
+    "message": "Másolás"
   }
 }

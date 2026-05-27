@@ -1,35 +1,33 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="default">
-    <ng-container bitDialogTitle>
-      <span>{{ title | i18n }}</span>
-      <span class="tw-text-sm tw-normal-case tw-text-muted">
-        <ng-container *ngIf="data.projects.length == 1">
-          {{ data.projects[0].name }}
-        </ng-container>
-        <ng-container *ngIf="data.projects.length > 1">
-          {{ data.projects.length }}
-          {{ "projects" | i18n }}
-        </ng-container>
-      </span>
-    </ng-container>
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="default">
+  <ng-container bitDialogTitle>
+    <span>{{ title | i18n }}</span>
+    <span class="tw-text-sm tw-normal-case tw-text-muted">
+      <ng-container *ngIf="data.projects.length == 1">
+        {{ data.projects[0].name }}
+      </ng-container>
+      <ng-container *ngIf="data.projects.length > 1">
+        {{ data.projects.length }}
+        {{ "projects" | i18n }}
+      </ng-container>
+    </span>
+  </ng-container>
 
-    <div bitDialogContent>
-      <bit-callout type="warning" [title]="'warning' | i18n">
-        {{ dialogContent }}
-      </bit-callout>
-      <bit-form-field>
-        <bit-label>{{ dialogConfirmationLabel }}</bit-label>
-        <input bitInput formControlName="confirmDelete" />
-      </bit-form-field>
-    </div>
+  <div bitDialogContent>
+    <bit-callout type="warning" [title]="'warning' | i18n">
+      {{ dialogContent }}
+    </bit-callout>
+    <bit-form-field>
+      <bit-label>{{ dialogConfirmationLabel }}</bit-label>
+      <input bitInput formControlName="confirmDelete" />
+    </bit-form-field>
+  </div>
 
-    <ng-container bitDialogFooter>
-      <button type="submit" bitButton buttonType="danger" bitFormButton>
-        {{ title | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
-        {{ "cancel" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
+  <ng-container bitDialogFooter>
+    <button type="submit" bitButton buttonType="danger" bitFormButton>
+      {{ title | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
 </form>

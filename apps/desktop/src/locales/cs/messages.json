@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH klíč"
   },
+  "typeBankAccount": {
+    "message": "Bankovní účet"
+  },
   "typeLoginSubtitle": {
     "message": "Webová stránka nebo aplikace"
   },
@@ -50,11 +53,20 @@
   "typeSshKeySubtitle": {
     "message": "Přihlašovací token serveru"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Údaje o bance"
+  },
   "folderSubtitle": {
     "message": "Uspořádat položky"
   },
   "collectionSubtitle": {
     "message": "Uspořádat sdílené položky"
+  },
+  "typeDriversLicense": {
+    "message": "Řidičský průkaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Řidičský nebo občanský průkaz"
   },
   "chooseItemToAdd": {
     "message": "Vyberte položku k přidání"
@@ -134,6 +146,22 @@
     "message": "Zobrazit SSH klíč",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Zobrazit bankovní účet",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Zobrazit licenci",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Zobrazit řidičský průkaz",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Zobrazit pas",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nové přihlášení",
     "description": "Header for new login item type"
@@ -154,6 +182,18 @@
     "message": "Nový SSH klíč",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Nový bankovní účet",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nová licence",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nový pas",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Upravit přihlášení",
     "description": "Header for edit login item type"
@@ -173,6 +213,18 @@
   "editItemHeaderSshKey": {
     "message": "Upravit SSH klíč",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Upravit bankovní účet",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Upravit řidičský průkaz",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Upravit pas",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Název"
@@ -230,20 +282,20 @@
   "sendTypeTextToShare": {
     "message": "Text ke sdílení"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nový textový Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Nový text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nový Send se soubory",
+  "newItemHeaderFileSendV2": {
+    "message": "Nový soubor",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Upravit textový Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Upravit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Upravit Send se soubory",
+  "editItemHeaderFileSendV2": {
+    "message": "Upravit soubor",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -706,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "Smazat přílohu"
+  },
+  "deleteAttachmentName": {
+    "message": "Smazat přílohu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Stáhnout $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Opravdu chcete položku přesunout do koše?"
@@ -1589,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "Vždy bude zobrazovat ikonu v systémové liště."
   },
-  "startToTray": {
-    "message": "Spustit do systémové lišty"
-  },
-  "startToTrayDesc": {
-    "message": "Při prvním spuštění aplikace zobrazí jen ikonu v systémové liště."
-  },
-  "startToMenuBar": {
-    "message": "Spustit minimalizované v panelu nabídek"
-  },
-  "startToMenuBarDesc": {
-    "message": "Při prvním spuštění aplikace zobrazí jen ikonu v panelu nabídek."
-  },
   "openAtLogin": {
     "message": "Spustit automaticky při přihlášení"
   },
@@ -1706,6 +1764,10 @@
   "copyNumber": {
     "message": "Kopírovat číslo",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Kopírovat jméno",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "Kopírovat e-mail"
@@ -1962,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "Výchozí zjišťování shody",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobrazit detekci shody"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skrýt detekci shody"
   },
   "toggleOptions": {
     "message": "Přepnout volby"
@@ -2474,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Integrace prohlížeče není aktuálně v Linuxu podporována."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Vyžadovat ověření pro integraci prohlížeče"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Přidá další vrstvu zabezpečení vyžadováním ověření frází otisků prstů při vytvoření propojení mezi plochou a prohlížečem. Pokud je povoleno, vyžaduje to zásah uživatele a ověření pokaždé, když je navázáno spojení."
-  },
   "enableHardwareAcceleration": {
     "message": "Používat hardwarovou akceleraci"
   },
@@ -2488,12 +2550,6 @@
   },
   "approve": {
     "message": "Schválit"
-  },
-  "verifyBrowserTitle": {
-    "message": "Ověřit připojení prohlížeče"
-  },
-  "verifyBrowserDesc": {
-    "message": "Zkontrolujte, zda je zobrazený otisk totožný s otiskem zobrazeným v rozšíření prohlížeče."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ se chce připojit k Bitwardenu",
@@ -2726,8 +2782,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Čeká se na interakci s bezpečnostním klíčem..."
   },
-  "hideEmail": {
-    "message": "Skrýt moji e-mailovou adresu před příjemci."
+  "hideMyEmail": {
+    "message": "Skrýt moji e-mailovou adresu před příjemci"
   },
   "sendOptionsPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace ovlivňuje nastavení Send."
@@ -2971,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportování osobního trezoru"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Budou exportovány jen osobní položky trezoru spojené s $EMAIL$. Položky trezoru organizace nebudou zahrnuty. Budou exportovány jen informace o položkách trezoru a nebudou zahrnuty související přílohy.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Budou exportovány jen osobní položky trezoru včetně příloh spojené s účtem $EMAIL$. Nebudou zahrnuty položky trezoru v organizaci.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportování trezoru organizace"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exportován bude jen trezor organizace přidružený k položce $ORGANIZATION$. Osobní položky trezoru a položky z jiných organizací nebudou zahrnuty.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Exportovat se budou jen položky ve vašem individuálním trezoru."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Exportovat se budou jen položky spojené s trezorem $ORGANIZATION$. Položky v jednotlivých trezorech ne.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3922,6 +3963,9 @@
   "chooseFile": {
     "message": "Vybrat soubor"
   },
+  "chooseFileSentenceCase": {
+    "message": "Vybrat soubor"
+  },
   "noFileChosen": {
     "message": "Není vybrán žádný soubor"
   },
@@ -3952,6 +3996,18 @@
   },
   "exportError": {
     "message": "Při exportu dat Vašeho trezoru se vyskytla chyba"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 poškozená příloha byla při exportu přeskočena. Všechna ostatní data trezoru a přílohy byly úspěšně exportovány."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ poškozených příloh bylo při exportu přeskočeno. Všechna ostatní data trezoru a přílohy byly úspěšně exportovány.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Vícefázové ověření zrušeno"
@@ -4065,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Řešení problémů"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Stáhnout diagnostický report"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stáhněte si a pak sdílejte diagnostický report s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stáhnout"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Zakázat hardwarovou akceleraci a restartovat"
@@ -4748,6 +4820,9 @@
   "sessionTimeoutHeader": {
     "message": "Časový limit relace"
   },
+  "browserAccessDenied": {
+    "message": "Buď byl vybrán neplatný adresář prohlížeče, nebo byl odepřen přístup"
+  },
   "resizeSideNavigation": {
     "message": "Změnit velikost boční navigace"
   },
@@ -4791,6 +4866,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metodu odemknutí, abyste změnili akci při vypršení časového limitu"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ není nainstalován. Nainstalujte $BROWSER$ před importem hesel.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Vyberte složku s daty $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Očekávané umístění:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Udělit přístup"
   },
   "upgrade": {
     "message": "Aktualizovat"
@@ -4919,8 +5018,126 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Změnit pořadí $LABEL$. Použijte šipky pro posunutí položky nahoru nebo dolů.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
+  },
+  "enterMonth": {
+    "message": "Zadejte měsíc."
+  },
+  "enterDay": {
+    "message": "Zadejte den."
+  },
+  "enterYear": {
+    "message": "Zadejte rok."
+  },
+  "invalidDay": {
+    "message": "Zadejte platný den."
+  },
+  "invalidYear": {
+    "message": "Zadejte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Hledat řidičské průkazy"
+  },
+  "bankAccount": {
+    "message": "Bankovní účet"
+  },
+  "bankName": {
+    "message": "Názov banky"
+  },
+  "nameOnAccount": {
+    "message": "Jméno na účtu"
+  },
+  "bankAccountType": {
+    "message": "Typ účtu"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Firma"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Jednotlivec"
+  },
+  "accountNumber": {
+    "message": "Číslo účtu"
+  },
+  "bankRoutingNumber": {
+    "message": "Variabilní symbol",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Číslo pobočky/Instituce"
+  },
+  "swiftCode": {
+    "message": "SWIFT kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Kontaktní telefon banky"
+  },
+  "searchBankAccount": {
+    "message": "Hledat bankovní účet"
+  },
+  "copyAccountNumber": {
+    "message": "Kopírovat číslo účtu"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopírovat variabilní symbol"
+  },
+  "copyPin": {
+    "message": "Kopírovat PIN"
+  },
+  "copyIban": {
+    "message": "Kopírovat IBAN"
+  },
+  "copyFirstName": {
+    "message": "Kopírovat křestní jméno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovat prostřední jméno"
+  },
+  "copyLastName": {
+    "message": "Kopírovat příjmení"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovat číslo řidičského průkazu"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Kontrolování"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Úspory"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Vkladový list"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Úvěrový rámec"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investice/Zprostředkování"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Peněžní trh"
+  },
+  "bankAccountTypeOther": {
+    "message": "Ostatní"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bezpečně uložte Vaše bankovní údaje"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
   },
   "discardEdits": {
     "message": "Zahodit úpravy"
@@ -4939,6 +5156,25 @@
     "message": "Ukládání úprav Send selhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "Zobrazit text"
+  },
+  "viewFileSendHeader": {
+    "message": "Zobrazit soubor"
+  },
+  "sendCreated": {
+    "message": "Send byl vytvořen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Vstup musí být číselný"
+  },
+  "integerInputError": {
+    "message": "Vstup musí být celé číslo"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Vaše organizace vyžaduje viditelnost e-mailu. Zrušte zaškrtnutí \"Skrýt Vaši e-mailovou adresu\" pro uložení."
+  },
   "sideNavigation": {
     "message": "Boční navigace"
   },
@@ -4952,5 +5188,47 @@
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti řidičského průkazu"
+  },
+  "dateOfBirth": {
+    "message": "Datum narození"
+  },
+  "birthMonth": {
+    "message": "Měsíc narození"
+  },
+  "birthDay": {
+    "message": "Den narození"
+  },
+  "birthYear": {
+    "message": "Rok narození"
+  },
+  "issuingCountry": {
+    "message": "Země vydání průkazu"
+  },
+  "issuingState": {
+    "message": "Vydávající stát/Provincie"
+  },
+  "issueDate": {
+    "message": "Datum vystavení"
+  },
+  "issueMonth": {
+    "message": "Měsíc vystavení"
+  },
+  "issueDay": {
+    "message": "Den vystavení"
+  },
+  "issueYear": {
+    "message": "Rok vystavení"
+  },
+  "expirationDay": {
+    "message": "Den vypršení platnosti"
+  },
+  "issuingAuthority": {
+    "message": "Vydávající orgán"
+  },
+  "licenseClass": {
+    "message": "Skupina řidičského průkazu"
   }
 }
