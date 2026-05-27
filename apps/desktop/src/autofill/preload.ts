@@ -19,6 +19,9 @@ const sshAgent = {
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
   },
+  setRichContextEnabled: async (enabled: boolean): Promise<void> => {
+    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SET_RICH_CONTEXT_ENABLED, { enabled });
+  },
   // V1, delete with PM-30758
   lock: async () => {
     return await ipcRenderer.invoke("sshagent.lock");
