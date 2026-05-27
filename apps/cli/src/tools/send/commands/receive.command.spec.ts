@@ -9,6 +9,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -43,6 +44,8 @@ describe("SendReceiveCommand", () => {
         webVault: "https://vault.bitwarden.com",
       }),
     } as any);
+
+    environmentService.availableRegions.mockReturnValue(PRODUCTION_REGIONS);
 
     platformUtilsService.isDev.mockReturnValue(false);
 
