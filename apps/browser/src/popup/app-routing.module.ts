@@ -459,7 +459,10 @@ const routes: Routes = [
           },
           elevation: 1,
           showAcctSwitcher: true,
-          adjustedLayout: true,
+          showPageIcon: false,
+          contentPadding: "compact",
+          heroAlignment: "left",
+          secondaryContentLocation: "footer",
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           { path: "", component: LoginComponent },
@@ -481,7 +484,10 @@ const routes: Routes = [
           },
           elevation: 1,
           showBackButton: true,
-          adjustedLayout: true,
+          showPageIcon: false,
+          contentPadding: "compact",
+          heroAlignment: "left",
+          secondaryContentLocation: "footer",
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           { path: "", component: LoginViaWebAuthnComponent },
