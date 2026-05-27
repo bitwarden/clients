@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
+
 import { TabLabelDirective } from "./tab-label.directive";
 
 /** Used to generate unique IDs for each tab component */

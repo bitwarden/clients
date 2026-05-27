@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -11,6 +12,7 @@ import {
   TypographyModule,
   DIALOG_DATA,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 
 import { AccessIntelligenceCoachmarkService } from "./access-intelligence-coachmark.service";
 import { PostImportModalDialogComponent } from "./post-import-modal-dialog.component";
@@ -32,6 +34,8 @@ const mockOnboardingService = {
   setPostImportDialogAcknowledged: jest.fn().mockResolvedValue(undefined),
   isPostImportDialogAcknowledged: jest.fn().mockResolvedValue(false),
 };
+
+const mockLogService = mock<LogService>();
 
 const mockCoachmarkService = {
   activeStepId: jest.fn(),
@@ -68,6 +72,7 @@ describe("PostImportModalDialogComponent", () => {
         { provide: DialogService, useValue: mockDialogService },
         { provide: DIALOG_DATA, useValue: { organizationId: mockOrganizationId } },
         { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
+        { provide: LogService, useValue: mockLogService },
       ],
     }).compileComponents();
 

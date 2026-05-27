@@ -516,6 +516,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   }
 
   protected async beginCoachmarksTour(): Promise<void> {
-    await this.coachmarkService.startTour(this.organizationId);
+    if (this.adoptionUxImprovementsEnabled) {
+      await this.coachmarkService.startTour(this.organizationId);
+    }
   }
 }
