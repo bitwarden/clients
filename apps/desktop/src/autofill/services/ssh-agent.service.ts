@@ -40,6 +40,7 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
+import { RequestContext } from "../models/ssh-request-context";
 
 @Injectable({
   providedIn: "root",
@@ -67,6 +68,17 @@ export class SshAgentService implements OnDestroy {
 
   async init() {
     const useV2 = await this.configService.getFeatureFlag(FeatureFlag.SSHAgentV2);
+    const richContextEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.SSHAgentRichContext,
+    );
+
+    const pushRichContextFlag = async () => {
+      try {
+        await ipc.autofill.sshAgent.setRichContextEnabled(richContextEnabled);
+      } catch (e) {
+        this.logService.debug("Failed to set ssh-agent rich-context flag", e);
+      }
+    };
 
     // V1 only: eagerly start the server on enable; v2 defers to first vault unlock.
     if (!useV2) {
@@ -75,6 +87,7 @@ export class SshAgentService implements OnDestroy {
           concatMap(async (enabled) => {
             if (!(await ipc.autofill.sshAgent.isLoaded()) && enabled) {
               await ipc.autofill.sshAgent.init(useV2);
+              await pushRichContextFlag();
             }
           }),
           takeUntil(this.destroy$),
@@ -82,10 +95,14 @@ export class SshAgentService implements OnDestroy {
         .subscribe();
     }
 
-    await this.initListeners(useV2);
+    await this.initListeners(useV2, richContextEnabled, pushRichContextFlag);
   }
 
-  private async initListeners(useV2: boolean) {
+  private async initListeners(
+    useV2: boolean,
+    richContextEnabled: boolean,
+    pushRichContextFlag: () => Promise<void>,
+  ) {
     // Shared: sign request approval — renderer shows the approval dialog.
     // Contains v1-only sections marked below.
     this.messageListener
@@ -185,12 +202,14 @@ export class SshAgentService implements OnDestroy {
           if (await this.needsAuthorization(cipherId, isAgentForwarding)) {
             ipc.platform.focusWindow();
             const cipher = ciphers.find((cipher) => cipher.id == cipherId);
+            const context = (message.context as RequestContext | null) ?? null;
             const dialogRef = ApproveSshRequestComponent.open(
               this.dialogService,
               cipher.name,
               application,
               isAgentForwarding,
               namespace,
+              richContextEnabled ? context : null,
             );
 
             if (await firstValueFrom(dialogRef.closed)) {
@@ -323,6 +342,7 @@ export class SshAgentService implements OnDestroy {
                   concatMap(async (loaded) => {
                     if (!loaded) {
                       await ipc.autofill.sshAgent.init(useV2);
+                      await pushRichContextFlag();
                     }
                   }),
                   // Subscribe to live cipher data for the active account.

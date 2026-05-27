@@ -15,11 +15,14 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { RequestContext } from "../models/ssh-request-context";
+
 export interface ApproveSshRequestParams {
   cipherName: string;
   applicationName: string;
   isAgentForwarding: boolean;
   action: string;
+  context: RequestContext | null;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -54,6 +57,7 @@ export class ApproveSshRequestComponent {
     applicationName: string,
     isAgentForwarding: boolean,
     namespace: string,
+    context: RequestContext | null,
   ) {
     let actioni18nKey = "sshActionLogin";
     if (namespace === "git") {
@@ -68,6 +72,7 @@ export class ApproveSshRequestComponent {
         applicationName,
         isAgentForwarding,
         action: actioni18nKey,
+        context,
       },
     });
   }
