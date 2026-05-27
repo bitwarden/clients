@@ -16,6 +16,8 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
 import type { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -53,6 +55,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   readonly reportProgress$ = this._reportProgress.asObservable();
 
   constructor(
+    private apiService: ApiService,
     private cipherService: CipherService,
     private organizationUserApiService: OrganizationUserApiService,
     private reportGenerationService: ReportGenerationService,
@@ -78,13 +81,18 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
-      switchMap((result) => {
-        if (!result) {
+    return forkJoin({
+      reportResult: this.reportPersistenceService.loadLastReport$(orgId),
+      ciphers: this.loadCiphersOnly$(orgId),
+    }).pipe(
+      switchMap(({ reportResult, ciphers }) => {
+        this._ciphers.next(ciphers);
+
+        if (!reportResult) {
           return of(null);
         }
 
-        const { report, hadLegacyBlobs } = result;
+        const { report, hadLegacyBlobs } = reportResult;
 
         if (hadLegacyBlobs) {
           this.logService.info(
@@ -149,6 +157,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         // Transform API users to members, collection access, group memberships
         const { members, collectionAccess, groupMemberships } = this.transformOrganizationUserData(
           orgData.apiUsers.data,
+          orgData.collections.data,
         );
 
         this.logService.debug(
@@ -167,7 +176,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
 
         // Generate report
         return this.reportGenerationService
-          .generateReport(
+          .generateReport$(
             orgData.ciphers,
             members,
             collectionAccess,
@@ -227,7 +236,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
+    return this.reportPersistenceService.loadLastReport$(orgId).pipe(
       tap((result) => {
         this._report.next(result?.report ?? null);
         this._loading.next(false);
@@ -429,21 +438,30 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     );
   }
 
+  private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
+    return from(this.cipherService.getAllFromApiForOrganization(orgId)).pipe(
+      catchError((err: unknown) => {
+        this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
+        return of([] as CipherView[]);
+      }),
+    );
+  }
   /**
    * Load organization data in parallel (ciphers and users with collections/groups)
    */
   private loadOrganizationData$(orgId: OrganizationId): Observable<{
     ciphers: CipherView[];
     apiUsers: ListResponse<OrganizationUserUserDetailsResponse>;
+    collections: ListResponse<CollectionAccessDetailsResponse>;
   }> {
     return forkJoin({
       ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId)),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
-          includeCollections: true,
           includeGroups: true,
         }),
       ),
+      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)),
     });
   }
 
@@ -453,7 +471,10 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
    * Inverts user→collections/groups mappings to collection→users and group→users
    * for use by MemberCipherMappingService.
    */
-  private transformOrganizationUserData(apiUsers: OrganizationUserUserDetailsResponse[]): {
+  private transformOrganizationUserData(
+    apiUsers: OrganizationUserUserDetailsResponse[],
+    collections: CollectionAccessDetailsResponse[],
+  ): {
     members: OrganizationUserView[];
     collectionAccess: CollectionAccessDetails[];
     groupMemberships: GroupMembershipDetails[];
@@ -465,30 +486,12 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
       email: user.email,
     }));
 
-    // 2. Invert user→collections to collection→users/groups
-    const collectionMap = new Map<string, { users: Set<string>; groups: Set<string> }>();
-
-    apiUsers.forEach((user) => {
-      // For each collection the user has access to, add the user
-      user.collections?.forEach((collection: { id: string }) => {
-        if (!collectionMap.has(collection.id)) {
-          collectionMap.set(collection.id, { users: new Set(), groups: new Set() });
-        }
-        collectionMap.get(collection.id)!.users.add(user.id);
-      });
-    });
-
-    // Note: Groups that grant collection access are handled implicitly:
-    // If a user is in a group that has collection access, the user.collections
-    // array already includes those collections (server-side expansion)
-
-    const collectionAccess: CollectionAccessDetails[] = Array.from(collectionMap.entries()).map(
-      ([collectionId, access]) => ({
-        collectionId,
-        users: access.users,
-        groups: access.groups, // May be empty if server expands groups to users
-      }),
-    );
+    // 2. Get collection access by users and groups
+    const collectionAccess: CollectionAccessDetails[] = collections.map((collection) => ({
+      collectionId: collection.id,
+      users: new Set(collection.users.map((u) => u.id)),
+      groups: new Set(collection.groups.map((g) => g.id)),
+    }));
 
     // 3. Invert user→groups to group→users
     const groupMap = new Map<string, Set<string>>();

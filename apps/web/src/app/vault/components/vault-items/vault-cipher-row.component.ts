@@ -270,6 +270,31 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get permissionTooltip(): string | undefined {
+    if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
+      return undefined;
+    }
+
+    const filteredCollections = this.collections.filter((collection) => {
+      if (collection.assigned) {
+        return this.cipher.collectionIds.find((id) => collection.id === id);
+      }
+    });
+
+    if (filteredCollections.length <= 1) {
+      return undefined;
+    }
+
+    return filteredCollections
+      .map((collection) => {
+        const label = this.i18nService.t(
+          this.permissionList.find((p) => p.perm === convertToPermission(collection))?.labelId,
+        );
+        return `${collection.name}: ${label}`;
+      })
+      .join("\n");
+  }
+
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
       return this.i18nService.t("manageCollection");
@@ -350,10 +375,20 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get isPassportCipher(): boolean {
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Passport && !this.isDeleted;
+  }
+
   protected get isSecureNoteCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
       !(this.isDeleted && this.canRestoreCipher)
+    );
+  }
+
+  protected get isDriversLicenseCipher(): boolean {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.DriversLicense && !this.isDeleted
     );
   }
 
@@ -373,13 +408,31 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get hasPassportOptions(): boolean {
+    return (
+      this.isPassportCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "passportNumber")
+    );
+  }
+
+  protected get hasVisibleDriversLicenseOptions(): boolean {
+    return (
+      this.isDriversLicenseCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "firstName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "middleName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "lastName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "licenseNumber"))
+    );
+  }
+
   protected get showMenuDivider(): boolean {
     return (
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
       this.hasVisibleIdentityOptions ||
       this.hasVisibleSecureNoteOptions ||
-      this.hasBankAccountOptions
+      this.hasBankAccountOptions ||
+      this.hasVisibleDriversLicenseOptions ||
+      this.hasPassportOptions
     );
   }
 

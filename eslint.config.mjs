@@ -204,7 +204,10 @@ export default tseslint.config(
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
-      "@angular-eslint/template/elements-content": ["error", { allowList: ["bitIconButton"] }],
+      "@angular-eslint/template/elements-content": [
+        "error",
+        { allowList: ["bitIconButton", "bit-chip-action"] },
+      ],
       "tailwindcss/no-custom-classname": [
         "error",
         {
@@ -222,6 +225,7 @@ export default tseslint.config(
       ],
       "@bitwarden/components/no-bwi-class-usage": "warn",
       "@bitwarden/components/no-icon-children-in-bit-button": "warn",
+      "@bitwarden/components/no-bit-dialog-wrapper": "error",
     },
   },
 
