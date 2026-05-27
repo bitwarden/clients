@@ -4,7 +4,6 @@ import {
   OnInit,
   TemplateRef,
   ViewContainerRef,
-  contentChild,
   input,
   signal,
   viewChild,
@@ -15,8 +14,6 @@ import {
 
 import { PopoverElementProvider } from "../../popover";
 import { BitwardenIcon } from "../../shared/icon";
-
-import { TabLabelDirective } from "./tab-label.directive";
 
 /** Used to generate unique IDs for each tab component */
 let nextTabId = 0;
@@ -52,8 +49,6 @@ export class TabComponent implements OnInit, PopoverElementProvider {
   readonly contentTabIndex = input<number | undefined>();
 
   readonly implicitContent = viewChild.required(TemplateRef);
-
-  readonly labelContent = contentChild(TabLabelDirective, { read: TemplateRef });
 
   private readonly _contentPortal = signal<TemplatePortal | null>(null);
 

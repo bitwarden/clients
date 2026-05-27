@@ -81,17 +81,13 @@
 
         <div class="tw-flex-1 tw-flex tw-flex-col">
           <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="onTabChange($event)">
-            <bit-tab>
-              <ng-template bitTabLabel>
-                <span
-                  [bitPopoverAnchorFor]="activityCoachmark.popover()"
-                  [popoverOpen]="monitorActivityOpen()"
-                  [position]="'below-start'"
-                  [spotlight]="true"
-                  class="tw-flex tw-items-center tw-gap-1"
-                  >{{ "activity" | i18n }}</span
-                >
-              </ng-template>
+            <bit-tab
+              label="{{ 'activity' | i18n }}"
+              [bitPopoverAnchorFor]="activityCoachmark.popover()"
+              [popoverOpen]="monitorActivityOpen()"
+              [position]="'below-start'"
+              [spotlight]="true"
+            >
               <app-activity-tab [organizationId]="organizationId()"></app-activity-tab>
             </bit-tab>
             <app-ai-coachmark #activityCoachmark stepId="monitorActivity"></app-ai-coachmark>
@@ -105,22 +101,15 @@
                   [organizationId]="organizationId()"
                 ></dirt-all-applications-tab>
               </bit-tab>
-              <bit-tab startIcon="bwi-star" [berryValue]="criticalAppsCount()">
-                <ng-template bitTabLabel>
-                  <span
-                    [bitPopoverAnchorFor]="criticalAppsCoachmark.popover()"
-                    [popoverOpen]="criticalApplicationsOpen()"
-                    [position]="'below-start'"
-                    [spotlight]="true"
-                    class="tw-flex tw-items-center tw-gap-1"
-                  >
-                    <bit-icon name="bwi-star" class="tw-text-base" />
-                    {{ "criticalApplications" | i18n }}
-                    @if (criticalAppsCount()) {
-                      <bit-berry [value]="criticalAppsCount()" />
-                    }
-                  </span>
-                </ng-template>
+              <bit-tab
+                startIcon="bwi-star"
+                label="{{ 'criticalApplications' | i18n }}"
+                [berryValue]="criticalAppsCount()"
+                [bitPopoverAnchorFor]="criticalAppsCoachmark.popover()"
+                [popoverOpen]="criticalApplicationsOpen()"
+                [position]="'below-start'"
+                [spotlight]="true"
+              >
                 <dirt-critical-applications-tab
                   [organizationId]="organizationId()"
                 ></dirt-critical-applications-tab>

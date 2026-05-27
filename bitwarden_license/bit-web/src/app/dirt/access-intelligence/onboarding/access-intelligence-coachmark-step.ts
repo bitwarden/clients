@@ -55,5 +55,6 @@ export const ACCESS_INTELLIGENCE_COACHMARK_STEPS: AccessIntelligenceCoachmarkSte
     descriptionKey: "aiCoachmarkRunReportDescription",
     position: "below-center",
     learnMoreUrl: "https://bitwarden.com/help/access-intelligence/",
+    tabIndex: 0,
   },
 ];

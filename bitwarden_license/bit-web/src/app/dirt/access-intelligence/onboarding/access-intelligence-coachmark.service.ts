@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -36,7 +36,7 @@ export class AccessIntelligenceCoachmarkService {
     return step?.tabIndex ?? null;
   });
 
-  private readonly tourCompleted = new BehaviorSubject<boolean>(false);
+  private readonly tourCompleted = new Subject<boolean>();
   readonly tourCompleted$ = this.tourCompleted.asObservable();
 
   async startTour(_organizationId: OrganizationId): Promise<void> {

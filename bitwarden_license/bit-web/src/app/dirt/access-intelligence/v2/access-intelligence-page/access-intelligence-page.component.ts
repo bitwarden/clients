@@ -39,7 +39,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   AsyncActionsModule,
-  BerryComponent,
   ButtonModule,
   DialogRef,
   DialogService,
@@ -86,7 +85,6 @@ type ProgressStep = ReportProgress | null;
     ActivityTabComponent,
     AllApplicationsTabComponent,
     ApplicationsTabComponent,
-    BerryComponent,
     CriticalApplicationsTabComponent,
     AsyncActionsModule,
     ButtonModule,
@@ -252,21 +250,25 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.coachmarkService.tourCompleted$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((tourCompleted) => {
-        if (tourCompleted) {
-          const report = this.report();
-          if (!report) {
-            return;
-          }
-          NewApplicationsDialogV2Component.open(this.dialogService, {
-            newApplications: report.getNewApplications(),
-            organizationId: this.organizationId(),
-            hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
-          });
-        }
+    effect(() => {
+      // coachmarks are running, so set tab index to the coachmark's required tab
+      const tabIndex = this.coachmarkService.requiredTabIndex();
+      if (tabIndex !== null && tabIndex !== this.tabIndex()) {
+        this.tabIndex.set(tabIndex);
+      }
+    });
+
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const report = this.report();
+      if (!report) {
+        return;
+      }
+      NewApplicationsDialogV2Component.open(this.dialogService, {
+        newApplications: report.getNewApplications(),
+        organizationId: this.organizationId(),
+        hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
       });
+    });
   }
 
   async ngOnInit() {

@@ -280,7 +280,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
         tick();
       }
       expect(service.activeStepId()).toBe("runReport");
-      expect(service.requiredTabIndex()).toBeNull();
+      expect(service.requiredTabIndex()).toBe(0);
     }));
   });
 });

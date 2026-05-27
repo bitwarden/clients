@@ -51,6 +51,7 @@ import {
   DialogRef,
   DialogService,
   IconModule,
+  PopoverAnchorForDirective,
   PopoverModule,
   TabsModule,
   ToastService,
@@ -99,6 +100,7 @@ type ProgressStep = ReportProgress | null;
     ReportLoadingComponent,
     PageLoadingComponent,
     PopoverModule,
+    PopoverAnchorForDirective,
   ],
   animations: [
     trigger("fadeIn", [
@@ -190,17 +192,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.coachmarkService.tourCompleted$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((tourCompleted) => {
-        if (tourCompleted) {
-          NewApplicationsDialogComponent.open(this.dialogService, {
-            newApplications: this.newApplications,
-            organizationId: this.organizationId,
-            hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
-          });
-        }
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      NewApplicationsDialogComponent.open(this.dialogService, {
+        newApplications: this.newApplications,
+        organizationId: this.organizationId,
+        hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
       });
+    });
   }
 
   async ngOnInit() {
