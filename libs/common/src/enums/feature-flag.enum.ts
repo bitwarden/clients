@@ -164,7 +164,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM29968_FillAfterSave]: true,
+  [FeatureFlag.PM29968_FillAfterSave]: FALSE,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,
