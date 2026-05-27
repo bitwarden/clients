@@ -36,6 +36,7 @@ export class PostImportModalDialogComponent {
   private readonly onboardingService = inject(OnboardingService);
   private readonly coachmarkService = inject(AccessIntelligenceCoachmarkService);
   private readonly data = inject<WelcomeModalDialogData>(DIALOG_DATA);
+  private readonly logger = inject(LogService);
 
   protected async onStartTour(): Promise<void> {
     await this.onboardingService.setPostImportDialogAcknowledged();
