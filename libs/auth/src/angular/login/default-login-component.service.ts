@@ -12,8 +12,6 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 export class DefaultLoginComponentService implements LoginComponentService {
   protected clientType: ClientType;
 
-  showPageIcons = true;
-
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,

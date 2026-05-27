@@ -18,8 +18,6 @@ export class ExtensionLoginComponentService
   extends DefaultLoginComponentService
   implements LoginComponentService
 {
-  showPageIcons = false;
-
   constructor(
     cryptoFunctionService: CryptoFunctionService,
     environmentService: EnvironmentService,

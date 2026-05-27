@@ -530,7 +530,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "loginPageEmailEntryScreenTitle" },
-        pageIcon: this.loginComponentService.showPageIcons ? this.Icons.VaultIcon : null,
+        pageIcon: this.Icons.VaultIcon, // layout decides whether to render it via showPageIcon
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
 
@@ -545,7 +545,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "loginPageMasterPasswordEntryScreenTitle" },
         pageSubtitle: this.emailFormControl.value,
-        pageIcon: this.loginComponentService.showPageIcons ? this.Icons.WaveIcon : null,
+        pageIcon: this.Icons.WaveIcon, // layout decides whether to render it via showPageIcon
       });
 
       // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors
