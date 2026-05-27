@@ -70,6 +70,15 @@ export class MainSshAgentService {
       }
       return this.agentState != null;
     });
+
+    ipcMain.handle(
+      SSH_AGENT_IPC_CHANNELS.SET_RICH_CONTEXT_ENABLED,
+      async (_event: any, { enabled }: { enabled: boolean }) => {
+        if (this.agentState != null) {
+          sshagent.setRichContextEnabled(this.agentState, enabled);
+        }
+      },
+    );
   }
 
   init() {
@@ -91,6 +100,7 @@ export class MainSshAgentService {
           processName: sshUiRequest.processName,
           isAgentForwarding: sshUiRequest.isForwarding,
           namespace: sshUiRequest.namespace,
+          context: sshUiRequest.context ?? null,
         });
 
         const result = await firstValueFrom(
@@ -210,6 +220,7 @@ export class MainSshAgentService {
         processName: data.signRequest.processName,
         isAgentForwarding: data.signRequest.isForwarding,
         namespace: data.signRequest.namespace,
+        context: null,
       });
     });
   }

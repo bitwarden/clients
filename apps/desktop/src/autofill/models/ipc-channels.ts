@@ -15,4 +15,5 @@ export const SSH_AGENT_IPC_CHANNELS = {
   REPLACE: "sshagent.replace",
   SIGN_REQUEST: "sshagent.signrequest",
   SIGN_REQUEST_RESPONSE: "sshagent.signrequestresponse",
+  SET_RICH_CONTEXT_ENABLED: "sshagent.setRichContextEnabled",
 } as const;
