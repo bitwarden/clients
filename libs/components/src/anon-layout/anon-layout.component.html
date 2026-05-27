@@ -3,12 +3,17 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content [maxWidth]="maxWidth()" [adjustedLayout]="adjustedLayout()">
+  <bit-landing-content
+    [maxWidth]="maxWidth()"
+    [adjustedLayout]="adjustedLayout()"
+    [contentPadding]="contentPadding()"
+  >
     <bit-landing-hero
-      [icon]="icon()"
+      [icon]="effectiveShowPageIcon() ? icon() : null"
       [title]="title()"
       [subtitle]="subtitle()"
       [adjustedLayout]="adjustedLayout()"
+      [heroAlignment]="heroAlignment()"
     ></bit-landing-hero>
     @if (hideCardWrapper()) {
       <div class="tw-mb-6 sm:tw-mb-10">
@@ -19,15 +24,22 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </bit-landing-card>
     }
-    <div class="tw-flex tw-flex-col tw-items-center">
-      <ng-content select="[slot=secondary]"></ng-content>
-    </div>
+    @if (effectiveSecondaryContentLocation() === "main") {
+      <div class="tw-flex tw-flex-col tw-items-center">
+        <ng-content select="[slot=secondary]"></ng-content>
+      </div>
+    }
   </bit-landing-content>
 
   @if (!hideFooter()) {
     <bit-landing-footer>
       <div [class]="footerLayoutClasses()">
-        <!-- If adjustedLayout is true, secondary content gets placed here in the footer -->
+        <!-- Secondary content renders here when secondaryContentLocation === "footer". -->
+        @if (effectiveSecondaryContentLocation() === "footer") {
+          <ng-content select="[slot=secondary]"></ng-content>
+        }
+        <!-- Legacy [slot=footer-secondary]: still used by ExtensionAnonLayoutWrapperComponent. -->
+        <!-- TODO: Remove once the extension wrapper migrates to [slot=secondary]. -->
         <ng-content select="[slot=footer-secondary]"></ng-content>
 
         @if (showReadonlyHostname()) {
