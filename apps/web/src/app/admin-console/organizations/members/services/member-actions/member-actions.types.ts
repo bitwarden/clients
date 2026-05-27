@@ -12,11 +12,11 @@ export const REQUESTS_PER_BATCH = 500;
  */
 export type MemberActionResult = MemberActionSuccess | MemberActionFailure;
 
-export interface MemberActionSuccess {
+interface MemberActionSuccess {
   success: true;
 }
 
-export interface MemberActionFailure {
+interface MemberActionFailure {
   success: false;
   error: string;
 }
