@@ -19,19 +19,18 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </bit-landing-card>
     }
-    @if (secondaryContentLocation() === "main") {
-      <div class="tw-flex tw-flex-col tw-items-center">
-        <ng-content select="[slot=secondary]"></ng-content>
-      </div>
-    }
+    <div class="tw-flex tw-flex-col tw-items-center">
+      <ng-content select="[slot=secondary]"></ng-content>
+    </div>
   </bit-landing-content>
 
   @if (!hideFooter()) {
     <bit-landing-footer>
       <div [class]="footerLayoutClasses()">
-        @if (secondaryContentLocation() === "footer") {
-          <ng-content select="[slot=secondary]"></ng-content>
-        }
+        <!-- Wrappers project here when secondaryContentLocation === "footer". Two -->
+        <!-- distinct slot names are required because Angular projects to the first -->
+        <!-- matching <ng-content>, so @if-guarded duplicate selectors won't switch. -->
+        <ng-content select="[slot=footer-secondary]"></ng-content>
 
         @if (showReadonlyHostname()) {
           <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
