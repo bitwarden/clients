@@ -82,7 +82,7 @@ describe("EnvironmentService", () => {
         notifications: "https://notifications.bitwarden.com",
         events: "https://events.bitwarden.com",
         scim: "https://scim.bitwarden.com/v2",
-        send: "https://send.bitwarden.com/#",
+        send: "https://send.bitwarden.com",
       },
     },
     {
@@ -95,7 +95,7 @@ describe("EnvironmentService", () => {
         notifications: "https://notifications.bitwarden.eu",
         events: "https://events.bitwarden.eu",
         scim: "https://scim.bitwarden.eu/v2",
-        send: "https://send.bitwarden.eu/#",
+        send: "https://send.bitwarden.eu",
       },
     },
   ];
@@ -117,7 +117,7 @@ describe("EnvironmentService", () => {
         expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
         expect(env.getEventsUrl()).toBe(expectedUrls.events);
         expect(env.getScimUrl()).toBe(expectedUrls.scim);
-        expect(env.getSendUrl()).toBe(expectedUrls.send);
+        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
         expect(env.getKeyConnectorUrl()).toBe(undefined);
         expect(env.isCloud()).toBe(true);
         expect(env.getUrls()).toEqual({
@@ -229,7 +229,7 @@ describe("EnvironmentService", () => {
       expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
       expect(env.getEventsUrl()).toBe(expectedUrls.events);
       expect(env.getScimUrl()).toBe(expectedUrls.scim);
-      expect(env.getSendUrl()).toBe(expectedUrls.send);
+      expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
       expect(env.getKeyConnectorUrl()).toBe(undefined);
       expect(env.isCloud()).toBe(true);
       expect(env.getUrls()).toEqual({

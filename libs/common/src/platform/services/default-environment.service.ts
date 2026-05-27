@@ -95,7 +95,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.com",
       events: "https://events.bitwarden.com",
       scim: "https://scim.bitwarden.com",
-      send: "https://send.bitwarden.com/#",
+      send: "https://send.bitwarden.com",
     },
   },
   {
@@ -110,7 +110,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.eu",
       events: "https://events.bitwarden.eu",
       scim: "https://scim.bitwarden.eu",
-      send: "https://send.bitwarden.eu/#",
+      send: "https://send.bitwarden.eu",
     },
   },
 ];
@@ -424,7 +424,7 @@ abstract class UrlEnvironment implements Environment {
 
   getSendUrl() {
     if (this.urls.send != null) {
-      return this.urls.send;
+      return this.urls.send + "/#/";
     }
 
     return this.getWebVaultUrl() + "/#/send/";
