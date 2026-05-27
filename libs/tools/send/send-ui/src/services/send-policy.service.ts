@@ -19,8 +19,6 @@ export const SendDisabledReason = Object.freeze({
 } as const);
 export type SendDisabledReason = (typeof SendDisabledReason)[keyof typeof SendDisabledReason];
 
-import { DatePreset } from "../models/date-preset";
-
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
  */
@@ -48,13 +46,13 @@ export class SendPolicyService {
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? combineLatest([
-          this.policyService
-            .policiesByType$(PolicyType.SendControls, userId)
-            .pipe(
-              map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
-            ),
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ]).pipe(map(([sendControls, legacyDisableSend]) => sendControls || legacyDisableSend))
+            this.policyService
+              .policiesByType$(PolicyType.SendControls, userId)
+              .pipe(
+                map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
+              ),
+            this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+          ]).pipe(map(([sendControls, legacyDisableSend]) => sendControls || legacyDisableSend))
         : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -70,20 +68,20 @@ export class SendPolicyService {
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? combineLatest([
-          this.policyService
-            .policiesByType$(PolicyType.SendControls, userId)
-            .pipe(
-              map(
-                (policies) => policies?.some((p) => p.data?.disableHideEmail === true) ?? false,
+            this.policyService
+              .policiesByType$(PolicyType.SendControls, userId)
+              .pipe(
+                map(
+                  (policies) => policies?.some((p) => p.data?.disableHideEmail === true) ?? false,
+                ),
               ),
-            ),
-          this.policyService
+            this.policyService
+              .policiesByType$(PolicyType.SendOptions, userId)
+              .pipe(map((policies) => policies?.some((p) => p.data?.disableHideEmail) ?? false)),
+          ]).pipe(map(([sendControls, legacySendOptions]) => sendControls || legacySendOptions))
+        : this.policyService
             .policiesByType$(PolicyType.SendOptions, userId)
             .pipe(map((policies) => policies?.some((p) => p.data?.disableHideEmail) ?? false)),
-        ]).pipe(map(([sendControls, legacySendOptions]) => sendControls || legacySendOptions))
-        : this.policyService
-          .policiesByType$(PolicyType.SendOptions, userId)
-          .pipe(map((policies) => policies?.some((p) => p.data?.disableHideEmail) ?? false)),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -92,11 +90,11 @@ export class SendPolicyService {
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
-          map((policies) => {
-            const policy = policies?.find((p) => p.data?.whoCanAccess != null);
-            return (policy?.data?.whoCanAccess as WhoCanAccessType) ?? null;
-          }),
-        )
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.whoCanAccess != null);
+              return (policy?.data?.whoCanAccess as WhoCanAccessType) ?? null;
+            }),
+          )
         : of(null),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -106,18 +104,18 @@ export class SendPolicyService {
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
-          map((policies) => {
-            const policy = policies?.find((p) => p.data?.allowedDomains);
-            const raw = policy?.data?.allowedDomains as string;
-            if (!raw) {
-              return null;
-            }
-            return raw
-              .split(",")
-              .map((d: string) => d.trim().toLowerCase())
-              .filter((d: string) => d.length > 0);
-          }),
-        )
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.allowedDomains);
+              const raw = policy?.data?.allowedDomains as string;
+              if (!raw) {
+                return null;
+              }
+              return raw
+                .split(",")
+                .map((d: string) => d.trim().toLowerCase())
+                .filter((d: string) => d.length > 0);
+            }),
+          )
         : of(null),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
