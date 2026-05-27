@@ -57,6 +57,7 @@ pub struct SshAgentUIRequest {
     pub is_list: bool,
     pub namespace: Option<String>,
     pub is_forwarding: bool,
+    pub context: Option<crate::ssh_agent::context::RequestContext>,
 }
 
 #[derive(Clone)]
@@ -126,6 +127,11 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for Bitwarden
             info.process_name(),
         );
 
+        let context = if self.rich_context_enabled() {
+            Some(crate::ssh_agent::context::build_from_peer(info))
+        } else {
+            None
+        };
         let mut rx_channel = self.get_ui_response_rx.lock().await.resubscribe();
         self.show_ui_request_tx
             .send(SshAgentUIRequest {
@@ -135,6 +141,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for Bitwarden
                 is_list: false,
                 namespace,
                 is_forwarding: info.is_forwarding(),
+                context,
             })
             .await
             .expect("Should send request to ui");
@@ -161,6 +168,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for Bitwarden
             is_list: true,
             namespace: None,
             is_forwarding: info.is_forwarding(),
+            context: None,
         };
         self.show_ui_request_tx
             .send(message)
