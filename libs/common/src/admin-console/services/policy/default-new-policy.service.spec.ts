@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
+import { PolicyView } from "@bitwarden/sdk-internal";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
@@ -90,12 +91,12 @@ describe("DefaultNewPolicyService", () => {
       const filterByType = jest.fn().mockReturnValue([
         {
           id: policyId1,
-          organization_id: orgId1,
+          organizationId: orgId1,
           type: PolicyType.MaximumVaultTimeout as number,
           data: JSON.stringify({ minutes: 30 }),
           enabled: true,
-          revision_date: revisionDate.toISOString(),
-        },
+          revisionDate: revisionDate.toISOString(),
+        } satisfies PolicyView,
       ]);
       sdkService.client.policies.mockReturnValue({ filter_by_type: filterByType } as any);
 
@@ -150,12 +151,12 @@ describe("DefaultNewPolicyService", () => {
         filter_by_type: jest.fn().mockReturnValue([
           {
             id: policyId1,
-            organization_id: orgId1,
+            organizationId: orgId1,
             type: PolicyType.DisableSend as number,
             data: undefined,
             enabled: true,
-            revision_date: new Date().toISOString(),
-          },
+            revisionDate: new Date().toISOString(),
+          } satisfies PolicyView,
         ]),
       } as any);
 
