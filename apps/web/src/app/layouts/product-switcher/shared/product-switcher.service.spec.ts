@@ -12,7 +12,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -30,7 +29,6 @@ describe("ProductSwitcherService", () => {
   let accountService: FakeAccountService;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let configService: MockProxy<ConfigService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   let singleOrgPolicyEnabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
@@ -53,8 +51,6 @@ describe("ProductSwitcherService", () => {
     accountService = mockAccountServiceWith(userId);
     platformUtilsService = mock<PlatformUtilsService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     router.url = "/";
     router.events = of({});
@@ -93,7 +89,6 @@ describe("ProductSwitcherService", () => {
           },
         },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
-        { provide: ConfigService, useValue: configService },
       ],
     });
   });
@@ -336,19 +331,7 @@ describe("ProductSwitcherService", () => {
   });
 
   describe("shouldShowPremiumUpgradeButton$", () => {
-    it("returns false when feature flag is disabled", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-
-      initiateService();
-
-      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
-
-      expect(shouldShow).toBe(false);
-    });
-
     it("returns false when there is no active account", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       accountService.activeAccount$ = of(null);
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
@@ -359,8 +342,7 @@ describe("ProductSwitcherService", () => {
       expect(shouldShow).toBe(false);
     });
 
-    it("returns true when feature flag is enabled, account exists, and user has no premium", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
+    it("returns true when account exists and user has no premium", async () => {
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
       initiateService();
@@ -373,8 +355,7 @@ describe("ProductSwitcherService", () => {
       );
     });
 
-    it("returns false when feature flag is enabled, account exists, but user has premium", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
+    it("returns false when account exists but user has premium", async () => {
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       initiateService();

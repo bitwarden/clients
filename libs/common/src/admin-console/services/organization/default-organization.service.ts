@@ -5,6 +5,7 @@ import { map, Observable } from "rxjs";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { InternalOrganizationServiceAbstraction } from "../../abstractions/organization/organization.service.abstraction";
+import { OrganizationUserStatusType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
@@ -77,8 +78,22 @@ export class DefaultOrganizationService implements InternalOrganizationServiceAb
     await this.organizationState(userId).update(() => organizations);
   }
 
-  organizations$(userId: UserId): Observable<Organization[] | undefined> {
-    return this.organizationState(userId).state$.pipe(this.mapOrganizationRecordToArray());
+  organizations$(userId: UserId): Observable<Organization[]> {
+    return this.organizationState(userId).state$.pipe(
+      this.mapOrganizationRecordToArray(),
+      // Provider orgs are always Confirmed, but we check for `isProviderUser`
+      // just in case the server omits Status on those rows to ensure we
+      // maintain existing behavior.
+      map((orgs) =>
+        orgs.filter((o) => o.status === OrganizationUserStatusType.Confirmed || o.isProviderUser),
+      ),
+    );
+  }
+
+  acceptedOrganizations$(userId: UserId): Observable<Organization[]> {
+    return this.organizationState(userId)
+      .state$.pipe(this.mapOrganizationRecordToArray())
+      .pipe(map((orgs) => orgs.filter((o) => o.status === OrganizationUserStatusType.Accepted)));
   }
 
   private organizationState(userId: UserId) {

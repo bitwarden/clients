@@ -260,6 +260,9 @@ describe("CipherViewLikeUtils", () => {
 
         cipherListView.type = "bankAccount";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
+
+        cipherListView.type = "driversLicense";
+        expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.DriversLicense);
       });
     });
   });
@@ -560,6 +563,19 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "routingNumber")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "pin")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "iban")).toBe(false);
+      });
+
+      it("returns true for licenseNumber in a drivers license cipher when populated", () => {
+        const cipherView = createCipherView(CipherType.DriversLicense);
+        cipherView.driversLicense.licenseNumber = "D1234567";
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "licenseNumber")).toBe(true);
+      });
+
+      it("returns false for licenseNumber in a drivers license cipher when not populated", () => {
+        const cipherView = createCipherView(CipherType.DriversLicense);
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "licenseNumber")).toBe(false);
       });
     });
 

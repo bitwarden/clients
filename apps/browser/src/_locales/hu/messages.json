@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Útlevélszám másolása"
   },
+  "copyFirstName": {
+    "message": "Személynév másolása"
+  },
+  "copyMiddleName": {
+    "message": "Középső név másolása"
+  },
+  "copyLastName": {
+    "message": "Családnév másolása"
+  },
   "copyLicenseNumber": {
     "message": "Licensz szám másolása"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Bővítmény értékelése"
+  },
+  "troubleshooting": {
+    "message": "Hibaelhárítás"
+  },
+  "experiencingAnIssue": {
+    "message": "Problémát tapasztalunk?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Töltsük le, majd osszuk meg a diagnosztikai jelentést:"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden támogatás",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Letöltés"
   },
   "browserNotSupportClipboard": {
     "message": "A webböngésződ nem támogat könnyű vágólap másolást. Másold manuálisan inkább."
@@ -2132,8 +2157,14 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "bankAccount": {
+    "message": "Bankszámla"
+  },
   "typeNote": {
     "message": "Jegyzet"
+  },
+  "typeBankAccount": {
+    "message": "Bankszámla"
   },
   "typeLoginSubtitle": {
     "message": "Webhely vagy alkalmazás"
@@ -2156,6 +2187,57 @@
   "collectionSubtitle": {
     "message": "Megosztott elemek szervezése"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banki adatok"
+  },
+  "typeDriversLicense": {
+    "message": "Licensz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Jogosítvány szám vagy azonosító"
+  },
+  "driversLicenseDetails": {
+    "message": "Licensz részletek"
+  },
+  "dateOfBirth": {
+    "message": "Születési dátum"
+  },
+  "birthMonth": {
+    "message": "Születési hónap"
+  },
+  "birthDay": {
+    "message": "Születési nap"
+  },
+  "birthYear": {
+    "message": "Születési év"
+  },
+  "issuingCountry": {
+    "message": "Kiállító ország"
+  },
+  "issuingState": {
+    "message": "Kiállító állam/tartomány"
+  },
+  "issuingAuthority": {
+    "message": "Kiállító hatóság"
+  },
+  "issueDate": {
+    "message": "Kiállítási dátum"
+  },
+  "issueMonth": {
+    "message": "Kiállítási hónap"
+  },
+  "issueDay": {
+    "message": "Kiállítási nap"
+  },
+  "issueYear": {
+    "message": "Kiállítási év"
+  },
+  "expirationDay": {
+    "message": "Lejárati dátum"
+  },
+  "licenseClass": {
+    "message": "Licensz osztály"
+  },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
     "description": "Header for new login item type"
@@ -2176,12 +2258,24 @@
     "message": "Új SSH kulcs",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Új szöveges Send elem",
+  "newItemHeaderBankAccount": {
+    "message": "Új bankszámla",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Új licensz",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Új útlevél",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Új szöveg",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Új fájl Send elem",
+  "newItemHeaderFileSendV2": {
+    "message": "Új fájl",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "SSH kulcs szerkesztése",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send szöveg szerkesztése",
+  "editItemHeaderBankAccount": {
+    "message": "Bankszámla szerkesztése",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Licensz szerkesztése",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Útlevél szerkesztése",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Szöveg szerkesztése",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send fájl szerkesztése",
+  "editItemHeaderFileSendV2": {
+    "message": "Fájl szerkesztése",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2337,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH kulcs megtekintése",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankszámla megtekintése",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Licensz megtekintése",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Útlevél megtekintése",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Válasszuk ki a hozzáadandó elemet"
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Személyes széf exportálása"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ email címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Csak $ORGANIZATION$ névvel társított szervezeti széf kerül exportálásra. Ebbe nem kerülnek be a személyes és más szervezeti széf elemek.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Csak az egyéni széfben lévő elemek exportálhatók."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Csak $ORGANIZATION$ széfhez kapcsolódó elemek exportálhatók. Az egyes széfekben lévő elemek nem.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "Fájl kiválasztása"
   },
+  "chooseFileSentenceCase": {
+    "message": "Fájl kiválasztása"
+  },
   "noFileChosen": {
     "message": "Nincs kiválasztott fájl."
   },
@@ -4528,6 +4634,18 @@
   },
   "exportError": {
     "message": "Hiba történt a széf adatainak exportálása közben."
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Hozzáférési kulcs"
@@ -6305,8 +6423,119 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "enterMonth": {
+    "message": "A hónap megadása."
+  },
+  "enterDay": {
+    "message": "A nap megadása."
+  },
+  "enterYear": {
+    "message": "Az év megadása."
+  },
+  "invalidDay": {
+    "message": "Érvényes napot adjunk meg."
+  },
+  "invalidYear": {
+    "message": "Érvényes évet adjunk meg."
+  },
+  "searchDriversLicense": {
+    "message": "Licenszek keresése"
+  },
+  "bankName": {
+    "message": "Bank neve"
+  },
+  "nameOnAccount": {
+    "message": "Számlatulajdonos neve"
+  },
+  "bankAccountType": {
+    "message": "Számlatípus"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Cég (üzleti)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Egyéni (személyes)"
+  },
+  "accountNumber": {
+    "message": "Számlaszám"
+  },
+  "bankRoutingNumber": {
+    "message": "Banki azonosító",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Fióktelep/intézmény szám"
+  },
+  "swiftCode": {
+    "message": "SWIFT-kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Banki kapcsolati telefon"
+  },
+  "searchBankAccount": {
+    "message": "Bankfiók keresése"
+  },
+  "copyAccountNumber": {
+    "message": "Számlaszám másolása"
+  },
+  "copyRoutingNumber": {
+    "message": "Banki azonosító másolása"
+  },
+  "copyPin": {
+    "message": "PIN kód másolása"
+  },
+  "copyIban": {
+    "message": "IBAN másolása"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Ellenőrzés"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Megtakarítások"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Áthelyezési igazolás"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Hitelkeret"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Befektetés/brókerügylet"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Pénzpiaci számla"
+  },
+  "bankAccountTypeOther": {
+    "message": "Egyéb"
+  },
   "downloadFailed": {
     "message": "A letöltés sikertelen volt."
+  },
+  "maxAccessCount": {
+    "message": "Maximális elérési szám",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Saját email cím elrejtése a címzettek elől."
+  },
+  "viewTextSendHeader": {
+    "message": "Szöveg megtekintése"
+  },
+  "viewFileSendHeader": {
+    "message": "Fájl megtekintése"
+  },
+  "sendCreated": {
+    "message": "Az új Send elem létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "A beviteli adat legyen numerikus."
+  },
+  "integerInputError": {
+    "message": "A beviteli adat legyen egész szám."
   },
   "sideNavigation": {
     "message": "Oldal navigáció"
@@ -6321,5 +6550,12 @@
   "progressBar": {
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "A Send elem szerkesztések mentése nem sikerült.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
   }
 }

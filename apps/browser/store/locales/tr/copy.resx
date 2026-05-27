@@ -124,26 +124,26 @@
     <value>İster evde ister işte veya yolda olun; Bitwarden tüm parolalarınızı, geçiş anahtarlarınızı ve hassas bilgilerinizi güvenle saklar.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>PCMag, WIRED, The Verge, CNET, G2 ve daha fazlası tarafından en iyi şifre yöneticisi olarak kabul edildi!
+    <value>PCMag, WIRED, The Verge, CNET, G2 ve daha fazlası tarafından en iyi parola yöneticisi olarak kabul edildi!
 
 DİJİTAL HAYATINIZI GÜVENLİ HALE GETİRİN
-Her hesap için benzersiz, güçlü şifreler oluşturup kaydederek dijital hayatınızı güvence altına alın ve veri ihlallerine karşı koruyun. Her şeyi yalnızca sizin erişebileceğiniz uçtan uca şifrelenmiş bir şifre kasasında saklayın.
+Her hesap için benzersiz, güçlü parolalar oluşturup kaydederek dijital hayatınızı güvence altına alın ve veri ihlallerine karşı koruyun. Her şeyi yalnızca sizin erişebileceğiniz uçtan uca şifrelenmiş bir parola kasasında saklayın.
 
 VERİLERİNİZE HER YERDEN, HER ZAMAN, HER CİHAZDAN ERİŞİN
-Sınırsız sayıda cihazda sınırsız sayıda şifreyi kolayca yönetin, saklayın, koruyun ve paylaşın.
+Sınırsız sayıda cihazda sınırsız sayıda parolayı kolayca yönetin, saklayın, koruyun ve paylaşın.
 
 HERKESİN ÇEVRİMİÇİ GÜVENLİĞİ SAĞLAYACAK ARAÇLARA SAHİP OLMASI GEREKİR
-Bitwarden'ı reklamlar veya veri satışı olmadan ücretsiz olarak kullanın. Bitwarden, herkesin çevrimiçi güvenliğini sağlayabilmesi gerektiğine inanır. Premium planlar, gelişmiş özelliklere erişim sunar.
+Bitwarden'ı reklamlar görmeden ve verileriniz satılmadan ücretsiz olarak kullanabilirsiniz. Bitwarden, herkesin çevrimiçi güvenliğini sağlayabilmesi gerektiğine inanır. Ücretli Premium paketler gelişmiş özelliklere erişim sunar.
 
 BITWARDEN İLE EKİPLERİNİZE GÜÇ KATIN
-Takımlar ve Kurumsal planlar, profesyonel iş özellikleri ile birlikte gelir. Bazı örnekler arasında SSO entegrasyonu, kendi kendine barındırma, dizin entegrasyonu ve SCIM provizyonu, global politikalar, API erişimi, olay günlükleri ve daha fazlası bulunur.
+Teams ve Enterprise paketler profesyonel iş özellikleri sunar. SSO entegrasyonu, şirket içinde barındırma, dizin entegrasyonu ve SCIM provizyonu, global politikalar, API erişimi, olay günlükleri bu özelliklerden sadece birkaçı.
 
 Bitwarden'ı kullanarak çalışanlarınızı güvence altına alın ve hassas bilgileri iş arkadaşlarınızla paylaşın.
 
 Bitwarden'ı seçmek için daha fazla neden:
 
 Dünya Standartlarında Şifreleme
-Şifreler, gelişmiş uçtan uca şifreleme (AES-256 bit, tuzlu hashing ve PBKDF2 SHA-256) ile korunur, böylece verileriniz güvenli ve gizli kalır.
+Parolalar gelişmiş uçtan uca şifreleme (AES-256 bit, tuzlu hashing ve PBKDF2 SHA-256) ile korunur. Böylece verileriniz güvenli ve gizli kalır.
 
 Üçüncü Taraf Denetimleri
 Bitwarden, tanınmış güvenlik firmalarıyla düzenli olarak kapsamlı üçüncü taraf güvenlik denetimleri gerçekleştirir. Bu yıllık denetimler, Bitwarden IP'leri, sunucuları ve web uygulamaları genelinde kaynak kodu değerlendirmeleri ve sızma testlerini içerir.
@@ -154,17 +154,17 @@ Gelişmiş 2FA
 Bitwarden Send
 Uçtan uca şifreli güvenliği koruyarak ve maruz kalmayı sınırlayarak verileri doğrudan başkalarına aktarın.
 
-Yerleşik Oluşturucu
-Ziyaret ettiğiniz her site için uzun, karmaşık ve farklı şifreler ve benzersiz kullanıcı adları oluşturun. Ek gizlilik için e-posta takma ad sağlayıcılarıyla entegre edin.
+Yerleşik Üreteç
+Ziyaret ettiğiniz her site için uzun, karmaşık ve farklı şifreler ve benzersiz kullanıcı adları üretin. Ek gizlilik için e-posta takma ad sağlayıcılarıyla entegre edin.
 
 Küresel Çeviriler
 Bitwarden çevirileri, Crowdin aracılığıyla küresel topluluk tarafından 60'tan fazla dile çevrilmiştir.
 
-Çapraz Platform Uygulamaları
-Bitwarden Vault'unuzdaki hassas verileri herhangi bir tarayıcı, mobil cihaz, masaüstü işletim sistemi ve daha fazlasından güvenli bir şekilde paylaşın.
+Platformlar Arası Uygulamaları
+Bitwarden kasanızdaki hassas verileri herhangi bir tarayıcı, mobil cihaz, masaüstü işletim sistemi ve daha fazlasından güvenli bir şekilde paylaşın.
 
-Bitwarden, şifrelerden daha fazlasını güvence altına alır
-Bitwarden'ın uçtan uca şifrelenmiş kimlik bilgisi yönetimi çözümleri, kuruluşların geliştirici sırları ve anahtar deneyimleri dahil her şeyi güvence altına almasını sağlar. Bitwarden Secrets Manager ve Bitwarden Passwordless.dev hakkında daha fazla bilgi edinmek için Bitwarden.com adresini ziyaret edin!
+Bitwarden, parolalardan daha fazlasını güvence altına alır
+Bitwarden'ın uçtan uca şifrelenmiş kimlik bilgisi yönetimi çözümleri, kuruluşların geliştirici sırları ve geçiş anahtarları dahil her şeyi güvence altına almasını sağlar. Bitwarden Secrets Manager ve Bitwarden Passwordless.dev hakkında daha fazla bilgi edinmek için Bitwarden.com adresini ziyaret edin.
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH விசை"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -50,11 +53,20 @@
   "typeSshKeySubtitle": {
     "message": "Server login token"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
   "collectionSubtitle": {
     "message": "Organize shared items"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -134,6 +146,22 @@
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -154,6 +182,18 @@
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Edit Login",
     "description": "Header for edit login item type"
@@ -173,6 +213,18 @@
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "பெயர்"
@@ -230,20 +282,20 @@
   "sendTypeTextToShare": {
     "message": "Text to share"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -706,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "இணைப்பை அழி"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "உண்மையில் குப்பைக்கு அனுப்ப விரும்புகிறீர்களா?"
@@ -1589,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "கணினி ட்ராயில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
   },
-  "startToTray": {
-    "message": "ட்ராய் ஐகானுக்கு தொடங்கவும்"
-  },
-  "startToTrayDesc": {
-    "message": "செயலி முதலில் தொடங்கும்போது, கணினி ட்ராயில் மட்டுமே ஒரு ஐகானைக் காட்டவும்."
-  },
-  "startToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு தொடங்கவும்"
-  },
-  "startToMenuBarDesc": {
-    "message": "செயலி முதலில் தொடங்கும்போது, பட்டிப் பட்டியில் மட்டுமே ஒரு ஐகானைக் காட்டவும்."
-  },
   "openAtLogin": {
     "message": "உள்நுழைவில் தானாகவே தொடங்கவும்"
   },
@@ -1706,6 +1764,10 @@
   "copyNumber": {
     "message": "எண்ணை நகலெடுக்கவும்",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "மின்னஞ்சலை நகலெடுக்கவும்"
@@ -1962,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "இயல்புநிலை பொருத்தத்தைக் கண்டறிதல்",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "toggleOptions": {
     "message": "விருப்பங்களை மாற்று"
@@ -2474,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது லினக்ஸ் பதிப்பில் ஆதரிக்கப்படவில்லை."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "உலாவி ஒருங்கிணைப்பிற்கு சரிபார்ப்பு தேவை"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "உங்கள் டெஸ்க்டாப் மற்றும் உலாவிக்கு இடையே ஒரு இணைப்பை உருவாக்கும்போது, கைரேகை சொற்றொடர் உறுதிப்படுத்தல் தேவைப்படுவதன் மூலம் கூடுதல் பாதுகாப்பு அடுக்கைச் சேர்க்கவும். ஒவ்வொரு முறையும் ஒரு இணைப்பு உருவாக்கப்படும் போது இதற்கு பயனர் செயல் மற்றும் சரிபார்ப்பு தேவைப்படும்."
-  },
   "enableHardwareAcceleration": {
     "message": "வன்பொருள் முடுக்கத்தைப் பயன்படுத்தவும்"
   },
@@ -2488,12 +2550,6 @@
   },
   "approve": {
     "message": "அனுமதி"
-  },
-  "verifyBrowserTitle": {
-    "message": "உலாவி இணைப்பை சரிபார்க்கவும்"
-  },
-  "verifyBrowserDesc": {
-    "message": "காட்டப்பட்ட கைரேகை உலாவி நீட்டிப்பில் காட்டப்பட்ட கைரேகைக்கு ஒத்ததாக இருப்பதை உறுதிப்படுத்தவும்."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ Bitwarden-உடன் இணைக்க விரும்புகிறது",
@@ -2726,8 +2782,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "பாதுகாப்பு விசை இடைவினையிலிருந்து எதிர்பார்க்கப்படுகிறது..."
   },
-  "hideEmail": {
-    "message": "எனது மின்னஞ்சல் முகவரியை பெறுநர்களிடமிருந்து மறைக்கவும்."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "ஒன்று அல்லது அதற்கு மேற்பட்ட நிறுவனக் கொள்கைகள் உங்கள் Send விருப்பங்களை பாதிக்கின்றன."
@@ -2971,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "தனிப்பட்ட வால்ட்டை ஏற்றுமதி செய்கிறது"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட வால்ட் உருப்படிகள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன வால்ட் உருப்படிகள் சேர்க்கப்படாது. வால்ட் உருப்படி தகவல் மட்டுமே ஏற்றுமதி செய்யப்படும், மேலும் அதனுடன் இணைக்கப்பட்ட கோப்புகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட வால்ட் உருப்படிகள் மற்றும் இணைப்புகள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன வால்ட் உருப்படிகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "நிறுவன வால்ட்டை ஏற்றுமதி செய்கிறது"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ உடன் தொடர்புடைய நிறுவன வால்ட் மட்டுமே ஏற்றுமதி செய்யப்படும். தனிப்பட்ட வால்ட்கள் அல்லது பிற நிறுவனங்களில் உள்ள உருப்படிகள் சேர்க்கப்படாது.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3922,6 +3963,9 @@
   "chooseFile": {
     "message": "கோப்பைத் தேர்ந்தெடு"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "எந்த கோப்பும் தேர்ந்தெடுக்கப்படவில்லை"
   },
@@ -3952,6 +3996,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "பன்-காரணி அங்கீகாரம் ரத்துசெய்யப்பட்டது"
@@ -4065,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "சிக்கலைத் தீர்த்தல்"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
     "message": "ஹார்டுவேர் வேகப்படுத்துதலை முடக்கிவிட்டு மறுதொடக்கம் செய்"
@@ -4748,6 +4820,9 @@
   "sessionTimeoutHeader": {
     "message": "Session timeout"
   },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -4791,6 +4866,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
   },
   "upgrade": {
     "message": "Upgrade"
@@ -4919,8 +5018,126 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "discardEdits": {
     "message": "Discard edits"
@@ -4939,6 +5156,25 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
   "sideNavigation": {
     "message": "Side navigation"
   },
@@ -4952,5 +5188,47 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }

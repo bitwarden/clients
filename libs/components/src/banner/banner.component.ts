@@ -69,6 +69,10 @@ export class BannerComponent implements OnInit {
   readonly useAlertRole = input(true);
 
   private readonly dismiss$ = new Subject<void>();
+  /**
+   * Emitted when the user clicks the close button. The close button is only rendered when this
+   * output is bound by the consumer; if no listener is attached, the banner has no dismiss control.
+   */
   readonly dismiss = outputFromObservable(this.dismiss$);
   protected readonly isDismissible = signal(false);
 
