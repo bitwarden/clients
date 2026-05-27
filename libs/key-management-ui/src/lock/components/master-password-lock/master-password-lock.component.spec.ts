@@ -8,8 +8,6 @@ import { of } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -39,7 +37,6 @@ describe("MasterPasswordLockComponent", () => {
   let fixture: ComponentFixture<MasterPasswordLockComponent>;
 
   const accountService = mock<AccountService>();
-  const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
   const i18nService = mock<I18nService>();
   const toastService = mock<ToastService>();
   const logService = mock<LogService>();
@@ -49,7 +46,6 @@ describe("MasterPasswordLockComponent", () => {
   const dialogService = mock<DialogService>();
   const unlockService = mock<UnlockService>();
   const keyService = mock<KeyService>();
-  const configService = mock<ConfigService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -100,7 +96,6 @@ describe("MasterPasswordLockComponent", () => {
     jest.clearAllMocks();
 
     i18nService.t.mockImplementation((key: string) => key);
-    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -115,7 +110,6 @@ describe("MasterPasswordLockComponent", () => {
       providers: [
         FormBuilder,
         { provide: AccountService, useValue: accountService },
-        { provide: MasterPasswordUnlockService, useValue: masterPasswordUnlockService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: logService },
@@ -125,7 +119,6 @@ describe("MasterPasswordLockComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: UnlockService, useValue: unlockService },
         { provide: KeyService, useValue: keyService },
-        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
@@ -457,7 +450,7 @@ describe("MasterPasswordLockComponent", () => {
           title: i18nService.t("errorOccurred"),
           message: i18nService.t("masterPasswordRequired"),
         });
-        expect(masterPasswordUnlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
       },
     );
 
@@ -469,21 +462,21 @@ describe("MasterPasswordLockComponent", () => {
 
         await expect(component.submit()).rejects.toThrow("Null or undefined account");
 
-        expect(masterPasswordUnlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
       },
     );
 
     it("shows an error toast and logs the error when unlock with master password fails", async () => {
       const customError = new Error("Specialized error message");
-      masterPasswordUnlockService.unlockWithMasterPassword.mockRejectedValue(customError);
+      unlockService.unlockWithMasterPassword.mockRejectedValue(customError);
       accountService.activeAccount$ = of(activeAccount);
       component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
 
       await component.submit();
 
-      expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-        mockMasterPassword,
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
         activeAccount.id,
+        mockMasterPassword,
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
@@ -497,7 +490,8 @@ describe("MasterPasswordLockComponent", () => {
     });
 
     it("emits userKey when unlock is successful", async () => {
-      masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+      keyService.userKey$.mockReturnValue(of(mockUserKey));
       accountService.activeAccount$ = of(activeAccount);
       component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
       let emittedEvent: { userKey: UserKey; masterPassword: string } | undefined;
@@ -511,10 +505,32 @@ describe("MasterPasswordLockComponent", () => {
 
       expect(emittedEvent?.userKey).toEqual(mockUserKey);
       expect(emittedEvent?.masterPassword).toEqual(mockMasterPassword);
-      expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-        mockMasterPassword,
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
         activeAccount.id,
+        mockMasterPassword,
       );
+    });
+
+    it("emits an error when user key is missing after unlock", async () => {
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+      keyService.userKey$.mockReturnValue(of(null));
+      accountService.activeAccount$ = of(activeAccount);
+      component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
+
+      await component.submit();
+
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: i18nService.t("errorOccurred"),
+        message: i18nService.t("invalidMasterPassword"),
+      });
     });
   });
 });
