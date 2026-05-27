@@ -182,6 +182,7 @@ describe("MainSshAgentService", () => {
           processName: "ssh",
           isAgentForwarding: false,
           namespace: "ssh",
+          context: null,
         });
       });
 
