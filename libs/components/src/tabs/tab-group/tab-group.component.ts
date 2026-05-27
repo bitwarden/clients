@@ -112,6 +112,18 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   constructor() {
     this._groupId = nextId++;
 
+    // Mirror each rendered button onto its tab so popover anchors land on the button, not the tabpanel host.
+    effect(() => {
+      const tabs = this.tabs();
+      const labels = this.tabLabels();
+      tabs.forEach((tab, i) => {
+        const label = labels[i];
+        if (label) {
+          tab.popoverAnchorElementRef.nativeElement = label.elementRef.nativeElement;
+        }
+      });
+    });
+
     effect(() => {
       const indexToSelect = this._clampTabIndex(this.selectedIndex());
 

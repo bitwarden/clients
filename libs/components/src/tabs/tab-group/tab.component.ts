@@ -8,8 +8,11 @@ import {
   signal,
   viewChild,
   ChangeDetectionStrategy,
+  inject,
+  ElementRef,
 } from "@angular/core";
 
+import { PopoverElementProvider } from "../../popover";
 import { BitwardenIcon } from "../../shared/icon";
 
 /** Used to generate unique IDs for each tab component */
@@ -18,12 +21,13 @@ let nextTabId = 0;
 @Component({
   selector: "bit-tab",
   templateUrl: "./tab.component.html",
+  providers: [{ provide: PopoverElementProvider, useExisting: TabComponent }],
   host: {
     role: "tabpanel",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TabComponent implements OnInit {
+export class TabComponent implements OnInit, PopoverElementProvider {
   readonly id = nextTabId++;
 
   readonly disabled = input(false);
@@ -32,6 +36,8 @@ export class TabComponent implements OnInit {
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
 
+  /** Popover anchor target. `TabGroupComponent` rebinds `nativeElement` to the rendered tab-list button. */
+  readonly popoverAnchorElementRef: ElementRef<HTMLElement> = inject(ElementRef);
   /**
    * Optional tabIndex for the tabPanel that contains this tab's content.
    *
