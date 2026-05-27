@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "パスポート番号をコピー"
   },
+  "copyFirstName": {
+    "message": "名前をコピー"
+  },
+  "copyMiddleName": {
+    "message": "ミドルネームをコピー"
+  },
+  "copyLastName": {
+    "message": "姓をコピー"
+  },
   "copyLicenseNumber": {
     "message": "免許証番号をコピー"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "拡張機能の評価"
+  },
+  "troubleshooting": {
+    "message": "トラブルシューティング"
+  },
+  "experiencingAnIssue": {
+    "message": "問題が発生していますか？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "ダウンロードして診断レポートを共有してください。"
+  },
+  "bitwardenSupport": {
+    "message": "共有先：Bitwarden サポート",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "ダウンロード"
   },
   "browserNotSupportClipboard": {
     "message": "お使いのブラウザはクリップボードへのコピーに対応していません。手動でコピーしてください"
@@ -2132,8 +2157,14 @@
   "typeSshKey": {
     "message": "SSH 鍵"
   },
+  "bankAccount": {
+    "message": "銀行口座"
+  },
   "typeNote": {
     "message": "メモ"
+  },
+  "typeBankAccount": {
+    "message": "銀行口座"
   },
   "typeLoginSubtitle": {
     "message": "ウェブサイトまたはアプリ"
@@ -2156,6 +2187,57 @@
   "collectionSubtitle": {
     "message": "共有アイテムを整理する"
   },
+  "typeBankAccountSubtitle": {
+    "message": "銀行の詳細"
+  },
+  "typeDriversLicense": {
+    "message": "免許証"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "運転免許証または ID"
+  },
+  "driversLicenseDetails": {
+    "message": "免許証の詳細"
+  },
+  "dateOfBirth": {
+    "message": "生年月日"
+  },
+  "birthMonth": {
+    "message": "誕生月"
+  },
+  "birthDay": {
+    "message": "誕生日"
+  },
+  "birthYear": {
+    "message": "誕生年"
+  },
+  "issuingCountry": {
+    "message": "発行国"
+  },
+  "issuingState": {
+    "message": "発行都道府県"
+  },
+  "issuingAuthority": {
+    "message": "発行機関"
+  },
+  "issueDate": {
+    "message": "発行日"
+  },
+  "issueMonth": {
+    "message": "発行月"
+  },
+  "issueDay": {
+    "message": "発行日"
+  },
+  "issueYear": {
+    "message": "発行年"
+  },
+  "expirationDay": {
+    "message": "有効期限日"
+  },
+  "licenseClass": {
+    "message": "免許種別"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2176,12 +2258,24 @@
     "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "新しい Send テキスト",
+  "newItemHeaderBankAccount": {
+    "message": "新しい銀行口座",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "新しい免許証",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "新しいパスポート",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "新規テキスト",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "新しい Send ファイル",
+  "newItemHeaderFileSendV2": {
+    "message": "新規ファイル",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send テキストを編集",
+  "editItemHeaderBankAccount": {
+    "message": "銀行口座を編集",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "免許証を編集",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "パスポートを編集",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "テキストを編集",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send ファイルを編集",
+  "editItemHeaderFileSendV2": {
+    "message": "ファイルを編集",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2337,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "銀行口座を表示",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "免許証を表示",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "パスポートを表示",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "追加するアイテムを選択"
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "個人保管庫のエクスポート"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ に関連付けられた個人の保管庫アイテムのみがエクスポートされます。組織の保管庫アイテムは含まれません。 保管庫アイテム情報のみがエクスポートされ、関連する添付ファイルはエクスポートされません。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ に関連付けられた個人用保管庫のアイテムのみが、添付ファイルを含めてエクスポートされます。組織用保管庫のアイテムは含まれません。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "組織保管庫のエクスポート"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ に関連付けられた組織保管庫のみがエクスポートされます。個々の保管庫または他の組織にあるアイテムは含まれません。",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "個人の保管庫のアイテムのみがエクスポートされます。"
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "$ORGANIZATION$ の保管庫に関連付けられたアイテムのみがエクスポートされます。個人の保管庫内のアイテムはエクスポートされません。",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "ファイルを選択"
   },
+  "chooseFileSentenceCase": {
+    "message": "ファイルを選択"
+  },
   "noFileChosen": {
     "message": "ファイルが選択されていません"
   },
@@ -4528,6 +4634,18 @@
   },
   "exportError": {
     "message": "保管庫データのエクスポート中にエラーが発生しました"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。"
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "パスキー"
@@ -6305,8 +6423,119 @@
   "userVerificationFailed": {
     "message": "ユーザー認証に失敗しました。"
   },
+  "enterMonth": {
+    "message": "月を入力してください。"
+  },
+  "enterDay": {
+    "message": "日を入力してください。"
+  },
+  "enterYear": {
+    "message": "年を入力してください。"
+  },
+  "invalidDay": {
+    "message": "正しい日を入力してください。"
+  },
+  "invalidYear": {
+    "message": "正しい年を入力してください。"
+  },
+  "searchDriversLicense": {
+    "message": "免許証を検索"
+  },
+  "bankName": {
+    "message": "銀行名"
+  },
+  "nameOnAccount": {
+    "message": "口座名義"
+  },
+  "bankAccountType": {
+    "message": "口座種別"
+  },
+  "bankAccountTypeCompany": {
+    "message": "ビジネス"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "個人"
+  },
+  "accountNumber": {
+    "message": "口座番号"
+  },
+  "bankRoutingNumber": {
+    "message": "ルーティングナンバー",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "支店/機関番号"
+  },
+  "swiftCode": {
+    "message": "SWIFT コード"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "銀行の連絡先"
+  },
+  "searchBankAccount": {
+    "message": "銀行口座を検索"
+  },
+  "copyAccountNumber": {
+    "message": "口座番号をコピー"
+  },
+  "copyRoutingNumber": {
+    "message": "ルーティングナンバーをコピー"
+  },
+  "copyPin": {
+    "message": "暗証番号をコピー"
+  },
+  "copyIban": {
+    "message": "IBAN をコピー"
+  },
+  "bankAccountTypeChecking": {
+    "message": "当座"
+  },
+  "bankAccountTypeSavings": {
+    "message": "普通"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "入金証明書"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "限度額"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "投資/証券取引"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "短期市場"
+  },
+  "bankAccountTypeOther": {
+    "message": "その他"
+  },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
+  },
+  "maxAccessCount": {
+    "message": "最大アクセス数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "受信者に自分のメールアドレスを表示しない"
+  },
+  "viewTextSendHeader": {
+    "message": "テキストを表示"
+  },
+  "viewFileSendHeader": {
+    "message": "ファイルを表示"
+  },
+  "sendCreated": {
+    "message": "Send を作成しました",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "数値を入力してください"
+  },
+  "integerInputError": {
+    "message": "整数を入力してください"
   },
   "sideNavigation": {
     "message": "サイドバーナビゲーション"
@@ -6321,5 +6550,12 @@
   "progressBar": {
     "message": "プログレスバー",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Send の編集を保存できませんでした",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
   }
 }

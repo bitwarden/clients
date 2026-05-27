@@ -20,6 +20,9 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     if (filter.type === "card" && type !== CipherType.Card) {
       return false;
     }
+    if (filter.type === "driversLicense" && type !== CipherType.DriversLicense) {
+      return false;
+    }
     if (filter.type === "identity" && type !== CipherType.Identity) {
       return false;
     }
@@ -33,6 +36,9 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
       return false;
     }
     if (filter.type === "bankAccount" && type !== CipherType.BankAccount) {
+      return false;
+    }
+    if (filter.type === "passport" && type !== CipherType.Passport) {
       return false;
     }
     if (filter.type === "trash" && !isDeleted) {

@@ -1,6 +1,12 @@
 import { FormControl } from "@angular/forms";
 
-import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserStatusType,
+  OrganizationUserType,
+} from "@bitwarden/common/admin-console/enums";
+import { Guid } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../../core/views/organization-user.view";
 
@@ -8,8 +14,17 @@ import { revokedEmailsValidator } from "./revoked-emails.validator";
 
 const userFactory = (props: Partial<OrganizationUserView> = {}) =>
   Object.assign(
-    new OrganizationUserView(),
-    { status: OrganizationUserStatusType.Confirmed },
+    new OrganizationUserView({
+      id: newGuid() as Guid,
+      userId: newGuid() as UserId,
+      email: "",
+      type: OrganizationUserType.User,
+      revocationReason: null,
+      status: OrganizationUserStatusType.Confirmed,
+      permissions: null,
+      avatarColor: null,
+      name: null,
+    }),
     props,
   );
 

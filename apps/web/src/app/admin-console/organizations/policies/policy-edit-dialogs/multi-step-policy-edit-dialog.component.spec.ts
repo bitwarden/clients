@@ -7,6 +7,7 @@ import { NEVER, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -52,6 +53,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       providers: [
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AuthService, useValue: mock<AuthService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
         { provide: I18nService, useValue: i18nService },
         { provide: DialogRef, useValue: dialogRef },
