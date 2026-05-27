@@ -272,7 +272,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
       expect(service.requiredTabIndex()).toBe(2);
     }));
 
-    it("returns null for step 5 (runReport)", fakeAsync(async () => {
+    it("returns 0 for step 5 (runReport)", fakeAsync(async () => {
       await service.startTour(mockOrgId);
       tick();
       for (let i = 0; i < 4; i++) {
