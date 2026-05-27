@@ -10,7 +10,7 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { TableDataSource } from "@bitwarden/components";
+import { FilterFn, TableDataSource } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../organizations/core/views/organization-user.view";
 
@@ -54,7 +54,7 @@ function textFilter(user: UserViewTypes, text: string) {
   );
 }
 
-export function peopleFilter(searchText: string, status?: StatusType) {
+export function peopleFilter(searchText: string, status?: StatusType): FilterFn<UserViewTypes> {
   return (user: UserViewTypes) => statusFilter(user, status) && textFilter(user, searchText);
 }
 

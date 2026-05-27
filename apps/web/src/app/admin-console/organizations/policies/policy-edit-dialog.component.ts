@@ -108,7 +108,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     type: "danger" as const,
     hideIcon: true,
     acceptButtonText: { key: "discardEdits" },
-    cancelButtonText: { key: "backToEditing" },
+    cancelButtonText: { key: "keepEditing" },
   };
 
   /**

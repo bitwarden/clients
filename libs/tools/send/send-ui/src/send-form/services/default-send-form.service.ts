@@ -8,10 +8,12 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
@@ -81,6 +83,12 @@ export class DefaultSendFormService implements SendFormService {
     let updatedSendView = new SendView();
     if (this.sendFormConfig.mode === "add") {
       updatedSendView.type = this.sendFormConfig.sendType;
+      const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+      if (whoCanAccess === WhoCanAccessType.PasswordProtected) {
+        updatedSendView.authType = AuthType.Password;
+      } else if (whoCanAccess === WhoCanAccessType.SpecificPeople) {
+        updatedSendView.authType = AuthType.Email;
+      }
       updatedSendView = Object.assign(updatedSendView, this.sendFormConfig.presetSendFields ?? {});
     } else {
       if (!this.sendFormConfig.originalSend) {
@@ -172,8 +180,6 @@ export class DefaultSendFormService implements SendFormService {
       );
       const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
       if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
-        this._originalSendView.set(null);
-        this._updatedSendView.set(null);
         return true;
       } else {
         return false;
