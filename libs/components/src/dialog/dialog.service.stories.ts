@@ -221,18 +221,16 @@ class LargeDrawerContentComponent {
 @Component({
   template: `
     <bit-dialog [title]="'Level ' + level + ' Drawer'">
-      <span bitDialogContent>
-        This is level {{ level }} of the drawer stack.
+      <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4 tw-items-start">
+        <span>This is level {{ level }} of the drawer stack.</span>
         @if (level < 3) {
-          <br /><br />
           <button type="button" bitButton buttonType="secondary" (click)="pushNext()">
             Open Level {{ level + 1 }}
           </button>
         } @else {
-          <br /><br />
-          You've reached the deepest level.
+          <span>You've reached the deepest level.</span>
         }
-      </span>
+      </div>
       <ng-container bitDialogFooter>
         <button type="button" bitButton buttonType="primary" bitDialogClose>Done</button>
       </ng-container>

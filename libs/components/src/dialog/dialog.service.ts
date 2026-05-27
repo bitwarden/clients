@@ -207,7 +207,7 @@ export class DialogService {
     const ref: DrawerRef<R, C> = new DrawerRef<R, C>(
       () => this.drawerService.pop(),
       () => this.drawerService.isTop(ref),
-      (c, cfg) => this.stackDrawer(c, cfg),
+      (component, config) => this.stackDrawer(component, config),
       closeOnNavigation,
       config?.closePredicate,
       this.logService,
