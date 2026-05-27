@@ -5,6 +5,7 @@ import { AnonLayoutWrapperData } from "./anon-layout-wrapper.component";
 
 export class DefaultAnonLayoutWrapperDataService implements AnonLayoutWrapperDataService {
   protected anonLayoutWrapperDataSubject = new Subject<Partial<AnonLayoutWrapperData>>();
+  protected cachedRouteData: Partial<AnonLayoutWrapperData> = {};
 
   setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>): void {
     this.anonLayoutWrapperDataSubject.next(data);
@@ -12,5 +13,13 @@ export class DefaultAnonLayoutWrapperDataService implements AnonLayoutWrapperDat
 
   anonLayoutWrapperData$(): Observable<Partial<AnonLayoutWrapperData>> {
     return this.anonLayoutWrapperDataSubject.asObservable();
+  }
+
+  setRouteData(data: Partial<AnonLayoutWrapperData>): void {
+    this.cachedRouteData = data;
+  }
+
+  resetToRouteData(): void {
+    this.anonLayoutWrapperDataSubject.next(this.cachedRouteData);
   }
 }
