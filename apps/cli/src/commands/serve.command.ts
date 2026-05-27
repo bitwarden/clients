@@ -4,13 +4,68 @@ import net from "node:net";
 import { Router } from "@koa/router";
 import { OptionValues } from "commander";
 import * as koa from "koa";
+import type { Context, Next } from "koa";
 import * as koaBodyParser from "koa-bodyparser";
 import * as koaJson from "koa-json";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { OssServeConfigurator } from "../oss-serve-configurator";
 import { ServiceContainer } from "../service-container/service-container";
+
+export function buildServeAllowedHosts(hostname: string, port: number): Set<string> {
+  return new Set(
+    [`localhost:${port}`, `127.0.0.1:${port}`, `[::1]:${port}`, `${hostname}:${port}`].map(
+      (entry) => entry.toLowerCase(),
+    ),
+  );
+}
+
+function rejectIfHostNotAllowed(
+  ctx: Context,
+  allowedHosts: ReadonlySet<string>,
+  logService: LogService,
+): boolean {
+  if (allowedHosts.has((ctx.headers.host ?? "").toLowerCase())) {
+    return false;
+  }
+  ctx.status = 403;
+  logService.warning(`Blocking request with disallowed Host "${ctx.headers.host ?? "(missing)"}"`);
+  return true;
+}
+
+function rejectIfOriginPresent(ctx: Context, logService: LogService): boolean {
+  if (ctx.headers.origin === undefined) {
+    return false;
+  }
+  ctx.status = 403;
+  logService.warning(
+    `Blocking request from "${
+      Utils.isNullOrEmpty(ctx.headers.origin) ? "(Origin header value missing)" : ctx.headers.origin
+    }"`,
+  );
+  return true;
+}
+
+export function buildOriginProtectionMiddleware(opts: {
+  protectOrigin: boolean;
+  allowedHosts: ReadonlySet<string>;
+  logService: LogService;
+}): (ctx: Context, next: Next) => Promise<void> {
+  return async (ctx, next) => {
+    if (opts.protectOrigin) {
+      // Guards are independent; order does not affect correctness.
+      if (rejectIfHostNotAllowed(ctx, opts.allowedHosts, opts.logService)) {
+        return;
+      }
+      if (rejectIfOriginPresent(ctx, opts.logService)) {
+        return;
+      }
+    }
+    await next();
+  };
+}
 
 export class ServeCommand {
   constructor(
@@ -28,26 +83,25 @@ export class ServeCommand {
       }`,
     );
 
+    // Allowlist of Host header values that identify legitimate same-origin
+    // requests to the loopback interface. Any other Host value indicates a
+    // DNS-rebinding attack (the browser has rebound an attacker-controlled
+    // name to 127.0.0.1/::1 and is sending the attacker's hostname in Host).
+    const ALLOWED_HOSTS = buildServeAllowedHosts(hostname, port);
+
     const server = new koa();
     const router = new Router();
     process.env.BW_SERVE = "true";
     process.env.BW_NOINTERACTION = "true";
 
     server
-      .use(async (ctx, next) => {
-        if (protectOrigin && ctx.headers.origin != undefined) {
-          ctx.status = 403;
-          this.serviceContainer.logService.warning(
-            `Blocking request from "${
-              Utils.isNullOrEmpty(ctx.headers.origin)
-                ? "(Origin header value missing)"
-                : ctx.headers.origin
-            }"`,
-          );
-          return;
-        }
-        await next();
-      })
+      .use(
+        buildOriginProtectionMiddleware({
+          protectOrigin,
+          allowedHosts: ALLOWED_HOSTS,
+          logService: this.serviceContainer.logService,
+        }),
+      )
       .use(koaBodyParser())
       .use(koaJson({ pretty: false, param: "pretty" }));
 
