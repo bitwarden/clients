@@ -26,8 +26,41 @@ export interface AnonLayoutWrapperData {
   pageSubtitle?: string | Translation | null;
   /**
    * The icon to display on the page. Pass null to hide the icon.
+   *
+   * Optional. The layout itself decides whether to render the icon based on `showPageIcon`;
+   * this field just supplies which icon to render when it is shown.
    */
-  pageIcon: BitSvg | null;
+  pageIcon?: BitSvg | null;
+  /**
+   * Whether to show the page icon. Defaults to true.
+   *
+   * When false, the layout suppresses the icon even if `pageIcon` is set. Use on clients
+   * (e.g., the browser extension popup) where vertical space is at a premium.
+   */
+  showPageIcon?: boolean;
+  /**
+   * Top-padding of the content area. Defaults to "default".
+   *
+   * "compact" reduces the top padding so more content fits without a scrollbar.
+   * Use on clients (e.g., the browser extension popup) where vertical space is at a premium.
+   */
+  contentPadding?: "compact" | "default";
+  /**
+   * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
+   *
+   * "left" produces a left-aligned hero (no `tw-mx-auto`, no `tw-text-center`).
+   * Use on clients (e.g., the browser extension popup) where the page is narrow.
+   */
+  heroAlignment?: "left" | "center";
+  /**
+   * Where to render content projected into the `[slot=secondary]` content slot.
+   * Defaults to "main".
+   *
+   * "main" places the secondary content beneath the main card.
+   * "footer" places it inside the footer alongside the environment selector — used on the
+   * browser extension popup to keep the secondary action visible without forcing a scrollbar.
+   */
+  secondaryContentLocation?: "main" | "footer";
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
