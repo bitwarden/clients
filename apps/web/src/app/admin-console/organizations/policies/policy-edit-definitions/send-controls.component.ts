@@ -28,6 +28,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { Option, SwitchComponent } from "@bitwarden/components";
+import { DatePreset } from "@bitwarden/send-ui";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
