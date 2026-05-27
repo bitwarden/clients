@@ -2,7 +2,6 @@ import { NgModule } from "@angular/core";
 
 import { BulkDialogsModule } from "@bitwarden/vault";
 
-
 import { CollectionNameBadgeComponent } from "../../admin-console/organizations/collections";
 import { GroupBadgeModule } from "../../admin-console/organizations/collections/group-badge/group-badge.module";
 import { CollectionDialogComponent } from "../../admin-console/organizations/shared/components/collection-dialog";
