@@ -17,7 +17,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 })
 export class OnboardingTaskComponent {
   readonly completed = input(false);
-  readonly icon = input<BitwardenIcon>("bwi-info-circle");
   readonly title = input.required<string>();
   readonly subtitle = input<string>();
   readonly route = input<string | unknown[]>();
@@ -26,8 +25,4 @@ export class OnboardingTaskComponent {
   readonly isDisabled = input(false);
 
   readonly ctaClick = output<void>();
-
-  handleClick(ev: MouseEvent) {
-    ev.stopPropagation();
-  }
 }

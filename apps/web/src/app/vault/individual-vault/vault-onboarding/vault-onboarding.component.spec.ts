@@ -4,7 +4,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -23,17 +22,14 @@ describe("VaultOnboardingComponent", () => {
   let fixture: ComponentFixture<VaultOnboardingComponent>;
   let mockPlatformUtilsService: Partial<PlatformUtilsService>;
   let mockApiService: Partial<ApiService>;
-  let mockPolicyService: MockProxy<PolicyService>;
   let mockI18nService: MockProxy<I18nService>;
   let mockVaultOnboardingService: MockProxy<VaultOnboardingServiceAbstraction>;
   let setInstallExtLinkSpy: jest.SpyInstance;
-  let individualVaultPolicyCheckSpy: jest.SpyInstance;
   let mockConfigService: MockProxy<ConfigService>;
   const mockAccountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
   let mockStateProvider: Partial<StateProvider>;
 
   beforeEach(async () => {
-    mockPolicyService = mock<PolicyService>();
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockApiService = {
@@ -62,7 +58,6 @@ describe("VaultOnboardingComponent", () => {
       providers: [
         provideRouter([]),
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
-        { provide: PolicyService, useValue: mockPolicyService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
         { provide: ConfigService, useValue: mockConfigService },
@@ -81,9 +76,6 @@ describe("VaultOnboardingComponent", () => {
     fixture = TestBed.createComponent(VaultOnboardingComponent);
     component = fixture.componentInstance;
     setInstallExtLinkSpy = jest.spyOn(component, "setInstallExtLink");
-    individualVaultPolicyCheckSpy = jest
-      .spyOn(component, "individualVaultPolicyCheck")
-      .mockReturnValue(undefined);
     jest.spyOn(component, "checkCreationDate").mockResolvedValue(undefined);
     jest.spyOn(window, "postMessage").mockImplementation(jest.fn());
   });
@@ -96,11 +88,6 @@ describe("VaultOnboardingComponent", () => {
     it("should call setInstallExtLink", async () => {
       await component.ngOnInit();
       expect(setInstallExtLinkSpy).toHaveBeenCalled();
-    });
-
-    it("should call individualVaultPolicyCheck", async () => {
-      await component.ngOnInit();
-      expect(individualVaultPolicyCheckSpy).toHaveBeenCalled();
     });
   });
 
@@ -138,19 +125,6 @@ describe("VaultOnboardingComponent", () => {
       const expected = "https://apps.apple.com/us/app/bitwarden/id1352778147?mt=12";
       await component.ngOnInit();
       expect(component.extensionUrl()).toEqual(expected);
-    });
-  });
-
-  describe("individualVaultPolicyCheck", () => {
-    it("should set isIndividualPolicyVault to true", () => {
-      individualVaultPolicyCheckSpy.mockRestore();
-      const spy = jest
-        .spyOn((component as any).policyService, "policyAppliesToUser$")
-        .mockReturnValue(of(true));
-
-      component.individualVaultPolicyCheck();
-      fixture.detectChanges();
-      expect(spy).toHaveBeenCalled();
     });
   });
 

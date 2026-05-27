@@ -13,8 +13,6 @@ import {
 import { Subject, takeUntil, Observable, firstValueFrom, fromEvent, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -41,7 +39,6 @@ import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-o
 })
 export class VaultOnboardingComponent implements OnInit, OnDestroy {
   protected readonly platformUtilsService = inject(PlatformUtilsService);
-  protected readonly policyService = inject(PolicyService);
   private readonly apiService = inject(ApiService);
   private readonly vaultOnboardingService = inject(VaultOnboardingServiceAbstraction);
   private readonly accountService = inject(AccountService);
@@ -49,7 +46,6 @@ export class VaultOnboardingComponent implements OnInit, OnDestroy {
   readonly ciphers = input<CipherViewLike[]>();
 
   readonly extensionUrl = signal("");
-  readonly isIndividualPolicyVault = signal(false);
   private readonly destroy$ = new Subject<void>();
   protected readonly isNewAccount = signal(false);
   private readonly onboardingReleaseDate = new Date("2024-04-02");
@@ -74,7 +70,6 @@ export class VaultOnboardingComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.setOnboardingTasks();
     this.setInstallExtLink();
-    this.individualVaultPolicyCheck();
     this.checkForBrowserExtension();
   }
 
@@ -163,19 +158,6 @@ export class VaultOnboardingComponent implements OnInit, OnDestroy {
     this.showOnboarding.set(Object.values(vaultTasks).includes(false));
     const activeId = await firstValueFrom(this.activeId$);
     await this.vaultOnboardingService.setVaultOnboardingTasks(activeId, vaultTasks);
-  }
-
-  individualVaultPolicyCheck() {
-    this.activeId$
-      .pipe(
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((data) => {
-        this.isIndividualPolicyVault.set(data);
-      });
   }
 
   setInstallExtLink() {
