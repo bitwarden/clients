@@ -3,16 +3,11 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content
-    [maxWidth]="maxWidth()"
-    [adjustedLayout]="adjustedLayout()"
-    [contentPadding]="contentPadding()"
-  >
+  <bit-landing-content [maxWidth]="maxWidth()" [contentPadding]="contentPadding()">
     <bit-landing-hero
-      [icon]="effectiveShowPageIcon() ? icon() : null"
+      [icon]="showPageIcon() ? icon() : null"
       [title]="title()"
       [subtitle]="subtitle()"
-      [adjustedLayout]="adjustedLayout()"
       [heroAlignment]="heroAlignment()"
     ></bit-landing-hero>
     @if (hideCardWrapper()) {
@@ -24,7 +19,7 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </bit-landing-card>
     }
-    @if (effectiveSecondaryContentLocation() === "main") {
+    @if (secondaryContentLocation() === "main") {
       <div class="tw-flex tw-flex-col tw-items-center">
         <ng-content select="[slot=secondary]"></ng-content>
       </div>
@@ -34,13 +29,9 @@
   @if (!hideFooter()) {
     <bit-landing-footer>
       <div [class]="footerLayoutClasses()">
-        <!-- Secondary content renders here when secondaryContentLocation === "footer". -->
-        @if (effectiveSecondaryContentLocation() === "footer") {
+        @if (secondaryContentLocation() === "footer") {
           <ng-content select="[slot=secondary]"></ng-content>
         }
-        <!-- Legacy [slot=footer-secondary]: still used by ExtensionAnonLayoutWrapperComponent. -->
-        <!-- TODO: Remove once the extension wrapper migrates to [slot=secondary]. -->
-        <ng-content select="[slot=footer-secondary]"></ng-content>
 
         @if (showReadonlyHostname()) {
           <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>

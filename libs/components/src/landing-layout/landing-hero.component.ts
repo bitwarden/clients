@@ -45,15 +45,7 @@ export class LandingHeroComponent {
    */
   readonly heroAlignment = input<"left" | "center">("center");
 
-  // Migration shim: see AnonLayoutComponent for context. Step 10 removes both the
-  // `adjustedLayout` input and the effective computed below.
-  readonly adjustedLayout = input<boolean>(false);
-
-  protected readonly effectiveHeroAlignment = computed<"left" | "center">(() =>
-    this.adjustedLayout() ? "left" : this.heroAlignment(),
-  );
-
   protected readonly alignmentClasses = computed(() =>
-    this.effectiveHeroAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
+    this.heroAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
   );
 }

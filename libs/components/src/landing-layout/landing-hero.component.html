@@ -22,7 +22,9 @@
     }
 
     @if (subtitle()) {
-      <div class="tw-text-sm sm:tw-text-base" [class.tw-mt-4]="adjustedLayout()">
+      <!-- Extra top margin when the icon is hidden, so the subtitle doesn't butt against the title. -->
+      <!-- TODO(Step 11): validate this with design — drop entirely, or keep tied to icon visibility. -->
+      <div class="tw-text-sm sm:tw-text-base" [class.tw-mt-4]="!icon()">
         {{ subtitle() }}
       </div>
     }

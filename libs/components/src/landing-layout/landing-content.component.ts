@@ -54,14 +54,6 @@ export class LandingContentComponent {
    */
   readonly contentPadding = input<"compact" | "default">("default");
 
-  // Migration shim: see AnonLayoutComponent for context. Step 10 removes both the
-  // `adjustedLayout` input and the effective computed below.
-  readonly adjustedLayout = input<boolean>(false);
-
-  protected readonly effectiveContentPadding = computed<"compact" | "default">(() =>
-    this.adjustedLayout() ? "compact" : this.contentPadding(),
-  );
-
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
     md: "tw-max-w-md",
     lg: "tw-max-w-lg",

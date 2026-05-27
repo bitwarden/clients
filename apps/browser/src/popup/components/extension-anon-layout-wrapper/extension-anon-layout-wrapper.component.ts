@@ -27,11 +27,6 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
-  /**
-   * Makes slight design modifications on specific pages where we don't want a scrollbar
-   * to appear. Should be used along with  `pageIcon: null` (see `AnonLayoutWrapperData`)
-   */
-  adjustedLayout?: boolean;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -65,7 +60,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hasLoggedInAccount: boolean = false;
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
-  protected adjustedLayout = false;
   protected showPageIcon?: boolean;
   protected contentPadding?: "compact" | "default";
   protected heroAlignment?: "left" | "center";
@@ -148,10 +142,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
 
-    if (firstChildRouteData["adjustedLayout"] !== undefined) {
-      this.adjustedLayout = Boolean(firstChildRouteData["adjustedLayout"]);
-    }
-
     this.showPageIcon = firstChildRouteData["showPageIcon"];
     this.contentPadding = firstChildRouteData["contentPadding"];
     this.heroAlignment = firstChildRouteData["heroAlignment"];
@@ -217,10 +207,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showLogo = data.showLogo;
     }
 
-    if (data.adjustedLayout !== undefined) {
-      this.adjustedLayout = data.adjustedLayout;
-    }
-
     if (data.showPageIcon !== undefined) {
       this.showPageIcon = data.showPageIcon;
     }
@@ -256,7 +242,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.maxWidth = null;
     this.hideFooter = null;
     this.hideCardWrapper = null;
-    this.adjustedLayout = false;
     this.showPageIcon = undefined;
     this.contentPadding = undefined;
     this.heroAlignment = undefined;
