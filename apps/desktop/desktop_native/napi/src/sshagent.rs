@@ -29,12 +29,87 @@ pub mod sshagent {
     }
 
     #[napi(object)]
+    pub struct ProcessFrameNapi {
+        pub pid: u32,
+        pub name: String,
+        pub executable_path: Option<String>,
+    }
+
+    #[napi(object)]
+    pub struct AppContextNapi {
+        pub process_name: String,
+        pub executable_path: Option<String>,
+        pub pid: u32,
+        pub parent_chain: Vec<ProcessFrameNapi>,
+        pub argv: Option<Vec<String>>,
+    }
+
+    #[napi(object)]
+    pub struct HostContextNapi {
+        /// "none" | "argv" | "known-hosts" | "host-key"
+        pub source: String,
+        pub hostname: Option<String>,
+        pub hostname_unverified: Option<String>,
+        pub port: Option<u32>,
+        pub username: Option<String>,
+        pub key_fingerprint: Option<String>,
+        pub known_hosts_match: bool,
+    }
+
+    #[napi(object)]
+    pub struct RequestContextNapi {
+        pub app: AppContextNapi,
+        pub host: HostContextNapi,
+    }
+
+    #[napi(object)]
     pub struct SshUIRequest {
         pub cipher_id: Option<String>,
         pub is_list: bool,
         pub process_name: String,
         pub is_forwarding: bool,
         pub namespace: Option<String>,
+        pub context: Option<RequestContextNapi>,
+    }
+
+    fn to_napi_context(
+        ctx: desktop_core::ssh_agent::context::RequestContext,
+    ) -> RequestContextNapi {
+        use desktop_core::ssh_agent::context::HostSource;
+        let source_str = match ctx.host.source {
+            HostSource::None => "none",
+            HostSource::Argv => "argv",
+            HostSource::KnownHosts => "known-hosts",
+            HostSource::HostKey => "host-key",
+        }
+        .to_string();
+        RequestContextNapi {
+            app: AppContextNapi {
+                process_name: ctx.app.process_name,
+                executable_path: ctx.app.executable_path,
+                pid: ctx.app.pid,
+                parent_chain: ctx
+                    .app
+                    .parent_chain
+                    .into_iter()
+                    .map(|f| ProcessFrameNapi {
+                        pid: f.pid,
+                        name: f.name,
+                        executable_path: f.executable_path,
+                    })
+                    .collect(),
+                argv: ctx.app.argv,
+            },
+            host: HostContextNapi {
+                source: source_str,
+                hostname: ctx.host.hostname,
+                hostname_unverified: ctx.host.hostname_unverified,
+                port: ctx.host.port.map(|p| p as u32),
+                username: ctx.host.username,
+                key_fingerprint: ctx.host.key_fingerprint,
+                known_hosts_match: ctx.host.known_hosts_match,
+            },
+        }
     }
 
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
@@ -68,6 +143,7 @@ pub mod sshagent {
                             process_name: request.process_name,
                             is_forwarding: request.is_forwarding,
                             namespace: request.namespace,
+                            context: request.context.map(to_napi_context),
                         }),
                         ThreadsafeFunctionCallMode::Blocking,
                         move |ret: Result<Promise<bool>, napi::Error>, _env| {
@@ -151,5 +227,10 @@ pub mod sshagent {
     pub fn clear_keys(agent_state: &mut SshAgentState) -> napi::Result<()> {
         let bitwarden_agent_state = &mut agent_state.state;
         Ok(bitwarden_agent_state.clear_keys()?)
+    }
+
+    #[napi]
+    pub fn set_rich_context_enabled(agent_state: &mut SshAgentState, enabled: bool) {
+        agent_state.state.set_rich_context_enabled(enabled);
     }
 }

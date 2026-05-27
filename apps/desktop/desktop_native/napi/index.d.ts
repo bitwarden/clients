@@ -259,7 +259,24 @@ export declare namespace sshagent {
   export class SshAgentState {
 
   }
+  export interface AppContextNapi {
+    processName: string
+    executablePath?: string
+    pid: number
+    parentChain: Array<ProcessFrameNapi>
+    argv?: Array<string>
+  }
   export function clearKeys(agentState: SshAgentState): void
+  export interface HostContextNapi {
+    /** "none" | "argv" | "known-hosts" | "host-key" */
+    source: string
+    hostname?: string
+    hostnameUnverified?: string
+    port?: number
+    username?: string
+    keyFingerprint?: string
+    knownHostsMatch: boolean
+  }
   export function isRunning(agentState: SshAgentState): boolean
   export function lock(agentState: SshAgentState): void
   export interface PrivateKey {
@@ -267,8 +284,18 @@ export declare namespace sshagent {
     name: string
     cipherId: string
   }
+  export interface ProcessFrameNapi {
+    pid: number
+    name: string
+    executablePath?: string
+  }
+  export interface RequestContextNapi {
+    app: AppContextNapi
+    host: HostContextNapi
+  }
   export function serve(callback: ((err: Error | null, arg: SshUiRequest) => Promise<boolean>)): Promise<SshAgentState>
   export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
+  export function setRichContextEnabled(agentState: SshAgentState, enabled: boolean): void
   export interface SshKey {
     privateKey: string
     publicKey: string
@@ -280,6 +307,7 @@ export declare namespace sshagent {
     processName: string
     isForwarding: boolean
     namespace?: string
+    context?: RequestContextNapi
   }
   export function stop(agentState: SshAgentState): void
 }
