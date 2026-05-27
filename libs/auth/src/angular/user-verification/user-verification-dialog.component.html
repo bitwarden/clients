@@ -38,6 +38,7 @@
       [verificationType]="dialogOptions.verificationType === 'client' ? 'client' : 'server'"
       (activeClientVerificationOptionChange)="handleActiveClientVerificationOptionChange($event)"
       (biometricsVerificationResultChange)="handleBiometricsVerificationResultChange($event)"
+      (pasteSubmit)="submitFromPaste()"
     ></app-user-verification-form-input>
   </ng-container>
   <ng-container bitDialogFooter>
