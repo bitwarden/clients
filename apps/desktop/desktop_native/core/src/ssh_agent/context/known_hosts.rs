@@ -18,13 +18,16 @@ pub struct Match {
 }
 
 /// Parse the supplied `known_hosts`-format string and return the first
-/// hostname entry whose public-key bytes equal `host_key`.
-pub fn find_match(contents: &str, host_key: &[u8]) -> Option<Match> {
+/// hostname entry whose public-key bytes equal `host_key`. When the matched
+/// entry is hashed (`|1|salt|hash`), the returned hostname is recovered by
+/// hashing `candidate` and comparing — pass `None` if no candidate is
+/// available, in which case hashed matches yield `<hashed>` as the hostname.
+pub fn find_match(contents: &str, host_key: &[u8], candidate: Option<&str>) -> Option<Match> {
     if host_key.is_empty() {
         return None;
     }
     for line in contents.lines() {
-        if let Some(m) = match_line(line, host_key) {
+        if let Some(m) = match_line(line, host_key, candidate) {
             return Some(m);
         }
     }
@@ -32,20 +35,25 @@ pub fn find_match(contents: &str, host_key: &[u8]) -> Option<Match> {
 }
 
 /// Read each candidate file in `paths` (skipping missing/unreadable ones) and
-/// return the first match found.
-pub fn find_match_in_files<P: AsRef<Path>>(paths: &[P], host_key: &[u8]) -> Option<Match> {
+/// return the first match found. See [`find_match`] for the `candidate`
+/// semantics.
+pub fn find_match_in_files<P: AsRef<Path>>(
+    paths: &[P],
+    host_key: &[u8],
+    candidate: Option<&str>,
+) -> Option<Match> {
     for path in paths {
         let Ok(contents) = std::fs::read_to_string(path.as_ref()) else {
             continue;
         };
-        if let Some(m) = find_match(&contents, host_key) {
+        if let Some(m) = find_match(&contents, host_key, candidate) {
             return Some(m);
         }
     }
     None
 }
 
-fn match_line(line: &str, host_key: &[u8]) -> Option<Match> {
+fn match_line(line: &str, host_key: &[u8], candidate: Option<&str>) -> Option<Match> {
     let trimmed = line.trim();
     if trimmed.is_empty() || trimmed.starts_with('#') {
         return None;
@@ -63,12 +71,18 @@ fn match_line(line: &str, host_key: &[u8]) -> Option<Match> {
 
     if let Some(rest) = hosts_field.strip_prefix("|1|") {
         let (salt_b64, hash_b64) = rest.split_once('|')?;
-        let salt = STANDARD.decode(salt_b64).ok()?;
-        let _expected = STANDARD.decode(hash_b64).ok()?;
-        // We can't reverse a hashed hostname, but a matching key + a hashed
-        // host entry is still a verified match — we just can't recover the
-        // hostname for display. Report it as a hashed entry.
-        let _ = salt;
+        STANDARD.decode(salt_b64).ok()?;
+        STANDARD.decode(hash_b64).ok()?;
+        // A matching key + a hashed host entry is a verified key match. If the
+        // caller supplied a candidate hostname (typically from the requester's
+        // argv), forward-verify the hash to recover the real hostname.
+        if let Some(c) = candidate {
+            if verify_hashed_entry(salt_b64, hash_b64, c) {
+                return Some(Match {
+                    hostname: c.to_string(),
+                });
+            }
+        }
         return Some(Match {
             hostname: "<hashed>".to_string(),
         });
@@ -118,36 +132,51 @@ mod tests {
         STANDARD.decode(KEY_B64).unwrap()
     }
 
+    /// Helper: produce a real OpenSSH-format hashed `known_hosts` entry for
+    /// `hostname` using the given key.
+    fn hashed_line(hostname: &str, key_b64: &str) -> String {
+        let salt = b"some-salt-16byte";
+        let mut mac = HmacSha1::new_from_slice(salt).unwrap();
+        mac.update(hostname.as_bytes());
+        let hash = mac.finalize().into_bytes();
+        format!(
+            "|1|{}|{} ssh-ed25519 {}\n",
+            STANDARD.encode(salt),
+            STANDARD.encode(hash),
+            key_b64,
+        )
+    }
+
     #[test]
     fn empty_host_key_returns_none() {
-        assert!(find_match("github.com ssh-ed25519 AAAA", &[]).is_none());
+        assert!(find_match("github.com ssh-ed25519 AAAA", &[], None).is_none());
     }
 
     #[test]
     fn plain_match_returns_hostname() {
         let contents = format!("github.com ssh-ed25519 {KEY_B64}\n");
-        let m = find_match(&contents, &key_bytes()).unwrap();
+        let m = find_match(&contents, &key_bytes(), None).unwrap();
         assert_eq!(m.hostname, "github.com");
     }
 
     #[test]
     fn comma_list_takes_first_positive() {
         let contents = format!("alias,github.com ssh-ed25519 {KEY_B64}\n");
-        let m = find_match(&contents, &key_bytes()).unwrap();
+        let m = find_match(&contents, &key_bytes(), None).unwrap();
         assert_eq!(m.hostname, "alias");
     }
 
     #[test]
     fn negation_is_skipped() {
         let contents = format!("!evil,github.com ssh-ed25519 {KEY_B64}\n");
-        let m = find_match(&contents, &key_bytes()).unwrap();
+        let m = find_match(&contents, &key_bytes(), None).unwrap();
         assert_eq!(m.hostname, "github.com");
     }
 
     #[test]
     fn comments_and_blanks_ignored() {
         let contents = format!("# leading comment\n\n   \ngithub.com ssh-ed25519 {KEY_B64}\n");
-        let m = find_match(&contents, &key_bytes()).unwrap();
+        let m = find_match(&contents, &key_bytes(), None).unwrap();
         assert_eq!(m.hostname, "github.com");
     }
 
@@ -155,27 +184,41 @@ mod tests {
     fn no_match_returns_none() {
         let contents = format!("github.com ssh-ed25519 {KEY_B64}\n");
         let other_key = vec![0u8; 32];
-        assert!(find_match(&contents, &other_key).is_none());
+        assert!(find_match(&contents, &other_key, None).is_none());
     }
 
     #[test]
-    fn hashed_entry_matches_on_key_but_yields_hashed_placeholder() {
-        let contents = format!("|1|c29tZXNhbHQ=|aGFzaHZhbA== ssh-ed25519 {KEY_B64}\n");
-        let m = find_match(&contents, &key_bytes()).unwrap();
+    fn hashed_entry_without_candidate_yields_hashed_placeholder() {
+        let contents = hashed_line("github.com", KEY_B64);
+        let m = find_match(&contents, &key_bytes(), None).unwrap();
+        assert_eq!(m.hostname, "<hashed>");
+    }
+
+    #[test]
+    fn hashed_entry_with_matching_candidate_recovers_hostname() {
+        let contents = hashed_line("github.com", KEY_B64);
+        let m = find_match(&contents, &key_bytes(), Some("github.com")).unwrap();
+        assert_eq!(m.hostname, "github.com");
+    }
+
+    #[test]
+    fn hashed_entry_with_non_matching_candidate_falls_back_to_placeholder() {
+        let contents = hashed_line("github.com", KEY_B64);
+        let m = find_match(&contents, &key_bytes(), Some("evil.example.com")).unwrap();
         assert_eq!(m.hostname, "<hashed>");
     }
 
     #[test]
     fn pattern_entry_returned_verbatim() {
         let contents = format!("*.example.com ssh-ed25519 {KEY_B64}\n");
-        let m = find_match(&contents, &key_bytes()).unwrap();
+        let m = find_match(&contents, &key_bytes(), None).unwrap();
         assert_eq!(m.hostname, "*.example.com");
     }
 
     #[test]
     fn missing_file_returns_none() {
         let path = Path::new("/nonexistent/path/known_hosts");
-        assert!(find_match_in_files(&[path], &key_bytes()).is_none());
+        assert!(find_match_in_files(&[path], &key_bytes(), None).is_none());
     }
 
     #[test]
@@ -185,7 +228,7 @@ mod tests {
         let p2 = dir.path().join("second");
         std::fs::write(&p1, format!("first.example.com ssh-ed25519 {KEY_B64}\n")).unwrap();
         std::fs::write(&p2, format!("second.example.com ssh-ed25519 {KEY_B64}\n")).unwrap();
-        let m = find_match_in_files(&[&p1, &p2], &key_bytes()).unwrap();
+        let m = find_match_in_files(&[&p1, &p2], &key_bytes(), None).unwrap();
         assert_eq!(m.hostname, "first.example.com");
     }
 

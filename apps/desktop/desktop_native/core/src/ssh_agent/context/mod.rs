@@ -83,7 +83,10 @@ pub fn build(inputs: BuildInputs<'_>) -> RequestContext {
         None
     } else {
         let refs: Vec<&std::path::PathBuf> = inputs.known_hosts_paths.iter().collect();
-        known_hosts::find_match_in_files(&refs, inputs.host_key_bytes)
+        // Pass the argv hostname as the recovery candidate so hashed
+        // known_hosts entries can be forward-verified into a real hostname.
+        let candidate = argv_host.as_ref().map(|h| h.hostname.as_str());
+        known_hosts::find_match_in_files(&refs, inputs.host_key_bytes, candidate)
     };
 
     let host = match (argv_host, known_match, fingerprint.clone()) {
