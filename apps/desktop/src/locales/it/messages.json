@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Organizza gli elementi condivisi"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "chooseItemToAdd": {
     "message": "Scegli un elemento da aggiungere"
   },
@@ -148,6 +154,10 @@
     "message": "Visualizza patente",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "Visualizza passaporto",
     "description": "Header for view passport item type"
@@ -208,8 +218,8 @@
     "message": "Modifica account bancario",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Modifica patente",
+  "editItemHeaderLicense": {
+    "message": "Edit license",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1755,6 +1765,10 @@
     "message": "Copia numero",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Copia email"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Purtroppo l'integrazione del browser non è supportata nella versione Linux per ora."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Richiedi verifica per l'integrazione del browser"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Aggiungi un altro livello di sicurezza richiedendo la conferma della frase impronta quando colleghi il desktop e il browser. Questo richiede l'azione dell'utente e la verifica ogni volta che si crea una connessione."
-  },
   "enableHardwareAcceleration": {
     "message": "Usa accelerazione hardware"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Approva"
-  },
-  "verifyBrowserTitle": {
-    "message": "Verifica connessione browser"
-  },
-  "verifyBrowserDesc": {
-    "message": "Assicurati che l'impronta digitale mostrata sia identica all'impronta digitale mostrata nell'estensione del browser."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ vuole connettersi a Bitwarden",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "Risoluzione problemi"
   },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Disattiva l'accelerazione hardware e riavvia"
   },
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankAccount": {
     "message": "Conto bancario"
   },
@@ -5063,6 +5099,18 @@
   },
   "copyIban": {
     "message": "Copia IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
   },
   "bankAccountTypeChecking": {
     "message": "Verifica in corso"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "Barra di avanzamento",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }

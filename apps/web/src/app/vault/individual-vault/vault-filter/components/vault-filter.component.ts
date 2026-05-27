@@ -106,6 +106,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.cipherType === CipherType.BankAccount) {
       return "searchBankAccount";
     }
+    if (this.activeFilter.cipherType === CipherType.Passport) {
+      return "searchPassport";
+    }
+    if (this.activeFilter.cipherType === CipherType.DriversLicense) {
+      return "searchDriversLicense";
+    }
     if (this.activeFilter.selectedFolderNode?.node) {
       return "searchFolder";
     }
