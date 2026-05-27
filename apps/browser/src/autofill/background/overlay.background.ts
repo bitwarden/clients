@@ -217,6 +217,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) =>
       void this.withSenderTab(sender, (tab) => this.abortFido2ActiveRequest(tab.id)),
+    routeTargetedFieldsToFrame: ({ message, sender }) =>
+      void this.withSenderTab(sender, (tab) => this.routeTargetedFieldsToFrame(tab, message)),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: () => this.startInlineMenuDelayedClose$.next(),
@@ -1099,6 +1101,41 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         subFrameOffsetsForTab.set(frameId, message.subFrameData);
       }
     }
+  }
+
+  /**
+   * Routes targeted fields to the content script running in the iframe identified
+   * by `message.iframeSrc`. Looks up the matching frame via webNavigation and
+   * dispatches `applyTargetedFields` so the iframe's own content script can build
+   * its AutofillFields and report back with the correct sub-frame `frameId`.
+   *
+   * @param tab - The tab the message originated from
+   * @param message - The message containing `iframeSrc` and `iframeTargetedFields`
+   */
+  private async routeTargetedFieldsToFrame(
+    tab: chrome.tabs.Tab,
+    message: OverlayBackgroundExtensionMessage,
+  ): Promise<void> {
+    const { iframeSrc, iframeTargetedFields } = message;
+    if (!iframeSrc || !iframeTargetedFields?.length || !tab.id) {
+      return;
+    }
+
+    const frames = await BrowserApi.getAllFrameDetails(tab.id);
+    if (!frames) {
+      return;
+    }
+
+    const targetFrame = frames.find((f) => f.url === iframeSrc);
+    if (!targetFrame) {
+      return;
+    }
+
+    await BrowserApi.tabSendMessage(
+      tab,
+      { command: "applyTargetedFields", iframeTargetedFields },
+      { frameId: targetFrame.frameId },
+    );
   }
 
   /**

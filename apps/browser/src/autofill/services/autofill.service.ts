@@ -119,8 +119,8 @@ export default class AutofillService implements AutofillServiceInterface {
       .pipe(
         filter(
           (message) =>
-            message.tab.id === tab.id &&
-            message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable,
+            message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
+            message.tab?.id === tab.id,
         ),
         scan(
           (acc: PageDetail[], message): PageDetail[] =>

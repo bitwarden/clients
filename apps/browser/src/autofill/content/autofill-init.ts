@@ -29,6 +29,7 @@ class AutofillInit implements AutofillInitInterface {
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
     collectAutofillTriage: () => this.collectPageDetailsForContextMenu(),
     fillForm: ({ message }) => this.fillForm(message),
+    applyTargetedFields: ({ message }) => this.applyTargetedFields(message),
   };
 
   /**
@@ -163,6 +164,19 @@ class AutofillInit implements AutofillInitInterface {
           isFieldCurrentlyFilling: false,
         }),
       250,
+    );
+  }
+
+  /**
+   * Applies targeted fields dispatched from the background for this frame.
+   * Called when the top-level frame has detected that a targeting rule crosses
+   * into this iframe and has routed the inner selectors here.
+   *
+   * @param message - The extension message containing iframe targeted fields.
+   */
+  private applyTargetedFields(message: AutofillExtensionMessage): Promise<void> {
+    return this.collectAutofillContentService.applyExternalTargetedFields(
+      message.iframeTargetedFields ?? [],
     );
   }
 

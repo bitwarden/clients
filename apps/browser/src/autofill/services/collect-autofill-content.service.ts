@@ -261,6 +261,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const fields: AutofillField[] = [];
+    // Accumulates targets that live inside iframes, keyed by the iframe's URL.
+    // These are routed to the iframe's own content script instead of being
+    // collected here, so the existing sub-frame offset infrastructure handles
+    // their positioning correctly.
+    const iframeTargets = new Map<
+      string,
+      { selector: string; fieldType: AutofillTargetingRuleType }[]
+    >();
 
     for (let formIndex = 0; formIndex < forms.length; formIndex++) {
       const form = forms[formIndex];
@@ -270,37 +278,75 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           continue;
         }
 
-        // Try each selector alternative in order, use the first match found.
-        // Composite selectors (string[]) are skipped for now; only single
-        // selectors (string) are supported.
-        let matchedElement: Element | null = null;
         for (const selector of selectorAlternatives) {
           if (typeof selector !== "string") {
             continue;
           }
-          matchedElement = this.domQueryService.queryDeepSelector(selector);
+
+          // Check whether this selector crosses an iframe boundary before
+          // trying to resolve it locally.
+          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+          if (iframeCrossing) {
+            const { iframeElement, innerSelector } = iframeCrossing;
+            const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+            if (iframeSrc) {
+              if (!iframeTargets.has(iframeSrc)) {
+                iframeTargets.set(iframeSrc, []);
+              }
+              iframeTargets.get(iframeSrc)!.push({
+                selector: innerSelector,
+                fieldType: fieldType as AutofillTargetingRuleType,
+              });
+            }
+            break;
+          }
+
+          // No iframe boundary — resolve locally (direct element or shadow DOM).
+          const matchedElement = this.domQueryService.queryDeepSelector(selector);
           if (matchedElement) {
+            const fieldId = `targeted_field_${formIndex}_${fieldType}`;
+            const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+            formFieldElement.opid = fieldId;
+
+            const autofillField = this.buildTargetedAutofillField(
+              formFieldElement,
+              fieldType as AutofillTargetingRuleType,
+              fields.length,
+            );
+
+            fields.push(autofillField);
+            this.cacheAutofillFieldElement(fields.length - 1, formFieldElement, autofillField);
             break;
           }
         }
-
-        if (!matchedElement) {
-          continue;
-        }
-
-        const fieldId = `targeted_field_${formIndex}_${fieldType}`;
-        const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-        formFieldElement.opid = fieldId;
-
-        const autofillField = this.buildTargetedAutofillField(
-          formFieldElement,
-          fieldType as AutofillTargetingRuleType,
-          fields.length,
-        );
-
-        fields.push(autofillField);
-        this.autofillFieldElements.set(formFieldElement, autofillField);
       }
+    }
+
+    // Route iframe-crossing selectors to their respective frames. Fire-and-
+    // forget: the iframe content scripts apply their fields asynchronously and
+    // re-send collectPageDetailsResponse with their own frameId.
+    for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
+      void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
+        iframeSrc,
+        iframeTargetedFields,
+      });
+    }
+
+    // If this frame resolved no local targeted fields but already has fields cached
+    // from a prior applyExternalTargetedFields call, use those cached fields. This
+    // handles the case where an iframe's own getPageDetails() runs the targeting path
+    // (because targeting rules apply to the whole tab URL) but all selectors in the
+    // rules cross an iframe boundary that doesn't exist inside this frame — so the
+    // results are empty, and we must not overwrite the background's page-details entry
+    // with an empty payload.
+    if (!fields.length && this.autofillFieldElements.size > 0) {
+      this.domRecentlyMutated = false;
+      const cachedPageDetails = this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
+      );
+      this.setupOverlayListeners(cachedPageDetails);
+      return cachedPageDetails;
     }
 
     this.domRecentlyMutated = false;
@@ -312,6 +358,54 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Applies externally-provided targeting rules to this frame. Called when the
+   * background dispatches `applyTargetedFields` after the top-level frame
+   * determined that a targeting rule's selector crosses into this iframe.
+   * Builds synthetic AutofillFields for the given selectors and re-sends
+   * collectPageDetailsResponse so the background updates its frame records.
+   *
+   * @param targetedFields - Selector/fieldType pairs resolved to this frame
+   */
+  async applyExternalTargetedFields(
+    targetedFields: { selector: string; fieldType: string }[],
+  ): Promise<void> {
+    const fields: AutofillField[] = [];
+
+    for (let i = 0; i < targetedFields.length; i++) {
+      const { selector, fieldType } = targetedFields[i];
+      const matchedElement = this.domQueryService.queryDeepSelector(selector);
+      if (!matchedElement) {
+        continue;
+      }
+
+      const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+      const fieldId = `targeted_field_${i}_${fieldType}`;
+      formFieldElement.opid = fieldId;
+
+      const autofillField = this.buildTargetedAutofillField(
+        formFieldElement,
+        fieldType as AutofillTargetingRuleType,
+        i,
+      );
+      fields.push(autofillField);
+      this.cacheAutofillFieldElement(i, formFieldElement, autofillField);
+    }
+
+    if (!fields.length) {
+      return;
+    }
+
+    this.domRecentlyMutated = false;
+    const pageDetails = this.getFormattedPageDetails({}, fields);
+    this.setupOverlayListeners(pageDetails);
+
+    void this.sendExtensionMessage("collectPageDetailsResponse", {
+      details: pageDetails,
+      sender: "autofillInit",
+    });
   }
 
   /**

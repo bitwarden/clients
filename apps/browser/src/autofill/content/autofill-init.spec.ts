@@ -296,6 +296,35 @@ describe("AutofillInit", () => {
         });
       });
 
+      describe("applyTargetedFields", () => {
+        it("delegates to applyExternalTargetedFields with the message's iframeTargetedFields", async () => {
+          const iframeTargetedFields = [{ selector: "#username", fieldType: "username" }];
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "applyExternalTargetedFields")
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage({ command: "applyTargetedFields", iframeTargetedFields });
+          await flushPromises();
+
+          expect(
+            autofillInit["collectAutofillContentService"].applyExternalTargetedFields,
+          ).toHaveBeenCalledWith(iframeTargetedFields);
+        });
+
+        it("passes an empty array when iframeTargetedFields is not present", async () => {
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "applyExternalTargetedFields")
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage({ command: "applyTargetedFields" });
+          await flushPromises();
+
+          expect(
+            autofillInit["collectAutofillContentService"].applyExternalTargetedFields,
+          ).toHaveBeenCalledWith([]);
+        });
+      });
+
       describe("collectAutofillTriage", () => {
         const pageDetails: AutofillPageDetails = {
           title: "title",

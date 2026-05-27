@@ -157,11 +157,14 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   /**
    * Queries the DOM for elements based on the given selector string.
-   * Supports the special `>>>` combinator to indicate the need for
-   * shadow DOM traversal; each segment separated by `>>>` is queried
-   * within the shadow root of the previous result.
+   * Supports the special `>>>` combinator to traverse iframe and shadow DOM
+   * boundaries; each segment separated by `>>>` is queried within the context
+   * produced by the previous segment. Boundary type is determined exclusively
+   * by the resolved element type — iframe elements always use iframe traversal,
+   * all other elements always use shadow DOM traversal, with no fallback between
+   * the two. This enforces the contract expressed in the targeting rule.
    *
-   * @param selector selector string, supports shadow DOM piercing with `>>>`
+   * @param selector selector string, supports boundary-piercing with `>>>`
    * @returns The first matching element, or null if no match is found
    */
   queryDeepSelector(selector: string): Element | null {
@@ -178,24 +181,87 @@ export class DomQueryService implements DomQueryServiceInterface {
         return null;
       }
 
-      const element = context.querySelector(segment);
+      const element: Element | null = context.querySelector(segment);
       if (!element) {
         return null;
       }
 
-      // If there are more segments, traverse into the shadow root
       if (i < segments.length - 1) {
-        const shadow = this.getShadowRoot(element);
-        if (!shadow) {
+        // FIXME: When a targeting rule specifies `iframe#foo`, we should fail
+        // authoritatively if `#foo` does not resolve to an iframe (rather than
+        // falling back to shadow traversal). The current test-and-fallback can
+        // mask stale or inaccurate selectors.
+        const next: Document | ShadowRoot | null =
+          element instanceof HTMLIFrameElement
+            ? element.contentDocument
+            : this.traverseShadowRootBoundary(element);
+        if (!next) {
           return null;
         }
-        context = shadow;
+        context = next;
       } else {
         return element;
       }
     }
 
     return null;
+  }
+
+  /**
+   * Walks a selector and returns the first iframe boundary encountered along
+   * with the remaining selector to apply inside that iframe.  Shadow DOM
+   * boundaries before the iframe are traversed normally. Returns null if no
+   * iframe boundary exists in the selector (pure shadow DOM or direct element).
+   *
+   * @param selector - Selector string using `>>>` as the boundary combinator
+   */
+  findIframeCrossing(
+    selector: string,
+  ): { iframeElement: HTMLIFrameElement; innerSelector: string } | null {
+    const segments = selector.split(DEEP_QUERY_SELECTOR_COMBINATOR);
+    if (segments.length < 2) {
+      return null;
+    }
+
+    let context: Document | ShadowRoot | Element = globalThis.document;
+    for (let i = 0; i < segments.length - 1; i++) {
+      const segment = (segments[i] || "").trim();
+      if (!segment) {
+        return null;
+      }
+
+      const element: Element | null = context.querySelector(segment);
+      if (!element) {
+        return null;
+      }
+
+      if (element instanceof HTMLIFrameElement) {
+        return {
+          iframeElement: element,
+          innerSelector: segments.slice(i + 1).join(DEEP_QUERY_SELECTOR_COMBINATOR),
+        };
+      }
+
+      const shadow = this.getShadowRoot(element);
+      if (!shadow) {
+        return null;
+      }
+      context = shadow;
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns the shadow root of an element, or null if no shadow root exists.
+   * Explicitly refuses to traverse iframe elements — callers must read
+   * `contentDocument` directly for those.
+   */
+  private traverseShadowRootBoundary(element: Element): ShadowRoot | null {
+    if (element instanceof HTMLIFrameElement) {
+      return null;
+    }
+    return this.getShadowRoot(element);
   }
 
   /**

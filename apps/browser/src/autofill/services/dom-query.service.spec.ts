@@ -275,4 +275,192 @@ describe("DomQueryService", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("queryDeepSelector", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns null for an empty selector", () => {
+      expect(domQueryService.queryDeepSelector("")).toBeNull();
+    });
+
+    it("returns null when a selector segment is empty", () => {
+      expect(domQueryService.queryDeepSelector(">>> >>>")).toBeNull();
+    });
+
+    it("returns an element matching a simple selector", () => {
+      const input = document.createElement("input");
+      input.id = "username";
+      document.body.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#username")).toBe(input);
+    });
+
+    it("returns null when no element matches a simple selector", () => {
+      expect(domQueryService.queryDeepSelector("#nonexistent")).toBeNull();
+    });
+
+    it("traverses a shadow DOM boundary", () => {
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const input = document.createElement("input");
+      input.id = "shadow-input";
+      shadowRoot.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#shadow-host >>> #shadow-input")).toBe(input);
+    });
+
+    it("returns null when an intermediate element has no shadow root and is not an iframe", () => {
+      const div = document.createElement("div");
+      div.id = "plain-div";
+      document.body.appendChild(div);
+
+      expect(domQueryService.queryDeepSelector("#plain-div >>> #child")).toBeNull();
+    });
+
+    it("traverses a same-origin iframe boundary", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "test-iframe";
+      document.body.appendChild(iframe);
+      const input = iframe.contentDocument!.createElement("input");
+      input.id = "iframe-input";
+      iframe.contentDocument!.body.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#test-iframe >>> #iframe-input")).toBe(input);
+    });
+
+    it("returns null when the iframe contentDocument is not accessible", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "cross-origin-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      expect(domQueryService.queryDeepSelector("#cross-origin-iframe >>> #some-input")).toBeNull();
+    });
+
+    it("returns null for an inaccessible iframe without falling back to shadow DOM", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "inaccessible-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      expect(domQueryService.queryDeepSelector("#inaccessible-iframe >>> #some-input")).toBeNull();
+    });
+
+    it("traverses multiple boundaries in sequence", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "outer-iframe";
+      document.body.appendChild(iframe);
+      const host = iframe.contentDocument!.createElement("div");
+      host.id = "shadow-host";
+      iframe.contentDocument!.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const input = document.createElement("input");
+      input.id = "deep-input";
+      shadowRoot.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector("#outer-iframe >>> #shadow-host >>> #deep-input"),
+      ).toBe(input);
+    });
+
+    it("traverses deeply nested shadow roots (four levels)", () => {
+      const host1 = document.createElement("div");
+      host1.id = "host-1";
+      document.body.appendChild(host1);
+      const shadow1 = host1.attachShadow({ mode: "open" });
+
+      const host2 = document.createElement("div");
+      host2.id = "host-2";
+      shadow1.appendChild(host2);
+      const shadow2 = host2.attachShadow({ mode: "open" });
+
+      const host3 = document.createElement("div");
+      host3.id = "host-3";
+      shadow2.appendChild(host3);
+      const shadow3 = host3.attachShadow({ mode: "open" });
+
+      const host4 = document.createElement("div");
+      host4.id = "host-4";
+      shadow3.appendChild(host4);
+      const shadow4 = host4.attachShadow({ mode: "open" });
+
+      const input = document.createElement("input");
+      input.id = "deeply-nested-input";
+      shadow4.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector(
+          "#host-1 >>> #host-2 >>> #host-3 >>> #host-4 >>> #deeply-nested-input",
+        ),
+      ).toBe(input);
+    });
+
+    it("traverses an iframe nested inside a shadow host", () => {
+      // jsdom only initializes contentDocument for iframes attached to the live
+      // document tree, so harvest a usable Document from a sibling iframe.
+      const docSource = document.createElement("iframe");
+      document.body.appendChild(docSource);
+      const iframeDoc = docSource.contentDocument!;
+
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "shadowed-iframe";
+      shadowRoot.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", {
+        value: iframeDoc,
+        configurable: true,
+      });
+
+      const input = iframeDoc.createElement("input");
+      input.id = "iframe-input";
+      iframeDoc.body.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector(
+          "#shadow-host >>> iframe#shadowed-iframe >>> input#iframe-input",
+        ),
+      ).toBe(input);
+    });
+
+    it("traverses an iframe nested inside another iframe", () => {
+      // jsdom does not auto-create contentDocument for iframes inside another
+      // iframe's document, so harvest one from a sibling iframe on the main doc.
+      const docSource = document.createElement("iframe");
+      document.body.appendChild(docSource);
+      const innerDoc = docSource.contentDocument!;
+
+      const outerIframe = document.createElement("iframe");
+      outerIframe.id = "outer-iframe";
+      document.body.appendChild(outerIframe);
+
+      // Create the inner iframe in the main document so it's an instance of the
+      // main window's HTMLIFrameElement, then place it inside the outer iframe's
+      // document body.
+      const innerIframe = document.createElement("iframe");
+      innerIframe.id = "inner-iframe";
+      outerIframe.contentDocument!.body.appendChild(innerIframe);
+      Object.defineProperty(innerIframe, "contentDocument", {
+        value: innerDoc,
+        configurable: true,
+      });
+
+      const input = innerDoc.createElement("input");
+      input.id = "nested-iframe-input";
+      innerDoc.body.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector(
+          "iframe#outer-iframe >>> iframe#inner-iframe >>> input#nested-iframe-input",
+        ),
+      ).toBe(input);
+    });
+  });
 });
