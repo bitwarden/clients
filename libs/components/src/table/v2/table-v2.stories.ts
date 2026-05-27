@@ -6,6 +6,9 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
+import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
+import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { countries } from "../../form/countries";
 import { LayoutComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
@@ -41,13 +44,25 @@ export default {
         BitTableV2Component,
         BitColumnComponent,
         DemoStatusColumnComponent,
+        BulkActionsBarComponent,
+        BulkActionComponent,
+        BulkAdditionalActionComponent,
         LayoutComponent,
         RouterTestingModule,
       ],
       providers: [
         {
           provide: I18nService,
-          useFactory: () => new I18nMockService(mockLayoutI18n),
+          useFactory: () =>
+            new I18nMockService({
+              ...mockLayoutI18n,
+              selected: "selected",
+              selectionCleared: "Selection cleared",
+              clear: "Clear",
+              bulkActionsBar: "Bulk actions",
+              bulkActionsBarAnnouncement: "__$1__ item(s) selected. Press __$2__ to focus the bar.",
+              additionalActions: "Additional actions",
+            }),
         },
       ],
     }),
@@ -166,6 +181,49 @@ export const Scrollable: Story = {
       </bit-layout>
     `,
   }),
+};
+
+/**
+ * `<bit-bulk-actions-bar>` projected into the table reads `selectedCount`
+ * implicitly from the table's selection model via DI; the bar's clear button
+ * also clears the model. No `[selectedCount]` or `(clear)` wiring needed.
+ */
+export const WithBulkActions: Story = {
+  render: () => {
+    const selection = new SelectionModel<{ id: number }>(true, []);
+    const noop = () => {
+      /* story noop */
+    };
+    return {
+      props: {
+        dataSource: basic,
+        displayedColumns: ["id", "name", "other"],
+        selection,
+        move: noop,
+        archive: noop,
+        del: noop,
+        exp: noop,
+      },
+      template: `
+        <bit-table-v2
+          [dataSource]="dataSource"
+          [displayedColumns]="displayedColumns"
+          [selection]="selection"
+        >
+          <bit-bulk-actions-bar>
+            <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
+            <bit-bulk-action [action]="archive" icon="bwi-archive" label="Archive" />
+            <bit-bulk-action [action]="del" icon="bwi-trash" label="Delete" />
+            <bit-bulk-additional-action [action]="exp" icon="bwi-upload" label="Export" />
+          </bit-bulk-actions-bar>
+
+          <bit-column name="id" header="Id" />
+          <bit-column name="name" header="Name" />
+          <bit-column name="other" header="Other" />
+        </bit-table-v2>
+      `,
+    };
+  },
 };
 
 /**
