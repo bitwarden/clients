@@ -108,6 +108,9 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() biometricsVerificationResultChange = new EventEmitter<boolean>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() pasteSubmit = new EventEmitter<void>();
 
   readonly Icons = { UserVerificationBiometricsIcon };
 
@@ -352,6 +355,21 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
         ? VerificationType.MasterPassword
         : VerificationType.PIN;
     }
+  }
+
+  onPaste(event: ClipboardEvent) {
+    // Only auto-submit in server-side OTP mode (user has no master password)
+    if (this.verificationType !== "server" || !this.userVerificationOptions.server.otp) {
+      return;
+    }
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {
+      return;
+    }
+    event.preventDefault();
+    this.secret.setValue(pastedText); // triggers valueChanges → processSecretChanges → onChange
+    // → dialog's secret FormControl updates synchronously
+    this.pasteSubmit.emit(); // dialog submits with the now-correct value
   }
 
   ngOnDestroy(): void {
