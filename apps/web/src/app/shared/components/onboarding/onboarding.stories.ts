@@ -63,7 +63,7 @@ export default {
           [title]="'onboardingInstallTheBrowserExtensionTitle' | i18n"
           [subtitle]="'onboardingInstallExtensionSubtitle' | i18n"
           [ctaText]="'onboardingInstallExtensionCta' | i18n"
-          ctaIcon="bwi-browser"
+          ctaIcon="bwi-puzzle"
           [completed]="installExtension"
         ></app-onboarding-task>
       </app-onboarding>
