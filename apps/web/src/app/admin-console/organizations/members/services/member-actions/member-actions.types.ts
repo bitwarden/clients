@@ -8,13 +8,15 @@ export const REQUESTS_PER_BATCH = 500;
  * or
  * {@link MemberActionFailure}.
  * Use the "===" operator for narrowing.
+ * ex: result.success === false
  */
 export type MemberActionResult = MemberActionSuccess | MemberActionFailure;
 
-interface MemberActionSuccess {
+export interface MemberActionSuccess {
   success: true;
 }
-interface MemberActionFailure {
+
+export interface MemberActionFailure {
   success: false;
   error: string;
 }

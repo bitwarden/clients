@@ -458,7 +458,7 @@ export class EditMemberDialogComponent {
       organization,
       this.params.organizationUserId,
     );
-    if (!result.success) {
+    if (result.success === false) {
       throw new Error(result.error);
     }
 
@@ -476,7 +476,7 @@ export class EditMemberDialogComponent {
       organization,
       this.params.organizationUserId,
     );
-    if (!result.success) {
+    if (result.success === false) {
       throw new Error(result.error);
     }
 
@@ -509,22 +509,22 @@ export class EditMemberDialogComponent {
       if (!confirmed) {
         return false;
       }
-    }
 
-    const organization = await firstValueFrom(this.organization$);
-    const result = await this.memberActionsService.removeUser(
-      organization,
-      this.params.organizationUserId,
-    );
-    if (!result.success) {
-      throw new Error(result.error);
-    }
+      const organization = await firstValueFrom(this.organization$);
+      const result = await this.memberActionsService.removeUser(
+        organization,
+        this.params.organizationUserId,
+      );
+      if (result.success === false) {
+        throw new Error(result.error);
+      }
 
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("removedUserId", this.params.name),
-    });
-    this.close(MemberDialogResult.Deleted);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("removedUserId", this.params.name),
+      });
+      this.close(MemberDialogResult.Deleted);
+    }
   };
 
   readonly delete = async () => {
@@ -570,7 +570,7 @@ export class EditMemberDialogComponent {
       organization,
       this.params.organizationUserId,
     );
-    if (!result.success) {
+    if (result.success === false) {
       throw new Error(result.error);
     }
 
