@@ -329,6 +329,11 @@ describe("TabGroupComponent — keyboard navigation", () => {
 
     fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
+    // Flush the overflow list's post-render measurement microtask, then run CD
+    // again so the More button's `hidden` property is set and skipPredicate
+    // excludes it from the focus key manager — matching production timing.
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     dispatchKey = (key: string, keyCode: number) => {
       const event = new KeyboardEvent("keydown", { key, keyCode, bubbles: true });

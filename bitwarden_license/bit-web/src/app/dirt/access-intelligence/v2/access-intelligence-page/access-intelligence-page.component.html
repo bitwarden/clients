@@ -104,4 +104,12 @@
       </div>
     }
   }
+
+  @if (isDevMode() || adoptionUxImprovementsEnabled()) {
+    <dirt-dev-menu
+      (beginPostImportTour)="beginPostImportTour()"
+      (beginNewAdminWelcomeTour)="beginNewAdminWelcomeTour()"
+      (importData)="goToImportPage()"
+    ></dirt-dev-menu>
+  }
 </ng-container>

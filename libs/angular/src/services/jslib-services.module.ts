@@ -428,6 +428,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { AccountDeletionService } from "../auth/account-deletion/account-deletion.service";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
@@ -1173,6 +1174,7 @@ const safeProviders: SafeProvider[] = [
       InternalPolicyService,
       InternalNewPolicyService,
       AutomaticUserConfirmationService,
+      BillingAccountProfileStateService,
     ],
   }),
   safeProvider({
@@ -1874,6 +1876,11 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: AccountDeletionService,
+    useClass: AccountDeletionService,
+    deps: [AccountServiceAbstraction, OrganizationServiceAbstraction, DialogService],
   }),
   safeProvider({
     provide: DeviceTrustToastServiceAbstraction,
