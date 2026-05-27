@@ -409,7 +409,10 @@ const routes: Routes = [
             key: "createAccount",
           },
           showBackButton: true,
-          adjustedLayout: true,
+          showPageIcon: false,
+          contentPadding: "compact",
+          heroAlignment: "left",
+          secondaryContentLocation: "footer",
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           {

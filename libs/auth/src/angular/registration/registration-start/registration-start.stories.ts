@@ -37,13 +37,7 @@ import {
 import { PreloadedEnglishI18nModule } from "../../../../../../apps/web/src/app/core/tests";
 import { LoginEmailService } from "../../../common";
 
-import { DefaultRegistrationStartComponentService } from "./default-registration-start-component.service";
-import { RegistrationStartComponentService } from "./registration-start-component.service";
 import { RegistrationStartComponent } from "./registration-start.component";
-
-class MockExtensionRegistrationStartComponentService extends DefaultRegistrationStartComponentService {
-  override adjustLayoutOnDataEntryScreen = true;
-}
 
 export default {
   title: "Auth/Registration/Registration Start",
@@ -126,13 +120,6 @@ const decorators = (options: {
           useValue: {
             registerSendVerificationEmail: () => Promise.resolve(null),
           } as Partial<AccountApiService>,
-        },
-        {
-          provide: RegistrationStartComponentService,
-          useClass:
-            options.clientType === ClientType.Browser
-              ? MockExtensionRegistrationStartComponentService
-              : DefaultRegistrationStartComponentService,
         },
       ],
     }),

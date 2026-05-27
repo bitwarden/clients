@@ -15,7 +15,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
@@ -27,8 +26,6 @@ import {
 
 import { LoginEmailService } from "../../../common";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
-
-import { RegistrationStartComponentService } from "./registration-start-component.service";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -103,7 +100,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginEmailService: LoginEmailService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-    private registrationStartComponentService: RegistrationStartComponentService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -174,13 +170,17 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
     // Result is null, so email verification is required
     this.state = RegistrationStartState.CHECK_EMAIL;
+    // CHECK_EMAIL overrides extension's route-level layout (compact/left/no-icon) with a
+    // centered hero so the icon and title read as a confirmation screen.
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: {
         key: "checkYourEmail",
       },
       pageIcon: RegistrationCheckEmailIcon,
-      adjustedLayout: false, // exists only on ExtensionAnonLayoutWrapperData. Partial cast allows this excess property.
-    } as Partial<AnonLayoutWrapperData>);
+      showPageIcon: true,
+      heroAlignment: "center",
+      contentPadding: "default",
+    });
     this.registrationStartStateChange.emit(this.state);
   };
 
@@ -204,15 +204,16 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.state = RegistrationStartState.USER_DATA_ENTRY;
+    // Restore the route-level layout (undoing the CHECK_EMAIL overrides), then layer the
+    // state-specific text and icon back on top. The layout suppresses the icon when the
+    // route declared showPageIcon: false (e.g., on the extension).
+    this.anonLayoutWrapperDataService.resetToRouteData();
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.registrationStartComponentService.showDataEntryPageIcon
-        ? RegistrationUserAddIcon
-        : null,
       pageTitle: {
         key: "createAccount",
       },
-      adjustedLayout: this.registrationStartComponentService.adjustLayoutOnDataEntryScreen, // exists only on ExtensionAnonLayoutWrapperData. Partial cast allows this excess property.
-    } as Partial<AnonLayoutWrapperData>);
+      pageIcon: RegistrationUserAddIcon,
+    });
     this.registrationStartStateChange.emit(this.state);
   }
 
