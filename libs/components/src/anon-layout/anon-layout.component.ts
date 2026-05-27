@@ -45,10 +45,27 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideFooter = input<boolean>(false);
   readonly hideCardWrapper = input<boolean>(false);
   readonly hideBackgroundIllustration = input<boolean>(false);
+
+  // Replaces `adjustedLayout` — each name reflects exactly one concept. See plan Step 1.
+  readonly showPageIcon = input<boolean>(true);
+  readonly contentPadding = input<"compact" | "default">("default");
+  readonly heroAlignment = input<"left" | "center">("center");
+  readonly secondaryContentLocation = input<"main" | "footer">("main");
+
+  // Migration shim: `adjustedLayout` stays in place until Step 10. The effective computeds
+  // below prefer `adjustedLayout` when set (legacy path) and otherwise resolve to the new
+  // input. Step 10 deletes both the shim and `adjustedLayout`.
   readonly adjustedLayout = input<boolean>(false);
 
+  protected readonly effectiveShowPageIcon = computed<boolean>(() =>
+    this.adjustedLayout() ? false : this.showPageIcon(),
+  );
+  protected readonly effectiveSecondaryContentLocation = computed<"main" | "footer">(() =>
+    this.adjustedLayout() ? "footer" : this.secondaryContentLocation(),
+  );
+
   protected readonly footerLayoutClasses = computed(() =>
-    this.adjustedLayout() ? "tw-grid tw-gap-6" : "",
+    this.effectiveSecondaryContentLocation() === "footer" ? "tw-grid tw-gap-6" : "",
   );
 
   /**

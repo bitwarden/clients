@@ -37,9 +37,23 @@ export class LandingHeroComponent {
   readonly icon = input<BitSvg | null>(null);
   readonly title = input<string | undefined>();
   readonly subtitle = input<string | undefined>();
+
+  /**
+   * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
+   *
+   * "left" produces a left-aligned hero (no `tw-mx-auto`, no `tw-text-center`).
+   */
+  readonly heroAlignment = input<"left" | "center">("center");
+
+  // Migration shim: see AnonLayoutComponent for context. Step 10 removes both the
+  // `adjustedLayout` input and the effective computed below.
   readonly adjustedLayout = input<boolean>(false);
 
+  protected readonly effectiveHeroAlignment = computed<"left" | "center">(() =>
+    this.adjustedLayout() ? "left" : this.heroAlignment(),
+  );
+
   protected readonly alignmentClasses = computed(() =>
-    this.adjustedLayout() ? "tw-text-left" : "tw-text-center tw-mx-auto",
+    this.effectiveHeroAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
   );
 }
