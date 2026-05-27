@@ -28,7 +28,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -90,10 +89,10 @@ export class SendReceiveCommand extends DownloadCommand {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
 
-    // Check if the URL origin matches any known production region's send domain
-    const matchingRegion = PRODUCTION_REGIONS.find(
-      (r) => r.urls.send != null && new URL(r.urls.send).origin === url.origin,
-    );
+    // Check if the URL origin matches any known region's send domain
+    const matchingRegion = this.environmentService
+      .availableRegions()
+      .find((r) => r.urls.send != null && r.urls.send === url.origin);
     if (matchingRegion != null) {
       return matchingRegion.urls.api;
     }
