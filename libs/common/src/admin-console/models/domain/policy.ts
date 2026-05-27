@@ -50,7 +50,7 @@ export class Policy extends Domain {
     const policy = new Policy();
     policy.id = uuidAsString(obj.id) as PolicyId;
     policy.organizationId = uuidAsString(obj.organizationId) as OrganizationId;
-    policy.type = obj.type as PolicyType;
+    policy.type = obj.type;
     policy.data = obj.data == null ? null : JSON.parse(obj.data);
     policy.enabled = obj.enabled;
     policy.revisionDate = obj.revisionDate == null ? undefined : new Date(obj.revisionDate);
@@ -61,7 +61,7 @@ export class Policy extends Domain {
     return {
       id: asUuid(this.id),
       organizationId: asUuid(this.organizationId),
-      type: this.type as number,
+      type: this.type,
       data: this.data == null ? undefined : JSON.stringify(this.data),
       enabled: this.enabled,
       revisionDate: this.revisionDate == null ? undefined : this.revisionDate.toISOString(),

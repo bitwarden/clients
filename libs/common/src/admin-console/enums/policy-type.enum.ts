@@ -21,5 +21,6 @@ export enum PolicyType {
   AutotypeDefaultSetting = 17, // Sets the default autotype setting for desktop app
   AutomaticUserConfirmation = 18, // Enables the auto confirmation feature for admins to enable in their client
   BlockClaimedDomainAccountCreation = 19, // Prevents users from creating personal accounts using email addresses from verified domains
+  OrganizationUserNotification = 20, // Create and launch a customized banner that all organization members will see after login
   SendControls = 21, // Supersedes DisableSend and SendOptions when pm-31885-send-controls flag is active
 }
