@@ -16,6 +16,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 import {
   MockAccessIntelligenceDataService,
@@ -42,7 +43,7 @@ export default {
         { provide: ToastService, useClass: MockToastService },
         { provide: AccessIntelligenceDataService, useClass: MockAccessIntelligenceDataService },
         {
-          provide: MockAccessIntelligenceCoachmarkService,
+          provide: AccessIntelligenceCoachmarkService,
           useClass: MockAccessIntelligenceCoachmarkService,
         },
       ],
@@ -100,7 +101,7 @@ export const Default: Story = {
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
           {
-            provide: MockAccessIntelligenceCoachmarkService,
+            provide: AccessIntelligenceCoachmarkService,
             useClass: MockAccessIntelligenceCoachmarkService,
           },
         ],
@@ -125,7 +126,7 @@ export const Loading: Story = {
         { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
         { provide: DialogService, useClass: MockDialogService },
         {
-          provide: MockAccessIntelligenceCoachmarkService,
+          provide: AccessIntelligenceCoachmarkService,
           useClass: MockAccessIntelligenceCoachmarkService,
         },
       ],
@@ -157,7 +158,7 @@ export const EmptyState: Story = {
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
           {
-            provide: MockAccessIntelligenceCoachmarkService,
+            provide: AccessIntelligenceCoachmarkService,
             useClass: MockAccessIntelligenceCoachmarkService,
           },
         ],
@@ -208,7 +209,7 @@ export const AllCaughtUp: Story = {
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
           {
-            provide: MockAccessIntelligenceCoachmarkService,
+            provide: AccessIntelligenceCoachmarkService,
             useClass: MockAccessIntelligenceCoachmarkService,
           },
         ],
@@ -263,7 +264,7 @@ export const NeedsReview: Story = {
           { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
           { provide: DialogService, useClass: MockDialogService },
           {
-            provide: MockAccessIntelligenceCoachmarkService,
+            provide: AccessIntelligenceCoachmarkService,
             useClass: MockAccessIntelligenceCoachmarkService,
           },
         ],
