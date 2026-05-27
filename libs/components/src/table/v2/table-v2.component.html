@@ -1,0 +1,73 @@
+<ng-template #header>
+  <thead
+    class="tw-border-0 tw-border-b-2 tw-border-solid tw-border-border-base tw-font-medium tw-text-muted"
+  >
+    <tr>
+      @for (col of effectiveColumns(); track col.name()) {
+        <th bitCell [style.width]="col.width()" [attr.aria-sort]="ariaSort(col)">
+          @if (col.sortable()) {
+            <button
+              type="button"
+              [ngClass]="sortButtonClasses"
+              [attr.aria-pressed]="dataSource()?.sort?.column === col.name()"
+              (click)="toggleSort(col)"
+            >
+              {{ col.header() }}
+              <i class="bwi tw-ms-2" [ngClass]="sortIcon(col)"></i>
+            </button>
+          } @else {
+            {{ col.header() }}
+          }
+        </th>
+      }
+    </tr>
+  </thead>
+</ng-template>
+
+<ng-template #cell let-row let-col="col">
+  @if (col.cellTemplate(); as tpl) {
+    <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }"></ng-container>
+  } @else {
+    {{ cellValue(row, col) }}
+  }
+</ng-template>
+
+@if (isVirtualized()) {
+  <cdk-virtual-scroll-viewport
+    bitScrollLayout
+    [itemSize]="rowSize()!"
+    [ngStyle]="{ paddingBottom: headerHeight + 'px' }"
+  >
+    <table [ngClass]="tableClass()">
+      <ng-container *ngTemplateOutlet="header"></ng-container>
+      <tbody>
+        <tr bitRow *cdkVirtualFor="let row of rows$; trackBy: trackBy(); templateCacheSize: 0">
+          @for (col of effectiveColumns(); track col.name()) {
+            <td bitCell [style.width]="col.width()">
+              <ng-container
+                *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
+              ></ng-container>
+            </td>
+          }
+        </tr>
+      </tbody>
+    </table>
+  </cdk-virtual-scroll-viewport>
+} @else {
+  <table [ngClass]="tableClass()">
+    <ng-container *ngTemplateOutlet="header"></ng-container>
+    <tbody>
+      @for (row of (rows$ | async) ?? []; track row) {
+        <tr bitRow>
+          @for (col of effectiveColumns(); track col.name()) {
+            <td bitCell [style.width]="col.width()">
+              <ng-container
+                *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
+              ></ng-container>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+}
