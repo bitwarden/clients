@@ -4364,6 +4364,58 @@
   "sshActionGitSign": {
     "message": "sign a git commit"
   },
+  "sshRequestProseHostWithUser": {
+    "message": "$APP$ is requesting $CIPHER$ to authenticate to $TARGET$.",
+    "placeholders": {
+      "app": { "content": "$1", "example": "Visual Studio Code" },
+      "cipher": { "content": "$2", "example": "Personal GitHub Key" },
+      "target": { "content": "$3", "example": "git@github.com" }
+    }
+  },
+  "sshRequestProseHostOnly": {
+    "message": "$APP$ is requesting $CIPHER$ to connect to $TARGET$.",
+    "placeholders": {
+      "app": { "content": "$1" },
+      "cipher": { "content": "$2" },
+      "target": { "content": "$3" }
+    }
+  },
+  "sshRequestProseRunBy": {
+    "message": "$APP$ (run by $PARENT$)",
+    "placeholders": {
+      "app": { "content": "$1" },
+      "parent": { "content": "$2" }
+    }
+  },
+  "trustVerified": { "message": "Verified" },
+  "trustUnverified": { "message": "Unverified" },
+  "trustTooltipKnownHosts": {
+    "message": "Matched against your known_hosts file."
+  },
+  "trustTooltipArgv": {
+    "message": "Derived from the requesting process — the process can claim any host."
+  },
+  "sshApprovalAdvanced": { "message": "Show advanced details" },
+  "sshApprovalAdvancedApplication": { "message": "Application" },
+  "sshApprovalAdvancedConnection": { "message": "Connection" },
+  "sshApprovalAdvancedRawCommandLine": { "message": "Raw command line" },
+  "sshApprovalAdvancedExecutablePath": { "message": "Executable" },
+  "sshApprovalAdvancedParentChain": { "message": "Process chain" },
+  "sshApprovalAdvancedFingerprint": { "message": "Host key fingerprint" },
+  "sshApprovalAdvancedKnownHostsMatch": {
+    "message": "Matched a known_hosts entry."
+  },
+  "sshApprovalAdvancedKnownHostsNoMatch": {
+    "message": "No known_hosts match for this host key."
+  },
+  "sshApprovalAdvancedHostnameUnverified": {
+    "message": "Reported hostname (unverified): $HOST$",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "sshApprovalAdvancedArgvUntrustedWarning": {
+    "message": "Provided by the requesting process; not verified."
+  },
+  "sshApprovalAdvancedPid": { "message": "PID" },
   "unknownApplication": {
     "message": "An application"
   },
