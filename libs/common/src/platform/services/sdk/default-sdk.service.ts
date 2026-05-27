@@ -30,6 +30,7 @@ import {
   UnsignedSharedKey,
   WrappedAccountCryptographicState,
   Kdf,
+  GlobalPasswordManagerClient,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -76,6 +77,7 @@ class JsTokenProvider implements TokenProvider {
 }
 
 export class DefaultSdkService implements SdkService {
+  private _globalClient?: GlobalPasswordManagerClient;
   private sdkClientOverrides = new BehaviorSubject<{
     [userId: UserId]: Rc<PasswordManagerClient> | typeof UnsetClient;
   }>({});
@@ -113,6 +115,15 @@ export class DefaultSdkService implements SdkService {
     private configService: ConfigService,
     private userAgent: string | null = null,
   ) {}
+
+  async globalClient(): Promise<GlobalPasswordManagerClient> {
+    if (!this._globalClient) {
+      await SdkLoadService.Ready;
+      this._globalClient = new GlobalPasswordManagerClient();
+    }
+
+    return this._globalClient;
+  }
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
