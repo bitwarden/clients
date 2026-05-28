@@ -225,10 +225,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     }
 
     const formattedPrice = formatCurrency(scheduledSubscription.price, this.locale, "$", "USD");
-    const formattedDate = this.datePipe.transform(
-      scheduledSubscription.effectiveDate,
-      "mediumDate",
-    );
+    const formattedDate = this.datePipe.transform(scheduledSubscription.effectiveDate, "longDate");
 
     const key = this.sub.plan.isAnnual
       ? "subscriptionPriceIncreaseAnnually"
