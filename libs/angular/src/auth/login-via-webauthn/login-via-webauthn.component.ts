@@ -163,13 +163,13 @@ export class LoginViaWebAuthnComponent implements OnInit {
 
   private setDefaultIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon, // layout decides whether to render it
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon, // layout decides whether to render it via showPageIcon
     });
   }
 
   private setFailureIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon, // layout decides whether to render it
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon, // layout decides whether to render it via showPageIcon
     });
   }
 }
