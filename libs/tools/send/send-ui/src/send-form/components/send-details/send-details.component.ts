@@ -246,7 +246,7 @@ export class SendDetailsComponent implements OnInit {
           passwordControl.clearValidators();
           emailsControl.setValidators([
             Validators.required,
-            Validators.maxLength(2500),
+            this.emailsMaxLengthValidator(),
             this.emailListValidator(),
           ]);
         } else {
@@ -353,6 +353,19 @@ export class SendDetailsComponent implements OnInit {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidEmails = nonEmptyEmails.filter((e: string) => !emailRegex.test(e));
       return invalidEmails.length > 0 ? { multipleEmails: true } : null;
+    };
+  }
+
+  emailsMaxLengthValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      if (typeof control.value !== "string" || control.value.length < 2500) {
+        return null;
+      }
+      return {
+        emailsMaxLength: {
+          message: this.i18nService.t("sendEmailsCharacterLimitReached"),
+        },
+      };
     };
   }
 
