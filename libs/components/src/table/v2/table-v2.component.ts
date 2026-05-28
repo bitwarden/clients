@@ -41,9 +41,15 @@ import { BitColumnComponent } from "./bit-column.component";
     RowDirective,
   ],
 })
-export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit, AfterViewInit {
-  /** Data source for the table. Sort state is read from / written to this source. */
-  readonly dataSource = input<TableDataSource<any>>();
+export class BitTableV2Component<T = unknown>
+  implements OnInit, OnDestroy, AfterContentInit, AfterViewInit
+{
+  /**
+   * Data source for the table. Sort state is read from / written to this
+   * source. The row type `T` is inferred from this binding and threads
+   * through {@link selection}, {@link trackBy}, and other typed surfaces.
+   */
+  readonly dataSource = input<TableDataSource<T>>();
 
   /**
    * Order and visibility of columns, by `name`. Columns whose names aren't
@@ -66,14 +72,14 @@ export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit,
   readonly rowSize = input<number>();
 
   /** Optional trackBy for the virtualized row list. */
-  readonly trackBy = input<TrackByFunction<unknown>>();
+  readonly trackBy = input<TrackByFunction<T>>();
 
   /**
    * Selection model. When provided, the table prepends a checkbox column
    * with a select-all header. Select-all targets the currently filtered
    * rows (per `dataSource.filteredData`), matching CDK conventions.
    */
-  readonly selection = input<SelectionModel<any>>();
+  readonly selection = input<SelectionModel<T>>();
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
 
@@ -127,7 +133,7 @@ export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit,
     "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
   ];
 
-  protected rows$: Observable<any[]> = of([]);
+  protected rows$: Observable<T[]> = of<T[]>([]);
 
   /** Height of the thead element (px); used to pad the virtual scroll viewport. */
   protected headerHeight = 0;
@@ -201,11 +207,11 @@ export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit,
     return sort.direction === "asc" ? "bwi-up-solid" : "bwi-down-solid";
   }
 
-  protected cellValue(row: any, col: BitColumnComponent): unknown {
-    return row?.[col.name()];
+  protected cellValue(row: T, col: BitColumnComponent): unknown {
+    return (row as Record<string, unknown> | null | undefined)?.[col.name()];
   }
 
-  protected selectableRows(): any[] {
+  protected selectableRows(): T[] {
     return this.dataSource()?.filteredData ?? this.dataSource()?.data ?? [];
   }
 
