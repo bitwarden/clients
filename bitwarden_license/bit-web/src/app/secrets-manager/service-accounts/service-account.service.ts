@@ -172,20 +172,22 @@ export class ServiceAccountService {
     serviceAccountView.organizationId = serviceAccountResponse.organizationId;
     serviceAccountView.creationDate = serviceAccountResponse.creationDate;
     serviceAccountView.revisionDate = serviceAccountResponse.revisionDate;
+
     if (serviceAccountResponse.name) {
       try {
-        const encString = new EncString(serviceAccountResponse.name);
-        serviceAccountView.name = await this.encryptService.decryptString(
-          encString,
+        const name = await this.decryptField(
+          new EncString(serviceAccountResponse.name),
           organizationKey,
         );
       } catch (error) {
         this.logService.error("Error decrypting service account name", error);
-        serviceAccountView.name = DECRYPT_ERROR;
+        serviceAccountView.name = name.value;
+        serviceAccountView.decryptionError = name.error;
       }
     } else {
       serviceAccountView.name = null;
     }
+      
     return serviceAccountView;
   }
 
@@ -199,17 +201,21 @@ export class ServiceAccountService {
     view.creationDate = response.creationDate;
     view.revisionDate = response.revisionDate;
     view.accessToSecrets = response.accessToSecrets;
+
     if (response.name) {
       try {
-        const encString = new EncString(response.name);
-        view.name = await this.encryptService.decryptString(encString, organizationKey);
+        const name = await this.decryptField(new EncString(response.name), organizationKey);
+        view.name = name.value;
+        view.decryptionError = name.error;
       } catch (error) {
-        this.logService.error("Error decrypting service account name", error);
-        view.name = DECRYPT_ERROR;
+         this.logService.error("Error decrypting service account name", error);
+         view.name = DECRYPT_ERROR;
+         view.decryptionError = view.error;
       }
     } else {
       view.name = null;
     }
+
     return view;
   }
 
@@ -223,5 +229,18 @@ export class ServiceAccountService {
         return await this.createServiceAccountSecretsDetailsView(orgKey, s);
       }),
     );
+  }
+
+  private async decryptField(
+    encString: EncString,
+    organizationKey: SymmetricCryptoKey,
+  ): Promise<{ value: string; error: boolean }> {
+    try {
+      const decrypted = await this.encryptService.decryptString(encString, organizationKey);
+      return { value: decrypted, error: false };
+    } catch (error) {
+      this.logService.error("Error decrypting service account field", error);
+      return { value: DECRYPT_ERROR, error: true };
+    }
   }
 }

@@ -165,7 +165,16 @@
     "message": "Sozialversicherungsnummer kopieren"
   },
   "copyPassportNumber": {
-    "message": "Passnummer kopieren"
+    "message": "Reisepassnummer kopieren"
+  },
+  "copyFirstName": {
+    "message": "Vornamen kopieren"
+  },
+  "copyMiddleName": {
+    "message": "Zweiten Vornamen kopieren"
+  },
+  "copyLastName": {
+    "message": "Nachnamen kopieren"
   },
   "copyLicenseNumber": {
     "message": "Lizenznummer kopieren"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Erweiterung bewerten"
+  },
+  "troubleshooting": {
+    "message": "Problembehandlung"
+  },
+  "experiencingAnIssue": {
+    "message": "Hast du ein Problem?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Lade den Diagnosebericht herunter und sende ihn an den"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden Support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Herunterladen"
   },
   "browserNotSupportClipboard": {
     "message": "Den Browser unterstützt das einfache Kopieren nicht. Bitte kopiere es manuell."
@@ -1801,25 +1826,25 @@
     "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Stelle sicher, dass dies eine vertrauenswürdige Website ist, bevor du deine Zugangsdaten eingibst."
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "Keine Website für diese Zugangsdaten gespeichert"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "Website stimmt nicht überein"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "Für diese Zugangsdaten ist noch keine Website gespeichert. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Diese Website stimmt nicht mit der Website überein, die du für diese Zugangsdaten gespeichert hast. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Diese Website stimmt nicht mit den Websites überein, die du für diese Zugangsdaten gespeichert hast. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Auto-Ausfüllen und diese Website speichern"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Nur Auto-Ausfüllen"
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -2132,8 +2157,14 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "bankAccount": {
+    "message": "Bankkonto"
+  },
   "typeNote": {
     "message": "Notiz"
+  },
+  "typeBankAccount": {
+    "message": "Bankkonto"
   },
   "typeLoginSubtitle": {
     "message": "Website oder App"
@@ -2156,6 +2187,57 @@
   "collectionSubtitle": {
     "message": "Geteilte Einträge organisieren"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdaten"
+  },
+  "typeDriversLicense": {
+    "message": "Führerschein"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Führerschein oder Personalausweis"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "Neue Zugangsdaten",
     "description": "Header for new login item type"
@@ -2176,12 +2258,24 @@
     "message": "Neuer SSH-Schlüssel",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Neues Text-Send",
+  "newItemHeaderBankAccount": {
+    "message": "Neues Bankkonto",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Neuer Führerschein",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Neuer Reisepass",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Neuer Text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Neues Datei-Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Neue Datei",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2298,24 @@
     "message": "SSH-Schlüssel bearbeiten",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Text-Send bearbeiten",
+  "editItemHeaderBankAccount": {
+    "message": "Bankkonto bearbeiten",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Führerschein bearbeiten",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Reisepass bearbeiten",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Text bearbeiten",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Datei-Send bearbeiten",
+  "editItemHeaderFileSendV2": {
+    "message": "Datei bearbeiten",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2337,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH-Schlüssel anzeigen",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankkonto anzeigen",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Führerschein anzeigen",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Reisepass anzeigen",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Wähle einen Eintrag zum Hinzufügen aus"
@@ -3415,33 +3533,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Persönlicher Tresor wird exportiert"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Tresor der Organisation wird exportiert"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Nur der mit $ORGANIZATION$ verbundene Organisationstresor wird exportiert. Einträge in persönlichen Tresoren oder anderen Organisationen werden nicht berücksichtigt.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Nur Einträge in deinem persönlichen Tresor werden exportiert."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Nur Einträge, die mit dem $ORGANIZATION$ Tresor verknüpft sind, werden exportiert. Einträge in persönlichen Tresoren werden nicht exportiert.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4498,6 +4601,9 @@
   "chooseFile": {
     "message": "Datei auswählen"
   },
+  "chooseFileSentenceCase": {
+    "message": "Datei auswählen"
+  },
   "noFileChosen": {
     "message": "Keine Datei ausgewählt"
   },
@@ -4528,6 +4634,18 @@
   },
   "exportError": {
     "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschädigter Anhang wurde beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschädigte Anhänge wurden beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6305,21 +6423,139 @@
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
+  "enterMonth": {
+    "message": "Monat eingeben."
+  },
+  "enterDay": {
+    "message": "Tag eingeben."
+  },
+  "enterYear": {
+    "message": "Jahr eingeben."
+  },
+  "invalidDay": {
+    "message": "Gib einen gültigen Tag ein."
+  },
+  "invalidYear": {
+    "message": "Gib ein gültiges Jahr ein."
+  },
+  "searchDriversLicense": {
+    "message": "Führerscheine suchen"
+  },
+  "bankName": {
+    "message": "Bankname"
+  },
+  "nameOnAccount": {
+    "message": "Name des Kontoinhabers"
+  },
+  "bankAccountType": {
+    "message": "Kontoart"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Unternehmen (Firma)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Einzelperson (privat)"
+  },
+  "accountNumber": {
+    "message": "Kontonummer"
+  },
+  "bankRoutingNumber": {
+    "message": "Bankleitzahl",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial-/Institutionsnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-Code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefonnummer der Bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankkonto suchen"
+  },
+  "copyAccountNumber": {
+    "message": "Kontonummer kopieren"
+  },
+  "copyRoutingNumber": {
+    "message": "Bankleitzahl kopieren"
+  },
+  "copyPin": {
+    "message": "PIN kopieren"
+  },
+  "copyIban": {
+    "message": "IBAN kopieren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Wird überprüft"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ersparnisse"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Einlagenzertifikat"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kreditrahmen"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Anlage/Wertpapierhandel"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Finanzmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Sonstige"
+  },
   "downloadFailed": {
     "message": "Download fehlgeschlagen."
   },
+  "maxAccessCount": {
+    "message": "Maximale Zugriffsanzahl",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
+  },
+  "viewTextSendHeader": {
+    "message": "Text anzeigen"
+  },
+  "viewFileSendHeader": {
+    "message": "Datei anzeigen"
+  },
+  "sendCreated": {
+    "message": "Send erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Die Eingabe muss eine Zahl sein"
+  },
+  "integerInputError": {
+    "message": "Die Eingabe muss eine ganze Zahl sein"
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Seitennavigation"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Link überspringen"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Meldung",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Speichern der Send-Änderungen fehlgeschlagen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
   }
 }
