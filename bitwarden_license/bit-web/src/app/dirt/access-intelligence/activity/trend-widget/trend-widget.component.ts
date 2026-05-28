@@ -224,6 +224,9 @@ export class TrendWidgetComponent {
     }
     const oldest = new Date(oldestMs);
     const newest = new Date(newestMs);
+    // Calendar-boundary count (not elapsed time): a Jan 31 → Apr 1 span counts as 3
+    // because it crosses 3 month boundaries. Matches the adaptive-label design rule
+    // (label day / month / year based on which calendar units the data spans).
     const monthsSpan =
       (newest.getFullYear() - oldest.getFullYear()) * 12 + (newest.getMonth() - oldest.getMonth());
 
@@ -295,6 +298,8 @@ export class TrendWidgetComponent {
     switch (timespan) {
       case TimePeriod.PastMonth:
         return { timeUnit: "day", timeDisplayFormat: "MMM d", timeStepSize: 6 };
+      // Past 3 / 6 Months: render every month boundary (4 / 7 ticks). PastYear
+      // would crowd at 13 boundaries so it thins via timeStepSize: 2 below.
       case TimePeriod.Past3Months:
       case TimePeriod.Past6Months:
         return { timeUnit: "month", timeDisplayFormat: "MMM yyyy", autoSkip: false };
