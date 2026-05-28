@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 
-import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import {
-  ButtonModule,
   FileUploadComponent,
   FormFieldModule,
   SectionComponent,
@@ -18,7 +16,8 @@ import { SendFormService } from "../../abstractions/send-form.service";
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
   imports: [
-    ButtonModule,
+    FileUploadComponent,
+    FormFieldModule,
     I18nPipe,
     ReactiveFormsModule,
     SectionComponent,
@@ -33,37 +32,23 @@ export class SendFileDetailsComponent implements OnInit {
   protected readonly editing = input<boolean>();
 
   readonly sendFileDetailsForm = this.formBuilder.group({
-    file: this.formBuilder.control<SendFileView | null>(null, Validators.required),
+    file: this.formBuilder.control<File | null>(null, Validators.required),
   });
-
-  readonly fileName = signal("");
 
   constructor() {
     this.sendFormService.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
 
     this.sendFileDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormService.patchSend((send) => {
-        return Object.assign(send, {
-          file: value.file,
-        });
-      });
+      if (value.file) {
+        this.sendFormService.setFile(value.file);
+      }
     });
   }
 
-  onFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) {
-      return;
-    }
-    this.fileName.set(file.name);
-    this.sendFormService.setFile(file);
-  }
-
   ngOnInit() {
-    if (this.sendFormService.originalSendView()) {
-      this.sendFileDetailsForm.patchValue({
-        file: this.sendFormService.originalSendView()?.file,
-      });
+    // Edit mode hides the file input; disable so the required validator doesn't block save.
+    if (this.sendFormService.sendFormConfig?.mode === "edit") {
+      this.sendFileDetailsForm.controls.file.disable();
     }
 
     if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {
