@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -41,56 +41,25 @@ const mockToastService = {
   showToast: () => {},
 };
 
+const mockInviteLinkUrl =
+  "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
+
 type StoryArgs = {
-  /** Whether an existing invite link has been generated for this organization. */
-  hasExistingLink: boolean;
-  /** Comma-separated allowed domains pre-filled in the input (only used when hasExistingLink is true). */
-  allowedDomains: string;
-  /** The invite link URL shown in the read-only input (only used when hasExistingLink is true). */
-  inviteLinkUrl: string;
-  /** ISO 8601 date string for when the link was last generated. */
-  creationDate: string;
   /** Comma-separated verified domains to pre-fill when no link exists yet. */
   verifiedDomains: string;
 };
 
 export default {
-  title: "Web/Organizations/Members/Invite Members Dialog/By Link Tab",
+  title: "Admin Console/Organizations/Members/Invite Members Dialog/By Link Tab",
   component: ByLinkTabComponent,
   args: {
-    hasExistingLink: false,
-    allowedDomains: "example.com, acme.org",
-    inviteLinkUrl:
-      "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp",
-    creationDate: "2025-01-15T10:30:00Z",
     verifiedDomains: "",
   },
   argTypes: {
-    hasExistingLink: {
-      control: "boolean",
-      description: "Toggles between the 'no link yet' callout state and the generated link view.",
-    },
-    allowedDomains: {
-      control: "text",
-      description:
-        "Comma-separated allowed domains pre-filled in the input (applies when hasExistingLink is true).",
-      if: { arg: "hasExistingLink" },
-    },
-    inviteLinkUrl: {
-      control: "text",
-      description: "The invite link URL shown in the read-only input.",
-      if: { arg: "hasExistingLink" },
-    },
-    creationDate: {
-      control: "text",
-      description: "ISO 8601 date string shown in the 'Last generated' hint.",
-      if: { arg: "hasExistingLink" },
-    },
     verifiedDomains: {
       control: "text",
       description:
         "Comma-separated verified org domains that auto-fill the input when no link exists yet.",
-      if: { arg: "hasExistingLink", truthy: false },
     },
   },
   decorators: [
@@ -110,64 +79,74 @@ export default {
 
 type Story = StoryObj<StoryArgs>;
 
-const render: Story["render"] = (args) => {
-  const inviteLink = args.hasExistingLink
-    ? Object.assign(new OrganizationInviteLink({} as any), {
-        ...mockInviteLink,
-        allowedDomains: args.allowedDomains.split(",").map((d) => d.trim()),
-        creationDate: args.creationDate,
-      })
-    : undefined;
+const makeRender =
+  (initialLink: OrganizationInviteLink | undefined): Story["render"] =>
+  (args) => {
+    const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
 
-  const verifiedDomainNames = args.verifiedDomains
-    ? args.verifiedDomains
-        .split(",")
-        .map((d) => d.trim())
-        .filter(Boolean)
-    : [];
+    const verifiedDomainNames = args.verifiedDomains
+      ? args.verifiedDomains
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean)
+      : [];
 
-  return {
-    moduleMetadata: {
-      providers: [
-        {
-          provide: OrgDomainApiServiceAbstraction,
-          useValue: {
-            getAllByOrgId: () =>
-              Promise.resolve(
-                verifiedDomainNames.map((name, i) => ({
-                  id: `domain-${i}`,
-                  domainName: name,
-                  verifiedDate: "2025-01-01T00:00:00Z",
-                })),
-              ),
+    const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) => {
+      const current = inviteLink$.getValue();
+      inviteLink$.next(
+        Object.assign(new OrganizationInviteLink({} as any), {
+          ...mockInviteLink,
+          allowedDomains: domains,
+          creationDate: current?.creationDate ?? new Date().toISOString(),
+        }),
+      );
+      return Promise.resolve();
+    };
+
+    return {
+      moduleMetadata: {
+        providers: [
+          {
+            provide: OrgDomainApiServiceAbstraction,
+            useValue: {
+              getAllByOrgId: () =>
+                Promise.resolve(
+                  verifiedDomainNames.map((name, i) => ({
+                    id: `domain-${i}`,
+                    domainName: name,
+                    verifiedDate: "2025-01-01T00:00:00Z",
+                  })),
+                ),
+            },
           },
-        },
-        {
-          provide: OrganizationInviteLinkService,
-          useValue: {
-            inviteLink$: () => of(inviteLink),
-            reconstructUrl: () => of(args.hasExistingLink ? args.inviteLinkUrl : ""),
-            createInviteLink: () => Promise.resolve(),
-            updateInviteLink: () => Promise.resolve(),
-            refreshInviteLink: () => Promise.resolve(),
-            delete: () => Promise.resolve(),
+          {
+            provide: OrganizationInviteLinkService,
+            useValue: {
+              inviteLink$: () => inviteLink$.asObservable(),
+              reconstructUrl: () => of(mockInviteLinkUrl),
+              createInviteLink: upsertLink,
+              updateInviteLink: upsertLink,
+              refreshInviteLink: () => Promise.resolve(),
+              delete: () => {
+                inviteLink$.next(undefined);
+                return Promise.resolve();
+              },
+            },
           },
-        },
-      ],
-    },
-    template: `<app-by-link-tab organizationId="org-1"></app-by-link-tab>`,
+        ],
+      },
+      template: `<app-by-link-tab organizationId="org-1"></app-by-link-tab>`,
+    };
   };
-};
 
 /**
  * Fresh state — callout prompts user to enter domains before generating a link.
  */
 export const NoLinkYet: Story = {
   args: {
-    hasExistingLink: false,
     verifiedDomains: "",
   },
-  render,
+  render: makeRender(undefined),
 };
 
 /**
@@ -175,18 +154,15 @@ export const NoLinkYet: Story = {
  */
 export const NoLinkWithVerifiedDomains: Story = {
   args: {
-    hasExistingLink: false,
     verifiedDomains: "example.com, acme.org",
   },
-  render,
+  render: makeRender(undefined),
 };
 
 /**
  * Link is generated — shows URL in disabled input with refresh + copy icon buttons and creation date hint.
  */
 export const LinkExists: Story = {
-  args: {
-    hasExistingLink: true,
-  },
-  render,
+  args: {},
+  render: makeRender(mockInviteLink),
 };
