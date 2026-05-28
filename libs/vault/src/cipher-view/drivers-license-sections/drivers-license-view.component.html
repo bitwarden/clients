@@ -12,9 +12,8 @@
           bitSuffix
           type="button"
           [label]="'copyFirstName' | i18n"
-          [appCopyClick]="driversLicense().firstName"
-          showToast
-          [valueLabel]="'firstName' | i18n"
+          appCopyField="firstNameLicense"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }
@@ -28,9 +27,8 @@
           bitSuffix
           type="button"
           [label]="'copyMiddleName' | i18n"
-          [appCopyClick]="driversLicense().middleName"
-          showToast
-          [valueLabel]="'middleName' | i18n"
+          appCopyField="middleNameLicense"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }
@@ -44,9 +42,8 @@
           bitSuffix
           type="button"
           [label]="'copyLastName' | i18n"
-          [appCopyClick]="driversLicense().lastName"
-          showToast
-          [valueLabel]="'lastName' | i18n"
+          appCopyField="lastNameLicense"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }

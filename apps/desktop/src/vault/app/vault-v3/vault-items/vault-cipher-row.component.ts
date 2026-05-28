@@ -221,10 +221,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         return [{ field: "secureNote", title: "copyNote" }];
       case CipherType.BankAccount:
         return [
+          { field: "nameOnAccount", title: "copyNameOnAccount" },
           { field: "accountNumber", title: "copyAccountNumber" },
           { field: "routingNumber", title: "copyRoutingNumber" },
+          { field: "branchNumber", title: "copyBranchNumber" },
           { field: "pin", title: "copyPin" },
           { field: "iban", title: "copyIban" },
+          { field: "swiftCode", title: "copySwiftCode" },
         ];
       case CipherType.Passport:
         return [
@@ -238,9 +241,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         ];
       case CipherType.DriversLicense:
         return [
-          { field: "firstName", title: "copyFirstName" },
-          { field: "middleName", title: "copyMiddleName" },
-          { field: "lastName", title: "copyLastName" },
+          { field: "firstNameLicense", title: "copyFirstName" },
+          { field: "middleNameLicense", title: "copyMiddleName" },
+          { field: "lastNameLicense", title: "copyLastName" },
           { field: "licenseNumber", title: "copyLicenseNumber" },
         ];
       default:

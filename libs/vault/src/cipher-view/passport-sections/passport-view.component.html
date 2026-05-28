@@ -18,9 +18,8 @@
           bitSuffix
           type="button"
           [label]="'copyFirstName' | i18n"
-          [appCopyClick]="passport().givenName"
-          showToast
-          [valueLabel]="'firstName' | i18n"
+          appCopyField="givenName"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }
@@ -40,9 +39,8 @@
           bitSuffix
           type="button"
           [label]="'copyLastName' | i18n"
-          [appCopyClick]="passport().surname"
-          showToast
-          [valueLabel]="'lastName' | i18n"
+          appCopyField="surname"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }

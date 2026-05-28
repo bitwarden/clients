@@ -6591,6 +6591,15 @@
   "copyIban": {
     "message": "Copy IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "bankAccountTypeChecking": {
     "message": "Checking"
   },
