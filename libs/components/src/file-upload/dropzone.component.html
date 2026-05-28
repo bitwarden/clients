@@ -25,13 +25,15 @@
     >
       {{ "clickToUploadOrDragAndDrop" | i18n }}
     </span>
-    <span
-      class="tw-text-xs"
-      [class.tw-text-fg-body-subtle]="!disabled()"
-      [class.tw-text-fg-inactive]="disabled()"
-    >
-      {{ "maxFileSizeParam" | i18n: maxFileSize() }}
-    </span>
+    @if (maxFileSize() != null) {
+      <span
+        class="tw-text-xs"
+        [class.tw-text-fg-body-subtle]="!disabled()"
+        [class.tw-text-fg-inactive]="disabled()"
+      >
+        {{ "maxFileSizeParam" | i18n: maxFileSize() }}
+      </span>
+    }
   </div>
 
   <button

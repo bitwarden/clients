@@ -27,8 +27,8 @@ export class DropzoneComponent {
   /** Accepted file types (e.g. ".png,.jpg,.svg") */
   readonly accept = input("");
 
-  /** Maximum file size in MB */
-  readonly maxFileSize = input.required<number>();
+  /** Maximum file size in MB. When omitted, the size hint is hidden. */
+  readonly maxFileSize = input<number | undefined>(undefined);
 
   /** Allow multiple file selection */
   readonly multiple = input(false, { transform: booleanAttribute });
