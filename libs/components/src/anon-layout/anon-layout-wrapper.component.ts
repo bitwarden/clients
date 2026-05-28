@@ -7,10 +7,14 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
-import { LandingContentMaxWidthType } from "../landing-layout";
+import {
+  ContentPaddingType,
+  HeroAlignmentType,
+  LandingContentMaxWidthType,
+} from "../landing-layout";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent } from "./anon-layout.component";
+import { AnonLayoutComponent, SecondaryContentLocationType } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
   /**
    * The optional title of the page.
@@ -42,18 +46,18 @@ export interface AnonLayoutWrapperData {
    *
    * "compact" reduces the top padding so more content fits. Use in scenarios where vertical space is at a premium.
    */
-  contentPadding?: "compact" | "default";
+  contentPadding?: ContentPaddingType;
   /**
    * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
    */
-  heroAlignment?: "left" | "center";
+  heroAlignment?: HeroAlignmentType;
   /**
    * Where to render content projected into the `[slot=secondary]` content slot. Defaults to "main".
    *
    * "main" places the secondary content beneath the main card.
    * "footer" places it inside the footer.
    */
-  secondaryContentLocation?: "main" | "footer";
+  secondaryContentLocation?: SecondaryContentLocationType;
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
@@ -89,9 +93,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
   protected showPageIcon?: boolean;
-  protected contentPadding?: "compact" | "default";
-  protected heroAlignment?: "left" | "center";
-  protected secondaryContentLocation?: "main" | "footer";
+  protected contentPadding?: ContentPaddingType;
+  protected heroAlignment?: HeroAlignmentType;
+  protected secondaryContentLocation?: SecondaryContentLocationType;
 
   constructor(
     private router: Router,

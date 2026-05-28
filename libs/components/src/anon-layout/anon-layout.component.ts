@@ -18,10 +18,16 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { LandingContentMaxWidthType } from "../landing-layout";
+import {
+  ContentPaddingType,
+  HeroAlignmentType,
+  LandingContentMaxWidthType,
+} from "../landing-layout";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
+
+export type SecondaryContentLocationType = "main" | "footer";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -47,9 +53,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideBackgroundIllustration = input<boolean>(false);
 
   readonly showPageIcon = input<boolean>(true);
-  readonly contentPadding = input<"compact" | "default">("default");
-  readonly heroAlignment = input<"left" | "center">("center");
-  readonly secondaryContentLocation = input<"main" | "footer">("main");
+  readonly contentPadding = input<ContentPaddingType>("default");
+  readonly heroAlignment = input<HeroAlignmentType>("center");
+  readonly secondaryContentLocation = input<SecondaryContentLocationType>("main");
 
   protected readonly footerLayoutClasses = computed(() =>
     this.secondaryContentLocation() === "footer" ? "tw-grid tw-gap-6" : "",

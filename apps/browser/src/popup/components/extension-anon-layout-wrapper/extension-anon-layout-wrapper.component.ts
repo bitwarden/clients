@@ -13,6 +13,9 @@ import {
   AnonLayoutComponent,
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
+  ContentPaddingType,
+  HeroAlignmentType,
+  SecondaryContentLocationType,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -61,9 +64,9 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
   protected showPageIcon?: boolean;
-  protected contentPadding?: "compact" | "default";
-  protected heroAlignment?: "left" | "center";
-  protected secondaryContentLocation?: "main" | "footer";
+  protected contentPadding?: ContentPaddingType;
+  protected heroAlignment?: HeroAlignmentType;
+  protected secondaryContentLocation?: SecondaryContentLocationType;
 
   protected theme: string;
   protected logo = BitwardenLogo;

@@ -4,6 +4,8 @@ export const LandingContentMaxWidth = ["md", "lg", "xl", "2xl", "3xl", "4xl"] as
 
 export type LandingContentMaxWidthType = (typeof LandingContentMaxWidth)[number];
 
+export type ContentPaddingType = "compact" | "default";
+
 /**
  * Main content container for landing pages with configurable max-width constraints.
  *
@@ -52,7 +54,7 @@ export class LandingContentComponent {
    *
    * "compact" reduces the top padding.
    */
-  readonly contentPadding = input<"compact" | "default">("default");
+  readonly contentPadding = input<ContentPaddingType>("default");
 
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
     md: "tw-max-w-md",

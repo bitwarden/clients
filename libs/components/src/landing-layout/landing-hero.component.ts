@@ -5,6 +5,8 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
+export type HeroAlignmentType = "left" | "center";
+
 /**
  * Hero section component for landing pages featuring an optional icon, title, and subtitle.
  *
@@ -41,7 +43,7 @@ export class LandingHeroComponent {
   /**
    * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
    */
-  readonly heroAlignment = input<"left" | "center">("center");
+  readonly heroAlignment = input<HeroAlignmentType>("center");
 
   protected readonly alignmentClasses = computed(() =>
     this.heroAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
