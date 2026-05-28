@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -12,7 +12,10 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
-import { OrganizationInviteLinkService } from "@bitwarden/organization-invite-link";
+import {
+  OrganizationInviteLink,
+  OrganizationInviteLinkService,
+} from "@bitwarden/organization-invite-link";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, UserAdminService } from "../../../core";
@@ -93,13 +96,49 @@ const mockCollectionAdminService = {
   collectionAdminViews$: () => of(mockCollections),
 };
 
-const mockInviteLinkServiceNoLink = {
-  inviteLink$: () => of(undefined),
-  reconstructUrl: () => of(undefined),
-  createInviteLink: () => Promise.resolve(),
-  updateInviteLink: () => Promise.resolve(),
-  refreshInviteLink: () => Promise.resolve(),
-};
+const mockInviteLinkUrl =
+  "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
+
+const mockInviteLink: OrganizationInviteLink = Object.assign(
+  new OrganizationInviteLink({} as any),
+  {
+    id: "link-1",
+    code: "abc123",
+    organizationId: "org-1",
+    allowedDomains: ["example.com", "acme.org"],
+    encryptedInviteKey: "enc-key",
+    encryptedOrgKey: undefined,
+    creationDate: "2025-01-15T10:30:00Z",
+  },
+);
+
+function makeMockInviteLinkService(initialLink: OrganizationInviteLink | undefined = undefined) {
+  const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
+
+  const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) => {
+    const current = inviteLink$.getValue();
+    inviteLink$.next(
+      Object.assign(new OrganizationInviteLink({} as any), {
+        ...mockInviteLink,
+        allowedDomains: domains,
+        creationDate: current?.creationDate ?? new Date().toISOString(),
+      }),
+    );
+    return Promise.resolve();
+  };
+
+  return {
+    inviteLink$: () => inviteLink$.asObservable(),
+    reconstructUrl: () => of(mockInviteLinkUrl),
+    createInviteLink: upsertLink,
+    updateInviteLink: upsertLink,
+    refreshInviteLink: () => Promise.resolve(),
+    delete: () => {
+      inviteLink$.next(undefined);
+      return Promise.resolve();
+    },
+  };
+}
 
 type StoryArgs = {
   /** Whether the org has the invite links feature enabled (shows the By Link tab). */
@@ -117,7 +156,7 @@ type StoryArgs = {
 };
 
 export default {
-  title: "Web/Organizations/Members/Invite Members Dialog",
+  title: "Admin Console/Organizations/Members/Invite Members Dialog",
   component: InviteMembersDialogComponent,
   args: {
     useInviteLinks: true,
@@ -180,45 +219,56 @@ export default {
 
 type Story = StoryObj<StoryArgs>;
 
-const render: Story["render"] = (args) => ({
-  moduleMetadata: {
-    providers: [
-      {
-        provide: DIALOG_DATA,
-        useValue: {
-          organizationId: "org-1",
-          isOnSecretsManagerStandalone: false,
-          occupiedSeatCount: args.occupiedSeatCount,
-          allOrganizationUsers: [] as OrganizationUserView[],
-        } as InviteMembersDialogParams,
-      },
-      {
-        provide: OrganizationService,
-        useValue: {
-          organizations$: () =>
-            of([
-              mockOrganization({
-                useInviteLinks: args.useInviteLinks,
-                useGroups: args.useGroups,
-                useSecretsManager: args.useSecretsManager,
-                useCustomPermissions: args.useCustomPermissions,
-                seats: args.seats,
-              }),
-            ]),
+const makeRender =
+  (initialLink: OrganizationInviteLink | undefined = undefined): Story["render"] =>
+  (args) => ({
+    moduleMetadata: {
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            organizationId: "org-1",
+            isOnSecretsManagerStandalone: false,
+            occupiedSeatCount: args.occupiedSeatCount,
+            allOrganizationUsers: [] as OrganizationUserView[],
+          } as InviteMembersDialogParams,
         },
-      },
-      { provide: OrganizationInviteLinkService, useValue: mockInviteLinkServiceNoLink },
-    ],
-  },
-  template: `<app-invite-members-dialog></app-invite-members-dialog>`,
-});
+        {
+          provide: OrganizationService,
+          useValue: {
+            organizations$: () =>
+              of([
+                mockOrganization({
+                  useInviteLinks: args.useInviteLinks,
+                  useGroups: args.useGroups,
+                  useSecretsManager: args.useSecretsManager,
+                  useCustomPermissions: args.useCustomPermissions,
+                  seats: args.seats,
+                }),
+              ]),
+          },
+        },
+        {
+          provide: OrganizationInviteLinkService,
+          useValue: makeMockInviteLinkService(initialLink),
+        },
+      ],
+    },
+    template: `<app-invite-members-dialog></app-invite-members-dialog>`,
+  });
 
 /**
- * Dialog with both tabs — email tab is active by default.
- * Organization has useInviteLinks: true.
+ * Dialog with both tabs — email tab is active by default, By Link tab has no link yet.
  */
 export const WithInviteLinks: Story = {
-  render,
+  render: makeRender(),
+};
+
+/**
+ * By Link tab already has a generated link — shows URL input with refresh/copy buttons.
+ */
+export const ByLinkTabWithExistingLink: Story = {
+  render: makeRender(mockInviteLink),
 };
 
 /**
@@ -228,7 +278,7 @@ export const EmailOnlyNoTabs: Story = {
   args: {
     useInviteLinks: false,
   },
-  render,
+  render: makeRender(),
 };
 
 /**
@@ -238,5 +288,5 @@ export const WithSecretsManager: Story = {
   args: {
     useSecretsManager: true,
   },
-  render,
+  render: makeRender(),
 };
