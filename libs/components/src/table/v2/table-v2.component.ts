@@ -8,18 +8,18 @@ import { CommonModule } from "@angular/common";
 import {
   AfterContentInit,
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
-  NgZone,
-  OnDestroy,
-  OnInit,
   TrackByFunction,
   computed,
   inject,
   input,
   signal,
 } from "@angular/core";
-import { Observable, of } from "rxjs";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { finalize, Observable, of, switchMap } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
 import { RowDirective } from "../row.directive";
@@ -27,8 +27,6 @@ import { TableDataSource } from "../table-data-source";
 
 import { BitColumnComponent } from "./bit-column.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-table-v2",
   templateUrl: "./table-v2.component.html",
@@ -40,10 +38,9 @@ import { BitColumnComponent } from "./bit-column.component";
     ScrollLayoutDirective,
     RowDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BitTableV2Component<T = unknown>
-  implements OnInit, OnDestroy, AfterContentInit, AfterViewInit
-{
+export class BitTableV2Component<T = unknown> implements AfterContentInit, AfterViewInit {
   /**
    * Data source for the table. Sort state is read from / written to this
    * source. The row type `T` is inferred from this binding and threads
@@ -133,47 +130,41 @@ export class BitTableV2Component<T = unknown>
     "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
   ];
 
-  protected rows$: Observable<T[]> = of<T[]>([]);
+  /**
+   * Connects to whatever `dataSource` resolves to (including changes), and
+   * tears down the connection on unsubscribe. Driven via `toObservable` so
+   * the pipeline can be `readonly` rather than reassigned in `ngOnInit`.
+   */
+  protected readonly rows$: Observable<T[]> = toObservable(this.dataSource).pipe(
+    switchMap((ds) =>
+      isDataSource(ds) ? ds.connect().pipe(finalize(() => ds.disconnect())) : of<T[]>([]),
+    ),
+  );
 
   /** Height of the thead element (px); used to pad the virtual scroll viewport. */
-  protected headerHeight = 0;
+  protected readonly headerHeight = signal(0);
 
-  private readonly zone = inject(NgZone);
   private readonly el = inject(ElementRef);
-  private headerObserver?: ResizeObserver;
-  private initialSortApplied = false;
-
-  ngOnInit(): void {
-    const ds = this.dataSource();
-    if (isDataSource(ds)) {
-      this.rows$ = ds.connect();
-    }
-  }
+  private readonly destroyRef = inject(DestroyRef);
 
   ngAfterContentInit(): void {
     this.applyInitialSort();
   }
 
   ngAfterViewInit(): void {
-    if (this.isVirtualized()) {
-      const thead = this.el.nativeElement.querySelector("thead");
-      if (thead) {
-        this.headerObserver = new ResizeObserver((entries) => {
-          this.zone.run(() => {
-            this.headerHeight = entries[0].contentRect.height;
-          });
-        });
-        this.headerObserver.observe(thead);
-      }
+    if (!this.isVirtualized()) {
+      return;
     }
-  }
-
-  ngOnDestroy(): void {
-    const ds = this.dataSource();
-    if (isDataSource(ds)) {
-      ds.disconnect();
+    const thead = this.el.nativeElement.querySelector("thead");
+    if (!thead) {
+      return;
     }
-    this.headerObserver?.disconnect();
+    const observer = new ResizeObserver((entries) => {
+      // signal.set triggers CD on dependents directly — no NgZone.run needed
+      this.headerHeight.set(entries[0].contentRect.height);
+    });
+    observer.observe(thead);
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
   protected toggleSort(col: BitColumnComponent): void {
@@ -278,12 +269,8 @@ export class BitTableV2Component<T = unknown>
   ];
 
   private applyInitialSort(): void {
-    if (this.initialSortApplied) {
-      return;
-    }
     const ds = this.dataSource();
     if (!ds || ds.sort?.column) {
-      this.initialSortApplied = true;
       return;
     }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
@@ -294,6 +281,5 @@ export class BitTableV2Component<T = unknown>
         fn: defaultCol.sortFn(),
       };
     }
-    this.initialSortApplied = true;
   }
 }

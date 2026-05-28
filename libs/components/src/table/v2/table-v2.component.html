@@ -54,7 +54,7 @@
     <cdk-virtual-scroll-viewport
       bitScrollLayout
       [itemSize]="rowSize()!"
-      [ngStyle]="{ paddingBottom: headerHeight + 'px' }"
+      [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
     >
       <table [ngClass]="tableClass()">
         <ng-container *ngTemplateOutlet="header"></ng-container>
