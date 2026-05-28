@@ -14002,9 +14002,6 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
   },
@@ -14034,6 +14031,12 @@
   },
   "sendAccessOptionAnyoneWithAPassword": {
     "message": "Password set by member"
+  },
+  "enforceDeletionDate": {
+    "message": "Enforce deletion date"
+  },
+  "sendDeletionDate": {
+    "message": "Deletion date"
   },
   "hideMyEmail": {
     "message": "Hide my email address from recipients."

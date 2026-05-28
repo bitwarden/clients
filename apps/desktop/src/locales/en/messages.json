@@ -5235,18 +5235,6 @@
   "sendDeletionDate": {
     "message": "Deletion date"
   },
-  "sendDeletionDaysNoRestriction": {
-    "message": "No restriction"
-  },
-  "sendDeletionDaysPolicyHint": {
-    "message": "$ORG_NAME$ has set this deletion date",
-    "placeholders": {
-      "org_name": {
-        "content": "$1",
-        "example": "My Organization"
-      }
-    }
-  },
   "discardEditsTitle": {
     "message": "Discard edits"
   },

@@ -48,50 +48,13 @@ import {
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { DatePreset, isDatePreset, asDatePreset } from "../../../models/date-preset";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
-/** A preset duration (in hours) for deletion. */
-export const DatePreset = Object.freeze({
-  /** One-hour duration. */
-  OneHour: 1,
-  /** One-day duration (24 hours). */
-  OneDay: 24,
-  /** Two-day duration (48 hours). */
-  TwoDays: 48,
-  /** Three-day duration (72 hours). */
-  ThreeDays: 72,
-  /** Seven-day duration (168 hours). */
-  SevenDays: 168,
-  /** Fourteen-day duration (336 hours). */
-  FourteenDays: 336,
-  /** Thirty-day duration (720 hours). */
-  ThirtyDays: 720,
-} as const);
-
-/** A preset duration (in hours) for deletion. */
-export type DatePreset = (typeof DatePreset)[keyof typeof DatePreset];
-
-const namesByDatePreset = new Map<DatePreset, keyof typeof DatePreset>(
-  Object.entries(DatePreset).map(([k, v]) => [v as DatePreset, k as keyof typeof DatePreset]),
-);
-
-/**
- * Runtime type guard to verify a value is a valid DatePreset.
- */
-export function isDatePreset(value: unknown): value is DatePreset {
-  return namesByDatePreset.has(value as DatePreset);
-}
-
-/**
- * Safe converter to DatePreset (numeric preset), returns undefined for invalid inputs.
- */
-export function asDatePreset(value: unknown): DatePreset | undefined {
-  return isDatePreset(value) ? (value as DatePreset) : undefined;
-}
 
 /** The types of authorization that Sends are able to use */
 const sendAuthTypes = Object.freeze([
@@ -104,7 +67,7 @@ const sendAuthTypes = Object.freeze([
   name: "AuthTypeName",
 })
 export class AuthTypeNamePipe implements PipeTransform {
-  constructor(private i18nSvc: I18nService) { }
+  constructor(private i18nSvc: I18nService) {}
   transform(value: number) {
     const authTypeWithValue = sendAuthTypes.find((a) => a.value === value);
     return authTypeWithValue
@@ -134,7 +97,6 @@ export class AuthTypeNamePipe implements PipeTransform {
     SendOptionsComponent,
     IconButtonModule,
     CheckboxModule,
-    CommonModule,
     CommonModule,
     SelectModule,
     AsyncActionsModule,
@@ -263,9 +225,9 @@ export class SendDetailsComponent implements OnInit {
             authType: value.authType,
             emails: value.emails
               ? value.emails
-                .split(",")
-                .map((e) => e.trim())
-                .filter((e) => e.length > 0)
+                  .split(",")
+                  .map((e) => e.trim())
+                  .filter((e) => e.length > 0)
               : [],
           } as unknown as SendView);
         });

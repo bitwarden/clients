@@ -19,16 +19,12 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { LogService } from "@bitwarden/logging";
 
+import { DatePreset, isDatePreset, asDatePreset } from "../../../models/date-preset";
 import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
-import {
-  DatePreset,
-  SendDetailsComponent,
-  asDatePreset,
-  isDatePreset,
-} from "./send-details.component";
+import { SendDetailsComponent } from "./send-details.component";
 
 describe("SendDetails DatePreset utilities", () => {
   it("accepts all defined numeric presets", () => {

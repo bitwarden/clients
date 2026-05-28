@@ -1,7 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,7 +28,6 @@ export class SendPolicyService {
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
   private configService = inject(ConfigService);
-  private organizationService = inject(OrganizationService);
 
   private readonly flagAndUser$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.SendControls),
