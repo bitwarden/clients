@@ -34,31 +34,24 @@ export interface AnonLayoutWrapperData {
   /**
    * Whether to show the page icon. Defaults to true.
    *
-   * When false, the layout suppresses the icon even if `pageIcon` is set. Use on clients
-   * (e.g., the browser extension popup) where vertical space is at a premium.
+   * When false, the layout suppresses the icon even if `pageIcon` is set.
    */
   showPageIcon?: boolean;
   /**
    * Top-padding of the content area. Defaults to "default".
    *
-   * "compact" reduces the top padding so more content fits without a scrollbar.
-   * Use on clients (e.g., the browser extension popup) where vertical space is at a premium.
+   * "compact" reduces the top padding so more content fits. Use in scenarios where vertical space is at a premium.
    */
   contentPadding?: "compact" | "default";
   /**
    * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
-   *
-   * "left" produces a left-aligned hero (no `tw-mx-auto`, no `tw-text-center`).
-   * Use on clients (e.g., the browser extension popup) where the page is narrow.
    */
   heroAlignment?: "left" | "center";
   /**
-   * Where to render content projected into the `[slot=secondary]` content slot.
-   * Defaults to "main".
+   * Where to render content projected into the `[slot=secondary]` content slot. Defaults to "main".
    *
    * "main" places the secondary content beneath the main card.
-   * "footer" places it inside the footer alongside the environment selector — used on the
-   * browser extension popup to keep the secondary action visible without forcing a scrollbar.
+   * "footer" places it inside the footer.
    */
   secondaryContentLocation?: "main" | "footer";
   /**

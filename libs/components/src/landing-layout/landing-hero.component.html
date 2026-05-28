@@ -22,7 +22,6 @@
     }
 
     @if (subtitle()) {
-      <!-- Extra top margin when the icon is hidden, so the subtitle doesn't sit too close to the title. -->
       <div class="tw-text-sm sm:tw-text-base" [class.tw-mt-4]="!icon()">
         {{ subtitle() }}
       </div>

@@ -50,7 +50,7 @@ export class LandingContentComponent {
   /**
    * Top-padding of the content area. Defaults to "default".
    *
-   * "compact" reduces the top padding so more content fits without a scrollbar.
+   * "compact" reduces the top padding.
    */
   readonly contentPadding = input<"compact" | "default">("default");
 

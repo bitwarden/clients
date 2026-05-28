@@ -40,8 +40,6 @@ export class LandingHeroComponent {
 
   /**
    * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
-   *
-   * "left" produces a left-aligned hero (no `tw-mx-auto`, no `tw-text-center`).
    */
   readonly heroAlignment = input<"left" | "center">("center");
 
