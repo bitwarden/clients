@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Kritické ohrozené aplikácie"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Critical applications at risk"
+  },
   "allCriticalApps": {
     "message": "Všetky kritické aplikácie"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Nie je možné obnoviť prístup do organizácie"
   },
-  "allApplicationsWithCount": {
-    "message": "Všetky aplikácie ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Pridať novu položku s prihlásením"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Kritické aplikácie ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "critical applications marked"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Your data is in. Let's put it to work."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "startTour": {
+    "message": "Start tour"
   },
   "noDataInOrgTitle": {
     "message": "Nenašli sa žiadne údaje"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Títo členovia majú prístup k ohrozeným položkám kritických aplikácii."
   },
-  "membersWithAtRiskPasswords": {
-    "message": "Členovia s ohrozenými heslami"
+  "membersWithAtRiskPwds": {
+    "message": "Members with at risk passwords"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Členom vašej organizácie budú pridelené úlohy na zmenu ohrozených hesiel. Upozornenie obdržia prostredníctvom rozšírenia Bitwarden pre prehliadače."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Číslo pasu"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
   },
   "licenseNumber": {
     "message": "Číslo vodičského preukazu"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankové údaje"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Usporiadajte si položky"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "Kopírovať adresu"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "Kopírovať telefón"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "Kopírovať číslo pasu"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
   },
   "copyFirstName": {
     "message": "Kopírovať krstné meno"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Kopírovať odtlačok"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Kopírovať meno"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Nie je čo kopírovať"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Vaša 7-dňová bezplatná skúšobná verzia $PLAN$ bude po 7 dňoch prevedená na platené predplatné.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created text Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created text Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Created file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created file Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created file Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Položka $ID$ presunutá do organizácie.",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "Kopírovaný PIN položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "1 alebo viac emailov patria odvolaným členom. Obnovte ich pristúp pre opätovné pozvanie."
   },
-  "revocationReasonUnknown": {
-    "message": "Neznámy dôvod"
+  "revocationReasonNotLogged": {
+    "message": "No reason logged"
   },
   "revocationReasonManual": {
     "message": "Odvolaný správcom"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Nie je v súlade s pravidlom jednotného prihlasovania spoločnosti"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Declined item transfer to organization"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "$ID$ bol odvolaný prístup do organizácie z dôvodu nesúladu s pravidlom dvojstupňového prihlasovania.",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Prijatý presun do vlastníctva organizácie."
-  },
-  "userDeclinedTransfer": {
-    "message": "Odvolane z dôvodu odmietnutia presunu do vlastníctva organizácie."
   },
   "invitedUserId": {
     "message": "Používateľ $ID$ pozvaný.",
@@ -6242,7 +6355,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendProtectedPasswordDontKnow": {
-    "message": "Neviete heslo? Požiadajte odosielateľa o heslo potrebné k prístupu k tomuto Sendu.",
+    "message": "Nepoznáte heslo? Požiadajte odosielateľa o heslo potrebné na prístup k tomuto Sendu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "Odoslať upozornenia na zmenu hesla"
   },
+  "sendNotifications": {
+    "message": "Send notifications"
+  },
   "assignToCollections": {
     "message": "Prideliť k zbierkam"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Vaša 7-dňová skúšobná doba pre $PLAN$ začína dnes. Ak chcete používať nasledujúce funkcie po uplynutí skúšobnej doby, pridajte platobnú metódu: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13435,7 +13555,7 @@
     "message": "Vaše predplatné vypršalo. Pre pomoc kontaktujte tím podpory."
   },
   "yourSubscriptionIsScheduledToCancel": {
-    "message": "Vaše predplatné ma naplánovaný koniec na $DATE$. Kedykoľvek predtým ho môžete opätovne obnoviť.",
+    "message": "Vaše predplatné má naplánovaný koniec na $DATE$. Kedykoľvek predtým ho môžete opätovne obnoviť.",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -13622,7 +13742,7 @@
     "message": "Pri aktualizácii platobnej metódy došlo k chybe."
   },
   "sendPasswordInvalidAskOwner": {
-    "message": "Nesprávne heslo. Požiadajte odosielateľa o heslo potrebné k prístupu k tomuto Sendu.",
+    "message": "Nesprávne heslo. Požiadajte odosielateľa o heslo potrebné na prístup k tomuto Sendu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresOn": {
@@ -13663,6 +13783,9 @@
   },
   "searchBankAccount": {
     "message": "Vyhľadať bankový účet"
+  },
+  "searchPassport": {
+    "message": "Search passports"
   },
   "copyAccountNumber": {
     "message": "Kopírovať číslo účtu"
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "More"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Váš bankový účet musí byť overený pretým nez ho budete môcť použiť na tento upgrade. Prosím overte váš bankový účet, alebo zvoľte inú platobnú metódu."
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "Preskočiť odkaz"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "callout": {
     "message": "Oznámenie",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "Indikátor priebehu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "Vyhľadať vodičské preukazy"
