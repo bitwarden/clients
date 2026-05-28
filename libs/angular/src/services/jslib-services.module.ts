@@ -910,13 +910,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendSdkApiService,
     useClass: SendSdkApiService,
-    deps: [
-      SdkService,
-      FileUploadServiceAbstraction,
-      InternalSendService,
-      AccountServiceAbstraction,
-      LogService,
-    ],
+    deps: [SdkService, SendApiService, InternalSendService, AccountServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,

@@ -1,8 +1,6 @@
 import { catchError, firstValueFrom, switchMap } from "rxjs";
 
 import {
-  AuthType as SdkAuthType,
-  CreateFileSendView as SdkCreateFileSendView,
   PasswordManagerClient,
   SendAddRequest,
   SendAuthType,
@@ -15,19 +13,11 @@ import {
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { SendAccessToken } from "../../../auth/send-access";
 import { getUserId } from "../../../auth/services/account.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ListResponse } from "../../../models/response/list.response";
-import {
-  FileUploadService,
-  FileUploadApiMethods,
-} from "../../../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkService, asUuid } from "../../../platform/abstractions/sdk/sdk.service";
-import { FileUploadType } from "../../../platform/enums";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { UserId } from "../../../types/guid";
-import { SendFileData } from "../models/data/send-file.data";
-import { SendTextData } from "../models/data/send-text.data";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
@@ -39,13 +29,27 @@ import { SendView } from "../models/view/send.view";
 import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
+import { SendApiService } from "./send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
 import { InternalSendService } from "./send.service.abstraction";
 
+/**
+ * SDK-backed implementation of the send API.
+ *
+ * For mutations (`save`, `removePassword`) the SDK executes the change server-side, then
+ * we refetch the wire-encrypted form via the legacy `SendApiService` to keep
+ * `InternalSendService` populated with `EncString`-shaped data that the rest of the app
+ * (sync, the send form's `.decrypt()`, etc.) expects. The SDK can't return wire-encrypted
+ * data, so this refetch is the bridge until consumers read SDK state directly.
+ *
+ * Read methods that return wire-encrypted shapes (`getSend`, `getSends`,
+ * `putSendRemovePassword`) have no SDK benefit — SendApiServiceSelector routes those to
+ * the legacy service. The throw-stubs here guard against direct callers.
+ */
 export class SendSdkApiService implements SendApiServiceAbstraction {
   constructor(
     private sdkService: SdkService,
-    private fileUploadService: FileUploadService,
+    private legacySendApiService: SendApiService,
     private sendService: InternalSendService,
     private accountService: AccountService,
     private logService: LogService,
@@ -53,16 +57,39 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const [send, encBuffer] = sendData;
+    const [send] = sendData;
+    // SDK's create_file_send generates its own send key; a pre-encrypted file buffer
+    // from the caller wouldn't match. SendApiServiceSelector routes new file sends to
+    // the legacy service — this guard catches direct callers.
+    if (send.id == null && send.type === SendType.File) {
+      throw new Error(
+        "SendSdkApiService does not support creating file sends; use the legacy SendApiService.",
+      );
+    }
     const sendView = await send.decrypt(userId);
-    const sdkView = await this.upload(
-      sendView,
-      userId,
-      encBuffer?.buffer as unknown as ArrayBuffer,
-    );
-    const data = this.sdkSendViewToSendData(sdkView);
-    await this.sendService.upsert(data);
-    return new Send(data);
+    await this.preserveExistingPasswordOnEdit(sendView);
+    const sdkView = await this.mutateSend(sendView, userId);
+
+    // Patch server-assigned identifiers onto the input for callers that read them after
+    // save (matches the legacy SendApiService contract).
+    const sendId = sdkView.id as unknown as string;
+    if (send.id == null) {
+      send.id = sendId;
+      send.accessId = sdkView.accessId ?? null;
+    }
+
+    try {
+      return await this.refreshSendFromServer(sendId);
+    } catch (error) {
+      // The SDK mutation already landed on the server; only the encrypted-form refetch
+      // failed. Surfacing this as a save error would prompt the user to retry, which on
+      // a new send would duplicate it server-side. Log and return the caller's input
+      // Send — its EncString fields are still valid (the caller encrypted them moments
+      // ago), so decryption in post-save paths works. InternalSendService reconciles on
+      // the next sync.
+      this.logService.error(`Send refresh failed after successful mutation: ${error}`);
+      return send;
+    }
   }
 
   async delete(id: string): Promise<any> {
@@ -89,7 +116,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // auth type), not just the password.
   async removePassword(id: string): Promise<any> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const view = await firstValueFrom(
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           if (!sdk) {
@@ -104,89 +131,46 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
         }),
       ),
     );
-    const data = this.sdkSendViewToSendData(view);
-    await this.sendService.upsert(data);
+    await this.refreshSendFromServer(id);
   }
 
-  async getSend(id: string): Promise<SendResponse> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const view = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          return await ref.value.sends().get(asUuid<SdkSendId>(id));
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to get send: ${error}`);
-          throw error;
-        }),
+  getSend(_id: string): Promise<SendResponse> {
+    return Promise.reject(
+      new Error(
+        "SendSdkApiService.getSend is not supported: returning SendResponse requires wire-encrypted fields the SDK does not expose. Use SendApiService.",
       ),
     );
-    return this.sdkSendViewToSendResponse(view);
   }
 
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  // `apiUrl` is intentionally omitted: the SDK uses its configured environment and
+  // cannot target a per-call URL. SendApiServiceSelector routes `apiUrl`-bearing
+  // callers (e.g. the CLI receiving cross-instance Sends) to the legacy service.
+  async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
     return new SendAccessResponse(view);
   }
 
-  async postSendAccessV2(
-    accessToken: SendAccessToken,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  async postSendAccessV2(accessToken: SendAccessToken): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
   }
 
-  async getSends(): Promise<ListResponse<SendResponse>> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const views = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          return await ref.value.sends().list();
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to list sends: ${error}`);
-          throw error;
-        }),
+  getSends(): Promise<ListResponse<SendResponse>> {
+    return Promise.reject(
+      new Error(
+        "SendSdkApiService.getSends is not supported: returning SendResponse requires wire-encrypted fields the SDK does not expose. Use SendApiService.",
       ),
     );
-    return new ListResponse({ data: views.map((v) => this.sdkSendViewToRawJson(v)) }, SendResponse);
   }
 
-  // Note: the SDK calls the V2 endpoint which removes all auth (password and any other
-  // auth type), not just the password.
-  async putSendRemovePassword(id: string): Promise<SendResponse> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const view = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          return await ref.value.sends().remove_password(asUuid<SdkSendId>(id));
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to remove send auth: ${error}`);
-          throw error;
-        }),
+  putSendRemovePassword(_id: string): Promise<SendResponse> {
+    return Promise.reject(
+      new Error(
+        "SendSdkApiService.putSendRemovePassword is not supported: returning SendResponse requires wire-encrypted fields the SDK does not expose. Use SendApiService.",
       ),
     );
-    return this.sdkSendViewToSendResponse(view);
   }
 
   async deleteSend(id: string): Promise<any> {
@@ -211,7 +195,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   async getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
-    apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const data = await sdk
@@ -223,18 +206,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   async getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
-    apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
     return new SendFileDownloadDataResponse(data);
   }
 
-  private async upload(
-    sendView: SendView,
-    userId: UserId,
-    file?: ArrayBuffer,
-  ): Promise<SdkSendView> {
+  private async mutateSend(sendView: SendView, userId: UserId): Promise<SdkSendView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -243,23 +221,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           }
           using ref = sdk.take();
           const sendsClient = ref.value.sends();
-
           if (sendView.id == null) {
-            const request = this.buildSendAddRequest(sendView);
-
-            if (sendView.type === SendType.File) {
-              const createResult = await sendsClient.create_file_send(request);
-              if (file != null) {
-                await this.uploadFile(createResult, userId, file);
-              }
-              return createResult.send;
-            }
-
-            return await sendsClient.create(request);
-          } else {
-            const request = this.buildSendEditRequest(sendView);
-            return await sendsClient.edit(asUuid<SdkSendId>(sendView.id), request);
+            return await sendsClient.create(this.buildSendAddRequest(sendView));
           }
+          return await sendsClient.edit(
+            asUuid<SdkSendId>(sendView.id),
+            this.buildSendEditRequest(sendView),
+          );
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to upload send: ${error}`);
@@ -269,78 +237,34 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
-  private async uploadFile(
-    createResult: SdkCreateFileSendView,
-    userId: UserId,
-    file: ArrayBuffer,
-  ): Promise<void> {
-    const encryptedBytes = new Uint8Array(file);
-    const sendId = createResult.send.id!;
-    const fileId = createResult.fileId;
-    const encryptedFileName = createResult.encryptedFileName;
+  // The send-details form disables the password input when editing a password-protected
+  // send (so the existing hash isn't redisplayed). SendService.encrypt doesn't carry the
+  // existing password forward either, so `sendView.password` arrives as null. The SDK's
+  // SendAuthType has no "preserve existing password" variant — auth.password is required
+  // when type is "password" — so we have to pass the existing hash explicitly. The hash
+  // is stored plaintext on Send.password in InternalSendService.
+  private async preserveExistingPasswordOnEdit(sendView: SendView): Promise<void> {
+    if (
+      sendView.id == null ||
+      sendView.authType !== AuthType.Password ||
+      sendView.password != null
+    ) {
+      return;
+    }
+    const existing = await firstValueFrom(this.sendService.get$(sendView.id));
+    if (existing?.password) {
+      sendView.password = existing.password;
+    }
+  }
 
-    const fileUploadMethods: FileUploadApiMethods = {
-      postDirect: async (_formData: FormData) => {
-        await firstValueFrom(
-          this.sdkService.userClient$(userId).pipe(
-            switchMap(async (sdk) => {
-              if (!sdk) {
-                throw new Error("SDK not available");
-              }
-              using ref = sdk.take();
-              await ref.value
-                .sends()
-                .upload_send_file(sendId, fileId, encryptedFileName, encryptedBytes);
-            }),
-            catchError((error: unknown) => {
-              this.logService.error(`Failed to upload send file: ${error}`);
-              throw error;
-            }),
-          ),
-        );
-      },
-      renewFileUploadUrl: async () => {
-        return await firstValueFrom(
-          this.sdkService.userClient$(userId).pipe(
-            switchMap(async (sdk) => {
-              if (!sdk) {
-                throw new Error("SDK not available");
-              }
-              using ref = sdk.take();
-              return await ref.value.sends().renew_file_upload_url(sendId, fileId);
-            }),
-            catchError((error: unknown) => {
-              this.logService.error(`Failed to renew send file upload URL: ${error}`);
-              throw error;
-            }),
-          ),
-        );
-      },
-      rollback: async () => {
-        await firstValueFrom(
-          this.sdkService.userClient$(userId).pipe(
-            switchMap(async (sdk) => {
-              if (!sdk) {
-                throw new Error("SDK not available");
-              }
-              using ref = sdk.take();
-              await ref.value.sends().delete(sendId);
-            }),
-            catchError((error: unknown) => {
-              this.logService.error(`Failed to rollback send: ${error}`);
-              throw error;
-            }),
-          ),
-        );
-      },
-    };
-
-    await this.fileUploadService.upload(
-      { url: createResult.url, fileUploadType: createResult.fileUploadType as FileUploadType },
-      new EncString(encryptedFileName),
-      new EncArrayBuffer(encryptedBytes),
-      fileUploadMethods,
-    );
+  // After the SDK executes a mutation server-side, refetch the wire-encrypted form via
+  // the legacy API so InternalSendService stores EncString-shaped data and consumers
+  // that decrypt the returned Send work correctly.
+  private async refreshSendFromServer(id: string): Promise<Send> {
+    const response = await this.legacySendApiService.getSend(id);
+    const data = new SendData(response);
+    await this.sendService.upsert(data);
+    return new Send(data);
   }
 
   private buildSendAddRequest(sendView: SendView): SendAddRequest {
@@ -373,12 +297,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
   private buildSendViewType(sendView: SendView): SendViewType {
     if (sendView.type === SendType.File) {
+      if (sendView.file == null || !sendView.file.fileName) {
+        throw new Error("File send is missing a file name.");
+      }
       return {
         File: {
-          id: sendView.file?.id ?? undefined,
-          fileName: sendView.file?.fileName ?? "",
-          size: sendView.file?.size?.toString() ?? undefined,
-          sizeName: sendView.file?.sizeName ?? undefined,
+          id: sendView.file.id ?? undefined,
+          fileName: sendView.file.fileName,
+          size: sendView.file.size?.toString() ?? undefined,
+          sizeName: sendView.file.sizeName ?? undefined,
         },
       };
     }
@@ -393,102 +320,18 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   private buildSendAuth(sendView: SendView): SendAuthType {
     switch (sendView.authType) {
       case AuthType.Password:
-        return { type: "password", password: sendView.password ?? "" };
+        if (!sendView.password) {
+          throw new Error("Password-protected send is missing a password.");
+        }
+        return { type: "password", password: sendView.password };
       case AuthType.Email:
-        return { type: "emails", emails: sendView.emails ?? [] };
+        if (sendView.emails == null || sendView.emails.length === 0) {
+          throw new Error("Email-protected send is missing recipient emails.");
+        }
+        return { type: "emails", emails: sendView.emails };
       case AuthType.None:
       default:
         return { type: "none" };
-    }
-  }
-
-  // FIXME: SendResponse stores encrypted field values from the server response, but the SDK
-  // returns a decrypted SendView. Fields such as name, notes, key, and text are therefore
-  // stored here as plaintext. This is a known transitional limitation.
-  private sdkSendViewToRawJson(view: SdkSendView): any {
-    return {
-      id: view.id as unknown as string,
-      accessId: view.accessId ?? null,
-      type: view.type === "Text" ? SendType.Text : SendType.File,
-      name: view.name,
-      notes: view.notes ?? null,
-      key: view.key ?? null,
-      maxAccessCount: view.maxAccessCount ?? null,
-      accessCount: view.accessCount,
-      revisionDate: view.revisionDate,
-      deletionDate: view.deletionDate,
-      expirationDate: view.expirationDate ?? null,
-      disabled: view.disabled,
-      hideEmail: view.hideEmail,
-      authType: this.sdkAuthTypeToAuthType(view.authType),
-      emails: view.emails?.join(",") ?? null,
-      password: null,
-      text: view.text != null ? { text: view.text.text ?? null, hidden: view.text.hidden } : null,
-      file:
-        view.file != null
-          ? {
-              id: view.file.id ?? null,
-              fileName: view.file.fileName,
-              size: view.file.size ?? null,
-              sizeName: view.file.sizeName ?? null,
-            }
-          : null,
-    };
-  }
-
-  private sdkSendViewToSendResponse(view: SdkSendView): SendResponse {
-    return new SendResponse(this.sdkSendViewToRawJson(view));
-  }
-
-  // FIXME: SendData stores encrypted field values from the server response, but the SDK
-  // returns a decrypted SendView. Fields such as name, notes, key, and text are therefore
-  // stored here as plaintext. This is a known transitional limitation and will be resolved
-  // when SDK state management fully replaces InternalSendService.
-  private sdkSendViewToSendData(view: SdkSendView): SendData {
-    const data = new SendData();
-    data.id = view.id as unknown as string;
-    data.accessId = (view.accessId ?? null) as unknown as string;
-    data.type = view.type === "Text" ? SendType.Text : SendType.File;
-    data.name = view.name;
-    data.notes = (view.notes ?? null) as unknown as string;
-    data.key = (view.key ?? null) as unknown as string;
-    data.maxAccessCount = view.maxAccessCount ?? undefined;
-    data.accessCount = view.accessCount;
-    data.revisionDate = view.revisionDate;
-    data.deletionDate = view.deletionDate;
-    data.expirationDate = (view.expirationDate ?? null) as unknown as string;
-    data.disabled = view.disabled;
-    data.hideEmail = view.hideEmail;
-    data.authType = this.sdkAuthTypeToAuthType(view.authType);
-    data.emails = (view.emails?.join(",") ?? null) as unknown as string;
-    data.password = null as unknown as string;
-
-    if (view.type === "Text" && view.text != null) {
-      data.text = new SendTextData();
-      data.text.text = (view.text.text ?? null) as unknown as string;
-      data.text.hidden = view.text.hidden;
-    }
-
-    if (view.type === "File" && view.file != null) {
-      data.file = new SendFileData();
-      data.file.id = (view.file.id ?? null) as unknown as string;
-      data.file.fileName = view.file.fileName;
-      data.file.size = (view.file.size ?? null) as unknown as string;
-      data.file.sizeName = (view.file.sizeName ?? null) as unknown as string;
-    }
-
-    return data;
-  }
-
-  private sdkAuthTypeToAuthType(authType: SdkAuthType): AuthType {
-    switch (authType) {
-      case "Email":
-        return AuthType.Email;
-      case "Password":
-        return AuthType.Password;
-      case "None":
-      default:
-        return AuthType.None;
     }
   }
 }

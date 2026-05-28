@@ -1116,12 +1116,17 @@ export default class MainBackground {
       this.encryptService,
       this.configService,
     );
+    const legacySendApiService = new SendApiService(
+      this.apiService,
+      this.fileUploadService,
+      this.sendService,
+    );
     this.sendApiService = new SendApiServiceSelector(
       this.configService,
-      new SendApiService(this.apiService, this.fileUploadService, this.sendService),
+      legacySendApiService,
       new SendSdkApiService(
         this.sdkService,
-        this.fileUploadService,
+        legacySendApiService,
         this.sendService,
         this.accountService,
         this.logService,
