@@ -51,7 +51,7 @@ export class FreeFamiliesPolicyService {
       getUserId,
       switchMap((userId) => {
         const policies$ = this.policyService.policiesByType$(
-          PolicyType.FreeFamiliesSponsorshipPolicy,
+          PolicyType.FreeFamiliesSponsorship,
           userId,
         );
 
@@ -125,7 +125,7 @@ export class FreeFamiliesPolicyService {
     return this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
       ),
       map((policies) => ({
         isFreeFamilyPolicyEnabled: enterpriseOrgIds.every((orgId) =>

@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "パスポート番号をコピー"
   },
+  "copyFirstName": {
+    "message": "名前をコピー"
+  },
+  "copyMiddleName": {
+    "message": "ミドルネームをコピー"
+  },
+  "copyLastName": {
+    "message": "姓をコピー"
+  },
   "copyLicenseNumber": {
     "message": "免許証番号をコピー"
   },
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "拡張機能の評価"
+  },
+  "troubleshooting": {
+    "message": "トラブルシューティング"
+  },
+  "experiencingAnIssue": {
+    "message": "問題が発生していますか？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "ダウンロードして診断レポートを共有してください。"
+  },
+  "bitwardenSupport": {
+    "message": "共有先：Bitwarden サポート",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "ダウンロード"
   },
   "browserNotSupportClipboard": {
     "message": "お使いのブラウザはクリップボードへのコピーに対応していません。手動でコピーしてください"
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "銀行の詳細"
   },
+  "typeDriversLicense": {
+    "message": "免許証"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "運転免許証または ID"
+  },
+  "driversLicenseDetails": {
+    "message": "免許証の詳細"
+  },
+  "dateOfBirth": {
+    "message": "生年月日"
+  },
+  "birthMonth": {
+    "message": "誕生月"
+  },
+  "birthDay": {
+    "message": "誕生日"
+  },
+  "birthYear": {
+    "message": "誕生年"
+  },
+  "issuingCountry": {
+    "message": "発行国"
+  },
+  "issuingState": {
+    "message": "発行都道府県"
+  },
+  "issuingAuthority": {
+    "message": "発行機関"
+  },
+  "issueDate": {
+    "message": "発行日"
+  },
+  "issueMonth": {
+    "message": "発行月"
+  },
+  "issueDay": {
+    "message": "発行日"
+  },
+  "issueYear": {
+    "message": "発行年"
+  },
+  "expirationDay": {
+    "message": "有効期限日"
+  },
+  "licenseClass": {
+    "message": "免許種別"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2190,7 +2263,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "新しいライセンス",
+    "message": "新しい免許証",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -2229,8 +2302,8 @@
     "message": "銀行口座を編集",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "ライセンスを編集",
+  "editItemHeaderLicense": {
+    "message": "免許証を編集",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2342,8 @@
     "message": "銀行口座を表示",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "ライセンスを表示",
+  "viewItemHeaderLicense": {
+    "message": "免許証を表示",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "ユーザー認証に失敗しました。"
   },
+  "enterMonth": {
+    "message": "月を入力してください。"
+  },
+  "enterDay": {
+    "message": "日を入力してください。"
+  },
+  "enterYear": {
+    "message": "年を入力してください。"
+  },
+  "invalidDay": {
+    "message": "正しい日を入力してください。"
+  },
+  "invalidYear": {
+    "message": "正しい年を入力してください。"
+  },
+  "searchDriversLicense": {
+    "message": "免許証を検索"
+  },
   "bankName": {
     "message": "銀行名"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "その他"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "銀行口座情報を安全に保管します"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "銀行口座情報を保存すると、デバイス間で簡単かつ安全にアクセスできます。"
   },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
