@@ -32,7 +32,7 @@ describe("singleOrganizationPolicyApplies$", () => {
 
   it("returns true when AutoConfirm applies and SingleOrg does not", async () => {
     policyService.policyAppliesToUser$.mockImplementation((policyType) => {
-      if (policyType === PolicyType.AutoConfirm) {
+      if (policyType === PolicyType.AutomaticUserConfirmation) {
         return of(true);
       }
       return of(false);
