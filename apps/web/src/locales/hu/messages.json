@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Kockázatos kritikus alkalmazások"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Kockázatos kritikus alkalmazások"
+  },
   "allCriticalApps": {
     "message": "Összes kritikus alkalmazás"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Nem lehet visszaállítani a szervezeti hozzáférést."
   },
-  "allApplicationsWithCount": {
-    "message": "Összes alkalmazás ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Új bejelentkezési elem létrehozása"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Kritikus alkalmazások ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "A kritikus alkalmazások megjelölésre kerültek."
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Az adatok bent vannak. Állítsuk be ezeket a munkába."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Tegyünk egy gyors körutat az Access Intelligence szolgáltatásban és nézzük meg, pontosan hogyan lehet a szervezet adatait működésbe hozni."
+  },
+  "startTour": {
+    "message": "Bemutató elkezdése"
   },
   "noDataInOrgTitle": {
     "message": "Nem található adat."
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Ezek a tagok hozzáférhetnek a kritikus alkalmazásoknál a sebezhető elemekhez."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Kockázatos jelszavú tagok"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ veszélyeztetett jelszavú tag $CRITICALAPPCOUNT$ kritikus alkalmazásnál",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "A szervezet tagjaira feladat hárul a sebezhető jelszavak megváltoztatására. Értesítést kapnak a Bitwarden böngésző bővítményen belül."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "/ $TOTAL$ összes",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Útlevélszám"
+  },
+  "sex": {
+    "message": "Nem"
+  },
+  "copySex": {
+    "message": "Nem másolása"
+  },
+  "birthPlace": {
+    "message": "Születési hely"
+  },
+  "nationality": {
+    "message": "Állampolgárság"
+  },
+  "copyNationality": {
+    "message": "Állampolgárság másolása"
+  },
+  "passportType": {
+    "message": "Útlevél típus"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nemzeti azonosító szám"
   },
   "licenseNumber": {
     "message": "Vezetői engedély száma"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banki adatok"
   },
+  "typePassport": {
+    "message": "Útlevél"
+  },
+  "passportDetails": {
+    "message": "Útlevél adatok"
+  },
+  "passportAdded": {
+    "message": "Az útlevél hozzáadásra került."
+  },
+  "typePassportSubtitle": {
+    "message": "Utazási dokumentum"
+  },
   "folderSubtitle": {
     "message": "Elemek szervezése"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "Postai cím másolása"
   },
+  "copyBirthPlace": {
+    "message": "Születési hely másolása"
+  },
   "copyPhone": {
     "message": "Telefonszám másolása"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "Útlevélszám másolása"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nemzeti azonosító szám másolása"
+  },
+  "copyPassportType": {
+    "message": "Útlevél típus másolása"
   },
   "copyFirstName": {
     "message": "Személynév másolása"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Ujjlenyomat másolása"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kiállító hatóság/hivatal másolása"
+  },
+  "copyIssuingCountry": {
+    "message": "Kiállító ország másolása"
   },
   "copyName": {
     "message": "Név másolása"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Nincs megadva érték.",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Nincsenek másolandó értékek."
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "$PLAN$ csomag 7 napos ingyenes próbaverziója fizetős feliratkozássá válik 7 nap után.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "$PLAN$ $TRIAL_LENGTH$ napos ingyenes próbaverziója $TRIAL_LENGTH$ nap után fizetős előfizetéssé válik.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "A szöveges Send elem létrejött."
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "A szöveges Send elem létrejött email ellenőrzéssel.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "A szöveges Send elem jelszóval létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "A Send fájl elem létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "A Send fájl elem létrejött email ellenőrzéssel.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "A Send fájl elem jelszóval létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "$ID$ elem átkerült egy szervezethez.",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "A PIN kód másolásra került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Az útlevélszám másolásra került $ID$ elemhez.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Az útlevélszám megtekintésre került $ID$ elemhez.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "1 vagy több email cím a visszavont tagokhoz tartozik. Állítsuk vissza hozzáférésüket az ismételt meghíváshoz."
   },
-  "revocationReasonUnknown": {
-    "message": "Ismeretlen ok"
+  "revocationReasonNotLogged": {
+    "message": "Nincs naplózott ok."
   },
   "revocationReasonManual": {
     "message": "Visszavonta egy adminisztrátor"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Nem felel meg az egységes szervezeti szabályzatnak."
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Az elem szervezethez átvitele elutasításra került."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "A szervezet hozzáférés $ID$ elemhez visszavonásra került a kéttényezős szervezeti szabályzat be nem tartása miatt.",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Az átruházás a szervezet tulajdonába elfogadásra került."
-  },
-  "userDeclinedTransfer": {
-    "message": "A szervezet tulajdonába átruházás visszavonásra került elutasítás miatt."
   },
   "invitedUserId": {
     "message": "$ID$ azonosítójú felhasználó meghívásra került.",
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "Értesítések küldése a jelszavak megváltoztatásához"
   },
+  "sendNotifications": {
+    "message": "Értesítések küldése"
+  },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "A 7 napos $PLAN$ próbaverzió ma kezdődik. Adjunk hozzá most egy fizetési módot, hogy továbbra is használhassuk ezeket a funkciókat a próba befejezése után:",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "$TRIAL_LENGTH$ napos $PLAN$ próbaverziója ma kezdődik. Adjunk hozzá most egy fizetési módot, hogy továbbra is használhassuk ezeket a funkciókat a próba befejezése után: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13664,6 +13784,9 @@
   "searchBankAccount": {
     "message": "Bankfiók keresése"
   },
+  "searchPassport": {
+    "message": "Útlevelek keresése"
+  },
   "copyAccountNumber": {
     "message": "Számlaszám másolása"
   },
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "Továbbiak"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "A bankszámlát ellenőrizni kell, mielőtt felhasználható lenne ehhez a frissítéshez. Ellenőrizzük a bankszámlát vagy válasszunk más fizetési módot."
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "Hivatkozás kihagyása"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Fiók titkosítási kulcs forgatás"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "A fiók titkosítási kulcs forgatása új titkosítási kulcsot generál, amely az összes tárolóadat újra titkosítására szolgál. Meg kell fontolni a titkosítási kulcs forgatását, ha a fiók veszélybe került."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Új kulcs létrehozása és az összes széf adat újra titkosítása. Ez akkor ajánlott, ha úgy gondoljuk, hogy a fiók veszélybe került."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Ki leszünk jelentkeztetve és felszólítást kapunk az újbóli hitelesítésre. Az adat sérülés elkerülése érdekében ne zárjuk be böngészőt, amíg a folyamat be nem fejeződik."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "A fiók titkosítási kulcs forgatásra került."
+  },
   "callout": {
     "message": "Felhívás",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."
   },
   "searchDriversLicense": {
     "message": "Licenszek keresése"
