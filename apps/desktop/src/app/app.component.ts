@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   NgZone,
@@ -85,10 +87,9 @@ const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [],
   template: `
     <ng-template #settings></ng-template>
@@ -176,6 +177,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private accountDeletionService: AccountDeletionService,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -237,8 +239,10 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "logout":
             this.loading = message.userId == null || message.userId === this.activeUserId;
+            this.cdr.markForCheck();
             await this.logOut(message.logoutReason, message.userId);
             this.loading = false;
+            this.cdr.markForCheck();
             break;
           case "lockVault":
             await this.lockService.lock(message.userId ?? this.activeUserId);
@@ -485,11 +489,13 @@ export class AppComponent implements OnInit, OnDestroy {
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;
+              this.cdr.markForCheck();
               await this.syncService.fullSync(false);
               // Force reload to ensure route guards are activated
               await this.router.navigate(["vault"], { onSameUrlNavigation: "reload" });
               // Clear loading after navigating to avoid flickering the previous route
               this.loading = false;
+              this.cdr.markForCheck();
             }
             this.messagingService.send("finishSwitchAccount");
             break;
@@ -809,8 +815,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     [this.modal] = await this.modalService.openViewRef(type, ref);
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
+    this.modal.onClosed.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.modal = null;
     });
   }
