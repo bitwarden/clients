@@ -17,12 +17,11 @@ import { positionFixedWrapperDecorator } from "../../stories/storybook-decorator
 import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
 import { TableDataSource } from "../table-data-source";
 
-import { BitCellDirective } from "./bit-cell.directive";
+import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnForDirective } from "./bit-column-for.directive";
 import { BitColumnHeaderDirective } from "./bit-column-header.directive";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
-import { BitCellContentComponent } from "./cell-content.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 type DemoRow = { id: number; name: string; other: string };
@@ -35,14 +34,14 @@ type DemoRow = { id: number; name: string; other: string };
     BitColumnHeaderDirective,
     BitColumnForDirective,
     BitHeaderCellComponent,
-    BitCellDirective,
+    BitCellComponent,
   ],
   template: `
     <bit-column sortable>
       <th *bitColumnHeader bit-cell>Status</th>
-      <td *bitColumnFor="ds().columns.other; let row" bit-cell>
+      <td *bitColumnFor="ds().columns.other; let cell" bit-cell>
         <span class="tw-rounded tw-bg-primary-100 tw-px-2 tw-py-0.5 tw-text-xs">
-          {{ row.other }}
+          {{ cell.other }}
         </span>
       </td>
     </bit-column>
@@ -63,8 +62,7 @@ export default {
         BitColumnHeaderDirective,
         BitColumnForDirective,
         BitHeaderCellComponent,
-        BitCellDirective,
-        BitCellContentComponent,
+        BitCellComponent,
         DemoStatusColumnComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
@@ -120,15 +118,15 @@ export const Default: Story = {
       <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
         <bit-column sortable defaultSort="asc">
           <th *bitColumnHeader bit-cell>Id</th>
-          <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+          <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
         </bit-column>
         <bit-column sortable>
           <th *bitColumnHeader bit-cell>Name</th>
-          <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+          <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
         </bit-column>
         <bit-column sortable [sortFn]="sortFn">
           <th *bitColumnHeader bit-cell>Other</th>
-          <td *bitColumnFor="dataSource.columns.other; let row" bit-cell>{{ row.other }}</td>
+          <td *bitColumnFor="dataSource.columns.other; let cell" bit-cell>{{ cell.other }}</td>
         </bit-column>
       </bit-table-v2>
     `,
@@ -142,16 +140,16 @@ export const CustomCell: Story = {
       <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
         <bit-column width="80px">
           <th *bitColumnHeader bit-cell>Id</th>
-          <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+          <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
         </bit-column>
         <bit-column>
           <th *bitColumnHeader bit-cell>Name</th>
-          <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+          <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
         </bit-column>
         <bit-column>
           <th *bitColumnHeader bit-cell>Link</th>
-          <td *bitColumnFor="dataSource.columns.other; let row" bit-cell>
-            <a href="#">{{ row.other }} →</a>
+          <td *bitColumnFor="dataSource.columns.other; let cell" bit-cell>
+            <a href="#">{{ cell.other }} →</a>
           </td>
         </bit-column>
       </bit-table-v2>
@@ -172,9 +170,9 @@ users.data = [
 ];
 
 /**
- * Rich cells use `<bit-cell-content>` inside the `<td>` for the icon-tile +
- * title + subtitle pattern. Headers can be plain text or rich; both go inside
- * `<th *bitColumnHeader bit-cell>`.
+ * Rich cells use the slot vocabulary on `<td bit-cell>` directly:
+ * `slot=start` for a leading icon/tile, default for the title, `slot=secondary`
+ * for a subtitle, `slot=end` for a trailing affordance.
  */
 export const RichCells: Story = {
   render: () => ({
@@ -183,26 +181,22 @@ export const RichCells: Story = {
       <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
         <bit-column sortable defaultSort="asc">
           <th *bitColumnHeader bit-cell>Name</th>
-          <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>
-            <bit-cell-content>
-              <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
-              {{ row.name }}
-              <span slot="secondary">{{ row.email }}</span>
-              @if (row.starred) {
-                <i slot="end" class="bwi bwi-star-f tw-text-warning"></i>
-              }
-            </bit-cell-content>
+          <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>
+            <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
+            {{ cell.name }}
+            <span slot="secondary">{{ cell.email }}</span>
+            @if (cell.starred) {
+              <i slot="end" class="bwi bwi-star-f tw-text-warning"></i>
+            }
           </td>
         </bit-column>
         <bit-column>
           <th *bitColumnHeader bit-cell>
             <i class="bwi bwi-envelope tw-me-1"></i> Contact
           </th>
-          <td *bitColumnFor="dataSource.columns.email; let row" bit-cell>
-            <bit-cell-content>
-              {{ row.email }}
-              <span slot="secondary">User #{{ row.id }}</span>
-            </bit-cell-content>
+          <td *bitColumnFor="dataSource.columns.email; let cell" bit-cell>
+            {{ cell.email }}
+            <span slot="secondary">User #{{ cell.id }}</span>
           </td>
         </bit-column>
       </bit-table-v2>
@@ -217,15 +211,15 @@ export const ReorderedAndHidden: Story = {
       <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
         <bit-column>
           <th *bitColumnHeader bit-cell>Id</th>
-          <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+          <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
         </bit-column>
         <bit-column>
           <th *bitColumnHeader bit-cell>Name</th>
-          <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+          <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
         </bit-column>
         <bit-column>
           <th *bitColumnHeader bit-cell>Hidden</th>
-          <td *bitColumnFor="dataSource.columns.other; let row" bit-cell>{{ row.other }}</td>
+          <td *bitColumnFor="dataSource.columns.other; let cell" bit-cell>{{ cell.other }}</td>
         </bit-column>
       </bit-table-v2>
     `,
@@ -244,11 +238,11 @@ export const WrappedColumn: Story = {
       <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
         <bit-column>
           <th *bitColumnHeader bit-cell>Id</th>
-          <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+          <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
         </bit-column>
         <bit-column sortable>
           <th *bitColumnHeader bit-cell>Name</th>
-          <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+          <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
         </bit-column>
         <demo-status-column [ds]="dataSource" />
       </bit-table-v2>
@@ -281,15 +275,15 @@ export const Scrollable: Story = {
         >
           <bit-column sortable defaultSort="asc">
             <th *bitColumnHeader bit-cell>Id</th>
-            <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+            <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
           </bit-column>
           <bit-column sortable>
             <th *bitColumnHeader bit-cell>Name</th>
-            <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+            <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
           </bit-column>
           <bit-column sortable [sortFn]="sortFn">
             <th *bitColumnHeader bit-cell>Other</th>
-            <td *bitColumnFor="dataSource.columns.other; let row" bit-cell>{{ row.other }}</td>
+            <td *bitColumnFor="dataSource.columns.other; let cell" bit-cell>{{ cell.other }}</td>
           </bit-column>
         </bit-table-v2>
       </bit-layout>
@@ -317,11 +311,11 @@ export const Filterable: Story = {
         >
           <bit-column sortable defaultSort="asc">
             <th *bitColumnHeader bit-cell>Name</th>
-            <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+            <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
           </bit-column>
           <bit-column sortable width="120px">
             <th *bitColumnHeader bit-cell>Value</th>
-            <td *bitColumnFor="dataSource.columns.value; let row" bit-cell>{{ row.value }}</td>
+            <td *bitColumnFor="dataSource.columns.value; let cell" bit-cell>{{ cell.value }}</td>
           </bit-column>
         </bit-table-v2>
       </bit-layout>
@@ -365,15 +359,15 @@ export const WithBulkActions: Story = {
 
           <bit-column>
             <th *bitColumnHeader bit-cell>Id</th>
-            <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+            <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
           </bit-column>
           <bit-column>
             <th *bitColumnHeader bit-cell>Name</th>
-            <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+            <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
           </bit-column>
           <bit-column>
             <th *bitColumnHeader bit-cell>Other</th>
-            <td *bitColumnFor="dataSource.columns.other; let row" bit-cell>{{ row.other }}</td>
+            <td *bitColumnFor="dataSource.columns.other; let cell" bit-cell>{{ cell.other }}</td>
           </bit-column>
         </bit-table-v2>
       `,
@@ -403,15 +397,15 @@ export const Selectable: Story = {
         >
           <bit-column>
             <th *bitColumnHeader bit-cell>Id</th>
-            <td *bitColumnFor="dataSource.columns.id; let row" bit-cell>{{ row.id }}</td>
+            <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
           </bit-column>
           <bit-column>
             <th *bitColumnHeader bit-cell>Name</th>
-            <td *bitColumnFor="dataSource.columns.name; let row" bit-cell>{{ row.name }}</td>
+            <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
           </bit-column>
           <bit-column>
             <th *bitColumnHeader bit-cell>Other</th>
-            <td *bitColumnFor="dataSource.columns.other; let row" bit-cell>{{ row.other }}</td>
+            <td *bitColumnFor="dataSource.columns.other; let cell" bit-cell>{{ cell.other }}</td>
           </bit-column>
         </bit-table-v2>
       `,

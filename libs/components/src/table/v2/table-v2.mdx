@@ -33,21 +33,21 @@ class UserListComponent {
 <bit-table-v2 [dataSource]="users" [displayedColumns]="displayedColumns">
   <bit-column sortable defaultSort="asc">
     <th *bitColumnHeader bit-cell>Id</th>
-    <td *bitColumnFor="users.columns.id; let row" bit-cell>{{ row.id }}</td>
+    <td *bitColumnFor="users.columns.id; let cell" bit-cell>{{ cell.id }}</td>
   </bit-column>
   <bit-column sortable>
     <th *bitColumnHeader bit-cell>Name</th>
-    <td *bitColumnFor="users.columns.name; let row" bit-cell>{{ row.name }}</td>
+    <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
   </bit-column>
   <bit-column>
     <th *bitColumnHeader bit-cell>Email</th>
-    <td *bitColumnFor="users.columns.email; let row" bit-cell>{{ row.email }}</td>
+    <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
   </bit-column>
 </bit-table-v2>
 ```
 
 `users.columns.X` is a typed reference: autocomplete lists every property of `User`, typos fail at
-compile time, and the row type flows through `*bitColumnFor` so `let row` is typed as `User` inside
+compile time, and the row type flows through `*bitColumnFor` so `let cell` is typed as `User` inside
 each cell template.
 
 ## Column definitions
@@ -70,11 +70,11 @@ column it belongs to. Its required input is a typed column reference from the da
 
 ```html
 <bit-column>
-  <td *bitColumnFor="users.columns.email; let row" bit-cell>{{ row.email }}</td>
+  <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
 </bit-column>
 ```
 
-`let row` is typed as `User` via `ngTemplateContextGuard` — `row.emial` fails to compile.
+`let cell` is typed as `User` via `ngTemplateContextGuard` — `cell.emial` fails to compile.
 
 ### `*bitColumnHeader` — the header template
 
@@ -84,7 +84,7 @@ A separate structural directive captures the header. No inputs — the column ke
 ```html
 <bit-column sortable>
   <th *bitColumnHeader bit-cell><i class="bwi bwi-envelope tw-me-1"></i> Email</th>
-  <td *bitColumnFor="users.columns.email; let row" bit-cell>{{ row.email }}</td>
+  <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
 </bit-column>
 ```
 
@@ -99,13 +99,13 @@ For columns that don't correspond to a field on `T` (action columns, expand/coll
 ```html
 <bit-column>
   <th *bitColumnHeader bit-cell></th>
-  <td *bitColumnFor="users.synthetic('actions'); let row" bit-cell>
+  <td *bitColumnFor="users.synthetic('actions'); let cell" bit-cell>
     <button bitIconButton="bwi-ellipsis-v">Actions</button>
   </td>
 </bit-column>
 ```
 
-`synthetic()` still carries the row type, so `let row` is typed `User`.
+`synthetic()` still carries the row type, so `let cell` is typed `User`.
 
 ### Reordering and hiding columns
 
@@ -116,15 +116,15 @@ if declared:
 <bit-table-v2 [dataSource]="users" [displayedColumns]="['name', 'id']">
   <bit-column>
     <th *bitColumnHeader bit-cell>Id</th>
-    <td *bitColumnFor="users.columns.id; let row" bit-cell>{{ row.id }}</td>
+    <td *bitColumnFor="users.columns.id; let cell" bit-cell>{{ cell.id }}</td>
   </bit-column>
   <bit-column>
     <th *bitColumnHeader bit-cell>Name</th>
-    <td *bitColumnFor="users.columns.name; let row" bit-cell>{{ row.name }}</td>
+    <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
   </bit-column>
   <bit-column>
     <th *bitColumnHeader bit-cell>Email (not displayed)</th>
-    <td *bitColumnFor="users.columns.email; let row" bit-cell>{{ row.email }}</td>
+    <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
   </bit-column>
 </bit-table-v2>
 ```
@@ -147,8 +147,8 @@ component's view still finds the table:
   template: `
     <bit-column sortable>
       <th *bitColumnHeader bit-cell>Status</th>
-      <td *bitColumnFor="ds().columns.status; let row" bit-cell>
-        <span class="…">{{ row.status }}</span>
+      <td *bitColumnFor="ds().columns.status; let cell" bit-cell>
+        <span class="…">{{ cell.status }}</span>
       </td>
     </bit-column>
   `,
@@ -164,7 +164,7 @@ Used as:
 <bit-table-v2 [dataSource]="users" [displayedColumns]="['name', 'status']">
   <bit-column>
     <th *bitColumnHeader bit-cell>Name</th>
-    <td *bitColumnFor="users.columns.name; let row" bit-cell>{{ row.name }}</td>
+    <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
   </bit-column>
   <demo-status-column [ds]="users" />
 </bit-table-v2>
@@ -172,24 +172,24 @@ Used as:
 
 ## Cell content layout
 
-`<bit-cell-content>` is an optional layout helper for cells that need a leading icon, title,
-subtitle, and/or trailing affordance. It uses the same slot vocabulary as `<bit-item-content>`
-(`slot=start`, default, `slot=secondary`, `slot=end`).
+`<td bit-cell>` provides a slot vocabulary for rich cells — a leading icon or tile (`slot=start`),
+the title (default slot), a subtitle (`slot=secondary`), and a trailing affordance (`slot=end`).
+Plain cells use only the default slot and the layout collapses to bare content.
 
 ```html
 <bit-column sortable defaultSort="asc">
   <th *bitColumnHeader bit-cell>Name</th>
-  <td *bitColumnFor="users.columns.name; let row" bit-cell>
-    <bit-cell-content>
-      <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
-      {{ row.name }}
-      <span slot="secondary">{{ row.email }}</span>
-    </bit-cell-content>
+  <td *bitColumnFor="users.columns.name; let cell" bit-cell>
+    <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
+    {{ cell.name }}
+    <span slot="secondary">{{ cell.email }}</span>
   </td>
 </bit-column>
 ```
 
-For plain text cells, drop the helper — bare interpolation is fine.
+The `truncate` input (default `true`) controls whether title and subtitle truncate with an ellipsis
+or wrap. Slot=secondary and slot=end are hidden when empty, so plain cells render exactly the
+default slot's content with no empty wrappers.
 
 ## Sorting
 
@@ -199,7 +199,7 @@ ascending. Apply an initial sort with `defaultSort`:
 ```html
 <bit-column sortable defaultSort="asc">
   <th *bitColumnHeader bit-cell>Name</th>
-  <td *bitColumnFor="users.columns.name; let row" bit-cell>{{ row.name }}</td>
+  <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
 </bit-column>
 ```
 
@@ -215,7 +215,7 @@ sortByName = (a: User, b: User, direction?: SortDirection) => {
 ```html
 <bit-column sortable [sortFn]="sortByName">
   <th *bitColumnHeader bit-cell>Name</th>
-  <td *bitColumnFor="users.columns.name; let row" bit-cell>{{ row.name }}</td>
+  <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
 </bit-column>
 ```
 
@@ -301,11 +301,11 @@ predictable row geometry. Specify `width="…"` on columns for stable widths.
 
 `BitTableV2Component<T>` is generic over the row type, inferred from `[dataSource]`. The
 `users.columns.X` and `users.synthetic(X)` references carry `T` to `*bitColumnFor`, which uses
-`ngTemplateContextGuard` to type `let-row` as `T`. Result:
+`ngTemplateContextGuard` to type `let-cell` as `T`. Result:
 
 - `users.columns.email.typed` fails (no such property)
 - `users.columns.emial` fails (typo)
-- `let row` inside `*bitColumnFor` is typed `T` — `row.email` autocompletes, `row.emial` fails
+- `let cell` inside `*bitColumnFor` is typed `T` — `cell.email` autocompletes, `cell.emial` fails
 
 This is meaningfully stronger than `MatTable`, which provides only static-API typing (cell `let-row`
 is `any`).
