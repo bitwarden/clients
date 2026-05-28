@@ -10,6 +10,7 @@ import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -96,6 +97,10 @@ describe("ArchiveComponent", () => {
           useValue: {
             canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
           },
+        },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
         },
       ],
     })
