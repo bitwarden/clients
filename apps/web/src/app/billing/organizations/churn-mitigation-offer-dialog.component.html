@@ -48,8 +48,8 @@
     <ng-container bitDialogContent>
       <p class="tw-text-muted" bitTypography="body1">
         {{ "churnOfferPreamble" | i18n }}
-        <strong>{{ params.accessEndDate | date: "longDate" }}</strong>
-        {{ "churnOfferPreambleSuffix" | i18n }}
+        <strong>{{ params.accessEndDate | date: "longDate" }}</strong
+        >{{ "churnOfferPreambleSuffix" | i18n }}
       </p>
       <bit-card class="tw-relative tw-overflow-hidden !tw-shadow-none !tw-border-none">
         <img
@@ -67,7 +67,7 @@
           <p bitTypography="h3" class="tw-mb-1 !tw-text-fg-white">
             {{ "churnOfferDiscountHeading" | i18n: discountLabel }}
           </p>
-          <span bitTypography="body1" class="tw-text-fg-contrast tw-font-normal">
+          <span bitTypography="body1" class="tw-text-fg-white tw-font-normal">
             {{ "churnOfferDiscountBody" | i18n: discountLabel : params.offer.durationDescription }}
           </span>
         </div>
