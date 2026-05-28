@@ -3607,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Your payment method will be charged for any unpaid subscriptions."
   },
-  "paymentChargedWithTrial": {
-    "message": "Your plan comes with a free 7 day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Payment information"
