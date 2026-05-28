@@ -26,6 +26,7 @@ export class NoopIpcService extends IpcService {
 
       const communicationBackend = new IpcCommunicationBackend({
         send: async (_message: OutgoingMessage): Promise<void> => {
+          this.logService.info("[IPC] Noop transport dropping message", _message);
           // Drop the message. No transport is available in this environment.
         },
       });
