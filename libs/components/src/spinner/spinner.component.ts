@@ -7,10 +7,10 @@ export type SpinnerVariant = "primary" | "subtle" | "success" | "warning" | "dan
 export type SpinnerSize = "sm" | "md" | "base" | "lg";
 
 export const spinnerSizeStyles: Record<SpinnerSize, string[]> = {
-  sm: ["tw-w-4", "tw-h-4"],
-  md: ["tw-w-6", "tw-h-6"],
-  base: ["tw-w-14", "tw-h-14"],
-  lg: ["tw-w-20", "tw-h-20"],
+  sm: ["tw-size-4"],
+  md: ["tw-size-6"],
+  base: ["tw-size-14"],
+  lg: ["tw-size-20"],
 };
 
 const spinnerVariantStyles: Record<SpinnerVariant, { foreground: string; background: string }> = {
@@ -51,7 +51,10 @@ export class SpinnerComponent {
 
   readonly variant = input<SpinnerVariant>("primary");
   readonly size = input<SpinnerSize>("base");
-  readonly title = input<string>(this.i18nService.t("loading")); // for accessibility, not visually rendered
+  /**
+   * for accessibility, not visually rendered
+   */
+  readonly title = input<string>(this.i18nService.t("loading"));
 
   readonly variantClasses = computed(() => spinnerVariantStyles[this.variant()]);
   readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);

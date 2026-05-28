@@ -1,4 +1,4 @@
-import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs/blocks";
+import { Meta, Primary, Controls, Canvas, Description, Title } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./spinner-lockup.stories";
 
@@ -8,10 +8,8 @@ import * as stories from "./spinner-lockup.stories";
 import { SpinnerLockupComponent } from "@bitwarden/components";
 ```
 
-# Spinner Lockup
-
-Spinner Lockup combines a spinner with title and body text for comprehensive loading states with
-context.
+<Title />
+<Description />
 
 <Canvas of={stories.PrimaryVariant} />
 
@@ -47,10 +45,6 @@ Slots support HTML content for emphasis and formatting:
 ## All Vertical Sizes
 
 <Canvas of={stories.AllVerticalSizes} />
-
-## Vertical With Rich Content Danger Variant
-
-<Canvas of={stories.VerticalWithRichContentDangerVariant} />
 
 ## All Horizontal Variants
 

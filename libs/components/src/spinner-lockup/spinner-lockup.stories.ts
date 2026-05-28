@@ -54,27 +54,6 @@ export const PrimaryVariant: Story = {
   },
 };
 
-export const VerticalWithRichContentDangerVariant: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-spinner-lockup
-        [variant]="variant"
-        [size]="size"
-        [orientation]="orientation"
-      >
-        <span slot="title"><strong>Processing</strong> your request</span>
-        <span slot="description">Please <em>do not</em> refresh the page.</span>
-      </bit-spinner-lockup>
-    `,
-  }),
-  args: {
-    variant: "danger",
-    size: "base",
-    orientation: "vertical",
-  },
-};
-
 export const AllVerticalVariants: Story = {
   render: (args) => ({
     props: args,
@@ -182,27 +161,6 @@ export const AllVerticalSizes: Story = {
   args: {
     variant: "primary",
     orientation: "vertical",
-  },
-};
-
-export const HorizontalWithRichContentDangerVariant: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-spinner-lockup
-        [variant]="variant"
-        [size]="size"
-        [orientation]="orientation"
-      >
-        <span slot="title"><strong>Processing</strong> your request</span>
-        <span slot="description">Please <em>do not</em> refresh the page.</span>
-      </bit-spinner-lockup>
-    `,
-  }),
-  args: {
-    variant: "danger",
-    size: "base",
-    orientation: "horizontal",
   },
 };
 
