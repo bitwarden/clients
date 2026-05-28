@@ -244,7 +244,11 @@ export class SendDetailsComponent implements OnInit {
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
-          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
+          emailsControl.setValidators([
+            Validators.required,
+            Validators.maxLength(2500),
+            this.emailListValidator(),
+          ]);
         } else {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
