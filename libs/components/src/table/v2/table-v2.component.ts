@@ -52,9 +52,10 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
 
   /**
    * Order and visibility of columns, by `name`. Columns whose names aren't
-   * listed here are not rendered, even if registered.
+   * listed here are not rendered, even if registered. Required in column-def
+   * mode; omitted in manual-rows mode.
    */
-  readonly displayedColumns = input.required<string[]>();
+  readonly displayedColumns = input<string[]>([]);
 
   /**
    * Defaults to `"auto"`. Forced to `"fixed"` when virtualization is on
@@ -84,6 +85,15 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
 
   /** All registered columns, regardless of `displayedColumns`. */
   protected readonly columns = this._columns.asReadonly();
+
+  /**
+   * Whether any `<bit-column>` has been projected. When false, the table
+   * renders in manual mode — the consumer's `<thead>` / `<tbody>` markup is
+   * projected directly inside the v2 chrome with no datasource or column
+   * registry. Use column-def mode if you need sort, selection, filter, or
+   * virtualization.
+   */
+  protected readonly hasColumns = computed(() => this._columns().length > 0);
 
   /** Registered columns filtered/ordered by {@link displayedColumns}. */
   protected readonly effectiveColumns = computed(() => {

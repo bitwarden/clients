@@ -15,6 +15,7 @@ import { LayoutComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
+import { RowDirective } from "../row.directive";
 import { TableDataSource } from "../table-data-source";
 
 import { BitCellComponent } from "./bit-cell.component";
@@ -63,6 +64,7 @@ export default {
         BitColumnForDirective,
         BitHeaderCellComponent,
         BitCellComponent,
+        RowDirective,
         DemoStatusColumnComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
@@ -411,4 +413,32 @@ export const Selectable: Story = {
       `,
     };
   },
+};
+
+/**
+ * Manual mode — for simple presentational tables. Project a standard HTML
+ * `<thead>` / `<tbody>` structure inside the table; the table provides only
+ * the chrome and the cell/row directives' styling. No datasource, no
+ * column registry, no built-in sort / select / virtualization. Use
+ * column-def mode if you need any of those.
+ */
+export const Manual: Story = {
+  render: () => ({
+    template: `
+      <bit-table-v2>
+        <tr bit-header-row>
+          <th bit-cell>Product</th>
+          <th bit-cell>Owner</th>
+        </tr>
+        <tr bit-row>
+          <td bit-cell>Password Manager</td>
+          <td bit-cell>Everyone</td>
+        </tr>
+        <tr bit-row>
+          <td bit-cell>Secrets Manager</td>
+          <td bit-cell>Developers</td>
+        </tr>
+      </bit-table-v2>
+    `,
+  }),
 };

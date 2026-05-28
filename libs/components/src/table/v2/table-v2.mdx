@@ -191,6 +191,38 @@ The `truncate` input (default `true`) controls whether title and subtitle trunca
 or wrap. Slot=secondary and slot=end are hidden when empty, so plain cells render exactly the
 default slot's content with no empty wrappers.
 
+## Manual mode
+
+For simple presentational tables — no sort, filter, selection, or virtualization — skip
+`<bit-column>` and project standard HTML table markup. The table supplies only the chrome:
+
+```html
+<bit-table-v2>
+  <tr bit-header-row>
+    <th bit-cell>Id</th>
+    <th bit-cell>Name</th>
+  </tr>
+  @for (r of items(); track r.id) {
+  <tr bit-row>
+    <td bit-cell>{{ r.id }}</td>
+    <td bit-cell>{{ r.name }}</td>
+  </tr>
+  }
+</bit-table-v2>
+```
+
+The consumer writes flat `<tr>` elements with `bit-header-row` (one) and `bit-row` (any number)
+attributes. The table owns `<thead>` and `<tbody>` internally and projects the rows into them, so
+the header gets the design's styling (secondary background, bottom border) automatically.
+
+Manual mode has no `[dataSource]` plumbing — the consumer iterates their own data signal/observable
+directly. Rich cells still work; `<td bit-cell>`'s slot vocab is the same in both modes.
+
+Mode selection is automatic: any projected `<bit-column>` ⇒ column-def mode; otherwise the
+consumer's `<tr bit-header-row>` and `<tr bit-row>` are projected into the table-generated `<thead>`
+and `<tbody>`. Don't mix the two within a single table — if you need any of the framework features
+(sort, selection, etc.), use column-def.
+
 ## Sorting
 
 `sortable` on `<bit-column>` enables click-to-sort. The cycle is unsorted → ascending → descending →

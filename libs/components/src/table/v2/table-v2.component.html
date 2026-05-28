@@ -59,7 +59,7 @@
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
 <div [ngClass]="containerClass">
-  @if (isVirtualized()) {
+  @if (isVirtualized() && hasColumns()) {
     <cdk-virtual-scroll-viewport
       bitScrollLayout
       [itemSize]="rowSize()!"
@@ -69,13 +69,13 @@
         <ng-container *ngTemplateOutlet="colgroup"></ng-container>
         <ng-container *ngTemplateOutlet="thead"></ng-container>
         <tbody>
-          <tr bitRow *cdkVirtualFor="let row of rows$; trackBy: trackBy(); templateCacheSize: 0">
-            <ng-container *ngTemplateOutlet="row; context: { $implicit: row }"></ng-container>
+          <tr bitRow *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0">
+            <ng-container *ngTemplateOutlet="row; context: { $implicit: r }"></ng-container>
           </tr>
         </tbody>
       </table>
     </cdk-virtual-scroll-viewport>
-  } @else {
+  } @else if (hasColumns()) {
     <table [ngClass]="tableClass()">
       <ng-container *ngTemplateOutlet="colgroup"></ng-container>
       <ng-container *ngTemplateOutlet="thead"></ng-container>
@@ -85,6 +85,23 @@
             <ng-container *ngTemplateOutlet="row; context: { $implicit: r }"></ng-container>
           </tr>
         }
+      </tbody>
+    </table>
+  } @else {
+    <!--
+      Manual mode. The consumer projects flat `<tr bit-header-row>` and
+      `<tr bit-row>` markup; the table owns `<thead>` / `<tbody>` and their
+      styling. No datasource, no sort/selection/virtualization — use
+      column-def mode for those.
+    -->
+    <table [ngClass]="tableClass()">
+      <thead
+        class="tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body"
+      >
+        <ng-content select="tr[bit-header-row]"></ng-content>
+      </thead>
+      <tbody>
+        <ng-content select="tr[bit-row]"></ng-content>
       </tbody>
     </table>
   }
