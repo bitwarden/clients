@@ -17,6 +17,7 @@ import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
 import { TableDataSource } from "../table-data-source";
 
 import { BitColumnComponent } from "./bit-column.component";
+import { BitCellContentComponent } from "./cell-content.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 @Component({
@@ -43,6 +44,7 @@ export default {
       imports: [
         BitTableV2Component,
         BitColumnComponent,
+        BitCellContentComponent,
         DemoStatusColumnComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
@@ -113,6 +115,53 @@ export const CustomCell: Story = {
         <bit-column name="other" header="Link">
           <ng-template let-row>
             <a href="#">{{ row.other }} →</a>
+          </ng-template>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+const users = new TableDataSource<{
+  id: number;
+  name: string;
+  email: string;
+  starred: boolean;
+}>();
+users.data = [
+  { id: 1, name: "Alex Johnson", email: "alex@example.com", starred: true },
+  { id: 2, name: "Sam Rivera", email: "sam.rivera@example.com", starred: false },
+  { id: 3, name: "Jordan Park", email: "jordan.park@example.com", starred: true },
+];
+
+/**
+ * `<bit-cell-content>` mirrors the slot vocabulary of `<bit-item-content>`
+ * (`slot=start`, default, `slot=secondary`, `slot=end`) for cells that
+ * need a leading icon, title, subtitle, and/or trailing affordance.
+ */
+export const RichCells: Story = {
+  render: () => ({
+    props: { dataSource: users, displayedColumns: ["user", "email"] },
+    template: `
+      <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+        <bit-column name="user" header="User">
+          <ng-template let-row>
+            <bit-cell-content>
+              <i slot="start" class="bwi bwi-user tw-text-muted"></i>
+              {{ row.name }}
+              <span slot="secondary">{{ row.email }}</span>
+              @if (row.starred) {
+                <i slot="end" class="bwi bwi-star-f tw-text-warning"></i>
+              }
+            </bit-cell-content>
+          </ng-template>
+        </bit-column>
+        <bit-column name="email" header="Contact">
+          <ng-template let-row>
+            <bit-cell-content>
+              {{ row.email }}
+              <span slot="secondary">User #{{ row.id }}</span>
+            </bit-cell-content>
           </ng-template>
         </bit-column>
       </bit-table-v2>
