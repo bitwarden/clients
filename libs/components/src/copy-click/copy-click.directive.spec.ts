@@ -13,9 +13,14 @@ import { CopyClickDirective } from "./copy-click.directive";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
+    <!-- FIXME: Test buttons need accessible content -->
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
     <button type="button" appCopyClick="no toast shown" #noToast></button>
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
     <button type="button" appCopyClick="info toast shown" showToast="info" #infoToast></button>
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
     <button type="button" appCopyClick="success toast shown" showToast #successToast></button>
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
     <button
       type="button"
       appCopyClick="toast with label"
