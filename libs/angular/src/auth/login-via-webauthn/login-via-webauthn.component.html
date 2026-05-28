@@ -1,6 +1,10 @@
 <div class="tw-flex tw-flex-col tw-items-center">
   <ng-container *ngIf="currentState === 'assert'">
-    <p bitTypography="body1" [ngClass]="leftAlignDescription ? 'tw-self-start' : 'tw-text-center'">
+    <p
+      bitTypography="body1"
+      [class.tw-self-start]="leftAlignDescription"
+      [class.tw-text-center]="!leftAlignDescription"
+    >
       {{ "readingPasskeyLoading" | i18n }}
     </p>
     <button type="button" bitButton block [loading]="true" buttonType="primary" class="tw-mb-4">
@@ -9,7 +13,11 @@
   </ng-container>
 
   <ng-container *ngIf="currentState === 'assertFailed'">
-    <p bitTypography="body1" [ngClass]="leftAlignDescription ? 'tw-self-start' : 'tw-text-center'">
+    <p
+      bitTypography="body1"
+      [class.tw-self-start]="leftAlignDescription"
+      [class.tw-text-center]="!leftAlignDescription"
+    >
       {{ "passkeyAuthenticationFailed" | i18n }}
     </p>
     <button type="button" bitButton block buttonType="primary" class="tw-mb-4" (click)="retry()">
