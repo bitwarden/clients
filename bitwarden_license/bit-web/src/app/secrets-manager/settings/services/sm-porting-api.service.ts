@@ -162,6 +162,19 @@ export class SecretsManagerPortingApiService {
     decryptedExport.secrets = await Promise.all(
       exportData.secrets.map(async (s) => {
         const secret = new SecretsManagerExportSecret();
+
+        const decryptionResults = await Promise.allSettled([
+          this.encryptService.decryptString(new EncString(s.key), orgKey),
+          this.encryptService.decryptString(new EncString(s.value), orgKey),
+          this.encryptService.decryptString(new EncString(s.note), orgKey),
+        ]);
+
+        secret.key =
+          decryptionResults[0].status === "fulfilled" ? decryptionResults[0].value : DECRYPT_ERROR;
+        secret.value =
+          decryptionResults[1].status === "fulfilled" ? decryptionResults[1].value : DECRYPT_ERROR;
+        secret.note =
+          decryptionResults[2].status === "fulfilled" ? decryptionResults[2].value : DECRYPT_ERROR;
         secret.id = s.id;
         secret.projectIds = s.projectIds;
 

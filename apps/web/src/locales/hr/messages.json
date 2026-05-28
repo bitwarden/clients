@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Kritične aplikacije u riziku"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Critical applications at risk"
+  },
   "allCriticalApps": {
     "message": "Sve kritične aplikacije"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Nije moguće vratiti pristup organizaciji"
   },
-  "allApplicationsWithCount": {
-    "message": "Sve aplikacije ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Stvori novu stavku prijave"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Kritične aplikacije ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "kritičnih aplikacija označeno"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Your data is in. Let's put it to work."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "startTour": {
+    "message": "Start tour"
   },
   "noDataInOrgTitle": {
     "message": "Nisu pronađeni podaci"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Ovi članovi imaju pristup ranjivim stavkama za kritične aplikacije."
   },
-  "membersWithAtRiskPasswords": {
-    "message": "Članovi s rizičnim lozinkama"
+  "membersWithAtRiskPwds": {
+    "message": "Members with at risk passwords"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Članovima tvoje organizacije biti će dodijeljen zadatak promjene ranjivih lozinki. Primiti će obavijest unutar Bitwarden proširenja preglednika."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Broj putovnice"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
   },
   "licenseNumber": {
     "message": "Broj osobne iskaznice"
@@ -1001,7 +1038,7 @@
     "message": "License"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Osobna iskaznica"
   },
   "typeLoginSubtitle": {
     "message": "Mrežna stranica ili aplikacija"
@@ -1020,6 +1057,18 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Podaci o banci"
+  },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
   },
   "folderSubtitle": {
     "message": "Organiziraj svoje stavke"
@@ -1173,7 +1222,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Uredi osobnu iskaznicu",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1213,7 +1262,7 @@
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Pogledaj osobnu iskaznicu",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "Kopiraj adresu"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "Kopiraj telefon"
   },
@@ -1323,14 +1375,20 @@
   "copyPassportNumber": {
     "message": "Kopiraj broj putovnice"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Kopiraj ime"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Kopiraj srednje ime"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Kopiraj prezime"
   },
   "copyLicenseNumber": {
     "message": "Kopiraj broj osobne iskaznice"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Kopiraj otisak prsta"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Kopiraj ime"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Nema podataka za kopiranje"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Tvoj paket $PLAN$ će biti pretvoren u plaćenu pretplatu nakon isteka besplatnog probnog razdoblja od 7 dana.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created text Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created text Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Created file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created file Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created file Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Stavka $ID$ je premještena u Organizaciju.",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "Kopiran PIN za stavku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "1 ili više adresa e-pošte pripada opozvanim članovima. Vrati im pristup za ponovni poziv."
   },
-  "revocationReasonUnknown": {
-    "message": "Nepoznati razlog"
+  "revocationReasonNotLogged": {
+    "message": "No reason logged"
   },
   "revocationReasonManual": {
     "message": "Opozvao administrator"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Nije u skladu s pravilom isključive organizacije"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Declined item transfer to organization"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Opozvan je pristup organizaciji za $ID$ zbog nesukladnosti s pravilom dvostruke autentifikacije.",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Prihvaćen prijenos u vlasništvo organizacije."
-  },
-  "userDeclinedTransfer": {
-    "message": "Opozvano zbog odbijanja prijenosa vlasništva u organizaciju."
   },
   "invitedUserId": {
     "message": "Pozvan korisnik $ID$.",
@@ -5520,10 +5633,10 @@
     "message": "Domene uređene"
   },
   "inviteLink": {
-    "message": "Invite link"
+    "message": "Pozivna poveznica"
   },
   "lastGenerated": {
-    "message": "Last generated: $DATE$",
+    "message": "Zadnje generirano: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1"
@@ -5531,13 +5644,13 @@
     }
   },
   "inviteLinkCopied": {
-    "message": "Invite link copied"
+    "message": "Pozivna poveznica kopirana"
   },
   "inviteLinkRegenerated": {
-    "message": "Invite link regenerated"
+    "message": "Pozivna poveznica ponovno generirana"
   },
   "regenerateInviteLink": {
-    "message": "Regenerate invite link"
+    "message": "Ponovno generiraj pozivnu poveznicu"
   },
   "inviteByLinkDesc": {
     "message": "Pozovi članove u svoju organizaciju pomoću poveznice. Ako još nije određena uloga, bit će dodani kao zadani korisnik."
@@ -8651,19 +8764,19 @@
     "message": "Potreban je unos."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Unesi mjesec."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Unesi dan."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Unesi godinu."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Unesi ispravan dan."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Unesi ispravnu godinu."
   },
   "inputEmail": {
     "message": "Nije unesena adresa e-pošte."
@@ -9465,7 +9578,7 @@
     "message": "Pozovi člana"
   },
   "inviteMembers": {
-    "message": "Invite members"
+    "message": "Pozovi članove"
   },
   "addSponsorship": {
     "message": "Dodaj sponzorstvo"
@@ -10799,6 +10912,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Pošalji podsjetnike za promjenu lozinki"
+  },
+  "sendNotifications": {
+    "message": "Send notifications"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Tvoj 7-dnevni probni rok za paket $PLAN$ počinje danas. Dodaj način plaćanja za nastavak korištenja značajki nakon završetka probnog roka: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13664,6 +13784,9 @@
   "searchBankAccount": {
     "message": "Pretraži bankovne račune"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Kopiraj broj računa"
   },
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "More"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Tvoj bankovni račun mora biti potvrđen prije no što se može koristiti za ovu nadogradnju. Molimo, potvrdi svoj bankovni račun ili odaberi drugi način plaćanja."
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "Preskoči poveznicu"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "callout": {
     "message": "Oblačić",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13820,50 +13961,53 @@
     "message": "Traka napretka",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Pretraži osobne iskaznice"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Detalji osobne iskaznice"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Datum rođenja"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "mjesec"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "dan"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "godina"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Država izdavanja"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Pokrajina izdavatelj"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Datum izdavanja"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "mjesec"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "dan"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "godina"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "Datum isteka"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Izdao"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Vrsta dozvole"
   },
   "copy": {
     "message": "Kopiraj"

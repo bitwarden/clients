@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Gefährdete kritische Apps"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Gefährdete kritische Apps"
+  },
   "allCriticalApps": {
     "message": "Alle kritischen Apps"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Organisationszugriff kann nicht wiederhergestellt werden"
   },
-  "allApplicationsWithCount": {
-    "message": "Alle Anwendungen ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Neuen Zugangsdaten-Eintrag erstellen"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Kritische Anwendungen ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "kritische Anwendungen markiert"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Deine Daten sind drin. Lass sie funktionieren."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Mache einen schnellen Rundgang durch Access Intelligence und sieh, wie du die Daten deiner Organisation in Aktion setzen kannst."
+  },
+  "startTour": {
+    "message": "Tour starten"
   },
   "noDataInOrgTitle": {
     "message": "Keine Daten gefunden"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Diese Mitglieder haben Zugriff auf sensible Einträge für kritische Anwendungen."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Mitglieder mit gefährdeten Passwörtern"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Mitglieder mit gefährdeten Passwörtern für $CRITICALAPPCOUNT$ Kritische Anwendungen",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Den Mitgliedern deiner Organisation wird die Aufgabe zugewiesen, sensible Passwörter zu ändern. Sie erhalten eine Benachrichtigung innerhalb ihrer Bitwarden Browser-Erweiterung."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "von $TOTAL$ insgesamt",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Reisepassnummer"
+  },
+  "sex": {
+    "message": "Geschlecht"
+  },
+  "copySex": {
+    "message": "Geschlecht kopieren"
+  },
+  "birthPlace": {
+    "message": "Geburtsort"
+  },
+  "nationality": {
+    "message": "Nationalität"
+  },
+  "copyNationality": {
+    "message": "Nationalität kopieren"
+  },
+  "passportType": {
+    "message": "Reisepasstyp"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer"
   },
   "licenseNumber": {
     "message": "Lizenznummer"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdaten"
   },
+  "typePassport": {
+    "message": "Reisepass"
+  },
+  "passportDetails": {
+    "message": "Reisepassdetails"
+  },
+  "passportAdded": {
+    "message": "Reisepass hinzugefügt"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisedokument"
+  },
   "folderSubtitle": {
     "message": "Organisiere deine Einträge"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "Adresse kopieren"
   },
+  "copyBirthPlace": {
+    "message": "Geburtsort kopieren"
+  },
   "copyPhone": {
     "message": "Telefonnummer kopieren"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "Reisepassnummer kopieren"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer kopieren"
+  },
+  "copyPassportType": {
+    "message": "Passtyp kopieren"
   },
   "copyFirstName": {
     "message": "Vornamen kopieren"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Fingerabdruck kopieren"
+  },
+  "copyIssuingAuthority": {
+    "message": "Ausstellende Behörde/Stelle kopieren"
+  },
+  "copyIssuingCountry": {
+    "message": "Ausgabeland kopieren"
   },
   "copyName": {
     "message": "Name kopieren"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Kein Wert eingegeben",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Keine Werte zum Kopieren"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Deine kostenlose 7-tägige $PLAN$ Testversion wird nach 7 Tagen in ein kostenpflichtiges Abonnement umgewandelt.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Deine $PLAN$ $TRIAL_LENGTH$ Tag kostenlose Testversion wird nach $TRIAL_LENGTH$ Tagen in ein kostenpflichtiges Abonnement umgewandelt.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Text Send erstellt"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Text Send mit E-Mail-Bestätigung erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Text Send mit Passwort erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Datei Send erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Datei Send mit E-Mail-Bestätigung erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Datei Send mit Passwort erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Eintrag $ID$ wurde in eine Organisation verschoben.",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "PIN für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Reisepassnummer für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Reisepassnummer für Eintrag $ID$ angesehen.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
   },
-  "revocationReasonUnknown": {
-    "message": "Unbekannter Grund"
+  "revocationReasonNotLogged": {
+    "message": "Kein Grund geloggt"
   },
   "revocationReasonManual": {
     "message": "Von einem Administrator widerrufen"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Entspricht nicht den Richtlinien für einzelne Organisationen"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Übertragung an die Organisation abgelehnt"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Der Organisationszugang für $ID$ wurde aufgrund der Nichteinhaltung der Richtlinien zur Zwei-Faktor-Authentifizierung widerrufen.",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Eigentumsübertragung an die Organisation akzeptiert."
-  },
-  "userDeclinedTransfer": {
-    "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
   },
   "invitedUserId": {
     "message": "Benutzer $ID$ eingeladen.",
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "Benachrichtigungen zum Ändern von Passwörtern senden"
   },
+  "sendNotifications": {
+    "message": "Send Benachrichtigungen"
+  },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Deine 7-tägige Testversion von $PLAN$ startet heute. Füge jetzt eine Zahlungsmethode hinzu, um diese Funktionen nach dem Ende der Testphase weiterzunutzen: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Deine $TRIAL_LENGTH$-Tage $PLAN$ Testversion startet heute. Füge jetzt eine Zahlungsmethode hinzu, um diese Funktionen nach Abschluss der Testphase weiter zu nutzen: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13664,6 +13784,9 @@
   "searchBankAccount": {
     "message": "Bankkonto suchen"
   },
+  "searchPassport": {
+    "message": "Reisepässe suchen"
+  },
   "copyAccountNumber": {
     "message": "Kontonummer kopieren"
   },
@@ -13728,7 +13851,7 @@
     "message": "Zeitraum"
   },
   "of": {
-    "message": "of"
+    "message": "von"
   },
   "coachmarkImportTitle": {
     "message": "Importiere schnell deine Passwörter"
@@ -13766,6 +13889,9 @@
         "example": "4"
       }
     }
+  },
+  "more": {
+    "message": "Mehr"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Dein Bankkonto muss verifiziert werden, bevor es für dieses Upgrade verwendet werden kann. Bitte verifiziere dein Bankkonto oder wähle eine andere Zahlungsmethode."
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "Link überspringen"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Verschlüsselungsschlüssel des Kontos erneuern"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Wenn du den Verschlüsselungsschlüssel deines Kontos erneuerst, wird ein neuer Verschlüsselungsschlüssel erzeugt, mit dem alle Tresordaten wieder verschlüsselt werden. Du solltest in Erwägung ziehen, deinen Verschlüsselungsschlüssel zu erneuern, wenn dein Konto kompromittiert wurde."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generiere einen neuen Schlüssel und verschlüssle alle Tresordaten. Dies wird empfohlen, wenn du glaubst, dein Konto könnte kompromittiert worden sein."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Du wirst ausgeloggt und zur erneuten Authentifizierung aufgefordert. Um Datenverluste zu vermeiden, schließe deinen Browser nicht, bis der Vorgang abgeschlossen ist."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Kontoverschlüsselungsschlüssel erneuert"
+  },
   "callout": {
     "message": "Meldung",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Du kannst keine Artikel in Meine Einträge importieren, die Teil mehrerer Sammlungen sind"
   },
   "searchDriversLicense": {
     "message": "Führerscheine suchen"
