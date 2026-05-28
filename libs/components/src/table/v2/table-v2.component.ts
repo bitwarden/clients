@@ -25,6 +25,7 @@ import { ScrollLayoutDirective } from "../../layout";
 import { RowDirective } from "../row.directive";
 import { TableDataSource } from "../table-data-source";
 
+import { BitColumnContextDirective } from "./bit-column-context";
 import { BitColumnComponent } from "./bit-column.component";
 
 @Component({
@@ -37,6 +38,7 @@ import { BitColumnComponent } from "./bit-column.component";
     CdkVirtualForOf,
     ScrollLayoutDirective,
     RowDirective,
+    BitColumnContextDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -167,39 +169,24 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
     this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
-  protected toggleSort(col: BitColumnComponent): void {
+  /**
+   * Updates `dataSource.sort` for the column. Called by the bit-cell header
+   * component when its sort button is clicked.
+   */
+  toggleSort(col: BitColumnComponent): void {
     const ds = this.dataSource();
     if (!ds) {
       return;
     }
     const current = ds.sort;
-    const active = current?.column === col.name();
+    const colName = col.name();
+    if (!colName) {
+      return;
+    }
+    const active = current?.column === colName;
     const defaultDir = col.defaultSort() === "desc" ? "desc" : "asc";
     const direction = active ? (current?.direction === "asc" ? "desc" : "asc") : defaultDir;
-    ds.sort = { column: col.name(), direction, fn: col.sortFn() };
-  }
-
-  protected ariaSort(col: BitColumnComponent): "ascending" | "descending" | undefined {
-    if (!col.sortable()) {
-      return undefined;
-    }
-    const sort = this.dataSource()?.sort;
-    if (sort?.column !== col.name()) {
-      return undefined;
-    }
-    return sort.direction === "asc" ? "ascending" : "descending";
-  }
-
-  protected sortIcon(col: BitColumnComponent): string {
-    const sort = this.dataSource()?.sort;
-    if (sort?.column !== col.name()) {
-      return "bwi-up-down-btn";
-    }
-    return sort.direction === "asc" ? "bwi-up-solid" : "bwi-down-solid";
-  }
-
-  protected cellValue(row: T, col: BitColumnComponent): unknown {
-    return (row as Record<string, unknown> | null | undefined)?.[col.name()];
+    ds.sort = { column: colName, direction, fn: col.sortFn() };
   }
 
   protected selectableRows(): T[] {
@@ -238,36 +225,6 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
     }
   }
 
-  protected readonly sortButtonClasses = [
-    "tw-min-w-max",
-    "tw-font-medium",
-    "tw-border",
-    "tw-border-solid",
-    "tw-rounded",
-    "tw-transition",
-    "hover:tw-no-underline",
-    "focus:tw-outline-none",
-    "tw-bg-transparent",
-    "!tw-text-muted",
-    "tw-border-transparent",
-    "hover:tw-bg-transparent-hover",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
-    "tw-relative",
-    "before:tw-content-['']",
-    "before:tw-block",
-    "before:tw-absolute",
-    "before:-tw-inset-[3px]",
-    "before:tw-rounded-md",
-    "before:tw-transition",
-    "before:tw-ring",
-    "before:tw-ring-transparent",
-    "focus-visible:tw-z-10",
-  ];
-
   private applyInitialSort(): void {
     const ds = this.dataSource();
     if (!ds || ds.sort?.column) {
@@ -275,11 +232,14 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
     }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
     if (defaultCol) {
-      ds.sort = {
-        column: defaultCol.name(),
-        direction: defaultCol.defaultSort() ?? "asc",
-        fn: defaultCol.sortFn(),
-      };
+      const name = defaultCol.name();
+      if (name) {
+        ds.sort = {
+          column: name,
+          direction: defaultCol.defaultSort() ?? "asc",
+          fn: defaultCol.sortFn(),
+        };
+      }
     }
   }
 }

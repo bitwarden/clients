@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  TemplateRef,
+  computed,
   contentChild,
   forwardRef,
   inject,
@@ -12,15 +12,19 @@ import {
 
 import type { SortDirection, SortFn } from "../table-data-source";
 
+import { BitColumnForDirective } from "./bit-column-for.directive";
+import { BitColumnHeaderDirective } from "./bit-column-header.directive";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
- * Declarative column definition for `bit-table-v2`.
+ * Declarative column wrapper for `bit-table-v2`. Carries column-level
+ * metadata (sortable, defaultSort, sortFn, width). The column key and the
+ * row-template come from a `*bitColumnFor` child; the header template comes
+ * from a `*bitColumnHeader` child.
  *
- * Registers itself with the nearest ancestor `<bit-table-v2>` via DI, so the
- * `<bit-column>` element can appear anywhere in the descendant tree — including
- * inside wrapper components. The table reads columns by `name` from the
- * `displayedColumns` input.
+ * Registers itself with the nearest ancestor `<bit-table-v2>` via DI so the
+ * column can sit anywhere in the descendant tree — including inside a wrapper
+ * component.
  */
 @Component({
   selector: "bit-column",
@@ -28,29 +32,36 @@ import { BitTableV2Component } from "./table-v2.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BitColumnComponent {
-  /** Column key. Used as the data-property accessor when no cell template is provided. */
-  readonly name = input.required<string>();
-
-  /** Plain-text header. Leave blank for headerless columns (e.g. action menus). */
-  readonly header = input<string>("");
-
-  /** CSS width (e.g. `120px`, `20%`). Applied to both `<th>` and `<td>`. */
-  readonly width = input<string>();
-
   /** Enable click-to-sort on this column's header. */
   readonly sortable = input(false, { transform: booleanAttribute });
 
   /**
    * Apply this sort direction as the initial sort. Only one column should set
-   * this per table; if multiple do, the first one registered wins.
+   * this per table; if multiple do, the first registered wins.
    */
   readonly defaultSort = input<SortDirection>();
 
-  /** Custom sort comparator. See {@link SortFn}. */
+  /** Custom sort comparator. */
   readonly sortFn = input<SortFn>();
 
-  /** Cell renderer. Receives the row as `$implicit` context. */
-  readonly cellTemplate = contentChild(TemplateRef);
+  /** CSS width (e.g. `"120px"`, `"20%"`). Applied via `<colgroup>` on the table. */
+  readonly width = input<string>();
+
+  private readonly cellDir = contentChild(BitColumnForDirective);
+  private readonly headerDir = contentChild(BitColumnHeaderDirective);
+
+  /**
+   * Column key, sourced from the `*bitColumnFor` child. Returns `undefined`
+   * if the column hasn't projected a cell template (transient state during
+   * initial render).
+   */
+  readonly name = computed(() => this.cellDir()?.name());
+
+  /** Template for stamping per-row cells. */
+  readonly cellTemplate = computed(() => this.cellDir()?.template);
+
+  /** Template for the header cell. */
+  readonly headerTemplate = computed(() => this.headerDir()?.template);
 
   constructor() {
     const table = inject<BitTableV2Component>(forwardRef(() => BitTableV2Component));

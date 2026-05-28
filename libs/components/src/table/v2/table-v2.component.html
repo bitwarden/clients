@@ -1,4 +1,15 @@
-<ng-template #header>
+<ng-template #colgroup>
+  <colgroup>
+    @if (selection()) {
+      <col style="width: 40px" />
+    }
+    @for (col of effectiveColumns(); track col.name()) {
+      <col [style.width]="col.width()" />
+    }
+  </colgroup>
+</ng-template>
+
+<ng-template #thead>
   <thead
     class="tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body"
   >
@@ -15,35 +26,33 @@
         </th>
       }
       @for (col of effectiveColumns(); track col.name()) {
-        <th
-          class="tw-h-12 tw-px-3 tw-py-0 tw-text-sm tw-font-medium tw-text-start tw-align-middle"
-          [style.width]="col.width()"
-          [attr.aria-sort]="ariaSort(col)"
-        >
-          @if (col.sortable()) {
-            <button
-              type="button"
-              [ngClass]="sortButtonClasses"
-              [attr.aria-pressed]="dataSource()?.sort?.column === col.name()"
-              (click)="toggleSort(col)"
-            >
-              {{ col.header() }}
-              <i class="bwi tw-ms-2" [ngClass]="sortIcon(col)"></i>
-            </button>
-          } @else {
-            {{ col.header() }}
-          }
-        </th>
+        @if (col.headerTemplate(); as tpl) {
+          <ng-container [bitColumnContext]="col">
+            <ng-container *ngTemplateOutlet="tpl"></ng-container>
+          </ng-container>
+        }
       }
     </tr>
   </thead>
 </ng-template>
 
-<ng-template #cell let-row let-col="col">
-  @if (col.cellTemplate(); as tpl) {
-    <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }"></ng-container>
-  } @else {
-    {{ cellValue(row, col) }}
+<ng-template #row let-row>
+  @if (selection(); as sel) {
+    <td class="tw-h-16 tw-px-3 tw-py-0 tw-w-10 tw-align-middle">
+      <input
+        type="checkbox"
+        aria-label="Select row"
+        [checked]="sel.isSelected(row)"
+        (change)="sel.toggle(row)"
+      />
+    </td>
+  }
+  @for (col of effectiveColumns(); track col.name()) {
+    @if (col.cellTemplate(); as tpl) {
+      <ng-container [bitColumnContext]="col">
+        <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }"></ng-container>
+      </ng-container>
+    }
   }
 </ng-template>
 
@@ -57,53 +66,23 @@
       [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
     >
       <table [ngClass]="tableClass()">
-        <ng-container *ngTemplateOutlet="header"></ng-container>
+        <ng-container *ngTemplateOutlet="colgroup"></ng-container>
+        <ng-container *ngTemplateOutlet="thead"></ng-container>
         <tbody>
           <tr bitRow *cdkVirtualFor="let row of rows$; trackBy: trackBy(); templateCacheSize: 0">
-            @if (selection(); as sel) {
-              <td class="tw-h-16 tw-px-3 tw-py-0 tw-w-10 tw-align-middle">
-                <input
-                  type="checkbox"
-                  aria-label="Select row"
-                  [checked]="sel.isSelected(row)"
-                  (change)="sel.toggle(row)"
-                />
-              </td>
-            }
-            @for (col of effectiveColumns(); track col.name()) {
-              <td class="tw-h-16 tw-px-4 tw-py-0 tw-align-middle" [style.width]="col.width()">
-                <ng-container
-                  *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
-                ></ng-container>
-              </td>
-            }
+            <ng-container *ngTemplateOutlet="row; context: { $implicit: row }"></ng-container>
           </tr>
         </tbody>
       </table>
     </cdk-virtual-scroll-viewport>
   } @else {
     <table [ngClass]="tableClass()">
-      <ng-container *ngTemplateOutlet="header"></ng-container>
+      <ng-container *ngTemplateOutlet="colgroup"></ng-container>
+      <ng-container *ngTemplateOutlet="thead"></ng-container>
       <tbody>
-        @for (row of (rows$ | async) ?? []; track row) {
+        @for (r of (rows$ | async) ?? []; track r) {
           <tr bitRow>
-            @if (selection(); as sel) {
-              <td class="tw-h-16 tw-px-3 tw-py-0 tw-w-10 tw-align-middle">
-                <input
-                  type="checkbox"
-                  aria-label="Select row"
-                  [checked]="sel.isSelected(row)"
-                  (change)="sel.toggle(row)"
-                />
-              </td>
-            }
-            @for (col of effectiveColumns(); track col.name()) {
-              <td class="tw-h-16 tw-px-4 tw-py-0 tw-align-middle" [style.width]="col.width()">
-                <ng-container
-                  *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
-                ></ng-container>
-              </td>
-            }
+            <ng-container *ngTemplateOutlet="row; context: { $implicit: r }"></ng-container>
           </tr>
         }
       </tbody>

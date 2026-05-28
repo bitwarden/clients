@@ -1,0 +1,13 @@
+@if (sortable()) {
+  <button
+    type="button"
+    [class]="sortButtonClasses"
+    [attr.aria-pressed]="active()"
+    (click)="onSortClick()"
+  >
+    <ng-content></ng-content>
+    <i class="bwi tw-ms-2" [class]="sortIcon()"></i>
+  </button>
+} @else {
+  <ng-content></ng-content>
+}
