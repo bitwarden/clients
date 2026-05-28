@@ -1,10 +1,10 @@
 <ng-template #header>
   <thead
-    class="tw-border-0 tw-border-b-2 tw-border-solid tw-border-border-base tw-font-medium tw-text-muted"
+    class="tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body"
   >
     <tr>
       @if (selection()) {
-        <th bitCell class="tw-w-10">
+        <th class="tw-h-12 tw-px-3 tw-py-0 tw-w-10 tw-text-start tw-align-middle">
           <input
             type="checkbox"
             aria-label="Select all rows"
@@ -15,7 +15,11 @@
         </th>
       }
       @for (col of effectiveColumns(); track col.name()) {
-        <th bitCell [style.width]="col.width()" [attr.aria-sort]="ariaSort(col)">
+        <th
+          class="tw-h-12 tw-px-3 tw-py-0 tw-text-sm tw-font-medium tw-text-start tw-align-middle"
+          [style.width]="col.width()"
+          [attr.aria-sort]="ariaSort(col)"
+        >
           @if (col.sortable()) {
             <button
               type="button"
@@ -45,62 +49,64 @@
 
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
-@if (isVirtualized()) {
-  <cdk-virtual-scroll-viewport
-    bitScrollLayout
-    [itemSize]="rowSize()!"
-    [ngStyle]="{ paddingBottom: headerHeight + 'px' }"
-  >
+<div [ngClass]="containerClass">
+  @if (isVirtualized()) {
+    <cdk-virtual-scroll-viewport
+      bitScrollLayout
+      [itemSize]="rowSize()!"
+      [ngStyle]="{ paddingBottom: headerHeight + 'px' }"
+    >
+      <table [ngClass]="tableClass()">
+        <ng-container *ngTemplateOutlet="header"></ng-container>
+        <tbody>
+          <tr bitRow *cdkVirtualFor="let row of rows$; trackBy: trackBy(); templateCacheSize: 0">
+            @if (selection(); as sel) {
+              <td class="tw-h-16 tw-px-3 tw-py-0 tw-w-10 tw-align-middle">
+                <input
+                  type="checkbox"
+                  aria-label="Select row"
+                  [checked]="sel.isSelected(row)"
+                  (change)="sel.toggle(row)"
+                />
+              </td>
+            }
+            @for (col of effectiveColumns(); track col.name()) {
+              <td class="tw-h-16 tw-px-4 tw-py-0 tw-align-middle" [style.width]="col.width()">
+                <ng-container
+                  *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
+                ></ng-container>
+              </td>
+            }
+          </tr>
+        </tbody>
+      </table>
+    </cdk-virtual-scroll-viewport>
+  } @else {
     <table [ngClass]="tableClass()">
       <ng-container *ngTemplateOutlet="header"></ng-container>
       <tbody>
-        <tr bitRow *cdkVirtualFor="let row of rows$; trackBy: trackBy(); templateCacheSize: 0">
-          @if (selection(); as sel) {
-            <td bitCell class="tw-w-10">
-              <input
-                type="checkbox"
-                aria-label="Select row"
-                [checked]="sel.isSelected(row)"
-                (change)="sel.toggle(row)"
-              />
-            </td>
-          }
-          @for (col of effectiveColumns(); track col.name()) {
-            <td bitCell [style.width]="col.width()">
-              <ng-container
-                *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
-              ></ng-container>
-            </td>
-          }
-        </tr>
+        @for (row of (rows$ | async) ?? []; track row) {
+          <tr bitRow>
+            @if (selection(); as sel) {
+              <td class="tw-h-16 tw-px-3 tw-py-0 tw-w-10 tw-align-middle">
+                <input
+                  type="checkbox"
+                  aria-label="Select row"
+                  [checked]="sel.isSelected(row)"
+                  (change)="sel.toggle(row)"
+                />
+              </td>
+            }
+            @for (col of effectiveColumns(); track col.name()) {
+              <td class="tw-h-16 tw-px-4 tw-py-0 tw-align-middle" [style.width]="col.width()">
+                <ng-container
+                  *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
+                ></ng-container>
+              </td>
+            }
+          </tr>
+        }
       </tbody>
     </table>
-  </cdk-virtual-scroll-viewport>
-} @else {
-  <table [ngClass]="tableClass()">
-    <ng-container *ngTemplateOutlet="header"></ng-container>
-    <tbody>
-      @for (row of (rows$ | async) ?? []; track row) {
-        <tr bitRow>
-          @if (selection(); as sel) {
-            <td bitCell class="tw-w-10">
-              <input
-                type="checkbox"
-                aria-label="Select row"
-                [checked]="sel.isSelected(row)"
-                (change)="sel.toggle(row)"
-              />
-            </td>
-          }
-          @for (col of effectiveColumns(); track col.name()) {
-            <td bitCell [style.width]="col.width()">
-              <ng-container
-                *ngTemplateOutlet="cell; context: { $implicit: row, col: col }"
-              ></ng-container>
-            </td>
-          }
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+  }
+</div>

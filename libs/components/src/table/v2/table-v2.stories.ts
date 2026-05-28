@@ -10,6 +10,7 @@ import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.componen
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { countries } from "../../form/countries";
+import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { LayoutComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
@@ -39,7 +40,7 @@ class DemoStatusColumnComponent {}
 export default {
   title: "Component Library/Table V2",
   decorators: [
-    positionFixedWrapperDecorator(),
+    positionFixedWrapperDecorator(undefined, { border: false }),
     moduleMetadata({
       imports: [
         BitTableV2Component,
@@ -49,6 +50,7 @@ export default {
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
+        IconTileComponent,
         LayoutComponent,
         RouterTestingModule,
       ],
@@ -141,13 +143,13 @@ users.data = [
  */
 export const RichCells: Story = {
   render: () => ({
-    props: { dataSource: users, displayedColumns: ["user", "email"] },
+    props: { dataSource: users, displayedColumns: ["name", "email"] },
     template: `
       <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
-        <bit-column name="user" header="User">
+        <bit-column name="name" header="Name" sortable defaultSort="asc">
           <ng-template let-row>
             <bit-cell-content>
-              <i slot="start" class="bwi bwi-user tw-text-muted"></i>
+              <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
               {{ row.name }}
               <span slot="secondary">{{ row.email }}</span>
               @if (row.starred) {

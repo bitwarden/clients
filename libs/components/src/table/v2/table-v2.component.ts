@@ -22,7 +22,6 @@ import {
 import { Observable, of } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
-import { CellDirective } from "../cell.directive";
 import { RowDirective } from "../row.directive";
 import { TableDataSource } from "../table-data-source";
 
@@ -39,7 +38,6 @@ import { BitColumnComponent } from "./bit-column.component";
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     ScrollLayoutDirective,
-    CellDirective,
     RowDirective,
   ],
 })
@@ -111,12 +109,23 @@ export class BitTableV2Component implements OnInit, OnDestroy, AfterContentInit,
     return [
       "tw-w-full",
       "tw-leading-normal",
-      "tw-text-main",
+      "tw-text-fg-heading",
       "tw-border-collapse",
       "tw-text-start",
       fixed ? "tw-table-fixed" : "tw-table-auto",
     ];
   });
+
+  /** Outer container chrome: border, rounded corners, subtle shadow. */
+  protected readonly containerClass = [
+    "tw-bg-bg-primary",
+    "tw-border",
+    "tw-border-solid",
+    "tw-border-border-base",
+    "tw-rounded-xl",
+    "tw-overflow-clip",
+    "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
+  ];
 
   protected rows$: Observable<any[]> = of([]);
 
