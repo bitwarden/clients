@@ -249,3 +249,12 @@ export class MockDialogService {
 export class MockAccessIntelligenceCoachmarkService {
   readonly activeStepId = signal<AccessIntelligenceCoachmarkStepId | null>(null);
 }
+/**
+ * Mock ConfigService for Storybook stories.
+ */
+export class MockConfigService {
+  getFeatureFlag$ = (flag: string) => {
+    action("ConfigService.getFeatureFlag$")(flag);
+    return of(true);
+  };
+}
