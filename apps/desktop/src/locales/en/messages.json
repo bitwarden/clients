@@ -3434,9 +3434,6 @@
     "message": "Vault",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "Log in with master password"
-  },
   "rememberEmail": {
     "message": "Remember email"
   },

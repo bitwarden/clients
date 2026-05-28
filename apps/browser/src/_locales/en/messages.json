@@ -3949,9 +3949,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Log in with master password"
-  },
   "newAroundHere": {
     "message": "New around here?"
   },
