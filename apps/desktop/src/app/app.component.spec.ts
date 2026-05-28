@@ -1,11 +1,12 @@
-import { DestroyRef, NgZone } from "@angular/core";
+import { DestroyRef, NgZone, ViewContainerRef } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of } from "rxjs";
+import { EMPTY, of, Subject } from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
@@ -59,6 +60,7 @@ describe("AppComponent (desktop)", () => {
   let ngZone: MockProxy<NgZone>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let logService: MockProxy<LogService>;
+  let modalService: MockProxy<ModalService>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
 
@@ -72,6 +74,7 @@ describe("AppComponent (desktop)", () => {
     ngZone = mock<NgZone>();
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     logService = mock<LogService>();
+    modalService = mock<ModalService>();
 
     accountService.activeAccount$ = of({ id: userId } as any);
     (accountService as any).showHeader$ = EMPTY;
@@ -111,7 +114,7 @@ describe("AppComponent (desktop)", () => {
           mock<ProcessReloadServiceAbstraction>(),
           mock<StateService>(),
           mock<EventUploadService>(),
-          mock<ModalService>(),
+          modalService,
           mock<UserVerificationService>(),
           mock<ConfigService>(),
           mock<DialogService>(),
@@ -202,5 +205,68 @@ describe("AppComponent (desktop)", () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
     expect(syncService.fullSync).toHaveBeenCalledTimes(1);
+  });
+
+  it("handles modal close events before destruction and ignores them after destruction", async () => {
+    const firstOnClosed = new Subject<void>();
+    const firstModalRef = { onClosed: firstOnClosed } as ModalRef;
+    modalService.openViewRef.mockResolvedValueOnce([firstModalRef, null]);
+
+    await (component as any).openModal(class FirstModal {}, mock<ViewContainerRef>());
+    firstOnClosed.next();
+    expect((component as any).modal).toBeNull();
+
+    const secondOnClosed = new Subject<void>();
+    const secondModalRef = { onClosed: secondOnClosed } as ModalRef;
+    modalService.openViewRef.mockResolvedValueOnce([secondModalRef, null]);
+
+    await (component as any).openModal(class SecondModal {}, mock<ViewContainerRef>());
+    component.ngOnDestroy();
+    secondOnClosed.next();
+
+    expect((component as any).modal).toBe(secondModalRef);
+  });
+
+  it("does not retain a modal that finishes opening after destruction", async () => {
+    const onClosed = new Subject<void>();
+    const close = jest.fn();
+    const modalRef = { close, onClosed } as unknown as ModalRef;
+    let resolveOpen: (value: [ModalRef, unknown]) => void = () => {
+      throw new Error("openViewRef resolver was not initialized");
+    };
+    modalService.openViewRef.mockReturnValue(
+      new Promise((resolve) => {
+        resolveOpen = resolve;
+      }),
+    );
+
+    const opening = (component as any).openModal(class DelayedModal {}, mock<ViewContainerRef>());
+    component.ngOnDestroy();
+    resolveOpen([modalRef, null]);
+    await opening;
+
+    onClosed.next();
+
+    expect(close).toHaveBeenCalledTimes(1);
+    expect((component as any).modal).toBeNull();
+  });
+
+  it("does not let an older modal clear a newer modal", async () => {
+    const firstOnClosed = new Subject<void>();
+    const firstModalRef = { onClosed: firstOnClosed } as ModalRef;
+    const secondOnClosed = new Subject<void>();
+    const secondModalRef = { onClosed: secondOnClosed } as ModalRef;
+    modalService.openViewRef
+      .mockResolvedValueOnce([firstModalRef, null])
+      .mockResolvedValueOnce([secondModalRef, null]);
+
+    await (component as any).openModal(class FirstModal {}, mock<ViewContainerRef>());
+    await (component as any).openModal(class SecondModal {}, mock<ViewContainerRef>());
+    firstOnClosed.next();
+
+    expect((component as any).modal).toBe(secondModalRef);
+
+    secondOnClosed.next();
+    expect((component as any).modal).toBeNull();
   });
 });
