@@ -14,7 +14,7 @@
 
     <bit-dropzone
       [accept]="accept()"
-      [maxFileSize]="maxFileSize()!"
+      [maxFileSize]="maxFileSize()"
       [multiple]="multiple()"
       [errorMessage]="errorMessage()"
       [disabled]="disabled()"
@@ -84,7 +84,7 @@
         [class.tw-text-fg-inactive]="disabled()"
       >
         @if (fileLabel(); as label) {
-          <bit-truncated-filename [name]="label" />
+          <bit-file-name [name]="label" />
         } @else {
           {{ "noFileChosen" | i18n }}
         }
