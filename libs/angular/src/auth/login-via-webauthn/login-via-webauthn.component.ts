@@ -52,8 +52,8 @@ export type State = "assert" | "assertFailed";
 })
 export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
-  protected showTroubleLoggingInText = true;
-  protected leftAlignDescription = false;
+  protected showTroubleLoggingInText: boolean;
+  protected leftAlignDescription: boolean;
   private shouldAutoClosePopout = false;
 
   protected readonly Icons = {
