@@ -4039,6 +4039,21 @@
       }
     }
   },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "or copy/paste the import file contents"
   },
