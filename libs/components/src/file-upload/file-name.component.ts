@@ -15,7 +15,7 @@ const splitFilename = (
 };
 
 @Component({
-  selector: "bit-truncated-filename",
+  selector: "bit-file-name",
   template: `
     <span class="tw-contents" [appA11yTitle]="name()">
       <span class="tw-flex-none">{{ parts().firstFourth }}</span>
@@ -27,7 +27,7 @@ const splitFilename = (
   host: { class: "tw-flex tw-overflow-hidden tw-min-w-0" },
   imports: [A11yTitleDirective],
 })
-export class TruncatedFilenameComponent {
+export class FileNameComponent {
   readonly name = input.required<string>();
   protected readonly parts = computed(() => splitFilename(this.name()));
 }
