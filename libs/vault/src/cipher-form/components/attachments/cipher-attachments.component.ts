@@ -49,7 +49,6 @@ import {
   ItemModule,
   ProgressBarComponent,
   ToastService,
-  TypographyModule,
 } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../../components/download-attachment/download-attachment.component";
@@ -79,7 +78,6 @@ type CipherAttachmentForm = FormGroup<{
     ProgressBarComponent,
     ReactiveFormsModule,
     TruncatedFilenameComponent,
-    TypographyModule,
   ],
 })
 export class CipherAttachmentsComponent {
