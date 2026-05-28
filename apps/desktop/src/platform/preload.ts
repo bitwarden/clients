@@ -140,8 +140,10 @@ export default {
   ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
-  onSystemThemeUpdated: (callback: (theme: ThemeType) => void) => {
-    ipcRenderer.on("systemThemeUpdated", (_event, theme: ThemeType) => callback(theme));
+  onSystemThemeUpdated: (callback: (theme: ThemeType) => void): (() => void) => {
+    const wrapper = (_event: any, theme: ThemeType) => callback(theme);
+    ipcRenderer.on("systemThemeUpdated", wrapper);
+    return () => ipcRenderer.removeListener("systemThemeUpdated", wrapper);
   },
 
   isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
@@ -151,22 +153,27 @@ export default {
 
   sendMessage: (message: { command: string } & any) =>
     ipcRenderer.send("messagingService", message),
-  onMessage: {
-    addListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.addListener("messagingService", (_event, message: any) => {
-        if (message.command) {
-          callback(message);
+  onMessage: (() => {
+    const listenerMap = new Map<Function, (...args: any[]) => void>();
+    return {
+      addListener: (callback: (message: { command: string } & any) => void) => {
+        const wrapper = (_event: any, message: any) => {
+          if (message.command) {
+            callback(message);
+          }
+        };
+        listenerMap.set(callback, wrapper);
+        ipcRenderer.addListener("messagingService", wrapper);
+      },
+      removeListener: (callback: (message: { command: string } & any) => void) => {
+        const wrapper = listenerMap.get(callback);
+        if (wrapper) {
+          ipcRenderer.removeListener("messagingService", wrapper);
+          listenerMap.delete(callback);
         }
-      });
-    },
-    removeListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
-        if (message.command) {
-          callback(message);
-        }
-      });
-    },
-  },
+      },
+    };
+  })(),
 
   launchUri: (uri: string) => ipcRenderer.invoke("launchUri", uri),
 

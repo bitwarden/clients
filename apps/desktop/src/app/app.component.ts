@@ -809,8 +809,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     [this.modal] = await this.modalService.openViewRef(type, ref);
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
+    this.modal.onClosed.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.modal = null;
     });
   }
