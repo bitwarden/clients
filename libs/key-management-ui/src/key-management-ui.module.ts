@@ -4,7 +4,6 @@ import { DialogService } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 import {
   UserCryptoDialogService,
-  UserCryptoManagementModule,
 } from "@bitwarden/user-crypto-management";
 
 import { DefaultUserCryptoDialogService } from "./trust/default-user-crypto-dialog.service";
@@ -15,7 +14,7 @@ import { DefaultUserCryptoDialogService } from "./trust/default-user-crypto-dial
  * services module to get the dialog-based trust verification flow.
  */
 @NgModule({
-  imports: [UserCryptoManagementModule],
+  imports: [],
   providers: [
     safeProvider({
       provide: UserCryptoDialogService,
@@ -23,6 +22,6 @@ import { DefaultUserCryptoDialogService } from "./trust/default-user-crypto-dial
       deps: [DialogService],
     }),
   ],
-  exports: [UserCryptoManagementModule],
+  exports: [],
 })
 export class KeyManagementUiModule {}
