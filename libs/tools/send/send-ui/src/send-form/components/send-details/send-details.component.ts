@@ -259,6 +259,17 @@ export class SendDetailsComponent implements OnInit {
         passwordControl.updateValueAndValidity();
       });
 
+    const emailsControl = this.sendDetailsForm.get("emails");
+    emailsControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (typeof value === "string" && value.length >= 2500) {
+        // bitInput's input handler marks the control untouched on every keystroke
+        // (input.directive.ts), which hides bit-error. Defer to the next macrotask
+        // so markAsTouched lands after that, surfacing the cap-reached error while
+        // the user is still in the field.
+        setTimeout(() => emailsControl.markAsTouched(), 0);
+      }
+    });
+
     this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
   }
 
