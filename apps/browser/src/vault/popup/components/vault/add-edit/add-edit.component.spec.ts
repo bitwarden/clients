@@ -38,6 +38,7 @@ import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-uti
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
@@ -127,6 +128,10 @@ describe("AddEditComponent", () => {
         {
           provide: VaultPopupAfterDeletionNavigationService,
           useValue: { navigateAfterDeletion },
+        },
+        {
+          provide: VaultPopupAutofillService,
+          useValue: mock<VaultPopupAutofillService>(),
         },
       ],
     })
@@ -327,7 +332,10 @@ describe("AddEditComponent", () => {
     });
 
     it("closes single action popout", async () => {
-      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);
+      jest
+        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(true);
       jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
 
       await component.onCipherSaved({ id: "123-456-789" } as CipherView);
