@@ -6,7 +6,7 @@ import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendResponse } from "../../tools/send/models/response/send.response";
-import { AlertDismissalResponse } from "../../vault/models/response/alert-dismissal.response";
+import { AlertExclusionResponse } from "../../vault/models/response/alert-exclusion.response";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 
@@ -19,7 +19,7 @@ export class SyncResponse extends BaseResponse {
   policies?: PolicyResponse[] = [];
   sends: SendResponse[] = [];
   userDecryption?: UserDecryptionResponse;
-  alertDismissals: AlertDismissalResponse[] = [];
+  alertExclusions: AlertExclusionResponse[] = [];
 
   constructor(response: any) {
     super(response);
@@ -64,9 +64,10 @@ export class SyncResponse extends BaseResponse {
       this.userDecryption = new UserDecryptionResponse(userDecryption);
     }
 
-    const alertDismissals = this.getResponseProperty("AlertDismissals");
-    if (alertDismissals != null) {
-      this.alertDismissals = alertDismissals.map((d: any) => new AlertDismissalResponse(d));
+    // Wire format: server JSON property is "AlertDismissals" (legacy server contract).
+    const alertExclusions = this.getResponseProperty("AlertDismissals");
+    if (alertExclusions != null) {
+      this.alertExclusions = alertExclusions.map((d: any) => new AlertExclusionResponse(d));
     }
   }
 }

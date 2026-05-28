@@ -1,18 +1,16 @@
 <popup-page>
-  <popup-header
-    slot="header"
-    [pageTitle]="(pageTitleKey$ | async) ? ((pageTitleKey$ | async)! | i18n) : ''"
-    showBackButton
-  >
-    <ng-container slot="end">
-      <app-pop-out></app-pop-out>
-      <app-current-account></app-current-account>
-    </ng-container>
-  </popup-header>
+  <ng-container *ngIf="data$ | async as data">
+    <popup-header slot="header" [pageTitle]="data.titleKey | i18n" showBackButton>
+      <ng-container slot="end">
+        <app-pop-out></app-pop-out>
+        <app-current-account></app-current-account>
+      </ng-container>
+    </popup-header>
 
-  <p bitTypography="body1" class="tw-px-4 tw-pt-4 tw-pb-2 tw-text-muted tw-mb-0">
-    {{ (descriptionKey$ | async)! | i18n }}
-  </p>
+    <p bitTypography="body1" class="tw-px-4 tw-pt-4 tw-pb-2 tw-text-muted tw-mb-0">
+      {{ data.descKey | i18n }}
+    </p>
+  </ng-container>
 
   <ng-container *ngIf="ciphers$ | async as ciphers">
     <div class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-2">
@@ -46,12 +44,12 @@
           <button
             type="button"
             bitButton
-            buttonType="primary"
+            buttonType="primaryOutline"
             size="small"
             appStopProp
             (click)="changePassword(cipher)"
           >
-            {{ "change" | i18n }}
+            {{ "changePassword" | i18n }}
             <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
           </button>
           <button
@@ -59,22 +57,23 @@
             bitIconButton="bwi-ellipsis-v"
             size="small"
             appStopProp
-            class="tw-ml-1"
+            class="tw-ml-3"
             [label]="'moreOptionsLabelNoPlaceholder' | i18n"
             [bitMenuTriggerFor]="alertOptions"
           ></button>
           <bit-menu #alertOptions>
-            <button type="button" bitMenuItem (click)="dismiss(cipher.id)">
-              <i slot="start" class="bwi bwi-close" aria-hidden="true"></i>
-              {{ "dismissAlert" | i18n }}
+            <button type="button" bitMenuItem (click)="exclude(cipher.id)">
+              <i slot="start" class="bwi bwi-exclamation-triangle" aria-hidden="true"></i>
+              {{ "excludeFromReport" | i18n }}
             </button>
-            <button type="button" bitMenuItem (click)="archive(cipher)">
-              <i slot="start" class="bwi bwi-archive" aria-hidden="true"></i>
-              {{ "archiveVerb" | i18n }}
-            </button>
+            <div
+              class="tw-border-0 tw-border-t tw-border-solid tw-border-t-secondary-100"
+              role="separator"
+              aria-hidden="true"
+            ></div>
             <button type="button" bitMenuItem (click)="delete(cipher)">
               <i slot="start" class="bwi bwi-trash tw-text-danger" aria-hidden="true"></i>
-              <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+              <span class="tw-text-danger">{{ "deleteItem" | i18n }}</span>
             </button>
           </bit-menu>
         </bit-item-action>
@@ -82,36 +81,34 @@
     </bit-item-group>
   </ng-container>
 
-  <!-- Dismissed items accordion -->
-  <ng-container *ngIf="dismissedItems$ | async as dismissedItems">
-    <ng-container *ngIf="dismissedItems.length > 0">
+  <!-- Excluded items accordion -->
+  <ng-container *ngIf="excludedItems$ | async as excludedItems">
+    <ng-container *ngIf="excludedItems.length > 0">
       <button
         type="button"
         class="tw-flex tw-items-center tw-justify-between tw-w-full tw-px-4 tw-py-3 tw-bg-transparent hover:tw-bg-hover-default tw-text-left tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
-        (click)="toggleDismissed()"
+        (click)="toggleExcluded()"
       >
         <span bitTypography="body1" class="tw-text-muted">
-          {{ "dismissedItems" | i18n }} ({{ dismissedItems.length }})
+          {{ "excludedItems" | i18n }} ({{ excludedItems.length }})
         </span>
         <i
           class="bwi tw-text-muted"
-          [class.bwi-angle-down]="!dismissedOpen()"
-          [class.bwi-angle-up]="dismissedOpen()"
+          [class.bwi-angle-down]="!excludedOpen()"
+          [class.bwi-angle-up]="excludedOpen()"
           aria-hidden="true"
         ></i>
       </button>
 
-      <div *ngIf="dismissedOpen()">
+      <div *ngIf="excludedOpen()">
         <bit-item-group>
-          <bit-item *ngFor="let item of dismissedItems" class="tw-opacity-50">
+          <bit-item *ngFor="let item of excludedItems">
             <bit-item-content>
               <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
                 <app-vault-icon [cipher]="item.cipher"></app-vault-icon>
               </div>
-              <span slot="primary" class="tw-line-through tw-text-muted">{{
-                item.cipher.name
-              }}</span>
-              <span slot="secondary" class="tw-text-muted">
+              <span slot="primary">{{ item.cipher.name }}</span>
+              <span slot="secondary">
                 {{ item.cipher.login?.username || item.cipher.login?.uris?.[0]?.uri }}
               </span>
             </bit-item-content>
@@ -119,11 +116,11 @@
               <button
                 type="button"
                 bitButton
-                buttonType="secondary"
+                buttonType="primaryOutline"
                 size="small"
-                (click)="undismiss(item.dismissal.id)"
+                (click)="removeExclusion(item.exclusion.id)"
               >
-                {{ "undoDismissal" | i18n }}
+                {{ "undoExclusion" | i18n }}
               </button>
             </ng-container>
           </bit-item>

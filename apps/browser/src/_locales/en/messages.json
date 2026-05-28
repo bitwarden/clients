@@ -2834,6 +2834,42 @@
   "change": {
     "message": "Change"
   },
+  "excludeThisRisk": {
+    "message": "Exclude from report"
+  },
+  "deleteThisRisk": {
+    "message": "Delete from report"
+  },
+  "excludeThisRiskDesc": {
+    "message": "Excluding doesn't fix the risk to your password. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "riskExposedLabel": {
+    "message": "Exposed"
+  },
+  "riskReusedLabel": {
+    "message": "Reused"
+  },
+  "riskNTimes": {
+    "message": "$COUNT$ times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "yesExcludeRisk": {
+    "message": "Exclude anyway"
+  },
+  "deleteThisItemDesc": {
+    "message": "Deleting won't fix the risk to your password. To protect your account, change your password first. This item will be moved to trash."
+  },
+  "yesDeleteItem": {
+    "message": "Delete anyway"
+  },
   "changePassword": {
     "message": "Change password",
     "description": "Change password button for browser at risk notification on login."
@@ -2852,6 +2888,15 @@
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
+  },
+  "changePasswordReminder": {
+    "message": "Your password is at risk"
+  },
+  "changePasswordReminderDesc": {
+    "message": "Update this at-risk password. Bitwarden will save the new one when you submit."
+  },
+  "changePasswordReminderTip": {
+    "message": "Tip: use the Bitwarden generator for a strong replacement."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
@@ -6076,6 +6121,15 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
+  "uncoverPasswordsDesc": {
+    "message": "Uncover passwords that are exposed, reused, and weak."
+  },
+  "passwordHealthAlerts": {
+    "message": "Password health alerts"
+  },
+  "healthGraphicAlt": {
+    "message": "Vault health illustration"
+  },
   "unlockAdvancedSecurity": {
     "message": "Unlock advanced security features"
   },
@@ -6322,30 +6376,67 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "reports": {
-    "message": "Alerts"
+  "health": {
+    "message": "Health"
   },
   "reportsOverview": {
     "message": "Vault health"
   },
-  "scanComplete": {
-    "message": "Scan complete"
+  "scanningYourVault": {
+    "message": "Scanning your vault…"
   },
-  "scanning": {
-    "message": "Scanning..."
+  "scanningYourVaultDesc": {
+    "message": "Checking for exposed, weak, and reused passwords."
   },
-  "rescan": {
-    "message": "Rescan"
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
-  "passwordsWithIssues": {
-    "message": "$COUNT$ of $TOTAL$ passwords have issues",
+  "atRisk": {
+    "message": "at risk"
+  },
+  "secure": {
+    "message": "secure"
+  },
+  "yourVaultIsAtRisk": {
+    "message": "Your vault is at risk"
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy"
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
     "placeholders": {
-      "count": { "content": "$1", "example": "3" },
-      "total": { "content": "$2", "example": "25" }
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
     }
   },
-  "noPasswordIssues": {
-    "message": "No password issues found"
+  "passwordsAreSecure": {
+    "message": "$TOTAL_SECURE$ of $TOTAL$ passwords are secure",
+    "placeholders": {
+      "total_secure": {
+        "content": "$1",
+        "example": "47"
+      },
+      "total": {
+        "content": "$2",
+        "example": "47"
+      }
+    }
+  },
+  "outOfPasswords": {
+    "message": "out of $TOTAL$ passwords",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "47"
+      }
+    }
   },
   "exposedPasswords": {
     "message": "Exposed passwords"
@@ -6374,49 +6465,31 @@
   "reusedPasswordsDetailDesc": {
     "message": "Create unique passwords for every site or app to avoid someone accessing multiple accounts with one credential."
   },
-  "changeMe": {
-    "message": "Change me"
+  "excludeFromReport": {
+    "message": "Exclude from report"
   },
-  "dismissAlert": {
-    "message": "Dismiss alert"
+  "undoExclusion": {
+    "message": "Undo"
   },
-  "dismissAlertQuestion": {
-    "message": "Dismiss alert?"
-  },
-  "dismissAlertConfirmation": {
-    "message": "This alert will be hidden. You can restore it anytime."
-  },
-  "dismissAlertNotes": {
-    "message": "Reason (optional)"
-  },
-  "dismissAlertNotesPlaceholder": {
-    "message": "e.g. legacy app, can't be changed"
-  },
-  "undoDismissal": {
-    "message": "Undo dismiss"
-  },
-  "dismissedItems": {
-    "message": "Dismissed items"
-  },
-  "showDismissedItems": {
-    "message": "Show $COUNT$ dismissed item(s)",
-    "placeholders": {
-      "count": { "content": "$1", "example": "2" }
-    }
-  },
-  "hideDismissedItems": {
-    "message": "Hide dismissed items"
-  },
-  "lastScanned": {
-    "message": "Last scanned: $DATE$",
-    "placeholders": {
-      "date": { "content": "$1", "example": "Jan 1, 2025" }
-    }
+  "excludedItems": {
+    "message": "Excluded items"
   },
   "noCiphersInCategory": {
     "message": "No items in this category"
   },
-  "reportsPremiumRequired": {
-    "message": "Password health reports require a premium subscription."
+  "unlockPremiumReports": {
+    "message": "Unlock Premium reports"
+  },
+  "unlockPremiumReportsDesc": {
+    "message": "Upgrade to Premium to scan your vault for exposed, weak, and reused passwords."
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDesc": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, reused, and weak."
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
   }
 }

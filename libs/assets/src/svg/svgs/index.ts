@@ -20,6 +20,7 @@ export * from "./extension-mock-login";
 export * from "./favorites.icon";
 export * from "./gear";
 export * from "./generator";
+export * from "./health";
 export * from "./info-filled.icon";
 export * from "./item-types";
 export * from "./lock.icon";

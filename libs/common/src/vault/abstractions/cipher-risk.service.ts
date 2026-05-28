@@ -9,12 +9,39 @@ import type {
 import { UserId, CipherId } from "../../types/guid";
 import { CipherView } from "../models/view/cipher.view";
 
+/**
+ * SDK password_strength is a 0–4 zxcvbn score; anything below this is treated as weak.
+ */
+export const WEAK_PASSWORD_STRENGTH_THRESHOLD = 3;
+
+export type CipherRiskCounts = {
+  exposedBreaches: number;
+  reuseCount: number;
+  weak: boolean;
+};
+
 export type PersonalVaultRiskSummary = {
   exposed: CipherView[];
   weak: CipherView[];
   reused: CipherView[];
+  riskCounts: ReadonlyMap<CipherId, CipherRiskCounts>;
   scannedAt: Date;
 };
+
+export type RiskScanPhase = "preparing" | "analyzing" | "checkingBreaches";
+
+export type PersonalVaultRiskProgress = {
+  type: "progress";
+  phase: RiskScanPhase;
+  processed: number;
+  total: number;
+  /** 0–100 */
+  percent: number;
+};
+
+export type PersonalVaultRiskUpdate =
+  | PersonalVaultRiskProgress
+  | { type: "result"; summary: PersonalVaultRiskSummary };
 
 export abstract class CipherRiskService {
   /**
@@ -61,13 +88,17 @@ export abstract class CipherRiskService {
    * Scan all personal vault login ciphers and return a summary of exposed, weak, and reused passwords.
    * Exposed check uses HIBP via AuditService with a max 5-concurrent request cap.
    *
+   * The returned observable emits one or more `progress` events as the scan walks through its
+   * phases ("preparing", "analyzing", "checkingBreaches"), then emits a single `result` event with
+   * the final summary and completes.
+   *
    * @param userId - The user ID whose personal vault to scan
    * @param options - Optional SDK risk options (passwordMap is built automatically)
    */
   abstract computeRiskForPersonalVault(
     userId: UserId,
     options?: Omit<CipherRiskOptions, "checkExposed">,
-  ): Observable<PersonalVaultRiskSummary>;
+  ): Observable<PersonalVaultRiskUpdate>;
 }
 
 /**
@@ -76,7 +107,7 @@ export abstract class CipherRiskService {
  * A password is considered at risk if any of the following conditions are true:
  * - The password has been exposed in data breaches
  * - The password is reused across multiple ciphers
- * - The password has weak strength (password_strength < 3)
+ * - The password has weak strength (password_strength < WEAK_PASSWORD_STRENGTH_THRESHOLD)
  *
  * @param risk - The CipherRiskResult to evaluate
  * @returns true if the password is at risk, false otherwise
@@ -85,6 +116,6 @@ export function isPasswordAtRisk(risk: CipherRiskResult): boolean {
   return (
     (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
     (risk.reuse_count ?? 1) > 1 ||
-    risk.password_strength < 3
+    risk.password_strength < WEAK_PASSWORD_STRENGTH_THRESHOLD
   );
 }

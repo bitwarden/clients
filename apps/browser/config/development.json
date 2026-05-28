@@ -3,7 +3,6 @@
     "managedEnvironment": {
       "base": "https://localhost:8080"
     },
-    "skipWelcomeOnInstall": true,
-    "configRetrievalIntervalMs": 1
+    "skipWelcomeOnInstall": true
   }
 }

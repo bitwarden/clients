@@ -5,6 +5,18 @@ import {
 } from "./abstractions/notification-bar";
 
 /**
+ * Narrows `value.type` to the change-password reminder discriminant.
+ * The reminder carries no type-specific params, so this only checks `type`.
+ */
+export function isChangePasswordReminderNotification<T extends NotificationBarIframeInitData>(
+  value: T,
+): value is T & {
+  type: typeof NotificationTypes.ChangePasswordReminder;
+} {
+  return value.type === NotificationTypes.ChangePasswordReminder;
+}
+
+/**
  * Narrows `value.type` and `value.params` to the type required for an at-risk
  * password notification while preserving the caller's concrete type.
  *

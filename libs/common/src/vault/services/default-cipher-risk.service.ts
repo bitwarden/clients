@@ -1,4 +1,4 @@
-import { firstValueFrom, from, mergeMap, Observable, switchMap, toArray } from "rxjs";
+import { firstValueFrom, from, mergeMap, Observable, switchMap, tap, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -14,19 +14,27 @@ import {
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, CipherId } from "../../types/guid";
 import {
+  CipherRiskCounts,
   CipherRiskService as CipherRiskServiceAbstraction,
-  PersonalVaultRiskSummary,
+  PersonalVaultRiskUpdate,
+  WEAK_PASSWORD_STRENGTH_THRESHOLD,
 } from "../abstractions/cipher-risk.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 
 const MAX_CONCURRENT_HIBP_CALLS = 5;
 
+// Progress reporting splits the scan into two visible phases for the UI: the
+// in-process risk computation (strength/reuse) takes the first slice of the
+// bar, and HIBP breach checks fill the rest. These constants must sum to 100.
+const ANALYZING_BASE_PERCENT = 30;
+const HIBP_PERCENT_RANGE = 70;
+
 export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
   constructor(
     private sdkService: SdkService,
     private cipherService: CipherService,
-    private auditService?: AuditService,
+    private auditService: AuditService,
   ) {}
 
   async computeRiskForCiphers(
@@ -102,32 +110,76 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
   computeRiskForPersonalVault(
     userId: UserId,
     options?: Omit<CipherRiskOptions, "checkExposed">,
-  ): Observable<PersonalVaultRiskSummary> {
-    return new Observable<PersonalVaultRiskSummary>((subscriber) => {
+  ): Observable<PersonalVaultRiskUpdate> {
+    return new Observable<PersonalVaultRiskUpdate>((subscriber) => {
       (async () => {
         const allCiphers = await firstValueFrom(
           this.cipherService.cipherViews$(userId).pipe(filterOutNullish()),
         );
+        if (subscriber.closed) {
+          return;
+        }
 
         const personalLogins = allCiphers.filter(
           (c) =>
             c.type === CipherType.Login && !c.organizationId && !c.isDeleted && c.login?.password,
         );
 
-        if (personalLogins.length === 0) {
-          subscriber.next({ exposed: [], weak: [], reused: [], scannedAt: new Date() });
+        const total = personalLogins.length;
+        subscriber.next({
+          type: "progress",
+          phase: "preparing",
+          processed: 0,
+          total,
+          percent: 0,
+        });
+
+        if (total === 0) {
+          subscriber.next({
+            type: "result",
+            summary: {
+              exposed: [],
+              weak: [],
+              reused: [],
+              riskCounts: new Map(),
+              scannedAt: new Date(),
+            },
+          });
           subscriber.complete();
           return;
         }
 
         const passwordMap = await this.buildPasswordReuseMap(personalLogins, userId);
+        if (subscriber.closed) {
+          return;
+        }
         const riskResults = await this.computeRiskForCiphers(personalLogins, userId, {
           ...options,
           checkExposed: false,
           passwordMap,
         });
+        if (subscriber.closed) {
+          return;
+        }
+
+        subscriber.next({
+          type: "progress",
+          phase: "analyzing",
+          processed: total,
+          total,
+          percent: ANALYZING_BASE_PERCENT,
+        });
 
         const cipherById = new Map<string, CipherView>(personalLogins.map((c) => [c.id, c]));
+        const countsByCipherId = new Map<CipherId, CipherRiskCounts>();
+        const getOrInitCounts = (cipherId: CipherId): CipherRiskCounts => {
+          let counts = countsByCipherId.get(cipherId);
+          if (!counts) {
+            counts = { exposedBreaches: 0, reuseCount: 1, weak: false };
+            countsByCipherId.set(cipherId, counts);
+          }
+          return counts;
+        };
 
         const weak: CipherView[] = [];
         const reused: CipherView[] = [];
@@ -136,32 +188,84 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
           if (!cipher) {
             continue;
           }
-          if (result.password_strength < 3) {
+          const cipherId = cipher.id as CipherId;
+          const isWeak = result.password_strength < WEAK_PASSWORD_STRENGTH_THRESHOLD;
+          const reuseCount = result.reuse_count ?? 1;
+          const isReused = reuseCount > 1;
+          if (isWeak) {
             weak.push(cipher);
           }
-          if ((result.reuse_count ?? 1) > 1) {
+          if (isReused) {
             reused.push(cipher);
+          }
+          if (isWeak || isReused) {
+            const counts = getOrInitCounts(cipherId);
+            counts.weak = isWeak;
+            counts.reuseCount = reuseCount;
           }
         }
 
-        let exposed: CipherView[] = [];
-        if (this.auditService) {
-          const hibpResults = await firstValueFrom(
-            from(personalLogins).pipe(
-              mergeMap(
-                async (cipher) => ({
+        const exposed: CipherView[] = [];
+        let processed = 0;
+        const hibpResults = await firstValueFrom(
+          from(personalLogins).pipe(
+            mergeMap(async (cipher) => {
+              try {
+                return {
                   cipher,
-                  count: await this.auditService!.passwordLeaked(cipher.login!.password!),
-                }),
-                MAX_CONCURRENT_HIBP_CALLS,
-              ),
-              toArray(),
-            ),
-          );
-          exposed = hibpResults.filter(({ count }) => count > 0).map(({ cipher }) => cipher);
+                  count: await this.auditService.passwordLeaked(cipher.login!.password!),
+                };
+              } catch {
+                // A transient HIBP failure for one cipher must not kill the whole scan —
+                // fall back to 0 so the rest of the results still surface.
+                return { cipher, count: 0 };
+              }
+            }, MAX_CONCURRENT_HIBP_CALLS),
+            tap(() => {
+              processed++;
+              subscriber.next({
+                type: "progress",
+                phase: "checkingBreaches",
+                processed,
+                total,
+                percent:
+                  ANALYZING_BASE_PERCENT + Math.round((processed / total) * HIBP_PERCENT_RANGE),
+              });
+            }),
+            toArray(),
+          ),
+        );
+        if (subscriber.closed) {
+          return;
+        }
+        for (const { cipher, count } of hibpResults) {
+          if (count > 0) {
+            exposed.push(cipher);
+            getOrInitCounts(cipher.id as CipherId).exposedBreaches = count;
+          }
         }
 
-        subscriber.next({ exposed, weak, reused, scannedAt: new Date() });
+        // A cipher belongs to only its worst category so counts stay honest and a
+        // single dismissal doesn't read as inconsistent across lists. Priority:
+        // exposed > weak > reused. `riskCounts` still reflects every risk for the
+        // confirm dialog.
+        const exposedIds = new Set(exposed.map((c) => c.id));
+        const dedupedWeak = weak.filter((c) => !exposedIds.has(c.id));
+        const dedupedWeakIds = new Set(dedupedWeak.map((c) => c.id));
+        const dedupedReused = reused.filter(
+          (c) => !exposedIds.has(c.id) && !dedupedWeakIds.has(c.id),
+        );
+
+        subscriber.next({
+          type: "result",
+          summary: {
+            exposed,
+            weak: dedupedWeak,
+            reused: dedupedReused,
+            riskCounts: countsByCipherId,
+            scannedAt: new Date(),
+          },
+        });
         subscriber.complete();
       })().catch((err) => subscriber.error(err));
     });

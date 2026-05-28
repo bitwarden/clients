@@ -109,6 +109,10 @@ export const mockI18n = {
   atRiskChangePrompt:
     "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
   changePassword: "Change password",
+  changePasswordReminder: "Your password is at risk",
+  changePasswordReminderDesc:
+    "Update this at-risk password. Bitwarden will save the new one when you submit.",
+  changePasswordReminderTip: "Tip: use the Bitwarden generator for a strong replacement.",
   close: "Close",
   collection: "Collection",
   folder: "Folder",

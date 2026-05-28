@@ -43,6 +43,7 @@ import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { AlertExclusionService } from "../../vault/alert-exclusions/abstractions/alert-exclusion.service";
 import { LogService } from "../abstractions/log.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
@@ -78,6 +79,7 @@ describe("DefaultSyncService", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let alertExclusionService: MockProxy<AlertExclusionService>;
 
   let sut: DefaultSyncService;
 
@@ -110,6 +112,7 @@ describe("DefaultSyncService", () => {
     securityStateService = mock();
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
+    alertExclusionService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -139,6 +142,7 @@ describe("DefaultSyncService", () => {
       securityStateService,
       kdfConfigService,
       accountCryptographicStateService,
+      alertExclusionService,
     );
   });
 

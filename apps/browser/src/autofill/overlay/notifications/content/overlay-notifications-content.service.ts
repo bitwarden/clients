@@ -326,6 +326,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       NotificationTypes.Add,
       NotificationTypes.Change,
       NotificationTypes.AtRiskPassword,
+      NotificationTypes.ChangePasswordReminder,
     ] as NotificationType[]);
 
     if (

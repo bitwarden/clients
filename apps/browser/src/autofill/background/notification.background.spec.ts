@@ -548,6 +548,98 @@ describe("NotificationBackground", () => {
       });
     });
 
+    describe("bgQueueChangePasswordReminder message handler", () => {
+      const targetUrl = "https://jest-testing-website.com/account/security";
+      let createNewTabSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        notificationBackground["notificationQueue"] = [];
+        createNewTabSpy = jest
+          .spyOn(BrowserApi, "createNewTab")
+          .mockResolvedValue({ id: 99 } as chrome.tabs.Tab);
+      });
+
+      it("opens the URL in a new tab and pushes a ChangePasswordReminder queue item", async () => {
+        sendMockExtensionMessage({
+          command: "bgQueueChangePasswordReminder",
+          url: targetUrl,
+        });
+        await flushPromises();
+
+        expect(createNewTabSpy).toHaveBeenCalledWith(targetUrl);
+        const queue = notificationBackground["notificationQueue"];
+        expect(queue).toHaveLength(1);
+        expect(queue[0]).toEqual(
+          expect.objectContaining({
+            type: NotificationType.ChangePasswordReminder,
+            domain: "jest-testing-website.com",
+            tab: { id: 99 },
+            wasVaultLocked: false,
+          }),
+        );
+      });
+
+      it("does nothing when url is not a string", async () => {
+        sendMockExtensionMessage({
+          command: "bgQueueChangePasswordReminder",
+          url: 12345 as any,
+        });
+        await flushPromises();
+
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+        expect(notificationBackground["notificationQueue"]).toEqual([]);
+      });
+
+      it("does nothing when url is missing", async () => {
+        sendMockExtensionMessage({ command: "bgQueueChangePasswordReminder" });
+        await flushPromises();
+
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+        expect(notificationBackground["notificationQueue"]).toEqual([]);
+      });
+
+      it("does nothing when the url has no extractable domain", async () => {
+        sendMockExtensionMessage({
+          command: "bgQueueChangePasswordReminder",
+          url: "not-a-valid-url",
+        });
+        await flushPromises();
+
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+        expect(notificationBackground["notificationQueue"]).toEqual([]);
+      });
+
+      it("does nothing when the new tab fails to open", async () => {
+        createNewTabSpy.mockResolvedValueOnce(null as any);
+
+        sendMockExtensionMessage({
+          command: "bgQueueChangePasswordReminder",
+          url: targetUrl,
+        });
+        await flushPromises();
+
+        expect(createNewTabSpy).toHaveBeenCalledWith(targetUrl);
+        expect(notificationBackground["notificationQueue"]).toEqual([]);
+      });
+
+      it("ignores repeat invocations for the same domain while a reminder is queued", async () => {
+        sendMockExtensionMessage({
+          command: "bgQueueChangePasswordReminder",
+          url: targetUrl,
+        });
+        await flushPromises();
+
+        sendMockExtensionMessage({
+          command: "bgQueueChangePasswordReminder",
+          url: `${targetUrl}?second-click`,
+        });
+        await flushPromises();
+
+        expect(createNewTabSpy).toHaveBeenCalledTimes(1);
+        expect(notificationBackground["notificationQueue"]).toHaveLength(1);
+      });
+    });
+
     describe("bgTriggerAddLoginNotification message handler", () => {
       let tab: chrome.tabs.Tab;
       let sender: chrome.runtime.MessageSender;

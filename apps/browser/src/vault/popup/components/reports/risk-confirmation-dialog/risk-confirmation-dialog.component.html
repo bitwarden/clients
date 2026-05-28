@@ -1,0 +1,35 @@
+<bit-simple-dialog hideIcon>
+  <span bitDialogTitle class="tw-block tw-w-full tw-text-left">{{ titleKey | i18n }}</span>
+  <div bitDialogContent class="tw-text-left">
+    <p bitTypography="body2" class="tw-mb-4 tw-text-fg-heading">{{ descriptionKey | i18n }}</p>
+
+    @if (riskRows.length > 0) {
+      <p bitTypography="helper" class="tw-mb-2 tw-font-medium tw-text-fg-heading">
+        {{ "passwordHasAdditionalRisks" | i18n }}
+      </p>
+      <bit-card class="tw-block !tw-p-2 !tw-bg-background-alt">
+        @for (row of riskRows; track row.labelKey) {
+          <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-p-2">
+            <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
+              <bit-icon-tile [icon]="row.icon" [variant]="row.variant" size="sm"></bit-icon-tile>
+              <span bitTypography="body2" class="tw-font-medium tw-text-fg-body">
+                {{ row.labelKey | i18n }}
+              </span>
+            </div>
+            <span bitTypography="body2" class="tw-text-right tw-font-medium tw-text-fg-body-subtle">
+              {{ row.valueLabel }}
+            </span>
+          </div>
+        }
+      </bit-card>
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton [buttonType]="acceptButtonType" block (click)="accept()">
+      {{ acceptButtonKey | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" block (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

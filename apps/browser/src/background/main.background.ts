@@ -226,6 +226,10 @@ import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitw
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import {
+  AlertExclusionService,
+  DefaultAlertExclusionService,
+} from "@bitwarden/common/vault/alert-exclusions";
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -422,6 +426,7 @@ export default class MainBackground {
   credentialGeneratorService: CredentialGeneratorService;
   generatorHistoryService: GeneratorHistoryService;
   syncService: SyncService;
+  alertExclusionService: AlertExclusionService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
   autofillService: AutofillServiceAbstraction;
@@ -1124,6 +1129,12 @@ export default class MainBackground {
 
     this.providerService = new ProviderService(this.stateProvider);
 
+    this.alertExclusionService = new DefaultAlertExclusionService(
+      this.apiService,
+      this.stateProvider,
+      this.logService,
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1152,6 +1163,7 @@ export default class MainBackground {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.alertExclusionService,
     );
 
     this.syncServiceListener = new SyncServiceListener(

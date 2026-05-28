@@ -162,6 +162,10 @@ import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/ci
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
+  AlertExclusionService,
+  DefaultAlertExclusionService,
+} from "@bitwarden/common/vault/alert-exclusions";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -278,6 +282,7 @@ export class ServiceContainer {
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
   vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   syncService: SyncService;
+  alertExclusionService: AlertExclusionService;
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
@@ -953,6 +958,12 @@ export class ServiceContainer {
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
+    this.alertExclusionService = new DefaultAlertExclusionService(
+      this.apiService,
+      this.stateProvider,
+      this.logService,
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -981,6 +992,7 @@ export class ServiceContainer {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.alertExclusionService,
     );
 
     this.totpService = new TotpService(this.sdkService);

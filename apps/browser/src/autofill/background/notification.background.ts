@@ -68,6 +68,7 @@ import {
   AddLoginQueueMessage,
   AddLoginMessageData,
   AtRiskPasswordQueueMessage,
+  ChangePasswordReminderQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
@@ -124,6 +125,7 @@ export default class NotificationBackground {
       this.handleOpenAtRiskPasswordsMessage(message, sender),
     bgOpenChangePasswordUrl: ({ message, sender }) =>
       this.handleOpenChangePasswordUrlMessage(message, sender),
+    bgQueueChangePasswordReminder: ({ message }) => this.handleQueueChangePasswordReminder(message),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -578,6 +580,48 @@ export default class NotificationBackground {
     this.notificationQueue.push(queueMessage);
     await this.checkNotificationQueue(tab);
     return true;
+  }
+
+  private async handleQueueChangePasswordReminder(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<void> {
+    const url = typeof message.url === "string" ? message.url : null;
+    if (!url) {
+      return;
+    }
+    const domain = Utils.getDomain(url);
+    if (!domain) {
+      return;
+    }
+
+    // Prevent duplicate tabs/queue entries when the user clicks "Change
+    // password" multiple times in quick succession.
+    const alreadyQueued = this.notificationQueue.some(
+      (q) => q.type === NotificationType.ChangePasswordReminder && q.domain === domain,
+    );
+    if (alreadyQueued) {
+      return;
+    }
+
+    const tab = await BrowserApi.createNewTab(url);
+    if (!tab) {
+      return;
+    }
+
+    this.removeTabFromNotificationQueue(tab);
+    const launchTimestamp = Date.now();
+    const queueMessage: ChangePasswordReminderQueueMessage = {
+      type: NotificationType.ChangePasswordReminder,
+      data: {},
+      domain,
+      tab,
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
+      wasVaultLocked: false,
+    };
+    this.notificationQueue.push(queueMessage);
+    // The tab was just created; tabs.background's onUpdated listener will call
+    // checkNotificationQueue once the page reaches 'complete'.
   }
 
   /**

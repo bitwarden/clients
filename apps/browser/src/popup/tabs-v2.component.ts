@@ -1,7 +1,6 @@
 import { Component } from "@angular/core";
 import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
-
 import { NudgesService } from "@bitwarden/angular/vault";
 import {
   VaultInactive,
@@ -12,8 +11,8 @@ import {
   SendActive,
   SettingsInactive,
   SettingsActive,
-  AlertsInactive,
-  AlertsActive,
+  HealthInactive,
+  HealthActive,
 } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -22,7 +21,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
-import { PersonalVaultAlertService } from "../vault/popup/services/personal-vault-alert.service";
+import { HealthIntroService } from "../vault/popup/services/health-intro.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -30,7 +29,6 @@ import { PersonalVaultAlertService } from "../vault/popup/services/personal-vaul
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",
   standalone: false,
-  providers: [PersonalVaultAlertService],
 })
 export class TabsV2Component {
   private hasActiveBadges$ = this.accountService.activeAccount$
@@ -40,24 +38,26 @@ export class TabsV2Component {
   private showSettingsBerry$ = combineLatest([
     this.hasActiveBadges$,
     this.autofillSettingsService.showClipboardSettingUpdateNotification$,
-  ]).pipe(map(([hasBadges, showClipboard]) => hasBadges || showClipboard));
+  ]).pipe(
+    map(([hasBadges, showClipboard]) => hasBadges || showClipboard),
+    startWith(false),
+  );
 
   private reportsEnabled$ = this.configService
     .getFeatureFlag$(FeatureFlag.EnableBrowserReportsTab)
     .pipe(startWith(false));
 
-  private alertsBerry$ = this.alertService.totalCount$.pipe(
-    map((count) => count > 0),
+  private healthBerry$ = this.healthIntroService.healthBerryDismissed$.pipe(
+    map((dismissed) => !dismissed),
     startWith(false),
   );
 
   protected navButtons$: Observable<NavButton[]> = combineLatest([
     this.showSettingsBerry$,
     this.reportsEnabled$,
-    this.alertsBerry$,
+    this.healthBerry$,
   ]).pipe(
-    startWith([false, false, false] as [boolean, boolean, boolean]),
-    map(([showSettingsBerry, reportsEnabled, alertsBerry]) => {
+    map(([showSettingsBerry, reportsEnabled, healthBerry]) => {
       const buttons: NavButton[] = [
         {
           label: "vault",
@@ -81,11 +81,11 @@ export class TabsV2Component {
 
       if (reportsEnabled) {
         buttons.push({
-          label: "reports",
+          label: "health",
           page: "/tabs/reports",
-          icon: AlertsInactive,
-          iconActive: AlertsActive,
-          showBerry: alertsBerry,
+          icon: HealthInactive,
+          iconActive: HealthActive,
+          showBerry: healthBerry,
         });
       }
 
@@ -106,6 +106,6 @@ export class TabsV2Component {
     private accountService: AccountService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private configService: ConfigService,
-    private alertService: PersonalVaultAlertService,
+    private healthIntroService: HealthIntroService,
   ) {}
 }

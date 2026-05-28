@@ -16,6 +16,8 @@ const NotificationTypes = {
   Unlock: "unlock",
   /** represents scenarios where the user has security tasks after updating ciphers */
   AtRiskPassword: "at-risk-password",
+  /** represents scenarios where the user has launched a change-password URL from inside the extension and needs an in-page reminder once the destination loads */
+  ChangePasswordReminder: "change-password-reminder",
 } as const;
 
 /**

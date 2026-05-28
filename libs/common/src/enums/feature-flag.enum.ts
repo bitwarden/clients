@@ -72,7 +72,7 @@ export enum FeatureFlag {
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
 
   /* Vault */
-  EnableBrowserReportsTab = "pm-XXXXX-enable-browser-reports-tab",
+  EnableBrowserReportsTab = "pm-35928-enable-browser-reports-tab",
   PM32009NewItemTypes = "pm-32009-new-item-types",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",

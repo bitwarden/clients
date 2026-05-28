@@ -56,6 +56,7 @@ import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { AlertExclusionService } from "../../vault/alert-exclusions/abstractions/alert-exclusion.service";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
@@ -108,6 +109,7 @@ export class DefaultSyncService extends CoreSyncService {
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private alertExclusionService: AlertExclusionService,
   ) {
     super(
       tokenService,
@@ -193,6 +195,10 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
+      await this.alertExclusionService.syncExclusions(
+        response.alertExclusions,
+        response.profile.id,
+      );
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);

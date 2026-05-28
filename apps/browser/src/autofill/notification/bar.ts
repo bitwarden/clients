@@ -7,6 +7,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 import { NotificationCipherData } from "../content/components/cipher/types";
 import { CollectionView, I18n, OrgView } from "../content/components/common-types";
 import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
+import { ChangePasswordReminderNotification } from "../content/components/notification/change-password-reminder/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
@@ -20,7 +21,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "./abstractions/notification-bar";
-import { isAtRiskPasswordNotification } from "./utils";
+import { isAtRiskPasswordNotification, isChangePasswordReminderNotification } from "./utils";
 
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
@@ -49,6 +50,10 @@ function getI18n() {
     appName: chrome.i18n.getMessage("appName"),
     atRiskPassword: chrome.i18n.getMessage("atRiskPassword"),
     changePassword: chrome.i18n.getMessage("changePassword"),
+    changePasswordReminder: chrome.i18n.getMessage("changePasswordReminder"),
+    changePasswordReminderDesc: chrome.i18n.getMessage("changePasswordReminderDesc"),
+    changePasswordReminderTip: chrome.i18n.getMessage("changePasswordReminderTip"),
+    learnMore: chrome.i18n.getMessage("learnMore"),
     close: chrome.i18n.getMessage("close"),
     collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
@@ -101,6 +106,7 @@ export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType
         [NotificationTypes.Change]: i18n.updateLogin,
         [NotificationTypes.Unlock]: i18n.unlockToSave,
         [NotificationTypes.AtRiskPassword]: i18n.atRiskPassword,
+        [NotificationTypes.ChangePasswordReminder]: i18n.changePasswordReminder,
       }[type]
     : undefined;
 }
@@ -121,6 +127,7 @@ export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType
         [NotificationTypes.Change]: i18n.loginUpdateSuccess,
         [NotificationTypes.Unlock]: "",
         [NotificationTypes.AtRiskPassword]: "",
+        [NotificationTypes.ChangePasswordReminder]: "",
       }[type]
     : undefined;
 }
@@ -172,6 +179,7 @@ export function getNotificationTestId(
     [NotificationTypes.Add]: "save-notification-bar",
     [NotificationTypes.Change]: "update-notification-bar",
     [NotificationTypes.AtRiskPassword]: "at-risk-notification-bar",
+    [NotificationTypes.ChangePasswordReminder]: "change-password-reminder-bar",
   }[notificationType];
 }
 
@@ -241,6 +249,21 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
         handleChangePasswordClick: notificationBarIframeInitData.params.hasPasswordChangeUri
           ? handleChangePasswordClick
           : undefined,
+      }),
+      document.body,
+    );
+  }
+
+  // Handle ChangePasswordReminderNotification render (informational, close-only)
+  if (isChangePasswordReminderNotification(notificationBarIframeInitData)) {
+    return render(
+      ChangePasswordReminderNotification({
+        ...notificationBarIframeInitData,
+        type: notificationBarIframeInitData.type,
+        theme: resolvedTheme,
+        i18n,
+        notificationTestId,
+        handleCloseNotification,
       }),
       document.body,
     );

@@ -44,6 +44,12 @@ export type AtRiskPasswordNotificationData = {
   hasPasswordChangeUri: boolean;
 };
 
+/**
+ * Queue-time data for the change-password reminder notification.
+ * The reminder is informational and dismiss-only, so no fields are required.
+ */
+export type ChangePasswordReminderNotificationData = Record<string, never>;
+
 // Notification queue message types using generic pattern
 export type AddLoginQueueMessage = NotificationQueueMessage<
   typeof NotificationType.AddLogin,
@@ -65,11 +71,17 @@ export type AtRiskPasswordQueueMessage = NotificationQueueMessage<
   AtRiskPasswordNotificationData
 >;
 
+export type ChangePasswordReminderQueueMessage = NotificationQueueMessage<
+  typeof NotificationType.ChangePasswordReminder,
+  ChangePasswordReminderNotificationData
+>;
+
 export type NotificationQueueMessageItem =
   | AddLoginQueueMessage
   | AddChangePasswordNotificationQueueMessage
   | AddUnlockVaultQueueMessage
-  | AtRiskPasswordQueueMessage;
+  | AtRiskPasswordQueueMessage
+  | ChangePasswordReminderQueueMessage;
 
 export type LockedVaultPendingNotificationsData = {
   commandToRetry: {
@@ -134,6 +146,10 @@ export type NotificationBackgroundExtensionMessageHandlers = {
   bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgOpenAtRiskPasswords: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgOpenChangePasswordUrl: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgQueueChangePasswordReminder: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;

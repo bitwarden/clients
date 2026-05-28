@@ -99,6 +99,7 @@ import {
   hasAtRiskPasswords,
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
+import { hasPremiumGuard } from "../vault/popup/guards/has-premium.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
@@ -761,6 +762,7 @@ const routes: Routes = [
           {
             path: "exposed",
             component: ReportsDetailComponent,
+            canActivate: [hasPremiumGuard],
             data: { elevation: 0, type: "exposed" } satisfies RouteDataProperties & {
               type: string;
             },
@@ -768,11 +770,13 @@ const routes: Routes = [
           {
             path: "weak",
             component: ReportsDetailComponent,
+            canActivate: [hasPremiumGuard],
             data: { elevation: 0, type: "weak" } satisfies RouteDataProperties & { type: string },
           },
           {
             path: "reused",
             component: ReportsDetailComponent,
+            canActivate: [hasPremiumGuard],
             data: { elevation: 0, type: "reused" } satisfies RouteDataProperties & {
               type: string;
             },

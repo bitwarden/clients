@@ -1,4 +1,4 @@
-<popup-page [loading]="isScanning$ | async">
+<popup-page>
   <popup-header slot="header" [pageTitle]="'reportsOverview' | i18n">
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -6,105 +6,214 @@
     </ng-container>
   </popup-header>
 
-  <ng-container *ngIf="isPremium$ | async; else upgradePrompt">
-    <ng-container *ngIf="summary$ | async as summary">
-      <div
-        class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-bg-secondary-100 tw-rounded-lg tw-mb-4"
-      >
-        <div>
-          <p bitTypography="body1" class="tw-font-semibold tw-mb-0">
-            <ng-container *ngIf="isScanning$ | async; else scanDone">
-              {{ "scanning" | i18n }}
-            </ng-container>
-            <ng-template #scanDone>{{ "scanComplete" | i18n }}</ng-template>
+  <ng-container *ngIf="hasSeenIntro$ | async; else introPrompt">
+    <ng-container *ngIf="isScanning$ | async; else summaryBlock">
+      <ng-container *ngIf="(progress$ | async)?.percent ?? 0 as percent">
+        <div
+          class="tw-flex tw-flex-col tw-h-full tw-items-center tw-justify-center tw-gap-4 tw-px-6"
+        >
+          <p bitTypography="body1" class="tw-font-semibold tw-mb-0 tw-text-center">
+            {{ "scanningYourVault" | i18n }}
           </p>
-          <p bitTypography="helper" class="tw-text-muted tw-mb-0">
-            <ng-container *ngIf="summary.scannedAt">
-              {{ "lastScanned" | i18n: (summary.scannedAt | date: "medium") }}
-            </ng-container>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-1 tw-w-1/2">
+            <bit-progress-bar
+              class="tw-w-full"
+              [value]="percent"
+              variant="primary"
+              [accessibleName]="'scanningYourVault' | i18n"
+              [hideStartHint]="true"
+            ></bit-progress-bar>
+            <span bitTypography="helper" class="tw-text-muted">{{ percent }}%</span>
+          </div>
+          <p bitTypography="body2" class="tw-text-muted tw-mb-0 tw-text-center">
+            {{ "scanningYourVaultDesc" | i18n }}
           </p>
         </div>
-        <button type="button" bitButton buttonType="secondary" size="small" (click)="rescan()">
-          {{ "rescan" | i18n }}
-        </button>
-      </div>
-
-      <div class="tw-flex tw-flex-col tw-gap-1">
-        <!-- Exposed -->
-        <a
-          [routerLink]="['exposed']"
-          class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg hover:tw-bg-hover-default tw-no-underline tw-text-main"
-        >
-          <div class="tw-flex tw-items-center tw-gap-3">
-            <bit-icon-tile icon="bwi-error" variant="danger"></bit-icon-tile>
-            <div>
-              <p bitTypography="body1" class="tw-mb-0">{{ "exposedPasswords" | i18n }}</p>
-              <p bitTypography="helper" class="tw-text-muted tw-mb-0">
-                {{ "exposedPasswordsDesc" | i18n }}
-              </p>
-            </div>
-          </div>
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <span bitTypography="body1" [class.tw-text-muted]="summary.exposed.length === 0">
-              {{ summary.exposed.length }}
-            </span>
-            <i class="bwi bwi-angle-right tw-text-muted" aria-hidden="true"></i>
-          </div>
-        </a>
-
-        <!-- Weak -->
-        <a
-          [routerLink]="['weak']"
-          class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg hover:tw-bg-hover-default tw-no-underline tw-text-main"
-        >
-          <div class="tw-flex tw-items-center tw-gap-3">
-            <bit-icon-tile icon="bwi-warning" variant="warning"></bit-icon-tile>
-            <div>
-              <p bitTypography="body1" class="tw-mb-0">{{ "weakPasswords" | i18n }}</p>
-              <p bitTypography="helper" class="tw-text-muted tw-mb-0">
-                {{ "weakPasswordsDesc" | i18n }}
-              </p>
-            </div>
-          </div>
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <span bitTypography="body1" [class.tw-text-muted]="summary.weak.length === 0">
-              {{ summary.weak.length }}
-            </span>
-            <i class="bwi bwi-angle-right tw-text-muted" aria-hidden="true"></i>
-          </div>
-        </a>
-
-        <!-- Reused -->
-        <a
-          [routerLink]="['reused']"
-          class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg hover:tw-bg-hover-default tw-no-underline tw-text-main"
-        >
-          <div class="tw-flex tw-items-center tw-gap-3">
-            <bit-icon-tile icon="bwi-refresh" variant="primary"></bit-icon-tile>
-            <div>
-              <p bitTypography="body1" class="tw-mb-0">{{ "reusedPasswords" | i18n }}</p>
-              <p bitTypography="helper" class="tw-text-muted tw-mb-0">
-                {{ "reusedPasswordsDesc" | i18n }}
-              </p>
-            </div>
-          </div>
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <span bitTypography="body1" [class.tw-text-muted]="summary.reused.length === 0">
-              {{ summary.reused.length }}
-            </span>
-            <i class="bwi bwi-angle-right tw-text-muted" aria-hidden="true"></i>
-          </div>
-        </a>
-      </div>
+      </ng-container>
     </ng-container>
+
+    <ng-template #summaryBlock>
+      <ng-container
+        *ngIf="{
+          atRisk: (totalCount$ | async) ?? 0,
+          total: (totalLogins$ | async) ?? 0,
+          isPremium: (isPremium$ | async) ?? false,
+        } as ctx"
+      >
+        <div
+          class="tw-flex tw-flex-col tw-items-center tw-rounded-xl tw-border tw-border-solid tw-border-secondary-100 tw-bg-background tw-mx-4 tw-my-3 tw-px-4 tw-pt-3 tw-pb-4"
+        >
+          <app-password-health-gauge
+            [atRisk]="ctx.atRisk"
+            [total]="ctx.total"
+          ></app-password-health-gauge>
+          <p bitTypography="body1" class="tw-my-0 tw-text-center tw-font-semibold">
+            {{ (ctx.atRisk === 0 ? "yourVaultIsHealthy" : "yourVaultIsAtRisk") | i18n }}
+          </p>
+          <p bitTypography="helper" class="tw-text-muted tw-mt-0 tw-mb-1 tw-text-center">
+            <ng-container *ngIf="ctx.atRisk === 0; else needFixing">
+              {{ "passwordsAreSecure" | i18n: ctx.total : ctx.total }}
+            </ng-container>
+            <ng-template #needFixing>
+              {{ "passwordsNeedFixing" | i18n: ctx.atRisk : ctx.total }}
+            </ng-template>
+          </p>
+        </div>
+
+        <ng-container *ngIf="ctx.isPremium; else upgradeBanner">
+          <ng-container *ngIf="summary$ | async as summary">
+            <div class="tw-flex tw-flex-col tw-gap-1">
+              <!-- Exposed -->
+              <a
+                [routerLink]="['exposed']"
+                class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg hover:tw-bg-hover-default tw-no-underline tw-text-main"
+              >
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-icon-tile icon="bwi-error" variant="danger"></bit-icon-tile>
+                  <div>
+                    <p bitTypography="body1" class="tw-mb-0">{{ "exposedPasswords" | i18n }}</p>
+                    <p bitTypography="helper" class="tw-text-muted tw-mb-0">
+                      {{ "exposedPasswordsDesc" | i18n }}
+                    </p>
+                  </div>
+                </div>
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <span bitTypography="body1" [class.tw-text-muted]="summary.exposed.length === 0">
+                    {{ summary.exposed.length }}
+                  </span>
+                  <i class="bwi bwi-angle-right tw-text-muted" aria-hidden="true"></i>
+                </div>
+              </a>
+
+              <!-- Weak -->
+              <a
+                [routerLink]="['weak']"
+                class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg hover:tw-bg-hover-default tw-no-underline tw-text-main"
+              >
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-icon-tile icon="bwi-warning" variant="warning"></bit-icon-tile>
+                  <div>
+                    <p bitTypography="body1" class="tw-mb-0">{{ "weakPasswords" | i18n }}</p>
+                    <p bitTypography="helper" class="tw-text-muted tw-mb-0">
+                      {{ "weakPasswordsDesc" | i18n }}
+                    </p>
+                  </div>
+                </div>
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <span bitTypography="body1" [class.tw-text-muted]="summary.weak.length === 0">
+                    {{ summary.weak.length }}
+                  </span>
+                  <i class="bwi bwi-angle-right tw-text-muted" aria-hidden="true"></i>
+                </div>
+              </a>
+
+              <!-- Reused -->
+              <a
+                [routerLink]="['reused']"
+                class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-rounded-lg hover:tw-bg-hover-default tw-no-underline tw-text-main"
+              >
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-icon-tile icon="bwi-refresh" variant="primary"></bit-icon-tile>
+                  <div>
+                    <p bitTypography="body1" class="tw-mb-0">{{ "reusedPasswords" | i18n }}</p>
+                    <p bitTypography="helper" class="tw-text-muted tw-mb-0">
+                      {{ "reusedPasswordsDesc" | i18n }}
+                    </p>
+                  </div>
+                </div>
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <span bitTypography="body1" [class.tw-text-muted]="summary.reused.length === 0">
+                    {{ summary.reused.length }}
+                  </span>
+                  <i class="bwi bwi-angle-right tw-text-muted" aria-hidden="true"></i>
+                </div>
+              </a>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <ng-template #upgradeBanner>
+          <div
+            class="tw-relative tw-flex tw-flex-col tw-rounded-xl tw-overflow-hidden tw-border tw-border-solid tw-border-secondary-100 tw-mx-4 tw-mb-3"
+          >
+            <img
+              aria-hidden="true"
+              alt=""
+              class="tw-absolute tw-inset-0 tw-w-full tw-h-full tw-object-cover tw-object-top tw-pointer-events-none"
+              src="../../../../images/health-report/bg-gradient.light.svg"
+              appDarkImgSrc="../../../../images/health-report/bg-gradient.dark.svg"
+            />
+            <div class="tw-relative tw-flex tw-flex-col tw-gap-3 tw-px-4 tw-py-4">
+              <div class="tw-flex tw-items-start tw-gap-3">
+                <i
+                  class="bwi bwi-premium tw-text-primary-600 tw-text-2xl tw-mt-1"
+                  aria-hidden="true"
+                ></i>
+                <div class="tw-flex tw-flex-col tw-gap-1">
+                  <h2 bitTypography="h3" class="tw-mb-0 tw-text-primary-600">
+                    {{ "upgradeToPremium" | i18n }}
+                  </h2>
+                  <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+                    {{ "uncoverPasswordsDesc" | i18n }}
+                  </p>
+                </div>
+              </div>
+              <button
+                bitButton
+                buttonType="primary"
+                type="button"
+                (click)="upgradeToPremium()"
+                endIcon="bwi-external-link"
+                class="tw-self-start"
+              >
+                {{ "upgradeToPremium" | i18n }}
+                <ng-container *ngIf="monthlyPrice$ | async as price">
+                  — {{ price | currency: "$" }}/{{ "monthly" | i18n }}
+                </ng-container>
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </ng-template>
   </ng-container>
 
-  <ng-template #upgradePrompt>
-    <div class="tw-px-4 tw-py-6 tw-text-center">
-      <p bitTypography="body1">{{ "reportsPremiumRequired" | i18n }}</p>
-      <a bitButton buttonType="primary" routerLink="/premium">
-        {{ "upgrade" | i18n }}
-      </a>
+  <ng-template #introPrompt>
+    <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
+      <div
+        class="tw-relative tw-flex tw-flex-col tw-rounded-xl tw-overflow-hidden tw-border tw-border-solid tw-border-secondary-100 tw-mx-4 tw-my-2"
+      >
+        <img
+          aria-hidden="true"
+          alt=""
+          class="tw-absolute tw-inset-0 tw-w-full tw-h-full tw-object-cover tw-object-top tw-pointer-events-none"
+          src="../../../../images/health-report/bg-gradient.light.svg"
+          appDarkImgSrc="../../../../images/health-report/bg-gradient.dark.svg"
+        />
+        <img
+          class="tw-relative tw-self-center tw-w-full tw-max-w-[280px] tw-mt-4 tw-px-4"
+          src="../../../../images/health-report/health_graphic.light.png"
+          appDarkImgSrc="../../../../images/health-report/health_graphic.dark.png"
+          [alt]="'healthGraphicAlt' | i18n"
+        />
+        <div class="tw-relative tw-flex tw-flex-col tw-gap-3 tw-px-5 tw-pb-5 tw-pt-2">
+          <h2 bitTypography="h2" class="tw-mb-0 tw-text-primary-600">
+            {{ "introducingHealth" | i18n }}
+          </h2>
+          <p bitTypography="body2" class="tw-mb-0 tw-text-muted">
+            {{ "healthIntroDesc" | i18n }}
+          </p>
+          <button
+            bitButton
+            buttonType="primary"
+            type="button"
+            (click)="dismissIntro()"
+            class="tw-self-start"
+          >
+            {{ "scanMyVault" | i18n }}
+          </button>
+        </div>
+      </div>
     </div>
   </ng-template>
 </popup-page>
