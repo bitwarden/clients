@@ -14,12 +14,14 @@
     <app-two-factor-auth-email
       [tokenFormControl]="tokenFormControl"
       (tokenChange)="saveFormDataWithPartialData($event)"
+      (submitOnPaste)="continueButton?.nativeElement?.click()"
       *ngIf="selectedProviderType === providerType.Email"
     />
 
     <app-two-factor-auth-authenticator
       [tokenFormControl]="tokenFormControl"
       (tokenChange)="saveFormDataWithPartialData($event)"
+      (submitOnPaste)="continueButton?.nativeElement?.click()"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
     <app-two-factor-auth-yubikey

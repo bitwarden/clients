@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Критичные приложения, подверженные риску"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Критичные приложения, подверженные риску"
+  },
   "allCriticalApps": {
     "message": "Все критичные приложения"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Невозможно восстановить доступ к организации"
   },
-  "allApplicationsWithCount": {
-    "message": "Все приложения ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Создать новый логин"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Критичные приложения ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "критичные приложения помечены"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Ваши данные получены. Приступим к работе."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Ознакомьтесь с кратким обзором Access Intelligence и узнайте, как использовать данные вашей организации."
+  },
+  "startTour": {
+    "message": "Начать знакомство"
   },
   "noDataInOrgTitle": {
     "message": "Данные не найдены"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Эти пользователи имеют доступ к уязвимым элементам критичных приложений."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Пользователи, пароли которых подверженны риску"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ пользователей с уязвимыми паролями для критичных приложений $CRITICALAPPCOUNT$",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Сотрудникам вашей организации будет поручено изменить уязвимые пароли. Они получат уведомление в своем расширении Bitwarden для браузера."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "всего $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Номер паспорта"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
   },
   "licenseNumber": {
     "message": "Номер водительского удостоверения"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
+  },
   "folderSubtitle": {
     "message": "Организуйте свои элементы"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "Скопировать адрес"
   },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
   "copyPhone": {
     "message": "Скопировать телефон"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
   },
   "copyFirstName": {
     "message": "Скопировать имя"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Скопировать отпечаток"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
   },
   "copyName": {
     "message": "Скопировать имя"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Нет значений для копирования"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Ваша 7-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через 7 дней.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Ваша $TRIAL_LENGTH$-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через $TRIAL_LENGTH$ дней.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Созданная текстовая Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Созданная текстовая Send с email-верификацией",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Созданная текстовая Send с паролем",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Созданная файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Созданная файловая Send с email-верификацией",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Созданная файловая Send с паролем",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Элемент $ID$ перемещен в организацию.",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "Скопирован PIN элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Скопирован номер паспорта для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Просмотрен номер паспорта для элемента $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "Один или несколько адресов email принадлежат пользователям, чьи аккаунтам были заблокированы. Восстановите их доступ, чтобы снова их пригласить.."
   },
-  "revocationReasonUnknown": {
-    "message": "Причина неизвестна."
+  "revocationReasonNotLogged": {
+    "message": "Причина не указана"
   },
   "revocationReasonManual": {
     "message": "Отменено администратором"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Не соответствует политике организации"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Отказ в передаче элемента организации"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Доступ организации с идентификатором $ID$ был отозван в связи с несоблюдением политики организации в отношении двухэтапной аутентификации.",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Принятая передача в собственность организации."
-  },
-  "userDeclinedTransfer": {
-    "message": "Отозван в связи с отказом в передаче в собственность организации."
   },
   "invitedUserId": {
     "message": "Приглашен пользователь $ID$.",
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "Отправляйте уведомления о смене паролей"
   },
+  "sendNotifications": {
+    "message": "Отправлять уведомления"
+  },
   "assignToCollections": {
     "message": "Назначить коллекциям"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Ваша 7-дневная пробная версия $PLAN$ начинается сегодня. Укажите способ оплаты прямо сейчас, чтобы продолжить пользоваться этими функциями после окончания пробной версии: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Ваша $TRIAL_LENGTH$-дневная пробная версия $PLAN$ начинается сегодня. Укажите способ оплаты прямо сейчас, чтобы продолжить пользоваться этими функциями после окончания пробной версии: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13664,6 +13784,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "Еще"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Прежде чем использовать этот способ оплаты, необходимо подтвердить ваш банковский счет. Пожалуйста, подтвердите его, либо выберите другой способ оплаты."
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "Пропустить ссылку"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Сменить ключ шифрования аккаунта"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "При смене ключа шифрования вашего аккаунта генерируется новый ключ, который используется для повторного шифрования всех данных хранилища. Вам следует рассмотреть возможность смены ключа шифрования, если ваш аккаунт был взломан."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Сгенерируйте новый ключ и повторно зашифруйте все данные хранилища. Это рекомендуется сделать, если вы подозреваете, что ваш аккаунт мог быть взломан."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Вам будет предложено пройти повторную аутентификацию. Чтобы избежать повреждения данных, не закрывайте браузер до завершения процесса."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Изменен ключ шифрования аккаунте"
+  },
   "callout": {
     "message": "Инфопанель",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   },
   "searchDriversLicense": {
     "message": "Поиск водительских удостоверений"

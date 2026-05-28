@@ -15,27 +15,27 @@
     </ng-container>
   </popup-header>
 
-  <ng-container *ngIf="folders$ | async as folders">
-    <ng-container *ngIf="folders.length; else noFolders">
+  @if (folders$ | async; as folders) {
+    @if (folders.length) {
       <bit-item-group>
-        <bit-item *ngFor="let folder of folders">
-          <bit-item-content>
-            {{ folder.name }}
-            <button
-              slot="end"
-              type="button"
-              (click)="openAddEditFolderDialog(folder)"
-              [label]="'editFolderWithName' | i18n: folder.name"
-              bitIconButton="bwi-pencil-square"
-              class="tw-self-end"
-              data-testid="edit-folder-button"
-            ></button>
-          </bit-item-content>
-        </bit-item>
+        @for (folder of folders; track folder.id) {
+          <bit-item>
+            <bit-item-content>
+              {{ folder.name }}
+              <button
+                slot="end"
+                type="button"
+                (click)="openAddEditFolderDialog(folder)"
+                [label]="'editFolderWithName' | i18n: folder.name"
+                bitIconButton="bwi-pencil-square"
+                class="tw-self-end"
+                data-testid="edit-folder-button"
+              ></button>
+            </bit-item-content>
+          </bit-item>
+        }
       </bit-item-group>
-    </ng-container>
-
-    <ng-template #noFolders>
+    } @else {
       <bit-no-items [icon]="NoFoldersIcon" class="tw-h-full tw-flex tw-items-center">
         <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
         <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
@@ -51,6 +51,6 @@
           {{ "newFolder" | i18n }}
         </button>
       </bit-no-items>
-    </ng-template>
-  </ng-container>
+    }
+  }
 </popup-page>
