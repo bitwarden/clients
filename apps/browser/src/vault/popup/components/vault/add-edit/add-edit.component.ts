@@ -199,6 +199,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   canDeleteCipher$: Observable<boolean>;
   routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION = "/tabs/vault";
   protected fillAfterSave = false;
+  private shouldFillOnSave = false;
 
   get loading() {
     return this.config == null;
@@ -350,7 +351,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.inSingleActionPopout && this.fillAfterSave) {
+    if (this.inSingleActionPopout && this.shouldFillOnSave) {
       const senderTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
       await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
       if (senderTab) {
@@ -387,6 +388,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   submitAndFill = async () => {
+    this.shouldFillOnSave = true;
     await this.cipherFormComponent()?.submit();
   };
 
