@@ -49,6 +49,7 @@ impl SSHKeyData {
     /// * `public_key` - The public key component
     /// * `name` - A human-readable name for the key
     /// * `cipher_id` - The vault cipher identifier associated with this key
+    #[must_use]
     pub fn new(
         private_key: PrivateKey,
         public_key: PublicKey,
@@ -101,6 +102,7 @@ impl SSHKeyData {
     /// # Returns
     ///
     /// A reference to the [`PrivateKey`].
+    #[must_use]
     pub fn private_key(&self) -> &PrivateKey {
         &self.private_key
     }

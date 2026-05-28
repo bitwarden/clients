@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use thiserror::Error;
-use tracing::debug;
+use tracing::{error, info};
 
 use crate::{
     approval::{ApprovalError, ApprovalRequester, SignApprovalRequest},
@@ -64,7 +64,7 @@ where
     async fn authorize(&self, request: &AuthRequest) -> Result<bool, AuthError> {
         match request {
             AuthRequest::List => {
-                debug!("Allowing list request.");
+                info!("Allowing list request.");
                 Ok(true)
             }
             AuthRequest::Sign(sign_request) => {
@@ -77,7 +77,10 @@ where
                         return Err(AuthError::KeystoreError(error));
                     }
                 };
-                debug!(?sign_request, ?cipher_id, "Requesting sign approval.");
+                info!(
+                    public_key = %sign_request.public_key,
+                    "Requesting sign approval."
+                );
 
                 self.approval_handler
                     .request_sign_approval(SignApprovalRequest {
@@ -86,6 +89,12 @@ where
                     })
                     .await
                     .map_err(Into::into)
+                    .inspect(|&is_approved| {
+                        info!(public_key = %sign_request.public_key, is_approved, "Sign approval response.");
+                    })
+                    .inspect_err(|error| {
+                        error!(%error, public_key = %sign_request.public_key, "Sign request authorization error.");
+                    })
             }
         }
     }
@@ -121,6 +130,7 @@ mod tests {
             process_name: process_name.map(std::string::ToString::to_string),
             is_forwarding,
             namespace,
+            flags: None,
         })
     }
 

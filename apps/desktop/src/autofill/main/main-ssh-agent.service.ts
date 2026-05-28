@@ -190,7 +190,8 @@ export class MainSshAgentService {
   // Starts the Agent.
   // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
   private async initV2() {
-    const signCb = (data: sshagent_v2.SignRequestData) => this.requestSign(data);
+    const signCb = (_err: Error | null, data: sshagent_v2.SignRequestData) =>
+      this.requestSign(data);
     try {
       this.agentStateV2 = await sshagent_v2.SshAgentState.serve(signCb);
       this.logService.info("SSH agent v2 started");

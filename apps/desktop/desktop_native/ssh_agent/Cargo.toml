@@ -12,6 +12,8 @@ base64 = { workspace = true }
 desktop_core = { path = "../core" }
 mockall = { workspace = true }
 rkyv = "=0.8.16"
+rsa = "0.9"
+sha2 = "0.10"
 signature = "=2.2.0"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",

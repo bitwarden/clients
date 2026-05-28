@@ -5,8 +5,9 @@ use tokio::{io::AsyncWriteExt, net::windows::named_pipe::ClientOptions};
 
 mod common;
 use common::{
-    agent_with_keys, always_approving_agent, framed_request_identities, init_tracing,
-    parse_first_key_name, read_framed_response, test_ed25519_key,
+    agent_with_keys, always_approving_agent, always_denying_agent, framed_request_identities,
+    framed_sign_request, init_tracing, parse_first_key_name, parse_sign_response_algorithm,
+    read_framed_response, test_ed25519_key, test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,
 };
 
 const PIPE_NAME: &str = r"\\.\pipe\openssh-ssh-agent";
@@ -206,6 +207,124 @@ async fn test_list_keys_multiple_connections_see_same_keys() {
         let response = read_framed_response(&mut client).await;
         assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
     }
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_returns_sign_response() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &test_ed25519_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_denied_returns_failure() {
+    setup();
+    let mut agent = always_denying_agent();
+    agent.replace(vec![test_ed25519_key()]).unwrap();
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &test_ed25519_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 5, "expected FAILURE type byte");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_unknown_key_returns_failure() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &test_ed25519_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 5, "expected FAILURE type byte");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_rsa_sha512_flag_produces_sha512_signature() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_rsa_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(&test_rsa_key_blob(), b"test data", 4))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+    assert_eq!(
+        parse_sign_response_algorithm(&response),
+        "rsa-sha2-512",
+        "expected SHA-512 algorithm when flags=4"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_rsa_sha256_flag_produces_sha256_signature() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_rsa_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(&test_rsa_key_blob(), b"test data", 2))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+    assert_eq!(
+        parse_sign_response_algorithm(&response),
+        "rsa-sha2-256",
+        "expected SHA-256 algorithm when flags=2"
+    );
 
     agent.stop();
 }
