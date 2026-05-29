@@ -827,6 +827,18 @@ export class EventService {
           this.formatServiceAccountId(ev, options),
         );
         break;
+      case EventType.AccessToken_Created:
+        msg = humanReadableMsg = this.i18nService.t(
+          "accessTokenCreatedForServiceAccountId",
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.AccessToken_Revoked:
+        msg = humanReadableMsg = this.i18nService.t(
+          "accessTokenRevokedForServiceAccountId",
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
       case EventType.PhishingBlocker_SiteAccessed:
         msg = this.i18nService.t("phishingBlockerSiteAccessed");
         humanReadableMsg = this.i18nService.t("phishingBlockerSiteAccessed");

@@ -10145,6 +10145,24 @@
       }
     }
   },
+  "accessTokenCreatedForServiceAccountId": {
+    "message": "Created access token for machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessTokenRevokedForServiceAccountId": {
+    "message": "Revoked access token for machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "deletedProjectWithId": {
     "message": "Deleted a project with identifier: $PROJECT_ID$",
     "placeholders": {
