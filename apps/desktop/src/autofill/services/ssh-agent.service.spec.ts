@@ -74,7 +74,12 @@ describe("SshAgentService (v2 reactive key push)", () => {
       cipherViews$: jest.fn().mockReturnValue(cipherViewsSubject.asObservable()),
       getAllDecrypted: jest.fn().mockResolvedValue([]),
     };
-    const mockLogService = { info: jest.fn(), error: jest.fn() };
+    const mockLogService = {
+      info: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+      warning: jest.fn(),
+    };
     const mockDialogService = { open: jest.fn() };
     const mockMessageListener = { messages$: jest.fn().mockReturnValue(EMPTY) };
     const mockAuthService = {
