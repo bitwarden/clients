@@ -12,8 +12,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonComponent } from "../button/button.component";
 
-let nextId = 0;
-
 @Component({
   selector: "bit-dropzone",
   templateUrl: "./dropzone.component.html",
@@ -45,7 +43,11 @@ export class DropzoneComponent {
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
 
-  protected readonly inputId = `bit-dropzone-input-${nextId++}`;
+  /**
+   * Id for the internal `<input type="file">`. Required so the parent's
+   * `<label for="...">` associates with the dropzone's file input.
+   */
+  readonly inputId = input.required<string>();
   protected readonly isDragOver = signal(false);
 
   /**

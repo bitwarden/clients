@@ -54,6 +54,7 @@ describe("DropzoneComponent", () => {
 
     fixture = TestBed.createComponent(DropzoneComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput("inputId", "test-dropzone-input");
     fixture.detectChanges();
   });
 
