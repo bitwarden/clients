@@ -9,6 +9,7 @@ import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/respons
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -40,6 +41,7 @@ describe("ChangeEmailComponent", () => {
         { provide: FormBuilder, useClass: FormBuilder },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: ChangeEmailService, useValue: changeEmailService },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 

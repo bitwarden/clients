@@ -8,6 +8,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -43,6 +45,7 @@ export class ChangeEmailComponent implements OnInit {
     private formBuilder: FormBuilder,
     private toastService: ToastService,
     private changeEmailService: ChangeEmailService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -95,12 +98,17 @@ export class ChangeEmailComponent implements OnInit {
         this.userId,
       );
       this.reset();
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("emailChanged"),
-        message: this.i18nService.t("logBackIn"),
-      });
-      this.messagingService.send("logout");
+      const selfServiceChangeEmailEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM30806_SelfServiceChangeEmailCommand,
+      );
+      if (!selfServiceChangeEmailEnabled) {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("emailChanged"),
+          message: this.i18nService.t("logBackIn"),
+        });
+        this.messagingService.send("logout");
+      }
     }
   };
 
