@@ -12,6 +12,7 @@ import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { registerContentScriptsPolyfill } from "./browser-api.register-content-scripts-polyfill";
+import { ExtensionInstallType } from "./extension-install-type";
 
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
@@ -31,6 +32,30 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Returns how this extension was installed on the current browser. Use
+   * {@link ExtensionInstallType.Admin} to detect enterprise-policy installs and
+   * {@link ExtensionInstallType.Sideload} to detect extensions installed by other software
+   * on the machine.
+   *
+   * `management.getSelf()` is the only `chrome.management` method that does
+   * not require the "management" manifest permission.
+   */
+  static async getInstallType(): Promise<ExtensionInstallType> {
+    try {
+      if (BrowserApi.isWebExtensionsApi) {
+        const info = await browser.management.getSelf();
+        return (info?.installType as ExtensionInstallType) ?? ExtensionInstallType.Unknown;
+      } else if (BrowserApi.isChromeApi) {
+        const info = await chrome.management.getSelf();
+        return (info?.installType as ExtensionInstallType) ?? ExtensionInstallType.Unknown;
+      }
+    } catch {
+      // management API not available on this browser (e.g. older Safari)
+    }
+    return ExtensionInstallType.Unknown;
   }
 
   /**
