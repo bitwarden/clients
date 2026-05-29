@@ -1,32 +1,69 @@
-@for (breadcrumb of beforeOverflow(); track breadcrumb; let last = $last) {
-  @if (breadcrumb.route(); as route) {
+<ng-template #arrow>
+  <bit-icon
+    name="bwi-angle-right"
+    class="tw-text-fg-body"
+    [class]="size() === 'small' ? 'tw-text-sm tw-mt-1 tw-mx-2' : 'tw-text-xl tw-mt-0.5 tw-mx-3'"
+  />
+</ng-template>
+
+<ng-template #breadcrumbLink let-breadcrumb="breadcrumb">
+  @if (!breadcrumb.isActiveRoute()) {
     <a
-      bitLink
-      class="tw-my-2 tw-inline-block"
-      [routerLink]="route"
+      [class]="breadcrumbStyles"
+      [routerLink]="breadcrumb.route()"
       [queryParams]="breadcrumb.queryParams()"
       [queryParamsHandling]="breadcrumb.queryParamsHandling()"
+      [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
     </a>
   } @else {
-    <button
-      type="button"
-      bitLink
-      class="tw-my-2 tw-inline-block"
-      (click)="breadcrumb.onClick($event)"
+    <span
+      [class]="activeBreadcrumbStyles"
+      [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+      aria-current="page"
+      tabindex="0"
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-    </button>
+    </span>
   }
+</ng-template>
+
+<ng-template #breadcrumbButton let-breadcrumb="breadcrumb">
+  <button
+    type="button"
+    [class]="breadcrumbStyles"
+    (click)="breadcrumb.onClick($event)"
+    [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+  >
+    <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+  </button>
+</ng-template>
+
+<ng-template #breadcrumbLinkOrButton let-breadcrumb="breadcrumb">
+  @if (breadcrumb.route()) {
+    <ng-container [ngTemplateOutlet]="breadcrumbLink" [ngTemplateOutletContext]="{ breadcrumb }" />
+  } @else {
+    <ng-container
+      [ngTemplateOutlet]="breadcrumbButton"
+      [ngTemplateOutletContext]="{ breadcrumb }"
+    />
+  }
+</ng-template>
+
+@for (breadcrumb of beforeOverflow(); track breadcrumb; let last = $last) {
+  <ng-container
+    [ngTemplateOutlet]="breadcrumbLinkOrButton"
+    [ngTemplateOutletContext]="{ breadcrumb }"
+  ></ng-container>
   @if (!last) {
-    <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
+    <ng-container [ngTemplateOutlet]="arrow" />
   }
 }
 
 @if (hasOverflow()) {
   @if (beforeOverflow().length > 0) {
-    <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
+    <ng-container [ngTemplateOutlet]="arrow" />
   }
   <button
     type="button"
@@ -53,30 +90,15 @@
       }
     }
   </bit-menu>
-  <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-  @for (breadcrumb of afterOverflow(); track breadcrumb; let last = $last) {
-    @if (breadcrumb.route(); as route) {
-      <a
-        bitLink
-        class="tw-my-2 tw-inline-block"
-        [routerLink]="route"
-        [queryParams]="breadcrumb.queryParams()"
-        [queryParamsHandling]="breadcrumb.queryParamsHandling()"
-      >
-        <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-      </a>
-    } @else {
-      <button
-        type="button"
-        bitLink
-        class="tw-my-2 tw-inline-block"
-        (click)="breadcrumb.onClick($event)"
-      >
-        <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-      </button>
-    }
-    @if (!last) {
-      <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-    }
+  <ng-container [ngTemplateOutlet]="arrow" />
+  @if (afterOverflow(); as breadcrumb) {
+    <ng-container
+      [ngTemplateOutlet]="breadcrumbLinkOrButton"
+      [ngTemplateOutletContext]="{ breadcrumb }"
+    ></ng-container>
   }
+}
+
+@if (showTrailingArrow()) {
+  <ng-container [ngTemplateOutlet]="arrow" />
 }

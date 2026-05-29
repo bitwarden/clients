@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { ChangeDetectionStrategy, Component, importProvidersFrom, inject } from "@angular/core";
+import { Router, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,17 +12,16 @@ import { I18nMockService } from "../utils";
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 
-interface Breadcrumb {
-  icon?: string;
-  name: string;
-  route: string;
-}
-
+import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 @Component({
-  template: "",
+  template: /*html*/ ` <div class="tw-mt-5">Some really cool content for {{ currentUrl }}</div> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class EmptyComponent {}
+class ContentComponent {
+  readonly router = inject(Router);
+
+  readonly currentUrl = this.router.url;
+}
 
 export default {
   title: "Component Library/Breadcrumbs",
@@ -36,6 +35,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               moreBreadcrumbs: "More breadcrumbs",
+              breadcrumbs: "Breadcrumbs",
               loading: "Loading",
             });
           },
@@ -45,7 +45,24 @@ export default {
     applicationConfig({
       providers: [
         importProvidersFrom(
-          RouterModule.forRoot([{ path: "**", component: EmptyComponent }], { useHash: true }),
+          RouterModule.forRoot(
+            [
+              {
+                path: "",
+                children: [
+                  { path: "", redirectTo: "vault", pathMatch: "full" },
+                  { path: "vault", component: ContentComponent },
+                  { path: "acme-corp", component: ContentComponent },
+                  { path: "groups", component: ContentComponent },
+                  { path: "members", component: ContentComponent },
+                  { path: "items", component: ContentComponent },
+                  { path: "sends", component: ContentComponent },
+                  { path: "settings", component: ContentComponent },
+                ],
+              },
+            ],
+            { useHash: true },
+          ),
         ),
       ],
     }),
@@ -57,65 +74,121 @@ export default {
     },
   },
   args: {
-    items: [],
-    show: 3,
+    size: "base",
+    showTrailingArrow: false,
+    show: 4,
   },
   argTypes: {
     breadcrumbs: {
       table: { disable: true },
     },
-    click: { action: "clicked" },
+    size: {
+      table: { defaultValue: { summary: "base" } },
+      control: { type: "radio", options: ["small", "base"] },
+    },
+    showTrailingArrow: {
+      control: { type: "boolean" },
+    },
+    show: {
+      control: { type: "number" },
+    },
   },
 } as Meta;
 
-type Story = StoryObj<BreadcrumbsComponent & { items: Breadcrumb[] }>;
+type Story = StoryObj<BreadcrumbsComponent>;
 
-export const TopLevel: Story = {
+export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
-      <h3 class="tw-text-main">Router links</h3>
-      <p>
-        <bit-breadcrumbs [show]="show">
-          <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" [route]="[item.route]">{{item.name}}</bit-breadcrumb>
-        </bit-breadcrumbs>
-      </p>
-  
-      <h3 class="tw-text-main">Click emit</h3>
-      <p>
-        <bit-breadcrumbs [show]="show">
-          <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" (click)="click($event)">{{item.name}}</bit-breadcrumb>
-        </bit-breadcrumbs>
-      </p>
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb icon="bwi-vault" route="/vault">Vault</bit-breadcrumb>
+      <bit-breadcrumb route="/acme-corp">ACME Corp</bit-breadcrumb>
+      <bit-breadcrumb route="/groups">Groups</bit-breadcrumb>
+      <bit-breadcrumb route="/members">Members</bit-breadcrumb>
+    </bit-breadcrumbs>
+    <router-outlet />
     `,
   }),
+};
 
+export const Small: Story = {
+  ...Default,
   args: {
-    items: [{ icon: "bwi-star", name: "Top Level" }] as Breadcrumb[],
+    size: "small",
   },
 };
 
-export const SecondLevel: Story = {
-  ...TopLevel,
-  args: {
-    items: [
-      { name: "Acme Vault", route: "/" },
-      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
-    ] as Breadcrumb[],
-  },
+export const DefaultAsButtons: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      // eslint-disable-next-line
+      clickHandler: () => console.log("clicked!"),
+    },
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb icon="bwi-vault" (click)="clickHandler()">Vault</bit-breadcrumb>
+      <bit-breadcrumb (click)="clickHandler()">ACME Corp</bit-breadcrumb>
+      <bit-breadcrumb (click)="clickHandler()">Groups</bit-breadcrumb>
+      <bit-breadcrumb (click)="clickHandler()">Members</bit-breadcrumb>
+    </bit-breadcrumbs>
+    `,
+  }),
 };
 
-export const Overflow: Story = {
-  ...TopLevel,
+export const OverflowLinks: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+        <bit-breadcrumb route="/vault">Vault</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/acme-corp">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/groups">Groups</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/members">Members</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/items">Items</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/sends">Sends</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/settings">Settings</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <router-outlet/>
+    `,
+  }),
+};
+
+export const OverflowButtons: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      // eslint-disable-next-line
+      clickHandler: () => console.log("clicked!"),
+    },
+    template: /*html*/ `
+      <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+        <bit-breadcrumb (click)="clickHandler()">Vault</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Groups</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Members</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Items</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Sends</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Settings</bit-breadcrumb>
+      </bit-breadcrumbs>
+    `,
+  }),
+};
+
+export const WithTrailingArrow: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb icon="bwi-vault" route="/unknown-route">Breadcrumb</bit-breadcrumb>
+      <bit-breadcrumb route="/unknown-route-2">Breadcrumb 2</bit-breadcrumb>
+      <bit-breadcrumb route="/unknown-route-3">Breadcrumb 3</bit-breadcrumb>
+      <bit-breadcrumb route="/unknown-route-4">Breadcrumb 4</bit-breadcrumb>
+    </bit-breadcrumbs>
+    `,
+  }),
   args: {
-    items: [
-      { name: "Acme Vault", route: "" },
-      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 1", route: "middle-collection-1" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 2", route: "middle-collection-2" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 3", route: "middle-collection-3" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 4", route: "middle-collection-4" },
-      { icon: "bwi-collection-shared", name: "End Collection", route: "end-collection" },
-    ] as Breadcrumb[],
+    showTrailingArrow: true,
   },
 };

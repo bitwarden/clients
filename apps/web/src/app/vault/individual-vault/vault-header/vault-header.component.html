@@ -1,6 +1,6 @@
 <app-header [title]="title" [icon]="icon">
   @if (showBreadcrumbs) {
-    <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
       @if (activeOrganizationId) {
         <bit-breadcrumb
           [route]="[]"
