@@ -435,9 +435,9 @@ describe("Performance instrumentation", () => {
       expect(a).toBe(b);
     });
 
-    it("poison still creates the poison mark", () => {
+    it("poison does not record a mark", () => {
       perfModule.poison("myFunc");
-      expect(markSpy).toHaveBeenCalledWith("myFunc:poison:autofill:bw");
+      expect(markSpy).not.toHaveBeenCalled();
     });
   });
 });

@@ -284,6 +284,8 @@ export function createMeter<K extends readonly string[]>(
  *
  * Applies only to spans (`stopwatch`/`measure`). Meter entries cannot be poisoned.
  *
+ * When disabled at build time, this is a no-op.
+ *
  * @param name - The span measurement name to poison.
  */
 export function poison(name: string): void {
