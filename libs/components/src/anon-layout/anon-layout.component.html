@@ -5,7 +5,7 @@
 
   <bit-landing-content [maxWidth]="maxWidth()" [contentTopPadding]="contentTopPadding()">
     <bit-landing-hero
-      [icon]="showPageIcon() ? icon() : null"
+      [icon]="hidePageIcon() ? null : icon()"
       [title]="title()"
       [subtitle]="subtitle()"
       [heroAlignment]="heroAlignment()"

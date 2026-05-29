@@ -31,16 +31,16 @@ export interface AnonLayoutWrapperData {
   /**
    * The icon to display on the page. Pass null to hide the icon.
    *
-   * Optional. The layout itself decides whether to render the icon based on `showPageIcon`;
+   * Optional. The layout itself decides whether to render the icon based on `hidePageIcon`;
    * this field just supplies which icon to render when it is shown.
    */
   pageIcon?: BitSvg | null;
   /**
-   * Whether to show the page icon. Defaults to true.
+   * Whether to hide the page icon. Defaults to false (icon is shown).
    *
-   * When false, the layout suppresses the icon even if `pageIcon` is set.
+   * When true, the layout suppresses the icon even if `pageIcon` is set.
    */
-  showPageIcon?: boolean;
+  hidePageIcon?: boolean;
   /**
    * Top-padding of the content area. Defaults to "default".
    *
@@ -92,7 +92,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected maxWidth?: LandingContentMaxWidthType | null;
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
-  protected showPageIcon?: boolean;
+  protected hidePageIcon?: boolean;
   protected contentTopPadding?: ContentTopPaddingType;
   protected heroAlignment?: HeroAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
@@ -151,7 +151,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
 
-    this.showPageIcon = firstChildRouteData["showPageIcon"];
+    this.hidePageIcon = Boolean(firstChildRouteData["hidePageIcon"]);
     this.contentTopPadding = firstChildRouteData["contentTopPadding"];
     this.heroAlignment = firstChildRouteData["heroAlignment"];
     this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
@@ -207,8 +207,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.maxWidth = data.maxWidth;
     }
 
-    if (data.showPageIcon !== undefined) {
-      this.showPageIcon = data.showPageIcon;
+    if (data.hidePageIcon !== undefined) {
+      this.hidePageIcon = data.hidePageIcon;
     }
     if (data.contentTopPadding !== undefined) {
       this.contentTopPadding = data.contentTopPadding;
@@ -243,7 +243,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.maxWidth = null;
     this.hideCardWrapper = null;
     this.hideBackgroundIllustration = null;
-    this.showPageIcon = undefined;
+    this.hidePageIcon = undefined;
     this.contentTopPadding = undefined;
     this.heroAlignment = undefined;
     this.secondaryContentLocation = undefined;

@@ -177,7 +177,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
         key: "checkYourEmail",
       },
       pageIcon: RegistrationCheckEmailIcon,
-      showPageIcon: true,
+      hidePageIcon: false,
       heroAlignment: "center",
       contentTopPadding: "default",
     });
@@ -206,7 +206,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     this.state = RegistrationStartState.USER_DATA_ENTRY;
     // Restore the route-level layout (undoing the CHECK_EMAIL overrides), then layer the
     // state-specific text and icon back on top. The layout suppresses the icon when the
-    // route declared showPageIcon: false (e.g., on the extension).
+    // route declared hidePageIcon: true (e.g., on the extension).
     this.anonLayoutWrapperDataService.resetToRouteData();
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: {

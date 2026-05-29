@@ -63,7 +63,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hasLoggedInAccount: boolean = false;
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
-  protected showPageIcon?: boolean;
+  protected hidePageIcon?: boolean;
   protected contentTopPadding?: ContentTopPaddingType;
   protected heroAlignment?: HeroAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
@@ -145,7 +145,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
 
-    this.showPageIcon = firstChildRouteData["showPageIcon"];
+    this.hidePageIcon = Boolean(firstChildRouteData["hidePageIcon"]);
     this.contentTopPadding = firstChildRouteData["contentTopPadding"];
     this.heroAlignment = firstChildRouteData["heroAlignment"];
     this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
@@ -210,8 +210,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showLogo = data.showLogo;
     }
 
-    if (data.showPageIcon !== undefined) {
-      this.showPageIcon = data.showPageIcon;
+    if (data.hidePageIcon !== undefined) {
+      this.hidePageIcon = data.hidePageIcon;
     }
     if (data.contentTopPadding !== undefined) {
       this.contentTopPadding = data.contentTopPadding;
@@ -245,7 +245,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.maxWidth = null;
     this.hideFooter = null;
     this.hideCardWrapper = null;
-    this.showPageIcon = undefined;
+    this.hidePageIcon = undefined;
     this.contentTopPadding = undefined;
     this.heroAlignment = undefined;
     this.secondaryContentLocation = undefined;

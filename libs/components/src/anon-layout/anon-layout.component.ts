@@ -52,7 +52,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideCardWrapper = input<boolean>(false);
   readonly hideBackgroundIllustration = input<boolean>(false);
 
-  readonly showPageIcon = input<boolean>(true);
+  readonly hidePageIcon = input<boolean>(false);
   readonly contentTopPadding = input<ContentTopPaddingType>("default");
   readonly heroAlignment = input<HeroAlignmentType>("center");
   readonly secondaryContentLocation = input<SecondaryContentLocationType>("main");
