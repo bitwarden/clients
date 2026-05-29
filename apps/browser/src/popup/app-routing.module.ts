@@ -404,7 +404,6 @@ const routes: Routes = [
         canActivate: [unauthGuardFn()],
         data: {
           elevation: 1,
-          pageIcon: null,
           pageTitle: {
             key: "createAccount",
           },
@@ -456,7 +455,6 @@ const routes: Routes = [
         path: AuthRoute.Login,
         canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
-          pageIcon: null,
           pageTitle: {
             key: "loginPageEmailEntryScreenTitle",
           },
@@ -481,7 +479,6 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn(unauthRouteOverrides), platformPopoutGuard(["linux"])],
         data: {
-          pageIcon: null,
           pageTitle: {
             key: "logInWithPasskey",
           },
