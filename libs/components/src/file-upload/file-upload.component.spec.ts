@@ -73,6 +73,25 @@ class FormHostComponent {
   });
 }
 
+// TODO: Fix this the next time the file is edited.
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "multi-form-host",
+  imports: [FileUploadComponent, BitLabelComponent, ReactiveFormsModule],
+  template: `
+    <form [formGroup]="form">
+      <bit-file-upload formControlName="upload" variant="dropzone" multiple>
+        <bit-label>Upload</bit-label>
+      </bit-file-upload>
+    </form>
+  `,
+})
+class MultiFormHostComponent {
+  form = new FormGroup({
+    upload: new FormControl<File[]>([], { nonNullable: true }),
+  });
+}
+
 describe("FileUploadComponent", () => {
   describe("variant selection", () => {
     let fixture: ComponentFixture<TestHostComponent>;
@@ -238,6 +257,18 @@ describe("FileUploadComponent", () => {
       expect(upload.files()).toEqual([]);
     });
 
+    it("collapses an array passed to writeValue to the first file in single mode", () => {
+      const upload: FileUploadComponent = fixture.debugElement.query(
+        By.directive(FileUploadComponent),
+      ).componentInstance;
+      const a = makeFile("a.txt");
+      const b = makeFile("b.txt");
+
+      upload.writeValue([a, b]);
+
+      expect(upload.files()).toEqual([a]);
+    });
+
     it("pushes the selected file to the bound FormControl", () => {
       const file = makeFile();
       emitFromDropzone([file]);
@@ -274,6 +305,87 @@ describe("FileUploadComponent", () => {
         By.directive(DropzoneComponent),
       ).componentInstance;
       expect(dropzone.disabled()).toBe(true);
+    });
+  });
+
+  describe("ControlValueAccessor (multiple)", () => {
+    let fixture: ComponentFixture<MultiFormHostComponent>;
+
+    const emitFromDropzone = (files: File[]) => {
+      const dropzone: DropzoneComponent = fixture.debugElement.query(
+        By.directive(DropzoneComponent),
+      ).componentInstance;
+      dropzone.filesSelected.emit(files);
+      fixture.detectChanges();
+    };
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [MultiFormHostComponent],
+        providers: [i18nProvider],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(MultiFormHostComponent);
+      fixture.detectChanges();
+    });
+
+    it("populates files from writeValue with an array", () => {
+      const upload: FileUploadComponent = fixture.debugElement.query(
+        By.directive(FileUploadComponent),
+      ).componentInstance;
+      const a = makeFile("a.txt");
+      const b = makeFile("b.txt");
+
+      upload.writeValue([a, b]);
+
+      expect(upload.files()).toEqual([a, b]);
+    });
+
+    it("wraps a single File written to writeValue into a one-element array", () => {
+      const upload: FileUploadComponent = fixture.debugElement.query(
+        By.directive(FileUploadComponent),
+      ).componentInstance;
+      const file = makeFile();
+
+      upload.writeValue(file);
+
+      expect(upload.files()).toEqual([file]);
+    });
+
+    it("pushes the full File[] to the bound FormControl when files are selected", () => {
+      const a = makeFile("a.txt");
+      const b = makeFile("b.txt");
+
+      emitFromDropzone([a, b]);
+
+      expect(fixture.componentInstance.form.controls.upload.value).toEqual([a, b]);
+    });
+
+    it("pushes the updated File[] to the FormControl when a file is removed", () => {
+      const a = makeFile("a.txt");
+      const b = makeFile("b.txt");
+      emitFromDropzone([a, b]);
+
+      const list: FileListComponent = fixture.debugElement.query(
+        By.directive(FileListComponent),
+      ).componentInstance;
+      list.fileRemoved.emit(a);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.form.controls.upload.value).toEqual([b]);
+    });
+
+    it("pushes an empty array (not null) when the last file is removed", () => {
+      const file = makeFile();
+      emitFromDropzone([file]);
+
+      const list: FileListComponent = fixture.debugElement.query(
+        By.directive(FileListComponent),
+      ).componentInstance;
+      list.fileRemoved.emit(file);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.form.controls.upload.value).toEqual([]);
     });
   });
 

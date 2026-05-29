@@ -60,6 +60,15 @@ input. A file list showing each file's name, size, and a delete button renders b
 </bit-file-upload>
 ```
 
+When `multiple` is set, the form value exposed via `formControlName` is `File[]` rather than the
+default `File | null`. Type the `FormControl` accordingly:
+
+```ts
+form = new FormGroup({
+  attachments: new FormControl<File[]>([], { nonNullable: true }),
+});
+```
+
 <Canvas of={stories.MultipleFiles} />
 
 ### Dropzone with error
