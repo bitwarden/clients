@@ -287,6 +287,10 @@ export function createMeter<K extends readonly string[]>(
  * @param name - The span measurement name to poison.
  */
 export function poison(name: string): void {
+  if(!enabled) {
+    return;
+  }
+  
   const names = resolveNames(name);
   performance.mark(names.poison);
 }
