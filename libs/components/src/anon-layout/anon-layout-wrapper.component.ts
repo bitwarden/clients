@@ -167,11 +167,11 @@ export class AnonLayoutWrapperComponent implements OnInit {
       .anonLayoutWrapperData$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: Partial<AnonLayoutWrapperData>) => {
-        this.setAnonLayoutWrapperData(data);
+        this.setAnonLayoutWrapperDataFromService(data);
       });
   }
 
-  private setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>) {
+  private setAnonLayoutWrapperDataFromService(data: Partial<AnonLayoutWrapperData>) {
     if (!data) {
       return;
     }

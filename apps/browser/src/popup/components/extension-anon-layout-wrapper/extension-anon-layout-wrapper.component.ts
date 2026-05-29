@@ -161,11 +161,11 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       .anonLayoutWrapperData$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data: ExtensionAnonLayoutWrapperData) => {
-        this.setAnonLayoutWrapperData(data);
+        this.setAnonLayoutWrapperDataFromService(data);
       });
   }
 
-  private setAnonLayoutWrapperData(data: ExtensionAnonLayoutWrapperData) {
+  private setAnonLayoutWrapperDataFromService(data: ExtensionAnonLayoutWrapperData) {
     if (!data) {
       return;
     }
