@@ -60,7 +60,8 @@ zbus_polkit = { workspace = true, optional = true }
 core-foundation = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 homedir = { workspace = true }
-libproc = { workspace = true }
+# Keep `libproc` version in sync with apps/desktop/desktop_native/ssh_agent/Cargo.toml.
+libproc = "=0.14.11"
 secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }

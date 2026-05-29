@@ -30,7 +30,8 @@ homedir = { workspace = true }
 libc = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-libproc = { workspace = true }
+# Keep `libproc` version in sync with apps/desktop/desktop_native/core/Cargo.toml.
+libproc = "=0.14.11"
 
 [target.'cfg(windows)'.dependencies]
 windows = { workspace = true, features = [
