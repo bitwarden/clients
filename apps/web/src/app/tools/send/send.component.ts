@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { AsyncPipe, CommonModule } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, HostListener, viewChildren } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable, switchMap, combineLatest, map, firstValueFrom } from "rxjs";
+import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom } from "rxjs";
 
-import { StopClickDirective } from "@bitwarden/angular/directives/stop-click.directive";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -15,7 +14,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,7 +27,6 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
-  AutofocusDirective,
   CalloutComponent,
   DialogRef,
   DialogService,
@@ -37,7 +34,6 @@ import {
   SearchModule,
   ToastService,
   ToggleGroupModule,
-  IconComponent,
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
@@ -64,14 +60,10 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
   selector: "app-send",
   imports: [
     I18nPipe,
-    AsyncPipe,
-    AutofocusDirective,
     CalloutComponent,
     CommonModule,
     AsyncActionsModule,
     FormsModule,
-    StopClickDirective,
-    IconComponent,
     SearchModule,
     NoItemsModule,
     HeaderModule,
@@ -118,7 +110,6 @@ export class SendComponent implements OnDestroy {
     | undefined;
   noItemIcon = NoSendsIcon;
   selectedToggleValue?: SendFilterType;
-  SendUIRefresh$: Observable<boolean>;
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
@@ -184,8 +175,6 @@ export class SendComponent implements OnDestroy {
     private validationService: ValidationService,
     authService: AuthService,
   ) {
-    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
-
     // Lock/logout always wins over the unsaved-edits guard. We listen for the
     // active account's auth status leaving `Unlocked` — `lockService.lock`
     // flips this during `wipeDecryptedState` / `waitForLockedStatus`, well
@@ -247,24 +236,10 @@ export class SendComponent implements OnDestroy {
    * @param formConfig The form configuration.
    * */
   async openSendItemDialog(formConfig: SendFormConfig) {
-    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
-    // Prevent multiple dialogs from being opened but allow drawers since they will prevent multiple being open themselves
-    if (this.sendItemDialogRef && !useRefresh) {
-      return;
-    }
-
-    let sendItemDialogRef: DialogRef<SendItemDialogResult, SendAddEditDialogComponent> | undefined;
-    if (useRefresh) {
-      sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
-        formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
-      });
-    } else {
-      sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
-        formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
-      });
-    }
+    const sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig,
+      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
+    });
 
     // If we were unable to open the dialog (because the previous drawer failed to close, for example) exit immediately
     if (!sendItemDialogRef) {
@@ -276,12 +251,8 @@ export class SendComponent implements OnDestroy {
     const result = await lastValueFrom(this.sendItemDialogRef.closed);
     this.sendItemDialogRef = undefined;
 
-    // If we created a new Send and the feature flag is on, open the success drawer
-    if (
-      result?.result === SendItemDialogResult.Created &&
-      result?.send &&
-      (await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh))
-    ) {
+    // If we created a new Send, open the success drawer
+    if (result?.result === SendItemDialogResult.Created && result?.send) {
       await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
         data: result.send,
       });
