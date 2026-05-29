@@ -886,11 +886,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   /** Opens the Add/Edit Dialog */
   async addCipher(cipherType?: CipherType) {
-    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
-      "add",
-      undefined,
-      cipherType,
-    );
+    const type = cipherType ?? this.activeFilter.cipherType;
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
 
     const collectionId: CollectionId | undefined = this.activeFilter.collectionId as CollectionId;
 

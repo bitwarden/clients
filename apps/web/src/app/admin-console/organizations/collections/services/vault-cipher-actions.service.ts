@@ -144,13 +144,10 @@ export class VaultCipherActionsService {
 
   /** Opens the Add/Edit Dialog */
   async addCipher(cipherType?: CipherType): Promise<void> {
-    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
-      "add",
-      undefined,
-      cipherType,
-    );
-
     const activeFilter = await firstValueFrom(this.activeFilter$);
+    const type = cipherType ?? activeFilter.cipherType;
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
+
     const collectionId: CollectionId | undefined = activeFilter.collectionId as CollectionId;
 
     const organization = await firstValueFrom(this.organization$);
