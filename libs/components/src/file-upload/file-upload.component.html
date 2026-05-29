@@ -1,17 +1,13 @@
-<ng-template #labelContent>
-  <ng-content select="bit-label"></ng-content>
-</ng-template>
-
 <div class="tw-flex tw-flex-col tw-gap-2 [&_bit-hint]:tw-m-0">
-  @if (useDropzoneVariant()) {
-    <label
-      [id]="labelId"
-      class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
-      [class.tw-text-fg-inactive]="disabled()"
-    >
-      <ng-container *ngTemplateOutlet="labelContent"></ng-container>
-    </label>
+  <div
+    [id]="labelId"
+    class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
+    [class.tw-text-fg-inactive]="disabled()"
+  >
+    <ng-content select="bit-label"></ng-content>
+  </div>
 
+  @if (useDropzoneVariant()) {
     <bit-dropzone
       [inputId]="inputId"
       [accept]="accept()"
@@ -24,15 +20,6 @@
       (filesSelected)="onFilesSelected($event)"
     />
   } @else {
-    <label
-      [id]="labelId"
-      [attr.for]="inputId"
-      class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
-      [class.tw-text-fg-inactive]="disabled()"
-    >
-      <ng-container *ngTemplateOutlet="labelContent"></ng-container>
-    </label>
-
     <div bitFieldContainer class="tw-relative" [hasError]="!!errorMessage()">
       <div
         class="tw-relative tw-flex tw-shrink-0 tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-py-2 tw-rounded-s-[11px]"
