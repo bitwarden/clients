@@ -172,4 +172,17 @@ describe("DropzoneComponent", () => {
       expect(isDragOver()).toBe(false);
     });
   });
+
+  describe("aria attributes", () => {
+    it("applies the ariaLabelledBy input to the file input", () => {
+      fixture.componentRef.setInput("ariaLabelledBy", "outer-label-id");
+      fixture.detectChanges();
+
+      expect(getInput().getAttribute("aria-labelledby")).toBe("outer-label-id");
+    });
+
+    it("does not set aria-labelledby when ariaLabelledBy is null", () => {
+      expect(getInput().hasAttribute("aria-labelledby")).toBe(false);
+    });
+  });
 });

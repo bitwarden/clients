@@ -17,7 +17,7 @@ const splitFilename = (
 @Component({
   selector: "bit-file-name",
   template: `
-    <span class="tw-contents" [appA11yTitle]="name()">
+    <span class="tw-contents" [attr.title]="name()">
       <span class="tw-flex-none">{{ parts().firstFourth }}</span>
       <span class="tw-truncate tw-min-w-0">{{ parts().middleHalf }}</span>
       <span class="tw-flex-none">{{ parts().lastFourth }}</span>

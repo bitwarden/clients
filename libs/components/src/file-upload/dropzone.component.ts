@@ -40,6 +40,9 @@ export class DropzoneComponent {
   /** ID of the element that describes this input (error or hint) */
   readonly ariaDescribedBy = input<string | null>(null);
 
+  /** ID of the element that labels this input (typically the parent's bit-label) */
+  readonly ariaLabelledBy = input<string | null>(null);
+
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
 
