@@ -270,7 +270,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       maxAccessCount: sendView.maxAccessCount ?? undefined,
       disabled: sendView.disabled,
       hideEmail: sendView.hideEmail,
-      deletionDate: sendView.deletionDate.toISOString(),
+      deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
       auth: this.buildSendAuth(sendView),
     };
@@ -284,10 +284,22 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       maxAccessCount: sendView.maxAccessCount ?? undefined,
       disabled: sendView.disabled,
       hideEmail: sendView.hideEmail,
-      deletionDate: sendView.deletionDate.toISOString(),
+      deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
       auth: this.buildSendAuth(sendView),
     };
+  }
+
+  // SendView.deletionDate is typed as `Date` but declared with a `null` default, and
+  // the file is `@ts-strict-ignore`. The SDK's SendAddRequest/SendEditRequest require a
+  // non-null `DateTime<Utc>`. Fail fast at this boundary so a missing date surfaces as
+  // a clear error rather than a confusing `.toISOString()` TypeError or a server-side
+  // validation failure.
+  private requireDeletionDate(sendView: SendView): Date {
+    if (sendView.deletionDate == null) {
+      throw new Error("Send is missing a deletion date.");
+    }
+    return sendView.deletionDate;
   }
 
   private buildSendViewType(sendView: SendView): SendViewType {
@@ -312,13 +324,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     };
   }
 
+  // `AuthType.Password` is unreachable here: SendApiServiceSelector and the guard in
+  // `save()` both route password-protected sends to the legacy service because the SDK
+  // re-applies PBKDF2 to `auth.password`. When the SDK gains a skip-hash/preserve
+  // variant, the routing changes and a `case AuthType.Password` branch comes back.
   private buildSendAuth(sendView: SendView): SendAuthType {
     switch (sendView.authType) {
-      case AuthType.Password:
-        if (!sendView.password) {
-          throw new Error("Password-protected send is missing a password.");
-        }
-        return { type: "password", password: sendView.password };
       case AuthType.Email:
         if (sendView.emails == null || sendView.emails.length === 0) {
           throw new Error("Email-protected send is missing recipient emails.");

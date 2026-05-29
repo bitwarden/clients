@@ -19,16 +19,18 @@ import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.
 import { SendSdkApiService } from "./send-sdk-api.service";
 
 /**
- * Selects between SendApiService and SendSdkApiService based on the pm-30110-sdk-sends-api
- * feature flag.
+ * Selects between {@link SendApiService} and {@link SendSdkApiService} based on the
+ * `pm-30110-sdk-sends-api` feature flag.
  *
- * Methods whose return type is a wire-encrypted shape that the SDK cannot faithfully produce
- * (`getSend`, `getSends`, `putSendRemovePassword`) route to the legacy service unconditionally.
- * Mutation methods (`save`, `removePassword`, `delete`, `deleteSend`) and access-side methods
- * are flag-controlled — the SDK service refetches the encrypted form via the legacy API after
- * mutations to keep InternalSendService coherent. New file sends and cross-instance access
- * calls still go to legacy because the SDK can't honor a per-call API URL and would generate
- * a fresh send key that doesn't match the caller's pre-encrypted file buffer.
+ * Methods whose return type is a wire-encrypted shape the SDK cannot produce (`getSend`,
+ * `getSends`, `putSendRemovePassword`) always route to legacy. Mutations and access-side
+ * methods are flag-controlled; the SDK service refetches the encrypted form via legacy
+ * after mutations to keep `InternalSendService` coherent.
+ *
+ * A "cross-instance Send" is a Send hosted on a different Bitwarden server than the
+ * client is signed in to — typically the CLI receiving a self-hosted or EU-cloud Send
+ * link. Callers signal this by passing `apiUrl`; the selector routes those calls to
+ * legacy because the SDK client targets only its configured environment.
  */
 export class SendApiServiceSelector implements SendApiServiceAbstraction {
   private readonly service$: Observable<SendApiServiceAbstraction>;
@@ -49,19 +51,11 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   }
 
   /**
-   * Routes save calls to the SDK or legacy service. Forces legacy for two cases the SDK
-   * can't currently handle:
-   *
-   * - **New file sends.** `SendService.encrypt` produces a pre-encrypted `EncArrayBuffer`
-   *   under a client-derived key, but the SDK's `create_file_send` generates its own key
-   *   and would leave those bytes undecryptable.
-   * - **Password-protected sends.** `SendService.encrypt` already PBKDF2-derives
-   *   `Send.password` to its wire `keyB64` form, but the SDK's `SendAuthType::auth_data`
-   *   (`bitwarden-send/src/send.rs:160-163`) unconditionally re-applies PBKDF2 to the
-   *   `auth.password` string, double-hashing the value and leaving the server with a
-   *   password the user can't supply. The SDK has no `PreservedPassword`/skip-hash
-   *   variant on `SendAddRequest`/`SendEditRequest`, so this affects every
-   *   password-protected save (create, change, preserve-on-edit).
+   * Routes saves to SDK when the flag is on, except for two cases that fall back to
+   * legacy regardless: new file sends (the SDK generates its own send key, which
+   * wouldn't match the caller's pre-encrypted file buffer) and password-protected
+   * sends (the SDK re-applies PBKDF2 to `auth.password`, double-hashing the keyB64
+   * the client already derived).
    */
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const [send] = sendData;
@@ -78,21 +72,31 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).delete(id);
   }
 
-  // Note: under the SDK path this hits the V2 endpoint, which removes all auth
-  // (password and any other auth type), not just the password.
+  /**
+   * Removes the auth from a send and updates local state.
+   *
+   * Under the SDK flag this calls the V2 endpoint, which removes **all auth** on the
+   * send (password and any other auth type), not just the password. The legacy path
+   * uses V1, which removes only the password. Callers that need the V1 semantics
+   * specifically should keep the flag off until V2 ships everywhere.
+   */
   async removePassword(id: string): Promise<any> {
     return (await this.getService()).removePassword(id);
   }
 
-  // Wire-encrypted `SendResponse`; the SDK only has plaintext. Always legacy.
+  /**
+   * Always routed to legacy. Returns a wire-encrypted `SendResponse`, which the SDK
+   * cannot produce (the SDK only exposes plaintext views).
+   */
   async getSend(id: string): Promise<SendResponse> {
     return this.sendApiService.getSend(id);
   }
 
-  // The SDK send-access methods target the SDK client's configured environment and
-  // cannot accept a per-call API URL. When a caller supplies `apiUrl` (e.g. the CLI
-  // receiving a Send hosted on a different instance) we must use the legacy HTTP path
-  // so cross-instance access doesn't silently break.
+  /**
+   * Accesses a send. Routes to legacy whenever `apiUrl` is supplied (cross-instance
+   * receive, e.g. the CLI opening a self-hosted Send link while signed in to a
+   * different server) because the SDK client targets only its configured environment.
+   */
   async postSendAccess(
     id: string,
     request: SendAccessRequest,
@@ -114,12 +118,23 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).postSendAccessV2(accessToken);
   }
 
-  // Wire-encrypted list; see getSend.
+  /**
+   * Always routed to legacy. Returns a wire-encrypted list of `SendResponse`, which the
+   * SDK cannot produce; see {@link getSend}.
+   */
   async getSends(): Promise<ListResponse<SendResponse>> {
     return this.sendApiService.getSends();
   }
 
-  // Wire-encrypted `SendResponse`; see getSend.
+  /**
+   * Always routed to legacy. The selector's `removePassword` is the higher-level flow that
+   * also refreshes local state; this lower-level method returns a wire-encrypted
+   * `SendResponse` the SDK cannot produce.
+   *
+   * Note that the legacy `PUT /sends/{id}/remove-password` endpoint is V1 — it removes
+   * only the password, not all auth types. See {@link removePassword} for the V2
+   * (all-auth) behavior under the SDK flag.
+   */
   async putSendRemovePassword(id: string): Promise<SendResponse> {
     return this.sendApiService.putSendRemovePassword(id);
   }
@@ -128,8 +143,7 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).deleteSend(id);
   }
 
-  // See postSendAccess: the SDK can't target a per-call API URL, so route to
-  // legacy whenever `apiUrl` is supplied.
+  /** See {@link postSendAccess} — cross-instance callers (those passing `apiUrl`) route to legacy. */
   async getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
