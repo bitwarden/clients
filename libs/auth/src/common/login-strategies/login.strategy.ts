@@ -21,10 +21,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -84,7 +80,6 @@ export abstract class LoginStrategy {
     protected twoFactorService: TwoFactorService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
-    protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
@@ -216,18 +211,9 @@ export abstract class LoginStrategy {
       );
     }
 
-    const vaultTimeoutAction = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
-    );
-    const vaultTimeout = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
-    );
-
     // User id will be derived from the access token.
     await this.tokenService.setTokens(
       tokenResponse.accessToken,
-      vaultTimeoutAction as VaultTimeoutAction,
-      vaultTimeout,
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 

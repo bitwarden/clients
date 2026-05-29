@@ -1,6 +1,7 @@
 import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { TokenStorageSyncService } from "@bitwarden/common/auth/abstractions/token-storage-sync.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
@@ -28,12 +29,14 @@ export class InitService {
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
+    private readonly tokenStorageSyncService: TokenStorageSyncService,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
+      await this.tokenStorageSyncService.waitForHydration();
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();

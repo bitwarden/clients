@@ -55,6 +55,7 @@ import {
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
+import { DefaultTokenStorageSyncService } from "@bitwarden/common/auth/services/default-token-storage-sync.service";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
@@ -264,6 +265,7 @@ export class ServiceContainer {
   platformUtilsService: CliPlatformUtilsService;
   keyService: KeyService;
   tokenService: TokenService;
+  tokenStorageSyncService: DefaultTokenStorageSyncService;
   appIdService: AppIdService;
   apiService: NodeApiService;
   twoFactorApiService: TwoFactorApiService;
@@ -477,16 +479,7 @@ export class ServiceContainer {
 
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
 
-    this.tokenService = new TokenService(
-      this.singleUserStateProvider,
-      this.globalStateProvider,
-      this.platformUtilsService.supportsSecureStorage(),
-      this.secureStorageService,
-      this.keyGenerationService,
-      this.encryptService,
-      this.logService,
-      logoutCallback,
-    );
+    this.tokenService = new TokenService(this.singleUserStateProvider, this.globalStateProvider);
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,
@@ -576,13 +569,26 @@ export class ServiceContainer {
       pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
-      this.tokenService,
       this.policyService,
       this.biometricStateService,
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.Never, // default vault timeout
       sessionTimeoutTypeService,
+    );
+
+    this.tokenStorageSyncService = new DefaultTokenStorageSyncService(
+      this.tokenService,
+      this.vaultTimeoutSettingsService,
+      this.accountService,
+      this.singleUserStateProvider,
+      this.globalStateProvider,
+      this.secureStorageService,
+      this.encryptService,
+      this.keyGenerationService,
+      this.platformUtilsService.supportsSecureStorage(),
+      this.logService,
+      logoutCallback,
     );
 
     const refreshAccessTokenErrorCallback = () => {
@@ -597,7 +603,6 @@ export class ServiceContainer {
       refreshAccessTokenErrorCallback,
       this.logService,
       logoutCallback,
-      this.vaultTimeoutSettingsService,
       this.accountService,
       customUserAgent,
     );
@@ -846,7 +851,6 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.globalStateProvider,
       this.billingAccountProfileStateService,
-      this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.configService,
       this.accountCryptographicStateService,
@@ -1144,7 +1148,7 @@ export class ServiceContainer {
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
 
     await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearTokens(userId);
+    await this.tokenStorageSyncService.clearTokensFromDisk(userId as UserId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;
@@ -1160,12 +1164,10 @@ export class ServiceContainer {
     await this.storageService.init();
 
     await this.migrationRunner.run();
+    await this.tokenStorageSyncService.init();
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
-
-    const accounts = await firstValueFrom(this.accountService.accounts$);
-    await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

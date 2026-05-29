@@ -114,6 +114,7 @@ import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstraction
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { TokenStorageSyncService as TokenStorageSyncServiceAbstraction } from "@bitwarden/common/auth/abstractions/token-storage-sync.service";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -134,6 +135,7 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
+import { DefaultTokenStorageSyncService } from "@bitwarden/common/auth/services/default-token-storage-sync.service";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
@@ -615,7 +617,6 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       GlobalStateProvider,
       BillingAccountProfileStateService,
-      VaultTimeoutSettingsService,
       KdfConfigService,
       ConfigService,
       AccountCryptographicStateService,
@@ -801,13 +802,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TokenServiceAbstraction,
     useClass: TokenService,
+    deps: [SingleUserStateProvider, GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: TokenStorageSyncServiceAbstraction,
+    useClass: DefaultTokenStorageSyncService,
     deps: [
+      TokenServiceAbstraction,
+      VaultTimeoutSettingsService,
+      AccountServiceAbstraction,
       SingleUserStateProvider,
       GlobalStateProvider,
-      SUPPORTS_SECURE_STORAGE,
       SECURE_STORAGE,
-      KeyGenerationService,
       EncryptService,
+      KeyGenerationService,
+      SUPPORTS_SECURE_STORAGE,
       LogService,
       LOGOUT_CALLBACK,
     ],
@@ -898,7 +907,6 @@ const safeProviders: SafeProvider[] = [
       REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
       LogService,
       LOGOUT_CALLBACK,
-      VaultTimeoutSettingsService,
       AccountService,
       HTTP_OPERATIONS,
     ],
@@ -1005,7 +1013,6 @@ const safeProviders: SafeProvider[] = [
       PinStateServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       KeyService,
-      TokenServiceAbstraction,
       PolicyServiceAbstraction,
       BiometricStateService,
       StateProvider,

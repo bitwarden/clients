@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { TokenStorageSyncService } from "@bitwarden/common/auth/abstractions/token-storage-sync.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
@@ -17,7 +17,6 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
@@ -37,22 +36,20 @@ export class InitService {
     private encryptService: EncryptService,
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
-    private tokenService: TokenService,
     private versionService: VersionService,
     private ipcService: IpcService,
     private sdkLoadService: SdkLoadService,
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
+    private readonly tokenStorageSyncService: TokenStorageSyncService,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.run();
-
-      const accounts = await firstValueFrom(this.accountService.accounts$);
-      await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
+      await this.tokenStorageSyncService.init();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {

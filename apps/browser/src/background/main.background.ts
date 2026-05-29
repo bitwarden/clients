@@ -76,6 +76,7 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
+import { DefaultTokenStorageSyncService } from "@bitwarden/common/auth/services/default-token-storage-sync.service";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
@@ -413,6 +414,7 @@ export default class MainBackground {
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   tokenService: TokenServiceAbstraction;
+  tokenStorageSyncService: DefaultTokenStorageSyncService;
   appIdService: AppIdServiceAbstraction;
   apiService: ApiServiceAbstraction;
   hibpApiService: HibpApiService;
@@ -720,16 +722,7 @@ export default class MainBackground {
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
 
-    this.tokenService = new TokenService(
-      this.singleUserStateProvider,
-      this.globalStateProvider,
-      this.platformUtilsService.supportsSecureStorage(),
-      this.secureStorageService,
-      this.keyGenerationService,
-      this.encryptService,
-      this.logService,
-      logoutCallback,
-    );
+    this.tokenService = new TokenService(this.singleUserStateProvider, this.globalStateProvider);
 
     this.securityStateService = new DefaultSecurityStateService(
       this.accountCryptographicStateService,
@@ -821,13 +814,26 @@ export default class MainBackground {
       pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
-      this.tokenService,
       this.policyService,
       this.biometricStateService,
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
       sessionTimeoutTypeService,
+    );
+
+    this.tokenStorageSyncService = new DefaultTokenStorageSyncService(
+      this.tokenService,
+      this.vaultTimeoutSettingsService,
+      this.accountService,
+      this.singleUserStateProvider,
+      this.globalStateProvider,
+      this.secureStorageService,
+      this.encryptService,
+      this.keyGenerationService,
+      this.platformUtilsService.supportsSecureStorage(),
+      this.logService,
+      (logoutReason: LogoutReason, userId: UserId) => this.logout(logoutReason, userId),
     );
 
     this.apiService = new ApiService(
@@ -838,7 +844,6 @@ export default class MainBackground {
       refreshAccessTokenErrorCallback,
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
-      this.vaultTimeoutSettingsService,
       this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
     );
@@ -1706,12 +1711,12 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
+    await this.tokenStorageSyncService.init();
 
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
     const accounts = await firstValueFrom(this.accountService.accounts$);
     const userIds = Object.keys(accounts) as UserId[];
-    await this.tokenService.cleanupTokenStorage(userIds);
 
     const setUserKeyInMemoryPromises = [];
     for (const userId of userIds) {
@@ -1934,7 +1939,7 @@ export default class MainBackground {
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
-    await this.tokenService.clearTokens(userBeingLoggedOut);
+    await this.tokenStorageSyncService.clearTokensFromDisk(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 
     await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);

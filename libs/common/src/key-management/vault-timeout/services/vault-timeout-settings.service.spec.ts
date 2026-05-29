@@ -16,7 +16,6 @@ import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "../../../admin-console/models/domain/policy";
-import { TokenService } from "../../../auth/services/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
@@ -38,7 +37,6 @@ describe("VaultTimeoutSettingsService", () => {
   let pinStateService: MockProxy<PinStateServiceAbstraction>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
-  let tokenService: MockProxy<TokenService>;
   let policyService: MockProxy<PolicyService>;
   const biometricStateService = mock<BiometricStateService>();
   let vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
@@ -56,7 +54,6 @@ describe("VaultTimeoutSettingsService", () => {
     pinStateService = mock<PinStateServiceAbstraction>();
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     keyService = mock<KeyService>();
-    tokenService = mock<TokenService>();
     policyService = mock<PolicyService>();
 
     userDecryptionOptionsSubject = new BehaviorSubject(null);
@@ -333,38 +330,6 @@ describe("VaultTimeoutSettingsService", () => {
         ).toHaveBeenCalledWith(null);
       });
 
-      it("migrates tokens to memory when stored Lock is reset because only LogOut is available", async () => {
-        const mockAccessToken = "mockAccessToken";
-        const mockRefreshToken = "mockRefreshToken";
-        const mockClientId = "mockClientId";
-        const mockClientSecret = "mockClientSecret";
-
-        // TDE user removes PIN — only LogOut available, but "lock" was stored
-        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
-        pinStateService.pinSet$.mockReturnValue(of(false));
-        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
-
-        tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
-        tokenService.getRefreshToken.mockResolvedValue(mockRefreshToken);
-        tokenService.getClientId.mockResolvedValue(mockClientId);
-        tokenService.getClientSecret.mockResolvedValue(mockClientSecret);
-
-        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, VaultTimeoutAction.Lock, mockUserId);
-        await stateProvider.setUserState(VAULT_TIMEOUT, 15, mockUserId);
-
-        await firstValueFrom(
-          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
-        );
-
-        expect(tokenService.setTokens).toHaveBeenCalledWith(
-          mockAccessToken,
-          VaultTimeoutAction.LogOut,
-          15,
-          mockRefreshToken,
-          [mockClientId, mockClientSecret],
-        );
-      });
-
       it("resets stored LogOut to null when only LogOut is available (master-password-less)", async () => {
         // TDE user removed PIN — stored LogOut must be cleared so that re-enabling PIN later
         // defaults back to Lock instead of staying on LogOut.
@@ -386,7 +351,6 @@ describe("VaultTimeoutSettingsService", () => {
         expect(
           stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION).nextMock,
         ).toHaveBeenCalledWith(null);
-        expect(tokenService.setTokens).not.toHaveBeenCalled();
       });
 
       it("does not write when state is already null and only one action is available", async () => {
@@ -426,55 +390,6 @@ describe("VaultTimeoutSettingsService", () => {
         expect(
           stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION).nextMock,
         ).toHaveBeenCalledWith(VaultTimeoutAction.LogOut);
-      });
-
-      it("migrates tokens when effective action changes from null (forced LogOut reset) to Lock", async () => {
-        const mockAccessToken = "mockAccessToken";
-        const mockRefreshToken = "mockRefreshToken";
-        const mockClientId = "mockClientId";
-        const mockClientSecret = "mockClientSecret";
-
-        // User adds PIN — Lock becomes available; stored action is null (reset by migrator or new code)
-        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
-        pinStateService.pinSet$.mockReturnValue(of(true));
-        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
-
-        tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
-        tokenService.getRefreshToken.mockResolvedValue(mockRefreshToken);
-        tokenService.getClientId.mockResolvedValue(mockClientId);
-        tokenService.getClientSecret.mockResolvedValue(mockClientSecret);
-
-        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, mockUserId);
-        await stateProvider.setUserState(VAULT_TIMEOUT, 15, mockUserId);
-
-        await firstValueFrom(
-          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
-        );
-
-        expect(tokenService.setTokens).toHaveBeenCalledWith(
-          mockAccessToken,
-          VaultTimeoutAction.Lock,
-          15,
-          mockRefreshToken,
-          [mockClientId, mockClientSecret],
-        );
-      });
-
-      it("does not call setTokens when accessToken is null during null to Lock transition", async () => {
-        // User adds PIN but accessToken is null (e.g. not yet authenticated)
-        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
-        pinStateService.pinSet$.mockReturnValue(of(true));
-        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
-
-        tokenService.getAccessToken.mockResolvedValue(null);
-
-        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, mockUserId);
-
-        await firstValueFrom(
-          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
-        );
-
-        expect(tokenService.setTokens).not.toHaveBeenCalled();
       });
     });
   });
@@ -899,11 +814,6 @@ describe("VaultTimeoutSettingsService", () => {
   });
 
   describe("setVaultTimeoutOptions", () => {
-    const mockAccessToken = "mockAccessToken";
-    const mockRefreshToken = "mockRefreshToken";
-    const mockClientId = "mockClientId";
-    const mockClientSecret = "mockClientSecret";
-
     it("should throw an error if no user id is provided", async () => {
       // note: don't await here because we want to test the error
       const result = vaultTimeoutSettingsService.setVaultTimeoutOptions(null, null, null);
@@ -938,11 +848,6 @@ describe("VaultTimeoutSettingsService", () => {
 
     it("should set the vault timeout options for the given user", async () => {
       // Arrange
-      tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
-      tokenService.getRefreshToken.mockResolvedValue(mockRefreshToken);
-      tokenService.getClientId.mockResolvedValue(mockClientId);
-      tokenService.getClientSecret.mockResolvedValue(mockClientSecret);
-
       const action = VaultTimeoutAction.Lock;
       const timeout = 30;
 
@@ -950,14 +855,6 @@ describe("VaultTimeoutSettingsService", () => {
       await vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, timeout, action);
 
       // Assert
-      expect(tokenService.setTokens).toHaveBeenCalledWith(
-        mockAccessToken,
-        action,
-        timeout,
-        mockRefreshToken,
-        [mockClientId, mockClientSecret],
-      );
-
       expect(
         stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION).nextMock,
       ).toHaveBeenCalledWith(action);
@@ -967,40 +864,6 @@ describe("VaultTimeoutSettingsService", () => {
       ).toHaveBeenCalledWith(timeout);
 
       expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
-    });
-
-    it("should re-store the tokens when the timeout is not never and the action is log out", async () => {
-      // Arrange
-
-      const action = VaultTimeoutAction.LogOut;
-      const timeout = 30;
-      tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
-
-      // Act
-      await vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, timeout, action);
-
-      // Assert: setTokens is called to re-store tokens in the correct location
-      // (eviction of other storage locations is managed by the token service)
-      expect(tokenService.setTokens).toHaveBeenCalledWith(
-        mockAccessToken,
-        action,
-        timeout,
-        undefined, // refreshToken not mocked
-        [undefined, undefined], // clientId / clientSecret not mocked
-      );
-    });
-
-    it("should not clear the tokens when the timeout is never and the action is log out", async () => {
-      // Arrange
-      const action = VaultTimeoutAction.LogOut;
-      const timeout = VaultTimeoutStringType.Never;
-      tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
-
-      // Act
-      await vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, timeout, action);
-
-      // Assert
-      expect(tokenService.clearTokens).not.toHaveBeenCalled();
     });
   });
 
@@ -1012,7 +875,6 @@ describe("VaultTimeoutSettingsService", () => {
       pinStateService,
       userDecryptionOptionsService,
       keyService,
-      tokenService,
       policyService,
       biometricStateService,
       stateProvider,

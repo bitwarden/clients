@@ -1,25 +1,62 @@
 import { Observable } from "rxjs";
 
-import { VaultTimeout, VaultTimeoutAction } from "../../key-management/vault-timeout";
 import { UserId } from "../../types/guid";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 import { DecodedAccessToken } from "../services/token.service";
 
+/**
+ * Manages the application's authentication tokens (access, refresh, API key client ID/secret)
+ * and the per-email two-factor "remember me" token.
+ *
+ * **Memory-only contract.** All token reads and writes performed by this service operate on
+ * memory state exclusively. Disk persistence (and OS secure storage) is owned entirely by
+ * `TokenStorageSyncService`, which reacts to changes on the observables exposed here and
+ * decides whether to write to or wipe the persistent tier based on the user's vault timeout
+ * settings.
+ *
+ * **Logout cleanup.** The four token memory state keys use `clearOn: ["logout"]`, so they are
+ * cleared automatically by `StateEventRunnerService.handleEvent("logout", userId)`
+ * Logout sites are still required to call
+ * `tokenStorageSyncService.clearTokensFromDisk(userId)` to wipe disk and OS secure storage
+ * synchronously.
+ *
+ * **Hydration gating.** Every public read on this service (observables and `getXxx` promises)
+ * suspends until `TokenStorageSyncService.init()` has finished hydrating disk → memory and
+ * published `TOKEN_STORAGE_HYDRATED`. Pre-hydration subscribers do not receive a transient
+ * `null`/`false`; they wait until the hydrated state is the source of truth, then receive the
+ * current memory value and continue tracking updates normally. The init services already
+ * await `tokenStorageSyncService.init()` at bootstrap, so consumers don't typically observe
+ * the suspension.
+ *
+ * The two-factor token methods (`setTwoFactorToken`, `getTwoFactorToken`, `clearTwoFactorToken`)
+ * are an exception — they read/write a global disk-backed state key and are unrelated to the
+ * memory-first authentication-token model.
+ */
 export abstract class TokenService {
   /**
    * Returns an observable that emits a boolean indicating whether the user has an access token.
    * @param userId The user id to check for an access token.
    */
   abstract hasAccessToken$(userId: UserId): Observable<boolean>;
+
+  /** Observable stream of the plaintext access token in memory for the given user. */
+  abstract accessToken$(userId: UserId): Observable<string | null>;
+
+  /** Observable stream of the plaintext refresh token in memory for the given user. */
+  abstract refreshToken$(userId: UserId): Observable<string | null>;
+
+  /** Observable stream of the API key client ID in memory for the given user. */
+  abstract clientId$(userId: UserId): Observable<string | null>;
+
+  /** Observable stream of the API key client secret in memory for the given user. */
+  abstract clientSecret$(userId: UserId): Observable<string | null>;
+
   /**
-   * Sets the access token, refresh token, API Key Client ID, and API Key Client Secret in memory or disk
-   * based on the given vaultTimeoutAction and vaultTimeout and the derived access token user id.
-   * Note: for platforms that support secure storage, the access & refresh tokens are stored in secure storage instead of on disk.
-   * Note 2: this method also enforces always setting the access token and the refresh token together as
+   * Sets the access token, refresh token, API Key Client ID, and API Key Client Secret in memory.
+   * Disk persistence is handled reactively by TokenStorageSyncService.
+   * Note: this method also enforces always setting the access token and the refresh token together as
    * we can retrieve the user id required to set the refresh token from the access token for efficiency.
    * @param accessToken The access token to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @param refreshToken The optional refresh token to set. Note: this is undefined when using the CLI Login Via API Key flow
    * @param clientIdClientSecret The API Key Client ID and Client Secret to set.
    *
@@ -27,89 +64,37 @@ export abstract class TokenService {
    */
   abstract setTokens(
     accessToken: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
     refreshToken?: string,
     clientIdClientSecret?: [string, string],
   ): Promise<SetTokensResult>;
 
   /**
-   * Clears the access token, refresh token, API Key Client ID, and API Key Client Secret out of memory, disk, and secure storage if supported.
-   * @param userId The optional user id to clear the tokens for; if not provided, the active user id is used.
-   * @returns A promise that resolves when the tokens have been cleared.
-   */
-  abstract clearTokens(userId?: UserId): Promise<void>;
-
-  /**
-   * Ensures token storage is consistent with account state on app init.
-   * For each provided user id without an access token, clears all remaining tokens
-   * from all storage layers (disk and secure storage).
-   *
-   * A locked account always has an access token on disk, so this only affects
-   * accounts that have been logged out. Safe to call on every startup — a no-op
-   * when storage is already consistent.
-   * @param userIds - The user ids to check and clean up.
-   */
-  abstract cleanupTokenStorage(userIds: UserId[]): Promise<void>;
-
-  /**
-   * Sets the access token in memory or disk based on the given vaultTimeoutAction and vaultTimeout
-   * and the user id read off the access token. The other storage location is always cleared to
-   * enforce the invariant that only one location holds the token at a time.
-   * Note: for platforms that support secure storage, the access token is encrypted with a key stored
-   * in secure storage and the encrypted value is written to disk.
+   * Sets the access token in memory. Disk persistence is handled reactively by TokenStorageSyncService.
    * @param accessToken The access token to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the access token that has been set.
    */
-  abstract setAccessToken(
-    accessToken: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
-  ): Promise<string>;
-
-  // TODO: revisit having this public clear method approach once the state service is fully deprecated.
-  /**
-   * Clears the access token for the given user id out of memory, disk, and secure storage if supported.
-   * @param userId The optional user id to clear the access token for; if not provided, the active user id is used.
-   * @returns A promise that resolves when the access token has been cleared.
-   *
-   * Note: This method is required so that the StateService doesn't have to inject the VaultTimeoutSettingsService to
-   * pass in the vaultTimeoutAction and vaultTimeout.
-   * This avoids a circular dependency between the StateService, TokenService, and VaultTimeoutSettingsService.
-   */
-  abstract clearAccessToken(userId?: UserId): Promise<void>;
+  abstract setAccessToken(accessToken: string): Promise<string>;
 
   /**
-   * Gets the access token
-   * @param userId - The optional user id to get the access token for; if not provided, the active user is used.
+   * Gets the access token from memory for the given user.
+   * @param userId The user id to get the access token for.
    * @returns A promise that resolves with the access token or null.
    */
   abstract getAccessToken(userId: UserId): Promise<string | null>;
 
   /**
-   * Gets the refresh token.
-   * @param userId - The optional user id to get the refresh token for; if not provided, the active user is used.
+   * Gets the refresh token from memory for the given user.
+   * @param userId The user id to get the refresh token for.
    * @returns A promise that resolves with the refresh token or null.
    */
   abstract getRefreshToken(userId: UserId): Promise<string | null>;
 
   /**
-   * Sets the API Key Client ID for the active user id in memory or disk based on the given
-   * vaultTimeoutAction and vaultTimeout. The other storage location is always cleared to enforce
-   * the invariant that only one location holds the value at a time.
+   * Sets the API Key Client ID in memory. Disk persistence is handled reactively by TokenStorageSyncService.
    * @param clientId The API Key Client ID to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the API Key Client ID that has been set.
    */
-  abstract setClientId(
-    clientId: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
-    userId?: UserId,
-  ): Promise<string>;
+  abstract setClientId(clientId: string, userId?: UserId): Promise<string>;
 
   /**
    * Gets the API Key Client ID for the given user.
@@ -118,20 +103,11 @@ export abstract class TokenService {
   abstract getClientId(userId: UserId): Promise<string | undefined>;
 
   /**
-   * Sets the API Key Client Secret for the active user id in memory or disk based on the given
-   * vaultTimeoutAction and vaultTimeout. The other storage location is always cleared to enforce
-   * the invariant that only one location holds the value at a time.
+   * Sets the API Key Client Secret in memory. Disk persistence is handled reactively by TokenStorageSyncService.
    * @param clientSecret The API Key Client Secret to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the client secret that has been set.
    */
-  abstract setClientSecret(
-    clientSecret: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
-    userId?: UserId,
-  ): Promise<string>;
+  abstract setClientSecret(clientSecret: string, userId?: UserId): Promise<string>;
 
   /**
    * Gets the API Key Client Secret for the given user.
@@ -230,7 +206,7 @@ export abstract class TokenService {
 
   /**
    * Gets whether or not the user authenticated via an external mechanism.
-   * @param userId The optional user id to check for external authN status; if not provided, the active user is used.
+   * @param userId The user id to check for external authN status.
    * @returns A promise that resolves with a boolean representing the user's external authN status.
    */
   abstract getIsExternal(userId: UserId): Promise<boolean>;
