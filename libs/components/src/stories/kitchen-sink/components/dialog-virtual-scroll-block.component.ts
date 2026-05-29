@@ -2,6 +2,7 @@ import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
 
 import { BadgeComponent } from "../../../badge";
+import { BadgeGroupComponent } from "../../../badge-group";
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
 import { SectionComponent } from "../../../section";
@@ -25,6 +26,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   imports: [
     DatePipe,
     BadgeComponent,
+    BadgeGroupComponent,
     DialogModule,
     IconButtonModule,
     SectionComponent,
@@ -54,14 +56,14 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
       <bit-column sortable [sortFn]="sortByTags">
         <th *bitColumnHeader bit-cell>Tags</th>
         <td *bitColumnFor="dataSource.columns.tags; let cell" bit-cell [truncate]="false">
-          <div class="tw-flex tw-gap-1">
+          <bit-badge-group>
             @for (tag of cell.tags; track tag) {
               <span bitBadge variant="subtle">{{ tag }}</span>
             }
-          </div>
+          </bit-badge-group>
         </td>
       </bit-column>
-      <bit-column>
+      <bit-column width="max-content">
         <th *bitColumnHeader bit-cell></th>
         <td *bitColumnFor="dataSource.synthetic('actions'); let cell" bit-cell>
           <button
