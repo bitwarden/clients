@@ -84,19 +84,7 @@ export class ToggleGroupComponent<TValue = unknown> {
       // Handle the case where the component renders into a container that is already
       // too narrow — ResizeObserver won't fire for the initial size if it doesn't change.
       if (Math.floor(el.getBoundingClientRect().width) < naturalWidth) {
-        this.toggleOptions.set(
-          this.toggles().map((t) => ({
-            value: t.value(),
-            label: [
-              t.labelContent()?.nativeElement.innerText,
-              t.berryComponent()?.content() != null
-                ? `(${t.berryComponent()!.content()})`
-                : undefined,
-            ]
-              .filter(Boolean)
-              .join(" "),
-          })),
-        );
+        this.toggleOptions.set(this.buildToggleOptions());
         this.displayMode.set("dropdown");
       } else if (this.fullWidth()) {
         this.displayMode.set("full-width");
@@ -107,19 +95,7 @@ export class ToggleGroupComponent<TValue = unknown> {
         const mode = this.displayMode();
 
         if (currentWidth < naturalWidth && (mode === "inline" || mode === "full-width")) {
-          this.toggleOptions.set(
-            this.toggles().map((t) => ({
-              value: t.value(),
-              label: [
-                t.labelContent()?.nativeElement.innerText,
-                t.berryComponent()?.content() != null
-                  ? `(${t.berryComponent()!.content()})`
-                  : undefined,
-              ]
-                .filter(Boolean)
-                .join(" "),
-            })),
-          );
+          this.toggleOptions.set(this.buildToggleOptions());
           this.displayMode.set("dropdown");
           return;
         }
@@ -133,6 +109,22 @@ export class ToggleGroupComponent<TValue = unknown> {
       observer.observe(el);
       this.destroyRef.onDestroy(() => observer.disconnect());
     });
+  }
+
+  protected readonly dropdownItems = computed<Option<TValue>[]>(() => {
+    const selected = this.selected();
+    return this.toggleOptions().map((option) => ({
+      ...option,
+      icon: option.value === selected ? "bwi-check" : undefined,
+    }));
+  });
+
+  private buildToggleOptions(): Option<TValue>[] {
+    return this.toggles().map((toggle) => ({
+      value: toggle.value(),
+      label: toggle.labelContent()?.nativeElement.innerText,
+      count: toggle.berryComponent()?.content(),
+    }));
   }
 
   protected readonly classlist = computed(() => {

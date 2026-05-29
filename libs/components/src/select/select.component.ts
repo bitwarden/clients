@@ -28,6 +28,8 @@ import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BitFormFieldControl } from "../form-field";
+import { IconComponent } from "../icon/icon.component";
+import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
@@ -40,7 +42,7 @@ let nextId = 0;
   selector: "bit-select",
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, TypographyDirective, IconComponent],
   host: {
     "[id]": "id()",
   },

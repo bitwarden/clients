@@ -1,6 +1,6 @@
 @if (displayMode() === "dropdown") {
   <bit-toggle-dropdown
-    [items]="toggleOptions()"
+    [items]="dropdownItems()"
     [value]="selected()"
     (valueChange)="onInputInteraction($event)"
   ></bit-toggle-dropdown>

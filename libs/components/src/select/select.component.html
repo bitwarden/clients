@@ -14,14 +14,17 @@
   [attr.aria-label]="selectedOption()?.label ?? placeholder()"
 >
   <ng-template ng-option-tmp let-item="item">
-    <div class="tw-flex" [title]="item.label">
-      <div class="tw-me-2 tw-flex-initial">
+    <div class="tw-flex tw-justify-between tw-items-center" [title]="item.label">
+      <div class="tw-flex tw-gap-2 tw-items-center">
         @if (item.icon != null) {
-          <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+          <bit-icon [name]="item.icon" fixedWidth />
         }
+        <div class="tw-flex-1 tw-text-ellipsis tw-overflow-hidden">
+          {{ item.label }}
+        </div>
       </div>
-      <div class="tw-flex-1 tw-text-ellipsis tw-overflow-hidden">
-        {{ item.label }}
+      <div bitTypography="helper">
+        {{ item.count }}
       </div>
     </div>
   </ng-template>
