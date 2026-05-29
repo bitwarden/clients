@@ -98,7 +98,18 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkArchiveAllowed).toBe(false);
     });
 
-    it("returns false when selecting collections", () => {
+    it("returns false when selecting only collections (no ciphers)", () => {
+      component.userCanArchive = true;
+      const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
+
+      const items: VaultItem<CipherView>[] = [{ collection: collection1 }];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns true when selecting archivable ciphers alongside collections", () => {
       component.userCanArchive = true;
       const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
 
@@ -109,7 +120,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkArchiveAllowed).toBe(false);
+      expect(component.bulkArchiveAllowed).toBe(true);
     });
 
     it("returns true when selecting unarchived ciphers without organization", () => {
@@ -125,7 +136,7 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkArchiveAllowed).toBe(true);
     });
 
-    it("returns false when any selected cipher has an organizationId", () => {
+    it("returns true when selecting org ciphers that are not archived", () => {
       component.userCanArchive = true;
 
       const personalCipher: Partial<CipherView> = {
@@ -145,7 +156,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkArchiveAllowed).toBe(false);
+      expect(component.bulkArchiveAllowed).toBe(true);
     });
 
     it("returns false when any selected cipher is already archived", () => {
