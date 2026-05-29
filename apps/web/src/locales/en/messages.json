@@ -10122,7 +10122,7 @@
     "message": "Get started with Secrets Manager"
   },
   "smOnboardingChecklistSubtitle": {
-    "message": "complete these steps to start managing your team's secrets"
+    "message": "Complete these steps to start managing your team's secrets"
   },
   "smOnboardingCreateMachineAccountCta": {
     "message": "Create machine account"
@@ -10143,7 +10143,7 @@
     "message": "Create secret"
   },
   "complete": {
-    "message": "$COMPLETED$/$TOTAL$ Complete",
+    "message": "$COMPLETED$ of $TOTAL$ complete",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10801,7 +10801,7 @@
     "message": "Get started with your vault"
   },
   "onboardingChecklistSubtitle": {
-    "message": "complete these steps to secure your personal data and get the most out of Bitwarden"
+    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
   },
   "dismissThisChecklist": {
     "message": "Dismiss this checklist"
