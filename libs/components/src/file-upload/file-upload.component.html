@@ -6,6 +6,7 @@
   <div class="tw-flex-col tw-flex tw-gap-2 [&_bit-hint]:tw-m-0">
     <label
       [id]="labelId"
+      [attr.for]="inputId"
       class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
       [class.tw-text-fg-inactive]="disabled()"
     >
@@ -13,6 +14,7 @@
     </label>
 
     <bit-dropzone
+      [inputId]="inputId"
       [accept]="accept()"
       [maxFileSize]="maxFileSize()"
       [multiple]="multiple()"
@@ -57,7 +59,6 @@
       </div>
       <!-- Button overlay: accessible control with no native file-input value to announce -->
       <button
-        [id]="inputId"
         type="button"
         [attr.aria-labelledby]="ariaLabelledBy"
         [attr.aria-describedby]="ariaDescribedBy()"
@@ -68,6 +69,7 @@
       <!-- Hidden file input: triggers the OS file picker, kept out of the AT -->
       <input
         #fileInput
+        [id]="inputId"
         type="file"
         aria-hidden="true"
         tabindex="-1"

@@ -1,5 +1,5 @@
 <input
-  [id]="inputId"
+  [id]="inputId()"
   type="file"
   class="tw-peer/dropzone-input tw-sr-only"
   [accept]="accept()"
@@ -10,7 +10,7 @@
 />
 
 <label
-  [attr.for]="inputId"
+  [attr.for]="inputId()"
   [class]="containerClasses()"
   (dragenter)="onDragEnter($event)"
   (dragover)="onDragOver($event)"
