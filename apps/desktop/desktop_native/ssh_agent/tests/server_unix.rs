@@ -10,6 +10,7 @@ use common::{
     agent_with_keys, always_approving_agent, always_denying_agent, framed_request_identities,
     framed_sign_request, init_tracing, parse_first_key_name, parse_sign_response_algorithm,
     read_framed_response, test_ed25519_key, test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,
+    unsupported_dsa_key_blob,
 };
 
 fn test_socket_path() -> PathBuf {
@@ -351,6 +352,31 @@ async fn test_sign_request_rsa_sha256_flag_produces_sha256_signature() {
         "rsa-sha2-256",
         "expected SHA-256 algorithm when flags=2"
     );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_unsupported_key_type_returns_failure() {
+    setup();
+    // Agent has valid keys loaded; the sign request references a DSA key, which is
+    // unsupported and can never be stored, so the agent must return FAILURE.
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_sign_request(
+            &unsupported_dsa_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(response[0], 5, "expected FAILURE for unsupported key type");
 
     agent.stop();
 }

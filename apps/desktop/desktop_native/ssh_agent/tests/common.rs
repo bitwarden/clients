@@ -100,6 +100,17 @@ pub fn test_rsa_key_blob() -> Vec<u8> {
         .expect("RSA public key encoding should succeed")
 }
 
+/// Returns a public key blob with an unsupported algorithm (DSA).
+// The blob only needs the algorithm-name prefix to trigger a keystore lookup; no valid DSA key
+// material is required because the agent returns FAILURE as soon as it cannot find the key.
+pub fn unsupported_dsa_key_blob() -> Vec<u8> {
+    let alg = b"ssh-dss";
+    let mut blob = Vec::new();
+    blob.extend_from_slice(&(alg.len() as u32).to_be_bytes());
+    blob.extend_from_slice(alg);
+    blob
+}
+
 /// Builds a framed SSH REQUEST_IDENTITIES message (type byte 11).
 pub fn framed_request_identities() -> Vec<u8> {
     let mut frame = 1u32.to_be_bytes().to_vec();
