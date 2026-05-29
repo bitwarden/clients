@@ -5,32 +5,11 @@ use tokio::{io::AsyncWriteExt, net::windows::named_pipe::ClientOptions};
 
 mod common;
 use common::{
-    agent_with_keys,
-    always_approving_agent,
-    always_denying_agent,
-    framed_invalid_session_bind_extension,
-    framed_request_identities,
-    framed_session_bind_extension,
-    framed_sign_request,
-    init_tracing,
-    parse_first_key_name,
-    parse_sign_response_algorithm,
-    read_framed_response,
-    test_ed25519_key,
-    test_ed25519_key_blob,
-    test_rsa_key,
-    test_rsa_key_blob,
-    unsupported_dsa_key_blob, // ||||||| 2abb233e60
-    //     agent_with_keys, always_approving_agent, always_denying_agent,
-    // framed_request_identities,     framed_sign_request, init_tracing, parse_first_key_name,
-    // parse_sign_response_algorithm,     read_framed_response, test_ed25519_key,
-    // test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob, =======
-    //     agent_with_keys, always_approving_agent, always_denying_agent,
-    // framed_request_identities,     framed_sign_request, init_tracing, parse_first_key_name,
-    // parse_sign_response_algorithm,     read_framed_response, test_ed25519_key,
-    // test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,     unsupported_dsa_key_blob,
-    // >>>>>>> origin
-    MockApprovalRequester,
+    agent_with_keys, always_approving_agent, always_denying_agent,
+    framed_invalid_session_bind_extension, framed_request_identities,
+    framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
+    parse_sign_response_algorithm, read_framed_response, test_ed25519_key, test_ed25519_key_blob,
+    test_rsa_key, test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
