@@ -1,7 +1,12 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
+import {
+  LogoutService,
+  UserDecryptionOptions,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -20,9 +25,11 @@ describe("KeyRotationDialogService", () => {
   let mockI18nService: MockProxy<I18nService>;
   let mockLogoutService: MockProxy<LogoutService>;
   let mockMasterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
 
   const mockUserId = "mockUserId" as UserId;
   const masterPassword = "mockPassword";
+  const mockKeyConnectorUrl = "https://key-connector.example.com";
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -32,6 +39,7 @@ describe("KeyRotationDialogService", () => {
     mockI18nService = mock<I18nService>();
     mockLogoutService = mock<LogoutService>();
     mockMasterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
 
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
@@ -43,6 +51,10 @@ describe("KeyRotationDialogService", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: LogoutService, useValue: mockLogoutService },
         { provide: MasterPasswordUnlockService, useValue: mockMasterPasswordUnlockService },
+        {
+          provide: UserDecryptionOptionsServiceAbstraction,
+          useValue: mockUserDecryptionOptionsService,
+        },
       ],
     });
 
@@ -92,6 +104,46 @@ describe("KeyRotationDialogService", () => {
       mockUserKeyRotationService.rotateUserKey.mockResolvedValue(false);
 
       const result = await sut.rotateKeys(masterPassword, mockUserId);
+
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("rotateKeysForKeyConnector", () => {
+    beforeEach(() => {
+      mockUserDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of({
+          keyConnectorOption: { keyConnectorUrl: mockKeyConnectorUrl },
+        } as UserDecryptionOptions),
+      );
+    });
+
+    it("shows success toast and logs out when rotation succeeds", async () => {
+      mockUserKeyRotationService.rotateUserKey.mockResolvedValue(true);
+
+      const result = await sut.rotateKeysForKeyConnector(mockUserId);
+
+      expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
+        { KeyConnector: { key_connector_url: mockKeyConnectorUrl } },
+        "Skip",
+        mockUserId,
+      );
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: "",
+        message: "accountEncryptionKeyRotated-used-i18n",
+        timeout: 15000,
+      });
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(result).toBe(true);
+    });
+
+    it("does not show success toast or logout when rotation returns false", async () => {
+      mockUserKeyRotationService.rotateUserKey.mockResolvedValue(false);
+
+      const result = await sut.rotateKeysForKeyConnector(mockUserId);
 
       expect(mockToastService.showToast).not.toHaveBeenCalled();
       expect(mockLogoutService.logout).not.toHaveBeenCalled();

@@ -1,6 +1,7 @@
 import { inject, Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
+import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -18,6 +19,7 @@ export class KeyRotationDialogService {
   private readonly i18nService = inject(I18nService);
   private readonly logoutService = inject(LogoutService);
   private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
+  private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
 
   /**
    * Rotates the user's account encryption keys if the provided master password is validated via local proof of decryption.
@@ -43,6 +45,45 @@ export class KeyRotationDialogService {
 
     const success = await this.userKeyRotationService.rotateUserKey(
       { Password: { password: masterPassword } },
+      "Skip",
+      userId,
+    );
+
+    if (success) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("accountEncryptionKeyRotated"),
+        timeout: 15000,
+      });
+
+      await this.logoutService.logout(userId);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Rotates the user's account encryption keys for Key Connector users.
+   * If rotation is successful the user will be logged out, on error the user will remain logged in.
+   * @param userId The ID of the user.
+   * @return True if the key rotation was successful and the dialog should be closed, false if the dialog should remain open.
+   */
+  async rotateKeysForKeyConnector(userId: UserId): Promise<boolean> {
+    // Use the Key Connector URL from the identity response rather than from organization
+    // data, as the organization profile endpoint is a separate trust boundary.
+    // The KC URL from the identity response is trusted because the Key Connector at that URL
+    // holds a valid key that was used to decrypt the user key during login.
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+    const keyConnectorUrl = userDecryptionOptions.keyConnectorOption?.keyConnectorUrl;
+    if (keyConnectorUrl == null) {
+      throw new Error("Key Connector URL not found in user decryption options");
+    }
+
+    const success = await this.userKeyRotationService.rotateUserKey(
+      { KeyConnector: { key_connector_url: keyConnectorUrl } },
       "Skip",
       userId,
     );
