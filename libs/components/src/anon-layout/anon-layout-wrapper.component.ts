@@ -162,7 +162,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.heroAlignment = routeData.heroAlignment ?? "center";
     this.secondaryContentLocation = routeData.secondaryContentLocation ?? "main";
 
-    // Cache the route-data payload so resetToRouteData() can later restore it.
+    // Cache the routeData payload so resetToRouteData() can later restore it.
     this.anonLayoutWrapperDataService.setRouteData(
       firstChildRouteData as Partial<AnonLayoutWrapperData>,
     );
