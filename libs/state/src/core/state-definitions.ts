@@ -37,9 +37,13 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
   },
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
+export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_DISK_LOCAL = new StateDefinition("billingLocal", "disk", {
+  web: "disk-local",
+});
 export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
@@ -231,6 +235,13 @@ export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
   "disk",
   {
     web: "disk-local",

@@ -13,38 +13,43 @@ import {
   model,
   signal,
 } from "@angular/core";
+import { outputToObservable } from "@angular/core/rxjs-interop";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
 import { PositionIdentifier, defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
+/** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
+export abstract class PopoverElementProvider {
+  abstract readonly popoverAnchorElementRef: ElementRef<HTMLElement>;
+}
+
 /**
- * Directive that anchors a popover to any element for programmatic control.
- * Ideal for guided tours, tooltips, and contextual help.
- * Use `[(popoverOpen)]` for two-way binding to control visibility.
+ * Directive that anchors a popover to any element with programmatic open/close control.
+ * Use `[(popoverOpen)]` for two-way binding to control visibility from the host component.
  *
  * @example
  * Basic usage:
  * ```html
- * <div [bitPopoverAnchorFor]="tourStep" [(popoverOpen)]="showTour">
- *   Element to highlight
+ * <div [bitPopoverAnchorFor]="myPopover" [(popoverOpen)]="isOpen">
+ *   Anchor element
  * </div>
- * <bit-popover #tourStep>Tour content</bit-popover>
+ * <bit-popover #myPopover>Popover content</bit-popover>
  * ```
  *
  * @example
- * With spotlight effect for guided tours:
+ * With spotlight effect:
  * ```html
- * <div [bitPopoverAnchorFor]="tourStep"
- *      [(popoverOpen)]="showTour"
+ * <div [bitPopoverAnchorFor]="myPopover"
+ *      [(popoverOpen)]="isOpen"
  *      [spotlight]="true"
- *      [spotlightPadding]="12">
- *   Element to highlight
+ * >
+ *   Anchor element
  * </div>
  * ```
  *
- * Use `PopoverTriggerForDirective` instead if the popover is meant to be manually opened by the user clicking a button.
+ * Use `PopoverTriggerForDirective` instead if the popover should open on user click.
  */
 @Directive({
   selector: "[bitPopoverAnchorFor]",
@@ -57,6 +62,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** The popover component to display */
   readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchorFor" });
 
+  /** Whether clicking the backdrop closes the popover. Defaults to true. */
   readonly closeOnBackdropClick = input<boolean>(true);
 
   /** Preferred popover position (e.g., "right-start", "below-center") */
@@ -65,8 +71,16 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
 
-  /** Padding around the spotlight cutout in pixels */
-  readonly spotlightPadding = input<number>(0);
+  private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
+    host: true,
+    optional: true,
+  });
+  private readonly elementRef = this.popoverElementProvider
+    ? this.popoverElementProvider.popoverAnchorElementRef
+    : inject<ElementRef<HTMLElement>>(ElementRef);
+
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly overlay = inject(Overlay);
 
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
@@ -107,11 +121,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     };
   }
 
-  constructor(
-    private elementRef: ElementRef<HTMLElement>,
-    private viewContainerRef: ViewContainerRef,
-    private overlay: Overlay,
-  ) {
+  constructor() {
     // Wait for the first render to complete so layout is stable before opening.
     // Sets a signal so the effect below re-evaluates once the layout is ready.
     afterNextRender(() => this.hasInitialized.set(true));
@@ -145,7 +155,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+      this.spotlightService.showSpotlight(this.elementRef.nativeElement);
     }
 
     this.popoverOpen.set(true);
@@ -177,7 +187,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     const backdrop = this.overlayRef
       .backdropClick()
       .pipe(filter(() => !this.spotlight() && this.closeOnBackdropClick()));
-    const popoverClosed = this.popover().closed;
+    const popoverClosed = outputToObservable(this.popover().closed);
 
     return detachments.pipe(mergeWith(escKey, backdrop, popoverClosed));
   }

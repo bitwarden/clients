@@ -21,6 +21,7 @@ import {
   first,
   map,
   shareReplay,
+  skip,
   startWith,
   switchMap,
   take,
@@ -336,7 +337,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         // If the user can edit all ciphers for the organization then fetch them ALL.
         if (organization.canEditAllCiphers) {
           ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          ciphers.forEach((c) => (c.edit = true));
+          ciphers.forEach((c) => {
+            c.edit = true;
+            c.viewPassword = true;
+          });
         } else {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
@@ -547,6 +551,16 @@ export class VaultComponent implements OnInit, OnDestroy {
           refreshing || processing || !firstLoadComplete,
       ),
     );
+
+    // When Angular reuses this component instance on an org switch (same route definition),
+    // ngOnInit does not re-run and refreshingSubject$ stays false after the initial load,
+    // which causes the filter(([,,,refreshing]) => refreshing) guard in allCiphers$ and
+    // allCollectionsWithoutUnassigned$ to block all subsequent fetches.
+    // Resetting to true on every org change (skipping the first emission that bootstraps
+    // the initial load) ensures the reactive chain re-fires for the new organization.
+    this.organizationId$
+      .pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this.refreshingSubject$.next(true));
   }
 
   async ngOnInit() {
@@ -857,7 +871,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const ref = AddItemDialogComponent.open(this.dialogService, {
       canCreateFolder: false,
       canCreateCollection: organization?.canCreateNewCollections ?? false,
-      canCreateSshKey: true,
+      canCreateSshKey: false,
     });
     const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
     if (!result) {
@@ -1392,6 +1406,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async bulkAssignToCollections(items: CipherView[]) {
+    if (!(await this.repromptCipher(items))) {
+      return;
+    }
+
     if (items.length === 0) {
       this.toastService.showToast({
         variant: "error",

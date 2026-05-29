@@ -2,6 +2,16 @@ import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
+/**
+ * The `email` and `webVaultUrl` combo of a user who is required to sign in with SSO.
+ * We must include the `webVaultUrl` to distinguish accounts when a user has used the
+ * same email to create an account on more than one environment.
+ *
+ * Note: The webVault URL is resolved via `getWebVaultUrl()` at the time of a successful SSO login,
+ * so it always reflects the environment the user actually authenticated against.
+ */
+export type SsoRequiredCacheEntry = { email: string; webVaultUrl: string };
+
 export abstract class SsoLoginServiceAbstraction {
   /**
    * Gets the code verifier used for SSO.
@@ -94,22 +104,22 @@ export abstract class SsoLoginServiceAbstraction {
   ) => Promise<void>;
 
   /**
-   * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
+   * A cache list of users for whom the `PolicyType.RequireSso` policy is applied (that is, a list
    * of users who are required to authenticate via SSO only). The cache lives on the current device only.
    */
-  abstract ssoRequiredCache$: Observable<Set<string> | null>;
+  abstract ssoRequiredCache$: Observable<SsoRequiredCacheEntry[] | null>;
 
   /**
-   * Remove an email from the cached list of emails that must authenticate via SSO.
+   * Remove the user from the cached list of users who must authenticate via SSO (if an entry is present for the user)
    */
-  abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;
+  abstract removeFromSsoRequiredCacheIfPresent: (email: string, userId: UserId) => Promise<void>;
 
   /**
-   * Check if the user is required to authenticate via SSO. If so, add their email to a cache list.
-   * We'll use this cache list to display ONLY the "Use single sign-on" button to the
-   * user the next time they are on the /login page.
+   * Check if the user is required to authenticate via SSO. If yes, add their entry to a cache list.
+   * We'll use this cache list to enable only the "Use single sign-on" button the next time the user is on the
+   * `/login` page (and disable the alternate login option buttons).
    *
-   * If the user is not required to authenticate via SSO, remove their email from the cache list if it is present.
+   * If the user is not required to authenticate via SSO, remove their entry from the cache list if it is present.
    */
-  abstract updateSsoRequiredCache: (ssoLoginEmail: string, userId: UserId) => Promise<void>;
+  abstract updateSsoRequiredCache: (email: string, userId: UserId) => Promise<void>;
 }

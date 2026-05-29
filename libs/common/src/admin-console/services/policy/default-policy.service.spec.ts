@@ -17,8 +17,10 @@ import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domai
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
 
 import { DefaultPolicyService, getFirstPolicy } from "./default-policy.service";
 import { POLICIES } from "./policy-state";
@@ -27,6 +29,8 @@ describe("PolicyService", () => {
   const userId = newGuid() as UserId;
   let stateProvider: FakeStateProvider;
   let organizationService: MockProxy<OrganizationService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
+  let configService: MockProxy<ConfigService>;
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
   const accountService = mockAccountServiceWith(userId);
 
@@ -35,6 +39,8 @@ describe("PolicyService", () => {
   beforeEach(() => {
     stateProvider = new FakeStateProvider(accountService);
     organizationService = mock<OrganizationService>();
+    newPolicyService = mock<InternalNewPolicyService>();
+    configService = mock<ConfigService>();
     singleUserState = stateProvider.singleUser.getFake(userId, POLICIES);
 
     const organizations$ = of([
@@ -57,11 +63,27 @@ describe("PolicyService", () => {
       organization("org5", true, true, OrganizationUserStatusType.Confirmed, false),
       // Can manage policies
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
+      // Admin
+      organization(
+        "org7",
+        true,
+        true,
+        OrganizationUserStatusType.Confirmed,
+        false,
+        OrganizationUserType.Admin,
+      ),
     ]);
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
-    policyService = new DefaultPolicyService(stateProvider, organizationService, accountService);
+    policyService = new DefaultPolicyService(
+      stateProvider,
+      organizationService,
+      accountService,
+      newPolicyService,
+      () => configService,
+    );
   });
 
   it("upsert", async () => {
@@ -202,8 +224,9 @@ describe("PolicyService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined when user is an owner (exempt from policy)", async () => {
-      // org2 has OrganizationUserType.Owner; owners are exempt from MasterPassword policy
+    it("returns policy options for an owner (not exempt from MasterPassword policy)", async () => {
+      // org2 has OrganizationUserType.Owner; owners are NOT exempt from MasterPassword policy
+      // The server sends MasterPassword policy to all users regardless of role
       singleUserState.nextState(
         arrayToRecord([
           policyData("1", "org2", PolicyType.MasterPassword, true, { minLength: 10 }),
@@ -212,7 +235,36 @@ describe("PolicyService", () => {
 
       const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
-      expect(result).toBeUndefined();
+      expect(result).toEqual({
+        minComplexity: 0,
+        minLength: 10,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        requireUpper: false,
+        enforceOnLogin: false,
+      });
+    });
+
+    it("returns policy options for an admin (not exempt from MasterPassword policy)", async () => {
+      // org7 has OrganizationUserType.Admin; admins are NOT exempt from MasterPassword policy
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("1", "org7", PolicyType.MasterPassword, true, { minLength: 10 }),
+        ]),
+      );
+
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
+
+      expect(result).toEqual({
+        minComplexity: 0,
+        minLength: 10,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        requireUpper: false,
+        enforceOnLogin: false,
+      });
     });
   });
 
@@ -559,14 +611,14 @@ describe("PolicyService", () => {
 
     test.each([
       PolicyType.PasswordGenerator,
-      PolicyType.FreeFamiliesSponsorshipPolicy,
+      PolicyType.FreeFamiliesSponsorship,
       PolicyType.RestrictedItemTypes,
       PolicyType.RemoveUnlockWithPin,
     ])("returns true and owners are not exempt from policy %s", async (policyType) => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org2", PolicyType.PasswordGenerator, true),
-          policyData("policy2", "org2", PolicyType.FreeFamiliesSponsorshipPolicy, true),
+          policyData("policy2", "org2", PolicyType.FreeFamiliesSponsorship, true),
           policyData("policy3", "org2", PolicyType.RestrictedItemTypes, true),
           policyData("policy4", "org2", PolicyType.RemoveUnlockWithPin, true),
         ]),
@@ -623,24 +675,12 @@ describe("PolicyService", () => {
     });
 
     describe("SingleOrg policy exemptions", () => {
-      it("returns true for SingleOrg policy when AutoConfirm is enabled, even for users who can manage policies", async () => {
+      it("returns false for SingleOrg policy when user can manage policies, even when AutoConfirm is enabled", async () => {
         singleUserState.nextState(
           arrayToRecord([
             policyData("policy1", "org6", PolicyType.SingleOrg, true),
-            policyData("policy2", "org6", PolicyType.AutoConfirm, true),
+            policyData("policy2", "org6", PolicyType.AutomaticUserConfirmation, true),
           ]),
-        );
-
-        const result = await firstValueFrom(
-          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        );
-
-        expect(result).toBe(true);
-      });
-
-      it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is not enabled", async () => {
-        singleUserState.nextState(
-          arrayToRecord([policyData("policy1", "org6", PolicyType.SingleOrg, true)]),
         );
 
         const result = await firstValueFrom(
@@ -650,12 +690,9 @@ describe("PolicyService", () => {
         expect(result).toBe(false);
       });
 
-      it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is disabled", async () => {
+      it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is not enabled", async () => {
         singleUserState.nextState(
-          arrayToRecord([
-            policyData("policy1", "org6", PolicyType.SingleOrg, true),
-            policyData("policy2", "org6", PolicyType.AutoConfirm, false),
-          ]),
+          arrayToRecord([policyData("policy1", "org6", PolicyType.SingleOrg, true)]),
         );
 
         const result = await firstValueFrom(
@@ -681,7 +718,7 @@ describe("PolicyService", () => {
         singleUserState.nextState(
           arrayToRecord([
             policyData("policy1", "org6", PolicyType.SingleOrg, true),
-            policyData("policy2", "org1", PolicyType.AutoConfirm, true),
+            policyData("policy2", "org1", PolicyType.AutomaticUserConfirmation, true),
           ]),
         );
 
@@ -702,7 +739,13 @@ describe("PolicyService", () => {
     beforeEach(() => {
       stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
       organizationService = mock<OrganizationService>();
-      policyService = new DefaultPolicyService(stateProvider, organizationService, accountService);
+      policyService = new DefaultPolicyService(
+        stateProvider,
+        organizationService,
+        accountService,
+        mock<InternalNewPolicyService>(),
+        () => mock<ConfigService>(),
+      );
     });
 
     it("returns undefined when there are no policies", () => {

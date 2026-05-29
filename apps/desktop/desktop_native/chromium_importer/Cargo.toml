@@ -12,7 +12,7 @@ async-trait = "=0.1.89"
 dirs = { workspace = true }
 hex = { workspace = true }
 rand = { workspace = true }
-rusqlite = { version = "=0.38.0", features = ["bundled"] }
+rusqlite = { version = "=0.39.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 
@@ -24,9 +24,11 @@ sha1 = "=0.10.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cbc = { workspace = true, features = ["alloc"] }
+desktop_objc = { path = "../objc" }
 pbkdf2 = "=0.12.2"
 security-framework = { workspace = true }
 sha1 = "=0.10.6"
+tokio = { workspace = true, features = ["rt"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 aes-gcm = { workspace = true }

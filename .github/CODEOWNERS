@@ -4,6 +4,9 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+# CODEOWNERS owners
+.github/CODEOWNERS @bitwarden/tech-leads
+
 ## Global styles are owned by UIF
 *.scss @bitwarden/team-ui-foundation
 *.css @bitwarden/team-ui-foundation
@@ -36,6 +39,7 @@ apps/browser/src/tools @bitwarden/team-tools-dev
 apps/cli/src/tools @bitwarden/team-tools-dev
 apps/desktop/desktop_native/bitwarden_chromium_import_helper @bitwarden/team-tools-dev
 apps/desktop/desktop_native/chromium_importer @bitwarden/team-tools-dev
+apps/desktop/desktop_native/objc/src/native/chromium_importer @bitwarden/team-tools-dev
 apps/desktop/src/app/tools @bitwarden/team-tools-dev
 apps/web/src/app/tools @bitwarden/team-tools-dev
 libs/angular/src/tools @bitwarden/team-tools-dev
@@ -72,7 +76,6 @@ libs/vault @bitwarden/team-vault-dev
 ## Admin Console team files ##
 apps/browser/src/admin-console @bitwarden/team-admin-console-dev
 apps/cli/src/admin-console @bitwarden/team-admin-console-dev
-apps/desktop/src/admin-console @bitwarden/team-admin-console-dev
 apps/web/src/app/admin-console @bitwarden/team-admin-console-dev
 bitwarden_license/bit-web/src/app/admin-console @bitwarden/team-admin-console-dev
 bitwarden_license/bit-cli/src/admin-console @bitwarden/team-admin-console-dev
@@ -80,6 +83,7 @@ libs/angular/src/admin-console @bitwarden/team-admin-console-dev
 libs/common/src/admin-console @bitwarden/team-admin-console-dev
 libs/admin-console @bitwarden/team-admin-console-dev
 libs/auto-confirm @bitwarden/team-admin-console-dev
+libs/organization-invite-link @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev
@@ -165,13 +169,22 @@ libs/common/src/autofill @bitwarden/team-autofill-dev
 ## Desktop Native team files ##
 apps/desktop/src/autofill @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-desktop-native-dev
+
+## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
-apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/services/ssh-agent.service.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/services/ssh-agent.service.spec.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/main/main-ssh-agent.service.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/main/main-ssh-agent.service.spec.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/models/ssh-agent-setting.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/components/approve-ssh-request.html @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/src/autofill/components/approve-ssh-request.ts @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
 
-## Desktop Native + Skunkworks co-owned files 
+## Desktop Native + Skunkworks co-owned files
 apps/desktop/desktop_native/autofill_provider @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
@@ -180,7 +193,7 @@ apps/desktop/desktop_native/win_webauthn @bitwarden/team-desktop-native-dev @bit
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/macos/autofill-extension @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/modal/credentials @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
-apps/desktop/src/autofill/services/desktop-autofill* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill.service.ts @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-fido2* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 
 # DuckDuckGo integration
@@ -230,18 +243,8 @@ apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
 
 ## BRE team owns these workflows ##
-.github/workflows/brew-bump-desktop.yml @bitwarden/dept-bre
-.github/workflows/deploy-web.yml @bitwarden/dept-bre
-.github/workflows/publish-cli.yml @bitwarden/dept-bre
-.github/workflows/publish-desktop.yml @bitwarden/dept-bre
-.github/workflows/publish-web.yml @bitwarden/dept-bre
 .github/workflows/retrieve-current-desktop-rollout.yml @bitwarden/dept-bre
 .github/workflows/staged-rollout-desktop.yml @bitwarden/dept-bre
-.github/workflows/release-browser.yml @bitwarden/dept-bre
-.github/workflows/release-cli.yml @bitwarden/dept-bre
-.github/workflows/release-desktop-beta.yml @bitwarden/dept-bre
-.github/workflows/release-desktop.yml @bitwarden/dept-bre
-.github/workflows/release-web.yml @bitwarden/dept-bre
 
 ## Docker-related files
 **/Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
