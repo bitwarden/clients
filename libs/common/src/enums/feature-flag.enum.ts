@@ -60,7 +60,6 @@ export enum FeatureFlag {
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
-  SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
   SendEventLogging = "pm-36560-send-event-logging",
 
@@ -81,7 +80,6 @@ export enum FeatureFlag {
   PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   CipherKeyEncryption = "cipher-key-encryption",
-  MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
@@ -142,7 +140,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,
 
@@ -166,7 +163,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
-  [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,

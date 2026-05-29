@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use anyhow::Result;
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
-use crate::crypto::{PublicKey, QueryableKeyData, SSHKeyData};
+use crate::crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData};
 #[cfg(test)]
 use crate::storage::keydata::MockQueryableKeyData;
 
@@ -33,17 +33,19 @@ pub trait KeyStore: Send + Sync {
     /// * `Err(_)` if an error occurred during retrieval
     fn get(&self, public_key: &PublicKey) -> Result<Option<Self::KeyData>>;
 
+    /// Retrieves the [`PrivateKey`] associated with the given [`PublicKey`].
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Some(PrivateKey))` if the key was found
+    /// * `Ok(None)` if no key with the given public key exists
+    /// * `Err(_)` if an error occurred during retrieval
+    fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>>;
+
     /// # Returns
     ///
     /// A vector of tuples containing each key's public key and human-readable name.
     fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
-
-    /// Signs data using the private key associated with the given [`PublicKey`].
-    ///
-    /// # Returns
-    ///
-    /// The signature bytes.
-    fn sign_data(&self, public_key: &PublicKey, data: &[u8]) -> Result<Vec<u8>>;
 
     /// Atomically replaces all keys in the keystore.
     fn replace(&self, keys: Vec<Self::KeyData>) -> Result<()>;
@@ -114,8 +116,8 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .collect::<Result<Vec<_>, _>>()
     }
 
-    fn sign_data(&self, _public_key: &PublicKey, _data: &[u8]) -> Result<Vec<u8>> {
-        todo!();
+    fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>> {
+        Ok(self.get(public_key)?.map(|kd| kd.private_key().clone()))
     }
 
     fn replace(&self, new_keys: Vec<SSHKeyData>) -> Result<()> {
