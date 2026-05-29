@@ -26,6 +26,14 @@
           aria-readonly="true"
           data-testid="name-on-account"
         />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyNameOnAccount' | i18n"
+          appCopyField="nameOnAccount"
+          [cipher]="cipher()"
+        ></button>
       </bit-form-field>
     }
 
@@ -104,6 +112,14 @@
           aria-readonly="true"
           data-testid="branch-number"
         />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyBranchNumber' | i18n"
+          appCopyField="branchNumber"
+          [cipher]="cipher()"
+        ></button>
       </bit-form-field>
     }
 
@@ -149,7 +165,23 @@
           data-testid="swift-code"
           type="password"
         />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          data-testid="toggle-swift-code"
+          [toggled]="revealSwiftCode()"
+          (toggledChange)="toggleSwiftCodeVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copySwiftCode' | i18n"
+          appCopyField="swiftCode"
+          [cipher]="cipher()"
+        ></button>
       </bit-form-field>
     }
 
@@ -164,7 +196,15 @@
           data-testid="iban"
           type="password"
         />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          data-testid="toggle-iban"
+          [toggled]="revealIban()"
+          (toggledChange)="toggleIbanVisible($event)"
+        ></button>
         <button
           bitIconButton="bwi-clone"
           bitSuffix

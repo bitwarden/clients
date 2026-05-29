@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 
 import {
   OrganizationUserApiService,
+  OrganizationUserInviteRequest,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
@@ -52,5 +53,18 @@ export class UserAdminService {
     organizationId: OrganizationId,
   ): Promise<void> {
     await this.organizationUserApiService.putOrganizationUser(organizationId, userId, request);
+  }
+
+  async invite(emails: string[], user: OrganizationUserAdminView): Promise<void> {
+    const request = new OrganizationUserInviteRequest({
+      emails,
+      permissions: user.permissions,
+      type: user.type,
+      collections: user.collections,
+      groups: user.groups,
+      accessSecretsManager: user.accessSecretsManager,
+    });
+
+    await this.organizationUserApiService.postOrganizationUserInvite(user.organizationId, request);
   }
 }

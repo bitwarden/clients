@@ -641,14 +641,14 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
             aType: "License Number",
           },
         };
-      const hasAnyField = fields.some((field) => cipher.driversLicense?.[field] != null);
+      const hasAnyField = fields.some((field) => cipher.driversLicense?.[field]);
       if (hasAnyField) {
         menu.push({ type: "separator" });
       }
 
       fields.forEach((field) => {
         const value = cipher.driversLicense?.[field];
-        if (value != null) {
+        if (value) {
           const { copyLabelKey, aType } = fieldLabels[field];
           menu.push({
             label: this.i18nService.t(copyLabelKey),
@@ -671,7 +671,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       ];
 
       const hasAnyField = fields.some(
-        (f) => cipher.passport?.[f.field as keyof typeof cipher.passport] != null,
+        (f) => cipher.passport?.[f.field as keyof typeof cipher.passport],
       );
       if (hasAnyField) {
         menu.push({ type: "separator" });
@@ -679,10 +679,39 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
       fields.forEach(({ field, copyLabelKey, aType, i18nKey }) => {
         const value = cipher.passport?.[field as keyof typeof cipher.passport];
-        if (value != null) {
+        if (value) {
           menu.push({
             label: this.i18nService.t(copyLabelKey),
             click: () => this.copyValue(cipher, value as string, i18nKey ?? field, aType),
+          });
+        }
+      });
+    };
+
+    const addBankAccountFields = () => {
+      const fields: { field: string; copyLabelKey: string; aType?: string }[] = [
+        { field: "nameOnAccount", copyLabelKey: "copyNameOnAccount" },
+        { field: "accountNumber", copyLabelKey: "copyAccountNumber", aType: "Account Number" },
+        { field: "routingNumber", copyLabelKey: "copyRoutingNumber" },
+        { field: "branchNumber", copyLabelKey: "copyBranchNumber" },
+        { field: "pin", copyLabelKey: "copyPin", aType: "PIN" },
+        { field: "iban", copyLabelKey: "copyIban", aType: "IBAN" },
+        { field: "swiftCode", copyLabelKey: "copySwiftCode", aType: "SWIFT" },
+      ];
+
+      const hasAnyField = fields.some(
+        (f) => cipher.bankAccount?.[f.field as keyof typeof cipher.bankAccount],
+      );
+      if (hasAnyField) {
+        menu.push({ type: "separator" });
+      }
+
+      fields.forEach(({ field, copyLabelKey, aType }) => {
+        const value = cipher.bankAccount?.[field as keyof typeof cipher.bankAccount];
+        if (value) {
+          menu.push({
+            label: this.i18nService.t(copyLabelKey),
+            click: () => this.copyValue(cipher, value as string, field, aType),
           });
         }
       });
@@ -757,45 +786,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         }
         break;
       case CipherType.BankAccount:
-        if (cipher.bankAccount.accountNumber != null || cipher.bankAccount.routingNumber != null) {
-          menu.push({ type: "separator" });
-        }
-        if (cipher.bankAccount.accountNumber) {
-          menu.push({
-            label: this.i18nService.t("copyAccountNumber"),
-            click: () =>
-              this.copyValue(
-                cipher,
-                cipher.bankAccount.accountNumber,
-                "accountNumber",
-                "Account Number",
-              ),
-          });
-        }
-        if (cipher.bankAccount.routingNumber) {
-          menu.push({
-            label: this.i18nService.t("copyRoutingNumber"),
-            click: () =>
-              this.copyValue(
-                cipher,
-                cipher.bankAccount.routingNumber,
-                "routingNumber",
-                "Routing Number",
-              ),
-          });
-        }
-        if (cipher.bankAccount.pin) {
-          menu.push({
-            label: this.i18nService.t("copyPin"),
-            click: () => this.copyValue(cipher, cipher.bankAccount.pin, "pin", "PIN"),
-          });
-        }
-        if (cipher.bankAccount.iban) {
-          menu.push({
-            label: this.i18nService.t("copyIban"),
-            click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
-          });
-        }
+        addBankAccountFields();
         break;
       case CipherType.Passport:
         addPassportFields();
