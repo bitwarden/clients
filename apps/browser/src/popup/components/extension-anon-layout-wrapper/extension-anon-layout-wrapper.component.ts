@@ -13,7 +13,7 @@ import {
   AnonLayoutComponent,
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
-  ContentPaddingType,
+  ContentTopPaddingType,
   HeroAlignmentType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
@@ -64,7 +64,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
   protected showPageIcon?: boolean;
-  protected contentPadding?: ContentPaddingType;
+  protected contentTopPadding?: ContentTopPaddingType;
   protected heroAlignment?: HeroAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
@@ -146,7 +146,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     }
 
     this.showPageIcon = firstChildRouteData["showPageIcon"];
-    this.contentPadding = firstChildRouteData["contentPadding"];
+    this.contentTopPadding = firstChildRouteData["contentTopPadding"];
     this.heroAlignment = firstChildRouteData["heroAlignment"];
     this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
 
@@ -213,8 +213,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.showPageIcon !== undefined) {
       this.showPageIcon = data.showPageIcon;
     }
-    if (data.contentPadding !== undefined) {
-      this.contentPadding = data.contentPadding;
+    if (data.contentTopPadding !== undefined) {
+      this.contentTopPadding = data.contentTopPadding;
     }
     if (data.heroAlignment !== undefined) {
       this.heroAlignment = data.heroAlignment;
@@ -246,7 +246,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hideFooter = null;
     this.hideCardWrapper = null;
     this.showPageIcon = undefined;
-    this.contentPadding = undefined;
+    this.contentTopPadding = undefined;
     this.heroAlignment = undefined;
     this.secondaryContentLocation = undefined;
   }

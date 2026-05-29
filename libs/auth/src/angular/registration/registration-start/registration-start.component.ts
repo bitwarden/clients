@@ -179,7 +179,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       pageIcon: RegistrationCheckEmailIcon,
       showPageIcon: true,
       heroAlignment: "center",
-      contentPadding: "default",
+      contentTopPadding: "default",
     });
     this.registrationStartStateChange.emit(this.state);
   };

@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { Translation } from "../dialog";
 import {
-  ContentPaddingType,
+  ContentTopPaddingType,
   HeroAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
@@ -46,7 +46,7 @@ export interface AnonLayoutWrapperData {
    *
    * "compact" reduces the top padding so more content fits. Use in scenarios where vertical space is at a premium.
    */
-  contentPadding?: ContentPaddingType;
+  contentTopPadding?: ContentTopPaddingType;
   /**
    * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
    */
@@ -93,7 +93,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
   protected showPageIcon?: boolean;
-  protected contentPadding?: ContentPaddingType;
+  protected contentTopPadding?: ContentTopPaddingType;
   protected heroAlignment?: HeroAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
@@ -152,7 +152,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
 
     this.showPageIcon = firstChildRouteData["showPageIcon"];
-    this.contentPadding = firstChildRouteData["contentPadding"];
+    this.contentTopPadding = firstChildRouteData["contentTopPadding"];
     this.heroAlignment = firstChildRouteData["heroAlignment"];
     this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
 
@@ -210,8 +210,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
     if (data.showPageIcon !== undefined) {
       this.showPageIcon = data.showPageIcon;
     }
-    if (data.contentPadding !== undefined) {
-      this.contentPadding = data.contentPadding;
+    if (data.contentTopPadding !== undefined) {
+      this.contentTopPadding = data.contentTopPadding;
     }
     if (data.heroAlignment !== undefined) {
       this.heroAlignment = data.heroAlignment;
@@ -244,7 +244,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideCardWrapper = null;
     this.hideBackgroundIllustration = null;
     this.showPageIcon = undefined;
-    this.contentPadding = undefined;
+    this.contentTopPadding = undefined;
     this.heroAlignment = undefined;
     this.secondaryContentLocation = undefined;
   }

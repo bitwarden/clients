@@ -3,7 +3,7 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content [maxWidth]="maxWidth()" [contentPadding]="contentPadding()">
+  <bit-landing-content [maxWidth]="maxWidth()" [contentTopPadding]="contentTopPadding()">
     <bit-landing-hero
       [icon]="showPageIcon() ? icon() : null"
       [title]="title()"

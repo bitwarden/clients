@@ -19,7 +19,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
-  ContentPaddingType,
+  ContentTopPaddingType,
   HeroAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
@@ -53,7 +53,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideBackgroundIllustration = input<boolean>(false);
 
   readonly showPageIcon = input<boolean>(true);
-  readonly contentPadding = input<ContentPaddingType>("default");
+  readonly contentTopPadding = input<ContentTopPaddingType>("default");
   readonly heroAlignment = input<HeroAlignmentType>("center");
   readonly secondaryContentLocation = input<SecondaryContentLocationType>("main");
 
