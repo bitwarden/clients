@@ -66,10 +66,6 @@ impl SSHKeyData {
 
     /// Parses an OpenSSH PEM private key string and constructs an [`SSHKeyData`] instance.
     ///
-    /// The public key blob is derived from the private key and stored in SSH wire format
-    /// (the output of `ssh_key::PublicKey::to_bytes()`), ready for use in agent protocol
-    /// responses without further re-encoding.
-    ///
     /// # Errors
     ///
     /// Returns an error if the PEM string cannot be parsed, the public key blob cannot be
@@ -119,5 +115,31 @@ impl QueryableKeyData for SSHKeyData {
 
     fn cipher_id(&self) -> &String {
         &self.cipher_id
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Synthetic sk-ssh-ed25519@openssh.com key (FIDO2 resident key).
+    // Generated with zeroed dummy key data — valid wire format, not a real keypair.
+    const TEST_SK_ED25519_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAASgAAABpzay1zc2
+gtZWQyNTUxOUBvcGVuc3NoLmNvbQAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAARzc2g6AAAAiHneT6B53k+gAAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY2
+9tAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABHNzaDoAAAAAEAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
+-----END OPENSSH PRIVATE KEY-----";
+
+    #[test]
+    fn test_from_private_key_pem_safely_rejects_unsupported_key_type() {
+        let result = SSHKeyData::from_private_key_pem(
+            TEST_SK_ED25519_PEM,
+            "sk-test".to_string(),
+            "cipher-sk-1".to_string(),
+        );
+
+        assert!(result.is_err(), "sk-ssh-ed25519 key type must be rejected");
     }
 }

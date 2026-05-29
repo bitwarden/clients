@@ -5,11 +5,32 @@ use tokio::{io::AsyncWriteExt, net::windows::named_pipe::ClientOptions};
 
 mod common;
 use common::{
-    agent_with_keys, always_approving_agent, always_denying_agent,
-    framed_invalid_session_bind_extension, framed_request_identities,
-    framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
-    parse_sign_response_algorithm, read_framed_response, test_ed25519_key, test_ed25519_key_blob,
-    test_rsa_key, test_rsa_key_blob, MockApprovalRequester,
+    agent_with_keys,
+    always_approving_agent,
+    always_denying_agent,
+    framed_invalid_session_bind_extension,
+    framed_request_identities,
+    framed_session_bind_extension,
+    framed_sign_request,
+    init_tracing,
+    parse_first_key_name,
+    parse_sign_response_algorithm,
+    read_framed_response,
+    test_ed25519_key,
+    test_ed25519_key_blob,
+    test_rsa_key,
+    test_rsa_key_blob,
+    unsupported_dsa_key_blob, // ||||||| 2abb233e60
+    //     agent_with_keys, always_approving_agent, always_denying_agent,
+    // framed_request_identities,     framed_sign_request, init_tracing, parse_first_key_name,
+    // parse_sign_response_algorithm,     read_framed_response, test_ed25519_key,
+    // test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob, =======
+    //     agent_with_keys, always_approving_agent, always_denying_agent,
+    // framed_request_identities,     framed_sign_request, init_tracing, parse_first_key_name,
+    // parse_sign_response_algorithm,     read_framed_response, test_ed25519_key,
+    // test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,     unsupported_dsa_key_blob,
+    // >>>>>>> origin
+    MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -328,6 +349,31 @@ async fn test_sign_request_rsa_sha256_flag_produces_sha256_signature() {
         "rsa-sha2-256",
         "expected SHA-256 algorithm when flags=2"
     );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_unsupported_key_type_returns_failure() {
+    setup();
+    // Agent has valid keys loaded; the sign request references a DSA key, which is
+    // unsupported and can never be stored, so the agent must return FAILURE.
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &unsupported_dsa_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 5, "expected FAILURE for unsupported key type");
 
     agent.stop();
 }
