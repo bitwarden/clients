@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Kritieke applicaties die gevaar lopen"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Belangrijke applicaties in gevaar"
+  },
   "allCriticalApps": {
     "message": "Alle kritieke applicaties"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Kan organisatietoegang niet herstellen"
   },
-  "allApplicationsWithCount": {
-    "message": "Alle applicaties ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Nieuw login item aanmaken"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Belangrijke applicaties ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "belangrijke applicaties gemarkeerd"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Your data is in. Let's put it to work."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "startTour": {
+    "message": "Start tour"
   },
   "noDataInOrgTitle": {
     "message": "Geen gegevens gevonden"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Deze leden hebben toegang tot kwetsbare items voor belangrijke applicaties."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Leden met risicovolle wachtwoorden"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Leden met risicowachtwoorden voor $CRITICALAPPCOUNT$ belangrijke applicaties",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Leden van jew organisatie krijgen een taak om kwetsbare wachtwoorden te wijzigen. Ze ontvangen een melding binnen hun Bitwarden-browserextensie."
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "van $TOTAL$ totaal",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "Paspoortnummer"
+  },
+  "sex": {
+    "message": "Geslacht"
+  },
+  "copySex": {
+    "message": "Geslacht kopiëren"
+  },
+  "birthPlace": {
+    "message": "Geboorteplaats"
+  },
+  "nationality": {
+    "message": "Nationaliteit"
+  },
+  "copyNationality": {
+    "message": "Nationaliteit kopiëren"
+  },
+  "passportType": {
+    "message": "Soort paspoort"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationaal identificatienummer"
   },
   "licenseNumber": {
     "message": "Licentienummer"
@@ -997,6 +1034,12 @@
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
+  "typeDriversLicense": {
+    "message": "Rijbewijs"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Rijbewijs of ID"
+  },
   "typeLoginSubtitle": {
     "message": "Website of app"
   },
@@ -1014,6 +1057,18 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Bankdetails"
+  },
+  "typePassport": {
+    "message": "Paspoort"
+  },
+  "passportDetails": {
+    "message": "Paspoortgegevens"
+  },
+  "passportAdded": {
+    "message": "Paspoort toegevoegd"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisdocument"
   },
   "folderSubtitle": {
     "message": "Je items organiseren"
@@ -1134,12 +1189,12 @@
     "message": "Nieuw paspoort",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nieuwe Send (tekst)",
+  "newItemHeaderTextSendV2": {
+    "message": "Nieuwe tekst",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nieuwe Send (bestand)",
+  "newItemHeaderFileSendV2": {
+    "message": "Nieuw bestand",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1166,20 +1221,20 @@
     "message": "Bankrekening bewerken",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Rijbewijs bewerken",
-    "description": "Header for edit driver's license item type"
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Paspoort bewerken",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send (tekst) bewerken",
+  "editItemHeaderTextSendV2": {
+    "message": "Bewerk tekst",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send (bestand) bewerken",
+  "editItemHeaderFileSendV2": {
+    "message": "Bestand bewerken",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1206,9 +1261,9 @@
     "message": "Bankrekening weergeven",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Rijbewijs weergeven",
-    "description": "Header for view driver's license item type"
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Paspoort weergeven",
@@ -1302,6 +1357,9 @@
   "copyAddress": {
     "message": "Adres kopiëren"
   },
+  "copyBirthPlace": {
+    "message": "Geboorteplaats kopiëren"
+  },
   "copyPhone": {
     "message": "Telefoonnummer kopiëren"
   },
@@ -1317,6 +1375,21 @@
   "copyPassportNumber": {
     "message": "Paspoortnummer kopiëren"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationaal identificatienummer kopiëren"
+  },
+  "copyPassportType": {
+    "message": "Soort paspoort kopiëren"
+  },
+  "copyFirstName": {
+    "message": "Voornaam kopiëren"
+  },
+  "copyMiddleName": {
+    "message": "Tussenvoegsel kopiëren"
+  },
+  "copyLastName": {
+    "message": "Achternaam kopiëren"
+  },
   "copyLicenseNumber": {
     "message": "Kenteken kopiëren"
   },
@@ -1328,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "Vingerafdruk kopiëren"
+  },
+  "copyIssuingAuthority": {
+    "message": "Autoriteit/kantoor van uitgifte kopiëren"
+  },
+  "copyIssuingCountry": {
+    "message": "Land van uitgifte kopiëren"
   },
   "copyName": {
     "message": "Naam kopiëren"
@@ -1368,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Geen waarde ingevoerd",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Geen waarden om te kopiëren"
@@ -2254,6 +2337,18 @@
   },
   "exportError": {
     "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "Wachtwoordgenerator"
@@ -3879,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Je gratis proefperiode van 7 dagen $PLAN$ wordt na 7 dagen omgezet naar een betaald abonnement.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Je gratis proefperiode van $TRIAL_LENGTH$ dagen $PLAN$ wordt na $TRIAL_LENGTH$ dagen omgezet naar een betaald abonnement.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4247,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Nieuwe tekst-Send aangemaakt"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Tekst-Send met e-mailverificatie aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Tekst-Send met wachtwoord aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Nieuwe bestand-Send aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Bestand-Send met e-mailverificatie aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Bestand-Send met wachtwoord aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Item $ID$ naar een organisatie verplaatst.",
     "placeholders": {
@@ -4388,6 +4510,42 @@
       }
     }
   },
+  "copiedPassportNumberItemId": {
+    "message": "Paspoortnummer gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Paspoortnummer bekeken voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Rijbewijsnummer bekeken voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Rijbewijsnummer gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Automatisch-invullen voor item $ID$.",
     "placeholders": {
@@ -4517,8 +4675,8 @@
   "revokedEmailError": {
     "message": "1 of meer e-mails behoren tot ingetrokken leden. Herstel hun toegang voor heruitnodiging."
   },
-  "revocationReasonUnknown": {
-    "message": "Onbekende reden"
+  "revocationReasonNotLogged": {
+    "message": "Geen reden vastgelegd"
   },
   "revocationReasonManual": {
     "message": "Ingetrokken door een beheerder"
@@ -4528,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Niet in overeenstemming met één organisatiebeleid"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Verplaatsen van items naar organisatie geweigerd"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Toegang tot de organisatie ingetrokken voor $ID$ voor niet-naleving van het tweestapsorganisatiebeleid.",
@@ -4603,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Overdracht naar organisatie-eigendom geaccepteerd."
-  },
-  "userDeclinedTransfer": {
-    "message": "Ingetrokken wegens afwijzen van overdracht naar organisatie-eigendom."
   },
   "invitedUserId": {
     "message": "Gebruiker uitgenodigd $ID$.",
@@ -4937,6 +5095,9 @@
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
+  },
+  "goToAccessIntelligence": {
+    "message": "Ga naar Toegangintelligentie"
   },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
@@ -5458,6 +5619,41 @@
   },
   "byLink": {
     "message": "Via link"
+  },
+  "allowedDomains": {
+    "message": "Toegestane domeinen"
+  },
+  "allowedDomainsHint": {
+    "message": "Als je meerdere domeinen invoert, scheidt ze met komma's"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Voer de toegestane domeinen in om een uitnodigingslink te genereren"
+  },
+  "domainsEdited": {
+    "message": "Domeinen bijgewerkt"
+  },
+  "inviteLink": {
+    "message": "Uitnodigingslink"
+  },
+  "lastGenerated": {
+    "message": "Laatst gegenereerd: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Uitnodigingslink gekopieerd"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Uitnodigingslink opnieuw gegenereerd"
+  },
+  "regenerateInviteLink": {
+    "message": "Uitnodigingslink opnieuw genereren"
+  },
+  "inviteByLinkDesc": {
+    "message": "Leden met een link uitnodigen voor je organisatie. Als er nog geen rol is opgegeven, worden ze toegevoegd als een standaardgebruiker."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Door verder te gaan, ga je akkoord met de"
@@ -6072,14 +6268,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "Nieuwe Send (tekst)",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Nieuwe Send (bestand)",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "Send bewerkt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6172,6 +6360,19 @@
   },
   "downloadAttachments": {
     "message": "Bijlagen downloaden"
+  },
+  "troubleshooting": {
+    "message": "Probleemoplossing"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Probleem ervaren? Download het diagnostische rapport en deel het met"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden-ondersteuning",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Downloaden"
   },
   "sendAccessPasswordTitle": {
     "message": "Voer het wachtwoord in om deze Send te bekijken",
@@ -6883,8 +7084,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "Hoofdwachtwoord opnieuw instellen voor gebruiker $ID$.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Accountherstel met hoofdwachtwoord gestart voor $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6892,8 +7093,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Tweestapsaanmeldingsreset voor gebruiker $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Accountherstel met tweestapsaanmelding gestart voor $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8054,26 +8255,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Organisatiekluis exporteren"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Alleen de individuele kluisitems geassocieerd met $EMAIL$ worden geëxporteerd. Kluisitems van de organisatie worden niet meegenomen. Alleen informatie over kluisitem wordt geëxporteerd en bevat geen bijlagen.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exporteert alleen de persoonlijke kluis-items, inclusief attachments, gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items of items van andere organisaties.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8576,6 +8762,21 @@
   },
   "inputRequired": {
     "message": "Invoer vereist."
+  },
+  "enterMonth": {
+    "message": "Voer maand in."
+  },
+  "enterDay": {
+    "message": "Voer dag in."
+  },
+  "enterYear": {
+    "message": "Voer jaar in."
+  },
+  "invalidDay": {
+    "message": "Voer een geldige dag in."
+  },
+  "invalidYear": {
+    "message": "Voer een geldig jaar in."
   },
   "inputEmail": {
     "message": "Invoer is geen e-mailadres."
@@ -9376,6 +9577,9 @@
   "inviteMember": {
     "message": "Lid uitnodigen"
   },
+  "inviteMembers": {
+    "message": "Leden uitnodigen"
+  },
   "addSponsorship": {
     "message": "Sponsoring toevoegen"
   },
@@ -10079,8 +10283,8 @@
   "recoverAccountSuccess": {
     "message": "Accountherstel succesvol!"
   },
-  "updatedTempPassword": {
-    "message": "Gebruiker heeft een via accountherstel uitgegeven wachtwoord bijgewerkt."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "Gebruiker heeft het hoofdwachtwoord opnieuw ingesteld via accountherstel."
   },
   "activatedAccessToSecretsManager": {
     "message": "Toegang tot Secrets Manager ingeschakeld",
@@ -10708,6 +10912,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Meldingen verzenden om wachtwoorden te wijzigen"
+  },
+  "sendNotifications": {
+    "message": "Send-meldingen"
   },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
@@ -12747,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Je proefperiode van 7 dagen $PLAN$ begint vandaag. Voeg nu een betaalmethode toe om deze functies na afloop van je proefperiode te blijven gebruiken ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Je proefperiode van $TRIAL_LENGTH$ dagen $PLAN$ begint vandaag. Voeg nu een betaalmethode toe om deze functies na afloop van je proefperiode te blijven gebruiken ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13573,6 +13784,9 @@
   "searchBankAccount": {
     "message": "Bankrekening doorzoeken"
   },
+  "searchPassport": {
+    "message": "Paspoorten zoeken"
+  },
   "copyAccountNumber": {
     "message": "Rekeningnummer kopiëren"
   },
@@ -13676,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "Meer"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
   },
@@ -13690,6 +13907,28 @@
     "message": "Bewerkingen Send opslaan mislukt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideMyEmail": {
+    "message": "Verberg mijn e-mailadres voor ontvangers."
+  },
+  "fileToShare": {
+    "message": "Bestand om te delen"
+  },
+  "viewTextSendHeader": {
+    "message": "Tekst bekijken"
+  },
+  "viewFileSendHeader": {
+    "message": "Bestand bekijken"
+  },
+  "sendCreated": {
+    "message": "Send aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Invoer moet numeriek zijn"
+  },
+  "integerInputError": {
+    "message": "Invoer moet een geheel getal zijn"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."
   },
@@ -13699,6 +13938,21 @@
   "skipLink": {
     "message": "Link overslaan"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Account-encryptiesleutel roteren"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Het roteren van de encryptiesleutel van je account genereert een nieuwe encryptiesleutel die wordt gebruikt om alle kluisgegevens opnieuw te versleutelen. Overweeg om je encryptiesleutel te roteren als je account gecompromitteerd is."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Genereer een nieuwe sleutel en codeer alle kluisdata opnieuw. Dit wordt aanbevolen als je denkt dat je account mogelijk gecompromitteerd is."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Je wordt uitgelogd en gevraagd om opnieuw in te loggen. Sluit je webbrowser niet af tot het proces is voltooit om gegevensverlies te voorkomen."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account-encryptiesleutel is veranderd"
+  },
   "callout": {
     "message": "Opmerking",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13706,5 +13960,56 @@
   "progressBar": {
     "message": "Voortgangsbalk",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
+  },
+  "searchDriversLicense": {
+    "message": "Rijbewijzen zoeken"
+  },
+  "driversLicenseDetails": {
+    "message": "Rijbewijsdetails"
+  },
+  "dateOfBirth": {
+    "message": "Geboortedatum"
+  },
+  "birthMonth": {
+    "message": "Geboortemaand"
+  },
+  "birthDay": {
+    "message": "Geboortedag"
+  },
+  "birthYear": {
+    "message": "Geboortejaar"
+  },
+  "issuingCountry": {
+    "message": "Land van uitgifte"
+  },
+  "issuingState": {
+    "message": "Provincie van uitgifte"
+  },
+  "issueDate": {
+    "message": "Uitgiftedatum"
+  },
+  "issueMonth": {
+    "message": "Uitgavemaand"
+  },
+  "issueDay": {
+    "message": "Uitgiftedag"
+  },
+  "issueYear": {
+    "message": "Uitgiftejaar"
+  },
+  "expirationDay": {
+    "message": "Vervaldatum"
+  },
+  "issuingAuthority": {
+    "message": "Instantie van uitgifte"
+  },
+  "licenseClass": {
+    "message": "Rijbewijsklasse"
+  },
+  "copy": {
+    "message": "Kopiëren"
   }
 }

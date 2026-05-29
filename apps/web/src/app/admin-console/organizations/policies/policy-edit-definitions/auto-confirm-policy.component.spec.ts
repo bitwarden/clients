@@ -25,7 +25,7 @@ describe("AutoConfirmPolicy", () => {
 
     expect(policy.name).toBe("automaticUserConfirmation");
     expect(policy.description).toBe("autoConfirmDescription");
-    expect(policy.type).toBe(PolicyType.AutoConfirm);
+    expect(policy.type).toBe(PolicyType.AutomaticUserConfirmation);
     expect(policy.component).toBe(AutoConfirmPolicyEditComponent);
     expect(policy.showDescription).toBe(false);
   });
@@ -110,7 +110,7 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
       });
       expect(policyApiService.putPolicy).toHaveBeenCalledWith(
         orgId,
-        PolicyType.AutoConfirm,
+        PolicyType.AutomaticUserConfirmation,
         expect.objectContaining({ policy: expect.objectContaining({ enabled: true }) }),
       );
     });
@@ -133,7 +133,7 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
 
       expect(policyApiService.putPolicy).toHaveBeenCalledWith(
         orgId,
-        PolicyType.AutoConfirm,
+        PolicyType.AutomaticUserConfirmation,
         expect.objectContaining({ policy: expect.objectContaining({ enabled: false }) }),
       );
     });

@@ -27,11 +27,20 @@ export class NewItemNudgeComponent {
         return of(false);
       }
       const nudgeType = this.mapToNudgeType(cipherType);
+
+      if (!nudgeType) {
+        return of(false);
+      }
+
       return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
     }),
   );
   nudgeTitle: string = "";
   nudgeBody: string = "";
+  nudgeBodyBold: string = "";
+  nudgeBodySuffix: string = "";
+  nudgeBodyLinkText: string = "";
+  nudgeBodyLinkUrl: string = "";
   dismissalNudgeType: NudgeType | null = null;
 
   constructor(
@@ -40,15 +49,18 @@ export class NewItemNudgeComponent {
     private nudgesService: NudgesService,
   ) {}
 
-  mapToNudgeType(cipherType: CipherType): NudgeType {
+  mapToNudgeType(cipherType: CipherType | null): NudgeType | null {
+    this.nudgeBodyBold = "";
+    this.nudgeBodySuffix = "";
+    this.nudgeBodyLinkText = "";
+    this.nudgeBodyLinkUrl = "";
     switch (cipherType) {
       case CipherType.Login: {
-        const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
-        const nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
-        const nudgeBodyTwo = this.i18nService.t("newLoginNudgeBodyTwo");
         this.dismissalNudgeType = NudgeType.NewLoginItemStatus;
         this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
-        this.nudgeBody = `${nudgeBodyOne} <strong>${nudgeBodyBold}</strong> ${nudgeBodyTwo}`;
+        this.nudgeBody = this.i18nService.t("newLoginNudgeBodyOne");
+        this.nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
+        this.nudgeBodySuffix = this.i18nService.t("newLoginNudgeBodyTwo");
         return NudgeType.NewLoginItemStatus;
       }
       case CipherType.Card:
@@ -70,22 +82,15 @@ export class NewItemNudgeComponent {
         return NudgeType.NewNoteItemStatus;
 
       case CipherType.SshKey: {
-        const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
-        const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
-
         this.dismissalNudgeType = NudgeType.NewSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-medium" target="_blank">${sshPartTwo}</a>`;
+        this.nudgeBody = this.i18nService.t("newSshNudgeBodyOne");
+        this.nudgeBodyLinkText = this.i18nService.t("newSshNudgeBodyTwo");
+        this.nudgeBodyLinkUrl = "https://bitwarden.com/help/ssh-agent";
         return NudgeType.NewSshItemStatus;
       }
-      case CipherType.BankAccount:
-        this.dismissalNudgeType = NudgeType.NewBankAccountItemStatus;
-        this.nudgeTitle = this.i18nService.t("newBankAccountNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
-        return NudgeType.NewBankAccountItemStatus;
-
       default:
-        throw new Error("Unsupported cipher type");
+        return null;
     }
   }
 

@@ -85,6 +85,7 @@ describe("FidoAuthenticatorService", () => {
     configService.serverConfig$ = of({ environment: { vault: VaultUrl } } as any);
     vaultSettingsService.enablePasskeys$ = of(true);
     domainSettingsService.neverDomains$ = of({});
+    domainSettingsService.blockedInteractionsUris$ = of({});
     authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
     windowReference = Utils.newGuid();
   });
@@ -571,14 +572,14 @@ describe("FidoAuthenticatorService", () => {
 
     describe("assert non-discoverable credential", () => {
       it("should call authenticator.assertCredential", async () => {
-        const allowedCredentialIds = [
-          Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.arrayToString(Utils.fromByteStringToArray("not-a-guid")),
+        const allowedCredentials = [
+          { id: Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())) },
+          { id: Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())) },
+          { id: Fido2Utils.arrayToString(Utils.fromByteStringToArray("not-a-guid")) },
         ];
         const params = createParams({
           userVerification: "required",
-          allowedCredentialIds,
+          allowedCredentials,
         });
         authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
 
@@ -590,13 +591,13 @@ describe("FidoAuthenticatorService", () => {
             rpId: RpId,
             allowCredentialDescriptorList: [
               expect.objectContaining({
-                id: Fido2Utils.stringToArray(allowedCredentialIds[0]),
+                id: Fido2Utils.stringToArray(allowedCredentials[0].id),
               }),
               expect.objectContaining({
-                id: Fido2Utils.stringToArray(allowedCredentialIds[1]),
+                id: Fido2Utils.stringToArray(allowedCredentials[1].id),
               }),
               expect.objectContaining({
-                id: Fido2Utils.stringToArray(allowedCredentialIds[2]),
+                id: Fido2Utils.stringToArray(allowedCredentials[2].id),
               }),
             ],
           }),
@@ -616,11 +617,52 @@ describe("FidoAuthenticatorService", () => {
       });
     });
 
+    describe("fallback for hardware/roaming keys", () => {
+      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only", async () => {
+        const params = createParams({
+          allowedCredentials: [
+            { id: "credId1", transports: ["usb"] },
+            { id: "credId2", transports: ["nfc"] },
+          ],
+          fallbackSupported: true,
+        });
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("does not fall back early when at least one credential has internal transport", async () => {
+        const params = createParams({
+          allowedCredentials: [{ id: "credId1", transports: ["usb", "internal"] }],
+          fallbackSupported: true,
+        });
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
+      it("does not fall back early when transports list is empty for a credential", async () => {
+        const params = createParams({
+          allowedCredentials: [{ id: "credId1", transports: [] }],
+          fallbackSupported: true,
+        });
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+    });
+
     describe("assert discoverable credential", () => {
       it("should call authenticator.assertCredential", async () => {
         const params = createParams({
           userVerification: "required",
-          allowedCredentialIds: [],
+          allowedCredentials: [],
         });
         authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
 
@@ -642,7 +684,7 @@ describe("FidoAuthenticatorService", () => {
       const params = createParams({
         userVerification: "required",
         mediation: "conditional",
-        allowedCredentialIds: [],
+        allowedCredentials: [],
       });
 
       beforeEach(() => {
@@ -687,7 +729,7 @@ describe("FidoAuthenticatorService", () => {
 
     function createParams(params: Partial<AssertCredentialParams> = {}): AssertCredentialParams {
       return {
-        allowedCredentialIds: params.allowedCredentialIds ?? [],
+        allowedCredentials: params.allowedCredentials ?? [],
         challenge: params.challenge ?? Fido2Utils.arrayToString(randomBytes(16)),
         origin: params.origin ?? Origin,
         rpId: params.rpId ?? RpId,
@@ -709,6 +751,52 @@ describe("FidoAuthenticatorService", () => {
         signature: randomBytes(64),
       };
     }
+  });
+
+  describe("isFido2FeatureEnabled", () => {
+    const hostname = "sub.example.com";
+    const origin = "https://sub.example.com";
+
+    it("returns false when the hostname exactly matches a `blockedInteractionsUris` entry", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when the hostname is a subdomain of a `blockedInteractionsUris` entry", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "example.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when `blockedInteractionsUris` is empty", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({});
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when no `blockedInteractionsUris` entry matches the hostname", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "bitwarden.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("rejects via `blockedInteractionsUris` regardless of `neverDomains` state", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
+      domainSettingsService.neverDomains$ = of({});
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(false);
+    });
   });
 });
 

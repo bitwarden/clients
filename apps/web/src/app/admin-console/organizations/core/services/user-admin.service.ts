@@ -5,6 +5,7 @@ import {
   OrganizationUserInviteRequest,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
@@ -14,7 +15,7 @@ export class UserAdminService {
   constructor(private organizationUserApiService: OrganizationUserApiService) {}
 
   async get(
-    organizationId: string,
+    organizationId: OrganizationId,
     organizationUserId: string,
   ): Promise<OrganizationUserAdminView | undefined> {
     const userResponse = await this.organizationUserApiService.getOrganizationUser(
@@ -48,13 +49,14 @@ export class UserAdminService {
   }
 
   async invite(emails: string[], user: OrganizationUserAdminView): Promise<void> {
-    const request = new OrganizationUserInviteRequest();
-    request.emails = emails;
-    request.permissions = user.permissions;
-    request.type = user.type;
-    request.collections = user.collections;
-    request.groups = user.groups;
-    request.accessSecretsManager = user.accessSecretsManager;
+    const request = new OrganizationUserInviteRequest({
+      emails,
+      permissions: user.permissions,
+      type: user.type,
+      collections: user.collections,
+      groups: user.groups,
+      accessSecretsManager: user.accessSecretsManager,
+    });
 
     await this.organizationUserApiService.postOrganizationUserInvite(user.organizationId, request);
   }
