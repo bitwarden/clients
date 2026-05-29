@@ -3,26 +3,34 @@
     {{ "rotateAccountEncryptionKey" | i18n }}
   </ng-container>
   <ng-container bitDialogContent>
-    <p bitTypography="body1">
-      {{ "rotateAccountEncryptionDialogDescription" | i18n }}
-    </p>
-    <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
-    <bit-form-field class="tw-mt-2">
-      <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input
-        type="password"
-        formControlName="masterPassword"
-        bitInput
-        name="masterPassword"
-        class="tw-font-mono"
-        required
-        appInputVerbatim
-      />
-      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-    </bit-form-field>
+    @if (loading()) {
+      <div class="tw-text-center">
+        <bit-spinner></bit-spinner>
+      </div>
+    } @else {
+      <p bitTypography="body1">
+        {{ "rotateAccountEncryptionDialogDescription" | i18n }}
+      </p>
+      <bit-callout type="info">{{ "rotateAccountEncryptionCallout" | i18n }}</bit-callout>
+      @if (userPrimaryEncryptionType() === "masterPassword") {
+        <bit-form-field class="tw-mt-2">
+          <bit-label>{{ "masterPass" | i18n }}</bit-label>
+          <input
+            type="password"
+            formControlName="masterPassword"
+            bitInput
+            name="masterPassword"
+            class="tw-font-mono"
+            required
+            appInputVerbatim
+          />
+          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        </bit-form-field>
+      }
+    }
   </ng-container>
   <ng-container bitDialogFooter>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
+    <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">
       {{ "rotateKey" | i18n }}
     </button>
     <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>

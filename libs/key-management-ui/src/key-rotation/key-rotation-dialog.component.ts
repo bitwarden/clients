@@ -1,13 +1,17 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, forkJoin, map, switchMap } from "rxjs";
 
 import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verbatim.directive";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BitIconButtonComponent,
@@ -16,11 +20,15 @@ import {
   DialogModule,
   DialogService,
   FormFieldModule,
+  SpinnerComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { KeyRotationDialogService } from "./key-rotation-dialog.service";
+
+type UserPrimaryEncryptionType = "masterPassword" | "keyConnector" | "TDE";
 
 @Component({
   selector: "key-rotation-dialog",
@@ -35,6 +43,8 @@ import { KeyRotationDialogService } from "./key-rotation-dialog.service";
     CalloutModule,
     BitIconButtonComponent,
     InputVerbatimDirective,
+    TypographyModule,
+    SpinnerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -53,12 +63,52 @@ export class KeyRotationDialogComponent {
   private readonly dialogRef = inject(DialogRef<KeyRotationDialogComponent>);
   private readonly validationService = inject(ValidationService);
   private readonly logService = inject(LogService);
+  private readonly keyConnectorService = inject(KeyConnectorService);
+  private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
+
+  protected readonly userPrimaryEncryptionType = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        forkJoin([
+          firstValueFrom(this.userDecryptionOptionsService.hasMasterPasswordById$(userId)),
+          this.keyConnectorService.getUsesKeyConnector(userId),
+          this.keyConnectorService.getManagingOrganization(userId),
+        ]).pipe(
+          map(
+            ([hasMasterPassword, usesKeyConnector, keyConnectorManagingOrganization]):
+              | UserPrimaryEncryptionType
+              | undefined => {
+              if (hasMasterPassword) {
+                return "masterPassword";
+              }
+              if (usesKeyConnector && keyConnectorManagingOrganization != null) {
+                return "keyConnector";
+              }
+              return undefined;
+            },
+          ),
+        ),
+      ),
+    ),
+  );
+
+  protected readonly loading = computed(() => this.userPrimaryEncryptionType() == null);
 
   protected readonly submit = async () => {
-    this.form.markAllAsTouched();
-    if (this.form.invalid || !this.form.value.masterPassword) {
+    if (this.loading()) {
       return;
     }
+
+    const encryptionType = this.userPrimaryEncryptionType()!;
+
+    if (encryptionType === "masterPassword") {
+      this.form.markAllAsTouched();
+      if (this.form.invalid || !this.form.value.masterPassword) {
+        return;
+      }
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.dialogRef.disableClose = true;
@@ -69,10 +119,8 @@ export class KeyRotationDialogComponent {
         return;
       }
 
-      const closeDialog = await this.keyRotationDialogService.rotateKeys(
-        this.form.value.masterPassword,
-        userId,
-      );
+      const closeDialog = await this.performKeyRotation(encryptionType, userId);
+
       if (closeDialog) {
         this.dialogRef.close();
       }
@@ -83,6 +131,20 @@ export class KeyRotationDialogComponent {
       this.dialogRef.disableClose = false;
     }
   };
+
+  private async performKeyRotation(
+    encryptionType: UserPrimaryEncryptionType,
+    userId: UserId,
+  ): Promise<boolean> {
+    switch (encryptionType) {
+      case "masterPassword":
+        return this.keyRotationDialogService.rotateKeys(this.form.value.masterPassword!, userId);
+      case "keyConnector":
+        return this.keyRotationDialogService.rotateKeysForKeyConnector(userId);
+      case "TDE":
+        throw new Error("TDE key rotation is not yet supported");
+    }
+  }
 
   private async displayLegacyAttachmentWarning() {
     const learnMore = await this.dialogService.openSimpleDialog({
