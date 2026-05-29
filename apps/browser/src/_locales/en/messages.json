@@ -2161,7 +2161,7 @@
     "message": "National identification number"
   },
   "issuingAuthority": {
-    "message": "Issuing authority / office"
+    "message": "Issuing authority"
   },
   "copyIssuingAuthority": {
     "message": "Copy issuing authority / office"
@@ -2280,41 +2280,8 @@
   "driversLicenseDetails": {
     "message": "License details"
   },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
-  },
   "issuingState": {
     "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
   },
   "licenseClass": {
     "message": "License class"
