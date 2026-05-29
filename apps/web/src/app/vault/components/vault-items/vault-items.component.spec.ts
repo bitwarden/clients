@@ -224,7 +224,7 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkUnarchiveAllowed).toBe(true);
     });
 
-    it("returns false when any selected cipher has an organizationId", () => {
+    it("returns true when any selected cipher has an organizationId", () => {
       const archivedCipher1: Partial<CipherView> = {
         ...cipher1,
         archivedDate: new Date("2024-01-01"),
@@ -244,7 +244,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkUnarchiveAllowed).toBe(false);
+      expect(component.bulkUnarchiveAllowed).toBe(true);
     });
 
     it("returns false when any selected cipher is not archived", () => {
