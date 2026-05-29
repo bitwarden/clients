@@ -22,6 +22,7 @@ import { DefaultAdminTaskService } from "../../vault/services/default-admin-task
 
 import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.module";
 import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
+import { OnboardingService } from "./onboarding/services/onboarding.service";
 import { RiskInsightsComponent } from "./risk-insights.component";
 import { AccessIntelligencePageComponent } from "./v2/access-intelligence-page/access-intelligence-page.component";
 
@@ -69,6 +70,7 @@ import { AccessIntelligencePageComponent } from "./v2/access-intelligence-page/a
         LogService,
       ],
     }),
+    safeProvider(OnboardingService),
   ],
 })
 export class AccessIntelligenceModule {}

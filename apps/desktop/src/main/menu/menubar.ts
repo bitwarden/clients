@@ -109,6 +109,7 @@ export class Menubar {
       new WindowMenu(i18nService, messagingService, windowMain),
       new HelpMenu(
         i18nService,
+        messagingService,
         desktopSettingsService,
         webVaultUrl,
         hardwareAccelerationEnabled,

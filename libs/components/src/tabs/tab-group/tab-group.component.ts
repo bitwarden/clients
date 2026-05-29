@@ -1,25 +1,40 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
-import { coerceNumberProperty } from "@angular/cdk/coercion";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterContentChecked,
   AfterViewInit,
   Component,
-  EventEmitter,
-  Input,
-  Output,
   contentChild,
   contentChildren,
   effect,
   input,
+  model,
+  output,
+  viewChild,
   viewChildren,
   inject,
-  DestroyRef,
+  Injector,
+  signal,
+  untracked,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BerryComponent } from "../../berry";
+import { IconModule } from "../../icon";
+import { MenuModule } from "../../menu";
+import {
+  OverflowItemDirective,
+  OverflowListDirective,
+  OverflowTriggerDirective,
+} from "../../overflow-list";
 import { TabHeaderComponent } from "../shared/tab-header.component";
-import { TabListContainerDirective } from "../shared/tab-list-container.directive";
-import { TabListItemDirective } from "../shared/tab-list-item.directive";
+import {
+  TAB_LIST_CONTAINER_GAP,
+  TabListContainerDirective,
+} from "../shared/tab-list-container.directive";
+import { TAB_LABEL_CONTENT_CLASSES, TabListItemDirective } from "../shared/tab-list-item.directive";
 
 import { TabBodyComponent } from "./tab-body.component";
 import { TabComponent } from "./tab.component";
@@ -27,33 +42,45 @@ import { TabComponent } from "./tab.component";
 /** Used to generate unique ID's for each tab component */
 let nextId = 0;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-group",
   templateUrl: "./tab-group.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // Block-level so the host fills its parent. Without this, the chain
+  // (host → bit-tab-header → tablist row) sizes to content and can't recover
+  // its width after collapsing to a single truncated tab.
+  host: {
+    class: "tw-block",
+  },
   imports: [
     NgTemplateOutlet,
     TabHeaderComponent,
     TabListContainerDirective,
     TabListItemDirective,
     TabBodyComponent,
+    BerryComponent,
+    IconModule,
+    MenuModule,
+    I18nPipe,
+    OverflowListDirective,
+    OverflowItemDirective,
+    OverflowTriggerDirective,
   ],
 })
 export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
+  protected readonly tabLabelContentClasses = TAB_LABEL_CONTENT_CLASSES;
+  protected readonly TAB_LIST_CONTAINER_GAP = TAB_LIST_CONTAINER_GAP;
+
+  private readonly injector = inject(Injector);
 
   private readonly _groupId: number;
-  private _indexToSelect: number | null = 0;
 
-  /**
-   * Aria label for the tab list menu
-   */
+  /** Aria label for the tab list menu */
   readonly label = input("");
 
   /**
    * Keep the content of off-screen tabs in the DOM.
-   * Useful for keeping <audio> or <video> elements from re-initializing
+   * Useful for keeping `audio` or `video` elements from re-initializing
    * after navigating between tabs.
    */
   readonly preserveContent = input(false);
@@ -63,69 +90,71 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   protected readonly tabs = contentChildren(TabComponent);
   readonly tabLabels = viewChildren(TabListItemDirective);
+  private readonly moreButton = viewChild("moreButton", { read: TabListItemDirective });
 
-  /** The index of the active tab. */
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get selectedIndex(): number | null {
-    return this._selectedIndex;
-  }
-  set selectedIndex(value: number) {
-    this._indexToSelect = coerceNumberProperty(value, null);
-  }
-  private _selectedIndex: number | null = null;
+  /** The index of the active tab. Supports two-way binding via `[(selectedIndex)]`. */
+  readonly selectedIndex = model(0);
 
-  /** Output to enable support for two-way binding on `[(selectedIndex)]` */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() readonly selectedIndexChange: EventEmitter<number> = new EventEmitter<number>();
+  private readonly _selectedIndex = signal<number | null>(null);
+
+  /** Guards against premature `selectedTabChange` emissions before tabs are initialized. */
+  private readonly _initialized = signal(false);
 
   /** Event emitted when the tab selection has changed. */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() readonly selectedTabChange: EventEmitter<BitTabChangeEvent> =
-    new EventEmitter<BitTabChangeEvent>();
+  readonly selectedTabChange = output<BitTabChangeEvent>();
 
   /**
    * Focus key manager for keeping tab controls accessible.
    * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tablist_role#keyboard_interactions
    */
-  keyManager?: FocusKeyManager<TabListItemDirective>;
+  readonly keyManager = signal<FocusKeyManager<TabListItemDirective> | undefined>(undefined);
 
   constructor() {
     this._groupId = nextId++;
 
+    // Mirror each rendered button onto its tab so popover anchors land on the button, not the tabpanel host.
     effect(() => {
-      const indexToSelect = this._clampTabIndex(this._indexToSelect ?? 0);
+      const tabs = this.tabs();
+      const labels = this.tabLabels();
+      tabs.forEach((tab, i) => {
+        const label = labels[i];
+        if (label) {
+          tab.popoverAnchorElementRef.nativeElement = label.elementRef.nativeElement;
+        }
+      });
+    });
+
+    effect(() => {
+      const indexToSelect = this._clampTabIndex(this.selectedIndex());
 
       // If the selected tab didn't explicitly change, keep the previously
       // selected tab selected/active
-      if (indexToSelect === this._selectedIndex) {
+      if (indexToSelect === this._selectedIndex()) {
         const tabs = this.tabs();
         let selectedTab: TabComponent | undefined;
 
-        for (let i = 0; i < tabs.length; i++) {
-          if (tabs[i].isActive) {
-            // Set both _indexToSelect and _selectedIndex to avoid firing a change
-            // event which could cause an infinite loop if adding a tab within the
-            // selectedIndexChange event
-            this._indexToSelect = this._selectedIndex = i;
-            selectedTab = tabs[i];
-            break;
-          }
+        const activeTab = tabs.find((tab) => tab.isActive());
+
+        if (activeTab) {
+          const activeIndex = tabs.indexOf(activeTab);
+          // Set both selectedIndex and _selectedIndex to avoid firing a change
+          // event which could cause an infinite loop if adding a tab within the
+          // selectedIndex change event
+          this.selectedIndex.set(activeIndex);
+          this._selectedIndex.set(activeIndex);
+          selectedTab = activeTab;
         }
 
         // No active tab found and a tab does exist means the active tab
         // was removed, so a new active tab must be set manually
         if (!selectedTab && tabs[indexToSelect]) {
-          tabs[indexToSelect].isActive = true;
-          this.selectedTabChange.emit({
-            index: indexToSelect,
-            tab: tabs[indexToSelect],
-          });
+          tabs[indexToSelect].isActive.set(true);
+          if (untracked(() => this._initialized())) {
+            this.selectedTabChange.emit({
+              index: indexToSelect,
+              tab: tabs[indexToSelect],
+            });
+          }
         }
       }
     });
@@ -140,7 +169,20 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   }
 
   selectTab(index: number) {
-    this.selectedIndex = index;
+    this.selectedIndex.set(index);
+  }
+
+  /**
+   * When the overflow menu closes, the CDK overlay restores focus to the More
+   * button trigger, but the key manager's active item points at the newly
+   * selected tab (set during `ngAfterContentChecked`). Realign the key manager
+   * to the trigger so the next arrow key behaves relative to where focus is.
+   */
+  protected onOverflowMenuClosed() {
+    const moreButton = this.moreButton();
+    if (moreButton) {
+      this.keyManager()?.updateActiveItem(moreButton);
+    }
   }
 
   /**
@@ -148,10 +190,11 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
    * should be currently selected.
    */
   ngAfterContentChecked(): void {
-    const indexToSelect = (this._indexToSelect = this._clampTabIndex(this._indexToSelect ?? 0));
+    const indexToSelect = this._clampTabIndex(this.selectedIndex());
+    this.selectedIndex.set(indexToSelect);
 
-    if (this._selectedIndex != indexToSelect) {
-      const isFirstRun = this._selectedIndex == null;
+    if (this._selectedIndex() != indexToSelect) {
+      const isFirstRun = this._selectedIndex() == null;
 
       if (!isFirstRun) {
         this.selectedTabChange.emit({
@@ -165,24 +208,27 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       Promise.resolve().then(() => {
-        this.tabs().forEach((tab, index) => (tab.isActive = index === indexToSelect));
-
-        if (!isFirstRun) {
-          this.selectedIndexChange.emit(indexToSelect);
-        }
+        this.tabs().forEach((tab, index) => tab.isActive.set(index === indexToSelect));
+        this._initialized.set(true);
       });
 
-      // Manually update the _selectedIndex and keyManager active item
-      this._selectedIndex = indexToSelect;
-      this.keyManager?.setActiveItem(indexToSelect);
+      this._selectedIndex.set(indexToSelect);
+      this.keyManager()?.setActiveItem(indexToSelect);
     }
   }
 
   ngAfterViewInit(): void {
-    this.keyManager = new FocusKeyManager(this.tabLabels())
+    const km = new FocusKeyManager(this.tabLabels, this.injector)
       .withHorizontalOrientation("ltr")
       .withWrap()
-      .withHomeAndEnd();
+      .withHomeAndEnd()
+      // Skip disabled items and anything the overflow directive hid via [hidden]
+      // (overflowed tabs as well as the More button when there's nothing to surface).
+      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
+
+    km.updateActiveItem(this._selectedIndex() ?? 0);
+
+    this.keyManager.set(km);
   }
 
   private _clampTabIndex(index: number): number {
@@ -191,12 +237,8 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 }
 
 export interface BitTabChangeEvent {
-  /**
-   * The currently selected tab index
-   */
+  /** The currently selected tab index */
   index: number;
-  /**
-   * The currently selected tab
-   */
+  /** The currently selected tab */
   tab: TabComponent;
 }

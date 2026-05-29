@@ -208,14 +208,14 @@ export class SecretService {
     secretView.revisionDate = secretResponse.revisionDate;
 
     const [name, value, note] = await Promise.all([
-      this.encryptService.decryptString(new EncString(secretResponse.name), orgKey),
-      this.encryptService.decryptString(new EncString(secretResponse.value), orgKey),
-      this.encryptService.decryptString(new EncString(secretResponse.note), orgKey),
+      this.decryptField(new EncString(secretResponse.name), orgKey),
+      this.decryptField(new EncString(secretResponse.value), orgKey),
+      this.decryptField(new EncString(secretResponse.note), orgKey),
     ]);
-    secretView.name = name;
-    secretView.value = value;
-    secretView.note = note;
 
+    secretView.name = name.value;
+    secretView.value = value.value;
+    secretView.note = note.value;
     secretView.read = secretResponse.read;
     secretView.write = secretResponse.write;
 
@@ -227,6 +227,18 @@ export class SecretService {
     }
 
     return secretView;
+  }
+
+  private async decryptField(
+    encString: EncString,
+    orgKey: SymmetricCryptoKey,
+  ): Promise<{ value: string; error: boolean }> {
+    try {
+      const decrypted = await this.encryptService.decryptString(encString, orgKey);
+      return { value: decrypted, error: false };
+    } catch {
+      return { value: DECRYPT_ERROR, error: true };
+    }
   }
 
   private async createSecretsListView(
@@ -245,10 +257,10 @@ export class SecretService {
         const secretListView = new SecretListView();
         secretListView.id = s.id;
         secretListView.organizationId = s.organizationId;
-        secretListView.name = await this.encryptService.decryptString(
-          new EncString(s.name),
-          orgKey,
-        );
+
+        const name = await this.decryptField(new EncString(s.name), orgKey);
+        secretListView.name = name.value;
+        secretListView.decryptionError = name.error;
         secretListView.creationDate = s.creationDate;
         secretListView.revisionDate = s.revisionDate;
 

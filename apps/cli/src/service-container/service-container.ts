@@ -3,7 +3,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -244,9 +243,6 @@ import { LowdbStorageService } from "../platform/services/lowdb-storage.service"
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
-
-// Polyfills
-global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 
 // eslint-disable-next-line
 const packageJson = require("../../package.json");
@@ -559,13 +555,19 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
+
+    this.newPolicyService = new DefaultNewPolicyService(
+      this.stateProvider,
+      () => this.sdkService,
+      this.organizationService,
+    );
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
+      this.newPolicyService,
+      () => this.configService,
     );
-
-    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
 
@@ -1120,6 +1122,10 @@ export class ServiceContainer {
       this.configService,
       this.masterPasswordService,
       this.syncService,
+      this.keyService,
+      new CliBiometricsService(),
+      this.biometricStateService,
+      this.platformUtilsService,
     );
   }
 
