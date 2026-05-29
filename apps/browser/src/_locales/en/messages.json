@@ -2161,7 +2161,7 @@
     "message": "National identification number"
   },
   "issuingAuthority": {
-    "message": "Issuing authority / office"
+    "message": "Issuing authority"
   },
   "copyIssuingAuthority": {
     "message": "Copy issuing authority / office"
