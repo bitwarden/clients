@@ -10,7 +10,6 @@ export interface DomQueryService {
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
   checkForNewShadowRoots(addedElements?: Element[]): boolean;
   resetObservedShadowRoots(): void;
-  getKnownShadowRootCount(): number;
-  reapDetachedShadowRoots(): number;
+  reapDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;
 }

@@ -1,7 +1,6 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
-import { stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -32,7 +31,6 @@ import {
   AutofillFieldElements,
   AutofillFormElements,
   CollectAutofillContentService as CollectAutofillContentServiceInterface,
-  ObserverStats,
   UpdateAutofillDataAttributeParams,
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -68,14 +66,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingMutationAddedElements: Set<Element> = new Set();
   private pendingMutationAddedElementsOverflowed = false;
   private readonly pendingMutationAddedElementsCap = 256;
-  private observerStats = {
-    mutationsObserved: 0,
-    mutationsCoalesced: 0,
-    attrQueueHighWaterMark: 0,
-    overflowEvents: 0,
-    shadowRootsReaped: 0,
-    fieldsReaped: 0,
-  };
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckTimeoutMs = 500;
@@ -114,26 +104,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
-    this.handleMutationObserverMutation = stopwatch(
-      "handleMutationObserverMutation",
-      this.handleMutationObserverMutation,
-    );
-    this.processMutations = stopwatch("processMutations", this.processMutations);
-    this.reapDetachedFieldMetadata = stopwatch(
-      "reapDetachedFieldMetadata",
-      this.reapDetachedFieldMetadata,
-    );
   }
 
   get autofillFormElements(): AutofillFormElements {
     return this._autofillFormElements;
-  }
-
-  getObserverStats(): Readonly<ObserverStats> {
-    return {
-      ...this.observerStats,
-      shadowRootsTracked: this.domQueryService.getKnownShadowRootCount(),
-    };
   }
 
   /**
@@ -1285,7 +1259,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       !this.pendingChildListUpdate;
 
     for (const mutation of mutations) {
-      this.observerStats.mutationsObserved++;
       if (mutation.type === "attributes") {
         // nodeType === 1 instead of `instanceof Element` — works across realms (adopted-from-iframe).
         if (mutation.target.nodeType !== 1) {
@@ -1300,11 +1273,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (!attrs) {
           attrs = new Set();
           this.pendingAttributeMutations.set(target, attrs);
-          if (this.pendingAttributeMutations.size > this.observerStats.attrQueueHighWaterMark) {
-            this.observerStats.attrQueueHighWaterMark = this.pendingAttributeMutations.size;
-          }
-        } else if (attrs.has(attr)) {
-          this.observerStats.mutationsCoalesced++;
         }
         attrs.add(attr);
         if (this.isPopoverAttribute(attr)) {
@@ -1384,8 +1352,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             }
           }
         }
-        this.observerStats.fieldsReaped += this.reapDetachedFieldMetadata();
-        this.observerStats.shadowRootsReaped += this.domQueryService.reapDetachedShadowRoots();
+        this.reapDetachedFieldMetadata();
+        this.domQueryService.reapDetachedShadowRoots();
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
@@ -1417,28 +1385,23 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  private reapDetachedFieldMetadata = (): number => {
-    let removed = 0;
+  private reapDetachedFieldMetadata(): void {
     for (const el of this._autofillFormElements.keys()) {
       if (!el.isConnected) {
         this._autofillFormElements.delete(el);
-        removed++;
       }
     }
     for (const el of this.autofillFieldElements.keys()) {
       if (!el.isConnected) {
         this.autofillFieldElements.delete(el);
-        removed++;
       }
     }
     for (const [opid, el] of this.autofillFieldsByOpid) {
       if (!el.isConnected) {
         this.autofillFieldsByOpid.delete(opid);
-        removed++;
       }
     }
-    return removed;
-  };
+  }
 
   // Flag-only. Callers schedule explicitly so the rebuild funnel stays narrow.
   private requirePageDetailsUpdate() {
@@ -1491,7 +1454,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingMutationAddedElementsOverflowed = true;
           // Release element refs immediately; we won't process them this window.
           this.pendingMutationAddedElements.clear();
-          this.observerStats.overflowEvents++;
           return;
         }
       }

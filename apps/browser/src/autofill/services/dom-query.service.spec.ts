@@ -297,21 +297,21 @@ describe("DomQueryService", () => {
       domQueryService["knownShadowRoots"].add(attachedRoot);
       domQueryService["knownShadowRoots"].add(detachedRoot);
 
-      const removed = domQueryService.reapDetachedShadowRoots();
+      domQueryService.reapDetachedShadowRoots();
 
-      expect(removed).toBe(1);
       expect(domQueryService["knownShadowRoots"].size).toBe(1);
       expect(domQueryService["knownShadowRoots"].has(attachedRoot)).toBe(true);
       expect(domQueryService["knownShadowRoots"].has(detachedRoot)).toBe(false);
     });
 
-    it("returns 0 when every host is still connected", () => {
+    it("leaves connected entries in place", () => {
       const host = document.createElement("attached-host");
       const root = host.attachShadow({ mode: "open" });
       document.body.appendChild(host);
       domQueryService["knownShadowRoots"].add(root);
 
-      expect(domQueryService.reapDetachedShadowRoots()).toBe(0);
+      domQueryService.reapDetachedShadowRoots();
+
       expect(domQueryService["knownShadowRoots"].size).toBe(1);
     });
   });

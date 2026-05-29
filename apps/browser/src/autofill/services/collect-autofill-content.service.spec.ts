@@ -2783,7 +2783,6 @@ describe("CollectAutofillContentService", () => {
         expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(true);
         // Overflow path clears the Set immediately so refs don't linger until the debounce fires.
         expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-        expect(collectAutofillContentService["observerStats"].overflowEvents).toBe(1);
       });
 
       it("is a no-op once overflow has been tripped (later batches are ignored)", () => {
@@ -2948,11 +2947,8 @@ describe("CollectAutofillContentService", () => {
         ["detached", detachedField],
       ]);
 
-      const removed = collectAutofillContentService["reapDetachedFieldMetadata"]();
+      collectAutofillContentService["reapDetachedFieldMetadata"]();
 
-      // Three Maps each lose one entry for the detached form, the detached field, and the
-      // detached opid index — one element produces multiple Map deletions.
-      expect(removed).toBe(3);
       expect(collectAutofillContentService["_autofillFormElements"].size).toBe(1);
       expect(collectAutofillContentService["_autofillFormElements"].has(attachedForm)).toBe(true);
       expect(collectAutofillContentService["autofillFieldElements"].size).toBe(1);
@@ -3286,30 +3282,16 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
     });
 
-    it("accumulates the field reaper return value into observerStats", () => {
-      const detachedField = document.createElement("input") as ElementWithOpId<FormFieldElement>;
-      collectAutofillContentService["autofillFieldElements"] = new Map([
-        [detachedField, createAutofillFieldMock({})],
-      ]);
+    it("invokes the field and shadow-root reapers each drain", () => {
       collectAutofillContentService["pendingChildListUpdate"] = true;
-      collectAutofillContentService["observerStats"].fieldsReaped = 0;
+      jest.spyOn(collectAutofillContentService as any, "reapDetachedFieldMetadata");
+      jest.spyOn(domQueryService, "reapDetachedShadowRoots");
 
       collectAutofillContentService["processMutations"]();
       jest.runAllTimers();
 
-      expect(collectAutofillContentService["observerStats"].fieldsReaped).toBe(1);
-    });
-
-    it("accumulates the shadow-root reaper return value into observerStats", () => {
-      collectAutofillContentService["pendingChildListUpdate"] = true;
-      collectAutofillContentService["observerStats"].shadowRootsReaped = 0;
-      jest.spyOn(domQueryService, "reapDetachedShadowRoots").mockReturnValue(3);
-
-      collectAutofillContentService["processMutations"]();
-      jest.runAllTimers();
-
+      expect(collectAutofillContentService["reapDetachedFieldMetadata"]).toHaveBeenCalled();
       expect(domQueryService.reapDetachedShadowRoots).toHaveBeenCalled();
-      expect(collectAutofillContentService["observerStats"].shadowRootsReaped).toBe(3);
     });
 
     it("returns without scheduling work when nothing is pending", () => {
@@ -3359,32 +3341,8 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("getObserverStats", () => {
-    it("returns counter snapshot plus live shadow-root tracked count", () => {
-      collectAutofillContentService["observerStats"] = {
-        mutationsObserved: 7,
-        mutationsCoalesced: 3,
-        attrQueueHighWaterMark: 5,
-        overflowEvents: 1,
-        shadowRootsReaped: 4,
-        fieldsReaped: 6,
-      };
-      jest.spyOn(domQueryService, "getKnownShadowRootCount").mockReturnValue(2);
-
-      const stats = collectAutofillContentService.getObserverStats();
-
-      expect(stats).toEqual({
-        mutationsObserved: 7,
-        mutationsCoalesced: 3,
-        attrQueueHighWaterMark: 5,
-        overflowEvents: 1,
-        shadowRootsReaped: 4,
-        fieldsReaped: 6,
-        shadowRootsTracked: 2,
-      });
-    });
-
-    it("increments mutationsObserved and coalesces repeated (target, attr) pairs", () => {
+  describe("attribute mutation coalescing", () => {
+    it("collapses repeated (target, attr) pairs into a single Set entry", () => {
       const target = document.createElement("input");
       document.body.appendChild(target);
       const mutation = (attrName: string): MutationRecord => ({
@@ -3406,9 +3364,9 @@ describe("CollectAutofillContentService", () => {
         mutation("id"),
       ]);
 
-      expect(collectAutofillContentService["observerStats"].mutationsObserved).toBe(3);
-      expect(collectAutofillContentService["observerStats"].mutationsCoalesced).toBe(1);
-      expect(collectAutofillContentService["observerStats"].attrQueueHighWaterMark).toBe(1);
+      const pending = collectAutofillContentService["pendingAttributeMutations"];
+      expect(pending.size).toBe(1);
+      expect(Array.from(pending.get(target)!).sort()).toEqual(["id", "value"]);
     });
   });
 });
