@@ -34,17 +34,10 @@ import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.
 import { InternalSendService } from "./send.service.abstraction";
 
 /**
- * SDK-backed implementation of the send API.
- *
- * For mutations (`save`, `removePassword`) the SDK executes the change server-side, then
- * we refetch the wire-encrypted form via the legacy `SendApiService` to keep
- * `InternalSendService` populated with `EncString`-shaped data that the rest of the app
- * (sync, the send form's `.decrypt()`, etc.) expects. The SDK can't return wire-encrypted
- * data, so this refetch is the bridge until consumers read SDK state directly.
- *
- * Read methods that return wire-encrypted shapes (`getSend`, `getSends`,
- * `putSendRemovePassword`) have no SDK benefit — SendApiServiceSelector routes those to
- * the legacy service. The throw-stubs here guard against direct callers.
+ * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
+ * then refetch via legacy to keep `InternalSendService` populated with `EncString`-shaped
+ * data. Methods returning wire-encrypted shapes have no SDK equivalent and are routed to
+ * legacy by `SendApiServiceSelector`; the throw-stubs here guard direct callers.
  */
 export class SendSdkApiService implements SendApiServiceAbstraction {
   constructor(
@@ -55,16 +48,22 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     private logService: LogService,
   ) {}
 
+  /**
+   * Saves a send via the SDK. After the mutation, refetches the wire-encrypted form via
+   * the legacy service to keep `InternalSendService` populated with `EncString`-shaped
+   * data. Patches the input with server-assigned id/accessId on create so callers reading
+   * those after `save()` continue to work.
+   *
+   * New file sends are not supported — the SDK's `create_file_send` generates its own
+   * key, which wouldn't match the caller's pre-encrypted file buffer.
+   * `SendApiServiceSelector` routes them to legacy; the guard below catches direct
+   * callers that bypass the selector.
+   */
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const [send] = sendData;
-    // SDK's create_file_send generates its own send key; a pre-encrypted file buffer
-    // from the caller wouldn't match. SendApiServiceSelector routes new file sends to
-    // the legacy service — this guard catches direct callers.
     if (send.id == null && send.type === SendType.File) {
-      throw new Error(
-        "SendSdkApiService does not support creating file sends; use the legacy SendApiService.",
-      );
+      throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
     }
     const sendView = await send.decrypt(userId);
     await this.preserveExistingPasswordOnEdit(sendView);
@@ -134,17 +133,17 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     await this.refreshSendFromServer(id);
   }
 
+  /**
+   * Not supported via SDK — returns wire-encrypted `SendResponse`, which the SDK cannot
+   * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
+   * direct callers that bypass the selector.
+   */
   getSend(_id: string): Promise<SendResponse> {
-    return Promise.reject(
-      new Error(
-        "SendSdkApiService.getSend is not supported: returning SendResponse requires wire-encrypted fields the SDK does not expose. Use SendApiService.",
-      ),
-    );
+    return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
   }
 
-  // `apiUrl` is intentionally omitted: the SDK uses its configured environment and
-  // cannot target a per-call URL. SendApiServiceSelector routes `apiUrl`-bearing
-  // callers (e.g. the CLI receiving cross-instance Sends) to the legacy service.
+  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
+  // to the legacy service.
   async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
@@ -157,19 +156,23 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendAccessResponse(view);
   }
 
+  /**
+   * Not supported via SDK — returns wire-encrypted `ListResponse<SendResponse>`, which
+   * the SDK cannot produce. `SendApiServiceSelector` routes calls to `SendApiService`;
+   * this stub catches direct callers that bypass the selector.
+   */
   getSends(): Promise<ListResponse<SendResponse>> {
-    return Promise.reject(
-      new Error(
-        "SendSdkApiService.getSends is not supported: returning SendResponse requires wire-encrypted fields the SDK does not expose. Use SendApiService.",
-      ),
-    );
+    return Promise.reject(new Error("SendSdkApiService.getSends: use SendApiService."));
   }
 
+  /**
+   * Not supported via SDK — returns wire-encrypted `SendResponse`, which the SDK cannot
+   * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
+   * direct callers that bypass the selector.
+   */
   putSendRemovePassword(_id: string): Promise<SendResponse> {
     return Promise.reject(
-      new Error(
-        "SendSdkApiService.putSendRemovePassword is not supported: returning SendResponse requires wire-encrypted fields the SDK does not expose. Use SendApiService.",
-      ),
+      new Error("SendSdkApiService.putSendRemovePassword: use SendApiService."),
     );
   }
 
@@ -192,6 +195,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
+  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
+  // to the legacy service.
   async getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
@@ -203,6 +208,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(data);
   }
 
+  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
+  // to the legacy service.
   async getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
