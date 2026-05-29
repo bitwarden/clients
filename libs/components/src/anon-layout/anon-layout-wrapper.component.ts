@@ -14,7 +14,7 @@ import {
 } from "../landing-layout";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent, SecondaryContentLocationType } from "./anon-layout.component";
+import { AnonLayoutComponent } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
   /**
    * The optional title of the page.
@@ -52,13 +52,6 @@ export interface AnonLayoutWrapperData {
    */
   heroAlignment?: HeroAlignmentType;
   /**
-   * Where to render content projected into the `[slot=secondary]` content slot. Defaults to "main".
-   *
-   * "main" places the secondary content beneath the main card.
-   * "footer" places it inside the footer.
-   */
-  secondaryContentLocation?: SecondaryContentLocationType;
-  /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
   showReadonlyHostname?: boolean;
@@ -95,7 +88,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hidePageIcon?: boolean;
   protected contentTopPadding?: ContentTopPaddingType;
   protected heroAlignment?: HeroAlignmentType;
-  protected secondaryContentLocation?: SecondaryContentLocationType;
 
   constructor(
     private router: Router,
@@ -160,7 +152,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
     // When undefined on `routeData`, default to a specified value
     this.contentTopPadding = routeData.contentTopPadding ?? "default";
     this.heroAlignment = routeData.heroAlignment ?? "center";
-    this.secondaryContentLocation = routeData.secondaryContentLocation ?? "main";
 
     // Cache the routeData payload so resetToRouteData() can later restore it.
     this.anonLayoutWrapperDataService.setRouteData(
@@ -222,9 +213,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
     if (data.heroAlignment !== undefined) {
       this.heroAlignment = data.heroAlignment;
     }
-    if (data.secondaryContentLocation !== undefined) {
-      this.secondaryContentLocation = data.secondaryContentLocation;
-    }
 
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
     // when setting the page data from a service
@@ -252,6 +240,5 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hidePageIcon = undefined;
     this.contentTopPadding = undefined;
     this.heroAlignment = undefined;
-    this.secondaryContentLocation = undefined;
   }
 }

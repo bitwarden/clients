@@ -30,6 +30,13 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
+  /**
+   * Where to render content from the route's `outlet: "secondary"` router outlet. Defaults to "main".
+   *
+   * "main" places the secondary content beneath the main card.
+   * "footer" places it inside the footer.
+   */
+  secondaryContentLocation?: SecondaryContentLocationType;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
