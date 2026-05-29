@@ -134,6 +134,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
       return;
     }
 
+    const routeData = firstChildRouteData as Partial<AnonLayoutWrapperData>;
+
+    // TODO: replace remaining firstChildRouteData accesses below with `routeData` to enable type safety
     if (firstChildRouteData["pageTitle"] !== undefined) {
       this.pageTitle = this.handleStringOrTranslation(firstChildRouteData["pageTitle"]);
     }
@@ -151,10 +154,13 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
 
-    this.hidePageIcon = Boolean(firstChildRouteData["hidePageIcon"]);
-    this.contentTopPadding = firstChildRouteData["contentTopPadding"];
-    this.heroAlignment = firstChildRouteData["heroAlignment"];
-    this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"];
+    // When undefined on `routeData`, default to `false` via Boolean conversion
+    this.hidePageIcon = Boolean(routeData.hidePageIcon);
+
+    // When undefined on `routeData`, default to a specified value
+    this.contentTopPadding = routeData.contentTopPadding ?? "default";
+    this.heroAlignment = routeData.heroAlignment ?? "center";
+    this.secondaryContentLocation = routeData.secondaryContentLocation ?? "main";
 
     // Cache the route-data payload so resetToRouteData() can later restore it.
     this.anonLayoutWrapperDataService.setRouteData(
