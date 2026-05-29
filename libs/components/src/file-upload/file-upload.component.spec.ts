@@ -529,25 +529,26 @@ describe("FileUploadComponent", () => {
       fixture.detectChanges();
     });
 
-    it("renders the outer label without a `for` attribute", () => {
-      const outerLabel = fixture.nativeElement.querySelector(
-        "bit-file-upload > div > label",
-      ) as HTMLLabelElement;
+    it("renders the bit-label heading as a non-label element so bit-dropzone owns the form label", () => {
+      const heading = fixture.nativeElement.querySelector(
+        "bit-file-upload > div > div:first-child",
+      ) as HTMLElement;
 
-      expect(outerLabel).toBeTruthy();
-      expect(outerLabel.hasAttribute("for")).toBe(false);
+      expect(heading).toBeTruthy();
+      expect(heading.tagName).toBe("DIV");
+      expect(heading.querySelector("bit-label")).toBeTruthy();
     });
 
-    it("associates the hidden file input with the outer label via aria-labelledby", () => {
-      const outerLabel = fixture.nativeElement.querySelector(
-        "bit-file-upload > div > label",
-      ) as HTMLLabelElement;
+    it("associates the hidden file input with the outer heading via aria-labelledby", () => {
+      const heading = fixture.nativeElement.querySelector(
+        "bit-file-upload > div > div:first-child",
+      ) as HTMLElement;
       const fileInput = fixture.nativeElement.querySelector(
         'input[type="file"]',
       ) as HTMLInputElement;
 
-      expect(outerLabel.id).toBeTruthy();
-      expect(fileInput.getAttribute("aria-labelledby")).toBe(outerLabel.id);
+      expect(heading.id).toBeTruthy();
+      expect(fileInput.getAttribute("aria-labelledby")).toBe(heading.id);
     });
   });
 });
