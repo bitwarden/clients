@@ -49,7 +49,7 @@ export class FamiliesPolicyService {
               map((organizations) => organizations.find((org) => org.canManageSponsorships)?.id),
               switchMap((enterpriseOrgId) =>
                 this.policyService
-                  .policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId)
+                  .policiesByType$(PolicyType.FreeFamiliesSponsorship, userId)
                   .pipe(
                     map(
                       (policies) =>
