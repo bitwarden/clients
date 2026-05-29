@@ -50,11 +50,40 @@ export const CIPHER_MENU_ITEMS = Object.freeze([
   },
 ] as const) satisfies readonly CipherMenuItem[];
 
+const bankAccountItem: CipherMenuItem = {
+  type: CipherType.BankAccount,
+  icon: "bwi-bank",
+  labelKey: "typeBankAccount",
+  subtitleKey: "typeBankAccountSubtitle",
+};
+
+const passportItem: CipherMenuItem = {
+  type: CipherType.Passport,
+  icon: "bwi-passport",
+  labelKey: "typePassport",
+  subtitleKey: "typePassportSubtitle",
+};
+
+const driversLicenseItem: CipherMenuItem = {
+  type: CipherType.DriversLicense,
+  icon: "bwi-id-card",
+  labelKey: "typeDriversLicense",
+  subtitleKey: "typeDriversLicenseSubtitle",
+};
+
 /**
  * Updated menu items for new item dialog. This list should only be used
  * when `FeatureFlag.PM32009NewItemTypes` is enabled, otherwise use `CIPHER_MENU_ITEMS`.
+ * When `FeatureFlag.PM32009NewItemTypes` is turned on in production, this list should replace `CIPHER_MENU_ITEMS`.
  */
-export const DIALOG_CIPHER_MENU_ITEMS = CIPHER_MENU_ITEMS.map((item) => {
+export const DIALOG_CIPHER_MENU_ITEMS = [
+  ...CIPHER_MENU_ITEMS.slice(0, 2),
+  bankAccountItem,
+  ...CIPHER_MENU_ITEMS.slice(2, 3),
+  driversLicenseItem,
+  passportItem,
+  ...CIPHER_MENU_ITEMS.slice(3),
+].map((item) => {
   if (item.type === CipherType.Login) {
     return {
       ...item,

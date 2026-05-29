@@ -34,6 +34,8 @@ export default {
               skipToContent: "Skip to content",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
             });
           },
         },

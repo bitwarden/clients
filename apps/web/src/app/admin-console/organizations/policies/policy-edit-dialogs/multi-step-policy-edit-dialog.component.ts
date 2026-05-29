@@ -1,3 +1,4 @@
+import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -17,6 +18,8 @@ import { map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -66,7 +69,7 @@ export class MultiStepPolicyEditDialogComponent
         if (policyComponent?.data) {
           return policyComponent.data.statusChanges.pipe(
             startWith(policyComponent.data.status),
-            map((status) => status !== "VALID"),
+            map((status) => status === "INVALID"),
           );
         }
         return of(false);
@@ -85,6 +88,10 @@ export class MultiStepPolicyEditDialogComponent
     dialogRef: DialogRef<PolicyEditDialogResult>,
     toastService: ToastService,
     keyService: KeyService,
+    dialogService: DialogService,
+    cdkDialogRef: CdkDialogRef,
+    configService: ConfigService,
+    authService: AuthService,
   ) {
     super(
       data,
@@ -96,6 +103,10 @@ export class MultiStepPolicyEditDialogComponent
       dialogRef,
       toastService,
       keyService,
+      dialogService,
+      cdkDialogRef,
+      configService,
+      authService,
     );
   }
 
@@ -120,6 +131,8 @@ export class MultiStepPolicyEditDialogComponent
     // Read step configuration from child component.
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
+
+    await this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
@@ -144,8 +157,14 @@ export class MultiStepPolicyEditDialogComponent
         return;
       }
 
-      // Not the last step - advance to next step
+      // Not the last step - advance to next step. Reset dirty state so that
+      // the discard-edits guard treats the saved values as the new baseline.
       this.currentStep.update((value) => value + 1);
+      const component = this.policyComponent();
+      if (component) {
+        component.enabled.markAsPristine();
+        component.data?.markAsPristine();
+      }
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",

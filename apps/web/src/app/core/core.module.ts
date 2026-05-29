@@ -12,8 +12,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
-import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -139,8 +137,8 @@ import {
   SshImportPromptService,
 } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
-import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
@@ -296,7 +294,6 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
-      ConfigService,
       OrganizationInviteService,
       PolicyApiServiceAbstraction,
       LogService,
@@ -451,11 +448,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: DeviceManagementComponentServiceAbstraction,
-    useClass: DefaultDeviceManagementComponentService,
-    deps: [],
-  }),
-  safeProvider({
     provide: CipherFormGenerationService,
     useClass: WebCipherFormGenerationService,
     deps: [],
@@ -465,9 +457,7 @@ const safeProviders: SafeProvider[] = [
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [
       DialogService,
-      ConfigService,
       AccountService,
-      ApiService,
       SyncService,
       BillingAccountProfileStateService,
       PlatformUtilsService,
@@ -504,14 +494,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyServiceAbstraction,
       InternalUserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
       WINDOW,
       LogService,
-      ConfigService,
     ],
   }),
   safeProvider({

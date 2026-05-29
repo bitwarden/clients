@@ -19,6 +19,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
   return new I18nMockService({
     // --- Shared ---
     loading: "Loading",
+    progressBar: "Progress bar",
 
     // --- Shared table / search ---
     search: "Search",
@@ -42,6 +43,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     close: "Close",
     cancel: "Cancel",
     back: "Back",
+    all: "All",
 
     // --- Applications toolbar ---
     critical: (n: string | undefined) => `Critical (${n})`,
@@ -105,17 +107,28 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     mustBeOrganizationOwnerAdmin:
       "You must be an organization owner or admin to perform this action",
 
+    // --- Applications table row menu ---
+    options: "Options",
+    unmarkAsCritical: "Unmark as critical",
+
     // --- New applications dialog ---
     prioritizeCriticalApplications: "Prioritize Critical Applications",
     assignSecurityTasksToMembers: "Assign Security Tasks to Members",
     taskSummary: "Task Summary",
-    membersWithAtRiskPasswords: "members have at-risk passwords",
     membersWillReceiveSecurityTask:
       "Members will receive a security task to update their passwords.",
     selectCriticalAppsDescription: "Select which applications are critical to your organization.",
     reviewNewAppsDescription: "Review new applications and mark which ones are critical.",
     clickIconToMarkAppAsCritical: "Click the star icon to mark an app as critical",
     markAsCritical: "Mark as Critical",
+    membersWithAtRiskPwds: "Members with at risk passwords",
+    membersWithAtRiskPasswordsAndForCriticalApplications: (
+      n: string | undefined,
+      m: string | undefined,
+    ) => `${n} Members with at risk passwords for ${m} Critical applications`,
+    ofCountTotal: (n: string | undefined) => `of ${n} total`,
+    sendNotifications: "Send notifications",
+    criticalApplicationsAtRisk: "Critical applications at risk",
 
     // --- Chip filter (used by ChipFilterComponent internally) ---
     viewItemsIn: (name: string | undefined) => `View items in ${name}`,
@@ -230,4 +243,14 @@ export class MockDialogService {
     return { closed: EMPTY };
   };
   openSimpleDialog = () => Promise.resolve(true);
+}
+
+/**
+ * Mock ConfigService for Storybook stories.
+ */
+export class MockConfigService {
+  getFeatureFlag$ = (flag: string) => {
+    action("ConfigService.getFeatureFlag$")(flag);
+    return of(true);
+  };
 }

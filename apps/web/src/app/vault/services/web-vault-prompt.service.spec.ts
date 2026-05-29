@@ -175,7 +175,7 @@ describe("WebVaultPromptService", () => {
       );
 
       const mockPolicy = {
-        type: PolicyType.AutoConfirm,
+        type: PolicyType.AutomaticUserConfirmation,
         enabled: true,
       } as Policy;
       policies$.mockReturnValueOnce(of([mockPolicy]));

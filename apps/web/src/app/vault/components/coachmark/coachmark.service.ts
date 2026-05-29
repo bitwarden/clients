@@ -185,7 +185,8 @@ export class CoachmarkService {
   }
 
   /**
-   * Completes the tour and persists the completion state.
+   * Completes the tour, persists the completion state, and navigates back to the vault
+   * so users are reminded to add items via the checklist and empty state UX.
    */
   async completeTour(): Promise<void> {
     this.activeStepId.set(null);
@@ -195,5 +196,7 @@ export class CoachmarkService {
     if (account) {
       await this.stateProvider.setUserState(COACHMARK_TOUR_COMPLETED_KEY, true, account.id);
     }
+
+    await this.router.navigate(["/vault"]);
   }
 }

@@ -12,18 +12,9 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import {
-  filter,
-  firstValueFrom,
-  lastValueFrom,
-  map,
-  Subject,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs";
+import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
 
-import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
+import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -37,7 +28,6 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -77,8 +67,10 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
+import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
@@ -170,7 +162,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
-    private organizationService: OrganizationService,
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private readonly destroyRef: DestroyRef,
@@ -184,6 +175,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
+    private accountDeletionService: AccountDeletionService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -292,11 +284,17 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openSettings":
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
             break;
+          case "openTroubleshootingDialog":
+            TroubleshootingDialogComponent.open(this.dialogService);
+            break;
           case "openPremium":
             await this.premiumUpgradePromptService.promptForPremium();
             break;
           case "openChangePasswordDialog":
             this.dialogService.open(ChangePasswordDialogComponent);
+            break;
+          case "openDevicesDialog":
+            this.dialogService.open(DeviceManagementDialogComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
@@ -607,6 +605,10 @@ export class AppComponent implements OnInit, OnDestroy {
             multiClientPasswordManagement: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
             ),
+            // TODO: PM-34438 - remove desktopAddDevices flag read and MenuAccount field population
+            desktopAddDevices: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
+            ),
           };
         }
       }
@@ -737,7 +739,7 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
-      await this.tokenService.clearAccessToken(userBeingLoggedOut);
+      await this.tokenService.clearTokens(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
       // HACK: Wait for the user logging outs authentication status to transition to LoggedOut
@@ -905,28 +907,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
-    const userIsManaged = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.organizationService.organizations$(userId)),
-        map((orgs) => orgs.some((o) => o.userIsManagedByOrganization === true)),
-      ),
-    );
-
-    if (userIsManaged) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotDeleteAccount" },
-        content: { key: "cannotDeleteAccountDesc" },
-        cancelButtonText: null,
-        acceptButtonText: { key: "close" },
-        type: "danger",
-      });
-
-      return;
-    }
-
-    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
-    await lastValueFrom(dialogRef.closed);
+    await this.accountDeletionService.openDeleteAccountFlow();
   }
 
   private async processPendingAuthRequests() {
