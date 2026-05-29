@@ -260,7 +260,9 @@ describe("AuthService", () => {
       // that single long-lived upstream.
 
       for (let i = 0; i < 50; i++) {
-        await firstValueFrom(sut.authStatusFor$(userId));
+        expect(await firstValueFrom(sut.authStatusFor$(userId))).toEqual(
+          AuthenticationStatus.Unlocked,
+        );
       }
 
       // perUserCache$ builds the stream once and shares it via
@@ -269,6 +271,65 @@ describe("AuthService", () => {
       // per call, which would make both of these equal 50 (the leak).
       expect(totalSubscriptions).toBe(1);
       expect(activeSubscriptions).toBe(1);
+    });
+
+    // Mirrors the actual bw serve failure surface: GET /status -> StatusCommand ->
+    // authService.getAuthStatus(userId) -> firstValueFrom(authStatusFor$(userId)). Pre-fix
+    // code would produce 50 upstream subscriptions here (one per HTTP request); the fix
+    // must hold when invoked through getAuthStatus(), not just authStatusFor$ directly.
+    it("does not leak upstream subscriptions when invoked through getAuthStatus()", async () => {
+      let totalSubscriptions = 0;
+      const hasAccessToken$ = new Observable<boolean>((subscriber) => {
+        totalSubscriptions++;
+        subscriber.next(true);
+      });
+      tokenService.hasAccessToken$.mockReturnValue(hasAccessToken$);
+
+      for (let i = 0; i < 50; i++) {
+        await sut.getAuthStatus(userId);
+      }
+
+      expect(totalSubscriptions).toBe(1);
+    });
+
+    // activeAccountStatus$ is built once in the constructor but switchMap-rebinds to
+    // authStatusFor$(userId) every time the active account changes. Pre-fix code
+    // produced a brand-new shareReplay pipeline per (re)bind, so switching back to a
+    // previously-seen user added another permanent upstream subscription. With
+    // memoization, each distinct userId has exactly one cached stream regardless of how
+    // many times the active user switches.
+    it("does not multiply upstream subscriptions when activeAccount switches back and forth", async () => {
+      const userId2 = Utils.newGuid() as UserId;
+      const accountInfo1 = {
+        status: AuthenticationStatus.Unlocked,
+        id: userId,
+        ...mockAccountInfoWith({ email: "email", name: "name" }),
+      };
+      const accountInfo2 = {
+        status: AuthenticationStatus.Unlocked,
+        id: userId2,
+        ...mockAccountInfoWith({ email: "email2", name: "name2" }),
+      };
+
+      const subscriptionsPerUser: Record<string, number> = {};
+      tokenService.hasAccessToken$.mockImplementation(
+        (id: UserId) =>
+          new Observable<boolean>((subscriber) => {
+            subscriptionsPerUser[id] = (subscriptionsPerUser[id] ?? 0) + 1;
+            subscriber.next(true);
+          }),
+      );
+
+      // Subscribe once; switchMap inside activeAccountStatus$ rebinds per emission.
+      trackEmissions(sut.activeAccountStatus$);
+
+      for (let i = 0; i < 10; i++) {
+        accountService.activeAccountSubject.next(accountInfo1);
+        accountService.activeAccountSubject.next(accountInfo2);
+      }
+
+      expect(subscriptionsPerUser[userId]).toBe(1);
+      expect(subscriptionsPerUser[userId2]).toBe(1);
     });
 
     // Behavior-preservation check (the two leak guards above are what catch the regression):
