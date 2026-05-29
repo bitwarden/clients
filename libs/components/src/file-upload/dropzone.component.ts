@@ -67,7 +67,6 @@ export class DropzoneComponent {
 
       "tw-transition-colors",
       "tw-bg-bg-secondary",
-      // "peer-focus-visible/dropzone-input:tw-border-solid",
       "peer-focus-visible/dropzone-input:tw-border-transparent",
       "peer-focus-visible/dropzone-input:tw-ring",
       "peer-focus-visible/dropzone-input:tw-ring-offset-0",
