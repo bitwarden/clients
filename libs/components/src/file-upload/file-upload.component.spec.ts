@@ -5,6 +5,7 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -50,6 +51,24 @@ class TestHostComponent {
   variant: "default" | "dropzone" = "default";
   multiple = false;
   disabled = false;
+  errorMessage: string | undefined = undefined;
+  files: File[] = [];
+}
+
+// TODO: Fix this the next time the file is edited.
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "hint-host",
+  imports: [FileUploadComponent, BitLabelComponent, BitHintDirective],
+  template: `
+    <bit-file-upload [variant]="variant" [errorMessage]="errorMessage" [(files)]="files">
+      <bit-label>Upload</bit-label>
+      <bit-hint>Pick a file</bit-hint>
+    </bit-file-upload>
+  `,
+})
+class HintHostComponent {
+  variant: "default" | "dropzone" = "default";
   errorMessage: string | undefined = undefined;
   files: File[] = [];
 }
@@ -448,6 +467,87 @@ describe("FileUploadComponent", () => {
       const errorEl = fixture.nativeElement.querySelector("bit-error") as HTMLElement;
       expect(errorEl).toBeTruthy();
       expect(overlayButton.getAttribute("aria-describedby")).toBe(errorEl.id);
+    });
+  });
+
+  describe("aria-describedby (with projected bit-hint)", () => {
+    let fixture: ComponentFixture<HintHostComponent>;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [HintHostComponent],
+        providers: [i18nProvider],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(HintHostComponent);
+      fixture.componentInstance.variant = "default";
+      fixture.detectChanges();
+    });
+
+    it("points at the rendered bit-hint id when no errorMessage is set", () => {
+      const overlayButton = fixture.nativeElement.querySelector(
+        'button[type="button"]',
+      ) as HTMLButtonElement;
+      const hintEl = fixture.nativeElement.querySelector("bit-hint") as HTMLElement;
+
+      expect(hintEl).toBeTruthy();
+      expect(hintEl.id).toBeTruthy();
+      expect(overlayButton.getAttribute("aria-describedby")).toBe(hintEl.id);
+    });
+
+    it("switches back to the bit-hint id after the errorMessage is cleared", () => {
+      const overlayButton = fixture.nativeElement.querySelector(
+        'button[type="button"]',
+      ) as HTMLButtonElement;
+
+      fixture.componentInstance.errorMessage = "boom";
+      fixture.detectChanges();
+
+      const errorEl = fixture.nativeElement.querySelector("bit-error") as HTMLElement;
+      expect(overlayButton.getAttribute("aria-describedby")).toBe(errorEl.id);
+
+      fixture.componentInstance.errorMessage = undefined;
+      fixture.detectChanges();
+
+      const hintEl = fixture.nativeElement.querySelector("bit-hint") as HTMLElement;
+      expect(hintEl).toBeTruthy();
+      expect(overlayButton.getAttribute("aria-describedby")).toBe(hintEl.id);
+    });
+  });
+
+  describe("dropzone variant labelling", () => {
+    let fixture: ComponentFixture<TestHostComponent>;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [TestHostComponent],
+        providers: [i18nProvider],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(TestHostComponent);
+      fixture.componentInstance.variant = "dropzone";
+      fixture.detectChanges();
+    });
+
+    it("renders the outer label without a `for` attribute", () => {
+      const outerLabel = fixture.nativeElement.querySelector(
+        "bit-file-upload > div > label",
+      ) as HTMLLabelElement;
+
+      expect(outerLabel).toBeTruthy();
+      expect(outerLabel.hasAttribute("for")).toBe(false);
+    });
+
+    it("associates the hidden file input with the outer label via aria-labelledby", () => {
+      const outerLabel = fixture.nativeElement.querySelector(
+        "bit-file-upload > div > label",
+      ) as HTMLLabelElement;
+      const fileInput = fixture.nativeElement.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+
+      expect(outerLabel.id).toBeTruthy();
+      expect(fileInput.getAttribute("aria-labelledby")).toBe(outerLabel.id);
     });
   });
 });

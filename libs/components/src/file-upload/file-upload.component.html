@@ -2,11 +2,10 @@
   <ng-content select="bit-label"></ng-content>
 </ng-template>
 
-@if (useDropzoneVariant()) {
-  <div class="tw-flex-col tw-flex tw-gap-2 [&_bit-hint]:tw-m-0">
+<div class="tw-flex tw-flex-col tw-gap-2 [&_bit-hint]:tw-m-0">
+  @if (useDropzoneVariant()) {
     <label
       [id]="labelId"
-      [attr.for]="inputId"
       class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
       [class.tw-text-fg-inactive]="disabled()"
     >
@@ -20,25 +19,11 @@
       [multiple]="multiple()"
       [errorMessage]="errorMessage()"
       [disabled]="disabled()"
+      [ariaLabelledBy]="labelId"
       [ariaDescribedBy]="ariaDescribedBy()"
       (filesSelected)="onFilesSelected($event)"
     />
-
-    @if (errorMessage()) {
-      <!-- bit-error expects [i18nKey, params]; its default branch renders error[1].message for custom strings -->
-      <bit-error [error]="['', { message: errorMessage() }]"></bit-error>
-    } @else {
-      <ng-content select="bit-hint"></ng-content>
-    }
-
-    <bit-file-list
-      [files]="files()"
-      [disabled]="disabled()"
-      (fileRemoved)="onFileRemoved($event)"
-    />
-  </div>
-} @else {
-  <div class="tw-flex tw-flex-col tw-gap-2">
+  } @else {
     <label
       [id]="labelId"
       [attr.for]="inputId"
@@ -97,11 +82,23 @@
         {{ fileLabel() ? ("fileChosen" | i18n: fileLabel()) : ("chooseFile" | i18n) }}
       </span>
     </div>
-    @if (errorMessage()) {
-      <!-- bit-error expects [i18nKey, params]; its default branch renders error[1].message for custom strings -->
-      <bit-error class="!tw-mt-0" [error]="['', { message: errorMessage() }]"></bit-error>
-    } @else {
-      <ng-content select="bit-hint"></ng-content>
-    }
-  </div>
-}
+  }
+
+  @if (errorMessage()) {
+    <!-- bit-error expects [i18nKey, params]; its default branch renders error[1].message for custom strings -->
+    <bit-error
+      [class.!tw-mt-0]="!useDropzoneVariant()"
+      [error]="['', { message: errorMessage() }]"
+    ></bit-error>
+  } @else {
+    <ng-content select="bit-hint"></ng-content>
+  }
+
+  @if (useDropzoneVariant()) {
+    <bit-file-list
+      [files]="files()"
+      [disabled]="disabled()"
+      (fileRemoved)="onFileRemoved($event)"
+    />
+  }
+</div>
