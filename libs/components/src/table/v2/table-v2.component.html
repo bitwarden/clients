@@ -27,9 +27,7 @@
       }
       @for (col of effectiveColumns(); track col.name()) {
         @if (col.headerTemplate(); as tpl) {
-          <ng-container [bitColumnContext]="col">
-            <ng-container *ngTemplateOutlet="tpl"></ng-container>
-          </ng-container>
+          <ng-container *ngTemplateOutlet="tpl"></ng-container>
         }
       }
     </tr>
@@ -49,9 +47,7 @@
   }
   @for (col of effectiveColumns(); track col.name()) {
     @if (col.cellTemplate(); as tpl) {
-      <ng-container [bitColumnContext]="col">
-        <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }"></ng-container>
-      </ng-container>
+      <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }"></ng-container>
     }
   }
 </ng-template>

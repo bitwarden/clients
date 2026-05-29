@@ -18,14 +18,13 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { finalize, Observable, of, switchMap } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
 import { RowDirective } from "../row.directive";
-import { TableDataSource } from "../table-data-source";
+import { Sort, TableDataSource } from "../table-data-source";
 
-import { BitColumnContextDirective } from "./bit-column-context";
 import { BitColumnComponent } from "./bit-column.component";
 
 @Component({
@@ -38,7 +37,6 @@ import { BitColumnComponent } from "./bit-column.component";
     CdkVirtualForOf,
     ScrollLayoutDirective,
     RowDirective,
-    BitColumnContextDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -150,6 +148,17 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
   protected readonly rows$: Observable<T[]> = toObservable(this.dataSource).pipe(
     switchMap((ds) =>
       isDataSource(ds) ? ds.connect().pipe(finalize(() => ds.disconnect())) : of<T[]>([]),
+    ),
+  );
+
+  /**
+   * Bridges `dataSource.sort$` into a signal so header-cell computeds can
+   * react to sort changes (the data source is RxJS-internal; v2 is signal-
+   * based). Re-subscribes when `dataSource` swaps.
+   */
+  readonly sort = toSignal(
+    toObservable(this.dataSource).pipe(
+      switchMap((ds) => (ds ? ds.sort$ : of<Sort | undefined>(undefined))),
     ),
   );
 

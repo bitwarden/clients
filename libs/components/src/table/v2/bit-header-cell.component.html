@@ -1,3 +1,7 @@
+<ng-template #content>
+  <ng-content></ng-content>
+</ng-template>
+
 @if (sortable()) {
   <button
     type="button"
@@ -5,9 +9,9 @@
     [attr.aria-pressed]="active()"
     (click)="onSortClick()"
   >
-    <ng-content></ng-content>
+    <ng-container *ngTemplateOutlet="content"></ng-container>
     <i class="bwi tw-ms-2" [class]="sortIcon()"></i>
   </button>
 } @else {
-  <ng-content></ng-content>
+  <ng-container *ngTemplateOutlet="content"></ng-container>
 }

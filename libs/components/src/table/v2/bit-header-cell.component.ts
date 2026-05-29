@@ -1,6 +1,7 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, forwardRef, inject } from "@angular/core";
 
-import { BIT_COLUMN_CONTEXT } from "./bit-column-context";
+import { BitColumnComponent } from "./bit-column.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
@@ -9,13 +10,15 @@ import { BitTableV2Component } from "./table-v2.component";
  * sort button when the surrounding `<bit-column>` is sortable, and exposes
  * `aria-sort` on the host.
  *
- * The column it belongs to comes from the table-provided
- * {@link BIT_COLUMN_CONTEXT}, set on the wrapper that stamps the header
- * template.
+ * Finds its column and table via the template's *declaration* injector tree
+ * — the header template is declared inside `<bit-column>` inside
+ * `<bit-table-v2>`, so element-injector lookups walk that chain regardless
+ * of where the table stamps the template.
  */
 @Component({
   selector: "th[bit-cell]",
   templateUrl: "./bit-header-cell.component.html",
+  imports: [NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-h-12 tw-px-3 tw-py-0 tw-text-sm tw-font-medium tw-text-start tw-align-middle",
@@ -23,48 +26,46 @@ import { BitTableV2Component } from "./table-v2.component";
   },
 })
 export class BitHeaderCellComponent {
-  private readonly ctx = inject(BIT_COLUMN_CONTEXT, { optional: true });
+  private readonly column = inject(
+    forwardRef(() => BitColumnComponent),
+    { optional: true },
+  );
   private readonly table = inject(
     forwardRef(() => BitTableV2Component),
     { optional: true },
   );
 
-  protected readonly column = computed(() => this.ctx?.bitColumnContext());
-  protected readonly sortable = computed(() => this.column()?.sortable() ?? false);
+  protected readonly sortable = computed(() => this.column?.sortable() ?? false);
 
   protected readonly active = computed(() => {
-    const col = this.column();
-    if (!col) {
+    if (!this.column) {
       return false;
     }
-    return this.table?.dataSource()?.sort?.column === col.name();
+    return this.table?.sort()?.column === this.column.name();
   });
 
   protected readonly ariaSort = computed(() => {
-    const col = this.column();
-    if (!col || !col.sortable()) {
+    if (!this.column || !this.column.sortable()) {
       return undefined;
     }
-    const sort = this.table?.dataSource()?.sort;
-    if (sort?.column !== col.name()) {
+    const sort = this.table?.sort();
+    if (sort?.column !== this.column.name()) {
       return undefined;
     }
     return sort.direction === "asc" ? "ascending" : "descending";
   });
 
   protected readonly sortIcon = computed(() => {
-    const sort = this.table?.dataSource()?.sort;
-    const col = this.column();
-    if (!col || sort?.column !== col.name()) {
+    const sort = this.table?.sort();
+    if (!this.column || sort?.column !== this.column.name()) {
       return "bwi-up-down-btn";
     }
     return sort.direction === "asc" ? "bwi-up-solid" : "bwi-down-solid";
   });
 
   protected onSortClick(): void {
-    const col = this.column();
-    if (col && this.table) {
-      this.table.toggleSort(col);
+    if (this.column && this.table) {
+      this.table.toggleSort(this.column);
     }
   }
 
