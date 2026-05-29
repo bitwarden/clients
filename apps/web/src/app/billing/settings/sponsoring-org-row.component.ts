@@ -70,7 +70,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
       ),
       map(
         (policies) =>
