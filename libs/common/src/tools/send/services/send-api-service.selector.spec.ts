@@ -8,6 +8,7 @@ import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessView } from "../models/view/send-access.view";
+import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SendApiServiceSelector } from "./send-api-service.selector";
@@ -53,6 +54,7 @@ describe("SendApiServiceSelector", () => {
       const send = new Send();
       send.id = null;
       send.type = SendType.Text;
+      send.authType = AuthType.None;
       const buffer = mock<EncArrayBuffer>();
 
       await selector.save([send, buffer]);
@@ -66,12 +68,41 @@ describe("SendApiServiceSelector", () => {
       const send = new Send();
       send.id = "existing-id";
       send.type = SendType.File;
+      send.authType = AuthType.None;
       const buffer = mock<EncArrayBuffer>();
 
       await selector.save([send, buffer]);
 
       expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
       expect(legacy.save).not.toHaveBeenCalled();
+    });
+
+    it("routes to legacy for password-protected creates, even with the flag on", async () => {
+      const selector = buildSelector(true);
+      const send = new Send();
+      send.id = null;
+      send.type = SendType.Text;
+      send.authType = AuthType.Password;
+      const buffer = mock<EncArrayBuffer>();
+
+      await selector.save([send, buffer]);
+
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer]);
+      expect(sdk.save).not.toHaveBeenCalled();
+    });
+
+    it("routes to legacy for password-protected edits, even with the flag on", async () => {
+      const selector = buildSelector(true);
+      const send = new Send();
+      send.id = "existing-id";
+      send.type = SendType.Text;
+      send.authType = AuthType.Password;
+      const buffer = mock<EncArrayBuffer>();
+
+      await selector.save([send, buffer]);
+
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer]);
+      expect(sdk.save).not.toHaveBeenCalled();
     });
 
     it("routes to legacy when the flag is off", async () => {

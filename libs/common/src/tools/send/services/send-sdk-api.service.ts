@@ -54,10 +54,16 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * New file sends are not supported — the SDK's `create_file_send` generates its own
-   * key, which wouldn't match the caller's pre-encrypted file buffer.
-   * `SendApiServiceSelector` routes them to legacy; the guard below catches direct
-   * callers that bypass the selector.
+   * Two cases the SDK cannot currently handle are routed to legacy by
+   * `SendApiServiceSelector` and rejected here as a guard for direct callers:
+   *
+   * - **New file sends.** `SendService.encrypt` produces a pre-encrypted buffer under a
+   *   client-derived key; the SDK's `create_file_send` generates its own key.
+   * - **Password-protected sends.** `Send.password` is already the PBKDF2-derived
+   *   `keyB64`, but the SDK's `SendAuthType::auth_data`
+   *   (`bitwarden-send/src/send.rs:160-163`) re-applies PBKDF2 to whatever string sits in
+   *   `auth.password`, double-hashing the value. No skip-hash variant exists on the
+   *   public request types.
    */
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -65,8 +71,10 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
     }
+    if (send.authType === AuthType.Password) {
+      throw new Error("SendSdkApiService.save: password-protected sends require SendApiService.");
+    }
     const sendView = await send.decrypt(userId);
-    await this.preserveExistingPasswordOnEdit(sendView);
     const sdkView = await this.mutateSend(sendView, userId);
 
     // Patch server-assigned identifiers onto the input for callers that read them after
@@ -242,26 +250,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
         }),
       ),
     );
-  }
-
-  // The send-details form disables the password input when editing a password-protected
-  // send (so the existing hash isn't redisplayed). SendService.encrypt doesn't carry the
-  // existing password forward either, so `sendView.password` arrives as null. The SDK's
-  // SendAuthType has no "preserve existing password" variant — auth.password is required
-  // when type is "password" — so we have to pass the existing hash explicitly. The hash
-  // is stored plaintext on Send.password in InternalSendService.
-  private async preserveExistingPasswordOnEdit(sendView: SendView): Promise<void> {
-    if (
-      sendView.id == null ||
-      sendView.authType !== AuthType.Password ||
-      sendView.password != null
-    ) {
-      return;
-    }
-    const existing = await firstValueFrom(this.sendService.get$(sendView.id));
-    if (existing?.password) {
-      sendView.password = existing.password;
-    }
   }
 
   // After the SDK executes a mutation server-side, refetch the wire-encrypted form via

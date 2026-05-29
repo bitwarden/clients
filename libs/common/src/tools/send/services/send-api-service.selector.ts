@@ -11,6 +11,7 @@ import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
+import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
@@ -47,14 +48,27 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return firstValueFrom(this.service$);
   }
 
-  // New file sends carry a pre-encrypted EncArrayBuffer keyed to the Send's
-  // client-derived key. The SDK's create_file_send generates its own key, so
-  // uploading those bytes under the SDK path produces ciphertext recipients
-  // can't decrypt. Route new file sends through legacy regardless of the flag
-  // until the SDK exposes a plaintext-in file send flow.
+  /**
+   * Routes save calls to the SDK or legacy service. Forces legacy for two cases the SDK
+   * can't currently handle:
+   *
+   * - **New file sends.** `SendService.encrypt` produces a pre-encrypted `EncArrayBuffer`
+   *   under a client-derived key, but the SDK's `create_file_send` generates its own key
+   *   and would leave those bytes undecryptable.
+   * - **Password-protected sends.** `SendService.encrypt` already PBKDF2-derives
+   *   `Send.password` to its wire `keyB64` form, but the SDK's `SendAuthType::auth_data`
+   *   (`bitwarden-send/src/send.rs:160-163`) unconditionally re-applies PBKDF2 to the
+   *   `auth.password` string, double-hashing the value and leaving the server with a
+   *   password the user can't supply. The SDK has no `PreservedPassword`/skip-hash
+   *   variant on `SendAddRequest`/`SendEditRequest`, so this affects every
+   *   password-protected save (create, change, preserve-on-edit).
+   */
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
+      return this.sendApiService.save(sendData);
+    }
+    if (send.authType === AuthType.Password) {
       return this.sendApiService.save(sendData);
     }
     return (await this.getService()).save(sendData);
