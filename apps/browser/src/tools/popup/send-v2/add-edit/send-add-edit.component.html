@@ -8,10 +8,14 @@
 
   @if (this.config.originalSend?.disabled) {
     <bit-callout type="info" [title]="'sendNotCompliantWithYourOrgsPolicy' | i18n">
-      <div>{{ "sendDisabledNonCompliantBannerMessage" | i18n }}</div>
-      <button class="tw-mt-4" , type="button" bitButton buttonType="primary" (click)="makeCopy()">
-        {{ "makeACopy" | i18n }}
-      </button>
+      @if (showCopyButton()) {
+        <div>{{ "sendDisabledNonCompliantBannerMessage" | i18n }}</div>
+        <button class="tw-mt-4" , type="button" bitButton buttonType="primary" (click)="makeCopy()">
+          {{ "makeACopy" | i18n }}
+        </button>
+      } @else {
+        <div>{{ "sendWillExpireOnDeletionDate" | i18n }}</div>
+      }
     </bit-callout>
   }
 
@@ -28,9 +32,15 @@
 
   <popup-footer slot="footer">
     @if (config.originalSend?.disabled) {
-      <button type="button" bitButton buttonType="primary" (click)="makeCopy()">
-        {{ "makeACopy" | i18n }}
-      </button>
+      @if (showCopyButton()) {
+        <button type="button" bitButton buttonType="primary" (click)="makeCopy()">
+          {{ "makeACopy" | i18n }}
+        </button>
+      } @else {
+        <button bitButton type="button" buttonType="danger" (click)="deleteSend()">
+          {{ "delete" | i18n }}
+        </button>
+      }
     } @else {
       @if (editing()) {
         <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
@@ -45,7 +55,7 @@
         </button>
       }
     }
-    @if (config?.mode !== "add") {
+    @if (showTrashIconButton()) {
       <button
         type="button"
         buttonType="dangerGhost"
