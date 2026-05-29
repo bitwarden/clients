@@ -967,6 +967,7 @@ const safeProviders: SafeProvider[] = [
       SecurityStateService,
       KdfConfigService,
       AccountCryptographicStateService,
+      ConfigService,
     ],
   }),
   safeProvider({

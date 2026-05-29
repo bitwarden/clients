@@ -1000,6 +1000,7 @@ export class ServiceContainer {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.configService,
     );
 
     this.totpService = new TotpService(this.sdkService);
