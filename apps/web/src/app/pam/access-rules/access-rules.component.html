@@ -1,0 +1,168 @@
+<app-header [title]="'pamAccessRules' | i18n">
+  @if (!loading() && rules().length > 0) {
+    <button type="button" bitButton buttonType="primary" [bitAction]="openCreate">
+      {{ "pamAccessRuleNew" | i18n }}
+    </button>
+  }
+</app-header>
+
+<p class="tw-m-0 tw--mt-6 tw-mb-4 tw-text-muted">{{ "pamAccessRulesSubheading" | i18n }}</p>
+
+@if (!loading()) {
+  @if (rules().length > 0) {
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell class="tw-w-0">
+            <span class="tw-sr-only">{{ "status" | i18n }}</span>
+          </th>
+          <th bitCell>{{ "pamAccessRuleName" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleSummaryHeader" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleCollectionsColumn" | i18n }}</th>
+          <th bitCell>{{ "lastEdited" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleLastEditedBy" | i18n }}</th>
+          <th bitCell class="tw-w-0"></th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (r of rules(); track r.id) {
+          <tr bitRow>
+            <td bitCell>
+              @if (r.enabled) {
+                <i
+                  class="bwi bwi-check-circle tw-text-success"
+                  aria-hidden="true"
+                  [title]="'enabled' | i18n"
+                ></i>
+                <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
+              } @else {
+                <i
+                  class="bwi bwi-circle tw-text-muted"
+                  aria-hidden="true"
+                  [title]="'disabled' | i18n"
+                ></i>
+                <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
+              }
+            </td>
+            <td bitCell>
+              <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
+                {{ r.name }}
+              </button>
+              @if (r.description) {
+                <div class="tw-text-sm tw-text-muted">
+                  {{ r.description }}
+                </div>
+              }
+            </td>
+            <td bitCell>
+              <pam-access-rule-summary [conditions]="r.conditions" [singleActiveLease]="r.singleActiveLease" />
+            </td>
+            <td bitCell>
+              @let names = collectionNamesByRule().get(r.id) ?? [];
+              @if (names.length === 0) {
+                <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
+              } @else {
+                {{ names.join(", ") }}
+              }
+            </td>
+            <td bitCell>{{ r.revisionDate | date: "mediumDate" }}</td>
+            <td bitCell>
+              @if (r.lastEditedByName) {
+                {{ r.lastEditedByName }}
+              } @else {
+                <span class="tw-text-muted">—</span>
+              }
+            </td>
+            <td bitCell>
+              <button
+                type="button"
+                bitIconButton="bwi-ellipsis-v"
+                [bitMenuTriggerFor]="rowMenu"
+                label="{{ 'options' | i18n }}"
+              ></button>
+              <bit-menu #rowMenu>
+                <button type="button" bitMenuItem (click)="openEdit(r)">
+                  <i class="bwi bwi-pencil-square tw-text-muted" aria-hidden="true"></i>
+                  {{ "edit" | i18n }}
+                </button>
+                <button type="button" bitMenuItem (click)="toggleEnabled(r)">
+                  @if (r.enabled) {
+                    <i class="bwi bwi-ban tw-text-muted" aria-hidden="true"></i>
+                    {{ "pamAccessRuleDisable" | i18n }}
+                  } @else {
+                    <i class="bwi bwi-check-circle tw-text-muted" aria-hidden="true"></i>
+                    {{ "pamAccessRuleEnable" | i18n }}
+                  }
+                </button>
+                <button type="button" bitMenuItem (click)="remove(r)">
+                  <i class="bwi bwi-trash tw-text-danger" aria-hidden="true"></i>
+                  <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+                </button>
+              </bit-menu>
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-items-center tw-gap-6 tw-py-10">
+      <div class="tw-max-w-md tw-text-center">
+        <h3 class="tw-text-xl tw-font-semibold">{{ "pamNoAccessRulesYetTitle" | i18n }}</h3>
+        <p class="tw-mt-1 tw-text-muted">{{ "pamNoAccessRulesYetDescription" | i18n }}</p>
+      </div>
+
+      <div class="tw-w-full tw-max-w-2xl">
+        <p
+          class="tw-mb-3 tw-text-center tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted"
+        >
+          {{ "pamEmptyStateStartTemplate" | i18n }}
+        </p>
+        <div class="tw-grid tw-grid-cols-3 tw-gap-3">
+          @for (tmpl of ruleTemplates; track tmpl.key) {
+            <button
+              type="button"
+              (click)="openFromTemplate(tmpl)"
+              class="tw-flex tw-flex-col tw-items-start tw-gap-2 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-4 tw-text-left tw-transition-colors hover:tw-border-primary-600 hover:tw-bg-primary-100 focus:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+            >
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <div
+                  class="tw-flex tw-size-8 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-primary-100 tw-text-primary-600"
+                >
+                  <i class="bwi {{ tmpl.icon }}" aria-hidden="true"></i>
+                </div>
+                <span class="tw-text-sm tw-font-semibold">{{ tmpl.titleKey | i18n }}</span>
+              </div>
+              <p class="tw-text-xs tw-leading-relaxed tw-text-muted">
+                {{ tmpl.descriptionKey | i18n }}
+              </p>
+              <div class="tw-mt-auto tw-flex tw-flex-wrap tw-gap-1 tw-pt-2">
+                @for (tag of tmpl.tags; track tag.labelKey) {
+                  <span
+                    class="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-secondary-100 tw-px-2 tw-py-0.5 tw-text-xs tw-text-muted"
+                  >
+                    <i class="bwi {{ tag.icon }}" aria-hidden="true"></i>
+                    {{ tag.labelKey | i18n }}
+                  </span>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div
+        class="tw-flex tw-w-full tw-max-w-2xl tw-items-center tw-gap-3 tw-text-sm tw-text-muted"
+      >
+        <div class="tw-flex-1 tw-border-t tw-border-secondary-300"></div>
+        <span>{{ "pamEmptyStateOrScratch" | i18n }}</span>
+        <div class="tw-flex-1 tw-border-t tw-border-secondary-300"></div>
+      </div>
+
+      <button type="button" bitButton buttonType="primary" [bitAction]="openCreate">
+        {{ "pamAccessRuleAdd" | i18n }}
+      </button>
+    </div>
+  }
+} @else {
+  <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
+}

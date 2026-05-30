@@ -25,6 +25,8 @@ import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, SvgModule } from "@bitwarden/components";
@@ -60,6 +62,7 @@ export class OrganizationLayoutComponent implements OnInit {
   protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
 
   protected integrationPageEnabled$: Observable<boolean>;
+  protected pamFeatureFlagEnabled$: Observable<boolean>;
 
   organization$: Observable<Organization>;
   canAccessExport$: Observable<boolean>;
@@ -81,6 +84,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private accountService: AccountService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
     private organizationWarningsService: OrganizationWarningsService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -132,6 +136,8 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
+
+    this.pamFeatureFlagEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
 
     this.subscriber$ = this.organization$.pipe(
       map((organization) => ({

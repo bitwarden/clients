@@ -102,12 +102,17 @@ export enum FeatureFlag {
   /* Desktop */
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
+
+  /* PAM */
+  Pam = "pm-37044-pam-v-0",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
 
 // Helper to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
+// DEMO ONLY: TRUE helper used to opt the PAM flag on for this worktree.
+const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -210,6 +215,12 @@ export const DefaultFeatureFlagValue = {
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
+
+  /* PAM */
+  // DEMO ONLY: defaulted TRUE in this worktree so the cipher-open interceptor
+  // round-trips through the mock PAM API without requiring a LaunchDarkly
+  // override. Revert to FALSE before merging upstream.
+  [FeatureFlag.Pam]: TRUE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

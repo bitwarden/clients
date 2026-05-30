@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  viewChild,
+} from "@angular/core";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
 import {
@@ -128,6 +136,7 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
+import { CIPHER_OPEN_GATE, CipherOpenGate } from "./cipher-open-gate";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -323,6 +332,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
+    @Inject(CIPHER_OPEN_GATE) private cipherOpenGate: CipherOpenGate,
   ) {}
 
   async ngOnInit() {
@@ -1077,6 +1087,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // Didn't pass password prompt, so don't open add / edit modal.
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
+      return;
+    }
+
+    const verdict = await this.cipherOpenGate.check(cipher, activeUserId);
+    if (verdict === "handled") {
       await this.go(
         { cipherId: null, itemId: null, action: null },
         this.configureRouterFocusToCipher(cipher.id),

@@ -1,0 +1,52 @@
+<p class="tw-mb-3 tw-text-muted">
+  {{ "accessRuleIpAllowlistHelpText" | i18n }}
+</p>
+
+<div class="tw-flex tw-flex-col tw-gap-2">
+  @for (control of cidrArray.controls; track $index) {
+    <bit-form-field class="tw-mb-0">
+      <bit-label>{{ "accessRuleIpAllowlistCidrLabel" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        [formControl]="$any(control)"
+        [placeholder]="'accessRuleIpAllowlistCidrPlaceholder' | i18n"
+        [readonly]="readonly()"
+        (input)="onRowChange()"
+      />
+      @if (!readonly() && control.value.trim().length > 0) {
+        <button
+          bitSuffix
+          bitIconButton="bwi-trash"
+          size="small"
+          type="button"
+          buttonType="dangerGhost"
+          [title]="'accessRuleIpAllowlistRemoveRow' | i18n"
+          [attr.aria-label]="'accessRuleIpAllowlistRemoveRow' | i18n"
+          (click)="removeRow($index)"
+        ></button>
+      }
+    </bit-form-field>
+  }
+</div>
+
+@if (cidrArray.touched && cidrArray.hasError('duplicateCidrs')) {
+  <p class="tw-mt-1 tw-text-danger">{{ "accessRuleIpAllowlistDuplicateCidr" | i18n }}</p>
+}
+
+@if (cidrArray.touched && cidrArray.hasError('atLeastOneCidr')) {
+  <p class="tw-mt-1 tw-text-danger">{{ "accessRuleIpAllowlistAtLeastOne" | i18n }}</p>
+}
+
+@if (!readonly()) {
+  <button
+    bitButton
+    type="button"
+    buttonType="secondary"
+    startIcon="bwi-plus"
+    class="tw-mt-3"
+    (click)="addRow()"
+  >
+    {{ "accessRuleIpAllowlistAddRow" | i18n }}
+  </button>
+}

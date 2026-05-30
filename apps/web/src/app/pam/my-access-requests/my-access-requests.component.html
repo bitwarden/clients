@@ -1,0 +1,161 @@
+@if (showPam()) {
+  <bit-container>
+    @if (loading()) {
+      <p bitTypography="body1" class="tw-text-muted" data-testid="my-requests-loading">
+        {{ "loading" | i18n }}
+      </p>
+    } @else if (!hasAnyRows()) {
+      <bit-no-items class="tw-mt-2 tw-block" data-testid="my-requests-empty">
+        <span slot="title" class="tw-mt-4 tw-block">{{ "pamMyRequestsEmptyTitle" | i18n }}</span>
+        <span slot="description">{{ "pamMyRequestsEmptyDescription" | i18n }}</span>
+      </bit-no-items>
+    } @else {
+      <!-- Pending section -->
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h6">{{ "pamMyRequestsPendingSection" | i18n }}</h2>
+        </bit-section-header>
+
+        @if (pendingRows().length === 0) {
+          <p
+            bitTypography="body2"
+            class="tw-text-muted"
+            data-testid="my-requests-pending-empty"
+          >
+            {{ "pamMyRequestsPendingEmpty" | i18n }}
+          </p>
+        } @else {
+          <bit-table>
+            <ng-container header>
+              <tr>
+                <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+                <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+                <th bitCell>{{ "pamColumnSubmitted" | i18n }}</th>
+                <th bitCell>{{ "pamColumnApprovers" | i18n }}</th>
+                <th bitCell class="tw-w-32"><span class="tw-sr-only">{{ "actions" | i18n }}</span></th>
+              </tr>
+            </ng-container>
+            <ng-template body>
+              <tr
+                bitRow
+                *ngFor="let row of pendingRows()"
+                [attr.data-testid]="'my-requests-pending-row-' + row.id"
+              >
+                <td bitCell>{{ row.cipherName ?? row.cipherId }}</td>
+                <td bitCell>
+                  @if (row.requestedNotBefore && row.requestedNotAfter) {
+                    {{ row.requestedNotBefore | date: "short" }}
+                    &ndash;
+                    {{ row.requestedNotAfter | date: "short" }}
+                  } @else if (row.requestedNotAfter) {
+                    {{ "pamWindowUntil" | i18n: (row.requestedNotAfter | date: "short") }}
+                  } @else {
+                    {{ "pamWindowTtlSeconds" | i18n: row.requestedTtlSeconds }}
+                  }
+                </td>
+                <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+                <td bitCell>
+                  <span class="tw-text-muted">{{ "pamApproversTbd" | i18n }}</span>
+                </td>
+                <td bitCell>
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="isCancelling(row.id)"
+                    (click)="cancel(row)"
+                    [attr.data-testid]="'my-requests-cancel-' + row.id"
+                  >
+                    {{ "cancel" | i18n }}
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+          </bit-table>
+        }
+      </bit-section>
+
+      <!-- Recent section -->
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h6">{{ "pamMyRequestsRecentSection" | i18n }}</h2>
+        </bit-section-header>
+
+        @if (recentRows().length === 0) {
+          <p
+            bitTypography="body2"
+            class="tw-text-muted"
+            data-testid="my-requests-recent-empty"
+          >
+            {{ "pamMyRequestsRecentEmpty" | i18n }}
+          </p>
+        } @else {
+          <bit-table>
+            <ng-container header>
+              <tr>
+                <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+                <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
+                <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
+                <th bitCell>{{ "pamColumnComment" | i18n }}</th>
+                <th bitCell>{{ "pamColumnResolved" | i18n }}</th>
+                <th bitCell class="tw-w-40">
+                  <span class="tw-sr-only">{{ "actions" | i18n }}</span>
+                </th>
+              </tr>
+            </ng-container>
+            <ng-template body>
+              <tr
+                bitRow
+                *ngFor="let row of recentRows()"
+                [attr.data-testid]="'my-requests-recent-row-' + row.id"
+              >
+                <td bitCell>{{ row.cipherName ?? row.cipherId }}</td>
+                <td bitCell>
+                  <span
+                    bitBadge
+                    [variant]="statusVariant(row.status)"
+                    [attr.data-testid]="'my-requests-status-' + row.id"
+                  >
+                    {{ statusLabelKey(row.status) | i18n }}
+                  </span>
+                </td>
+                <td bitCell>{{ row.resolverDisplayName }}</td>
+                <td bitCell>
+                  @if (row.resolverComment) {
+                    {{ row.resolverComment }}
+                  } @else {
+                    <span class="tw-text-muted">&mdash;</span>
+                  }
+                </td>
+                <td bitCell>{{ row.resolvedAt | date: "short" }}</td>
+                <td bitCell>
+                  @if (row.status === "approved") {
+                    <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
+                      <button
+                        type="button"
+                        bitButton
+                        buttonType="primary"
+                        size="small"
+                        [disabled]="isStarting(row.id)"
+                        (click)="startLease(row)"
+                        [attr.data-testid]="'my-requests-start-' + row.id"
+                      >
+                        {{ "pamStartLeaseButton" | i18n }}
+                      </button>
+                      @if (redemptionRemainingLabel(row); as remaining) {
+                        <span class="tw-text-xs tw-text-muted">
+                          {{ "pamRedeemWithin" | i18n: remaining }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </bit-table>
+        }
+      </bit-section>
+    }
+  </bit-container>
+}

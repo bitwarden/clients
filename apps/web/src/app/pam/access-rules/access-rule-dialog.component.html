@@ -1,0 +1,110 @@
+<form bit-dialog [formGroup]="formGroup" [bitSubmit]="submit">
+  <span bitDialogTitle>
+    {{ (editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle") | i18n }}
+  </span>
+
+  <ng-container bitDialogContent>
+    <bit-form-control class="tw-mb-4">
+      <input type="checkbox" bitCheckbox formControlName="enabled" />
+      <bit-label>{{ "pamAccessRuleEnabled" | i18n }}</bit-label>
+      <bit-hint>{{ "pamAccessRuleEnabledHint" | i18n }}</bit-hint>
+    </bit-form-control>
+
+    <bit-form-field>
+      <bit-label>{{ "pamAccessRuleName" | i18n }}</bit-label>
+      <input bitInput type="text" formControlName="name" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "pamAccessRuleDescription" | i18n }}</bit-label>
+      <textarea bitInput formControlName="description" rows="2"></textarea>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "pamAccessRuleCollectionsAdd" | i18n }}</bit-label>
+      <bit-multi-select
+        class="tw-w-full"
+        [baseItems]="collectionOptions()"
+        [removeSelectedItems]="false"
+        [loading]="collectionsLoading()"
+        [ngModel]="selectedCollectionItems()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onCollectionsChange($event)"
+      />
+    </bit-form-field>
+
+    <h4 bitTypography="h5" class="tw-mt-4">{{ "pamAccessRuleLeaseSettingsHeading" | i18n }}</h4>
+
+    <bit-form-field>
+      <bit-label>{{ "pamAccessRuleDefaultDuration" | i18n }}</bit-label>
+      <select bitInput formControlName="defaultLeaseDurationSeconds">
+        @for (opt of durationOptions; track opt.seconds) {
+          <option [ngValue]="opt.seconds">{{ opt.labelKey | i18n }}</option>
+        }
+      </select>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "pamAccessRuleMaxDuration" | i18n }}</bit-label>
+      <select bitInput formControlName="maxLeaseDurationSeconds">
+        <option [ngValue]="0">{{ "pamAccessRuleMaxDurationNoCap" | i18n }}</option>
+        @for (opt of durationOptions; track opt.seconds) {
+          <option [ngValue]="opt.seconds">{{ opt.labelKey | i18n }}</option>
+        }
+      </select>
+      <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+    </bit-form-field>
+
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="singleActiveLease" />
+      <bit-label>{{ "pamAccessRuleSingleActiveLease" | i18n }}</bit-label>
+      <bit-hint>{{ "pamAccessRuleSingleActiveLeaseHint" | i18n }}</bit-hint>
+    </bit-form-control>
+
+    <h4 bitTypography="h5" class="tw-mt-6">{{ "pamAccessRuleConditionsHeading" | i18n }}</h4>
+    <p bitTypography="body2" class="tw-text-muted">
+      {{ "pamAccessRuleConditionsHint" | i18n }}
+    </p>
+
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="humanApprovalEnabled" />
+      <bit-label>{{ "pamAccessRuleConditionHumanApproval" | i18n }}</bit-label>
+    </bit-form-control>
+
+    @if (formGroup.controls.humanApprovalEnabled.value) {
+      <p bitTypography="body2" class="tw-ml-7 tw-mb-4 tw--mt-3 tw-text-muted">
+        {{ "pamAccessRuleApprovers" | i18n }}:
+        {{ "pamAccessRuleApproversCollectionManagers" | i18n }}
+      </p>
+    }
+
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="ipAllowlistEnabled" />
+      <bit-label>{{ "pamAccessRuleConditionIpAllowlist" | i18n }}</bit-label>
+    </bit-form-control>
+
+    @if (formGroup.controls.ipAllowlistEnabled.value) {
+      <div class="tw-ml-7 tw-mb-4 tw-mt-1">
+        <pam-ip-allowlist-editor [cidrs]="initialCidrs" />
+      </div>
+    }
+
+    @if (editing && data.existing?.lastEditedByName) {
+      <p bitTypography="body2" class="tw-mt-6 tw-mb-0 tw-text-muted">
+        {{
+          "pamAccessRuleLastEditedByOn"
+            | i18n: data.existing!.lastEditedByName! : (data.existing!.revisionDate | date: "mediumDate")
+        }}
+      </p>
+    }
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button type="submit" bitButton buttonType="primary" bitFormButton>
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

@@ -16,6 +16,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -83,6 +84,8 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
+import { AccessRequestRouteComponent } from "./pam/access-request-route/access-request-route.component";
+import { ApproverInboxComponent } from "./pam/approver-inbox/approver-inbox.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
@@ -634,6 +637,14 @@ const routes: Routes = [
     canActivate: [deepLinkGuard(), authGuard],
     children: [
       {
+        path: "vault/my-requests",
+        // Top-level placement under /vault is provisional; IA owner may relocate
+        // post-launch. Tracked in the PM-37267 tech breakdown.
+        data: { titleId: "pamMyRequestsPageTitle" } satisfies RouteDataProperties,
+        loadComponent: () =>
+          import("./pam/my-access-requests/my-access-requests.component").then((m) => m.MyAccessRequestsComponent),
+      },
+      {
         path: "vault",
         canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
@@ -662,6 +673,18 @@ const routes: Routes = [
           ),
         ],
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "pam/approver-inbox",
+        component: ApproverInboxComponent,
+        data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
+        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
+      },
+      {
+        path: "leasing/requests/:id",
+        component: AccessRequestRouteComponent,
+        data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
+        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
       },
       {
         path: "sm-landing",

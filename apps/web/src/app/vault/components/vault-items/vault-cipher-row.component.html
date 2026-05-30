@@ -15,7 +15,7 @@
   <app-vault-icon [cipher]="cipher"></app-vault-icon>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-pr-7 lg:tw-pr-0">
-  <div class="tw-inline-flex tw-w-full">
+  <div class="tw-inline-flex tw-w-full tw-items-center">
     <!-- Opt out of router focus manager via [state] input, since the dialog will handle focus -->
     <button
       bitLink
@@ -36,6 +36,8 @@
     >
       {{ cipher.name }}
     </button>
+    <app-vault-row-lease-badge class="tw-ml-2" [cipherId]="$any(cipher.id)" />
+
     @if (hasAttachments) {
       <ng-container>
         <i

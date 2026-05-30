@@ -1,5 +1,6 @@
 import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
+import { Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -29,6 +30,16 @@ import {
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
+// Stub the PAM-owned badge so the row spec stays free of PAM dependencies.
+@Component({
+  selector: "app-vault-row-lease-badge",
+  standalone: true,
+  template: "",
+})
+class VaultRowLeaseBadgeStubComponent {
+  readonly cipherId = input.required<string>();
+}
+
 // eslint-disable-next-line no-console
 const originalError = console.error;
 
@@ -49,7 +60,6 @@ describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
   let overlayContainer: OverlayContainer;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [VaultCipherRowComponent],
@@ -62,6 +72,7 @@ describe("VaultCipherRowComponent", () => {
         CopyCipherFieldDirective,
         OrganizationNameBadgeComponent,
         PremiumBadgeComponent,
+        VaultRowLeaseBadgeStubComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -79,7 +90,9 @@ describe("VaultCipherRowComponent", () => {
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
         },
         {
           provide: BillingAccountProfileStateService,
@@ -254,4 +267,5 @@ describe("VaultCipherRowComponent", () => {
       expect(component["showAssignToCollections"]).toBeFalsy();
     });
   });
+
 });

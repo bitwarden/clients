@@ -69,6 +69,7 @@ import { WebVaultExtensionPromptService } from "../services/web-vault-extension-
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
 
+import { CIPHER_OPEN_GATE } from "./cipher-open-gate";
 import { VaultBannersService } from "./vault-banners/services/vault-banners.service";
 import { VaultOnboardingService } from "./vault-onboarding/services/abstraction/vault-onboarding.service";
 import { VaultComponent } from "./vault.component";
@@ -249,6 +250,12 @@ describe("VaultComponent", () => {
         {
           provide: VaultProfileService,
           useValue: { getProfileCreationDate: jest.fn().mockResolvedValue(new Date()) },
+        },
+        {
+          provide: CIPHER_OPEN_GATE,
+          useValue: {
+            check: jest.fn().mockResolvedValue("open"),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

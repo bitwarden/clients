@@ -1,0 +1,306 @@
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { I18nMockService, ToastService } from "@bitwarden/components";
+import { AccessRequestResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
+
+import {
+  MyAccessRequestsComponent,
+  RECENT_WINDOW_DAYS,
+  resolveResolverDisplayName,
+  statusBadgeVariant,
+  statusLabelKey,
+} from "./my-access-requests.component";
+
+type ResponseFixture = {
+  id: string;
+  cipherId?: string;
+  status: AccessRequestStatus;
+  submittedAt?: string;
+  resolvedAt?: string | null;
+  resolverUserId?: string | null;
+  resolverComment?: string | null;
+  requestedNotBefore?: string | null;
+  requestedNotAfter?: string | null;
+  requestedTtlSeconds?: number;
+};
+
+function makeResponse(fixture: ResponseFixture): AccessRequestResponse {
+  return new AccessRequestResponse({
+    Id: fixture.id,
+    CipherId: fixture.cipherId ?? `cipher-${fixture.id}`,
+    CollectionId: "col-1",
+    RequesterUserId: "me",
+    Status: fixture.status,
+    RequestedNotBefore: fixture.requestedNotBefore ?? null,
+    RequestedNotAfter: fixture.requestedNotAfter ?? null,
+    RequestedTtlSeconds: fixture.requestedTtlSeconds ?? 3600,
+    Reason: null,
+    SubmittedAt: fixture.submittedAt ?? "2026-05-01T00:00:00Z",
+    ResolvedAt: fixture.resolvedAt ?? null,
+    ResolverUserId: fixture.resolverUserId ?? null,
+    ResolverComment: fixture.resolverComment ?? null,
+    LeaseId: null,
+  });
+}
+
+describe("MyAccessRequestsComponent", () => {
+  let pamApi: jest.Mocked<PamApiService>;
+  let configFlag$: BehaviorSubject<boolean>;
+  let toast: jest.Mocked<Pick<ToastService, "showToast">>;
+
+  const i18n = new I18nMockService({
+    loading: "Loading…",
+    cancel: "Cancel",
+    pamMyRequestsEmptyTitle: "No access requests yet",
+    pamMyRequestsEmptyDescription: "When you request access…",
+    pamMyRequestsPendingSection: "Pending",
+    pamMyRequestsRecentSection: "Recent",
+    pamMyRequestsPendingEmpty: "No pending requests.",
+    pamMyRequestsRecentEmpty: "No recent requests.",
+    pamMyRequestsLoadError: "Load error",
+    pamMyRequestsCancelSuccess: "Cancelled",
+    pamMyRequestsCancelError: "Cancel error",
+    pamStatusPending: "Pending",
+    pamStatusApproved: "Approved",
+    pamStatusDenied: "Denied",
+    pamStatusCancelled: "Cancelled",
+    pamStatusExpired: "Expired",
+    pamColumnItem: "Item",
+    pamColumnRequestedWindow: "Requested window",
+    pamColumnSubmitted: "Submitted",
+    pamColumnApprovers: "Approvers",
+    pamColumnStatus: "Status",
+    pamColumnResolver: "Resolver",
+    pamColumnComment: "Comment",
+    pamColumnResolved: "Resolved",
+    pamApproversTbd: "Awaiting approval",
+    pamResolverAccessRule: "Access rule",
+    pamWindowUntil: "Until __$1__",
+    pamWindowTtlSeconds: "__$1__s",
+    actions: "Actions",
+  });
+
+  beforeEach(async () => {
+    pamApi = {
+      fetchGatedCipher: jest.fn(),
+      patchAccessRequest: jest.fn(),
+      cancelAccessRequest: jest.fn(),
+      requestLeaseExtension: jest.fn(),
+      decideAccessRequest: jest.fn(),
+      revokeLease: jest.fn(),
+      listMyRequests: jest.fn().mockResolvedValue([]),
+    } as unknown as jest.Mocked<PamApiService>;
+
+    configFlag$ = new BehaviorSubject<boolean>(true);
+    toast = { showToast: jest.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [MyAccessRequestsComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: PamApiService, useValue: pamApi },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) =>
+              flag === FeatureFlag.Pam ? configFlag$.asObservable() : new BehaviorSubject(false),
+          },
+        },
+        { provide: I18nService, useValue: i18n },
+        { provide: ToastService, useValue: toast },
+        { provide: LogService, useValue: { error: jest.fn() } },
+      ],
+    }).compileComponents();
+  });
+
+  const create = async (
+    responses: AccessRequestResponse[],
+  ): Promise<ComponentFixture<MyAccessRequestsComponent>> => {
+    pamApi.listMyRequests.mockResolvedValue(responses);
+    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  it("hides the entire page when the PAM flag is off", async () => {
+    configFlag$.next(false);
+    const fixture = await create([]);
+    expect(fixture.nativeElement.textContent.trim()).toBe("");
+  });
+
+  it("shows the global empty state when there are no requests", async () => {
+    const fixture = await create([]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]'),
+    ).not.toBeNull();
+  });
+
+  it("places pending rows in the Pending section", async () => {
+    const fixture = await create([
+      makeResponse({ id: "p1", status: "pending" }),
+      makeResponse({ id: "p2", status: "pending" }),
+    ]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-pending-row-p1"]'),
+    ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-pending-row-p2"]'),
+    ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-empty"]'),
+    ).not.toBeNull();
+  });
+
+  it("places resolved-within-window rows in the Recent section", async () => {
+    const within = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const fixture = await create([
+      makeResponse({
+        id: "r1",
+        status: "approved",
+        resolvedAt: within,
+        resolverUserId: "user-7",
+      }),
+    ]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-r1"]'),
+    ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-pending-empty"]'),
+    ).not.toBeNull();
+  });
+
+  it("excludes resolved rows older than the recency window", async () => {
+    const stale = new Date(
+      Date.now() - (RECENT_WINDOW_DAYS + 1) * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const fixture = await create([
+      makeResponse({ id: "old", status: "approved", resolvedAt: stale, resolverUserId: "x" }),
+    ]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-old"]'),
+    ).toBeNull();
+    // Both empties show, but the global empty also fires since nothing fits anywhere.
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]'),
+    ).not.toBeNull();
+  });
+
+  it("cancels a pending request optimistically and calls the API", fakeAsync(() => {
+    pamApi.listMyRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
+    pamApi.cancelAccessRequest.mockResolvedValue(undefined);
+
+    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-cancel-p1"]',
+    ) as HTMLButtonElement;
+    expect(button).not.toBeNull();
+    button.click();
+    fixture.detectChanges();
+
+    // Optimistically moved to Recent as cancelled.
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-p1"]'),
+    ).not.toBeNull();
+    expect(pamApi.cancelAccessRequest).toHaveBeenCalledWith("p1");
+
+    flush();
+    fixture.detectChanges();
+    expect(toast.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success" }),
+    );
+  }));
+
+  it("reverts the optimistic cancel when the API call fails", fakeAsync(() => {
+    pamApi.listMyRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
+    pamApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
+
+    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-cancel-p1"]',
+    ) as HTMLButtonElement;
+    button.click();
+    flush();
+    fixture.detectChanges();
+
+    // Row reverted to pending.
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-pending-row-p1"]'),
+    ).not.toBeNull();
+    expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  }));
+
+  it("shows a toast and renders the empty state when load fails", fakeAsync(() => {
+    pamApi.listMyRequests.mockRejectedValue(new Error("boom"));
+
+    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    fixture.detectChanges();
+    flush();
+    fixture.detectChanges();
+
+    expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]'),
+    ).not.toBeNull();
+  }));
+});
+
+describe("statusBadgeVariant", () => {
+  it("maps each status to a distinct visual variant", () => {
+    expect(statusBadgeVariant("approved")).toBe("success");
+    expect(statusBadgeVariant("activated")).toBe("success");
+    expect(statusBadgeVariant("denied")).toBe("danger");
+    expect(statusBadgeVariant("cancelled")).toBe("subtle");
+    expect(statusBadgeVariant("expired")).toBe("warning");
+    expect(statusBadgeVariant("pending")).toBe("primary");
+  });
+});
+
+describe("statusLabelKey", () => {
+  it("returns a pamStatus* i18n key for each status", () => {
+    expect(statusLabelKey("approved")).toBe("pamStatusApproved");
+    expect(statusLabelKey("activated")).toBe("pamStatusActivated");
+    expect(statusLabelKey("denied")).toBe("pamStatusDenied");
+    expect(statusLabelKey("cancelled")).toBe("pamStatusCancelled");
+    expect(statusLabelKey("expired")).toBe("pamStatusExpired");
+    expect(statusLabelKey("pending")).toBe("pamStatusPending");
+  });
+});
+
+describe("resolveResolverDisplayName", () => {
+  const i18nMock = new I18nMockService({ pamResolverAccessRule: "Access rule" }) as unknown as I18nService;
+
+  it("returns null for pending requests", () => {
+    expect(
+      resolveResolverDisplayName({ status: "pending", resolverUserId: null }, i18nMock),
+    ).toBeNull();
+  });
+
+  it("returns the access-rule label when there is no resolver user", () => {
+    expect(
+      resolveResolverDisplayName({ status: "expired", resolverUserId: null }, i18nMock),
+    ).toBe("Access rule");
+  });
+
+  it("falls back to the raw user id when a human resolved the request", () => {
+    expect(
+      resolveResolverDisplayName({ status: "approved", resolverUserId: "user-7" }, i18nMock),
+    ).toBe("user-7");
+  });
+});

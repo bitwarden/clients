@@ -1,0 +1,31 @@
+import { AsyncPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BadgeModule, NavigationModule } from "@bitwarden/components";
+
+import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badge.service";
+
+/**
+ * Renders the PAM approver-inbox entry in the user-layout side nav, including
+ * the badge count, when the {@link FeatureFlag.Pam} feature flag is on.
+ *
+ * Encapsulates the flag lookup and the badge-count subscription so the host
+ * layout can plug PAM in with a single tag and no PAM-specific symbols.
+ */
+@Component({
+  selector: "pam-user-nav-slot",
+  templateUrl: "./pam-user-nav-slot.component.html",
+  imports: [AsyncPipe, BadgeModule, JslibModule, NavigationModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PamUserNavSlotComponent {
+  protected readonly pamEnabled$ = inject(ConfigService).getFeatureFlag$(FeatureFlag.Pam);
+  protected readonly pamInboxBadgeCount = toSignal(
+    inject(ApproverInboxBadgeService).count$,
+    { initialValue: 0 },
+  );
+}

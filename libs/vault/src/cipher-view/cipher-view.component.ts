@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, resource } from "@angular/core";
+import { Component, computed, inject, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -40,6 +40,7 @@ import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.co
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
 import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
+import { CIPHER_VIEW_BANNER } from "./cipher-view-banner.token";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
 import { DriversLicenseViewComponent } from "./drivers-license-sections/drivers-license-view.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
@@ -81,6 +82,13 @@ export class CipherViewComponent {
    * The cipher to display details for
    */
   readonly cipher = input.required<CipherView>();
+
+  /**
+   * Optional banner rendered above the cipher details (e.g. a privileged-access
+   * lease banner). Provided by the host platform via {@link CIPHER_VIEW_BANNER};
+   * `null` when the host surfaces none, in which case nothing renders.
+   */
+  protected readonly bannerComponent = inject(CIPHER_VIEW_BANNER, { optional: true });
 
   /**
    * Observable version of the cipher input
