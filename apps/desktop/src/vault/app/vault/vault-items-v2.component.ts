@@ -1,6 +1,6 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, input, output } from "@angular/core";
+import { Component, ElementRef, input, output } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { distinctUntilChanged, debounceTime } from "rxjs";
 
@@ -62,8 +62,11 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
     restrictedItemTypesService: RestrictedItemTypesService,
     configService: ConfigService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    private elementRef: ElementRef<HTMLElement>,
   ) {
     super(searchService, cipherService, accountService, restrictedItemTypesService, configService);
+
+    this.searchBarService.setSearchResultFocusTarget(() => this.focusFirstResult());
 
     this.searchBarService.searchText$
       .pipe(debounceTime(SearchTextDebounceInterval), distinctUntilChanged(), takeUntilDestroyed())
@@ -72,11 +75,33 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
       });
   }
 
+  override ngOnDestroy(): void {
+    this.searchBarService.setSearchResultFocusTarget(null);
+    super.ngOnDestroy();
+  }
+
   async navigateToGetPremium() {
     await this.premiumUpgradePromptService.promptForPremium();
   }
 
   trackByFn(index: number, c: C): string {
     return uuidAsString(c.id!);
+  }
+
+  private focusFirstResult() {
+    if (!this.loaded || this.ciphers.length === 0) {
+      return false;
+    }
+
+    const firstResult = this.elementRef.nativeElement.querySelector<HTMLElement>(
+      "button.flex-list-item:not([disabled])",
+    );
+
+    if (firstResult == null) {
+      return false;
+    }
+
+    firstResult.focus();
+    return document.activeElement === firstResult;
   }
 }
