@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { RegistrationCheckEmailIcon, RegistrationUserAddIcon } from "@bitwarden/assets/svg";
+import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -170,8 +170,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
     // Result is null, so email verification is required
     this.state = RegistrationStartState.CHECK_EMAIL;
-    // CHECK_EMAIL overrides extension's route-level layout (compact/left/no-icon) with a
-    // centered hero so the icon and title read as a confirmation screen.
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: {
         key: "checkYourEmail",
@@ -204,16 +202,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.state = RegistrationStartState.USER_DATA_ENTRY;
-    // Restore the route-level layout (undoing the CHECK_EMAIL overrides), then layer the
-    // state-specific text and icon back on top. The layout suppresses the icon when the
-    // route declared hidePageIcon: true (e.g., on the extension).
     this.anonLayoutWrapperDataService.resetToCachedRouteData();
-    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageTitle: {
-        key: "createAccount",
-      },
-      pageIcon: RegistrationUserAddIcon,
-    });
     this.registrationStartStateChange.emit(this.state);
   }
 
