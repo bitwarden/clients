@@ -1,0 +1,144 @@
+@let req = request();
+@let elapsed = elapsedKey();
+@let pending = pendingDecision();
+@let canAct = canDecide();
+@let disabledTooltip = canAct ? "" : ("pamInboxCannotApproveOwn" | i18n);
+
+<bit-card data-testid="approver-inbox-row">
+  <!-- Header: cipher name + elapsed time -->
+  <div class="tw-flex tw-items-start tw-justify-between tw-gap-4">
+    <div class="tw-min-w-0">
+      <p bitTypography="body1" class="tw-mb-0 tw-font-semibold" data-testid="approver-inbox-cipher">
+        {{ req.cipherName }}
+        <a
+          [routerLink]="['/vault']"
+          [queryParams]="{ action: 'view', cipherId: req.cipherId }"
+          class="tw-ml-1 tw-text-muted hover:tw-text-main"
+          [attr.aria-label]="'pamInboxViewInVault' | i18n"
+          [bitTooltip]="'pamInboxViewInVault' | i18n"
+        ><i class="bwi bwi-arrow-right tw-text-xs tw-font-normal" aria-hidden="true"></i></a>
+      </p>
+      <p
+        bitTypography="helper"
+        class="tw-mb-0 tw-text-muted"
+        data-testid="approver-inbox-collection"
+      >
+        {{ "pamInboxInCollection" | i18n: req.collectionName }}
+      </p>
+    </div>
+    <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-1 tw-text-xs tw-text-muted">
+      <bit-icon name="bwi-clock" [fixedWidth]="true"></bit-icon>
+      <span data-testid="approver-inbox-elapsed">{{ elapsed.key | i18n: elapsed.value }}</span>
+    </span>
+  </div>
+
+  <!-- Metadata row -->
+  <div class="tw-mt-3 tw-grid tw-grid-cols-1 tw-gap-x-8 tw-gap-y-3 tw-text-sm md:tw-grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,2fr)]">
+    <div>
+      <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted">
+        {{ "pamInboxRequester" | i18n }}
+      </span>
+      <p class="tw-mb-0 tw-text-main" data-testid="approver-inbox-requester">
+        {{ req.requesterName || req.requesterEmail }}
+        @if (req.requesterName) {
+          <span class="tw-text-muted">&nbsp;&lt;{{ req.requesterEmail }}&gt;</span>
+        }
+      </p>
+    </div>
+    <div>
+      <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted">
+        {{ "pamInboxWindow" | i18n }}
+      </span>
+      @let dur = durationLabel();
+      @let start = relativeStart();
+      <p
+        class="tw-mb-0 tw-text-main"
+        data-testid="approver-inbox-window"
+        [bitTooltip]="exactWindow()"
+      >
+        <span>{{ dur.key | i18n: dur.value }}</span>
+        <span class="tw-text-muted">&nbsp;·&nbsp;{{ start.key | i18n: start.value }}</span>
+      </p>
+    </div>
+    <div>
+      <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted">
+        {{ "pamInboxReason" | i18n }}
+      </span>
+      <p class="tw-mb-0 tw-text-main" data-testid="approver-inbox-reason">
+        @if (reasonText(); as reason) {
+          {{ reason }}
+        } @else {
+          <span class="tw-italic tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+        }
+      </p>
+    </div>
+  </div>
+
+  <!-- Action / confirm area -->
+  @if (pending === null) {
+    <div class="tw-mt-4 tw-flex tw-gap-2">
+      <button
+        bitButton
+        type="button"
+        buttonType="primary"
+        [disabled]="!canAct"
+        [bitTooltip]="disabledTooltip"
+        data-testid="approver-inbox-approve"
+        (click)="beginDecision('approve')"
+      >
+        {{ "pamInboxApprove" | i18n }}
+      </button>
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        [disabled]="!canAct"
+        [bitTooltip]="disabledTooltip"
+        data-testid="approver-inbox-deny"
+        (click)="beginDecision('deny')"
+      >
+        {{ "pamInboxDeny" | i18n }}
+      </button>
+    </div>
+  } @else {
+    <div
+      class="tw-mt-4 tw-flex tw-items-start tw-gap-3 tw-border-t tw-border-solid tw-border-secondary-300 tw-pt-4"
+    >
+      <textarea
+        bitInput
+        rows="2"
+        class="tw-flex-1 tw-resize-none tw-text-sm"
+        [formControl]="commentControl"
+        [placeholder]="'pamInboxCommentPlaceholder' | i18n"
+        data-testid="approver-inbox-comment"
+      ></textarea>
+      <div class="tw-flex tw-shrink-0 tw-gap-2">
+        <button
+          bitButton
+          type="button"
+          [buttonType]="pending === 'approve' ? 'primary' : 'danger'"
+          [loading]="submitting()"
+          [disabled]="submitting()"
+          data-testid="approver-inbox-confirm"
+          (click)="confirmDecision()"
+        >
+          @if (pending === "approve") {
+            {{ "pamInboxConfirmApproveButton" | i18n }}
+          } @else {
+            {{ "pamInboxConfirmDenyButton" | i18n }}
+          }
+        </button>
+        <button
+          bitButton
+          type="button"
+          buttonType="secondary"
+          [disabled]="submitting()"
+          data-testid="approver-inbox-cancel"
+          (click)="cancelDecision()"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </div>
+  }
+</bit-card>

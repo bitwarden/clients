@@ -71,6 +71,13 @@ const routes: Routes = [
             (m) => m.OrganizationBillingModule,
           ),
       },
+      {
+        path: "pam",
+        loadChildren: () =>
+          import("../../pam/access-rules/access-rules-routing.module").then(
+            (m) => m.AccessRulesRoutingModule,
+          ),
+      },
     ],
   },
 ];

@@ -1,0 +1,140 @@
+<div class="tw-flex tw-flex-col tw-gap-4">
+  <header class="tw-flex tw-flex-col tw-gap-1">
+    <h1 bitTypography="h1" class="tw-m-0">{{ "pamInboxTitle" | i18n }}</h1>
+    <p class="tw-m-0 tw-text-muted">{{ "pamInboxSubtitle" | i18n }}</p>
+  </header>
+
+  @if (loading() && requests().length === 0) {
+    <div class="tw-text-muted" data-testid="approver-inbox-loading">
+      {{ "loading" | i18n }}
+    </div>
+  } @else if (requests().length === 0) {
+    <bit-no-items>
+      <ng-container slot="title">
+        @if (hasManagerCollections()) {
+          {{ "pamInboxEmptyTitle" | i18n }}
+        } @else {
+          {{ "pamInboxNotApproverTitle" | i18n }}
+        }
+      </ng-container>
+      <ng-container slot="description">
+        @if (hasManagerCollections()) {
+          {{ "pamInboxEmptyDescription" | i18n }}
+        } @else {
+          {{ "pamInboxNotApproverDescription" | i18n }}
+        }
+      </ng-container>
+    </bit-no-items>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-gap-3" data-testid="approver-inbox-list">
+      @for (req of requests(); track trackById($index, req)) {
+        <pam-approver-inbox-row
+          [request]="req"
+          [canDecide]="canDecide(req)"
+          [now]="renderedAt()"
+          (decide)="onDecide(req, $event)"
+        ></pam-approver-inbox-row>
+      }
+    </div>
+  }
+
+  <!-- Decision history -->
+  <section class="tw-flex tw-flex-col tw-gap-3" data-testid="approver-inbox-history">
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
+      <h2 bitTypography="h6" class="tw-m-0 tw-text-muted tw-uppercase tw-tracking-wide tw-text-xs">
+        {{ "pamInboxHistoryTitle" | i18n }}
+      </h2>
+
+      @if (flatHistory().length > 0) {
+        <bit-toggle-group
+          [selected]="historyFilter()"
+          (selectedChange)="historyFilter.set($event)"
+          aria-label="{{ 'pamInboxHistoryFilterLabel' | i18n }}"
+          data-testid="approver-inbox-history-filter"
+        >
+          <bit-toggle value="all">{{ "pamInboxFilterAll" | i18n }}</bit-toggle>
+          <bit-toggle value="active">{{ "pamInboxFilterActive" | i18n }}</bit-toggle>
+          <bit-toggle value="future">{{ "pamInboxFilterUpcoming" | i18n }}</bit-toggle>
+          <bit-toggle value="past">{{ "pamInboxFilterPast" | i18n }}</bit-toggle>
+        </bit-toggle-group>
+      }
+    </div>
+
+    @if (flatHistory().length === 0) {
+      <p class="tw-m-0 tw-text-sm tw-text-muted" data-testid="approver-inbox-history-empty">
+        {{ "pamInboxHistoryEmpty" | i18n }}
+      </p>
+    } @else if (filteredHistory().length === 0) {
+      <p class="tw-m-0 tw-text-sm tw-text-muted" data-testid="approver-inbox-history-filter-empty">
+        {{ "pamInboxHistoryFilterEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table data-testid="approver-inbox-history-table">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamInboxRequester" | i18n }}</th>
+            <th bitCell>{{ "status" | i18n }}</th>
+            <th bitCell class="tw-w-0"></th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (row of filteredHistory(); track row.item.id) {
+            <tr bitRow data-testid="approver-inbox-history-row">
+              <td bitCell>
+                <span class="tw-font-medium">{{ row.item.cipherName }}</span>
+                <div class="tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: row.item.collectionName }}
+                </div>
+              </td>
+              <td bitCell>
+                <span>{{ row.item.requesterName || row.item.requesterEmail }}</span>
+                @if (row.item.reason) {
+                  <div
+                    class="tw-mt-0.5 tw-truncate tw-text-xs tw-text-muted"
+                    [bitTooltip]="row.item.reason"
+                  >
+                    {{ row.item.reason }}
+                  </div>
+                }
+              </td>
+              <td bitCell>
+                <span class="tw-text-sm" [class]="row.statusClass">{{ row.statusLabel | i18n }}</span>
+                @if (row.relTime) {
+                  <span class="tw-text-xs tw-text-muted">
+                    &nbsp;·&nbsp;{{ row.relTime.key | i18n: row.relTime.value }}
+                  </span>
+                } @else if (row.item.resolvedAt) {
+                  <span class="tw-text-xs tw-text-muted">
+                    &nbsp;·&nbsp;{{ row.item.resolvedAt | date: "shortDate" }}
+                  </span>
+                }
+                @if (row.item.resolverComment) {
+                  <div class="tw-mt-0.5 tw-text-xs tw-text-muted tw-italic">
+                    {{ row.item.resolverComment }}
+                  </div>
+                }
+              </td>
+              <td bitCell>
+                @if (row.canRevoke && row.item.leaseId) {
+                  <button
+                    bitButton
+                    type="button"
+                    buttonType="secondary"
+                    size="small"
+                    [loading]="revoking().has(row.item.leaseId)"
+                    [disabled]="revoking().has(row.item.leaseId)"
+                    data-testid="approver-inbox-revoke"
+                    (click)="onRevoke(row.item)"
+                  >
+                    {{ "pamInboxRevoke" | i18n }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+  </section>
+</div>
