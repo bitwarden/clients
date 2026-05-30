@@ -50,51 +50,26 @@ export class ExtensionTwoFactorAuthComponentService
   }
 
   async closeSingleActionPopouts(): Promise<boolean> {
-    // If we are in a single action popout, we don't need the popout anymore because the intent
-    // is for the user to be left on the web vault screen which tells them to continue in
-    // the browser extension (sidebar or popup).  We don't want the user to be left with a
-    // floating, popped out extension which could be lost behind another window or minimized.
-    // Currently, the popped out window thinks it is active and wouldn't time out which
-    // leads to the security concern. So, we close the popped out extension to avoid this.
-    const inSsoAuthResultPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
+    // Close any auth-related single-action popouts that are open. The popout may live in a
+    // different window than the current view (e.g., user expanded the extension during 2FA), so
+    // we close by key unconditionally; `closeSingleActionPopout` is a no-op if no matching tab
+    // exists. The boolean return reports whether the current view itself was one of those
+    // popouts, so callers can skip navigating a view that's about to be torn down.
+    const currentViewIsInAuthPopout = [
       AuthPopoutType.ssoAuthResult,
-    );
-    if (inSsoAuthResultPopout) {
-      await closeSsoAuthResultPopout();
-      return true;
-    }
-
-    const inTwoFactorAuthWebAuthnPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
       AuthPopoutType.twoFactorAuthWebAuthn,
-    );
-
-    if (inTwoFactorAuthWebAuthnPopout) {
-      await closeTwoFactorAuthWebAuthnPopout();
-      return true;
-    }
-
-    const inTwoFactorAuthEmailPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
       AuthPopoutType.twoFactorAuthEmail,
-    );
-
-    if (inTwoFactorAuthEmailPopout) {
-      await closeTwoFactorAuthEmailPopout();
-      return true;
-    }
-
-    const inTwoFactorAuthDuoPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
       AuthPopoutType.twoFactorAuthDuo,
-    );
-    if (inTwoFactorAuthDuoPopout) {
-      await closeTwoFactorAuthDuoPopout();
-      return true;
-    }
+    ].some((popoutType) => BrowserPopupUtils.inSingleActionPopout(this.window, popoutType));
 
-    return false;
+    await Promise.all([
+      closeSsoAuthResultPopout(),
+      closeTwoFactorAuthWebAuthnPopout(),
+      closeTwoFactorAuthEmailPopout(),
+      closeTwoFactorAuthDuoPopout(),
+    ]);
+
+    return currentViewIsInAuthPopout;
   }
 
   private async isLinux(): Promise<boolean> {
