@@ -29,9 +29,13 @@ export class ExtensionTwoFactorAuthComponentService
     return true;
   }
 
+  /**
+   * Adds a CSS class that widens the popup when needed for the WebAuthn 2FA prompt.
+   *
+   * The WebAuthn prompt appears inside the popup on Linux, and requires a larger popup width
+   * than usual to avoid cutting off the dialog.
+   */
   async extendPopupWidthIfRequired(selected2faProviderType: TwoFactorProviderType): Promise<void> {
-    // WebAuthn prompt appears inside the popup on linux, and requires a larger popup width
-    // than usual to avoid cutting off the dialog.
     const isLinux = await this.isLinux();
     if (selected2faProviderType === TwoFactorProviderType.WebAuthn && isLinux) {
       document.body.classList.add("linux-webauthn");
@@ -42,19 +46,23 @@ export class ExtensionTwoFactorAuthComponentService
     document.body.classList.remove("linux-webauthn");
   }
 
+  /**
+   * Reloads all extension views except the current one.
+   *
+   * Forces sidebars (Firefox and Opera) to reload while exempting the current window, because
+   * we are just going to close the current window if it is in a popout or navigate forward if
+   * it is in the popup.
+   */
   reloadOpenWindows(): void {
-    // Force sidebars (FF && Opera) to reload while exempting current window
-    // because we are just going to close the current window if it is in a popout
-    // or navigate forward if it is in the popup
     BrowserApi.reloadOpenWindows(true);
   }
 
+  /**
+   * Closes any auth-related single-action popouts that are open.
+   * @returns `true` if the current view itself is one of those popouts, so callers can skip
+   *   navigating a view that's about to be torn down.
+   */
   async closeSingleActionPopouts(): Promise<boolean> {
-    // Close any auth-related single-action popouts that are open. The popout may live in a
-    // different window than the current view (e.g., user expanded the extension during 2FA), so
-    // we close by key unconditionally; `closeSingleActionPopout` is a no-op if no matching tab
-    // exists. The boolean return reports whether the current view itself was one of those
-    // popouts, so callers can skip navigating a view that's about to be torn down.
     const authPopouts = [
       { type: AuthPopoutType.ssoAuthResult, close: closeSsoAuthResultPopout },
       { type: AuthPopoutType.twoFactorAuthWebAuthn, close: closeTwoFactorAuthWebAuthnPopout },
