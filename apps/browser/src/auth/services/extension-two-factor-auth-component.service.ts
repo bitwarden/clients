@@ -55,19 +55,18 @@ export class ExtensionTwoFactorAuthComponentService
     // we close by key unconditionally; `closeSingleActionPopout` is a no-op if no matching tab
     // exists. The boolean return reports whether the current view itself was one of those
     // popouts, so callers can skip navigating a view that's about to be torn down.
-    const currentViewIsInAuthPopout = [
-      AuthPopoutType.ssoAuthResult,
-      AuthPopoutType.twoFactorAuthWebAuthn,
-      AuthPopoutType.twoFactorAuthEmail,
-      AuthPopoutType.twoFactorAuthDuo,
-    ].some((popoutType) => BrowserPopupUtils.inSingleActionPopout(this.window, popoutType));
+    const authPopouts = [
+      { type: AuthPopoutType.ssoAuthResult, close: closeSsoAuthResultPopout },
+      { type: AuthPopoutType.twoFactorAuthWebAuthn, close: closeTwoFactorAuthWebAuthnPopout },
+      { type: AuthPopoutType.twoFactorAuthEmail, close: closeTwoFactorAuthEmailPopout },
+      { type: AuthPopoutType.twoFactorAuthDuo, close: closeTwoFactorAuthDuoPopout },
+    ];
 
-    await Promise.all([
-      closeSsoAuthResultPopout(),
-      closeTwoFactorAuthWebAuthnPopout(),
-      closeTwoFactorAuthEmailPopout(),
-      closeTwoFactorAuthDuoPopout(),
-    ]);
+    const currentViewIsInAuthPopout = authPopouts.some(({ type }) =>
+      BrowserPopupUtils.inSingleActionPopout(this.window, type),
+    );
+
+    await Promise.all(authPopouts.map(({ close }) => close()));
 
     return currentViewIsInAuthPopout;
   }
