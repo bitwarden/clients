@@ -147,12 +147,25 @@ export const isOrganizationReportApplicationArray = createBoundedArrayGuard(
 // === Validate Functions ===
 
 /**
- * Validates and returns an array of ApplicationHealthReportDetail
- * @throws Error if validation fails
+ * Result of a validate function. `data` contains everything that passed validation
+ * (with invalid elements dropped or invalid fields defaulted). `errors` contains one
+ * explain-style message per failure, suitable for logging. Callers decide how to
+ * surface errors (log a warning, ignore, etc.). Structural failures (non-array,
+ * length exceeded, non-object) still throw.
+ */
+export type ValidationResult<T> = {
+  data: T;
+  errors: string[];
+};
+
+/**
+ * Validates an array of ApplicationHealthReportDetail. Invalid elements are dropped
+ * from the returned data and recorded in errors. Throws on structural failures only
+ * (non-array, length > {@link BOUNDED_ARRAY_MAX_LENGTH}).
  */
 export function validateApplicationHealthReportDetailArray(
   data: unknown,
-): ApplicationHealthReportDetail[] {
+): ValidationResult<ApplicationHealthReportDetail[]> {
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid report data: expected array of ApplicationHealthReportDetail, received non-array",
@@ -165,47 +178,64 @@ export function validateApplicationHealthReportDetailArray(
     );
   }
 
-  const invalidItems = data
-    .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !isApplicationHealthReportDetail(item));
+  const validItems: ApplicationHealthReportDetail[] = [];
+  const errors: string[] = [];
 
-  if (invalidItems.length > 0) {
-    const elementMessages = invalidItems.map(({ item, index }) => {
+  data.forEach((item, index) => {
+    if (isApplicationHealthReportDetail(item)) {
+      validItems.push(item);
+    } else {
       const fieldErrors = isApplicationHealthReportDetail.explain(item).join("; ");
-      return `  element[${index}]: ${fieldErrors}`;
-    });
-    throw new Error(
-      `Invalid report data: array contains ${invalidItems.length} invalid ApplicationHealthReportDetail element(s)\n` +
-        elementMessages.join("\n"),
-    );
-  }
+      errors.push(`element[${index}]: ${fieldErrors}`);
+    }
+  });
 
-  if (!isApplicationHealthReportDetailArray(data)) {
-    // Throw for type casting return
-    // Should never get here
-    throw new Error("Invalid report data");
-  }
-
-  return data;
+  return { data: validItems, errors };
 }
 
 /**
- * Validates and returns OrganizationReportSummary
- * @throws Error if validation fails
+ * Validates an OrganizationReportSummary. Invalid fields are defaulted to 0 and
+ * recorded in errors. Throws if the value is not an object.
  */
-export function validateOrganizationReportSummary(data: unknown): OrganizationReportSummary {
-  if (!isOrganizationReportSummary(data)) {
-    throw new Error("Invalid report summary");
+export function validateOrganizationReportSummary(
+  data: unknown,
+): ValidationResult<OrganizationReportSummary> {
+  if (data == null || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Invalid report summary: expected object, received non-object");
   }
 
-  // Normalize: password fields absent from old blobs default to 0
-  return {
-    ...data,
-    totalPasswordCount: data.totalPasswordCount ?? 0,
-    totalAtRiskPasswordCount: data.totalAtRiskPasswordCount ?? 0,
-    totalCriticalPasswordCount: data.totalCriticalPasswordCount ?? 0,
-    totalCriticalAtRiskPasswordCount: data.totalCriticalAtRiskPasswordCount ?? 0,
+  const obj = data as Record<string, unknown>;
+  const errors: string[] = [];
+
+  const readNumber = (key: string): number => {
+    const value = obj[key];
+    if (isBoundedPositiveNumber(value)) {
+      return value;
+    }
+    // Undefined is normalized silently (some fields are optional in old blobs);
+    // any other invalid value defaults to 0 and is reported.
+    if (value !== undefined) {
+      errors.push(`field '${key}': not a valid bounded positive number`);
+    }
+    return 0;
   };
+
+  const summary: OrganizationReportSummary = {
+    totalMemberCount: readNumber("totalMemberCount"),
+    totalApplicationCount: readNumber("totalApplicationCount"),
+    totalAtRiskMemberCount: readNumber("totalAtRiskMemberCount"),
+    totalAtRiskApplicationCount: readNumber("totalAtRiskApplicationCount"),
+    totalCriticalApplicationCount: readNumber("totalCriticalApplicationCount"),
+    totalCriticalMemberCount: readNumber("totalCriticalMemberCount"),
+    totalCriticalAtRiskMemberCount: readNumber("totalCriticalAtRiskMemberCount"),
+    totalCriticalAtRiskApplicationCount: readNumber("totalCriticalAtRiskApplicationCount"),
+    totalPasswordCount: readNumber("totalPasswordCount"),
+    totalAtRiskPasswordCount: readNumber("totalAtRiskPasswordCount"),
+    totalCriticalPasswordCount: readNumber("totalCriticalPasswordCount"),
+    totalCriticalAtRiskPasswordCount: readNumber("totalCriticalAtRiskPasswordCount"),
+  };
+
+  return { data: summary, errors };
 }
 
 // Local type representing only the count fields stored in the encrypted summary blob.
@@ -256,12 +286,14 @@ export function validateAccessReportSummaryView(data: unknown): AccessReportSumm
 }
 
 /**
- * Validates and returns an array of OrganizationReportApplication
- * @throws Error if validation fails
+ * Validates an array of OrganizationReportApplication. Invalid elements are dropped
+ * from the returned data and recorded in errors. Valid elements have their
+ * reviewedDate normalized from string to Date. Throws on structural failures only
+ * (non-array, length > {@link BOUNDED_ARRAY_MAX_LENGTH}).
  */
 export function validateOrganizationReportApplicationArray(
   data: unknown,
-): OrganizationReportApplication[] {
+): ValidationResult<OrganizationReportApplication[]> {
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid application data: expected array of OrganizationReportApplication, received non-array",
@@ -274,44 +306,36 @@ export function validateOrganizationReportApplicationArray(
     );
   }
 
-  const invalidItems = data
-    .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !isOrganizationReportApplication(item));
+  const validItems: OrganizationReportApplication[] = [];
+  const errors: string[] = [];
 
-  if (invalidItems.length > 0) {
-    const elementMessages = invalidItems.map(({ item, index }) => {
+  data.forEach((item, index) => {
+    if (!isOrganizationReportApplication(item)) {
       const fieldErrors = isOrganizationReportApplication.explain(item).join("; ");
-      return `  element[${index}]: ${fieldErrors}`;
-    });
-    throw new Error(
-      `Invalid application data: array contains ${invalidItems.length} invalid OrganizationReportApplication element(s)\n` +
-        elementMessages.join("\n"),
-    );
-  }
+      errors.push(`element[${index}]: ${fieldErrors}`);
+      return;
+    }
 
-  const mappedData = data.map((item) => ({
-    ...item,
-    reviewedDate: item.reviewedDate
-      ? item.reviewedDate instanceof Date
-        ? item.reviewedDate
-        : (() => {
-            const date = new Date(item.reviewedDate);
-            if (!isDate(date)) {
-              throw new Error(`Invalid date string: ${item.reviewedDate}`);
-            }
-            return date;
-          })()
-      : null,
-  }));
+    // Normalize reviewedDate: old blobs may store ISO strings instead of Date objects.
+    // isOrganizationReportApplication accepts both via isValidDateOrNull.
+    let reviewedDate: Date | null;
+    if (item.reviewedDate == null) {
+      reviewedDate = null;
+    } else if (item.reviewedDate instanceof Date) {
+      reviewedDate = item.reviewedDate;
+    } else {
+      const date = new Date(item.reviewedDate as unknown as string);
+      if (!isDate(date)) {
+        errors.push(`element[${index}]: field 'reviewedDate': invalid date string`);
+        return;
+      }
+      reviewedDate = date;
+    }
 
-  if (!isOrganizationReportApplicationArray(mappedData)) {
-    // Throw for type casting return
-    // Should never get here
-    throw new Error("Invalid application data");
-  }
+    validItems.push({ ...item, reviewedDate });
+  });
 
-  // Convert string dates to Date objects for reviewedDate
-  return mappedData;
+  return { data: validItems, errors };
 }
 
 const isAccessReportSettingsData = createValidator<AccessReportSettingsData>({
