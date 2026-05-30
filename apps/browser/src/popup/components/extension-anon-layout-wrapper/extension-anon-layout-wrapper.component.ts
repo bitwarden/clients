@@ -14,7 +14,7 @@ import {
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
   ContentTopPaddingType,
-  HeroAlignmentType,
+  HeroTextAlignmentType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -72,7 +72,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideCardWrapper: boolean = false;
   protected hidePageIcon?: boolean;
   protected contentTopPadding?: ContentTopPaddingType;
-  protected heroAlignment?: HeroAlignmentType;
+  protected heroTextAlignment?: HeroTextAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
   protected theme: string;
@@ -160,7 +160,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     // When undefined on `routeData`, default to a specified value
     this.contentTopPadding = routeData.contentTopPadding ?? "default";
-    this.heroAlignment = routeData.heroAlignment ?? "center";
+    this.heroTextAlignment = routeData.heroTextAlignment ?? "center";
     this.secondaryContentLocation = routeData.secondaryContentLocation ?? "main";
 
     // Cache the routeData payload so resetToRouteData() can later restore it.
@@ -229,8 +229,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.contentTopPadding !== undefined) {
       this.contentTopPadding = data.contentTopPadding;
     }
-    if (data.heroAlignment !== undefined) {
-      this.heroAlignment = data.heroAlignment;
+    if (data.heroTextAlignment !== undefined) {
+      this.heroTextAlignment = data.heroTextAlignment;
     }
     if (data.secondaryContentLocation !== undefined) {
       this.secondaryContentLocation = data.secondaryContentLocation;
@@ -260,7 +260,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hideCardWrapper = null;
     this.hidePageIcon = undefined;
     this.contentTopPadding = undefined;
-    this.heroAlignment = undefined;
+    this.heroTextAlignment = undefined;
     this.secondaryContentLocation = undefined;
   }
 

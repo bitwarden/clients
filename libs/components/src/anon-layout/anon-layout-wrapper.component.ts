@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Translation } from "../dialog";
 import {
   ContentTopPaddingType,
-  HeroAlignmentType,
+  HeroTextAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
 
@@ -48,9 +48,11 @@ export interface AnonLayoutWrapperData {
    */
   contentTopPadding?: ContentTopPaddingType;
   /**
-   * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
+   * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
+   * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
+   * left-aligned hero block.)
    */
-  heroAlignment?: HeroAlignmentType;
+  heroTextAlignment?: HeroTextAlignmentType;
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
@@ -87,7 +89,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hideBackgroundIllustration?: boolean | null;
   protected hidePageIcon?: boolean;
   protected contentTopPadding?: ContentTopPaddingType;
-  protected heroAlignment?: HeroAlignmentType;
+  protected heroTextAlignment?: HeroTextAlignmentType;
 
   constructor(
     private router: Router,
@@ -151,7 +153,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
 
     // When undefined on `routeData`, default to a specified value
     this.contentTopPadding = routeData.contentTopPadding ?? "default";
-    this.heroAlignment = routeData.heroAlignment ?? "center";
+    this.heroTextAlignment = routeData.heroTextAlignment ?? "center";
 
     // Cache the routeData payload so resetToRouteData() can later restore it.
     this.anonLayoutWrapperDataService.setRouteData(
@@ -210,8 +212,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
     if (data.contentTopPadding !== undefined) {
       this.contentTopPadding = data.contentTopPadding;
     }
-    if (data.heroAlignment !== undefined) {
-      this.heroAlignment = data.heroAlignment;
+    if (data.heroTextAlignment !== undefined) {
+      this.heroTextAlignment = data.heroTextAlignment;
     }
 
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -239,6 +241,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideBackgroundIllustration = null;
     this.hidePageIcon = undefined;
     this.contentTopPadding = undefined;
-    this.heroAlignment = undefined;
+    this.heroTextAlignment = undefined;
   }
 }

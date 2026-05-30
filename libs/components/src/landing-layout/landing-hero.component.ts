@@ -5,7 +5,7 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
-export type HeroAlignmentType = "left" | "center";
+export type HeroTextAlignmentType = "left" | "center";
 
 /**
  * Hero section component for landing pages featuring an optional icon, title, and subtitle.
@@ -41,11 +41,13 @@ export class LandingHeroComponent {
   readonly subtitle = input<string | undefined>();
 
   /**
-   * Horizontal alignment of the hero (icon, title, subtitle). Defaults to "center".
+   * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
+   * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
+   * left-aligned hero block.)
    */
-  readonly heroAlignment = input<HeroAlignmentType>("center");
+  readonly heroTextAlignment = input<HeroTextAlignmentType>("center");
 
   protected readonly alignmentClasses = computed(() =>
-    this.heroAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
+    this.heroTextAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
   );
 }

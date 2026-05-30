@@ -410,7 +410,7 @@ const routes: Routes = [
           showBackButton: true,
           hidePageIcon: true,
           contentTopPadding: "compact",
-          heroAlignment: "left",
+          heroTextAlignment: "left",
           secondaryContentLocation: "footer",
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
@@ -462,7 +462,7 @@ const routes: Routes = [
           showAcctSwitcher: true,
           hidePageIcon: true,
           contentTopPadding: "compact",
-          heroAlignment: "left",
+          heroTextAlignment: "left",
           secondaryContentLocation: "footer",
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
@@ -486,7 +486,7 @@ const routes: Routes = [
           showBackButton: true,
           hidePageIcon: true,
           contentTopPadding: "compact",
-          heroAlignment: "left",
+          heroTextAlignment: "left",
           secondaryContentLocation: "footer",
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [

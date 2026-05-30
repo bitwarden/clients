@@ -20,7 +20,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   ContentTopPaddingType,
-  HeroAlignmentType,
+  HeroTextAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
@@ -54,7 +54,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   readonly hidePageIcon = input<boolean>(false);
   readonly contentTopPadding = input<ContentTopPaddingType>("default");
-  readonly heroAlignment = input<HeroAlignmentType>("center");
+  readonly heroTextAlignment = input<HeroTextAlignmentType>("center");
   readonly secondaryContentLocation = input<SecondaryContentLocationType>("main");
 
   protected readonly footerLayoutClasses = computed(() =>
