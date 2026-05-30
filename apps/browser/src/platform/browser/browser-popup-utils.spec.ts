@@ -509,17 +509,17 @@ describe("BrowserPopupUtils", () => {
     });
 
     it("should resolve immediately if no popups are open", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(false);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose();
       jest.advanceTimersByTime(100);
 
       await expect(promise).resolves.toBeUndefined();
-      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(1);
+      expect(BrowserApi.isAnyPopupOrPopoutOpen).toHaveBeenCalledTimes(1);
     });
 
     it("should resolve after timeout if popup never closes when using custom timeout", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(true);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose(500);
 
@@ -530,7 +530,7 @@ describe("BrowserPopupUtils", () => {
     });
 
     it("should resolve after timeout if popup never closes when using default timeout", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(true);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose();
 
@@ -542,7 +542,7 @@ describe("BrowserPopupUtils", () => {
 
     it("should stop polling after popup closes before timeout", async () => {
       let callCount = 0;
-      jest.spyOn(BrowserApi, "isPopupOpen").mockImplementation(async () => {
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockImplementation(async () => {
         callCount++;
         return callCount <= 2;
       });
@@ -557,7 +557,7 @@ describe("BrowserPopupUtils", () => {
       // Advance further to ensure no more calls are made
       jest.advanceTimersByTime(1000);
 
-      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(3);
+      expect(BrowserApi.isAnyPopupOrPopoutOpen).toHaveBeenCalledTimes(3);
     });
   });
 

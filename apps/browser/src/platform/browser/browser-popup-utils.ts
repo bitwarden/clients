@@ -257,16 +257,16 @@ export default class BrowserPopupUtils {
   }
 
   /**
-   * Waits for all browser action popups to close, polling up to the specified timeout.
-   * Used before extension reload to prevent zombie popups with invalidated contexts.
+   * Waits for the toolbar popup and any popout windows to close, polling up to the specified
+   * timeout. Used before extension reload to prevent zombie views with invalidated contexts.
    *
    * @param timeoutMs - Maximum time to wait in milliseconds. Defaults to 1 second.
-   * @returns Promise that resolves when all popups are closed or timeout is reached.
+   * @returns Promise that resolves when all popup/popout views are closed or timeout is reached.
    */
   static async waitForAllPopupsClose(timeoutMs = 1000): Promise<void> {
     await firstValueFrom(
       interval(100).pipe(
-        switchMap(() => BrowserApi.isPopupOpen()),
+        switchMap(() => BrowserApi.isAnyPopupOrPopoutOpen()),
         takeWhile((isOpen) => isOpen, true),
         filter((isOpen) => !isOpen),
         timeout({
