@@ -19,11 +19,11 @@ export abstract class AnonLayoutWrapperDataService {
   abstract anonLayoutWrapperData$(): Observable<Partial<AnonLayoutWrapperData>>;
 
   /**
-   * Caches the route-data payload so that `resetToRouteData()` can later restore it.
+   * Caches the route-data payload so that `resetToCachedRouteData()` can later restore it.
    * Called by the wrapper components (`AnonLayoutWrapperComponent`,
    * `ExtensionAnonLayoutWrapperComponent`) when they apply route data. Does not emit.
    */
-  abstract setRouteData(data: Partial<AnonLayoutWrapperData>): void;
+  abstract cacheRouteData(data: Partial<AnonLayoutWrapperData>): void;
 
   /**
    * Re-emits the most recently cached route-data payload through `anonLayoutWrapperData$()`,
@@ -33,5 +33,5 @@ export abstract class AnonLayoutWrapperDataService {
    * can call this to roll back to the route-declared defaults before applying state-specific
    * updates.
    */
-  abstract resetToRouteData(): void;
+  abstract resetToCachedRouteData(): void;
 }

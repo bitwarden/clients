@@ -207,7 +207,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     // Restore the route-level layout (undoing the CHECK_EMAIL overrides), then layer the
     // state-specific text and icon back on top. The layout suppresses the icon when the
     // route declared hidePageIcon: true (e.g., on the extension).
-    this.anonLayoutWrapperDataService.resetToRouteData();
+    this.anonLayoutWrapperDataService.resetToCachedRouteData();
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: {
         key: "createAccount",

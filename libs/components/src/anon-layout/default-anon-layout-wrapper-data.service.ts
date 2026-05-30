@@ -15,11 +15,11 @@ export class DefaultAnonLayoutWrapperDataService implements AnonLayoutWrapperDat
     return this.anonLayoutWrapperDataSubject.asObservable();
   }
 
-  setRouteData(data: Partial<AnonLayoutWrapperData>): void {
+  cacheRouteData(data: Partial<AnonLayoutWrapperData>): void {
     this.cachedRouteData = data;
   }
 
-  resetToRouteData(): void {
+  resetToCachedRouteData(): void {
     this.anonLayoutWrapperDataSubject.next(this.cachedRouteData);
   }
 }

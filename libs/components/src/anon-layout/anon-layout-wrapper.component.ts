@@ -155,8 +155,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.contentTopPadding = routeData.contentTopPadding ?? "default";
     this.heroTextAlignment = routeData.heroTextAlignment ?? "center";
 
-    // Cache the routeData payload so resetToRouteData() can later restore it.
-    this.anonLayoutWrapperDataService.setRouteData(
+    // Cache the routeData payload so resetToCachedRouteData() can later restore it.
+    this.anonLayoutWrapperDataService.cacheRouteData(
       firstChildRouteData as Partial<AnonLayoutWrapperData>,
     );
   }

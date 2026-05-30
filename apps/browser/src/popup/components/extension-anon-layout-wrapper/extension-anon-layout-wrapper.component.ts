@@ -163,8 +163,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.heroTextAlignment = routeData.heroTextAlignment ?? "center";
     this.secondaryContentLocation = routeData.secondaryContentLocation ?? "main";
 
-    // Cache the routeData payload so resetToRouteData() can later restore it.
-    this.extensionAnonLayoutWrapperDataService.setRouteData(
+    // Cache the routeData payload so resetToCachedRouteData() can later restore it.
+    this.extensionAnonLayoutWrapperDataService.cacheRouteData(
       firstChildRouteData as Partial<ExtensionAnonLayoutWrapperData>,
     );
   }
