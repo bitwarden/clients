@@ -454,6 +454,51 @@ describe("BrowserPopupUtils", () => {
     });
   });
 
+  describe("closeCurrentPopupOrPopout", () => {
+    const win = {} as Window;
+
+    it("closes the browser action popup when the view is a popup", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow");
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.closePopup).toHaveBeenCalledWith(win);
+      expect(BrowserApi.getWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
+    });
+
+    it("removes the current window when the view is a popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow").mockResolvedValue({ id: 42 } as chrome.windows.Window);
+      jest.spyOn(BrowserApi, "removeWindow").mockResolvedValue();
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.removeWindow).toHaveBeenCalledWith(42);
+      expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the view is neither a popup nor a popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow");
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+      expect(BrowserApi.getWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
+    });
+  });
+
   describe("waitForAllPopupsClose", () => {
     beforeEach(() => {
       jest.useFakeTimers();

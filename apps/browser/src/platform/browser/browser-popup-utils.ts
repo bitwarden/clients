@@ -238,6 +238,25 @@ export default class BrowserPopupUtils {
   }
 
   /**
+   * Closes the current popup or popout window from inside that window.
+   *
+   * @param win - The passed window object.
+   */
+  static async closeCurrentPopupOrPopout(win: Window): Promise<void> {
+    if (BrowserPopupUtils.inPopup(win)) {
+      BrowserApi.closePopup(win);
+      return;
+    }
+
+    if (BrowserPopupUtils.inPopout(win)) {
+      const currentWindow = await BrowserApi.getWindow();
+      if (currentWindow?.id != null) {
+        await BrowserApi.removeWindow(currentWindow.id);
+      }
+    }
+  }
+
+  /**
    * Waits for all browser action popups to close, polling up to the specified timeout.
    * Used before extension reload to prevent zombie popups with invalidated contexts.
    *
