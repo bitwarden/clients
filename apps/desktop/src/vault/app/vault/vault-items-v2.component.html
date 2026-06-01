@@ -29,6 +29,7 @@
           type="button"
           *cdkVirtualFor="let c of ciphers; trackBy: trackByFn"
           appStopClick
+          cipherListItem
           (click)="selectCipher(c)"
           (contextmenu)="rightClickCipher(c)"
           title="{{ 'viewItem' | i18n }}"
