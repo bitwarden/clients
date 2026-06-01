@@ -57,6 +57,11 @@ export class ToggleGroupComponent<TValue = unknown> {
 
   /**
    * The selected value in the toggle group.
+   *
+   * Use `[(selected)]` for two-way binding, or `[selected]` + `(selectedChange)`
+   * to listen one-way. The `selectedChange` event fires identically in all
+   * display modes (inline, full-width, and the responsive dropdown), so
+   * consumers do not need to branch on the rendered mode.
    */
   readonly selected = model<TValue>();
 

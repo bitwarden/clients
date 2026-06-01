@@ -61,6 +61,10 @@ width against the group's natural (unconstrained) width. When the container shri
 threshold the group switches to dropdown, and when it grows back above it the group returns to its
 previous inline or full-width state.
 
+Mode switching is transparent to the consumer: `[(selected)]` (or `[selected]` + `(selectedChange)`)
+reports value changes the same way whether the user clicks a toggle pill or picks an option from the
+dropdown. There is no separate event to subscribe to for the dropdown mode.
+
 Resize the browser window in the story below to see all three modes in action.
 
 <Canvas of={stories.Overflow} />
