@@ -1,6 +1,7 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
+import { createMeter, measure, stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -71,6 +72,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
   private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
+
+  private readonly recordGetPageDetails = createMeter("getPageDetails", "phase", "fieldCount");
+  private readonly recordBuildFields = createMeter(
+    "buildAutofillFieldsData",
+    "phase",
+    "fieldCount",
+  );
+  private readonly recordMapSizes = createMeter("mapSizes", "fields", "byOpid", "forms", "heap");
+  private readonly recordRequireUpdate = createMeter("requireUpdate", "trigger");
+  // Larger ring than default: fires per MO callback; churn-heavy pages can outrun 256 slots before flush.
+  private readonly recordMutationBatch = createMeter(
+    { name: "mutationBatch", bits: 10 },
+    "records",
+    "inShadow",
+  );
+
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -100,6 +117,31 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+
+    this.handleMutationObserverMutation = stopwatch(
+      "handleMutationObserverMutation",
+      this.handleMutationObserverMutation,
+    );
+    this.processMutations = stopwatch("processMutations", this.processMutations);
+    this.handleNewShadowRoots = stopwatch("handleNewShadowRoots", this.handleNewShadowRoots);
+    this.setupMutationObserver = stopwatch("setupMutationObserver", this.setupMutationObserver);
+    this.handleWindowLocationMutation = stopwatch(
+      "handleWindowLocationMutation",
+      this.handleWindowLocationMutation,
+    );
+    this.requirePageDetailsUpdate = stopwatch(
+      "requirePageDetailsUpdate",
+      this.requirePageDetailsUpdate,
+    );
+    this.queryAutofillFormAndFieldElements = stopwatch(
+      "queryAutofillFormAndFieldElements",
+      this.queryAutofillFormAndFieldElements,
+    );
+    this.updateCachedAutofillFieldVisibility = stopwatch(
+      "updateCachedAutofillFieldVisibility",
+      this.updateCachedAutofillFieldVisibility,
+    );
+    this.setupOverlayOnField = stopwatch("setupOverlayOnField", this.setupOverlayOnField);
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -114,6 +156,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // Split shell wraps all five return paths in getPageDetailsInner without a try/finally dance.
+    this.recordGetPageDetails("start", -1);
+    const pageDetails = await this.getPageDetailsInner();
+    this.recordGetPageDetails("end", pageDetails.fields.length);
+    this.recordMapSizes(
+      this.autofillFieldElements.size,
+      this.autofillFieldsByOpid.size,
+      this._autofillFormElements.size,
+      (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize ??
+        0,
+    );
+    return pageDetails;
+  }
+
+  private async getPageDetailsInner(): Promise<AutofillPageDetails> {
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
@@ -569,6 +626,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private async buildAutofillFieldsData(
     formFieldElements: FormFieldElement[],
   ): Promise<AutofillField[]> {
+    this.recordBuildFields("start", formFieldElements.length);
     // Maximum number of form fields to process for autofill to prevent performance issues on pages with excessive fields
     const autofillFieldsLimit = 200;
     const autofillFieldElements = this.getAutofillFieldElements(
@@ -584,6 +642,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const autofillFields: AutofillField[] = candidates.filter(
       (field): field is AutofillField => field !== null,
     );
+    this.recordBuildFields("end", autofillFields.length);
     return autofillFields;
   }
 
@@ -1321,24 +1380,31 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
-    const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
+    const hasMutationsInShadowRoot = measure("shadowMutationCheck", () =>
+      this.domQueryService.checkMutationsInShadowRoots(mutations),
+    );
+
+    this.recordMutationBatch(mutations.length, hasMutationsInShadowRoot);
 
     if (hasMutationsInShadowRoot) {
+      this.recordRequireUpdate("shadowMutation");
       this.debouncedRequirePageDetailsUpdate();
     }
 
-    if (!this.pendingShadowDomCheck) {
-      this.pendingShadowDomCheck = true;
+    measure("scheduleShadowScan", () => {
+      if (!this.pendingShadowDomCheck) {
+        this.pendingShadowDomCheck = true;
 
-      if (this.shadowDomCheckTimeout) {
-        clearTimeout(this.shadowDomCheckTimeout);
+        if (this.shadowDomCheckTimeout) {
+          clearTimeout(this.shadowDomCheckTimeout);
+        }
+
+        this.shadowDomCheckTimeout = setTimeout(() => {
+          this.handleNewShadowRoots();
+          this.pendingShadowDomCheck = false;
+        }, this.shadowDomCheckTimeoutMs);
       }
-
-      this.shadowDomCheckTimeout = setTimeout(() => {
-        this.handleNewShadowRoots();
-        this.pendingShadowDomCheck = false;
-      }, this.shadowDomCheckTimeoutMs);
-    }
+    });
 
     if (!this.mutationsQueue.length) {
       requestIdleCallbackPolyfill(this.debouncedProcessMutations, { timeout: 500 });
@@ -1352,6 +1418,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleWindowLocationMutation() {
+    this.recordRequireUpdate("locationChange");
     this.currentLocationHref = globalThis.location.href;
 
     this.domRecentlyMutated = true;
@@ -1433,6 +1500,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private handleNewShadowRoots = () => {
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots();
     if (hasNewShadowRoots) {
+      this.recordRequireUpdate("newShadowRoot");
       this.debouncedRequirePageDetailsUpdate();
     }
   };
