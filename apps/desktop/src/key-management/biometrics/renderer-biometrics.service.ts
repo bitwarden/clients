@@ -29,32 +29,36 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
 // inadvertently gets unlocked but not locked again.
 const SET_USERKEY_UNLOCK = false;
 
-// Creates the SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
-// This replaces the `BiometricMessageHandlerService` entirely.
-export function createBiometricsDriver(
-  biometricsService: RendererBiometricsService,
-  unlockService: UnlockService,
-): BiometricsUnlock {
-  return {
-    async get_biometrics_status(user_id: SdkUserId): Promise<SdkBiometricsStatus> {
-      const status = await biometricsService.getBiometricsStatusForUser(fromSdkUserId(user_id));
-      return toSdkBiometricsStatus(status);
-    },
-    async unlock_biometrics(user_id: SdkUserId): Promise<SymmetricKey | undefined> {
-      const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
-      if (key == null) {
-        return undefined;
-      }
+/**
+ * SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
+ * This replaces the `BiometricMessageHandlerService` entirely.
+ */
+class BiometricsUnlockDriver implements BiometricsUnlock {
+  constructor(
+    private biometricsService: RendererBiometricsService,
+    private unlockService: UnlockService,
+  ) {}
 
-      if (SET_USERKEY_UNLOCK) {
-        await unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
-      }
-      return key.toSdk();
-    },
-    async authenticate_biometrics() {
-      return await biometricsService.authenticateWithBiometrics();
-    },
-  };
+  async get_biometrics_status(user_id: SdkUserId): Promise<SdkBiometricsStatus> {
+    const status = await this.biometricsService.getBiometricsStatusForUser(fromSdkUserId(user_id));
+    return toSdkBiometricsStatus(status);
+  }
+
+  async unlock_biometrics(user_id: SdkUserId): Promise<SymmetricKey | undefined> {
+    const key = await this.biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
+    if (key == null) {
+      return undefined;
+    }
+
+    if (SET_USERKEY_UNLOCK) {
+      await this.unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
+    }
+    return key.toSdk();
+  }
+
+  async authenticate_biometrics(): Promise<boolean> {
+    return await this.biometricsService.authenticateWithBiometrics();
+  }
 }
 
 /**
@@ -159,7 +163,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
 
   async setUnlockService(service: UnlockService): Promise<void> {
     await super.setUnlockService(service);
-    const driver = createBiometricsDriver(this, service);
+    const driver = new BiometricsUnlockDriver(this, service);
     await ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
   }
 }
