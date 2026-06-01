@@ -24,7 +24,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { makeSymmetricCryptoKey, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -400,8 +400,8 @@ describe("LockComponent", () => {
 
   describe("unlockViaBiometrics", () => {
     it("ignores concurrent unlock attempts while one biometric unlock is in progress", async () => {
-      let resolvePendingUnlock: ((value: UserKey | undefined) => void) | undefined;
-      const pendingUnlock = new Promise<UserKey | undefined>((resolve) => {
+      let resolvePendingUnlock: (() => void) | undefined;
+      const pendingUnlock = new Promise<void>((resolve) => {
         resolvePendingUnlock = resolve;
       });
       component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
@@ -411,14 +411,16 @@ describe("LockComponent", () => {
         masterPassword: { enabled: true },
         prf: { enabled: false },
       };
-      mockBiometricService.unlockWithBiometricsForUser.mockReturnValue(pendingUnlock);
+      const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      mockUnlockService.unlockWithBiometrics.mockReturnValue(pendingUnlock);
+      mockKeyService.userKey$.mockReturnValue(of(newUserKey));
 
       const firstAttempt = component.unlockViaBiometrics();
       await component.unlockViaBiometrics();
-      resolvePendingUnlock?.(undefined);
+      resolvePendingUnlock?.();
       await firstAttempt;
 
-      expect(mockBiometricService.unlockWithBiometricsForUser).toHaveBeenCalledTimes(1);
+      expect(mockUnlockService.unlockWithBiometrics).toHaveBeenCalledTimes(1);
     });
   });
 
