@@ -1,9 +1,7 @@
-use std::borrow::Cow;
-use std::time::Duration;
+use std::{borrow::Cow, time::Duration};
 
 use futures::TryStreamExt;
-use zbus::connection::Builder;
-use zbus::{Connection, MatchRule};
+use zbus::{connection::Builder, Connection, MatchRule};
 
 struct ScreenLock {
     interface: Cow<'static, str>,
