@@ -258,11 +258,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // if not guarded by an active account check (e.g. the user is logged in)
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
-    // Two gates: the autofiller script injects only when the vault is
-    // unlocked (auto-fill-on-page-load requires it). The monitor start
-    // follow-up runs whenever a user is logged in, locked or unlocked.
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
-    const accountIsLoggedIn = authStatus !== AuthenticationStatus.LoggedOut;
     let autoFillOnPageLoadIsEnabled = false;
 
     const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
@@ -295,6 +291,20 @@ export default class AutofillService implements AutofillServiceInterface {
       });
     }
 
+    // The injection awaits above yield the event loop, and a logout
+    // can complete in that window; sending the start signal off the stale
+    // snapshot would leave this frame's monitors running on a logged-out
+    // account.
+    //
+    // FIXME: A race condition can still occur here. There is no happens-before
+    // relationship between an `activeAccountStatus$` logout emission and this
+    // send. A logout landing just after this check triggers
+    // `handleAuthStatusTransition`, which stops connected ports. A frame whose
+    // port hasn't yet registered can still slip through. This may be eliminated
+    // by using rx to fully sequence script injections.
+    const accountIsLoggedIn =
+      (await firstValueFrom(this.authService.activeAccountStatus$)) !==
+      AuthenticationStatus.LoggedOut;
     if (accountIsLoggedIn) {
       // Fire-and-forget: the bootstrap is already injected at this point,
       // and awaiting the send only matters if the caller needs a response,

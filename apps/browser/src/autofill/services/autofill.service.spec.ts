@@ -581,6 +581,28 @@ describe("AutofillService", () => {
           expect.anything(),
         );
       });
+
+      it("does not send startAutofillMonitors when the user logs out during injection", async () => {
+        // The injection awaits yield the event loop; simulate a logout
+        // completing in that window. The start gate must reflect the auth
+        // status at send time, not the snapshot taken before injection.
+        const injectSpy = jest
+          .spyOn(scriptInjectorService, "inject")
+          .mockImplementation(async () => {
+            activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+          });
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        // Guard the race itself: the logout must have landed mid-injection,
+        // otherwise this degrades into the already-logged-out case above.
+        expect(injectSpy).toHaveBeenCalled();
+        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
+          expect.anything(),
+          { command: AutofillLifecycleCommand.start },
+          expect.anything(),
+        );
+      });
     });
   });
 
