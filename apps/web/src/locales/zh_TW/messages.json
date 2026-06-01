@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "高風險關鍵應用程式"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Critical applications at risk"
+  },
   "allCriticalApps": {
     "message": "所有關鍵應用程式"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "無法還原組織存取"
   },
-  "allApplicationsWithCount": {
-    "message": "全部應用程式($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "建立新的登入項目"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "關鍵應用程式 ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "已標記為關鍵應用程式"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Your data is in. Let's put it to work."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "startTour": {
+    "message": "Start tour"
   },
   "noDataInOrgTitle": {
     "message": "找不到資料"
@@ -355,8 +349,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "這些成員可存取關鍵應用程式中的高風險項目。"
   },
-  "membersWithAtRiskPasswords": {
-    "message": "使用有風險密碼的成員"
+  "membersWithAtRiskPwds": {
+    "message": "Members with at risk passwords"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "您組織的成員將被指派變更高風險密碼的任務。他們會在 Bitwarden 瀏覽器擴充套件中收到通知。"
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "護照號碼"
+  },
+  "sex": {
+    "message": "性別"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
   },
   "licenseNumber": {
     "message": "駕照號碼"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "銀行資料"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "整理您的項目"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "複製地址"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "複製電話"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "複製護照號碼"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
   },
   "copyFirstName": {
     "message": "複製名字"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "複製指紋"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "複製名稱"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "沒有資料可以複製"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "您的 $PLAN$ 7 天免費試用期，將會在 7 天後轉換為付費訂閱。",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created text Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created text Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Created file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created file Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created file Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "移動項目 $ID$ 至一個組織。",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "已複製項目 $ID$ 的 PIN 碼。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "一個或多個電子郵件屬於已被撤銷的成員。請恢復其存取權以重新邀請。"
   },
-  "revocationReasonUnknown": {
-    "message": "未知原因"
+  "revocationReasonNotLogged": {
+    "message": "No reason logged"
   },
   "revocationReasonManual": {
     "message": "已由管理員撤銷"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "不符合單一組織政策"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Declined item transfer to organization"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "因不符合組織的雙重驗證政策，已撤銷 $ID$ 的組織存取權限。",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "已接受轉移至組織擁有權。"
-  },
-  "userDeclinedTransfer": {
-    "message": "因拒絕轉移至組織擁有權而遭撤銷。"
   },
   "invitedUserId": {
     "message": "已邀請使用者 $ID$。",
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "傳送變更密碼的通知"
   },
+  "sendNotifications": {
+    "message": "Send notifications"
+  },
   "assignToCollections": {
     "message": "指派至集合"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "你的 $PLAN$ 7 天試用自今日開始。請立即新增付款方式，以便在試用結束後繼續使用以下功能：",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13664,6 +13784,9 @@
   "searchBankAccount": {
     "message": "搜尋銀行帳戶"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "複製帳號"
   },
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "More"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的銀行帳戶需先完成驗證後，才能用於此次升級。請先驗證銀行帳戶或選擇其他付款方式。"
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "略過連結"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "callout": {
     "message": "提示區塊",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "進度條",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "搜尋駕照"
