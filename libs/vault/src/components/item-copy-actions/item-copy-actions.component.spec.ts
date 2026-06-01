@@ -491,9 +491,55 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasDriversLicenseValues).toBe(false);
     });
+
+    it("computes hasBankAccountValues from bankAccount fields", () => {
+      (component.cipher() as CipherView).bankAccount = {
+        nameOnAccount: "Jane Doe",
+        accountNumber: null,
+        routingNumber: null,
+        branchNumber: null,
+        pin: null,
+        iban: null,
+        swiftCode: null,
+      } as any;
+
+      expect(component.hasBankAccountValues).toBe(true);
+
+      (component.cipher() as CipherView).bankAccount = {
+        nameOnAccount: null,
+        accountNumber: null,
+        routingNumber: null,
+        branchNumber: null,
+        pin: null,
+        iban: null,
+        swiftCode: null,
+      } as any;
+
+      expect(component.hasBankAccountValues).toBe(false);
+    });
+
+    it("computes hasPassportValues from passport fields", () => {
+      (component.cipher() as CipherView).passport = {
+        givenName: "Jane",
+        surname: null,
+        passportNumber: null,
+        nationalIdentificationNumber: null,
+      } as any;
+
+      expect(component.hasPassportValues).toBe(true);
+
+      (component.cipher() as CipherView).passport = {
+        givenName: null,
+        surname: null,
+        passportNumber: null,
+        nationalIdentificationNumber: null,
+      } as any;
+
+      expect(component.hasPassportValues).toBe(false);
+    });
   });
 
-  describe("has*Values in list view", () => {
+  describe("has Values in list view", () => {
     beforeEach(() => {
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
     });
@@ -586,15 +632,47 @@ describe("VaultItemCopyActionsComponent", () => {
       expect(component.hasDriversLicenseValues).toBe(true);
 
       (component.cipher() as CipherListView).copyableFields = [
+        "DriversLicenseFirstName",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasDriversLicenseValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
       ] as CopyableCipherFields[];
 
       expect(component.hasDriversLicenseValues).toBe(false);
     });
 
+    it("uses copyableFields for bank account values", () => {
+      (component.cipher() as CipherListView).copyableFields = [
+        "BankAccountSwift",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasBankAccountValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "BankAccountNameOnAccount",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasBankAccountValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "LoginUsername",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasBankAccountValues).toBe(false);
+    });
+
     it("uses copyableFields for passport values", () => {
       (component.cipher() as CipherListView).copyableFields = [
-        "PassportPassportNumber",
+        "PassportNationalIdentificationNumber",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasPassportValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "PassportGivenName",
       ] as CopyableCipherFields[];
 
       expect(component.hasPassportValues).toBe(true);

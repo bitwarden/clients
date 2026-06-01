@@ -26,10 +26,12 @@ import { trackedMerge } from "@bitwarden/common/platform/misc";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import {
   LogOutNotification,
   NotificationResponse,
+  PremiumStatusChangedNotification,
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
@@ -75,6 +77,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly policyService: InternalPolicyService,
     private readonly newPolicyService: InternalNewPolicyService,
     private autoConfirmService: AutomaticUserConfirmationService,
+    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
@@ -318,6 +321,20 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           notification.payload.organizationId,
         );
         break;
+      case NotificationType.PremiumStatusChanged: {
+        const premiumPayload = notification.payload as PremiumStatusChangedNotification;
+        const hasPremiumFromAnyOrganization = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(
+            premiumPayload.userId as UserId,
+          ),
+        );
+        await this.billingAccountProfileStateService.setHasPremium(
+          premiumPayload.premium,
+          hasPremiumFromAnyOrganization,
+          premiumPayload.userId as UserId,
+        );
+        break;
+      }
       default:
         break;
     }

@@ -8,7 +8,7 @@ pub mod sshagent_v2 {
     use std::{sync::Arc, time::Duration};
 
     use async_trait::async_trait;
-    use napi::threadsafe_function::ThreadsafeFunction;
+    use napi::{bindgen_prelude::Promise, threadsafe_function::ThreadsafeFunction};
     use ssh_agent::{
         ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
         SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
@@ -104,8 +104,7 @@ pub mod sshagent_v2 {
 
     /// Interface for the agent to request approval for ssh operations from Electron.
     struct ElectronApprovalRequester {
-        // Callback used to approve signing data
-        sign_callback: Arc<ThreadsafeFunction<SignRequestData, bool>>,
+        sign_callback: Arc<ThreadsafeFunction<SignRequestData, Promise<bool>>>,
     }
 
     #[async_trait]
@@ -116,11 +115,16 @@ pub mod sshagent_v2 {
         ) -> Result<bool, ApprovalError> {
             let request = SignRequestData::from(request);
 
-            debug!(?request, "Sending sign approval request to Electron.");
+            debug!("Sending sign approval request to Electron.");
 
             let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
-                self.sign_callback
+                let promise = self
+                    .sign_callback
                     .call_async(Ok(request))
+                    .await
+                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))?;
+
+                promise
                     .await
                     .map_err(|e| ApprovalError::HandlerFailed(e.into()))
             })
@@ -141,18 +145,10 @@ pub mod sshagent_v2 {
         ///
         /// * `unlock_callback` - Allows agent to vault unlock
         /// * `sign_callback` - Allows agent to get approval for sign requests
-        #[napi(
-            factory,
-            // ts_args_type overrides the generated TypeScript parameter type. The Rust type
-            // `ThreadsafeFunction<T, bool>` would generate `(arg: T) => boolean`, but the
-            // callback returns a Promise. `call_async` awaits the Promise and deserializes the
-            // resolved value as `bool`, so `bool` is the correct Rust type — the mismatch is
-            // only in the generated TypeScript declaration.
-            ts_args_type = "signCallback: (data: SignRequestData) => Promise<boolean>"
-        )]
+        #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
-            sign_callback: ThreadsafeFunction<SignRequestData, bool>,
+            sign_callback: ThreadsafeFunction<SignRequestData, Promise<bool>>,
         ) -> napi::Result<Self> {
             debug!("Creating agent and starting server.");
 

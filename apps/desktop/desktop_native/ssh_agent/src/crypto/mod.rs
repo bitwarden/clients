@@ -20,40 +20,80 @@ use ssh_key::{
     Signature,
 };
 
+use crate::server::SignFlags;
 pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 
 /// Represents an SSH private key.
-///
-/// # External signers
-///
-/// Hardware-backed keys are not supported. If hardware-backed key support is ever added, the
-/// [`PrivateKey::sign`] function must be updated accordingly; see it for more details.
 #[derive(Clone, PartialEq, Debug)]
 pub enum PrivateKey {
     Ed25519(Ed25519Keypair),
     Rsa(RsaKeypair),
 }
 
-impl PrivateKey {
-    /// Signs the provided data using this private key.
-    ///
-    /// # Returns
-    ///
-    /// A [`Signature`] containing the algorithm identifier and raw signature bytes.
-    ///
-    /// # External signers
-    ///
-    /// Hardware-backed keys are not supported by the SSH Agent feature. This function signs
-    /// directly using key material held in memory and does not delegate to any hardware device. If
-    /// hardware-backed key support is ever added, this function must be updated. Consult the
-    /// following for more information.
-    ///
-    /// <https://docs.rs/signature/2.2.0/signature/trait.Signer.html>
+/// A private key that contains everything necessary to sign.
+///
+/// RSA always requires [`SignFlags`].
+///
+/// # External signers
+///
+/// Hardware-backed keys are not supported. This type signs directly using key
+/// material held in memory and does not delegate to any hardware device. If
+/// hardware-backed key support is ever added, [`SignablePrivateKey::sign`] must be updated.
+///
+/// <https://docs.rs/signature/2.2.0/signature/trait.Signer.html>
+pub enum SignablePrivateKey {
+    Ed25519(Ed25519Keypair),
+    Rsa(RsaKeypair, SignFlags),
+}
+
+impl SignablePrivateKey {
     pub fn sign(&self, data: &[u8]) -> Signature {
         match self {
             Self::Ed25519(kp) => kp.sign(data),
-            Self::Rsa(kp) => kp.sign(data),
+            Self::Rsa(kp, flag) => sign_rsa(kp, data, *flag),
         }
+    }
+}
+
+/// Error returned when constructing a [`SignablePrivateKey`] when RSA is requested but no flags
+/// specified.
+// NOTE: technically the spec allows this request, but SHA-1 is insecure and should not be used in
+// any agent.
+#[derive(Debug, thiserror::Error)]
+#[error("RSA signing requires an explicit hash algorithm in `SignFlags`; SHA-1 is not permitted")]
+pub struct UnsignableErrRsaRequiresFlags;
+
+impl TryFrom<(PrivateKey, Option<SignFlags>)> for SignablePrivateKey {
+    type Error = UnsignableErrRsaRequiresFlags;
+
+    fn try_from((key, flags): (PrivateKey, Option<SignFlags>)) -> Result<Self, Self::Error> {
+        match key {
+            PrivateKey::Ed25519(kp) => Ok(Self::Ed25519(kp)),
+            PrivateKey::Rsa(kp) => flags
+                .map(|flag| Self::Rsa(kp, flag))
+                .ok_or(UnsignableErrRsaRequiresFlags),
+        }
+    }
+}
+
+fn sign_rsa(kp: &RsaKeypair, data: &[u8], flag: SignFlags) -> Signature {
+    match flag {
+        SignFlags::RsaSha256 => {
+            // we don't expect this to fail because the RSA keypair was already validated at
+            // creation time.
+            let signing_key = rsa::pkcs1v15::SigningKey::<sha2::Sha256>::try_from(kp)
+                .expect("RSA keypair to convert to SHA-256 signing key");
+            let rsa_sig: Box<[u8]> = signing_key.sign(data).into();
+
+            Signature::new(
+                ssh_key::Algorithm::Rsa {
+                    hash: Some(flag.hash_alg()),
+                },
+                rsa_sig.to_vec(),
+            )
+            .expect("RSA-SHA256 signature construction should succeed")
+        }
+        SignFlags::RsaSha512 => kp.sign(data),
     }
 }
 
@@ -127,6 +167,7 @@ mod tests {
     use super::*;
 
     const MIN_KEY_BIT_SIZE: usize = 2048;
+    const TEST_DATA: &[u8] = b"test data";
 
     fn create_valid_ed25519_key_string() -> String {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
@@ -156,23 +197,61 @@ mod tests {
     }
 
     #[test]
-    fn test_privatekey_sign_ed25519_algorithm() {
+    fn test_signing_key_from_ed25519_always_succeeds() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
         let private_key = PrivateKey::Ed25519(keypair);
-        const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA);
+        assert!(SignablePrivateKey::try_from((private_key, None)).is_ok());
+    }
+
+    #[test]
+    fn test_signing_key_from_rsa_without_flags_returns_error() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let private_key = PrivateKey::Rsa(keypair);
+
+        assert!(SignablePrivateKey::try_from((private_key, None)).is_err());
+    }
+
+    #[test]
+    fn test_signing_key_from_rsa_with_sha256_flag_succeeds() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let private_key = PrivateKey::Rsa(keypair);
+
+        assert!(SignablePrivateKey::try_from((
+            private_key,
+            Some(crate::server::SignFlags::RsaSha256)
+        ))
+        .is_ok());
+    }
+
+    #[test]
+    fn test_signing_key_from_rsa_with_sha512_flag_succeeds() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let private_key = PrivateKey::Rsa(keypair);
+
+        assert!(SignablePrivateKey::try_from((
+            private_key,
+            Some(crate::server::SignFlags::RsaSha512)
+        ))
+        .is_ok());
+    }
+
+    #[test]
+    fn test_signing_key_sign_ed25519_algorithm() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let signing_key = SignablePrivateKey::Ed25519(keypair);
+
+        let sig = signing_key.sign(TEST_DATA);
 
         assert_eq!(sig.algorithm(), ssh_key::Algorithm::Ed25519);
     }
 
     #[test]
-    fn test_privatekey_sign_rsa_algorithm() {
+    fn test_signing_key_sign_rsa_sha512_algorithm() {
         let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
-        let private_key = PrivateKey::Rsa(keypair);
-        const TEST_DATA: &[u8] = b"test data";
+        let signing_key = SignablePrivateKey::Rsa(keypair, crate::server::SignFlags::RsaSha512);
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = signing_key.sign(TEST_DATA);
 
         assert_eq!(
             sig.algorithm(),
@@ -183,25 +262,38 @@ mod tests {
     }
 
     #[test]
-    fn test_privatekey_sign_ed25519_signature() {
+    fn test_signing_key_sign_rsa_sha256_algorithm() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let signing_key = SignablePrivateKey::Rsa(keypair, crate::server::SignFlags::RsaSha256);
+
+        let sig = signing_key.sign(TEST_DATA);
+
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Rsa {
+                hash: Some(ssh_key::HashAlg::Sha256),
+            }
+        );
+    }
+
+    #[test]
+    fn test_signing_key_sign_ed25519_produces_valid_signature() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
         let public_key = keypair.public;
-        let private_key = PrivateKey::Ed25519(keypair);
-        const TEST_DATA: &[u8] = b"test data";
+        let signing_key = SignablePrivateKey::Ed25519(keypair);
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = signing_key.sign(TEST_DATA);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
     }
 
     #[test]
-    fn test_privatekey_sign_rsa_signature() {
+    fn test_signing_key_sign_rsa_sha512_produces_valid_signature() {
         let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
-        let public_key = keypair.public.clone(); // RsaKepair doesn't implement copy
-        let private_key = PrivateKey::Rsa(keypair);
-        const TEST_DATA: &[u8] = b"test data";
+        let public_key = keypair.public.clone();
+        let signing_key = SignablePrivateKey::Rsa(keypair, crate::server::SignFlags::RsaSha512);
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = signing_key.sign(TEST_DATA);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
     }
