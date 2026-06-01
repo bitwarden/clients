@@ -39,4 +39,14 @@ export default class AutofillForm {
    * (closest first).
    */
   htmlAncestorHeadings!: string[];
+
+  /**
+   * Opid assigned to the form's submit button when a targeting rule's
+   * `actions.submit` selector resolved during collection. Absent when no rule
+   * applied, when the rule did not provide an `actions.submit` selector, or
+   * when none of the provided selectors matched. The targeted-submit-button
+   * registry on the overlay service distinguishes the unresolved case (which
+   * suppresses heuristic submit-button discovery) from the no-rule case.
+   */
+  submitButtonOpid?: string;
 }

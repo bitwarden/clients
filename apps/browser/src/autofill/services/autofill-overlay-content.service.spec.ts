@@ -2702,6 +2702,68 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
+  describe("registerTargetedSubmitButton + targeted submit listener wiring", () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <form id="targeted-form">
+          <input type="text" id="user" />
+          <button id="submit-btn" type="submit">Submit</button>
+        </form>
+      `;
+    });
+
+    it("attaches click listeners on the rule-provided submit button when registered with an element", () => {
+      const submitButton = document.getElementById("submit-btn") as HTMLElement;
+      const setupSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "setupSubmitButtonEventListeners",
+      );
+      autofillOverlayContentService.registerTargetedSubmitButton("targeted_form_0", submitButton);
+
+      const field = document.getElementById("user") as FillableFormFieldElement;
+      autofillOverlayContentService["setupSubmitListenerOnTargetedField"](field, "targeted_form_0");
+
+      expect(setupSpy).toHaveBeenCalledWith(submitButton);
+    });
+
+    it("attaches the form-submit listener to the native form ancestor when present", () => {
+      const submitButton = document.getElementById("submit-btn") as HTMLElement;
+      autofillOverlayContentService.registerTargetedSubmitButton("targeted_form_0", submitButton);
+      const field = document.getElementById("user") as FillableFormFieldElement;
+      const formAncestor = document.getElementById("targeted-form") as HTMLFormElement;
+      const formAddListenerSpy = jest.spyOn(formAncestor, "addEventListener");
+
+      autofillOverlayContentService["setupSubmitListenerOnTargetedField"](field, "targeted_form_0");
+
+      expect(formAddListenerSpy).toHaveBeenCalledWith("submit", expect.any(Function));
+    });
+
+    it("does not wire any submit-button listeners when registered with null (rule declared but unresolved)", () => {
+      const setupSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "setupSubmitButtonEventListeners",
+      );
+      autofillOverlayContentService.registerTargetedSubmitButton("targeted_form_0", null);
+
+      const field = document.getElementById("user") as FillableFormFieldElement;
+      autofillOverlayContentService["setupSubmitListenerOnTargetedField"](field, "targeted_form_0");
+
+      expect(setupSpy).not.toHaveBeenCalled();
+    });
+
+    it("clears the registry on destroy", () => {
+      const submitButton = document.getElementById("submit-btn") as HTMLElement;
+      autofillOverlayContentService.registerTargetedSubmitButton("targeted_form_0", submitButton);
+      expect(autofillOverlayContentService["targetedSubmitButtonsByFormOpid"].size).toBeGreaterThan(
+        0,
+      );
+
+      autofillOverlayContentService.destroy();
+
+      expect(autofillOverlayContentService["targetedSubmitButtonsByFormOpid"].size).toBe(0);
+    });
+  });
+
   describe("destroy", () => {
     let autofillFieldElement: ElementWithOpId<FormFieldElement>;
     let autofillFieldData: AutofillField;

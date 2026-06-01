@@ -301,6 +301,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       if (containerElement) {
         formOpid = `targeted_form_${formIndex}`;
         autofillFormsData[formOpid] = this.buildTargetedAutofillForm(containerElement, formOpid);
+
+        const submitButtonResolution = this.resolveTargetedSubmitButton(form.actions?.submit);
+
+        if (submitButtonResolution !== undefined) {
+          if (submitButtonResolution) {
+            const submitButtonOpid = `targeted_submit_${formIndex}`;
+            (submitButtonResolution as ElementWithOpId<HTMLElement>).opid = submitButtonOpid;
+            autofillFormsData[formOpid].submitButtonOpid = submitButtonOpid;
+          }
+
+          this.autofillOverlayContentService?.registerTargetedSubmitButton(
+            formOpid,
+            submitButtonResolution,
+          );
+        }
       }
 
       for (const [fieldType, selectorAlternatives] of Object.entries(form.fields)) {
@@ -433,6 +448,46 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return match;
       }
     }
+    return null;
+  }
+
+  /**
+   * Resolves a targeting rule's `actions.submit` selector array to the first
+   * DOM element matched by any string entry. Returns:
+   *
+   * - `undefined` when the rule did not declare `actions.submit` (callers
+   *   treat this as "no opinion" and may fall back to heuristic discovery).
+   * - `null` when the rule declared selectors but none resolved locally
+   *   (callers should suppress heuristic discovery).
+   * - `HTMLElement` when a selector resolved.
+   *
+   * Skips `DeepSelectorSequence` (string[]) entries and iframe-crossing
+   * selectors, mirroring {@link resolveTargetedContainerElement}.
+   */
+  private resolveTargetedSubmitButton(
+    submitSelectors: NonNullable<FormContent["actions"]>["submit"],
+  ): HTMLElement | null | undefined {
+    if (submitSelectors === undefined) {
+      return undefined;
+    }
+
+    if (!submitSelectors.length) {
+      return null;
+    }
+
+    for (const selector of submitSelectors) {
+      if (typeof selector !== "string") {
+        continue;
+      }
+      if (this.domQueryService.findIframeCrossing(selector)) {
+        continue;
+      }
+      const match = this.domQueryService.queryDeepSelector(selector);
+      if (match instanceof HTMLElement) {
+        return match;
+      }
+    }
+
     return null;
   }
 

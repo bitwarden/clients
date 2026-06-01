@@ -43,5 +43,6 @@ export interface AutofillOverlayContentService {
   getUnownedTopLayerItems(includeCandidates?: boolean): NodeListOf<Element> | undefined;
   refreshMenuLayerPosition(): void;
   clearUserFilledFields(): void;
+  registerTargetedSubmitButton(formOpid: string, submitButtonElement: HTMLElement | null): void;
   destroy(): void;
 }

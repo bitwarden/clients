@@ -75,6 +75,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private formElements: Set<HTMLFormElement> = new Set();
   private submitElements: Set<HTMLElement> = new Set();
   private fieldsWithSubmitElements: WeakMap<FillableFormFieldElement, HTMLElement> = new WeakMap();
+  /**
+   * Tracks submit-button bindings declared by targeting rules' `actions.submit`,
+   * keyed by AutofillForm opid.
+   *
+   * - Entry present, element non-null: rule resolved a button; use it as the
+   *   authoritative click target for submit-listener wiring.
+   * - Entry present, element null: rule declared `actions.submit` but no
+   *   selector matched; suppress heuristic submit-button discovery for the
+   *   form so a stale/wrong listener isn't attached.
+   * - No entry: no targeting rule applied to the form, or the rule did not
+   *   declare `actions.submit`; heuristic discovery runs as usual.
+   */
+  private targetedSubmitButtonsByFormOpid: Map<string, HTMLElement | null> = new Map();
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> | null = {};
   private focusableElements: FocusableElement[] = [];
@@ -443,6 +456,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (
+      autofillFieldData.targeted &&
+      autofillFieldData.form &&
+      this.targetedSubmitButtonsByFormOpid.has(autofillFieldData.form)
+    ) {
+      this.setupSubmitListenerOnTargetedField(formFieldElement, autofillFieldData.form);
+      return;
+    }
+
     if (autofillFieldData.form) {
       await this.setupSubmitListenerOnFieldWithForms(formFieldElement);
       return;
@@ -450,6 +472,34 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     await this.setupSubmitListenerOnFormlessField(formFieldElement);
     return;
+  }
+
+  /**
+   * Sets up the submit listener for a targeted field whose form has a
+   * targeting-rule submit-button binding. Bypasses the heuristic submit-button
+   * walk; if the rule resolved a button, wire listeners on it. If the rule
+   * declared `actions.submit` but none of its selectors resolved (registry
+   * entry is `null`), suppress listener attachment entirely — the rule has
+   * expressed an opinion that no heuristic should override.
+   *
+   * Also attaches the form-submit listener to a native `<form>` ancestor when
+   * one exists, so the same submit-detection signals still fire for targeted
+   * forms wrapped in real `<form>` elements.
+   */
+  private setupSubmitListenerOnTargetedField(
+    formFieldElement: FillableFormFieldElement,
+    formOpid: string,
+  ): void {
+    const formElement = formFieldElement.form;
+    if (formElement && !this.formElements.has(formElement)) {
+      this.formElements.add(formElement);
+      formElement.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
+    }
+
+    const submitButton = this.targetedSubmitButtonsByFormOpid.get(formOpid);
+    if (submitButton) {
+      this.setupSubmitButtonEventListeners(submitButton);
+    }
   }
 
   /**
@@ -1953,5 +2003,20 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.removeOverlayRepositionEventListeners();
     this.removeRebuildSubFrameOffsetsListeners();
     this.removeSubFrameFocusOutListeners();
+    this.targetedSubmitButtonsByFormOpid.clear();
+  }
+
+  /**
+   * Registers a submit-button binding declared by a targeting rule's
+   * `actions.submit` selector. Called by the collect service after it
+   * resolves (or fails to resolve) the rule's submit selectors during the
+   * targeted page-details pass.
+   *
+   * @param formOpid - The opid of the targeted AutofillForm record.
+   * @param submitButtonElement - The resolved DOM element, or `null` when the
+   *   rule declared `actions.submit` but no provided selector matched.
+   */
+  registerTargetedSubmitButton(formOpid: string, submitButtonElement: HTMLElement | null): void {
+    this.targetedSubmitButtonsByFormOpid.set(formOpid, submitButtonElement);
   }
 }

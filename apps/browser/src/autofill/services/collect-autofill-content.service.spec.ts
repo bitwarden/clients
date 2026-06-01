@@ -809,6 +809,92 @@ describe("CollectAutofillContentService", () => {
       );
       expect(newPasswordFields).toHaveLength(1);
     });
+
+    it("resolves actions.submit, stamps submitButtonOpid on the form record, and registers the element with the overlay service", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="user" type="text" />
+          <button id="submit-btn" type="submit">Sign In</button>
+        </form>
+      `;
+      const registerSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"]!,
+        "registerTargetedSubmitButton",
+      );
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input#user"],
+          },
+          actions: {
+            submit: ["button#submit-btn"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.forms["targeted_form_0"].submitButtonOpid).toBe("targeted_submit_0");
+      const submitButton = document.getElementById("submit-btn");
+      expect(registerSpy).toHaveBeenCalledWith("targeted_form_0", submitButton);
+    });
+
+    it("registers null with the overlay service when actions.submit is declared but unresolved", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="user" type="text" />
+        </form>
+      `;
+      const registerSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"]!,
+        "registerTargetedSubmitButton",
+      );
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input#user"],
+          },
+          actions: {
+            submit: ["button#does-not-exist"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.forms["targeted_form_0"].submitButtonOpid).toBeUndefined();
+      expect(registerSpy).toHaveBeenCalledWith("targeted_form_0", null);
+    });
+
+    it("does not register with the overlay service when actions.submit is absent", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="user" type="text" />
+          <button id="submit-btn" type="submit">Sign In</button>
+        </form>
+      `;
+      const registerSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"]!,
+        "registerTargetedSubmitButton",
+      );
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input#user"],
+          },
+        },
+      ]);
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(registerSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("getAutofillFieldElementByOpid", () => {
