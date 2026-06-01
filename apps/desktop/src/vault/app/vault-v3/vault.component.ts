@@ -106,7 +106,6 @@ import {
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
-import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { VaultItemEvent } from "./vault-items/vault-item-event";
@@ -173,7 +172,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private vaultFilterService = inject(VaultFilterService);
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
-  private searchBarService = inject(SearchBarService);
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
@@ -319,8 +317,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async ngOnInit() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.activeUserId = activeUserId;
-
-    this.searchBarService.setEnabled(false);
 
     // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
