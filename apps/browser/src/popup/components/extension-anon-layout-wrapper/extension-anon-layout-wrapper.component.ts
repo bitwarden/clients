@@ -120,9 +120,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const routeData = firstChildRouteData as Partial<ExtensionAnonLayoutWrapperData>;
-
-    // TODO: replace remaining firstChildRouteData accesses below with `routeData` to enable type safety
     if (firstChildRouteData["pageTitle"] !== undefined) {
       this.pageTitle = this.handleStringOrTranslation(firstChildRouteData["pageTitle"]);
     }
@@ -155,17 +152,17 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
 
-    // When undefined on `routeData`, default to `false` via Boolean conversion
-    this.hidePageIcon = Boolean(routeData.hidePageIcon);
+    // When undefined, default to `false` via Boolean conversion
+    this.hidePageIcon = Boolean(firstChildRouteData["hidePageIcon"]);
 
-    // When undefined on `routeData`, default to a specified value
-    this.contentTopPadding = routeData.contentTopPadding ?? "default";
-    this.heroTextAlignment = routeData.heroTextAlignment ?? "center";
-    this.secondaryContentLocation = routeData.secondaryContentLocation ?? "main";
+    // When undefined, default to a specified value
+    this.contentTopPadding = firstChildRouteData["contentTopPadding"] ?? "default";
+    this.heroTextAlignment = firstChildRouteData["heroTextAlignment"] ?? "center";
+    this.secondaryContentLocation = firstChildRouteData["secondaryContentLocation"] ?? "main";
 
-    // Cache the routeData payload so resetToCachedRouteData() can later restore it.
+    // Cache the route-data payload so resetToCachedRouteData() can later restore it.
     this.extensionAnonLayoutWrapperDataService.cacheRouteData(
-      firstChildRouteData as Partial<ExtensionAnonLayoutWrapperData>,
+      firstChildRouteData as Partial<AnonLayoutWrapperData>,
     );
   }
 
