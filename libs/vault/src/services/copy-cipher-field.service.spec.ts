@@ -193,7 +193,7 @@ describe("CopyCipherFieldService", () => {
         skipReprompt = false;
       });
 
-      it.each(["accountNumber", "pin", "iban"] as CopyAction[])(
+      it.each(["accountNumber", "pin", "iban", "swiftCode"] as CopyAction[])(
         "requires password reprompt for protected field: %s",
         async (action) => {
           passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
@@ -203,29 +203,93 @@ describe("CopyCipherFieldService", () => {
         },
       );
 
-      it("does not require password reprompt for routingNumber", async () => {
-        const result = await service.copy(valueToCopy, "routingNumber", cipher, skipReprompt);
-        expect(result).toBeTruthy();
-        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
-        expect(platformUtilsService.copyToClipboard).toHaveBeenCalled();
-      });
-
-      it.each(["accountNumber", "pin"] as CopyAction[])(
-        "collects an event for %s",
+      it.each(["nameOnAccount", "routingNumber", "branchNumber"] as CopyAction[])(
+        "does not require password reprompt for non-protected field: %s",
         async (action) => {
-          skipReprompt = true;
-          await service.copy(valueToCopy, action, cipher, skipReprompt);
-          expect(eventCollectionService.collect).toHaveBeenCalled();
+          const result = await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(result).toBeTruthy();
+          expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+          expect(platformUtilsService.copyToClipboard).toHaveBeenCalled();
         },
       );
 
-      it("does not collect events for routingNumber or iban", async () => {
+      it.each([
+        ["accountNumber", EventType.Cipher_ClientCopiedBankAccountNumber],
+        ["pin", EventType.Cipher_ClientCopiedBankAccountPin],
+        ["iban", EventType.Cipher_ClientCopiedIban],
+        ["swiftCode", EventType.Cipher_ClientCopiedSwiftCode],
+      ] as [CopyAction, EventType][])("collects %s event when copied", async (action, event) => {
         skipReprompt = true;
-        for (const action of ["routingNumber", "iban"] as CopyAction[]) {
-          await service.copy(valueToCopy, action, cipher, skipReprompt);
-        }
-        expect(eventCollectionService.collect).not.toHaveBeenCalled();
+        await service.copy(valueToCopy, action, cipher, skipReprompt);
+        expect(eventCollectionService.collect).toHaveBeenCalledWith(
+          event,
+          cipher.id,
+          false,
+          cipher.organizationId,
+        );
       });
+
+      it.each(["nameOnAccount", "routingNumber", "branchNumber"] as CopyAction[])(
+        "does not collect an event for %s",
+        async (action) => {
+          skipReprompt = true;
+          await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(eventCollectionService.collect).not.toHaveBeenCalled();
+        },
+      );
+    });
+
+    describe("passport fields", () => {
+      beforeEach(() => {
+        cipher.reprompt = CipherRepromptType.None;
+        skipReprompt = true;
+      });
+
+      it("collects an event when nationalIdentificationNumber is copied", async () => {
+        await service.copy(valueToCopy, "nationalIdentificationNumber", cipher, skipReprompt);
+        expect(eventCollectionService.collect).toHaveBeenCalledWith(
+          EventType.Cipher_ClientCopiedNationalIdentificationNumber,
+          cipher.id,
+          false,
+          cipher.organizationId,
+        );
+      });
+
+      it("collects an event when passportNumber is copied", async () => {
+        await service.copy(valueToCopy, "passportNumber", cipher, skipReprompt);
+        expect(eventCollectionService.collect).toHaveBeenCalledWith(
+          EventType.Cipher_ClientCopiedPassportNumber,
+          cipher.id,
+          false,
+          cipher.organizationId,
+        );
+      });
+    });
+
+    describe("name fields", () => {
+      beforeEach(() => {
+        cipher.reprompt = CipherRepromptType.Password;
+        skipReprompt = false;
+        passwordRepromptService.showPasswordPrompt.mockClear();
+      });
+
+      it.each(["givenName", "surname"] as CopyAction[])(
+        "does not require password reprompt for %s",
+        async (action) => {
+          const result = await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(result).toBeTruthy();
+          expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        },
+      );
+
+      it.each(["givenName", "surname"] as CopyAction[])(
+        "does not collect an event for %s",
+        async (action) => {
+          skipReprompt = true;
+          await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(eventCollectionService.collect).not.toHaveBeenCalled();
+        },
+      );
     });
   });
 });

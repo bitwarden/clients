@@ -56,11 +56,23 @@
   "typeBankAccountSubtitle": {
     "message": "银行详细信息"
   },
+  "typePassport": {
+    "message": "护照"
+  },
+  "passportDetails": {
+    "message": "护照详细信息"
+  },
+  "passportAdded": {
+    "message": "护照已添加"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行证件"
+  },
   "folderSubtitle": {
-    "message": "组织您的项目"
+    "message": "整理您的项目"
   },
   "collectionSubtitle": {
-    "message": "组织共享的项目"
+    "message": "整理共享的项目"
   },
   "typeDriversLicense": {
     "message": "驾驶证"
@@ -150,12 +162,8 @@
     "message": "查看银行账户",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "查看驾驶证",
-    "description": "Header for view license item type"
-  },
   "viewItemHeaderLicense": {
-    "message": "查看许可证",
+    "message": "查看驾驶证",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -219,7 +227,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "编辑许可证",
+    "message": "编辑驾驶证",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "护照号码"
+  },
+  "sex": {
+    "message": "性别"
+  },
+  "copySex": {
+    "message": "复制性别"
+  },
+  "birthPlace": {
+    "message": "出生地点"
+  },
+  "copyBirthPlace": {
+    "message": "复制出生地点"
+  },
+  "nationality": {
+    "message": "国籍"
+  },
+  "copyNationality": {
+    "message": "复制国籍"
+  },
+  "copyIssuingCountry": {
+    "message": "复制签发国家 / 地区"
+  },
+  "passportType": {
+    "message": "护照类型"
+  },
+  "copyPassportType": {
+    "message": "复制护照类型"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "复制居民身份证号码"
+  },
+  "nationalIdentificationNumber": {
+    "message": "居民身份证号码"
+  },
+  "copyIssuingAuthority": {
+    "message": "复制签发机构 / 部门"
   },
   "licenseNumber": {
     "message": "许可证号码"
@@ -892,7 +936,7 @@
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
-    "message": "单词数"
+    "message": "单词个数"
   },
   "wordSeparator": {
     "message": "单词分隔符"
@@ -1180,6 +1224,10 @@
   },
   "noItemsInList": {
     "message": "没有可列出的项目。"
+  },
+  "noValueEntered": {
+    "message": "未输入任何值",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "发送验证码到您的电子邮箱"
@@ -1495,7 +1543,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "前往网页版密码库"
+    "message": "前往网页密码库"
   },
   "getMobileApp": {
     "message": "获取移动 App"
@@ -1553,7 +1601,7 @@
     }
   },
   "twoStepLoginConfirmation": {
-    "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在要访问此网站吗？"
+    "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页密码库中设置。现在要访问此网站吗？"
   },
   "twoStepLogin": {
     "message": "两步登录"
@@ -1786,7 +1834,7 @@
     "message": "管理成员资格"
   },
   "premiumManageAlert": {
-    "message": "您可以在 bitwarden.com 网页版密码库管理您的成员资格。现在要访问此网站吗？"
+    "message": "您可以在 bitwarden.com 网页密码库管理您的成员资格。现在要访问此网站吗？"
   },
   "premiumRefresh": {
     "message": "刷新成员资格"
@@ -1907,6 +1955,31 @@
   },
   "selectAll": {
     "message": "选择所有"
+  },
+  "selected": {
+    "message": "已选择"
+  },
+  "bulkActionsBar": {
+    "message": "批量操作"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "已选择 $COUNT$ 个项目。批量操作栏现已显示在屏幕底部。按 $SHORTCUTBINDING$ 可将焦点切换至批量操作栏。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "选择已清除"
+  },
+  "additionalActions": {
+    "message": "其他操作"
   },
   "zoomIn": {
     "message": "放大"
@@ -2229,11 +2302,17 @@
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "您至少是一个组织的所有者。删除您的账户时，也会一并删除所有由您作为唯一所有者的组织。"
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "当您是某个组织的所有者时，无法删除您的账户。请先转移组织所有权或先删除该组织。"
+  },
   "cannotDeleteAccount": {
     "message": "无法删除账户"
   },
   "cannotDeleteAccountDesc": {
-    "message": "此操作无法完成，因为您的账户由组织拥有。请联系您的组织管理员获取详细信息。"
+    "message": "由于您的账户由某个组织拥有，此操作无法完成。请联系您的组织管理员以获取更多详细信息。"
   },
   "accountDeleted": {
     "message": "账户已删除"
@@ -2539,9 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "很遗憾，Linux 版本目前不支持浏览器集成。"
-  },
   "enableHardwareAcceleration": {
     "message": "使用硬件加速"
   },
@@ -2828,7 +2904,7 @@
     "message": "更改您的主密码以完成账户恢复。"
   },
   "updateMasterPasswordSubtitle": {
-    "message": "您的主密码不符合本组织的要求。更改您的主密码以继续。"
+    "message": "您的主密码不符合此组织的要求。更改您的主密码以继续。"
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
@@ -3687,7 +3763,7 @@
     "message": "登录状态"
   },
   "recentlyActive": {
-    "message": "最近活跃"
+    "message": "最近活动"
   },
   "recentlyActiveToday": {
     "message": "今天"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "无效的快捷键"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "更多导航项",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,6 +5110,9 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "more": {
+    "message": "更多"
+  },
   "enterMonth": {
     "message": "输入月份。"
   },
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "搜索银行账户"
   },
+  "searchPassport": {
+    "message": "搜索护照"
+  },
   "copyAccountNumber": {
     "message": "复制账户号码"
   },
@@ -5099,6 +5185,15 @@
   },
   "copyIban": {
     "message": "复制 IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "复制账户名称"
+  },
+  "copyBranchNumber": {
+    "message": "复制分行号码"
+  },
+  "copySwiftCode": {
+    "message": "复制 SWIFT 代码"
   },
   "copyFirstName": {
     "message": "复制名字"
@@ -5112,8 +5207,11 @@
   "copyLicenseNumber": {
     "message": "复制驾驶证号码"
   },
+  "copyPassportNumber": {
+    "message": "复制护照号码"
+  },
   "bankAccountTypeChecking": {
-    "message": "活期"
+    "message": "支票"
   },
   "bankAccountTypeSavings": {
     "message": "储蓄"
@@ -5189,6 +5287,9 @@
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "您不能将属于多个集合的项目导入到「我的项目」"
+  },
   "driversLicenseDetails": {
     "message": "驾驶证详细信息"
   },
@@ -5229,6 +5330,6 @@
     "message": "签发机构 / 部门"
   },
   "licenseClass": {
-    "message": "许可证类型"
+    "message": "许可证等级"
   }
 }

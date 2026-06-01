@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { LogService } from "@bitwarden/logging";
 
 import { BrowserApi } from "./browser-api";
+import { ExtensionInstallType } from "./extension-install-type";
 
 type ChromeSettingsGet = chrome.types.ChromeSetting<boolean>["get"];
 
@@ -28,6 +29,88 @@ describe("BrowserApi", () => {
       const result = BrowserApi.isManifestVersion(2);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("getInstallType", () => {
+    let originalIsWebExtensionsApi: boolean;
+    let originalIsChromeApi: boolean;
+
+    beforeEach(() => {
+      originalIsWebExtensionsApi = BrowserApi.isWebExtensionsApi;
+      originalIsChromeApi = BrowserApi.isChromeApi;
+    });
+
+    afterEach(() => {
+      BrowserApi.isWebExtensionsApi = originalIsWebExtensionsApi;
+      BrowserApi.isChromeApi = originalIsChromeApi;
+      delete (global.chrome as any).management;
+      delete (global as any).browser;
+    });
+
+    it.each([
+      ["admin", ExtensionInstallType.Admin],
+      ["development", ExtensionInstallType.Development],
+      ["normal", ExtensionInstallType.Normal],
+      ["sideload", ExtensionInstallType.Sideload],
+      ["other", ExtensionInstallType.Other],
+    ])("returns %s when chrome.management.getSelf reports it", async (raw, expected) => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({ installType: raw }),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(expected);
+    });
+
+    it("prefers browser.management.getSelf when isWebExtensionsApi is true", async () => {
+      BrowserApi.isWebExtensionsApi = true;
+      const browserGetSelf = jest.fn().mockResolvedValue({ installType: "admin" });
+      const chromeGetSelf = jest.fn().mockResolvedValue({ installType: "normal" });
+      (global as any).browser = { management: { getSelf: browserGetSelf } };
+      (global.chrome as any).management = { getSelf: chromeGetSelf };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Admin);
+      expect(browserGetSelf).toHaveBeenCalled();
+      expect(chromeGetSelf).not.toHaveBeenCalled();
+    });
+
+    it("returns Unknown when management.getSelf rejects", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockRejectedValue(new Error("not available")),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when the result has no installType", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({}),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when chrome.management is absent", async () => {
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when neither chrome nor browser is available", async () => {
+      BrowserApi.isWebExtensionsApi = false;
+      BrowserApi.isChromeApi = false;
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
     });
   });
 

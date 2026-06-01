@@ -797,13 +797,20 @@ export default class MainBackground {
       this.singleUserStateProvider,
     );
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
+
+    this.newPolicyService = new DefaultNewPolicyService(
+      this.stateProvider,
+      () => this.sdkService,
+      this.organizationService,
+    );
+
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
+      this.newPolicyService,
+      () => this.configService,
     );
-
-    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
       this.platformUtilsService,
@@ -961,12 +968,14 @@ export default class MainBackground {
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
+      () => this.configService,
       this.logService,
       this.keyService,
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
       this.pinService,
+      () => this.ipcService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -1359,6 +1368,7 @@ export default class MainBackground {
       this.policyService,
       this.newPolicyService,
       this.autoConfirmService,
+      this.billingAccountProfileStateService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -2158,6 +2168,7 @@ export default class MainBackground {
       this.stateProvider,
       this.i18nService,
       this.apiService,
+      this.sdkService,
     );
 
     // LocalGeneratorHistoryService is always the correct implementation for the
