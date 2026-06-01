@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/vault-export-ui",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tools/export-vault-ui/src",
   "projectType": "library",
   "tags": ["scope:vault-export-ui", "type:lib"],
