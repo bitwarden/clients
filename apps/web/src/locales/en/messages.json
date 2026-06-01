@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
