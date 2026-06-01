@@ -73,20 +73,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly formFieldQueryString;
   private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
 
-  private readonly recordGetPageDetails = createMeter("getPageDetails", "phase", "fieldCount");
-  private readonly recordBuildFields = createMeter(
-    "buildAutofillFieldsData",
-    "phase",
-    "fieldCount",
-  );
-  private readonly recordMapSizes = createMeter("mapSizes", "fields", "byOpid", "forms", "heap");
-  private readonly recordRequireUpdate = createMeter("requireUpdate", "trigger");
+  private readonly monitorMapSizes = createMeter("mapSizes", "fields", "byOpid", "forms", "heap");
   // Larger ring than default: fires per MO callback; churn-heavy pages can outrun 256 slots before flush.
-  private readonly recordMutationBatch = createMeter(
+  private readonly monitorMutationBatch = createMeter(
     { name: "mutationBatch", bits: 10 },
     "records",
     "inShadow",
   );
+  private readonly monitorRequireUpdateLocation = createMeter("requireUpdateLocation");
+  private readonly monitorRequireUpdateShadow = createMeter("requireUpdateShadow");
+  private readonly monitorRequireUpdateNewShadowRoot = createMeter("requireUpdateNewShadowRoot");
+  private readonly monitorProcessMutations = createMeter("processMutations");
+  private readonly monitorUpdateCachedVisibility = createMeter("updateCachedVisibility");
+  private readonly monitorSetupOverlayOnField = createMeter("setupOverlayOnField");
 
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -122,26 +121,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       "handleMutationObserverMutation",
       this.handleMutationObserverMutation,
     );
-    this.processMutations = stopwatch("processMutations", this.processMutations);
     this.handleNewShadowRoots = stopwatch("handleNewShadowRoots", this.handleNewShadowRoots);
-    this.setupMutationObserver = stopwatch("setupMutationObserver", this.setupMutationObserver);
-    this.handleWindowLocationMutation = stopwatch(
-      "handleWindowLocationMutation",
-      this.handleWindowLocationMutation,
-    );
-    this.requirePageDetailsUpdate = stopwatch(
-      "requirePageDetailsUpdate",
-      this.requirePageDetailsUpdate,
-    );
     this.queryAutofillFormAndFieldElements = stopwatch(
       "queryAutofillFormAndFieldElements",
       this.queryAutofillFormAndFieldElements,
     );
-    this.updateCachedAutofillFieldVisibility = stopwatch(
-      "updateCachedAutofillFieldVisibility",
-      this.updateCachedAutofillFieldVisibility,
-    );
-    this.setupOverlayOnField = stopwatch("setupOverlayOnField", this.setupOverlayOnField);
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -156,25 +140,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
-    // Split shell wraps all five return paths in getPageDetailsInner without a try/finally dance.
-    this.recordGetPageDetails("start", -1);
-    const pageDetails = await this.getPageDetailsInner();
-    this.recordGetPageDetails("end", pageDetails.fields.length);
-    this.sampleMapSizes();
-    return pageDetails;
-  }
-
-  private sampleMapSizes(): void {
-    this.recordMapSizes(
-      this.autofillFieldElements.size,
-      this.autofillFieldsByOpid.size,
-      this._autofillFormElements.size,
-      (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize ??
-        0,
-    );
-  }
-
-  private async getPageDetailsInner(): Promise<AutofillPageDetails> {
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
@@ -504,6 +469,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
+    this.monitorUpdateCachedVisibility();
     this.autofillFieldElements.forEach(async (autofillField, element) => {
       const previouslyViewable = autofillField.viewable;
       autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
@@ -630,7 +596,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private async buildAutofillFieldsData(
     formFieldElements: FormFieldElement[],
   ): Promise<AutofillField[]> {
-    this.recordBuildFields("start", formFieldElements.length);
     // Maximum number of form fields to process for autofill to prevent performance issues on pages with excessive fields
     const autofillFieldsLimit = 200;
     const autofillFieldElements = this.getAutofillFieldElements(
@@ -646,7 +611,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const autofillFields: AutofillField[] = candidates.filter(
       (field): field is AutofillField => field !== null,
     );
-    this.recordBuildFields("end", autofillFields.length);
     return autofillFields;
   }
 
@@ -1388,27 +1352,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.domQueryService.checkMutationsInShadowRoots(mutations),
     );
 
-    this.recordMutationBatch(mutations.length, hasMutationsInShadowRoot);
+    this.monitorMutationBatch(mutations.length, hasMutationsInShadowRoot);
 
     if (hasMutationsInShadowRoot) {
-      this.recordRequireUpdate("shadowMutation");
+      this.monitorRequireUpdateShadow();
       this.debouncedRequirePageDetailsUpdate();
     }
 
-    measure("scheduleShadowScan", () => {
-      if (!this.pendingShadowDomCheck) {
-        this.pendingShadowDomCheck = true;
+    if (!this.pendingShadowDomCheck) {
+      this.pendingShadowDomCheck = true;
 
-        if (this.shadowDomCheckTimeout) {
-          clearTimeout(this.shadowDomCheckTimeout);
-        }
-
-        this.shadowDomCheckTimeout = setTimeout(() => {
-          this.handleNewShadowRoots();
-          this.pendingShadowDomCheck = false;
-        }, this.shadowDomCheckTimeoutMs);
+      if (this.shadowDomCheckTimeout) {
+        clearTimeout(this.shadowDomCheckTimeout);
       }
-    });
+
+      this.shadowDomCheckTimeout = setTimeout(() => {
+        this.handleNewShadowRoots();
+        this.pendingShadowDomCheck = false;
+      }, this.shadowDomCheckTimeoutMs);
+    }
 
     if (!this.mutationsQueue.length) {
       requestIdleCallbackPolyfill(this.debouncedProcessMutations, { timeout: 500 });
@@ -1422,7 +1384,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleWindowLocationMutation() {
-    this.recordRequireUpdate("locationChange");
+    this.monitorRequireUpdateLocation();
     this.currentLocationHref = globalThis.location.href;
 
     this.domRecentlyMutated = true;
@@ -1453,6 +1415,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Now all pending work is flattened and processed in a single idle callback.
    */
   private processMutations = () => {
+    this.monitorProcessMutations();
     // Flatten all pending batches into one array and clear the queue immediately
     // so that any new mutations arriving during processing go into a fresh queue.
     const allMutations = this.mutationsQueue.flat();
@@ -1470,7 +1433,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
-        this.sampleMapSizes();
+        this.monitorMapSizes(
+          this.autofillFieldElements.size,
+          this.autofillFieldsByOpid.size,
+          this._autofillFormElements.size,
+          (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory
+            ?.usedJSHeapSize ?? 0,
+        );
       },
       { timeout: 500 },
     );
@@ -1505,7 +1474,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private handleNewShadowRoots = () => {
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots();
     if (hasNewShadowRoots) {
-      this.recordRequireUpdate("newShadowRoot");
+      this.monitorRequireUpdateNewShadowRoot();
       this.debouncedRequirePageDetailsUpdate();
     }
   };
@@ -2014,6 +1983,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
   ) {
+    this.monitorSetupOverlayOnField();
     if (!this.autofillOverlayContentService) {
       return;
     }
