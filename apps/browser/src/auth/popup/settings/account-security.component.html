@@ -27,8 +27,7 @@
           @if (!(sharedUnlockFeatureEnabled$ | async)) {
             <bit-form-control
               [disableMargin]="
-                !((pinEnabled$ | async) || this.form.value.pin) &&
-                !(sharedUnlockFeatureEnabled$ | async)
+                !((pinEnabled$ | async) || this.form.value.pin)
               "
             >
               <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
@@ -46,8 +45,7 @@
             <bit-form-control
               class="tw-pl-5"
               [disableMargin]="
-                !((pinEnabled$ | async) || this.form.value.pin) &&
-                !(sharedUnlockFeatureEnabled$ | async)
+                !((pinEnabled$ | async) || this.form.value.pin)
               "
             >
               <input
