@@ -16,6 +16,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
+import { lastValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
@@ -25,6 +26,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   CalloutModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   SelectModule,
@@ -32,9 +34,15 @@ import {
 } from "@bitwarden/components";
 
 import { KeeperAuthError, KeeperAuthErrorCode, KeeperRegion } from "../../importers/keeper/access";
+import { ImportRecordError } from "../../importers/keeper/keeper-import-error";
 import { ImportResult } from "../../models";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
+import { keeperImportGate, shouldSubmitAfterDialog } from "./keeper-import-gate";
+import {
+  PartialImportDialogComponent,
+  PartialImportDialogData,
+} from "./partial-import-dialog.component";
 
 export type KeeperImportMethod = "direct" | "csv" | "json";
 
@@ -59,6 +67,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   private readonly keeperDirectImportService = inject(KeeperDirectImportService);
   private readonly i18nService = inject(I18nService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly dialogService = inject(DialogService);
 
   private readonly _parentFormGroup = signal<FormGroup | null>(null);
 
@@ -154,12 +163,17 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     this.importing.set(true);
     email.setErrors(null);
     try {
-      const importResult = await this.keeperDirectImportService.handleImport(
+      const { result, errors } = await this.keeperDirectImportService.handleImport(
         email.value!,
         this.formGroup.controls.region.value as KeeperRegion,
         organizationId,
       );
-      this.importCompleted.emit(importResult);
+      // Stop the "importing" hint before any confirmation dialog is shown.
+      this.importing.set(false);
+
+      if (await this.confirmPartialImport(result, errors)) {
+        this.importCompleted.emit(result);
+      }
     } catch (error) {
       this.logService.error(`Keeper importer error: ${error}`);
       email.setErrors({
@@ -171,6 +185,28 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     } finally {
       this.importing.set(false);
     }
+  }
+
+  /**
+   * When the import produced per-record errors, show the partial-import dialog and let the user
+   * decide. Returns whether the (clean) result should be handed off to the import pipeline. With no
+   * errors, proceeds without a dialog.
+   */
+  private async confirmPartialImport(
+    result: ImportResult,
+    errors: ImportRecordError[],
+  ): Promise<boolean> {
+    const { needsConfirmation, canImport } = keeperImportGate(result, errors);
+    if (!needsConfirmation) {
+      return true;
+    }
+
+    const dialog = this.dialogService.open<boolean, PartialImportDialogData>(
+      PartialImportDialogComponent,
+      { data: { errors, canImport } },
+    );
+    const dialogResult = await lastValueFrom(dialog.closed);
+    return shouldSubmitAfterDialog(canImport, dialogResult);
   }
 
   private getValidationErrorI18nKey(error: unknown): string {

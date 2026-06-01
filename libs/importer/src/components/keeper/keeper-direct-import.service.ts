@@ -3,8 +3,10 @@ import { Injectable, inject } from "@angular/core";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { ClientOptions, KeeperRegion, Vault } from "../../importers/keeper/access";
-import { KeeperDirectImporter } from "../../importers/keeper/keeper-direct-importer";
-import { ImportResult } from "../../models";
+import {
+  KeeperDirectImporter,
+  KeeperDirectImportResult,
+} from "../../importers/keeper/keeper-direct-importer";
 
 import { KeeperDirectImportUIService } from "./keeper-direct-import-ui.service";
 
@@ -14,13 +16,13 @@ import { KeeperDirectImportUIService } from "./keeper-direct-import-ui.service";
 export class KeeperDirectImportService {
   private readonly keeperDirectImportUIService = inject(KeeperDirectImportUIService);
 
-  private inFlight: Promise<ImportResult> | undefined;
+  private inFlight: Promise<KeeperDirectImportResult> | undefined;
 
   async handleImport(
     email: string,
     region: KeeperRegion,
     organizationId: OrganizationId | undefined,
-  ): Promise<ImportResult> {
+  ): Promise<KeeperDirectImportResult> {
     if (this.inFlight !== undefined) {
       return this.inFlight;
     }

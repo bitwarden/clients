@@ -1,5 +1,6 @@
 export { Vault } from "./vault";
-export type { VaultItem, VaultField } from "./models";
+export type { VaultItem, VaultField, VaultRecordError } from "./models";
+export { VaultRecordErrorReason } from "./models";
 export { KeeperAuthError, KeeperAuthErrorCode } from "./errors";
 export { Client } from "./services";
 export { KeeperRegion } from "./enums";

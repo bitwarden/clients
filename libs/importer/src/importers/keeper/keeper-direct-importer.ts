@@ -9,46 +9,79 @@ import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 import { ImportResult } from "../../models";
 import { BaseImporter } from "../base-importer";
 
-import { Vault, VaultField, VaultItem } from "./access";
+import { Vault, VaultField, VaultItem, VaultRecordError, VaultRecordErrorReason } from "./access";
+import { ImportRecordError, ImportRecordErrorReason } from "./keeper-import-error";
 
 type Reference = {
   id: string;
   type: string;
 };
 
+// The Keeper direct import produces a plain ImportResult for the generic import pipeline plus a
+// Keeper-specific list of per-record errors that the Keeper UI resolves before handing the result off.
+export type KeeperDirectImportResult = {
+  result: ImportResult;
+  errors: ImportRecordError[];
+};
+
+// Keeper "file" and "photo" records are attachment wrappers whose bytes are only available through a
+// separate download flow this importer cannot use. Skip them and report them as unsupported.
+const UNSUPPORTED_RECORD_TYPES = new Set(["file", "photo"]);
+
 export class KeeperDirectImporter extends BaseImporter {
   private references = new Map<string, Reference[]>();
   private idToCipher = new Map<string, CipherView>();
 
-  convertVaultToImportResult(vault: Vault): ImportResult {
+  convertVaultToImportResult(vault: Vault): KeeperDirectImportResult {
     const result = new ImportResult();
+    const errors: ImportRecordError[] = [];
 
     this.references.clear();
     this.idToCipher.clear();
 
     const items = vault.getItems();
-    this.parseRecords(items, result);
+    this.parseRecords(items, result, errors);
     this.resolveReferences();
+
+    this.mapVaultErrors(vault.getErrors(), errors);
 
     if (this.organization) {
       this.moveFoldersToCollections(result);
     }
 
     result.success = true;
-    return result;
+    return { result, errors };
   }
 
-  private parseRecords(items: VaultItem[], result: ImportResult): void {
+  private mapVaultErrors(vaultErrors: VaultRecordError[], errors: ImportRecordError[]): void {
+    for (const error of vaultErrors) {
+      // The record/folder name was never decrypted, so the UID is the only identifier we have.
+      errors.push(new ImportRecordError(error.id, mapVaultErrorReason(error.reason)));
+    }
+  }
+
+  private parseRecords(
+    items: VaultItem[],
+    result: ImportResult,
+    errors: ImportRecordError[],
+  ): void {
     for (const item of items) {
-      this.parseRecord(item, result);
+      if (UNSUPPORTED_RECORD_TYPES.has(item.type)) {
+        errors.push(
+          new ImportRecordError(item.title || item.id, ImportRecordErrorReason.UnsupportedType),
+        );
+        continue;
+      }
+
+      try {
+        this.parseRecord(item, result);
+      } catch {
+        errors.push(new ImportRecordError(item.title || item.id, ImportRecordErrorReason.Error));
+      }
     }
   }
 
   private parseRecord(item: VaultItem, result: ImportResult): void {
-    for (const path of item.folders) {
-      this.processFolder(result, path);
-    }
-
     const cipher = this.initLoginCipher();
     cipher.name = this.getValueOrDefault(item.title);
     cipher.notes = this.getValueOrDefault(item.notes);
@@ -79,6 +112,13 @@ export class KeeperDirectImporter extends BaseImporter {
 
     this.convertToNoteIfNeeded(cipher);
     this.cleanupCipher(cipher);
+
+    // Commit. Everything above can throw; everything below only mutates state and must not.
+    // processFolder pushes a folder relationship indexed on result.ciphers.length, so it must run
+    // immediately before the cipher is pushed to keep the index aligned.
+    for (const path of item.folders) {
+      this.processFolder(result, path);
+    }
 
     result.ciphers.push(cipher);
 
@@ -520,5 +560,17 @@ export class KeeperDirectImporter extends BaseImporter {
   private parseDate(value: unknown): string {
     const date = new Date(value as string | number);
     return isNaN(date.getTime()) ? "" : date.toLocaleString();
+  }
+}
+
+function mapVaultErrorReason(reason: VaultRecordErrorReason): ImportRecordErrorReason {
+  switch (reason) {
+    case VaultRecordErrorReason.UnsupportedVersion:
+      return ImportRecordErrorReason.UnsupportedFeature;
+    case VaultRecordErrorReason.FolderDecryptionFailed:
+      return ImportRecordErrorReason.FolderDecryptionFailed;
+    case VaultRecordErrorReason.DecryptionFailed:
+    default:
+      return ImportRecordErrorReason.Error;
   }
 }

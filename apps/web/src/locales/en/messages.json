@@ -2728,6 +2728,24 @@
   "importNothingError": {
     "message": "Nothing was imported."
   },
+  "importPartialErrorTitle": {
+    "message": "Some items couldn't be imported"
+  },
+  "importPartialErrorDescription": {
+    "message": "We found $COUNT$ item(s) in your file that couldn't be read and will be skipped during import. Your other items will import as expected.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorContinue": {
+    "message": "Would you like to continue?"
+  },
+  "importAnyway": {
+    "message": "Import anyway"
+  },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
   },

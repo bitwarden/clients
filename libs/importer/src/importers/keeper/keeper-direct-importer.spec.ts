@@ -13,11 +13,14 @@ import * as fixture from "../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { Vault } from "./access";
 import { SyncDownResponseSchema } from "./access/generated/sync-down_pb";
+import { VaultField, VaultItem, VaultRecordError, VaultRecordErrorReason } from "./access/models";
 import { KeeperDirectImporter } from "./keeper-direct-importer";
+import { ImportRecordError, ImportRecordErrorReason } from "./keeper-import-error";
 
 describe("Keeper Direct Importer", () => {
   let vault: Vault;
   let result: ImportResult;
+  let errors: ImportRecordError[];
 
   beforeAll(async () => {
     // Pin locale and timezone so date formatting is machine-independent. In production we use the user's locale and timezone.
@@ -41,7 +44,7 @@ describe("Keeper Direct Importer", () => {
     );
 
     const importer = new KeeperDirectImporter();
-    result = importer.convertVaultToImportResult(vault);
+    ({ result, errors } = importer.convertVaultToImportResult(vault));
   });
 
   it("should parse address", () => {
@@ -185,17 +188,11 @@ describe("Keeper Direct Importer", () => {
     expect(getField(cipher, "date")?.value).toBe("10/14/2024, 10:00:00 PM");
   });
 
-  it("should parse file", () => {
-    const cipher = findCipher(result, "Project Proposal Document");
-    expect(cipher.type).toBe(CipherType.SecureNote);
-
-    // Properties
-    expect(cipher.notes).toBe(
-      "Annual project proposal for Q1 2025 business development initiatives",
+  it("should not import file records and report them as unsupported", () => {
+    expect(result.ciphers.find((c) => c.name === "Project Proposal Document")).toBeUndefined();
+    expect(errors).toContainEqual(
+      new ImportRecordError("Project Proposal Document", ImportRecordErrorReason.UnsupportedType),
     );
-
-    // Fields
-    expect(cipher.fields.length).toBe(0);
   });
 
   it("should parse general", () => {
@@ -339,15 +336,19 @@ describe("Keeper Direct Importer", () => {
     expect(getField(cipher, "dateIssued")?.value).toBe("8/14/2023, 10:00:00 PM");
   });
 
-  it("should parse photo", () => {
-    const cipher = findCipher(result, "Family Vacation 2024");
-    expect(cipher.type).toBe(CipherType.SecureNote);
+  it("should not import photo records and report them as unsupported", () => {
+    expect(result.ciphers.find((c) => c.name === "Family Vacation 2024")).toBeUndefined();
+    expect(errors).toContainEqual(
+      new ImportRecordError("Family Vacation 2024", ImportRecordErrorReason.UnsupportedType),
+    );
+  });
 
-    // Properties
-    expect(cipher.notes).toBe("Summer vacation photos from Hawaii trip - scenic beach views");
-
-    // Fields
-    expect(cipher.fields.length).toBe(0);
+  it("should report exactly the file and photo records as unsupported entry types", () => {
+    const unsupported = errors.filter((e) => e.reason === ImportRecordErrorReason.UnsupportedType);
+    expect(unsupported.map((e) => e.name).sort()).toEqual([
+      "Family Vacation 2024",
+      "Project Proposal Document",
+    ]);
   });
 
   it("should parse serverCredentials", () => {
@@ -550,4 +551,94 @@ describe("Keeper Direct Importer", () => {
     "Work/Projects/2025",
     "Work/Projects/2025/Q4",
   ];
+});
+
+describe("Keeper Direct Importer error handling", () => {
+  function buildItem(overrides: Partial<VaultItem> & { id: string }): VaultItem {
+    return {
+      type: "login",
+      title: "",
+      notes: "",
+      fields: [],
+      custom: [],
+      folders: [],
+      ...overrides,
+    };
+  }
+
+  function importWith(items: VaultItem[], vaultErrors: VaultRecordError[]) {
+    const vault = new (Vault as any)(items, vaultErrors) as Vault;
+    return new KeeperDirectImporter().convertVaultToImportResult(vault);
+  }
+
+  it("maps an UnsupportedVersion vault error to UnsupportedFeature with the UID as name", () => {
+    const { errors } = importWith(
+      [],
+      [{ id: "uid-1", reason: VaultRecordErrorReason.UnsupportedVersion }],
+    );
+
+    expect(errors).toContainEqual(
+      new ImportRecordError("uid-1", ImportRecordErrorReason.UnsupportedFeature),
+    );
+  });
+
+  it("maps a DecryptionFailed vault error to a generic error with the UID as name", () => {
+    const { errors } = importWith(
+      [],
+      [{ id: "uid-2", reason: VaultRecordErrorReason.DecryptionFailed }],
+    );
+
+    expect(errors).toContainEqual(new ImportRecordError("uid-2", ImportRecordErrorReason.Error));
+  });
+
+  it("maps a FolderDecryptionFailed vault error and still imports the affected record at the root", () => {
+    // The folder name could not be decrypted, so the record arrives with no folder path (root).
+    const item = buildItem({ id: "rec-1", title: "Rootless Record", folders: [] });
+    const { result, errors } = importWith(
+      [item],
+      [{ id: "folder-uid", reason: VaultRecordErrorReason.FolderDecryptionFailed }],
+    );
+
+    expect(errors).toContainEqual(
+      new ImportRecordError("folder-uid", ImportRecordErrorReason.FolderDecryptionFailed),
+    );
+
+    const cipher = result.ciphers.find((c) => c.name === "Rootless Record");
+    expect(cipher).toBeDefined();
+    expect(result.folderRelationships.length).toBe(0);
+  });
+
+  it("collects a single error for a record that throws mid-parse without aborting the others", () => {
+    const throwingItem = {
+      id: "throws",
+      type: "login",
+      title: "Throwing Record",
+      notes: "",
+      custom: [],
+      folders: ["FolderA"],
+      get fields(): VaultField[] {
+        throw new Error("Simulated parse failure");
+      },
+    } as unknown as VaultItem;
+
+    const goodItem = buildItem({ id: "good", title: "Good Record", folders: ["FolderB"] });
+
+    const { result, errors } = importWith([throwingItem, goodItem], []);
+
+    // The throwing record produces exactly one generic error.
+    expect(errors).toContainEqual(
+      new ImportRecordError("Throwing Record", ImportRecordErrorReason.Error),
+    );
+    expect(errors.filter((e) => e.reason === ImportRecordErrorReason.Error).length).toBe(1);
+
+    // The good record still imports.
+    const goodIndex = result.ciphers.findIndex((c) => c.name === "Good Record");
+    expect(goodIndex).toBeGreaterThanOrEqual(0);
+
+    // The throwing record's folder is never created, so no relationship leaks onto the good record.
+    expect(result.folders.some((f) => f.name === "FolderA")).toBe(false);
+    const folderBIndex = result.folders.findIndex((f) => f.name === "FolderB");
+    expect(folderBIndex).toBeGreaterThanOrEqual(0);
+    expect(result.folderRelationships).toEqual([[goodIndex, folderBIndex]]);
+  });
 });

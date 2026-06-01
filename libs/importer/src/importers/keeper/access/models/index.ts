@@ -9,3 +9,4 @@ export { RecordV3 } from "./record-v3";
 export { SocketListener } from "./socket-listener";
 export { VaultField } from "./vault-field";
 export { VaultItem } from "./vault-item";
+export { VaultRecordError, VaultRecordErrorReason } from "./vault-error";

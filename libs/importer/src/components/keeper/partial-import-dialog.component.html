@@ -1,0 +1,25 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "importPartialErrorTitle" | i18n }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ "importPartialErrorDescription" | i18n: data.errors.length }}</p>
+    <p>{{ "importPartialErrorContinue" | i18n }}</p>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      *ngIf="data.canImport"
+      bitButton
+      buttonType="primary"
+      type="button"
+      (click)="importAnyway()"
+    >
+      {{ "importAnyway" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
