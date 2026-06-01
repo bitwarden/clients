@@ -42,8 +42,8 @@ describe("OrganizationSubscriptionCloudComponent.cancelSubscription", () => {
   const mockOffer = {
     couponId: "CHURN25",
     percentOff: 25,
-    amountOff: null,
-    durationDescription: "1 year",
+    duration: "repeating",
+    durationInMonths: 12,
     name: "Loyalty Discount",
   } as any;
 

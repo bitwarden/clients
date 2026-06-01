@@ -62,9 +62,6 @@ export class ChurnMitigationOfferDialogComponent {
     if (this.params.offer.percentOff != null) {
       return `${this.params.offer.percentOff}%`;
     }
-    if (this.params.offer.amountOff != null) {
-      return `$${(this.params.offer.amountOff / 100).toFixed(2)}`;
-    }
     return this.params.offer.name;
   }
 

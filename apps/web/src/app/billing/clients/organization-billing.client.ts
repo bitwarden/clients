@@ -2,24 +2,45 @@ import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/organizations/warnings/types";
+
+type ChurnMitigationOfferDuration = "once" | "repeating" | "forever";
 
 export class ChurnMitigationOfferResponseModel extends BaseResponse {
   couponId: string;
   percentOff: number | null;
-  amountOff: number | null;
-  durationDescription: string;
+  duration: ChurnMitigationOfferDuration;
+  durationInMonths: number | null;
   name: string;
 
   constructor(response: any) {
     super(response);
     this.couponId = this.getResponseProperty("CouponId");
     this.percentOff = this.getResponseProperty("PercentOff");
-    this.amountOff = this.getResponseProperty("AmountOff");
-    this.durationDescription = this.getResponseProperty("DurationDescription");
+    this.duration = this.getResponseProperty("Duration");
+    this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.name = this.getResponseProperty("Name");
+  }
+
+  get durationDescription(): string {
+    if (this.duration === "forever") {
+      return "forever";
+    }
+
+    if (this.durationInMonths === 12) {
+      return "year";
+    }
+
+    if (this.durationInMonths === 1) {
+      return "month";
+    }
+
+    if (this.durationInMonths != null) {
+      return `${this.durationInMonths} months`;
+    }
+
+    return "billing cycle";
   }
 }
 
@@ -42,36 +63,20 @@ export class OrganizationBillingClient {
   getChurnOffer = async (
     organizationId: OrganizationId,
   ): Promise<ChurnMitigationOfferResponseModel | null> => {
-    // TODO: remove stub once PM-37170 is deployed to dev
-    return new ChurnMitigationOfferResponseModel({
-      CouponId: "test-coupon",
-      PercentOff: 10,
-      AmountOff: null,
-      DurationDescription: "for 1 year",
-      Name: "10% Off for 1 Year",
-    });
-    try {
-      const response = await this.apiService.send(
-        "GET",
-        `/organizations/${organizationId}/billing/churn-offer`,
-        null,
-        true,
-        true,
-      );
-      return response ? new ChurnMitigationOfferResponseModel(response) : null;
-    } catch (error: any) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return null;
-      }
-      throw error;
-    }
+    const response = await this.apiService.send(
+      "GET",
+      `/organizations/${organizationId}/billing/vnext/churn-mitigation-offer`,
+      null,
+      true,
+      true,
+    );
+    return response ? new ChurnMitigationOfferResponseModel(response) : null;
   };
 
   redeemChurnOffer = async (organizationId: OrganizationId): Promise<void> => {
-    return;
     await this.apiService.send(
       "POST",
-      `/organizations/${organizationId}/billing/churn-offer/redeem`,
+      `/organizations/${organizationId}/billing/vnext/churn-mitigation-offer/redeem`,
       null,
       true,
       false,

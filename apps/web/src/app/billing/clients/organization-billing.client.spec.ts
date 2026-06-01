@@ -25,8 +25,8 @@ describe("OrganizationBillingClient", () => {
       const raw = {
         CouponId: "CHURN25",
         PercentOff: 25,
-        AmountOff: null as number | null,
-        DurationDescription: "1 year",
+        Duration: "repeating",
+        DurationInMonths: 12,
         Name: "Loyalty Discount",
       };
       mockApiService.send.mockResolvedValue(raw);
@@ -35,7 +35,7 @@ describe("OrganizationBillingClient", () => {
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "GET",
-        `/organizations/${orgId}/billing/churn-offer`,
+        `/organizations/${orgId}/billing/vnext/churn-mitigation-offer`,
         null,
         true,
         true,
@@ -43,13 +43,13 @@ describe("OrganizationBillingClient", () => {
       expect(result).toBeInstanceOf(ChurnMitigationOfferResponseModel);
       expect(result!.couponId).toBe("CHURN25");
       expect(result!.percentOff).toBe(25);
-      expect(result!.durationDescription).toBe("1 year");
+      expect(result!.duration).toBe("repeating");
+      expect(result!.durationInMonths).toBe(12);
       expect(result!.name).toBe("Loyalty Discount");
     });
 
-    it("returns null when the API returns a 404 (ineligible org)", async () => {
-      const notFound = new ErrorResponse(null, 404);
-      mockApiService.send.mockRejectedValue(notFound);
+    it("returns null when the API returns an empty body (ineligible org)", async () => {
+      mockApiService.send.mockResolvedValue(null);
 
       const result = await sut.getChurnOffer(orgId);
 
@@ -80,7 +80,7 @@ describe("OrganizationBillingClient", () => {
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
-        `/organizations/${orgId}/billing/churn-offer/redeem`,
+        `/organizations/${orgId}/billing/vnext/churn-mitigation-offer/redeem`,
         null,
         true,
         false,
