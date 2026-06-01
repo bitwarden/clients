@@ -6,7 +6,9 @@ import { firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -23,8 +25,6 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 import { ExtensionLockComponentService } from "./extension-lock-component.service";
-import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 describe("ExtensionLockComponentService", () => {
   let service: ExtensionLockComponentService;
@@ -65,7 +65,7 @@ describe("ExtensionLockComponentService", () => {
               routerService,
               webAuthnPrfUnlockService,
               sharedUnlockSettingsService,
-              configService
+              configService,
             ),
         },
       ],

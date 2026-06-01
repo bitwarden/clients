@@ -1,7 +1,10 @@
 import { combineLatest, defer, switchMap, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
@@ -20,9 +23,6 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
-import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 export class ExtensionLockComponentService implements LockComponentService {
   constructor(
@@ -76,15 +76,15 @@ export class ExtensionLockComponentService implements LockComponentService {
         this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
         this.sharedUnlockSettingsService.allowSharingUnlockState$(userId),
         // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
-        this.biometricStateService
-          .biometricUnlockEnabled$(userId)
+        this.biometricStateService.biometricUnlockEnabled$(userId),
       ]).pipe(
-          switchMap(async ([sharedUnlockFeatureFlag, allowSharingUnlockState, biometricUnlockEnabled]) =>
+        switchMap(
+          async ([sharedUnlockFeatureFlag, allowSharingUnlockState, biometricUnlockEnabled]) =>
             biometricUnlockEnabled || (sharedUnlockFeatureFlag && allowSharingUnlockState)
               ? await this.biometricsService.getBiometricsStatusForUser(userId)
               : BiometricsStatus.NotEnabledLocally,
-          ),
         ),
+      ),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
       defer(async () => {
