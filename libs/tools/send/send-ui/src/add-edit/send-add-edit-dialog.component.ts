@@ -166,7 +166,11 @@ export class SendAddEditDialogComponent {
     private sendPolicyService: SendPolicyService,
   ) {
     this.config = params.formConfig;
-    this.disableForm = params.disableForm ?? this.config.originalSend?.disabled ?? false;
+    this.init();
+  }
+
+  init() {
+    this.disableForm = this.params.disableForm ?? this.config.originalSend?.disabled ?? false;
     this.editing.set(this.config.mode === "add");
     this.showCopyButton.set(
       this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
@@ -344,26 +348,25 @@ export class SendAddEditDialogComponent {
     }
     const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
     const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
-    await SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig: {
-        areSendsAllowed: true,
-        mode: "add",
-        sendType: originalSendView.type,
-        originalSend: null,
-        presetSendFields: {
-          name: originalSendView.name,
-          text: originalSendView.text,
-          maxAccessCount: originalSendView.maxAccessCount,
-          hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
-          notes: originalSendView.notes,
-          authType:
-            whoCanAccess === WhoCanAccessType.SpecificPeople
-              ? AuthType.Email
-              : whoCanAccess === WhoCanAccessType.PasswordProtected
-                ? AuthType.Password
-                : AuthType.None,
-        },
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
       },
-    });
+    };
+    this.init();
   }
 }

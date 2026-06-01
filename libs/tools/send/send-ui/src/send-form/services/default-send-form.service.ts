@@ -124,28 +124,18 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
 
-    try {
-      const sendData = await this.sendService.encrypt(
-        this._updatedSendView(),
-        this.file,
-        this._updatedSendView().password,
-        null,
-      );
-      const newSend = await this.sendApiService.save(sendData);
-      const sendView = await this.decryptSend(newSend);
-      this._originalSendView.set(null);
-      this._updatedSendView.set(null);
-      this._submitting.set(false);
-      return sendView;
-    } catch (err) {
-      this.logService.error(err);
-      this.toastService.showToast({
-        message: this.i18nService.t("saveSendEditsFailed"),
-        variant: "error",
-      });
-      this._submitting.set(false);
-      return;
-    }
+    const sendData = await this.sendService.encrypt(
+      this._updatedSendView(),
+      this.file,
+      this._updatedSendView().password,
+      null,
+    );
+    const newSend = await this.sendApiService.save(sendData);
+    const sendView = await this.decryptSend(newSend);
+    this._originalSendView.set(null);
+    this._updatedSendView.set(null);
+    this._submitting.set(false);
+    return sendView;
   }
 
   sendFormHasEdits() {
