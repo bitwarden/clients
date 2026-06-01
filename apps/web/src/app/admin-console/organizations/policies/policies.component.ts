@@ -1,7 +1,16 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
+import {
+  combineLatest,
+  lastValueFrom,
+  Observable,
+  of,
+  switchMap,
+  first,
+  map,
+  shareReplay,
+} from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -136,7 +145,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
-    this.destroyRef.onDestroy(() => this.drawerRef()?.close());
+    this.destroyRef.onDestroy(() => void this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message
@@ -171,6 +180,9 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
+      const triggerEl =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
       // openDrawer is async and returns undefined if a currently-open drawer's
       // closePredicate prevented it from closing — only update the ref when it opened.
       const ref = await dialogComponent.openDrawer(this.dialogService, {
@@ -181,6 +193,10 @@ export class PoliciesComponent {
       });
       if (ref !== undefined) {
         this.drawerRef.set(ref);
+        await lastValueFrom(ref.closed);
+        if (triggerEl?.isConnected) {
+          triggerEl.focus();
+        }
       }
     } else {
       dialogComponent.open(this.dialogService, {
@@ -190,5 +206,17 @@ export class PoliciesComponent {
         },
       });
     }
+  }
+
+  /**
+   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
+   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.drawerRef()) {
+      return true;
+    }
+    const result = await this.drawerRef()!.close();
+    return result.closed;
   }
 }

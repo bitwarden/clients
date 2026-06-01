@@ -26,6 +26,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -91,6 +92,9 @@ describe("ViewComponent", () => {
     },
     permissions: {},
     card: {},
+    bankAccount: {},
+    passport: {},
+    driversLicense: {},
   } as unknown as CipherView;
 
   const mockPasswordRepromptService = {
@@ -248,6 +252,10 @@ describe("ViewComponent", () => {
           provide: CipherRiskService,
           useValue: mock<CipherRiskService>(),
         },
+        {
+          provide: ChangeLoginPasswordService,
+          useValue: mock<ChangeLoginPasswordService>(),
+        },
       ],
     })
       .overrideProvider(DialogService, {
@@ -301,6 +309,13 @@ describe("ViewComponent", () => {
       flush(); // Resolve all promises
 
       expect(component.headerText).toEqual("viewItemHeaderNote");
+
+      // Set header text for a passport
+      mockCipher.type = CipherType.Passport;
+      params$.next({ cipherId: mockCipher.id });
+      flush(); // Resolve all promises
+
+      expect(component.headerText).toEqual("viewItemHeaderPassport");
     }));
 
     it("sends viewed event", fakeAsync(() => {
@@ -966,40 +981,32 @@ describe("ViewComponent", () => {
       expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("shows exact match dialog when no URIs and default strategy is Exact", async () => {
+    it("shows confirmation dialog (not exact match block) when no URIs and default strategy is Exact", async () => {
       getFeatureFlag.mockResolvedValue(true);
       component.cipher.login.uris = [];
       (component as any).uriMatchStrategy$ = of(UriMatchStrategy.Exact);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const mockDialogRef = { closed: of(AutofillConfirmationDialogResult.Canceled) };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
 
       await component.doAutofill();
 
-      expect(openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      expect(doAutofill).not.toHaveBeenCalled();
+      expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("shows exact match dialog when all URIs have exact match strategy", async () => {
+    it("shows confirmation dialog (not exact match block) when all URIs have exact match strategy", async () => {
       getFeatureFlag.mockResolvedValue(true);
       component.cipher.login.uris = [
         { uri: "https://example.com", match: UriMatchStrategy.Exact } as LoginUriView,
         { uri: "https://example2.com", match: UriMatchStrategy.Exact } as LoginUriView,
       ];
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const mockDialogRef = { closed: of(AutofillConfirmationDialogResult.Canceled) };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
 
       await component.doAutofill();
 
-      expect(openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      expect(doAutofill).not.toHaveBeenCalled();
+      expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
     it("shows error dialog when current tab URL is unavailable", async () => {

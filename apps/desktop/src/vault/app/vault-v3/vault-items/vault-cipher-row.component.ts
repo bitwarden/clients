@@ -219,6 +219,33 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         ];
       case CipherType.SecureNote:
         return [{ field: "secureNote", title: "copyNote" }];
+      case CipherType.BankAccount:
+        return [
+          { field: "nameOnAccount", title: "copyNameOnAccount" },
+          { field: "accountNumber", title: "copyAccountNumber" },
+          { field: "routingNumber", title: "copyRoutingNumber" },
+          { field: "branchNumber", title: "copyBranchNumber" },
+          { field: "pin", title: "copyPin" },
+          { field: "iban", title: "copyIban" },
+          { field: "swiftCode", title: "copySwiftCode" },
+        ];
+      case CipherType.Passport:
+        return [
+          { field: "givenName", title: "copyFirstName" },
+          { field: "surname", title: "copyLastName" },
+          { field: "passportNumber", title: "copyPassportNumber" },
+          {
+            field: "nationalIdentificationNumber",
+            title: "copyNationalIdentificationNumber",
+          },
+        ];
+      case CipherType.DriversLicense:
+        return [
+          { field: "firstNameLicense", title: "copyFirstName" },
+          { field: "middleNameLicense", title: "copyMiddleName" },
+          { field: "lastNameLicense", title: "copyLastName" },
+          { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
       default:
         return [];
     }

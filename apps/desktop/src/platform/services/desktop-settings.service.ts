@@ -42,10 +42,6 @@ const MINIMIZE_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "
   deserializer: (b) => b,
 });
 
-const START_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "startToTray", {
-  deserializer: (b) => b,
-});
-
 const TRAY_ENABLED_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "trayEnabled", {
   deserializer: (b) => b,
 });
@@ -65,14 +61,6 @@ const ALWAYS_ON_TOP_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "alw
 const BROWSER_INTEGRATION_ENABLED = new KeyDefinition<boolean>(
   DESKTOP_SETTINGS_DISK,
   "browserIntegrationEnabled",
-  {
-    deserializer: (b) => b,
-  },
-);
-
-const BROWSER_INTEGRATION_FINGERPRINT_ENABLED = new KeyDefinition<boolean>(
-  DESKTOP_SETTINGS_DISK,
-  "browserIntegrationFingerprintEnabled",
   {
     deserializer: (b) => b,
   },
@@ -129,12 +117,6 @@ export class DesktopSettingsService {
    */
   minimizeToTray$ = this.minimizeToTrayState.state$.pipe(map(Boolean));
 
-  private readonly startToTrayState = this.stateProvider.getGlobal(START_TO_TRAY_KEY);
-  /**
-   * The application setting for whether or not to start the application into the system tray.
-   */
-  startToTray$ = this.startToTrayState.state$.pipe(map((v) => v ?? !isDev()));
-
   private readonly trayEnabledState = this.stateProvider.getGlobal(TRAY_ENABLED_KEY);
   /**
    * Whether or not the system tray has been enabled.
@@ -165,16 +147,6 @@ export class DesktopSettingsService {
    * The application setting for whether or not the browser integration is enabled.
    */
   browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(map(Boolean));
-
-  private readonly browserIntegrationFingerprintEnabledState = this.stateProvider.getGlobal(
-    BROWSER_INTEGRATION_FINGERPRINT_ENABLED,
-  );
-
-  /**
-   * The application setting for whether or not the fingerprint should be verified before browser communication.
-   */
-  browserIntegrationFingerprintEnabled$ =
-    this.browserIntegrationFingerprintEnabledState.state$.pipe(map(Boolean));
 
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
@@ -254,14 +226,6 @@ export class DesktopSettingsService {
   }
 
   /**
-   * Sets the setting for whether or not the application should be started into the system tray.
-   * @param value `true` if the application should be started to the tray`, `false` if it should not.
-   */
-  async setStartToTray(value: boolean) {
-    await this.startToTrayState.update(() => value);
-  }
-
-  /**
    * Sets the setting for whether or not the application be shown in the system tray.
    * @param value `true` if the application should show in the tray, `false` if it should not.
    */
@@ -300,15 +264,6 @@ export class DesktopSettingsService {
    */
   async setBrowserIntegrationEnabled(value: boolean) {
     await this.browserIntegrationEnabledState.update(() => value);
-  }
-
-  /**
-   * Sets a setting for whether or not the browser fingerprint should be verified before
-   * communication with the browser integration should be done.
-   * @param value `true` if the fingerprint should be validated before use, `false` if it should not.
-   */
-  async setBrowserIntegrationFingerprintEnabled(value: boolean) {
-    await this.browserIntegrationFingerprintEnabledState.update(() => value);
   }
 
   /**

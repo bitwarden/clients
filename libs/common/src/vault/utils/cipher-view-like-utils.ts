@@ -130,12 +130,18 @@ export class CipherViewLikeUtils {
         return CipherType.SecureNote;
       case cipher.type === "sshKey":
         return CipherType.SshKey;
+      case cipher.type === "bankAccount":
+        return CipherType.BankAccount;
+      case cipher.type === "passport":
+        return CipherType.Passport;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
         return CipherType.Card;
       case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      case cipher.type === "driversLicense":
+        return CipherType.DriversLicense;
       default:
         throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
@@ -235,11 +241,19 @@ export class CipherViewLikeUtils {
     // `CipherListView` instances do not contain the values to be copied, but rather a list of copyable fields.
     // When the copy action is performed on a `CipherListView`, the full cipher will need to be decrypted.
     if (this.isCipherListView(cipher)) {
+      // For login ciphers, cross-check against the decrypted data available in LoginListView
+      // when possible. The SDK's copyableFields can report fields as copyable even when
+      // the decrypted value is empty.
+      if (this.getType(cipher) === CipherType.Login) {
+        const login = this.getLogin(cipher);
+        if (copyField === "username") {
+          return !!login?.username;
+        }
+      }
+
       let _copyField = copyField;
 
-      if (_copyField === "username" && this.getType(cipher) === CipherType.Login) {
-        _copyField = "usernameLogin";
-      } else if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
+      if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
         _copyField = "usernameIdentity";
       }
 
@@ -272,6 +286,36 @@ export class CipherViewLikeUtils {
         return !!cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return !!cipher.sshKey?.keyFingerprint;
+      case "nameOnAccount":
+        return !!cipher.bankAccount?.nameOnAccount;
+      case "accountNumber":
+        return !!cipher.bankAccount?.accountNumber;
+      case "routingNumber":
+        return !!cipher.bankAccount?.routingNumber;
+      case "branchNumber":
+        return !!cipher.bankAccount?.branchNumber;
+      case "pin":
+        return !!cipher.bankAccount?.pin;
+      case "iban":
+        return !!cipher.bankAccount?.iban;
+      case "swiftCode":
+        return !!cipher.bankAccount?.swiftCode;
+      case "firstNameLicense":
+        return !!cipher.driversLicense?.firstName;
+      case "middleNameLicense":
+        return !!cipher.driversLicense?.middleName;
+      case "lastNameLicense":
+        return !!cipher.driversLicense?.lastName;
+      case "licenseNumber":
+        return !!cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
+      case "givenName":
+        return !!cipher.passport?.givenName;
+      case "surname":
+        return !!cipher.passport?.surname;
       default:
         return false;
     }
@@ -375,6 +419,21 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+  nameOnAccount: "BankAccountNameOnAccount",
+  accountNumber: "BankAccountAccountNumber",
+  routingNumber: "BankAccountRoutingNumber",
+  branchNumber: "BankAccountBranchNumber",
+  pin: "BankAccountPin",
+  iban: "BankAccountIban",
+  swiftCode: "BankAccountSwift",
+  firstNameLicense: "DriversLicenseFirstName",
+  middleNameLicense: "DriversLicenseMiddleName",
+  lastNameLicense: "DriversLicenseLastName",
+  licenseNumber: "DriversLicenseLicenseNumber",
+  givenName: "PassportGivenName",
+  surname: "PassportSurname",
+  passportNumber: "PassportPassportNumber",
+  nationalIdentificationNumber: "PassportNationalIdentificationNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

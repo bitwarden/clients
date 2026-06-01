@@ -3,7 +3,7 @@ import "zone.js";
 // Register the locales for the application
 import "../platform/app/locales";
 
-import { OverlayModule } from "@angular/cdk/overlay";
+import { OverlayModule, OVERLAY_DEFAULT_CONFIG } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -14,7 +14,7 @@ import { IconModule, SpinnerComponent } from "@bitwarden/components";
 
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -45,6 +45,7 @@ import { ServicesModule } from "./services/services.module";
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
     },
+    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
   ],
   bootstrap: [AppComponent],
 })

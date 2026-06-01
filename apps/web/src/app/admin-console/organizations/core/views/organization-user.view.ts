@@ -1,40 +1,80 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Guid, UserId } from "@bitwarden/common/types/guid";
 
 export class OrganizationUserView {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: UserId;
   type: OrganizationUserType;
+  revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;
   permissions: PermissionsApi;
-  resetPasswordEnrolled: boolean;
+  resetPasswordEnrolled: boolean = false;
   name: string;
   email: string;
   avatarColor: string;
-  twoFactorEnabled: boolean;
-  usesKeyConnector: boolean;
-  hasMasterPassword: boolean;
+  twoFactorEnabled: boolean = false;
+  usesKeyConnector: boolean = false;
+  hasMasterPassword: boolean = false;
   /**
    * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
    */
-  accessSecretsManager: boolean;
-  managedByOrganization: boolean;
+  accessSecretsManager: boolean = false;
+  managedByOrganization: boolean = false;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
 
-  groupNames: string[] = [];
   collectionNames: string[] = [];
+  groupNames: string[] = [];
+
+  constructor(c: {
+    id: Guid;
+    userId: UserId;
+    email: string;
+    type: OrganizationUserType;
+    revocationReason: RevocationReasonType;
+    status: OrganizationUserStatusType;
+    permissions: PermissionsApi;
+    avatarColor: string;
+    name: string;
+  }) {
+    this.id = c.id;
+    this.userId = c.userId;
+    this.email = c.email;
+    this.type = c.type;
+    this.revocationReason = c.revocationReason;
+    this.status = c.status;
+    this.permissions = c.permissions;
+    this.avatarColor = c.avatarColor;
+    this.name = c.name;
+  }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {
-    const view = Object.assign(new OrganizationUserView(), response) as OrganizationUserView;
+    const view = new OrganizationUserView({
+      id: response.id as Guid,
+      userId: response.userId as UserId,
+      email: response.email,
+      type: response.type,
+      revocationReason: response.revocationReason,
+      status: response.status,
+      permissions: response.permissions,
+      avatarColor: response.avatarColor,
+      name: response.name,
+    });
+
+    view.resetPasswordEnrolled = response.resetPasswordEnrolled;
+    view.twoFactorEnabled = response.twoFactorEnabled;
+    view.usesKeyConnector = response.usesKeyConnector;
+    view.hasMasterPassword = response.hasMasterPassword;
+    view.accessSecretsManager = response.accessSecretsManager;
+    view.managedByOrganization = response.managedByOrganization;
 
     if (response.collections != undefined) {
       view.collections = response.collections.map((c) => new CollectionAccessSelectionView(c));
