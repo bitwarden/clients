@@ -6,7 +6,7 @@ const { compilerOptions } = require("../../../tsconfig.base");
 module.exports = {
   testMatch: ["**/+(*.)+(spec).+(ts)"],
   preset: "ts-jest",
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
     prefix: "<rootDir>/../../../",
   }),
