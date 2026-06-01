@@ -112,7 +112,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
-  readonly sharedUnlockDescriptionKey: string;
   protected readonly loading = signal(true);
 
   form = this.formBuilder.group({
@@ -165,8 +164,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
-    this.sharedUnlockDescriptionKey = this.getSharedUnlockDescriptionKey();
-
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
     );
@@ -178,7 +175,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
   }
 
-  private getSharedUnlockDescriptionKey(): string {
+  get sharedUnlockDescriptionKey(): string {
     if (this.platformUtilsService.isSafari()) {
       return "sharedUnlockDescriptionSafari";
     }
