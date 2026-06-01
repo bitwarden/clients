@@ -45,6 +45,7 @@ export * from "./select";
 export * from "./shared/compact-mode.service";
 export * from "./skeleton";
 export * from "./spinner";
+export * from "./spinner-lockup";
 export * from "./stepper";
 export * from "./switch";
 export * from "./table";
