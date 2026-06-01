@@ -41,11 +41,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
       vault.items.forEach((item: Item) => {
-        if (item.state === "archived") {
-          return;
-        }
-
         const cipher = this.initLoginCipher();
+        if (item.state === "archived") {
+          cipher.archivedDate = new Date();
+        }
 
         const category = item.categoryUuid as Category;
         switch (category) {

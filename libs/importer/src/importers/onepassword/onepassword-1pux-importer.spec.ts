@@ -61,14 +61,16 @@ describe("1Password 1Pux Importer", () => {
   const SecureNoteDataJson = JSON.stringify(SecureNoteData);
   const SanitizedExportJson = JSON.stringify(SanitizedExport);
 
-  it("should not import items with state 'archived'", async () => {
+  it("should import items with state 'archived' as archived ciphers", async () => {
     const importer = new OnePassword1PuxImporter();
-    const archivedLoginData = LoginData;
+    const archivedLoginData = JSON.parse(JSON.stringify(LoginData));
     archivedLoginData["accounts"][0]["vaults"][0]["items"][0]["state"] = "archived";
     const archivedDataJson = JSON.stringify(archivedLoginData);
     const result = await importer.parse(archivedDataJson);
     expect(result != null).toBe(true);
-    expect(result.ciphers.length).toBe(0);
+    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].name).toBe("eToro");
+    expect(result.ciphers[0].archivedDate).toBeInstanceOf(Date);
   });
 
   it("should parse login data", async () => {
