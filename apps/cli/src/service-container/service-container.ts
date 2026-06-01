@@ -654,12 +654,6 @@ export class ServiceContainer {
       this.configService,
     );
 
-    this.cipherFileUploadService = new CipherFileUploadService(
-      this.apiService,
-      this.fileUploadService,
-      this.configService,
-    );
-
     const legacySendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
