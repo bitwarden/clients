@@ -418,6 +418,10 @@ describe("ExtensionLockComponentService", () => {
       // PRF
       webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(false);
 
+      // Shared unlock
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(false));
+
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
       expect(unlockOptions).toEqual(expectedOutput);
