@@ -19,6 +19,7 @@ import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -74,6 +75,7 @@ export class Main {
   memoryStorageForStateProviders: SerializedMemoryStorageService;
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
+  govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
@@ -205,6 +207,8 @@ export class Main {
       accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,

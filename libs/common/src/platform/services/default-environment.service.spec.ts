@@ -98,6 +98,19 @@ describe("EnvironmentService", () => {
         send: "https://vault.bitwarden.eu/#/send/",
       },
     },
+    {
+      region: Region.Gov,
+      expectedUrls: {
+        webVault: "https://vault.bitwarden-gov.com",
+        identity: "https://identity.bitwarden-gov.com",
+        api: "https://api.bitwarden-gov.com",
+        icons: "https://icons.bitwarden-gov.com",
+        notifications: "https://notifications.bitwarden-gov.com",
+        events: "https://events.bitwarden-gov.com",
+        scim: "https://scim.bitwarden-gov.com/v2",
+        send: "https://send.bitwarden-gov.com/#",
+      },
+    },
   ];
 
   describe("with user", () => {
@@ -131,6 +144,7 @@ describe("EnvironmentService", () => {
           events: expectedUrls.events,
           scim: expectedUrls.scim.replace("/v2", ""),
           keyConnector: undefined,
+          send: expectedUrls.send,
         });
       },
     );
@@ -212,6 +226,7 @@ describe("EnvironmentService", () => {
         notifications: null,
         scim: null,
         webVault: null,
+        send: null,
       });
     });
   });
@@ -243,6 +258,7 @@ describe("EnvironmentService", () => {
         events: expectedUrls.events,
         scim: expectedUrls.scim.replace("/v2", ""),
         keyConnector: undefined,
+        send: expectedUrls.send,
       });
     });
 
@@ -280,6 +296,7 @@ describe("EnvironmentService", () => {
         keyConnector: "https://global-key-connector.example.com",
         notifications: null,
         scim: null,
+        send: null,
       });
     });
   });
@@ -304,6 +321,7 @@ describe("EnvironmentService", () => {
         scim: null,
         events: null,
         keyConnector: null,
+        send: null,
       });
     });
 
@@ -334,6 +352,7 @@ describe("EnvironmentService", () => {
         scim: null,
         events: null,
         keyConnector: null,
+        send: null,
       });
       expect(env.getScimUrl()).toBe("https://vault.example.com/scim/v2");
     });

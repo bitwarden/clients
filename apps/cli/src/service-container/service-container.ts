@@ -134,7 +134,9 @@ import { AppIdService } from "@bitwarden/common/platform/services/app-id.service
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -269,6 +271,8 @@ export class ServiceContainer {
   twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
+  availableRegionsService: DefaultAvailableRegionsService;
+  govModeService: DefaultGovModeService;
   cipherSdkService: CipherSdkService;
   cipherService: CipherService;
   folderService: InternalFolderService;
@@ -475,6 +479,8 @@ export class ServiceContainer {
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
+    this.govModeService = new DefaultGovModeService(this.environmentService);
+
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
 
     this.tokenService = new TokenService(
@@ -623,6 +629,11 @@ export class ServiceContainer {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
     );
 
     this.domainSettingsService = new DefaultDomainSettingsService(

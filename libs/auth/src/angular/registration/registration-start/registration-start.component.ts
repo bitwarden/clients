@@ -37,6 +37,7 @@ export enum RegistrationStartState {
 const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
   [Region.US]: true,
   [Region.EU]: false,
+  [Region.Gov]: false,
   [Region.SelfHosted]: false,
 };
 
@@ -129,7 +130,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     });
   }
 
-  setReceiveMarketingEmailsByRegion(region: RegionConfig | Region.SelfHosted) {
+  setReceiveMarketingEmailsByRegion(region: RegionConfig | typeof Region.SelfHosted) {
     let defaultValue;
     if (region === Region.SelfHosted) {
       defaultValue = DEFAULT_MARKETING_EMAILS_PREF_BY_REGION[region];
@@ -179,7 +180,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     this.registrationStartStateChange.emit(this.state);
   };
 
-  handleSelectedRegionChange(region: RegionConfig | Region.SelfHosted | null) {
+  handleSelectedRegionChange(region: RegionConfig | typeof Region.SelfHosted | null) {
     this.isSelfHost = region === Region.SelfHosted;
 
     if (region !== null) {
