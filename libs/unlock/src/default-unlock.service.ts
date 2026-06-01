@@ -77,12 +77,6 @@ export class DefaultUnlockService implements UnlockService {
     this.onUnlockActions.push(action);
   }
 
-  registerOnUnlockAction(
-    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
-  ): void {
-    this.onUnlockActions.push(action);
-  }
-
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
     const startTime = performance.now();
     await this.unlockWithMethod(userId, {
