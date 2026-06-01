@@ -82,8 +82,12 @@ export class VaultOrganizationUserNotificationsService {
       } satisfies OrganizationUserNotificationBannerData;
     }),
     distinctUntilChanged((a, b) => {
-      if (a === b) {return true;}
-      if (a == null || b == null) {return false;}
+      if (a === b) {
+        return true;
+      }
+      if (a == null || b == null) {
+        return false;
+      }
       return (
         a.organizationId === b.organizationId &&
         a.header === b.header &&
