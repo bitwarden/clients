@@ -1,5 +1,20 @@
-import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+import {
+  AUTOFILL_ATTRIBUTES,
+  AutofillTargetingRuleTypes,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
+
+/**
+ * Per-field-type cap on how many DOM matches the targeted-collection pass
+ * accepts from a selector array. Selector arrays are alternatives by default
+ * (first match wins), but certain field types appear in pairs on the same
+ * form — most notably `newPassword`, which is commonly mirrored by a
+ * "confirm new password" input on registration and password-update flows.
+ */
+const MAX_MATCHES_BY_FIELD_TYPE: Partial<Record<AutofillTargetingRuleType, number>> = {
+  [AutofillTargetingRuleTypes.newPassword]: 2,
+};
+const DEFAULT_MAX_MATCHES = 1;
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
@@ -298,7 +313,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           continue;
         }
 
+        const typedFieldType = fieldType as AutofillTargetingRuleType;
+        const maxMatches = MAX_MATCHES_BY_FIELD_TYPE[typedFieldType] ?? DEFAULT_MAX_MATCHES;
+        // Dedupe by element identity in case two selectors in the array
+        // resolve to the same node.
+        const matchedElements = new Set<Element>();
+        let matchCount = 0;
+
         for (const selector of selectorAlternatives) {
+          if (matchCount >= maxMatches) {
+            break;
+          }
+
           if (typeof selector !== "string") {
             continue;
           }
@@ -315,29 +341,35 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
               }
               iframeTargets.get(iframeSrc)!.push({
                 selector: innerSelector,
-                fieldType: fieldType as AutofillTargetingRuleType,
+                fieldType: typedFieldType,
               });
             }
-            break;
+            matchCount++;
+            continue;
           }
 
           // No iframe boundary — resolve locally (direct element or shadow DOM).
           const matchedElement = this.domQueryService.queryDeepSelector(selector);
           if (matchedElement) {
-            const fieldId = `targeted_field_${formIndex}_${fieldType}`;
+            if (matchedElements.has(matchedElement)) {
+              continue;
+            }
+            matchedElements.add(matchedElement);
+
+            const fieldId = `targeted_field_${formIndex}_${fieldType}_${matchCount}`;
             const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
             formFieldElement.opid = fieldId;
 
             const autofillField = this.buildTargetedAutofillField(
               formFieldElement,
-              fieldType as AutofillTargetingRuleType,
+              typedFieldType,
               fields.length,
             );
             autofillField.form = formOpid;
 
             fields.push(autofillField);
             this.cacheAutofillFieldElement(fields.length - 1, formFieldElement, autofillField);
-            break;
+            matchCount++;
           }
         }
       }

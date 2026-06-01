@@ -724,13 +724,90 @@ describe("CollectAutofillContentService", () => {
       const loginFields = pageDetails.fields.filter((f) => f.form === "targeted_form_0");
       const signupFields = pageDetails.fields.filter((f) => f.form === "targeted_form_1");
       expect(loginFields.map((f) => f.opid).sort()).toEqual([
-        "targeted_field_0_password",
-        "targeted_field_0_username",
+        "targeted_field_0_password_0",
+        "targeted_field_0_username_0",
       ]);
       expect(signupFields.map((f) => f.opid).sort()).toEqual([
-        "targeted_field_1_newPassword",
-        "targeted_field_1_username",
+        "targeted_field_1_newPassword_0",
+        "targeted_field_1_username_0",
       ]);
+    });
+
+    it("collects up to two newPassword matches from a single selector array (re-entry pattern)", async () => {
+      document.body.innerHTML = `
+        <form id="change-password">
+          <input id="new-pw" type="password" name="newPassword" />
+          <input id="confirm-pw" type="password" name="confirmPassword" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-update",
+          container: ["form#change-password"],
+          fields: {
+            newPassword: ["input[name='newPassword']", "input[name='confirmPassword']"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const newPasswordFields = pageDetails.fields.filter(
+        (f) => f.fieldQualifier === "newPassword",
+      );
+      expect(newPasswordFields).toHaveLength(2);
+      expect(newPasswordFields.map((f) => f.opid).sort()).toEqual([
+        "targeted_field_0_newPassword_0",
+        "targeted_field_0_newPassword_1",
+      ]);
+    });
+
+    it("stops at the first match for non-newPassword field types", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="user-1" type="text" name="username" />
+          <input id="user-2" type="text" name="email" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input[name='username']", "input[name='email']"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const usernameFields = pageDetails.fields.filter((f) => f.fieldQualifier === "username");
+      expect(usernameFields).toHaveLength(1);
+      expect(usernameFields[0].opid).toBe("targeted_field_0_username_0");
+    });
+
+    it("dedupes by element identity when two newPassword selectors resolve to the same node", async () => {
+      document.body.innerHTML = `
+        <form id="change-password">
+          <input id="new-pw" type="password" name="newPassword" data-test="new" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-update",
+          container: ["form#change-password"],
+          fields: {
+            newPassword: ["input[name='newPassword']", "input[data-test='new']"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const newPasswordFields = pageDetails.fields.filter(
+        (f) => f.fieldQualifier === "newPassword",
+      );
+      expect(newPasswordFields).toHaveLength(1);
     });
   });
 
