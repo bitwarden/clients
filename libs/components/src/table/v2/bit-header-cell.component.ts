@@ -1,22 +1,36 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, forwardRef, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  forwardRef,
+  inject,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
 
 import { BitColumnComponent } from "./bit-column.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
- * A header cell. Renders a `<div role="columnheader">` internally with cell
- * sizing and, when the surrounding `<bit-column>` is sortable, wraps the
- * projected content in a sort button. `aria-sort` is applied to the rendered
- * div (the semantic owner) rather than the component host.
+ * A header cell. Defines its rendered markup — a `<div role="columnheader">`
+ * with cell sizing, wrapping the projected content in a sort button when the
+ * surrounding `<bit-column>` is sortable — inside an `<ng-template>` exposed
+ * via {@link template}.
  *
- * The component host is `display: contents` so the inner header div becomes
- * the direct grid item of the parent `<bit-header-row>`.
+ * Two render paths share that one template:
+ * - Column-def mode: the cell sits inside a `<bit-column>`, which reads
+ *   {@link template} and lets `<bit-table-v2>` stamp it into the header row.
+ *   The component host itself is an unprojected content child of the empty
+ *   `<bit-column>`, so it never renders; only the stamped template does.
+ * - Manual mode: the cell is projected directly into a `<bit-header-row>`
+ *   with no `<bit-column>` ancestor, so it stamps its own template inline
+ *   (see `manual()`). The `display: contents` host makes the rendered
+ *   `columnheader` div the direct grid item of the row.
  *
- * Finds its column and table via the template's *declaration* injector tree
- * — the header template is declared inside `<bit-column>` inside
- * `<bit-table-v2>`, so element-injector lookups walk that chain regardless
- * of where the table stamps the template.
+ * Either way the cell finds its column and table via DI on the element
+ * injector, and `aria-sort` is applied to the rendered div (the semantic
+ * owner) rather than the component host.
  */
 @Component({
   selector: "bit-header-cell",
@@ -36,6 +50,12 @@ export class BitHeaderCellComponent {
     forwardRef(() => BitTableV2Component),
     { optional: true },
   );
+
+  /** The rendered header markup, stamped by `<bit-table-v2>` in column-def mode. */
+  readonly template = viewChild.required<TemplateRef<void>>("tpl");
+
+  /** True when there's no owning column, so the cell renders itself inline. */
+  protected readonly manual = computed(() => this.column == null);
 
   protected readonly sortable = computed(() => this.column?.sortable() ?? false);
 

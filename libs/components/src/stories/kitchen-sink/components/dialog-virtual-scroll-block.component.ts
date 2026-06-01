@@ -11,7 +11,6 @@ import {
   BitCellComponent,
   BitColumnComponent,
   BitColumnForDirective,
-  BitColumnHeaderDirective,
   BitHeaderCellComponent,
   BitTableV2Component,
 } from "../../../table/v2";
@@ -32,7 +31,6 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     SectionComponent,
     BitTableV2Component,
     BitColumnComponent,
-    BitColumnHeaderDirective,
     BitColumnForDirective,
     BitHeaderCellComponent,
     BitCellComponent,
@@ -40,21 +38,21 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   template: `<bit-section>
     <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns" [rowSize]="64">
       <bit-column sortable defaultSort="asc">
-        <bit-header-cell *bitColumnHeader>Id</bit-header-cell>
+        <bit-header-cell>Id</bit-header-cell>
         <bit-cell *bitColumnFor="dataSource.columns.id; let cell">{{ cell.id }}</bit-cell>
       </bit-column>
       <bit-column sortable>
-        <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+        <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitColumnFor="dataSource.columns.name; let cell">{{ cell.name }}</bit-cell>
       </bit-column>
       <bit-column sortable>
-        <bit-header-cell *bitColumnHeader>Updated</bit-header-cell>
+        <bit-header-cell>Updated</bit-header-cell>
         <bit-cell *bitColumnFor="dataSource.columns.updatedAt; let cell">
           {{ cell.updatedAt | date: "mediumDate" }}
         </bit-cell>
       </bit-column>
       <bit-column sortable [sortFn]="sortByTags">
-        <bit-header-cell *bitColumnHeader>Tags</bit-header-cell>
+        <bit-header-cell>Tags</bit-header-cell>
         <bit-cell *bitColumnFor="dataSource.columns.tags; let cell" [truncate]="false">
           <bit-badge-group>
             @for (tag of cell.tags; track tag) {
@@ -64,7 +62,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
         </bit-cell>
       </bit-column>
       <bit-column width="64px">
-        <bit-header-cell *bitColumnHeader></bit-header-cell>
+        <bit-header-cell></bit-header-cell>
         <bit-cell *bitColumnFor="dataSource.synthetic('actions'); let cell">
           <button
             slot="end"

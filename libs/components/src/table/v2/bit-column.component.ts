@@ -13,14 +13,14 @@ import {
 import type { SortDirection, SortFn } from "../table-data-source";
 
 import { BitColumnForDirective } from "./bit-column-for.directive";
-import { BitColumnHeaderDirective } from "./bit-column-header.directive";
+import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
  * Declarative column wrapper for `bit-table-v2`. Carries column-level
  * metadata (sortable, defaultSort, sortFn, width). The column key and the
  * row-template come from a `*bitColumnFor` child; the header template comes
- * from a `*bitColumnHeader` child.
+ * from a `<bit-header-cell>` child.
  *
  * Registers itself with the nearest ancestor `<bit-table-v2>` via DI so the
  * column can sit anywhere in the descendant tree — including inside a wrapper
@@ -57,7 +57,7 @@ export class BitColumnComponent {
   readonly width = input<string>();
 
   private readonly cellDir = contentChild(BitColumnForDirective);
-  private readonly headerDir = contentChild(BitColumnHeaderDirective);
+  private readonly headerCell = contentChild(BitHeaderCellComponent);
 
   /**
    * Column key, sourced from the `*bitColumnFor` child. Returns `undefined`
@@ -69,8 +69,8 @@ export class BitColumnComponent {
   /** Template for stamping per-row cells. */
   readonly cellTemplate = computed(() => this.cellDir()?.template);
 
-  /** Template for the header cell. */
-  readonly headerTemplate = computed(() => this.headerDir()?.template);
+  /** Template for the header cell, sourced from the `<bit-header-cell>` child. */
+  readonly headerTemplate = computed(() => this.headerCell()?.template());
 
   constructor() {
     const table = inject<BitTableV2Component>(forwardRef(() => BitTableV2Component));
