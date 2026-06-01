@@ -25,11 +25,7 @@
         </bit-section-header>
         <bit-card>
           @if (!(sharedUnlockFeatureEnabled$ | async)) {
-            <bit-form-control
-              [disableMargin]="
-                !((pinEnabled$ | async) || this.form.value.pin)
-              "
-            >
+            <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
               <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
               <bit-label for="biometric" class="tw-whitespace-normal">
                 {{ "unlockWithBiometrics" | i18n }}
@@ -44,9 +40,7 @@
           @if (this.form.value.biometric && !(sharedUnlockFeatureEnabled$ | async)) {
             <bit-form-control
               class="tw-pl-5"
-              [disableMargin]="
-                !((pinEnabled$ | async) || this.form.value.pin)
-              "
+              [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
             >
               <input
                 bitCheckbox

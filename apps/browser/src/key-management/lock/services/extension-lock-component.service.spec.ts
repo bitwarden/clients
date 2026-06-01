@@ -23,6 +23,8 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 import { ExtensionLockComponentService } from "./extension-lock-component.service";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 describe("ExtensionLockComponentService", () => {
   let service: ExtensionLockComponentService;
@@ -35,6 +37,8 @@ describe("ExtensionLockComponentService", () => {
   let routerService: MockProxy<BrowserRouterService>;
   let biometricStateService: MockProxy<BiometricStateService>;
   let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockService>;
+  let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -45,6 +49,8 @@ describe("ExtensionLockComponentService", () => {
     routerService = mock<BrowserRouterService>();
     biometricStateService = mock<BiometricStateService>();
     webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+    sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
+    configService = mock<ConfigService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -58,6 +64,8 @@ describe("ExtensionLockComponentService", () => {
               biometricStateService,
               routerService,
               webAuthnPrfUnlockService,
+              sharedUnlockSettingsService,
+              configService
             ),
         },
       ],
