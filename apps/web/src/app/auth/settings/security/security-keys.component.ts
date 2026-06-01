@@ -6,6 +6,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -23,6 +24,7 @@ import { ApiKeyComponent } from "./api-key.component";
 })
 export class SecurityKeysComponent implements OnInit {
   showChangeKdf = true;
+  showKeyRotation = true;
   readonly sdkKeyRotationFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SdkKeyRotation);
 
   constructor(
@@ -31,13 +33,21 @@ export class SecurityKeysComponent implements OnInit {
     private apiService: ApiService,
     private dialogService: DialogService,
     private configService: ConfigService,
+    private keyConnectorService: KeyConnectorService,
   ) {}
 
   async ngOnInit() {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.showChangeKdf = await firstValueFrom(
+    const hasMasterPassword = await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
     );
+    const usesKeyConnector = await this.keyConnectorService.getUsesKeyConnector(userId);
+    const hasManagingOrganization = usesKeyConnector
+      ? (await this.keyConnectorService.getManagingOrganization(userId)) != null
+      : false;
+
+    this.showChangeKdf = hasMasterPassword;
+    this.showKeyRotation = hasMasterPassword || hasManagingOrganization;
   }
 
   async viewUserApiKey() {
