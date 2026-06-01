@@ -52,7 +52,7 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
-import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
+import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
@@ -447,7 +447,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        component: VaultWrapperComponent,
+        component: VaultComponent,
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
