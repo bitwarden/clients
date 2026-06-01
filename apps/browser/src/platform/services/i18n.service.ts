@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
@@ -101,12 +99,15 @@ export default class I18nService extends BaseI18nService {
       }
 
       if (placeholders.length) {
-        return chrome.i18n.getMessage(id, placeholders);
+        return chrome.i18n.getMessage(
+          id,
+          placeholders.map((placeholder) => placeholder.toString()),
+        );
       } else {
         return chrome.i18n.getMessage(id);
       }
     }
 
-    return super.translate(id, p1, p2, p3);
+    return super.translate(id, p1?.toString(), p2?.toString(), p3?.toString());
   }
 }
