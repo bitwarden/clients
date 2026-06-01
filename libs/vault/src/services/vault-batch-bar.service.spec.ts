@@ -486,6 +486,44 @@ describe("VaultBatchBarService", () => {
 
       expect(service.canAssignToCollections()).toBe(true);
     });
+
+    it("returns true in personal vault when org admin (canEditAllCiphers) selects org cipher without individual edit permission", () => {
+      const editableCollection = makeCollection();
+      (editableCollection as any).readOnly = false;
+      service.setConfig(
+        makeConfig({
+          hasCiphers: true,
+          allCollections: [editableCollection],
+        }),
+      );
+      organizationsSubject.next([makeOrg({ canEditAllCiphers: true })]);
+      service.selection.select(
+        makeCipherItem({ organizationId: orgId, edit: false, viewPassword: false }),
+      );
+
+      expect(service.canAssignToCollections()).toBe(true);
+    });
+
+    it("returns false in personal vault when org admin (canEditAllCiphers) but cipher is from a different org", () => {
+      const editableCollection = makeCollection();
+      (editableCollection as any).readOnly = false;
+      service.setConfig(
+        makeConfig({
+          hasCiphers: true,
+          allCollections: [editableCollection],
+        }),
+      );
+      organizationsSubject.next([makeOrg({ canEditAllCiphers: true })]);
+      service.selection.select(
+        makeCipherItem({
+          organizationId: "other-org" as OrganizationId,
+          edit: false,
+          viewPassword: false,
+        }),
+      );
+
+      expect(service.canAssignToCollections()).toBe(false);
+    });
   });
 
   describe("filter change clears selection", () => {

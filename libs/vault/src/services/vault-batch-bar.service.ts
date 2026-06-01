@@ -302,7 +302,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const [orgId] = uniqueOrgIds;
     const org = allOrganizations.find((o) => o.id === orgId);
-    const canEditOrManageAll = org?.canEditAllCiphers === true && config.isOrgVault;
+    const canEditOrManageAll = org?.canEditAllCiphers === true;
     const collectionNotSelected = selected.filter((i) => i.collection).length === 0;
     const allCiphersHaveEdit = selectedCiphers.every((c) => c.edit && c.viewPassword);
 
