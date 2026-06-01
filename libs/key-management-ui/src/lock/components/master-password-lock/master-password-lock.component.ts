@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, OnDestroy, OnInit, output } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+  output,
+} from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
@@ -22,7 +31,11 @@ import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
-import { UnlockOptions } from "../../services/lock-component.service";
+import {
+  UnlockOption,
+  UnlockOptions,
+  UnlockOptionValue,
+} from "../../services/lock-component.service";
 import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -49,7 +62,6 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly messageListener = inject(MessageListener);
   private readonly unlockService = inject(UnlockService);
   private readonly keyService = inject(KeyService);
-  private readonly configService = inject(ConfigService);
   UnlockOption = UnlockOption;
 
   readonly activeUnlockOption = model.required<UnlockOptionValue>();
