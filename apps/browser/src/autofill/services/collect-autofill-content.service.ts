@@ -160,6 +160,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.recordGetPageDetails("start", -1);
     const pageDetails = await this.getPageDetailsInner();
     this.recordGetPageDetails("end", pageDetails.fields.length);
+    this.sampleMapSizes();
+    return pageDetails;
+  }
+
+  private sampleMapSizes(): void {
     this.recordMapSizes(
       this.autofillFieldElements.size,
       this.autofillFieldsByOpid.size,
@@ -167,7 +172,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize ??
         0,
     );
-    return pageDetails;
   }
 
   private async getPageDetailsInner(): Promise<AutofillPageDetails> {
@@ -1466,6 +1470,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
+        this.sampleMapSizes();
       },
       { timeout: 500 },
     );
