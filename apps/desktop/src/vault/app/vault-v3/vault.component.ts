@@ -188,8 +188,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected cipherRepromptId: string | null = null;
   protected showingModal = false;
 
-  private readonly _currentCipher = signal<CipherView | null>(null);
-  protected readonly cipher = this._currentCipher.asReadonly();
+  protected readonly cipher = signal<CipherView | null>(null);
 
   private activeUserId: UserId | null = null;
   private passwordReprompted: boolean = false;
@@ -651,7 +650,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this._currentCipher.set(cipher);
+    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
@@ -682,7 +681,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this._currentCipher.set(cipher);
+    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
@@ -695,7 +694,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this._currentCipher.set(cipher);
+    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       "clone",
       cipher.id as CipherId,
@@ -991,7 +990,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
     this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       this.activeDrawerRef = undefined;
-      this._currentCipher.set(null);
+      this.cipher.set(null);
       void this.router.navigate([], {
         queryParams: { action: null, itemId: null },
         queryParamsHandling: "merge",
