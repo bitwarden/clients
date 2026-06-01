@@ -1,0 +1,11 @@
+<div [class]="orientationClasses().container">
+  <bit-spinner [size]="size()" [variant]="variant()"></bit-spinner>
+  <div [class]="orientationClasses().textContainer">
+    <span [class]="textClasses().title">
+      <ng-content select="[slot=title]"></ng-content>
+    </span>
+    <span [class]="textClasses().body">
+      <ng-content select="[slot=description]"></ng-content>
+    </span>
+  </div>
+</div>
