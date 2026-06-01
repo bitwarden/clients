@@ -45,6 +45,7 @@ describe("DefaultCipherSdkService", () => {
     mockCiphersSdk = {
       create: jest.fn(),
       edit: jest.fn(),
+      edit_partial: jest.fn(),
       delete: jest.fn().mockResolvedValue(undefined),
       delete_many: jest.fn().mockResolvedValue(undefined),
       soft_delete: jest.fn().mockResolvedValue(undefined),
@@ -246,12 +247,13 @@ describe("DefaultCipherSdkService", () => {
           name: cipherView.name,
         }),
       );
+      expect(mockCiphersSdk.edit_partial).not.toHaveBeenCalled();
       expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
       expect(result.name).toBe(cipherView.name);
     });
 
-    it("should partial update cipher using SDK edit when orgAdmin is false and cipher.edit is false", async () => {
+    it("should partial update cipher using SDK edit_partial when orgAdmin is false and cipher.edit is false", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
@@ -261,18 +263,19 @@ describe("DefaultCipherSdkService", () => {
       cipherView.favorite = true;
 
       const mockSdkCipherView = cipherView.toSdkCipherView();
-      mockCiphersSdk.edit.mockResolvedValue(mockSdkCipherView);
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
 
       const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
-      expect(mockCiphersSdk.edit).toHaveBeenCalledWith(
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalledWith(
         expect.objectContaining({
           id: expect.anything(),
           favorite: true,
         }),
       );
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
       expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
     });
@@ -285,12 +288,12 @@ describe("DefaultCipherSdkService", () => {
       cipherView.organizationId = orgId;
 
       const mockSdkCipherView = cipherView.toSdkCipherView();
-      mockCiphersSdk.edit.mockResolvedValue(mockSdkCipherView);
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
 
       const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
 
-      expect(mockCiphersSdk.edit).toHaveBeenCalled();
-      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
     });
 
@@ -419,13 +422,13 @@ describe("DefaultCipherSdkService", () => {
       );
     });
 
-    it("should throw error and log when SDK edit throws an error during partial update", async () => {
+    it("should throw error and log when SDK edit_partial throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.name = "Test Cipher";
       cipherView.edit = false;
 
-      mockCiphersSdk.edit.mockRejectedValue(new Error("SDK error"));
+      mockCiphersSdk.edit_partial.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.updateWithServer(cipherView, userId, undefined, false),

@@ -4,6 +4,7 @@ import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import {
   CipherCreateRequest,
   CipherEditRequest,
+  CipherPartialEditRequest,
   CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
@@ -459,14 +460,18 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   /**
-   * Maps CipherView to an SDK CipherEditRequest for a partial update (folder + favorite only).
-   * The SDK removed CipherPartialEditRequest in v0.2.0-main.782; partial updates now use the
-   * full edit request via {@link toSdkUpdateCipherRequest}.
+   * Maps CipherView to an SDK CipherPartialEditRequest
    *
-   * @returns {CipherEditRequest} The SDK cipher edit request object
+   * @returns {CipherPartialEditRequest} The SDK cipher edit request object
    */
-  toSdkPartialUpdateCipherRequest(sdk: CiphersClient): CipherEditRequest {
-    return this.toSdkUpdateCipherRequest(sdk);
+  toSdkPartialUpdateCipherRequest(): CipherPartialEditRequest {
+    const sdkCipherPartialEditRequest: CipherPartialEditRequest = {
+      id: asUuid(this.id),
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      favorite: this.favorite ?? false,
+    };
+
+    return sdkCipherPartialEditRequest;
   }
 
   /**
