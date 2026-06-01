@@ -1,4 +1,4 @@
-import { ipcMain, globalShortcut } from "electron";
+import { ipcMain, globalShortcut, dialog } from "electron";
 
 import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
@@ -95,8 +95,24 @@ export class MainDesktopAutotypeService {
 
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
-      () => {
+      async () => {
+        // Capture the foreground window title before showing the dialog,
+        // because opening the dialog changes the foreground window.
         const windowTitle = autotype.getForegroundWindowTitle();
+
+        const { response } = await dialog.showMessageBox(this.windowMain.win, {
+          type: "question",
+          buttons: ["Yes", "No"],
+          defaultId: 0,
+          cancelId: 1,
+          noLink: true,
+          title: "Bitwarden Autotype",
+          message: "Do you want to autotype?",
+        });
+
+        if (response !== 0) {
+          return;
+        }
 
         this.windowMain.win.webContents.send(AUTOTYPE_IPC_CHANNELS.LISTEN, {
           windowTitle,
