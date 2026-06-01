@@ -7,9 +7,9 @@ import { UnlockService } from "@bitwarden/unlock";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
