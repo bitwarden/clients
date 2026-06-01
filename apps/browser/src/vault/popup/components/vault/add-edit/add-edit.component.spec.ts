@@ -379,6 +379,18 @@ describe("AddEditComponent", () => {
     );
   });
 
+  describe("submitAndFill", () => {
+    it("resets the fill intent when the form does not save", async () => {
+      const submit = jest.fn().mockResolvedValue(undefined);
+      (component as any).cipherFormComponent = jest.fn(() => ({ submit }));
+
+      await component.submitAndFill();
+
+      expect(submit).toHaveBeenCalled();
+      expect((component as any).fillOnSuccessfulSave).toBe(false);
+    });
+  });
+
   describe("handleBackButton", () => {
     it("disables warning and aborts fido2 popout", async () => {
       // @ts-expect-error - `inFido2PopoutWindow` is a private getter, mock the response here
@@ -574,7 +586,7 @@ describe("AddEditComponent", () => {
     }));
 
     it("does not reload data if config is not set", fakeAsync(() => {
-      component.config = null;
+      component.config = null as any;
 
       const messageListener = component["messageListener"];
       messageListener({ command: "reloadAddEditCipherData" });

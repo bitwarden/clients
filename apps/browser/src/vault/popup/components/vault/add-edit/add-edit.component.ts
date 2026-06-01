@@ -198,8 +198,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
   routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION = "/tabs/vault";
-  protected fillAfterSave = false;
-  private shouldFillOnSave = false;
+  protected showSaveAndFill = false;
+  private fillOnSuccessfulSave = false;
 
   get loading() {
     return this.config == null;
@@ -351,7 +351,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.inSingleActionPopout && this.shouldFillOnSave) {
+    if (this.inSingleActionPopout && this.fillOnSuccessfulSave) {
       const senderTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
       await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
       if (senderTab) {
@@ -388,8 +388,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   submitAndFill = async () => {
-    this.shouldFillOnSave = true;
-    await this.cipherFormComponent()?.submit();
+    this.fillOnSuccessfulSave = true;
+    try {
+      await this.cipherFormComponent()?.submit();
+    } finally {
+      this.fillOnSuccessfulSave = false;
+    }
   };
 
   subscribeToParams(): void {
@@ -406,10 +410,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
           }
 
           if (params.fillAfterSave) {
-            const fillAfterSaveEnabled = await this.configService.getFeatureFlag(
+            const saveAndFillEnabled = await this.configService.getFeatureFlag(
               FeatureFlag.PM29968_FillAfterSave,
             );
-            this.fillAfterSave = fillAfterSaveEnabled;
+            this.showSaveAndFill = saveAndFillEnabled;
+          } else {
+            this.showSaveAndFill = false;
           }
           const config = await this.addEditFormConfigService.buildConfig(
             mode,

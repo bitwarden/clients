@@ -32,7 +32,7 @@
   </vault-cipher-form>
 
   <popup-footer slot="footer">
-    @if (fillAfterSave) {
+    @if (showSaveAndFill) {
       <button [bitAction]="submitAndFill" type="button" bitButton buttonType="primary">
         {{ "saveAndFill" | i18n }}
       </button>
@@ -41,12 +41,12 @@
       bitButton
       type="submit"
       form="cipherForm"
-      [buttonType]="fillAfterSave ? 'secondary' : 'primary'"
+      [buttonType]="showSaveAndFill ? 'secondary' : 'primary'"
       #submitBtn
     >
       {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
     </button>
-    @if (fillAfterSave) {
+    @if (showSaveAndFill) {
       <button
         (click)="handleBackButton()"
         bitButton
