@@ -12,14 +12,14 @@ import {
 
 import type { SortDirection, SortFn } from "../table-data-source";
 
-import { BitColumnForDirective } from "./bit-column-for.directive";
+import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
  * Declarative column wrapper for `bit-table-v2`. Carries column-level
  * metadata (sortable, defaultSort, sortFn, width). The column key and the
- * row-template come from a `*bitColumnFor` child; the header template comes
+ * row-template come from a `*bitCellDef` child; the header template comes
  * from a `<bit-header-cell>` child.
  *
  * Registers itself with the nearest ancestor `<bit-table-v2>` via DI so the
@@ -56,11 +56,11 @@ export class BitColumnComponent {
    */
   readonly width = input<string>();
 
-  private readonly cellDir = contentChild(BitColumnForDirective);
+  private readonly cellDir = contentChild(BitCellDefDirective);
   private readonly headerCell = contentChild(BitHeaderCellComponent);
 
   /**
-   * Column key, sourced from the `*bitColumnFor` child. Returns `undefined`
+   * Column key, sourced from the `*bitCellDef` child. Returns `undefined`
    * if the column hasn't projected a cell template (transient state during
    * initial render).
    */
