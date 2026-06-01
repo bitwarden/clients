@@ -1,16 +1,15 @@
-import { compareNames, prioritizeCollections, VaultRowBase } from "./vault-row";
+import { compareNames, prioritizeCollections, VaultRow } from "./vault-row";
 
-function cipherRow(name: string): VaultRowBase {
+function cipherRow(name: string): VaultRow {
   return { id: name, kind: "cipher", name };
 }
 
-function collectionRow(name: string): VaultRowBase {
+function collectionRow(name: string): VaultRow {
   return { id: name, kind: "collection", name };
 }
 
-// The cross-column ordering primitives. Each column composes these into its own
-// comparator (see the *-column components); the composition is exercised by the
-// Storybook stories and the AOT build.
+// The cross-column ordering primitives. The table's comparators compose these;
+// the composition is exercised by the Storybook stories and the AOT build.
 describe("vault-row sort primitives", () => {
   describe("prioritizeCollections", () => {
     it("orders collections before ciphers, regardless of name", () => {

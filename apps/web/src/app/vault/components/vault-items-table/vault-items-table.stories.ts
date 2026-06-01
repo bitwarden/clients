@@ -44,9 +44,8 @@ import { VaultItem } from "@bitwarden/vault";
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
-import { IndividualVaultItemsTableComponent } from "./individual-vault-items-table.component";
-import { OrgVaultItemsTableComponent } from "./org-vault-items-table.component";
-import { IndividualVaultRow, OrgVaultRow, toIndividualVaultRow, toOrgVaultRow } from "./vault-row";
+import { VaultItemsTableComponent, VaultItemsTableMode } from "./vault-items-table.component";
+import { toVaultRow, VaultRow } from "./vault-row";
 
 const organizations = [...new Array(3).keys()].map(createOrganization);
 const groups = [...Array(3).keys()].map(createGroupView);
@@ -55,45 +54,27 @@ const ciphers = [...Array(50).keys()].map((i) => createCipherView(i));
 const deletedCiphers = [...Array(15).keys()].map((i) => createCipherView(i, true));
 const organizationOnlyCiphers = ciphers.filter((c) => c.organizationId != undefined);
 
-function toItems(
+/** Build the rows the table consumes, enriching the policy-derived fields the consumer owns. */
+function buildRows(
   storyCollections: CollectionAdminView[],
   storyCiphers: CipherView[],
-): VaultItem<CipherView>[] {
-  return [
+): TableDataSource<VaultRow> {
+  const items: VaultItem<CipherView>[] = [
     ...storyCollections.map((collection) => ({ collection })),
     ...storyCiphers.map((cipher) => ({ cipher })),
   ];
-}
-
-function buildIndividualRows(
-  storyCollections: CollectionAdminView[],
-  storyCiphers: CipherView[],
-): TableDataSource<IndividualVaultRow> {
-  const dataSource = new TableDataSource<IndividualVaultRow>();
-  dataSource.data = toItems(storyCollections, storyCiphers).map((item) => {
-    const row = toIndividualVaultRow(item);
-    // The consumer resolves per-row policy onto the row.
-    row.canEdit = true;
-    row.canDelete = true;
-    return row;
-  });
-  return dataSource;
-}
-
-function buildOrgRows(
-  storyCollections: CollectionAdminView[],
-  storyCiphers: CipherView[],
-): TableDataSource<OrgVaultRow> {
-  const rows = toItems(storyCollections, storyCiphers).map((item) => {
-    const row = toOrgVaultRow(item);
-    // The consumer resolves policy onto the row: permission text/weight + per-row capabilities.
+  const rows = items.map((item) => {
+    const row = toVaultRow(item);
+    // The consumer resolves policy onto the row.
     row.permissionText = row.kind === "collection" ? "Manage" : "Can edit";
     row.permissionPriority = row.kind === "collection" ? 5 : 4;
     row.canEdit = true;
     row.canDelete = true;
+    row.canArchive = row.kind === "cipher";
+    row.canEditAccess = row.kind === "collection";
     return row;
   });
-  const dataSource = new TableDataSource<OrgVaultRow>();
+  const dataSource = new TableDataSource<VaultRow>();
   dataSource.data = rows;
   return dataSource;
 }
@@ -102,40 +83,16 @@ type StoryArgs = {
   ciphers: CipherView[];
   collections: CollectionAdminView[];
   disabled: boolean;
+  mode: VaultItemsTableMode;
 };
-
-function individualProps(args: StoryArgs) {
-  return {
-    ...args,
-    dataSource: buildIndividualRows(args.collections ?? [], args.ciphers ?? []),
-    selection: new SelectionModel<IndividualVaultRow>(true, []),
-    allOrganizations: organizations,
-    rowClick: (row: IndividualVaultRow) => row,
-  };
-}
-
-function orgProps(args: StoryArgs) {
-  return {
-    ...args,
-    dataSource: buildOrgRows(args.collections ?? [], args.ciphers ?? []),
-    selection: new SelectionModel<OrgVaultRow>(true, []),
-    allCollections: collections,
-    allGroups: groups,
-    rowClick: (row: OrgVaultRow) => row,
-  };
-}
 
 export default {
   title: "Web/Vault/Items Table",
+  component: VaultItemsTableComponent,
   decorators: [
     componentWrapperDecorator((story) => `<bit-layout>${story}</bit-layout>`),
     moduleMetadata({
-      imports: [
-        RouterModule,
-        LayoutComponent,
-        IndividualVaultItemsTableComponent,
-        OrgVaultItemsTableComponent,
-      ],
+      imports: [RouterModule, LayoutComponent, VaultItemsTableComponent],
       providers: [
         {
           provide: EnvironmentService,
@@ -177,7 +134,7 @@ export default {
         {
           provide: ConfigService,
           useValue: {
-            // Needed by the projected `app-vault-icon`, not by the columns themselves.
+            // Needed by the projected `app-vault-icon`, not by the table itself.
             getFeatureFlag$() {
               return of(false);
             },
@@ -200,60 +157,63 @@ export default {
     disabled: false,
   },
   argTypes: { rowClick: { action: "rowClick" } },
+  render: (args: StoryArgs) => ({
+    props: {
+      ...args,
+      dataSource: buildRows(args.collections ?? [], args.ciphers ?? []),
+      selection: new SelectionModel<VaultRow>(true, []),
+      allOrganizations: organizations,
+      allCollections: collections,
+      allGroups: groups,
+      rowClick: (row: VaultRow) => row,
+    },
+    template: `
+      <app-vault-items-table
+        [dataSource]="dataSource"
+        [selection]="selection"
+        [mode]="mode"
+        [allOrganizations]="allOrganizations"
+        [allCollections]="allCollections"
+        [allGroups]="allGroups"
+        [disabled]="disabled"
+        (rowClick)="rowClick($event)"
+      ></app-vault-items-table>
+    `,
+  }),
 } as Meta<StoryArgs>;
 
 type Story = StoryObj<StoryArgs>;
 
-const renderIndividual = (args: StoryArgs) => ({
-  props: individualProps(args),
-  template: `
-    <app-individual-vault-items-table
-      [dataSource]="dataSource"
-      [selection]="selection"
-      [allOrganizations]="allOrganizations"
-      [disabled]="disabled"
-      (rowClick)="rowClick($event)"
-    ></app-individual-vault-items-table>
-  `,
-});
-
-const renderOrg = (args: StoryArgs) => ({
-  props: orgProps(args),
-  template: `
-    <app-org-vault-items-table
-      [dataSource]="dataSource"
-      [selection]="selection"
-      [allCollections]="allCollections"
-      [allGroups]="allGroups"
-      [disabled]="disabled"
-      (rowClick)="rowClick($event)"
-    ></app-org-vault-items-table>
-  `,
-});
-
 export const Individual: Story = {
-  render: renderIndividual,
-  args: { ciphers, collections: [] },
-};
-
-export const IndividualDisabled: Story = {
-  render: renderIndividual,
-  args: { ciphers, collections: [], disabled: true },
+  args: {
+    ciphers,
+    collections: [],
+    mode: "individual",
+  },
 };
 
 export const IndividualTrash: Story = {
-  render: renderIndividual,
-  args: { ciphers: deletedCiphers, collections: [] },
+  args: {
+    ciphers: deletedCiphers,
+    collections: [],
+    mode: "individual",
+  },
 };
 
 export const IndividualTopLevelCollection: Story = {
-  render: renderIndividual,
-  args: { ciphers: [], collections },
+  args: {
+    ciphers: [],
+    collections,
+    mode: "individual",
+  },
 };
 
 export const OrganizationVault: Story = {
-  render: renderOrg,
-  args: { ciphers: organizationOnlyCiphers, collections: [] },
+  args: {
+    ciphers: organizationOnlyCiphers,
+    collections: [],
+    mode: "organization",
+  },
 };
 
 const unassignedCollection = new CollectionAdminView({
@@ -263,10 +223,10 @@ const unassignedCollection = new CollectionAdminView({
 });
 
 export const OrganizationCollections: Story = {
-  render: renderOrg,
   args: {
     ciphers: organizationOnlyCiphers,
     collections: collections.concat(unassignedCollection),
+    mode: "organization",
   },
 };
 
