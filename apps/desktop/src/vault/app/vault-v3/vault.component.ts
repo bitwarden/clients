@@ -66,7 +66,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -331,8 +331,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     this.searchBarService.setEnabled(false);
 
-    // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
+
+    const incomingAddType = toCipherType(currentParams.addType);
+    if (currentParams.action === "add" && incomingAddType) {
+      await this.addCipher(incomingAddType).catch(() => {});
+    }
+
+    // Clear cipher selection on page load/reload to prevent flash of content
     if (currentParams.itemId || currentParams.cipherId) {
       await this.router.navigate([], {
         queryParams: { itemId: null, cipherId: null, action: null },
