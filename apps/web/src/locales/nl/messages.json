@@ -214,6 +214,33 @@
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
   },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "De veiligheid van je hele organisatie in één overzicht"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence geeft je één plek om elke app, elk wachtwoord, en lid te zien dat gevaar loopt."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Jij stelt de prioriteiten vast. Wij halen de risico's naar de oppervlakte."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Je markeert welke apps het meest kritiek zijn en Access Intelligence identificeert automatisch de risicovolle wachtwoorden die als eerst aandacht nodig hebben."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Zicht houden op verbeteringen in je team"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Leden worden automatisch op de hoogte gebracht van risico-wachtwoorden in hun Bitwarden-extensie. Geen najagen meer nodig."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Importeer je organisatie-gegevens om te beginnen"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Zodra de kluisgegevens beschikbaar zijn, heeft Access Intelligence alles wat nodig is om verslag uit te brengen over de gezondheid van je organisatie."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Tour van Access Intelligence"
+  },
   "startTour": {
     "message": "Start tour"
   },
@@ -1503,6 +1530,28 @@
   "unselectAll": {
     "message": "Alles deselecteren"
   },
+  "bulkActionsBar": {
+    "message": "Bulkacties"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) geselecteerd. De bulkactiebalk is nu beschikbaar onderaan het scherm. Druk op $SHORTCUTBINDING$ om de focus naar de bulkactiebalk te verleggen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selectie gewist"
+  },
+  "additionalActions": {
+    "message": "Aanvullende acties"
+  },
   "launch": {
     "message": "Starten"
   },
@@ -2612,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "Het verwijderen van je account is definitief. Je kunt dit niet ongedaan maken."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Je bent de eigenaar van ten minste één organisatie. Het verwijderen van je account verwijdert ook elke organisatie waarvan jij de enige eigenaar bent."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Je kunt je account niet verwijderen terwijl je de eigenaar van een organisatie bent. Je kunt het eigendom overdragen of eerst de organisatie verwijderen."
+  },
+  "cannotDeleteAccount": {
+    "message": "Kan account niet verwijderen"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Je kunt deze actie niet afronden omdat je account eigendom is van een organisatie. Neem contact op met de beheerder van je organisatie voor details."
+  },
   "accountDeleted": {
     "message": "Account verwijderd"
   },
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "We brengen onbetaalde abonnementen in rekening bij je betalingsmethode."
   },
-  "paymentChargedWithTrial": {
-    "message": "Je lidmaatschap omvat een gratis proefperiode van 7 dagen. Kosten worden pas in rekening gebracht als de proefperiode voorbij is. De betaling vindt ieder(e) $INTERVAL$ op terugkerende basis plaats. Je kunt op ieder moment opzeggen."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Je lidmaatschap omvat een gratis proefperiode van $TRIAL_LENGTH$ dagen. Kosten worden pas in rekening gebracht als de proefperiode voorbij is. Je kunt op ieder moment opzeggen.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Betaalgegevens"
@@ -4369,6 +4436,30 @@
     "message": "Bestand-Send met wachtwoord aangemaakt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Send (tekst) bewerkt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Send (bestand) bewerkt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Send (tekst) verwijderd",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Send (bestand) verwijderd",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Send (tekst) geopend",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Send (bestand) geopend",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Item $ID$ naar een organisatie verplaatst.",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "IBAN weergegeven voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "IBAN gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "SWIFT-code weergegeven voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "SWIFT-code gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Nationaal identificatienummer weergegeven voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Nationaal identificatienummer gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Automatisch-invullen voor item $ID$.",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt."
   },
-  "discardEdits": {
-    "message": "Bewerkingen verwerpen"
-  },
   "keepEditing": {
     "message": "Doorgaan met bewerken"
-  },
-  "backToEditing": {
-    "message": "Terug naar bewerken"
   },
   "editedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
@@ -5651,6 +5790,24 @@
   },
   "regenerateInviteLink": {
     "message": "Uitnodigingslink opnieuw genereren"
+  },
+  "invalidateInviteLink": {
+    "message": "Uitnodigingslink intrekken"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Als je alle domeinen verwijdert, werkt deze uitnodigingslink voor niemand meer."
+  },
+  "invalidateLink": {
+    "message": "Link intrekken"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Uitnodigingslink ingetrokken"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Moet ten minste 1 domein invoeren"
+  },
+  "deactivateLink": {
+    "message": "Link deactiveren"
   },
   "inviteByLinkDesc": {
     "message": "Leden met een link uitnodigen voor je organisatie. Als er nog geen rol is opgegeven, worden ze toegevoegd als een standaardgebruiker."
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "Actie vereist: je mist een Btw-nummer in de betalingsgegevens. Als je geen btw-nummer toegevoegt, kan het zijn dat je facturen facturen aanvullende belasting bevatten."
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "IBAN kopiëren"
   },
+  "copyNameOnAccount": {
+    "message": "Naam op rekening kopiëren"
+  },
+  "copyBranchNumber": {
+    "message": "Vestigingsnummer kopiëren"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT-code kopiëren"
+  },
   "bankAccountTypeChecking": {
     "message": "Controleren"
   },
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
   },
+  "discardEdits": {
+    "message": "Bewerkingen verwerpen"
+  },
   "discardEditsMessage": {
     "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
+  },
+  "backToEditing": {
+    "message": "Terug naar bewerken"
   },
   "sendHasUnsavedEdits": {
     "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
