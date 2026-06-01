@@ -968,12 +968,14 @@ export default class MainBackground {
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
+      () => this.configService,
       this.logService,
       this.keyService,
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
       this.pinService,
+      () => this.ipcService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
