@@ -40,10 +40,6 @@ describe("WebChangePasswordService", () => {
     }),
   };
 
-  const currentPassword = "currentPassword";
-  const newPassword = "newPassword";
-  const newPasswordHint = "newPasswordHint";
-
   beforeEach(() => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
@@ -64,23 +60,6 @@ describe("WebChangePasswordService", () => {
     );
   });
 
-  describe("rotateUserKeyMasterPasswordAndEncryptedData()", () => {
-    it("should call the method with the same name on the UserKeyRotationService with the correct arguments", async () => {
-      // Act
-      await sut.rotateUserKeyMasterPasswordAndEncryptedData(
-        currentPassword,
-        newPassword,
-        user,
-        newPasswordHint,
-      );
-
-      // Assert
-      expect(
-        userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData,
-      ).toHaveBeenCalledWith(currentPassword, newPassword, user, newPasswordHint);
-    });
-  });
-
   describe("changePasswordAndRotateUserKey()", () => {
     // Mock method params
     let passwordInputResult: PasswordInputResult;
@@ -93,7 +72,6 @@ describe("WebChangePasswordService", () => {
         newPasswordHint: "new-password-hint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         salt: "salt" as MasterPasswordSalt,
-        newApisWithInputPasswordFlagEnabled: true,
       };
 
       // Mock returned/resolved values
@@ -119,11 +97,11 @@ describe("WebChangePasswordService", () => {
       });
     });
 
-    it("should throw if newPasswordHint is null on the PasswordInputResult object", async () => {
+    it("should throw if newPasswordHint is undefined on the PasswordInputResult object", async () => {
       // Arrange
       const invalidPasswordInputResult: PasswordInputResult = {
         ...passwordInputResult,
-        newPasswordHint: null,
+        newPasswordHint: undefined,
       };
 
       // Act

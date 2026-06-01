@@ -57,9 +57,9 @@ import { AutotypeShortcutComponent } from "../../autofill/components/autotype-sh
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -149,10 +149,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     openAtLogin: false,
     alwaysShowDock: false,
     enableBrowserIntegration: false,
-    enableBrowserIntegrationFingerprint: this.formBuilder.control<boolean>({
-      value: false,
-      disabled: true,
-    }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
@@ -312,9 +308,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,
       ),
-      enableBrowserIntegrationFingerprint: await firstValueFrom(
-        this.desktopSettingsService.browserIntegrationFingerprintEnabled$,
-      ),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -334,10 +327,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
-
-    if (this.form.value.enableBrowserIntegration) {
-      this.form.controls.enableBrowserIntegrationFingerprint.enable();
-    }
 
     // Non-form values
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
@@ -383,16 +372,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.form.controls.enableBrowserIntegration.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((enabled) => {
-        if (enabled) {
-          this.form.controls.enableBrowserIntegrationFingerprint.enable();
-        } else {
-          this.form.controls.enableBrowserIntegrationFingerprint.disable();
-        }
-      });
 
     this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     this.timerId = setInterval(async () => {
@@ -652,19 +631,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.form.controls.enableBrowserIntegration.setValue(false);
         return;
       }
-
-      if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationLinuxDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
     }
 
     await this.desktopSettingsService.setBrowserIntegrationEnabled(
@@ -683,13 +649,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         cancelButtonText: null,
         type: "danger",
       });
-    }
-
-    if (!this.form.value.enableBrowserIntegration) {
-      this.form.controls.enableBrowserIntegrationFingerprint.setValue(false);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.saveBrowserIntegrationFingerprint();
     }
   }
 
@@ -713,12 +672,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (errorResult !== null) {
       this.logService.error("Error in DDG browser integration: " + errorResult);
     }
-  }
-
-  async saveBrowserIntegrationFingerprint() {
-    await this.desktopSettingsService.setBrowserIntegrationFingerprintEnabled(
-      this.form.value.enableBrowserIntegrationFingerprint,
-    );
   }
 
   async saveHardwareAcceleration() {

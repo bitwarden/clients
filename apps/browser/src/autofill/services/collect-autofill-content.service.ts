@@ -261,6 +261,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const fields: AutofillField[] = [];
+    // Accumulates targets that live inside iframes, keyed by the iframe's URL.
+    // These are routed to the iframe's own content script instead of being
+    // collected here, so the existing sub-frame offset infrastructure handles
+    // their positioning correctly.
+    const iframeTargets = new Map<
+      string,
+      { selector: string; fieldType: AutofillTargetingRuleType }[]
+    >();
 
     for (let formIndex = 0; formIndex < forms.length; formIndex++) {
       const form = forms[formIndex];
@@ -270,37 +278,75 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           continue;
         }
 
-        // Try each selector alternative in order, use the first match found.
-        // Composite selectors (string[]) are skipped for now; only single
-        // selectors (string) are supported.
-        let matchedElement: Element | null = null;
         for (const selector of selectorAlternatives) {
           if (typeof selector !== "string") {
             continue;
           }
-          matchedElement = this.domQueryService.queryDeepSelector(selector);
+
+          // Check whether this selector crosses an iframe boundary before
+          // trying to resolve it locally.
+          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+          if (iframeCrossing) {
+            const { iframeElement, innerSelector } = iframeCrossing;
+            const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+            if (iframeSrc) {
+              if (!iframeTargets.has(iframeSrc)) {
+                iframeTargets.set(iframeSrc, []);
+              }
+              iframeTargets.get(iframeSrc)!.push({
+                selector: innerSelector,
+                fieldType: fieldType as AutofillTargetingRuleType,
+              });
+            }
+            break;
+          }
+
+          // No iframe boundary — resolve locally (direct element or shadow DOM).
+          const matchedElement = this.domQueryService.queryDeepSelector(selector);
           if (matchedElement) {
+            const fieldId = `targeted_field_${formIndex}_${fieldType}`;
+            const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+            formFieldElement.opid = fieldId;
+
+            const autofillField = this.buildTargetedAutofillField(
+              formFieldElement,
+              fieldType as AutofillTargetingRuleType,
+              fields.length,
+            );
+
+            fields.push(autofillField);
+            this.cacheAutofillFieldElement(fields.length - 1, formFieldElement, autofillField);
             break;
           }
         }
-
-        if (!matchedElement) {
-          continue;
-        }
-
-        const fieldId = `targeted_field_${formIndex}_${fieldType}`;
-        const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-        formFieldElement.opid = fieldId;
-
-        const autofillField = this.buildTargetedAutofillField(
-          formFieldElement,
-          fieldType as AutofillTargetingRuleType,
-          fields.length,
-        );
-
-        fields.push(autofillField);
-        this.autofillFieldElements.set(formFieldElement, autofillField);
       }
+    }
+
+    // Route iframe-crossing selectors to their respective frames. Fire-and-
+    // forget: the iframe content scripts apply their fields asynchronously and
+    // re-send collectPageDetailsResponse with their own frameId.
+    for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
+      void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
+        iframeSrc,
+        iframeTargetedFields,
+      });
+    }
+
+    // If this frame resolved no local targeted fields but already has fields cached
+    // from a prior applyExternalTargetedFields call, use those cached fields. This
+    // handles the case where an iframe's own getPageDetails() runs the targeting path
+    // (because targeting rules apply to the whole tab URL) but all selectors in the
+    // rules cross an iframe boundary that doesn't exist inside this frame — so the
+    // results are empty, and we must not overwrite the background's page-details entry
+    // with an empty payload.
+    if (!fields.length && this.autofillFieldElements.size > 0) {
+      this.domRecentlyMutated = false;
+      const cachedPageDetails = this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
+      );
+      this.setupOverlayListeners(cachedPageDetails);
+      return cachedPageDetails;
     }
 
     this.domRecentlyMutated = false;
@@ -312,6 +358,54 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Applies externally-provided targeting rules to this frame. Called when the
+   * background dispatches `applyTargetedFields` after the top-level frame
+   * determined that a targeting rule's selector crosses into this iframe.
+   * Builds synthetic AutofillFields for the given selectors and re-sends
+   * collectPageDetailsResponse so the background updates its frame records.
+   *
+   * @param targetedFields - Selector/fieldType pairs resolved to this frame
+   */
+  async applyExternalTargetedFields(
+    targetedFields: { selector: string; fieldType: string }[],
+  ): Promise<void> {
+    const fields: AutofillField[] = [];
+
+    for (let i = 0; i < targetedFields.length; i++) {
+      const { selector, fieldType } = targetedFields[i];
+      const matchedElement = this.domQueryService.queryDeepSelector(selector);
+      if (!matchedElement) {
+        continue;
+      }
+
+      const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+      const fieldId = `targeted_field_${i}_${fieldType}`;
+      formFieldElement.opid = fieldId;
+
+      const autofillField = this.buildTargetedAutofillField(
+        formFieldElement,
+        fieldType as AutofillTargetingRuleType,
+        i,
+      );
+      fields.push(autofillField);
+      this.cacheAutofillFieldElement(i, formFieldElement, autofillField);
+    }
+
+    if (!fields.length) {
+      return;
+    }
+
+    this.domRecentlyMutated = false;
+    const pageDetails = this.getFormattedPageDetails({}, fields);
+    this.setupOverlayListeners(pageDetails);
+
+    void this.sendExtensionMessage("collectPageDetailsResponse", {
+      details: pageDetails,
+      sender: "autofillInit",
+    });
   }
 
   /**
@@ -381,13 +475,57 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.NAME),
-        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS),
+        htmlClass: this.getPropertyOrAttribute(formElement, "class") ?? "",
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
+        htmlAncestorHeadings: this.getAncestorHeadings(formElement),
       } as AutofillForm);
     }
 
     return this.getFormattedAutofillFormsData();
+  }
+
+  /**
+   * Headings inside the form's nearest section/article/main/aside/form ancestor,
+   * ordered by depth of common ancestor (closest first). Sibling-form headings skipped.
+   */
+  private getAncestorHeadings(formElement: HTMLFormElement): string[] {
+    const scope = formElement.parentElement?.closest("section, article, main, aside");
+    if (!scope) {
+      return [];
+    }
+
+    const ancestorDepths = new Map<Element, number>();
+    let cursor: Element | null = formElement;
+    let depth = 0;
+    while (cursor) {
+      ancestorDepths.set(cursor, depth++);
+      if (cursor === scope) {
+        break;
+      }
+      cursor = cursor.parentElement;
+    }
+
+    return Array.from(scope.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+      .flatMap((heading) => {
+        const f = heading.closest("form");
+        if (f !== null && f !== formElement) {
+          return [];
+        }
+        const text = this.getTextContentFromElement(heading);
+        if (!text) {
+          return [];
+        }
+        // Every retained heading lives under `scope`, and `scope` is in `ancestorDepths`,
+        // so the walk always terminates at a known ancestor.
+        let ancestor: Element = heading;
+        while (!ancestorDepths.has(ancestor)) {
+          ancestor = ancestor.parentElement!;
+        }
+        return [{ text, distance: ancestorDepths.get(ancestor)! }];
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .map((entry) => entry.text);
   }
 
   /**
@@ -538,7 +676,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       viewable: await this.domElementVisibilityService.isElementViewable(element),
       htmlID: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ID),
       htmlName: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.NAME),
-      htmlClass: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.CLASS),
+      htmlClass: this.getPropertyOrAttribute(element, "class"),
       tabindex: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TABINDEX),
       title: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TITLE),
       tagName: this.getAttributeLowerCase(element, "tagName"),
@@ -1164,7 +1302,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
-      /** Mutations to node attributes NOT on this list will not be observed! */
       attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
@@ -1237,25 +1374,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Handles the processing of all mutations in the mutations queue. Will trigger
-   * within an idle callback to help with performance and prevent excessive updates.
+   * within a single idle callback to help with performance and prevent excessive updates.
+   *
+   * Previously this scheduled one idle callback per queue batch, and each batch
+   * callback scheduled yet another idle callback per individual MutationRecord —
+   * creating a 3-level async chain that flooded the idle queue on dynamic pages.
+   * Now all pending work is flattened and processed in a single idle callback.
    */
   private processMutations = () => {
-    const queueLength = this.mutationsQueue.length;
+    // Flatten all pending batches into one array and clear the queue immediately
+    // so that any new mutations arriving during processing go into a fresh queue.
+    const allMutations = this.mutationsQueue.flat();
+    this.mutationsQueue = [];
 
-    for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
-      const mutations = this.mutationsQueue[queueIndex];
-      const processMutationRecords = () => {
-        this.processMutationRecords(mutations);
-
-        if (queueIndex === queueLength - 1 && this.domRecentlyMutated) {
-          this.updateAutofillElementsAfterMutation();
-        }
-      };
-
-      requestIdleCallbackPolyfill(processMutationRecords, { timeout: 500 });
+    if (!allMutations.length) {
+      return;
     }
 
-    this.mutationsQueue = [];
+    requestIdleCallbackPolyfill(
+      () => {
+        for (const mutation of allMutations) {
+          this.processMutationRecord(mutation);
+        }
+        if (this.domRecentlyMutated) {
+          this.updateAutofillElementsAfterMutation();
+        }
+      },
+      { timeout: 500 },
+    );
   };
 
   /**
@@ -1290,18 +1436,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.debouncedRequirePageDetailsUpdate();
     }
   };
-  /**
-   * Processes all mutation records encountered by the mutation observer.
-   *
-   * @param mutations - The mutation record to process
-   */
-  private processMutationRecords(mutations: MutationRecord[]) {
-    for (let mutationIndex = 0; mutationIndex < mutations.length; mutationIndex++) {
-      const mutation: MutationRecord = mutations[mutationIndex];
-      const processMutationRecord = () => this.processMutationRecord(mutation);
-      requestIdleCallbackPolyfill(processMutationRecord, { timeout: 500 });
-    }
-  }
 
   /**
    * Processes a single mutation record and updates the autofill elements if necessary.
@@ -1622,7 +1756,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       },
       name: () => updateAttribute("htmlName"),
       id: () => updateAttribute("htmlID"),
-      class: () => updateAttribute("htmlClass"),
+      // Note: `class` is intentionally omitted — it is excluded from the
+      // MutationObserver attributeFilter to avoid callback storms on dynamic pages.
+      // htmlClass is refreshed on the next full page-detail collection.
       method: () => updateAttribute("htmlMethod"),
     };
 

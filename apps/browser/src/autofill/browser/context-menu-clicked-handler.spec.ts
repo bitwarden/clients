@@ -6,6 +6,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   AUTOFILL_ID,
+  AUTOFILL_TRIAGE_ID,
   COPY_IDENTIFIER_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
@@ -22,6 +23,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
+import { BrowserApi } from "../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+import AutofillPageDetails from "../models/autofill-page-details";
+import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { AutofillTriageFieldResult } from "../types/autofill-triage";
 
 import {
   CopyToClipboardAction,
@@ -75,6 +82,7 @@ describe("ContextMenuClickedHandler", () => {
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
+  let triageService: MockProxy<AutofillTriageService>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -88,6 +96,7 @@ describe("ContextMenuClickedHandler", () => {
     totpService = mock();
     eventCollectionService = mock();
     userVerificationService = mock();
+    triageService = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
@@ -99,6 +108,7 @@ describe("ContextMenuClickedHandler", () => {
       eventCollectionService,
       userVerificationService,
       accountService,
+      triageService,
     );
   });
 
@@ -323,6 +333,109 @@ describe("ContextMenuClickedHandler", () => {
         mockUserId,
         [],
       );
+    });
+
+    describe("autofill triage", () => {
+      const mockTab = { id: 42, url: "https://example.com", windowId: 1 } as chrome.tabs.Tab;
+      const mockPageDetails = { fields: [], forms: {} } as unknown as AutofillPageDetails;
+      const mockTriageResult: AutofillTriageFieldResult = {
+        htmlId: "test-field",
+        eligible: true,
+        qualifiedAs: "login",
+        conditions: [],
+      };
+
+      beforeEach(() => {
+        jest
+          .spyOn(BrowserApi, "sendTabsMessage")
+          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
+            callback?.({ pageDetails: mockPageDetails });
+          });
+        jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+        triageService.triageField.mockReturnValue(mockTriageResult);
+        // Mock chrome.runtime.getManifest
+        (global as any).chrome = {
+          ...((global as any).chrome || {}),
+          runtime: {
+            ...((global as any).chrome?.runtime || {}),
+            getManifest: jest.fn().mockReturnValue({ version: "1.0.0" }),
+          },
+        };
+      });
+
+      it("sends collectAutofillTriage to the tab and stores the result", async () => {
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(BrowserApi.sendTabsMessage).toHaveBeenCalledWith(
+          mockTab.id,
+          { command: "collectAutofillTriage", targetElementId: undefined },
+          { frameId: undefined },
+          expect.any(Function),
+        );
+        expect(sut.triageResult).not.toBeUndefined();
+        expect(sut.triageResult?.tabId).toBe(mockTab.id);
+        expect(sut.triageResult?.pageUrl).toBe(mockTab.url);
+      });
+
+      it("opens the autofill triage popout when side panel API is not supported", async () => {
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith(
+          "popup/index.html#/autofill-triage",
+          expect.objectContaining({ singleActionKey: AUTOFILL_TRIAGE_ID }),
+        );
+        expect(BrowserApi.setSidePanelOptions).not.toHaveBeenCalled();
+        expect(BrowserApi.openSidePanel).not.toHaveBeenCalled();
+      });
+
+      it("opens the Chrome side panel when side panel API is supported", async () => {
+        jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(BrowserApi.setSidePanelOptions).toHaveBeenCalledWith(
+          expect.objectContaining({
+            path: expect.stringContaining("uilocation=sidepanel"),
+            tabId: mockTab.id,
+            enabled: true,
+          }),
+        );
+        expect(BrowserApi.openSidePanel).toHaveBeenCalledWith({ tabId: mockTab.id });
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+      });
+
+      it("sends triageResultReady message with tabId after collecting results", async () => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
+      });
+
+      it("does not open popout when tab has no id", async () => {
+        const tabWithoutId = { url: "https://example.com" } as chrome.tabs.Tab;
+
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), tabWithoutId);
+
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+        expect(BrowserApi.openSidePanel).not.toHaveBeenCalled();
+      });
+
+      it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+        jest
+          .spyOn(BrowserApi, "sendTabsMessage")
+          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
+            callback?.(null);
+          });
+
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
+      });
     });
   });
 });

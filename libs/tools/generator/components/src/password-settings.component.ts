@@ -10,7 +10,13 @@ import {
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { takeUntil, Subject, map, filter, tap, skip, ReplaySubject, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -179,6 +185,29 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.lengthBoundariesHint.next(boundariesHint);
 
+        this.lengthMin = constraints.length?.min ?? null;
+        this.lengthMax = constraints.length?.max ?? null;
+        this.minNumberMin = constraints.minNumber?.min ?? null;
+        this.minNumberMax = constraints.minNumber?.max ?? null;
+        this.minSpecialMin = constraints.minSpecial?.min ?? null;
+        this.minSpecialMax = constraints.minSpecial?.max ?? null;
+
+        this.applyRangeValidators(
+          this.settings.get(Controls.length)!,
+          this.lengthMin,
+          this.lengthMax,
+        );
+        this.applyRangeValidators(
+          this.settings.get(Controls.minNumber)!,
+          this.minNumberMin,
+          this.minNumberMax,
+        );
+        this.applyRangeValidators(
+          this.settings.get(Controls.minSpecial)!,
+          this.minSpecialMin,
+          this.minSpecialMax,
+        );
+
         // skips reactive event emissions to break a subscription cycle
         this.settings.patchValue(state, { emitEvent: false });
       });
@@ -286,6 +315,26 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
 
   /** display binding for min/max constraints of `length` */
   protected lengthBoundariesHint$ = this.lengthBoundariesHint.asObservable();
+
+  /** attribute bindings for the spinbox min/max attributes */
+  protected lengthMin: number | null = null;
+  protected lengthMax: number | null = null;
+  protected minNumberMin: number | null = null;
+  protected minNumberMax: number | null = null;
+  protected minSpecialMin: number | null = null;
+  protected minSpecialMax: number | null = null;
+
+  private applyRangeValidators(control: AbstractControl, min: number | null, max: number | null) {
+    const validators: ValidatorFn[] = [];
+    if (min !== null) {
+      validators.push(Validators.min(min));
+    }
+    if (max !== null) {
+      validators.push(Validators.max(max));
+    }
+    control.setValidators(validators);
+    control.updateValueAndValidity({ emitEvent: false });
+  }
 
   private toggleEnabled(setting: keyof typeof Controls, enabled: boolean) {
     if (enabled) {
