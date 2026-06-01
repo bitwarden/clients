@@ -208,7 +208,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone3]: true,
+  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
