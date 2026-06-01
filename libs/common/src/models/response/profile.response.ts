@@ -28,7 +28,14 @@ export class ProfileResponse extends BaseResponse {
   forcePasswordReset: boolean;
   usesKeyConnector: boolean;
   verifyDevices: boolean;
+  /**
+   * Sync data for confirmed organizations only
+   */
   organizations: ProfileOrganizationResponse[] = [];
+  /**
+   * Sync data for accepted and confirmed organizations
+   */
+  organizationsNew?: ProfileOrganizationResponse[];
   providers: ProfileProviderResponse[] = [];
   providerOrganizations: ProfileProviderOrganizationResponse[] = [];
 
@@ -63,6 +70,10 @@ export class ProfileResponse extends BaseResponse {
     const organizations = this.getResponseProperty("Organizations");
     if (organizations != null) {
       this.organizations = organizations.map((o: any) => new ProfileOrganizationResponse(o));
+    }
+    const organizationsNew = this.getResponseProperty("OrganizationsNew");
+    if (organizationsNew != null) {
+      this.organizationsNew = organizationsNew.map((o: any) => new ProfileOrganizationResponse(o));
     }
     const providers = this.getResponseProperty("Providers");
     if (providers != null) {

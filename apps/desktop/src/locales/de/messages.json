@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdaten"
   },
+  "typePassport": {
+    "message": "Reisepass"
+  },
+  "passportDetails": {
+    "message": "Reisepassdetails"
+  },
+  "passportAdded": {
+    "message": "Reisepass hinzugefügt"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisedokument"
+  },
   "folderSubtitle": {
     "message": "Organisiere deine Einträge"
   },
@@ -63,10 +75,10 @@
     "message": "Geteilte Einträge organisieren"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Führerschein"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Führerschein oder Personalausweis"
   },
   "chooseItemToAdd": {
     "message": "Wähle einen Eintrag zum Hinzufügen aus"
@@ -150,12 +162,8 @@
     "message": "Bankkonto anzeigen",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Führerschein anzeigen",
-    "description": "Header for view license item type"
-  },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Führerschein anzeigen",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -219,7 +227,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Führerschein bearbeiten",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Reisepassnummer"
+  },
+  "sex": {
+    "message": "Geschlecht"
+  },
+  "copySex": {
+    "message": "Geschlecht kopieren"
+  },
+  "birthPlace": {
+    "message": "Geburtsort"
+  },
+  "copyBirthPlace": {
+    "message": "Geburtsort kopieren"
+  },
+  "nationality": {
+    "message": "Nationalität"
+  },
+  "copyNationality": {
+    "message": "Nationalität kopieren"
+  },
+  "copyIssuingCountry": {
+    "message": "Ausgabeland kopieren"
+  },
+  "passportType": {
+    "message": "Reisepasstyp"
+  },
+  "copyPassportType": {
+    "message": "Reisepasstyp kopieren"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer kopieren"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer"
+  },
+  "copyIssuingAuthority": {
+    "message": "Ausstellende Behörde/Stelle kopieren"
   },
   "licenseNumber": {
     "message": "Lizenznummer"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Keine Einträge vorhanden."
   },
+  "noValueEntered": {
+    "message": "Kein Wert eingegeben",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Einen Bestätigungscode an deine E-Mail senden"
   },
@@ -1908,6 +1956,31 @@
   "selectAll": {
     "message": "Alles auswählen"
   },
+  "selected": {
+    "message": "Ausgewählt"
+  },
+  "bulkActionsBar": {
+    "message": "Massenaktionen"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ Einträge ausgewählt. Die Massenaktionsleiste ist nun am unteren Bildschirmrand verfügbar. Mit $SHORTCUTBINDING$ kannst du den Fokus auf die Massenaktionsleiste umschalten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Auswahl aufgehoben"
+  },
+  "additionalActions": {
+    "message": "Weitere Aktionen"
+  },
   "zoomIn": {
     "message": "Vergrößern"
   },
@@ -2229,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Die Kontolöschung ist dauerhaft. Sie kann nicht rückgängig gemacht werden."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Du bist der Eigentümer von mindestens einer Organisation. Durch das Löschen deines Kontos werden auch alle Organisationen gelöscht, deren alleinige Eigentümer du bist."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Du kannst dein Konto nicht löschen, solange du Eigentümer einer Organisation bist. Übertrage zunächst die Eigentumsrechte oder lösche die Organisation."
+  },
   "cannotDeleteAccount": {
     "message": "Konto kann nicht gelöscht werden"
   },
@@ -2538,9 +2617,6 @@
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
-  },
-  "browserIntegrationLinuxDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nicht in der Linux Version unterstützt."
   },
   "enableHardwareAcceleration": {
     "message": "Hardwarebeschleunigung verwenden"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Ungültiges Tastaturkürzel"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Weitere Navigationspfade",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,23 +5110,26 @@
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
+  "more": {
+    "message": "Mehr"
+  },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Monat eingeben."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Tag eingeben."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Jahr eingeben."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Gib einen gültigen Tag ein."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Gib ein gültiges Jahr ein."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Führerscheine suchen"
   },
   "bankAccount": {
     "message": "Bankkonto"
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Bankkonto suchen"
   },
+  "searchPassport": {
+    "message": "Reisepässe suchen"
+  },
   "copyAccountNumber": {
     "message": "Kontonummer kopieren"
   },
@@ -5100,17 +5186,29 @@
   "copyIban": {
     "message": "IBAN kopieren"
   },
+  "copyNameOnAccount": {
+    "message": "Name des Kontoinhabers kopieren"
+  },
+  "copyBranchNumber": {
+    "message": "Filial-/Institutionsnummer kopieren"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT-Code kopieren"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Vornamen kopieren"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Zweiten Vornamen kopieren"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Nachnamen kopieren"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Führerscheinnummer kopieren"
+  },
+  "copyPassportNumber": {
+    "message": "Reisepassnummer kopieren"
   },
   "bankAccountTypeChecking": {
     "message": "Wird überprüft"
@@ -5189,46 +5287,49 @@
     "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Führerscheindetails"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Geburtsdatum"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "Geburtsmonat"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "Geburtstag"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "Geburtsjahr"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Ausstellendes Land"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Ausstellendes Bundesland/Stadt/Landkreis"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Ausstellungsdatum"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "Ausstellungsmonat"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "Ausstellungstag"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "Ausstellungsjahr"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "Ablaufdatum"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Ausstellende Behörde"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Führerscheinklasse"
   }
 }

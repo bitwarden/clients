@@ -2,7 +2,7 @@ import { EnvironmentInjector, runInInjectionContext } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of, Subject } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
@@ -17,6 +17,7 @@ import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -100,6 +101,7 @@ describe("VaultCipherActionsService", () => {
   let refresh: jest.Mock;
   let navigate: jest.Mock;
   let mockFormConfig: CipherFormConfig;
+  let activeFilterSubject: BehaviorSubject<VaultFilter>;
 
   function initService(org = organization) {
     organizationService.organizations$.mockReturnValue(of([org]));
@@ -138,6 +140,9 @@ describe("VaultCipherActionsService", () => {
     organization = buildOrg();
     refresh = jest.fn();
     navigate = jest.fn();
+    activeFilterSubject = new BehaviorSubject({
+      collectionId: "col-1" as CollectionId,
+    } as unknown as VaultFilter);
 
     TestBed.configureTestingModule({
       providers: [
@@ -166,11 +171,7 @@ describe("VaultCipherActionsService", () => {
         },
         {
           provide: RoutedVaultFilterBridgeService,
-          useValue: {
-            activeFilter$: of({
-              collectionId: "col-1" as CollectionId,
-            } as unknown as VaultFilter),
-          },
+          useValue: { activeFilter$: activeFilterSubject.asObservable() },
         },
         {
           provide: VaultCollectionService,
@@ -253,6 +254,63 @@ describe("VaultCipherActionsService", () => {
       await service.editCipherAttachments(cipher);
 
       expect(refresh).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("addCipher", () => {
+    beforeEach(() => {
+      jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue(makeDialogRef(undefined));
+    });
+
+    it("passes the explicit cipherType to buildConfig when one is provided", async () => {
+      await service.addCipher(CipherType.Card);
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        CipherType.Card,
+      );
+    });
+
+    it("falls back to activeFilter.cipherType when no cipherType is provided", async () => {
+      activeFilterSubject.next({
+        cipherType: CipherType.Login,
+        collectionId: "col-1" as CollectionId,
+      } as unknown as VaultFilter);
+
+      await service.addCipher();
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        CipherType.Login,
+      );
+    });
+
+    it("prefers the explicit cipherType over activeFilter.cipherType when both are set", async () => {
+      activeFilterSubject.next({
+        cipherType: CipherType.Login,
+        collectionId: "col-1" as CollectionId,
+      } as unknown as VaultFilter);
+
+      await service.addCipher(CipherType.SecureNote);
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        CipherType.SecureNote,
+      );
+    });
+
+    it("passes the falsy activeFilter.cipherType through when neither source has a type", async () => {
+      activeFilterSubject.next({
+        cipherType: null,
+        collectionId: "col-1" as CollectionId,
+      } as unknown as VaultFilter);
+
+      await service.addCipher();
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith("add", undefined, null);
     });
   });
 
