@@ -94,13 +94,18 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
     <ng-template #loginApproval></ng-template>
-    <app-header *ngIf="showHeader$ | async"></app-header>
+    @if (showHeader$ | async) {
+      <div class="header"></div>
+    }
 
     <div id="container">
-      <div class="loading" *ngIf="loading">
-        <bit-spinner></bit-spinner>
-      </div>
-      <router-outlet *ngIf="!loading"></router-outlet>
+      @if (loading) {
+        <div class="loading">
+          <bit-spinner />
+        </div>
+      } @else {
+        <router-outlet />
+      }
     </div>
 
     <bit-toast-container></bit-toast-container>
