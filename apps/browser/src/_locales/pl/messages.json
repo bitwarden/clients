@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Kopiuj numer paszportu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopiuj numer PESEL"
+  },
   "copyFirstName": {
     "message": "Kopiuj imię"
   },
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Wydawca"
   },
+  "birthDay": {
+    "message": "Dzień urodzenia"
+  },
+  "birthMonth": {
+    "message": "Miesiąc urodzenia"
+  },
+  "birthYear": {
+    "message": "Rok urodzenia"
+  },
+  "expirationDay": {
+    "message": "Dzień wygaśnięcia"
+  },
   "expirationMonth": {
     "message": "Miesiąc wygaśnięcia"
   },
   "expirationYear": {
     "message": "Rok wygaśnięcia"
+  },
+  "issueDay": {
+    "message": "Dzień wydania"
+  },
+  "issueMonth": {
+    "message": "Miesiąc wydania"
+  },
+  "issueYear": {
+    "message": "Rok wydania"
   },
   "monthly": {
     "message": "miesiąc"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Numer paszportu"
   },
+  "dateOfBirth": {
+    "message": "Data urodzenia"
+  },
+  "sex": {
+    "message": "Płeć"
+  },
+  "copySex": {
+    "message": "Kopiuj płeć"
+  },
+  "birthPlace": {
+    "message": "Miejsce urodzenia"
+  },
+  "copyBirthPlace": {
+    "message": "Kopiuj miejsce urodzenia"
+  },
+  "nationality": {
+    "message": "Narodowość"
+  },
+  "copyNationality": {
+    "message": "Kopiuj narodowość"
+  },
+  "issuingCountry": {
+    "message": "Kraj wydający"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopiuj kraj wydający"
+  },
+  "passportType": {
+    "message": "Rodzaj paszportu"
+  },
+  "copyPassportType": {
+    "message": "Kopiuj rodzaj paszportu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Numer PESEL"
+  },
+  "issuingAuthority": {
+    "message": "Organ wydający"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopiuj organ wydający"
+  },
+  "issueDate": {
+    "message": "Data wydania"
+  },
   "licenseNumber": {
     "message": "Numer prawa jazdy"
   },
@@ -2190,6 +2259,18 @@
   "typeBankAccountSubtitle": {
     "message": "Dane bankowe"
   },
+  "typePassport": {
+    "message": "Paszport"
+  },
+  "passportDetails": {
+    "message": "Szczegóły paszportu"
+  },
+  "passportAdded": {
+    "message": "Paszport został dodany"
+  },
+  "typePassportSubtitle": {
+    "message": "Dokument podróży"
+  },
   "typeDriversLicense": {
     "message": "Prawo jazdy"
   },
@@ -2197,46 +2278,13 @@
     "message": "Prawo jazdy lub identyfikator"
   },
   "driversLicenseDetails": {
-    "message": "License details"
-  },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Szczegóły prawa jazdy"
   },
   "issuingState": {
-    "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
+    "message": "Rejon wydający"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Kategoria prawa jazdy"
   },
   "newItemHeaderLogin": {
     "message": "Nowe dane logowania",
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Wyczyść",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Zaznaczono"
+  },
+  "bulkActionsBar": {
+    "message": "Akcje zbiorcze"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Wyczyszczono zaznaczenie"
+  },
+  "additionalActions": {
+    "message": "Dodatkowe akcje"
   },
   "checkPassword": {
     "message": "Sprawdź, czy hasło zostało ujawnione."
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Weryfikacja biometryczna nie powiodła się. Zaloguj się za pomocą hasła głównego. Jeśli problem się powtarza, skontaktuj się z pomocą techniczną Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Uprawnienie nie zostało przyznane"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Odblokowanie biometrią jest dostępne dopiero po połączeniu rozszerzenia przeglądarki z aplikacją desktopową Bitwarden. Spróbuj ponownie."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Wystąpił błąd żądania uprawnienia"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Akcji nie można wykonać na pasku bocznym. Otwórz rozszerzenie w oknie."
   },
   "personalOwnershipSubmitError": {
     "message": "Ze względu na zasadę organizacji, nie możesz zapisywać elementów w osobistym sejfie. Zmień właściciela elementu na organizację i wybierz jedną z dostępnych kolekcji."
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Nie wpisano wartości",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Brak wartości do skopiowania"
   },
@@ -5092,7 +5157,7 @@
     "message": "Automatycznie potwierdź oczekujących użytkowników, gdy to urządzenie jest oblokowane"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Oszczędzaj czas dzięki automatycznemu potwierdzaniu użytkownika"
+    "message": "Oszczędzaj czas dzięki automatycznemu potwierdzaniu użytkowników"
   },
   "autoConfirmWarning": {
     "message": "Może to mieć wpływ na bezpieczeństwo danych Twojej organizacji. "
@@ -5104,13 +5169,13 @@
     "message": "Automatycznie potwierdź nowych użytkowników"
   },
   "autoConfirmSetupDesc": {
-    "message": "Nowi użytkownicy zostaną automatycznie potwierdzeni, gdy to urządzenie jest odblokowane."
+    "message": "Nowi użytkownicy zostaną automatycznie potwierdzeni, gdy urządzenie jest odblokowane."
   },
   "autoConfirmSetupHint": {
     "message": "Jakie są potencjalne zagrożenia dla bezpieczeństwa?"
   },
   "autoConfirmEnabled": {
-    "message": "Włączono automatyczne potwierdzenie"
+    "message": "Automatyczne potwierdzenie zostało włączone"
   },
   "availableNow": {
     "message": "Dostępne teraz"
@@ -5119,13 +5184,13 @@
     "message": "Bezpieczeństwo konta"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Blokowanie phishingu"
   },
   "enablePhishingDetection": {
-    "message": "Wykrywanie wyłudzeń danych"
+    "message": "Wykrywanie phishingu"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Wyświetl ostrzeżenie przed wejściem na strony podejrzane o wyłudzanie danych"
+    "message": "Pokaż ostrzeżenie na stronach phishingowych"
   },
   "notifications": {
     "message": "Powiadomienia"
@@ -6035,7 +6100,7 @@
     "message": "Wykryto próbę phishingu"
   },
   "phishingPageSummary": {
-    "message": "Witryna, którą próbujesz odwiedzić, jest znaną złośliwą witryną i zagrożeniem bezpieczeństwa."
+    "message": "Strona, którą próbujesz odwiedzić, jest znaną stroną phishingową i stanowi zagrożenie dla bezpieczeństwa."
   },
   "phishingPageCloseTabV2": {
     "message": "Zamknij kartę"
@@ -6159,6 +6224,10 @@
   },
   "next": {
     "message": "Dalej"
+  },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Szukaj konta bankowego"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Kopiuj numer konta"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "Kopiuj numer IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Kopiuj nazwę konta"
+  },
+  "copyBranchNumber": {
+    "message": "Kopiuj identyfikator banku"
+  },
+  "copySwiftCode": {
+    "message": "Kopiuj kod SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Standardowe"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "Pobieranie nie powiodło się."
+  },
+  "more": {
+    "message": "Więcej"
   },
   "maxAccessCount": {
     "message": "Maksymalna liczba dostępów",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Twoja organizacja wymaga widocznego adresu e-mail. Odznacz opcję „Ukryj mój adres e-mail przed odbiorcami”."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Jeśli elementy są częścią wielu kolekcji, nie możesz ich importować do swoich elementów"
   }
 }

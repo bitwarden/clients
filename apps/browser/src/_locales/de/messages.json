@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Reisepassnummer kopieren"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer kopieren"
+  },
   "copyFirstName": {
     "message": "Vornamen kopieren"
   },
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Marke"
   },
+  "birthDay": {
+    "message": "Geburtstag"
+  },
+  "birthMonth": {
+    "message": "Geburtsmonat"
+  },
+  "birthYear": {
+    "message": "Geburtsjahr"
+  },
+  "expirationDay": {
+    "message": "Ablaufdatum"
+  },
   "expirationMonth": {
     "message": "Ablaufmonat"
   },
   "expirationYear": {
     "message": "Ablaufjahr"
+  },
+  "issueDay": {
+    "message": "Ausstellungstag"
+  },
+  "issueMonth": {
+    "message": "Ausstellungsmonat"
+  },
+  "issueYear": {
+    "message": "Ausstellungsjahr"
   },
   "monthly": {
     "message": "Monat"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Reisepassnummer"
   },
+  "dateOfBirth": {
+    "message": "Geburtsdatum"
+  },
+  "sex": {
+    "message": "Geschlecht"
+  },
+  "copySex": {
+    "message": "Geschlecht kopieren"
+  },
+  "birthPlace": {
+    "message": "Geburtsort"
+  },
+  "copyBirthPlace": {
+    "message": "Geburtsort kopieren"
+  },
+  "nationality": {
+    "message": "Nationalität"
+  },
+  "copyNationality": {
+    "message": "Nationalität kopieren"
+  },
+  "issuingCountry": {
+    "message": "Ausstellendes Land"
+  },
+  "copyIssuingCountry": {
+    "message": "Ausgabeland kopieren"
+  },
+  "passportType": {
+    "message": "Reisepasstyp"
+  },
+  "copyPassportType": {
+    "message": "Reisepasstyp kopieren"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer"
+  },
+  "issuingAuthority": {
+    "message": "Ausstellende Behörde"
+  },
+  "copyIssuingAuthority": {
+    "message": "Ausstellende Behörde/Stelle kopieren"
+  },
+  "issueDate": {
+    "message": "Ausstellungsdatum"
+  },
   "licenseNumber": {
     "message": "Lizenznummer"
   },
@@ -2190,6 +2259,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdaten"
   },
+  "typePassport": {
+    "message": "Reisepass"
+  },
+  "passportDetails": {
+    "message": "Reisepassdetails"
+  },
+  "passportAdded": {
+    "message": "Reisepass hinzugefügt"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisedokument"
+  },
   "typeDriversLicense": {
     "message": "Führerschein"
   },
@@ -2197,46 +2278,13 @@
     "message": "Führerschein oder Personalausweis"
   },
   "driversLicenseDetails": {
-    "message": "License details"
-  },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Führerscheindetails"
   },
   "issuingState": {
-    "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
+    "message": "Ausstellendes Bundesland/Stadt/Landkreis"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Führerscheinklasse"
   },
   "newItemHeaderLogin": {
     "message": "Neue Zugangsdaten",
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Löschen",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Ausgewählt"
+  },
+  "bulkActionsBar": {
+    "message": "Massenaktionen"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ Einträge ausgewählt. Die Massenaktionsleiste ist nun am unteren Bildschirmrand verfügbar. Mit $SHORTCUTBINDING$ kannst du den Fokus auf die Massenaktionsleiste umschalten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Auswahl aufgehoben"
+  },
+  "additionalActions": {
+    "message": "Weitere Aktionen"
   },
   "checkPassword": {
     "message": "Überprüfe ob dein Kennwort kompromittiert ist."
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Die biometrische Verifizierung kann nicht abgeschlossen werden. Versuch es mit dem Master-Passwort oder melde dich ab. Sollte das Problem weiterhin bestehen, kontaktiere bitte den Bitwarden-Support."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Berechtigung nicht erteilt"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Ohne die Berechtigung zur Kommunikation mit der Bitwarden Desktop-Anwendung können wir keine Biometrie in der Browser-Erweiterung anbieten. Bitte versuche es erneut."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Fehler bei der Berechtigungsanfrage"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Diese Aktion kann in der Sidebar nicht durchgeführt werden, bitte versuche die Aktion im Popup oder Popout erneut auszuführen."
   },
   "personalOwnershipSubmitError": {
     "message": "Aufgrund einer Unternehmensrichtlinie darfst du keine Einträge in deinem persönlichen Tresor speichern. Ändere die Eigentümer-Option in eine Organisation und wähle aus den verfügbaren Sammlungen."
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Kein Wert eingegeben",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Keine Werte zum Kopieren"
   },
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "Weiter"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Dateipfad erweitern",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Bankkonto suchen"
   },
+  "searchPassport": {
+    "message": "Reisepässe suchen"
+  },
   "copyAccountNumber": {
     "message": "Kontonummer kopieren"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "IBAN kopieren"
+  },
+  "copyNameOnAccount": {
+    "message": "Name des Kontoinhabers kopieren"
+  },
+  "copyBranchNumber": {
+    "message": "Filial-/Institutionsnummer kopieren"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT-Code kopieren"
   },
   "bankAccountTypeChecking": {
     "message": "Wird überprüft"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "Download fehlgeschlagen."
+  },
+  "more": {
+    "message": "Mehr"
   },
   "maxAccessCount": {
     "message": "Maximale Zugriffsanzahl",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
   }
 }
