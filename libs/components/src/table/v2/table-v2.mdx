@@ -9,8 +9,9 @@ import * as stories from "./table-v2.stories";
 `bit-table-v2` is a column-driven evolution of `bit-table`. Each column is a `<bit-column>` wrapper
 containing two structural templates — `*bitColumnHeader` for the header markup and `*bitColumnFor`
 for the per-row cell markup — and column-level metadata (sortable, sortFn, defaultSort, width) lives
-as inputs on the wrapper. The table generates only `<tr>` rows; the consumer's `<th>`/`<td>` are the
-actual cells in the rendered DOM.
+as inputs on the wrapper. The table renders a CSS-grid layout of ARIA-role elements
+(`role="table"`/`"row"`/`"columnheader"`/`"cell"`); the consumer's `<bit-header-cell>`/`<bit-cell>`
+become the grid items, and column widths map to grid tracks.
 
 Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and isn't being migrated
 — see [Table](?path=/docs/component-library-table--docs) for its docs.
@@ -56,12 +57,12 @@ Each `<bit-column>` is a thin wrapper carrying column-level metadata. The column
 template, and the row context come from a `*bitColumnFor` child; the header markup comes from a
 `*bitColumnHeader` child.
 
-| Input         | Type                | Notes                                                            |
-| ------------- | ------------------- | ---------------------------------------------------------------- |
-| `sortable`    | `boolean`           | Click-to-sort on the header.                                     |
-| `defaultSort` | `"asc"` \| `"desc"` | Initial sort direction. First column with this set wins.         |
-| `sortFn`      | `SortFn`            | Custom comparator. See [Sorting](#sorting).                      |
-| `width`       | `string`            | CSS width (e.g. `"120px"`). Applied via `<colgroup>` internally. |
+| Input         | Type                | Notes                                                           |
+| ------------- | ------------------- | --------------------------------------------------------------- |
+| `sortable`    | `boolean`           | Click-to-sort on the header.                                    |
+| `defaultSort` | `"asc"` \| `"desc"` | Initial sort direction. First column with this set wins.        |
+| `sortFn`      | `SortFn`            | Custom comparator. See [Sorting](#sorting).                     |
+| `width`       | `string`            | Grid track size (e.g. `"120px"`, `"1fr"`). Defaults to `"1fr"`. |
 
 ### `*bitColumnFor` — the cell template
 
