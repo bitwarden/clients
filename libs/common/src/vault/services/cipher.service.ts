@@ -56,11 +56,13 @@ import { Attachment } from "../models/domain/attachment";
 import { BankAccount } from "../models/domain/bank-account";
 import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
+import { DriversLicense } from "../models/domain/drivers-license";
 import { Fido2Credential } from "../models/domain/fido2-credential";
 import { Field } from "../models/domain/field";
 import { Identity } from "../models/domain/identity";
 import { Login } from "../models/domain/login";
 import { LoginUri } from "../models/domain/login-uri";
+import { Passport } from "../models/domain/passport";
 import { Password } from "../models/domain/password";
 import { SecureNote } from "../models/domain/secure-note";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
@@ -117,6 +119,11 @@ export class CipherService implements CipherServiceAbstraction {
   private readonly sdkCipherShareEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.PM28190CipherSharingOpsToSdk,
   );
+
+  private readonly sdkCipherAdminOpsEnabled$: Observable<boolean> =
+    this.configService.getFeatureFlag$(FeatureFlag.PM28191CipherAdminOpsToSdk);
+  private readonly sdkCipherAttachmentOpsEnabled$: Observable<boolean> =
+    this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk);
 
   constructor(
     private keyService: KeyService,
@@ -667,6 +674,11 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      return this.getManyFromApiForOrganizationUsingSdk(organizationId);
+    }
+
     const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/assigned?organizationId=" + organizationId,
@@ -676,6 +688,30 @@ export class CipherService implements CipherServiceAbstraction {
     );
     const response = new ListResponse(r, CipherResponse);
     return this.decryptOrganizationCiphersResponse(response, organizationId);
+  }
+
+  private async getManyFromApiForOrganizationUsingSdk(
+    organizationId: string,
+  ): Promise<CipherView[]> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    try {
+      const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
+        organizationId,
+        userId,
+      );
+
+      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+
+      cipherViews.sort(this.getLocaleSortingFunction());
+
+      return cipherViews;
+    } catch {
+      return [];
+    }
   }
 
   private async decryptOrganizationCiphersResponse(
@@ -1158,6 +1194,7 @@ export class CipherService implements CipherServiceAbstraction {
       encData,
       admin,
       attachmentKey,
+      userId,
       options,
     );
 
@@ -1169,6 +1206,18 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
+        cipher.id,
+        cipher.collectionIds,
+        userId,
+      );
+      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+      return encryptResult.cipher;
+    }
+
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollections(cipher.id, request);
     // The response will now check for an unavailable value. This value determines whether
@@ -1183,6 +1232,19 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+      await this.clearCache(userId);
+      const cipherView = await this.cipherSdkService.saveCollectionsWithServerAdmin(
+        cipher.id,
+        cipher.collectionIds,
+        userId,
+      );
+      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+      return encryptResult.cipher;
+    }
+
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollectionsAdmin(cipher.id, request);
     // The response will be incomplete with several properties missing values
@@ -1209,6 +1271,19 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: CollectionId[],
     removeCollections: boolean = false,
   ): Promise<void> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      await this.cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        userId,
+        cipherIds,
+        collectionIds,
+        removeCollections,
+      );
+      return;
+    }
+
     const request = new CipherBulkUpdateCollectionsRequest(
       orgId,
       cipherIds,
@@ -1303,6 +1378,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
+      return;
+    }
+
     await this.apiService.putMoveCiphers(new CipherBulkMoveRequest(ids, folderId));
 
     let ciphers = await firstValueFrom(this.ciphers$(userId));
@@ -1422,6 +1504,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
+    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      const updatedCipher = await this.cipherSdkService.deleteAttachmentWithServer(
+        id as CipherId,
+        attachmentId,
+        userId,
+        admin,
+      );
+      return updatedCipher?.toCipherData();
+    }
+
     let response: DeleteAttachmentResponse;
     try {
       response = admin
@@ -2112,6 +2206,50 @@ export class CipherService implements CipherServiceAbstraction {
             swiftCode: null,
             iban: null,
             bankContactPhone: null,
+          },
+          key,
+        );
+        return;
+      case CipherType.DriversLicense:
+        cipher.driversLicense = new DriversLicense();
+        await this.encryptObjProperty(
+          model.driversLicense,
+          cipher.driversLicense,
+          {
+            firstName: null,
+            middleName: null,
+            lastName: null,
+            dateOfBirth: null,
+            licenseNumber: null,
+            issuingCountry: null,
+            issuingState: null,
+            issueDate: null,
+            expirationDate: null,
+            issuingAuthority: null,
+            licenseClass: null,
+          },
+          key,
+        );
+        return;
+      case CipherType.Passport:
+        cipher.passport = new Passport();
+        await this.encryptObjProperty(
+          model.passport,
+          cipher.passport,
+          {
+            surname: null,
+            givenName: null,
+            dateOfBirth: null,
+            sex: null,
+            birthPlace: null,
+            nationality: null,
+            issuingCountry: null,
+            passportNumber: null,
+            passportType: null,
+            nationalIdentificationNumber: null,
+            issuingAuthority: null,
+            issueDate: null,
+            expirationDate: null,
           },
           key,
         );

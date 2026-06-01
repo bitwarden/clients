@@ -7,13 +7,16 @@ import {
   DestroyRef,
   OnDestroy,
   OnInit,
+  afterNextRender,
   inject,
   signal,
   ChangeDetectionStrategy,
+  isDevMode,
+  Injector,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { concat, EMPTY, firstValueFrom, of } from "rxjs";
+import { combineLatest, concat, EMPTY, firstValueFrom, of } from "rxjs";
 import {
   concatMap,
   delay,
@@ -22,6 +25,7 @@ import {
   map,
   skip,
   switchMap,
+  take,
   tap,
 } from "rxjs/operators";
 
@@ -57,6 +61,9 @@ import { ApplicationsComponent } from "./all-applications/applications.component
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { NewAdminWelcomeDialogComponent } from "./onboarding/new-admin-welcome-dialog.component";
+import { PostImportModalDialogComponent } from "./onboarding/post-import-modal-dialog.component";
+import { DevMenuComponent } from "./shared/dev-menu.component";
 import { PageLoadingComponent } from "./shared/page-loading.component";
 import { ReportLoadingComponent } from "./shared/report-loading.component";
 import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
@@ -73,6 +80,7 @@ type ProgressStep = ReportProgress | null;
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
+    DevMenuComponent,
     IconModule,
     CriticalApplicationsComponent,
     EmptyStateCardComponent,
@@ -94,8 +102,11 @@ type ProgressStep = ReportProgress | null;
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
+  private readonly mustBeginPostImportTour = signal(false);
   protected ReportStatusEnum = ReportStatus;
   protected milestone11Enabled: boolean = false;
+  protected adoptionUxImprovementsEnabled: boolean = false;
+  protected isDevMode = isDevMode();
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
@@ -137,6 +148,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private configService: ConfigService,
     private toastService: ToastService,
+    private injector: Injector,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -149,10 +161,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.milestone11Enabled = await this.configService.getFeatureFlag(
-      FeatureFlag.Milestone11AppPageImprovements,
-    );
-
+    // Set up paramMap subscription first (synchronously) so that organizationId
+    // is assigned before any subsequent await yields control back to Angular's
+    // change-detection loop. Delaying this until after the feature-flag await
+    // creates a window where the template can render with organizationId = ""
+    // if the data service still has a non-Initializing state, causing child
+    // components (e.g. PasswordChangeMetricComponent) to fire API calls with
+    // an empty organizationId.
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -169,6 +184,14 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    this.milestone11Enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Milestone11AppPageImprovements,
+    );
+
+    this.adoptionUxImprovementsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AccessIntelligenceAdoptionUxImprovements,
+    );
+
     // Subscribe to report data updates
     // This declarative pattern ensures proper cleanup and prevents memory leaks
     this.dataService.enrichedReportData$
@@ -179,17 +202,41 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.dataLastUpdated = report?.creationDate ?? null;
       });
 
-    // Show error toast when report generation or save fails
-    this.dataService.reportStatus$
+    // Show error toast or begin post-import tour based on report status and loading state.
+    // combineLatest naturally waits for both conditions: status must be Error/Complete,
+    // and the progress loader must be done (currentProgressStep === null) before the tour opens.
+    // distinctUntilChanged on status prevents duplicate firings if currentProgressStep keeps
+    // changing while status stays the same (e.g. Error).
+    combineLatest([
+      this.dataService.reportStatus$,
+      toObservable(this.currentProgressStep, { injector: this.injector }),
+    ])
       .pipe(
-        filter((status) => status === ReportStatus.Error),
+        filter(
+          ([reportStatus, step]) =>
+            reportStatus === ReportStatus.Error ||
+            reportStatus === ReportStatus.LoadError ||
+            (reportStatus === ReportStatus.Complete && step === null),
+        ),
+        distinctUntilChanged(
+          ([prevReportStatus], [currentReportStatus]) => prevReportStatus === currentReportStatus,
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => {
-        this.toastService.showToast({
-          message: this.i18nService.t("reportGenerationFailed"),
-          variant: "error",
-        });
+      .subscribe(([status]) => {
+        if (status === ReportStatus.Error || status === ReportStatus.LoadError) {
+          this.toastService.showToast({
+            message: this.i18nService.t(
+              status === ReportStatus.LoadError ? "reportLoadFailed" : "reportGenerationFailed",
+            ),
+            variant: "error",
+          });
+        } else if (this.mustBeginPostImportTour()) {
+          this.mustBeginPostImportTour.set(false);
+
+          // open the dialog only after the rendering of the report is complete
+          afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
+        }
       });
 
     // Subscribe to drawer state changes
@@ -258,8 +305,21 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.currentProgressStep.set(step);
       });
 
+    combineLatest([this.dataService.hasReportData$, this.dataService.hasCiphers$])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(([hasReportData, hasCiphers]) => hasReportData !== null && hasCiphers !== null),
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
+
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
-      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+      await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
     }
   }
 
@@ -324,7 +384,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         fileName: ExportHelper.getFileName("at-risk-members"),
         blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
           email: this.i18nService.t("email"),
-          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+          atRiskPasswordCount: this.i18nService.t("atRiskApplications"),
         }),
         blobOptions: { type: "text/plain" },
       });
@@ -365,9 +425,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     }
   };
 
-  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+  private async handleReturnParams(
+    source: string | undefined,
+    status: string | undefined,
+  ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
+      this.mustBeginPostImportTour.set(true);
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -381,5 +445,25 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParamsHandling: "merge",
       replaceUrl: true,
     });
+  }
+
+  protected async beginPostImportTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await PostImportModalDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId,
+      );
+    }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await NewAdminWelcomeDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId,
+      );
+    }
   }
 }

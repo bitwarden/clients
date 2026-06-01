@@ -3,7 +3,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -244,9 +243,6 @@ import { LowdbStorageService } from "../platform/services/lowdb-storage.service"
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
-
-// Polyfills
-global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 
 // eslint-disable-next-line
 const packageJson = require("../../package.json");
@@ -559,13 +555,19 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
+
+    this.newPolicyService = new DefaultNewPolicyService(
+      this.stateProvider,
+      () => this.sdkService,
+      this.organizationService,
+    );
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
+      this.newPolicyService,
+      () => this.configService,
     );
-
-    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
 
@@ -647,12 +649,6 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
-    );
-
-    this.cipherFileUploadService = new CipherFileUploadService(
-      this.apiService,
-      this.fileUploadService,
       this.configService,
     );
 
@@ -767,11 +763,10 @@ export class ServiceContainer {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
@@ -885,6 +880,13 @@ export class ServiceContainer {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
+    this.cipherFileUploadService = new CipherFileUploadService(
+      this.apiService,
+      this.fileUploadService,
+      this.configService,
+      this.cipherSdkService,
+    );
 
     this.cipherService = new CipherService(
       this.keyService,
@@ -1006,7 +1008,11 @@ export class ServiceContainer {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -1116,6 +1122,10 @@ export class ServiceContainer {
       this.configService,
       this.masterPasswordService,
       this.syncService,
+      this.keyService,
+      new CliBiometricsService(),
+      this.biometricStateService,
+      this.platformUtilsService,
     );
   }
 

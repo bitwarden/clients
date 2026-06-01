@@ -438,7 +438,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           return results.filter(filterFunction);
         }
 
-        return ciphers.filter(filterFunction) as C[];
+        return allCiphers.filter(filterFunction) as C[];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );

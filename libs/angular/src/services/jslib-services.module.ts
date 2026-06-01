@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
+import { APP_INITIALIZER, ErrorHandler, Injector, LOCALE_ID, NgModule } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
@@ -235,6 +235,8 @@ import {
   SendPasswordService,
 } from "@bitwarden/common/key-management/sends";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -426,6 +428,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { AccountDeletionService } from "../auth/account-deletion/account-deletion.service";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
@@ -564,6 +567,10 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       MasterPasswordServiceAbstraction,
       SyncService,
+      KeyService,
+      BiometricsService,
+      BiometricStateService,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -626,7 +633,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
     useClass: CipherFileUploadService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService],
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService, CipherSdkService],
   }),
   safeProvider({
     provide: DomainSettingsService,
@@ -845,18 +852,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordGenerationServiceAbstraction,
     useFactory: legacyPasswordGenerationServiceFactory,
-    deps: [
-      EncryptService,
-      KeyService,
-      PolicyServiceAbstraction,
-      AccountServiceAbstraction,
-      StateProvider,
-    ],
+    deps: [PolicyServiceAbstraction, AccountServiceAbstraction, StateProvider, SdkService],
   }),
   safeProvider({
     provide: GeneratorHistoryService,
     useClass: LocalGeneratorHistoryService,
-    deps: [EncryptService, KeyService, StateProvider],
+    deps: [StateProvider, SdkService],
   }),
   safeProvider({
     provide: UsernameGenerationServiceAbstraction,
@@ -865,7 +866,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       I18nServiceAbstraction,
       KeyService,
-      EncryptService,
+      SdkService,
       PolicyServiceAbstraction,
       AccountServiceAbstraction,
       StateProvider,
@@ -1173,6 +1174,7 @@ const safeProviders: SafeProvider[] = [
       InternalPolicyService,
       InternalNewPolicyService,
       AutomaticUserConfirmationService,
+      BillingAccountProfileStateService,
     ],
   }),
   safeProvider({
@@ -1210,8 +1212,27 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalPolicyService,
-    useClass: DefaultPolicyService,
-    deps: [StateProvider, OrganizationServiceAbstraction, AccountServiceAbstraction],
+    useFactory: (
+      stateProvider: StateProvider,
+      organizationService: OrganizationServiceAbstraction,
+      accountService: AccountServiceAbstraction,
+      newPolicyService: InternalNewPolicyService,
+      injector: Injector,
+    ) =>
+      new DefaultPolicyService(
+        stateProvider,
+        organizationService,
+        accountService,
+        newPolicyService,
+        () => injector.get(ConfigService),
+      ),
+    deps: [
+      StateProvider,
+      OrganizationServiceAbstraction,
+      AccountServiceAbstraction,
+      InternalNewPolicyService,
+      Injector,
+    ],
   }),
   safeProvider({
     provide: PolicyServiceAbstraction,
@@ -1219,8 +1240,17 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalNewPolicyService,
-    useClass: DefaultNewPolicyService,
-    deps: [StateProvider],
+    useFactory: (
+      stateProvider: StateProvider,
+      organizationService: OrganizationServiceAbstraction,
+      injector: Injector,
+    ) =>
+      new DefaultNewPolicyService(
+        stateProvider,
+        () => injector.get(SdkService),
+        organizationService,
+      ),
+    deps: [StateProvider, OrganizationServiceAbstraction, Injector],
   }),
   safeProvider({
     provide: PolicyApiServiceAbstraction,
@@ -1241,6 +1271,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordServiceAbstraction,
     useExisting: InternalMasterPasswordServiceAbstraction,
+  }),
+  safeProvider({
+    provide: V2UpgradeTokenStateService,
+    useClass: DefaultV2UpgradeTokenStateService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: MasterPasswordUnlockService,
@@ -1324,6 +1359,7 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       OrganizationInviteLinkApiService,
       StateProvider,
+      EnvironmentService,
     ],
   }),
   safeProvider({
@@ -1734,12 +1770,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: DefaultRegistrationFinishService,
-    deps: [
-      KeyService,
-      AccountApiServiceAbstraction,
-      MasterPasswordServiceAbstraction,
-      ConfigService,
-    ],
+    deps: [KeyService, AccountApiServiceAbstraction, MasterPasswordServiceAbstraction],
   }),
   safeProvider({
     provide: TwoFactorAuthComponentService,
@@ -1873,6 +1904,11 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: AccountDeletionService,
+    useClass: AccountDeletionService,
+    deps: [AccountServiceAbstraction, OrganizationServiceAbstraction, DialogService],
   }),
   safeProvider({
     provide: DeviceTrustToastServiceAbstraction,
