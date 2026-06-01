@@ -3,6 +3,8 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { TableDataSource } from "@bitwarden/components";
+
 import { AccessTokenView } from "../models/view/access-token.view";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -22,6 +24,7 @@ export class AccessListComponent {
   set tokens(secrets: AccessTokenView[]) {
     this.selection.clear();
     this._tokens = secrets;
+    this.dataSource.data = secrets;
   }
   private _tokens: AccessTokenView[];
 
@@ -33,21 +36,56 @@ export class AccessListComponent {
   @Output() revokeAccessTokensEvent = new EventEmitter<AccessTokenView[]>();
 
   protected selection = new SelectionModel<string>(true, []);
+  protected dataSource = new TableDataSource<AccessTokenView>();
+
+  private readonly EXPIRING_SOON_DAYS = 7;
+
+  protected getTokenStatus(token: AccessTokenView): "expired" | "expiringSoon" | "active" {
+    if (token.expireAt == null) {
+      return "active";
+    }
+    const now = new Date();
+    if (token.expireAt < now) {
+      return "expired";
+    }
+    if (token.expireAt < new Date(now.getTime() + this.EXPIRING_SOON_DAYS * 24 * 60 * 60 * 1000)) {
+      return "expiringSoon";
+    }
+    return "active";
+  }
+
+  protected sortByStatus = (a: AccessTokenView, b: AccessTokenView): number => {
+    const order = { active: 0, expiringSoon: 1, expired: 2 };
+    return order[this.getTokenStatus(a)] - order[this.getTokenStatus(b)];
+  };
+
+  protected sortByExpireAt = (a: AccessTokenView, b: AccessTokenView): number => {
+    if (a.expireAt == null && b.expireAt == null) {
+      return 0;
+    }
+    if (a.expireAt == null) {
+      return 1;
+    }
+    if (b.expireAt == null) {
+      return -1;
+    }
+    return a.expireAt.getTime() - b.expireAt.getTime();
+  };
 
   isAllSelected() {
     const numSelected = this.selection.selected.length;
-    const numRows = this.tokens.length;
+    const numRows = this.dataSource.filteredData?.length ?? 0;
     return numSelected === numRows;
   }
 
   toggleAll() {
     this.isAllSelected()
       ? this.selection.clear()
-      : this.selection.select(...this.tokens.map((s) => s.id));
+      : this.selection.select(...(this.dataSource.filteredData ?? []).map((s) => s.id));
   }
 
   protected revokeSelected() {
-    const selected = this.tokens.filter((s) => this.selection.selected.includes(s.id));
+    const selected = this._tokens.filter((s) => this.selection.selected.includes(s.id));
     this.revokeAccessTokensEvent.emit(selected);
   }
 }
