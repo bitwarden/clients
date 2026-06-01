@@ -58,6 +58,11 @@
         }
       </ng-container>
     }
+    @if (isExpiredCard) {
+      <bit-badge variant="danger" size="small" [startIcon]="null" class="tw-ml-2">
+        {{ "expired" | i18n }}
+      </bit-badge>
+    }
   </div>
   <br />
   <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle }}</span>

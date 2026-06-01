@@ -1,10 +1,4 @@
 @if (!!cipher()) {
-  @if (cardIsExpired()) {
-    <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
-      {{ "cardExpiredMessage" | i18n }}
-    </bit-callout>
-  }
-
   @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
     <bit-callout type="warning" [title]="'missingWebsite' | i18n">
       {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}

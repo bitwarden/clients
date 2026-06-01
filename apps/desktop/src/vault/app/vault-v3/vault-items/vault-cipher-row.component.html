@@ -29,6 +29,11 @@
           <span class="tw-sr-only">{{ "attachmentsNeedFix" | i18n }}</span>
         }
       }
+      @if (isExpiredCard()) {
+        <bit-badge variant="warning" size="small" [startIcon]="null" class="tw-ml-2">
+          {{ "expired" | i18n }}
+        </bit-badge>
+      }
     </div>
     <br />
     <span class="tw-text-sm tw-text-muted">{{ subtitle() }}</span>

@@ -13,10 +13,12 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
@@ -107,6 +109,14 @@ export class ItemDetailsV2Component {
       this.platformUtilsService.getClientType() === ClientType.Desktop &&
       !this.desktopMilestone3Enabled()
     );
+  });
+
+  protected readonly showExpiredBadge = computed(() => {
+    const cipher = this.cipher();
+    if (cipher.type !== CipherType.Card || !cipher.card) {
+      return false;
+    }
+    return isCardExpired(cipher.card);
   });
 
   constructor(private i18nService: I18nService) {}

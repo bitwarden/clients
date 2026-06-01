@@ -13,6 +13,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -146,6 +148,59 @@ describe("ItemDetailsV2Component", () => {
       componentRef.setInput("cipher", { ...cipher, isArchived: true });
 
       expect((component as any).showArchiveBadge()).toBe(false);
+    });
+  });
+
+  describe("showExpiredBadge", () => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+
+    function cardCipher(expMonth: string | undefined, expYear: string | undefined): CipherView {
+      const card = new CardView();
+      card.expMonth = expMonth;
+      card.expYear = expYear;
+      return { ...cipher, type: CipherType.Card, card } as CipherView;
+    }
+
+    it("is false for a non-card cipher", () => {
+      componentRef.setInput("cipher", { ...cipher, type: CipherType.Login });
+      expect((component as any).showExpiredBadge()).toBe(false);
+    });
+
+    it("is false when card has no expiry fields", () => {
+      componentRef.setInput("cipher", cardCipher(undefined, undefined));
+      expect((component as any).showExpiredBadge()).toBe(false);
+    });
+
+    it("is false for expMonth=0 and current year (malformed month should not flag as expired)", () => {
+      componentRef.setInput("cipher", cardCipher("0", String(currentYear)));
+      expect((component as any).showExpiredBadge()).toBe(false);
+    });
+
+    it("is true when card expired in a past year", () => {
+      componentRef.setInput("cipher", cardCipher("1", "2020"));
+      expect((component as any).showExpiredBadge()).toBe(true);
+    });
+
+    it("is true when card expired earlier in the current year", () => {
+      const pastMonth = currentMonth === 1 ? null : String(currentMonth - 1);
+      if (pastMonth === null) {
+        // January — no earlier month in the current year to test; skip via past year
+        componentRef.setInput("cipher", cardCipher("12", String(currentYear - 1)));
+      } else {
+        componentRef.setInput("cipher", cardCipher(pastMonth, String(currentYear)));
+      }
+      expect((component as any).showExpiredBadge()).toBe(true);
+    });
+
+    it("is false when card expires in a future year", () => {
+      componentRef.setInput("cipher", cardCipher("1", String(currentYear + 1)));
+      expect((component as any).showExpiredBadge()).toBe(false);
+    });
+
+    it("is false when card expiry is the current year and month", () => {
+      componentRef.setInput("cipher", cardCipher(String(currentMonth), String(currentYear)));
+      expect((component as any).showExpiredBadge()).toBe(false);
     });
   });
 });
