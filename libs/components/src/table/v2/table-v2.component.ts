@@ -22,10 +22,11 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { finalize, Observable, of, switchMap } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
-import { RowDirective } from "../row.directive";
 import { Sort, TableDataSource } from "../table-data-source";
 
 import { BitColumnComponent } from "./bit-column.component";
+import { BitHeaderRowComponent } from "./bit-header-row.component";
+import { BitRowComponent } from "./bit-row.component";
 
 @Component({
   selector: "bit-table-v2",
@@ -36,7 +37,8 @@ import { BitColumnComponent } from "./bit-column.component";
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     ScrollLayoutDirective,
-    RowDirective,
+    BitHeaderRowComponent,
+    BitRowComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -94,11 +96,33 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
   protected readonly hasColumns = computed(() => this._columns().length > 0);
 
   /** Registered columns filtered/ordered by {@link displayedColumns}. */
-  protected readonly effectiveColumns = computed(() => {
+  readonly effectiveColumns = computed(() => {
     const registry = new Map(this._columns().map((c) => [c.name(), c]));
     return this.displayedColumns()
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
+  });
+
+  /**
+   * Grid-template-columns string derived from the column registry, consumed
+   * by `<bit-row>` and `<bit-header-row>`. Each `<bit-column width="...">`
+   * contributes its width as a grid track; unset widths default to `1fr`.
+   * `undefined` when no columns are registered (manual mode), in which case
+   * rows fall back to `grid-auto-columns: 1fr`.
+   */
+  readonly gridTemplateColumns = computed<string | undefined>(() => {
+    const cols = this.effectiveColumns();
+    if (cols.length === 0) {
+      return undefined;
+    }
+    const parts: string[] = [];
+    if (this.selection()) {
+      parts.push("40px");
+    }
+    for (const col of cols) {
+      parts.push(col.width() ?? "1fr");
+    }
+    return parts.join(" ");
   });
 
   /**
@@ -116,18 +140,6 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
   }
 
   protected readonly isVirtualized = computed(() => this.rowSize() !== undefined);
-
-  protected readonly tableClass = computed(() => {
-    const fixed = this.isVirtualized() || this.layout() === "fixed";
-    return [
-      "tw-w-full",
-      "tw-leading-normal",
-      "tw-text-fg-heading",
-      "tw-border-collapse",
-      "tw-text-start",
-      fixed ? "tw-table-fixed" : "tw-table-auto",
-    ];
-  });
 
   /** Outer container chrome: border, rounded corners, subtle shadow. */
   protected readonly containerClass = [
@@ -176,15 +188,15 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
     if (!this.isVirtualized()) {
       return;
     }
-    const thead = this.el.nativeElement.querySelector("thead");
-    if (!thead) {
+    const headerRow = this.el.nativeElement.querySelector('[role="row"]');
+    if (!headerRow) {
       return;
     }
     const observer = new ResizeObserver((entries) => {
       // signal.set triggers CD on dependents directly — no NgZone.run needed
       this.headerHeight.set(entries[0].contentRect.height);
     });
-    observer.observe(thead);
+    observer.observe(headerRow);
     this.destroyRef.onDestroy(() => observer.disconnect());
   }
 

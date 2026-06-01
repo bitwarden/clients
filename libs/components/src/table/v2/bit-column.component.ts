@@ -44,7 +44,16 @@ export class BitColumnComponent {
   /** Custom sort comparator. */
   readonly sortFn = input<SortFn>();
 
-  /** CSS width (e.g. `"120px"`, `"20%"`). Applied via `<colgroup>` on the table. */
+  /**
+   * Grid track size for this column. Any valid `grid-template-columns` track
+   * value works: `"120px"`, `"1fr"`, `"max-content"`, `"minmax(240px, 480px)"`.
+   * Defaults to `"1fr"` (equal share of remainder) when unset.
+   *
+   * Caveat: intrinsic sizing keywords (`max-content`, `min-content`, `auto`)
+   * compute per-row in the current grid implementation, so they won't
+   * cross-align under virtualization. Use explicit pixel widths or `fr`
+   * units when alignment across rows matters.
+   */
   readonly width = input<string>();
 
   private readonly cellDir = contentChild(BitColumnForDirective);

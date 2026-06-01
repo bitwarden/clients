@@ -1,8 +1,13 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { IconTileComponent } from "../../../icon-tile";
-import { RowDirective } from "../../../table/row.directive";
-import { BitCellComponent, BitHeaderCellComponent, BitTableV2Component } from "../../../table/v2";
+import {
+  BitCellComponent,
+  BitHeaderCellComponent,
+  BitHeaderRowComponent,
+  BitRowComponent,
+  BitTableV2Component,
+} from "../../../table/v2";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 @Component({
@@ -13,24 +18,25 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     BitTableV2Component,
     BitCellComponent,
     BitHeaderCellComponent,
-    RowDirective,
+    BitRowComponent,
+    BitHeaderRowComponent,
     IconTileComponent,
   ],
   template: `
     <bit-table-v2>
-      <tr bit-header-row>
-        <th bit-cell>Product</th>
-        <th bit-cell>User</th>
-        <th bit-cell></th>
-      </tr>
-      <tr bit-row>
-        <td bit-cell>
+      <bit-header-row>
+        <bit-header-cell>Product</bit-header-cell>
+        <bit-header-cell>User</bit-header-cell>
+        <bit-header-cell></bit-header-cell>
+      </bit-header-row>
+      <bit-row>
+        <bit-cell>
           <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
           Password Manager
           <span slot="secondary">Vault, autofill, and credential generator</span>
-        </td>
-        <td bit-cell>Everyone</td>
-        <td bit-cell>
+        </bit-cell>
+        <bit-cell>Everyone</bit-cell>
+        <bit-cell>
           <button
             type="button"
             bitIconButton="bwi-ellipsis-v"
@@ -43,16 +49,16 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
             <bit-menu-divider></bit-menu-divider>
             <button type="button" bitMenuItem>Button after divider</button>
           </bit-menu>
-        </td>
-      </tr>
-      <tr bit-row>
-        <td bit-cell>
+        </bit-cell>
+      </bit-row>
+      <bit-row>
+        <bit-cell>
           <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
           Secrets Manager
           <span slot="secondary">API keys, certificates, and infrastructure secrets</span>
-        </td>
-        <td bit-cell>Developers</td>
-        <td bit-cell>
+        </bit-cell>
+        <bit-cell>Developers</bit-cell>
+        <bit-cell>
           <button
             type="button"
             bitIconButton="bwi-ellipsis-v"
@@ -65,8 +71,8 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
             <bit-menu-divider></bit-menu-divider>
             <button type="button" bitMenuItem>Button after divider</button>
           </bit-menu>
-        </td>
-      </tr>
+        </bit-cell>
+      </bit-row>
     </bit-table-v2>
   `,
 })

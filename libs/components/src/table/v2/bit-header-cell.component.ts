@@ -5,10 +5,13 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
- * Styles and renders a header cell. Consumers write `<th bit-cell>` inside a
- * `*bitColumnHeader` template; the component wraps projected content in a
- * sort button when the surrounding `<bit-column>` is sortable, and exposes
- * `aria-sort` on the host.
+ * A header cell. Renders a `<div role="columnheader">` internally with cell
+ * sizing and, when the surrounding `<bit-column>` is sortable, wraps the
+ * projected content in a sort button. `aria-sort` is applied to the rendered
+ * div (the semantic owner) rather than the component host.
+ *
+ * The component host is `display: contents` so the inner header div becomes
+ * the direct grid item of the parent `<bit-header-row>`.
  *
  * Finds its column and table via the template's *declaration* injector tree
  * — the header template is declared inside `<bit-column>` inside
@@ -16,13 +19,12 @@ import { BitTableV2Component } from "./table-v2.component";
  * of where the table stamps the template.
  */
 @Component({
-  selector: "th[bit-cell]",
+  selector: "bit-header-cell",
   templateUrl: "./bit-header-cell.component.html",
   imports: [NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-h-12 tw-px-3 tw-py-0 tw-text-sm tw-font-medium tw-text-start tw-align-middle",
-    "[attr.aria-sort]": "ariaSort()",
+    class: "tw-contents",
   },
 })
 export class BitHeaderCellComponent {

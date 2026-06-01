@@ -40,32 +40,32 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   template: `<bit-section>
     <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns" [rowSize]="64">
       <bit-column sortable defaultSort="asc">
-        <th *bitColumnHeader bit-cell>Id</th>
-        <td *bitColumnFor="dataSource.columns.id; let cell" bit-cell>{{ cell.id }}</td>
+        <bit-header-cell *bitColumnHeader>Id</bit-header-cell>
+        <bit-cell *bitColumnFor="dataSource.columns.id; let cell">{{ cell.id }}</bit-cell>
       </bit-column>
       <bit-column sortable>
-        <th *bitColumnHeader bit-cell>Name</th>
-        <td *bitColumnFor="dataSource.columns.name; let cell" bit-cell>{{ cell.name }}</td>
+        <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+        <bit-cell *bitColumnFor="dataSource.columns.name; let cell">{{ cell.name }}</bit-cell>
       </bit-column>
       <bit-column sortable>
-        <th *bitColumnHeader bit-cell>Updated</th>
-        <td *bitColumnFor="dataSource.columns.updatedAt; let cell" bit-cell>
+        <bit-header-cell *bitColumnHeader>Updated</bit-header-cell>
+        <bit-cell *bitColumnFor="dataSource.columns.updatedAt; let cell">
           {{ cell.updatedAt | date: "mediumDate" }}
-        </td>
+        </bit-cell>
       </bit-column>
       <bit-column sortable [sortFn]="sortByTags">
-        <th *bitColumnHeader bit-cell>Tags</th>
-        <td *bitColumnFor="dataSource.columns.tags; let cell" bit-cell [truncate]="false">
+        <bit-header-cell *bitColumnHeader>Tags</bit-header-cell>
+        <bit-cell *bitColumnFor="dataSource.columns.tags; let cell" [truncate]="false">
           <bit-badge-group>
             @for (tag of cell.tags; track tag) {
               <span bitBadge variant="subtle">{{ tag }}</span>
             }
           </bit-badge-group>
-        </td>
+        </bit-cell>
       </bit-column>
-      <bit-column width="max-content">
-        <th *bitColumnHeader bit-cell></th>
-        <td *bitColumnFor="dataSource.synthetic('actions'); let cell" bit-cell>
+      <bit-column width="64px">
+        <bit-header-cell *bitColumnHeader></bit-header-cell>
+        <bit-cell *bitColumnFor="dataSource.synthetic('actions'); let cell">
           <button
             slot="end"
             bitIconButton="bwi-ellipsis-v"
@@ -73,7 +73,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
             label="Options"
             (click)="openDefaultDialog()"
           ></button>
-        </td>
+        </bit-cell>
       </bit-column>
     </bit-table-v2>
   </bit-section>`,

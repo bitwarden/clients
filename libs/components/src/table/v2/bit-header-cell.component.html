@@ -2,16 +2,22 @@
   <ng-content></ng-content>
 </ng-template>
 
-@if (sortable()) {
-  <button
-    type="button"
-    [class]="sortButtonClasses"
-    [attr.aria-pressed]="active()"
-    (click)="onSortClick()"
-  >
+<div
+  role="columnheader"
+  class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0 tw-text-sm tw-font-medium tw-text-start"
+  [attr.aria-sort]="ariaSort()"
+>
+  @if (sortable()) {
+    <button
+      type="button"
+      [class]="sortButtonClasses"
+      [attr.aria-pressed]="active()"
+      (click)="onSortClick()"
+    >
+      <ng-container *ngTemplateOutlet="content"></ng-container>
+      <i class="bwi tw-ms-2" [class]="sortIcon()"></i>
+    </button>
+  } @else {
     <ng-container *ngTemplateOutlet="content"></ng-container>
-    <i class="bwi tw-ms-2" [class]="sortIcon()"></i>
-  </button>
-} @else {
-  <ng-container *ngTemplateOutlet="content"></ng-container>
-}
+  }
+</div>

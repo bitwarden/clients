@@ -12,20 +12,24 @@ import {
 import { TypographyModule } from "../../typography";
 
 /**
- * Styles and lays out a body cell. Applies cell sizing (height, padding,
- * vertical centering) via its host on the `<td>` element, and provides the
- * slot vocabulary for rich cells: `slot=start`, default, `slot=secondary`,
- * `slot=end`.
+ * A body cell. Renders a `<div role="cell">` internally with cell sizing
+ * (height, padding) and the slot vocabulary for rich cells: `slot=start`,
+ * default, `slot=secondary`, `slot=end`.
  *
- * Plain cells use only the default slot — `<td bit-cell>{{ value }}</td>` —
+ * The component host is `display: contents` so the inner cell div becomes
+ * the direct grid item of the parent `<bit-row>`. Vertical centering is
+ * handled by the inner div's flex layout (replacing the table-cell
+ * `vertical-align: middle` of the previous `<td>`-based implementation).
+ *
+ * Plain cells use only the default slot — `<bit-cell>{{ value }}</bit-cell>` —
  * and the slot layout collapses around the single child.
  */
 @Component({
-  selector: "td[bit-cell]",
+  selector: "bit-cell",
   templateUrl: "./bit-cell.component.html",
   imports: [NgClass, TypographyModule],
   host: {
-    class: "tw-h-16 tw-px-4 tw-py-0 tw-align-middle",
+    class: "tw-contents",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

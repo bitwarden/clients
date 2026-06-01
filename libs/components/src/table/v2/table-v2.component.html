@@ -1,49 +1,32 @@
-<ng-template #colgroup>
-  <colgroup>
-    @if (selection()) {
-      <col style="width: 40px" />
+<ng-template #headerCells>
+  @if (selection()) {
+    <div role="columnheader" class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0">
+      <input
+        type="checkbox"
+        aria-label="Select all rows"
+        [checked]="isAllSelected()"
+        [indeterminate]="isIndeterminate()"
+        (change)="toggleAll()"
+      />
+    </div>
+  }
+  @for (col of effectiveColumns(); track col.name()) {
+    @if (col.headerTemplate(); as tpl) {
+      <ng-container *ngTemplateOutlet="tpl"></ng-container>
     }
-    @for (col of effectiveColumns(); track col.name()) {
-      <col [style.width]="col.width()" />
-    }
-  </colgroup>
+  }
 </ng-template>
 
-<ng-template #thead>
-  <thead
-    class="tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body"
-  >
-    <tr>
-      @if (selection()) {
-        <th class="tw-h-12 tw-px-3 tw-py-0 tw-w-10 tw-text-start tw-align-middle">
-          <input
-            type="checkbox"
-            aria-label="Select all rows"
-            [checked]="isAllSelected()"
-            [indeterminate]="isIndeterminate()"
-            (change)="toggleAll()"
-          />
-        </th>
-      }
-      @for (col of effectiveColumns(); track col.name()) {
-        @if (col.headerTemplate(); as tpl) {
-          <ng-container *ngTemplateOutlet="tpl"></ng-container>
-        }
-      }
-    </tr>
-  </thead>
-</ng-template>
-
-<ng-template #row let-row>
+<ng-template #bodyCells let-row>
   @if (selection(); as sel) {
-    <td class="tw-h-16 tw-px-3 tw-py-0 tw-w-10 tw-align-middle">
+    <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0">
       <input
         type="checkbox"
         aria-label="Select row"
         [checked]="sel.isSelected(row)"
         (change)="sel.toggle(row)"
       />
-    </td>
+    </div>
   }
   @for (col of effectiveColumns(); track col.name()) {
     @if (col.cellTemplate(); as tpl) {
@@ -54,51 +37,36 @@
 
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
-<div [ngClass]="containerClass">
+<div [ngClass]="containerClass" role="table">
   @if (isVirtualized() && hasColumns()) {
     <cdk-virtual-scroll-viewport
       bitScrollLayout
       [itemSize]="rowSize()!"
       [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
     >
-      <table [ngClass]="tableClass()">
-        <ng-container *ngTemplateOutlet="colgroup"></ng-container>
-        <ng-container *ngTemplateOutlet="thead"></ng-container>
-        <tbody>
-          <tr bitRow *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0">
-            <ng-container *ngTemplateOutlet="row; context: { $implicit: r }"></ng-container>
-          </tr>
-        </tbody>
-      </table>
+      <bit-header-row>
+        <ng-container *ngTemplateOutlet="headerCells"></ng-container>
+      </bit-header-row>
+      <bit-row *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0">
+        <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
+      </bit-row>
     </cdk-virtual-scroll-viewport>
   } @else if (hasColumns()) {
-    <table [ngClass]="tableClass()">
-      <ng-container *ngTemplateOutlet="colgroup"></ng-container>
-      <ng-container *ngTemplateOutlet="thead"></ng-container>
-      <tbody>
-        @for (r of (rows$ | async) ?? []; track r) {
-          <tr bitRow>
-            <ng-container *ngTemplateOutlet="row; context: { $implicit: r }"></ng-container>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <bit-header-row>
+      <ng-container *ngTemplateOutlet="headerCells"></ng-container>
+    </bit-header-row>
+    @for (r of (rows$ | async) ?? []; track r) {
+      <bit-row>
+        <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
+      </bit-row>
+    }
   } @else {
     <!--
-      Manual mode. The consumer projects flat `<tr bit-header-row>` and
-      `<tr bit-row>` markup; the table owns `<thead>` / `<tbody>` and their
-      styling. No datasource, no sort/selection/virtualization — use
-      column-def mode for those.
+      Manual mode. The consumer projects `<bit-header-row>` and `<bit-row>`
+      directly; rows fall back to `grid-auto-columns: 1fr` because no
+      `<bit-column>` registry exists to drive `grid-template-columns`.
     -->
-    <table [ngClass]="tableClass()">
-      <thead
-        class="tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body"
-      >
-        <ng-content select="tr[bit-header-row]"></ng-content>
-      </thead>
-      <tbody>
-        <ng-content select="tr[bit-row]"></ng-content>
-      </tbody>
-    </table>
+    <ng-content select="bit-header-row"></ng-content>
+    <ng-content select="bit-row"></ng-content>
   }
 </div>

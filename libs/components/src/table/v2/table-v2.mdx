@@ -32,16 +32,16 @@ class UserListComponent {
 ```html
 <bit-table-v2 [dataSource]="users" [displayedColumns]="displayedColumns">
   <bit-column sortable defaultSort="asc">
-    <th *bitColumnHeader bit-cell>Id</th>
-    <td *bitColumnFor="users.columns.id; let cell" bit-cell>{{ cell.id }}</td>
+    <bit-header-cell *bitColumnHeader>Id</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.id; let cell">{{ cell.id }}</bit-cell>
   </bit-column>
   <bit-column sortable>
-    <th *bitColumnHeader bit-cell>Name</th>
-    <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
+    <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.name; let cell">{{ cell.name }}</bit-cell>
   </bit-column>
   <bit-column>
-    <th *bitColumnHeader bit-cell>Email</th>
-    <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
+    <bit-header-cell *bitColumnHeader>Email</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.email; let cell">{{ cell.email }}</bit-cell>
   </bit-column>
 </bit-table-v2>
 ```
@@ -70,7 +70,7 @@ column it belongs to. Its required input is a typed column reference from the da
 
 ```html
 <bit-column>
-  <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
+  <bit-cell *bitColumnFor="users.columns.email; let cell">{{ cell.email }}</bit-cell>
 </bit-column>
 ```
 
@@ -83,12 +83,12 @@ A separate structural directive captures the header. No inputs — the column ke
 
 ```html
 <bit-column sortable>
-  <th *bitColumnHeader bit-cell><i class="bwi bwi-envelope tw-me-1"></i> Email</th>
-  <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
+  <bit-header-cell *bitColumnHeader><i class="bwi bwi-envelope tw-me-1"></i> Email</bit-header-cell>
+  <bit-cell *bitColumnFor="users.columns.email; let cell">{{ cell.email }}</bit-cell>
 </bit-column>
 ```
 
-The sort button affordance is added by `<th bit-cell>` automatically when the surrounding
+The sort button affordance is added by `<bit-header-cell>` automatically when the surrounding
 `<bit-column>` is sortable. Click toggles direction; aria-sort and aria-pressed are wired for you.
 
 ### Synthetic columns
@@ -98,10 +98,10 @@ For columns that don't correspond to a field on `T` (action columns, expand/coll
 
 ```html
 <bit-column>
-  <th *bitColumnHeader bit-cell></th>
-  <td *bitColumnFor="users.synthetic('actions'); let cell" bit-cell>
+  <bit-header-cell *bitColumnHeader></bit-header-cell>
+  <bit-cell *bitColumnFor="users.synthetic('actions'); let cell">
     <button bitIconButton="bwi-ellipsis-v">Actions</button>
-  </td>
+  </bit-cell>
 </bit-column>
 ```
 
@@ -115,16 +115,16 @@ if declared:
 ```html
 <bit-table-v2 [dataSource]="users" [displayedColumns]="['name', 'id']">
   <bit-column>
-    <th *bitColumnHeader bit-cell>Id</th>
-    <td *bitColumnFor="users.columns.id; let cell" bit-cell>{{ cell.id }}</td>
+    <bit-header-cell *bitColumnHeader>Id</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.id; let cell">{{ cell.id }}</bit-cell>
   </bit-column>
   <bit-column>
-    <th *bitColumnHeader bit-cell>Name</th>
-    <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
+    <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.name; let cell">{{ cell.name }}</bit-cell>
   </bit-column>
   <bit-column>
-    <th *bitColumnHeader bit-cell>Email (not displayed)</th>
-    <td *bitColumnFor="users.columns.email; let cell" bit-cell>{{ cell.email }}</td>
+    <bit-header-cell *bitColumnHeader>Email (not displayed)</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.email; let cell">{{ cell.email }}</bit-cell>
   </bit-column>
 </bit-table-v2>
 ```
@@ -146,10 +146,10 @@ component's view still finds the table:
   ],
   template: `
     <bit-column sortable>
-      <th *bitColumnHeader bit-cell>Status</th>
-      <td *bitColumnFor="ds().columns.status; let cell" bit-cell>
+      <bit-header-cell *bitColumnHeader>Status</bit-header-cell>
+      <bit-cell *bitColumnFor="ds().columns.status; let cell">
         <span class="…">{{ cell.status }}</span>
-      </td>
+      </bit-cell>
     </bit-column>
   `,
 })
@@ -163,8 +163,8 @@ Used as:
 ```html
 <bit-table-v2 [dataSource]="users" [displayedColumns]="['name', 'status']">
   <bit-column>
-    <th *bitColumnHeader bit-cell>Name</th>
-    <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
+    <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+    <bit-cell *bitColumnFor="users.columns.name; let cell">{{ cell.name }}</bit-cell>
   </bit-column>
   <demo-status-column [ds]="users" />
 </bit-table-v2>
@@ -172,18 +172,18 @@ Used as:
 
 ## Cell content layout
 
-`<td bit-cell>` provides a slot vocabulary for rich cells — a leading icon or tile (`slot=start`),
-the title (default slot), a subtitle (`slot=secondary`), and a trailing affordance (`slot=end`).
-Plain cells use only the default slot and the layout collapses to bare content.
+`<bit-cell>` provides a slot vocabulary for rich cells — a leading icon or tile (`slot=start`), the
+title (default slot), a subtitle (`slot=secondary`), and a trailing affordance (`slot=end`). Plain
+cells use only the default slot and the layout collapses to bare content.
 
 ```html
 <bit-column sortable defaultSort="asc">
-  <th *bitColumnHeader bit-cell>Name</th>
-  <td *bitColumnFor="users.columns.name; let cell" bit-cell>
+  <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+  <bit-cell *bitColumnFor="users.columns.name; let cell">
     <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
     {{ cell.name }}
     <span slot="secondary">{{ cell.email }}</span>
-  </td>
+  </bit-cell>
 </bit-column>
 ```
 
@@ -194,34 +194,34 @@ default slot's content with no empty wrappers.
 ## Manual mode
 
 For simple presentational tables — no sort, filter, selection, or virtualization — skip
-`<bit-column>` and project standard HTML table markup. The table supplies only the chrome:
+`<bit-column>` and project rows directly:
 
 ```html
 <bit-table-v2>
-  <tr bit-header-row>
-    <th bit-cell>Id</th>
-    <th bit-cell>Name</th>
-  </tr>
+  <bit-header-row>
+    <bit-header-cell>Id</bit-header-cell>
+    <bit-header-cell>Name</bit-header-cell>
+  </bit-header-row>
   @for (r of items(); track r.id) {
-  <tr bit-row>
-    <td bit-cell>{{ r.id }}</td>
-    <td bit-cell>{{ r.name }}</td>
-  </tr>
+  <bit-row>
+    <bit-cell>{{ r.id }}</bit-cell>
+    <bit-cell>{{ r.name }}</bit-cell>
+  </bit-row>
   }
 </bit-table-v2>
 ```
 
-The consumer writes flat `<tr>` elements with `bit-header-row` (one) and `bit-row` (any number)
-attributes. The table owns `<thead>` and `<tbody>` internally and projects the rows into them, so
-the header gets the design's styling (secondary background, bottom border) automatically.
+The consumer projects one `<bit-header-row>` and any number of `<bit-row>` components. The header
+row picks up the design's styling (secondary background, bottom border) automatically.
 
 Manual mode has no `[dataSource]` plumbing — the consumer iterates their own data signal/observable
-directly. Rich cells still work; `<td bit-cell>`'s slot vocab is the same in both modes.
+directly. Rich cells still work; `<bit-cell>`'s slot vocab is the same in both modes. Columns
+default to equal-share (`grid-auto-columns: 1fr`) since no `<bit-column>` registry exists to drive
+`grid-template-columns`.
 
 Mode selection is automatic: any projected `<bit-column>` ⇒ column-def mode; otherwise the
-consumer's `<tr bit-header-row>` and `<tr bit-row>` are projected into the table-generated `<thead>`
-and `<tbody>`. Don't mix the two within a single table — if you need any of the framework features
-(sort, selection, etc.), use column-def.
+consumer's `<bit-header-row>` and `<bit-row>` components render directly. Don't mix the two within a
+single table — if you need any of the framework features (sort, selection, etc.), use column-def.
 
 ## Sorting
 
@@ -230,8 +230,8 @@ ascending. Apply an initial sort with `defaultSort`:
 
 ```html
 <bit-column sortable defaultSort="asc">
-  <th *bitColumnHeader bit-cell>Name</th>
-  <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
+  <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+  <bit-cell *bitColumnFor="users.columns.name; let cell">{{ cell.name }}</bit-cell>
 </bit-column>
 ```
 
@@ -246,8 +246,8 @@ sortByName = (a: User, b: User, direction?: SortDirection) => {
 
 ```html
 <bit-column sortable [sortFn]="sortByName">
-  <th *bitColumnHeader bit-cell>Name</th>
-  <td *bitColumnFor="users.columns.name; let cell" bit-cell>{{ cell.name }}</td>
+  <bit-header-cell *bitColumnHeader>Name</bit-header-cell>
+  <bit-cell *bitColumnFor="users.columns.name; let cell">{{ cell.name }}</bit-cell>
 </bit-column>
 ```
 
