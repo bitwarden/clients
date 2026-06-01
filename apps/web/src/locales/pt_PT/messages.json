@@ -214,6 +214,33 @@
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Faça uma visita rápida ao Inteligência de Acesso e veja exatamente como transformar os dados da sua organização em ações concretas."
   },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Toda a segurança da sua organização, numa só vista"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "A Inteligência de Acesso dá-lhe um único local para ver todas as apps, palavras-passe e membros em risco."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Vocês definem as prioridades. Nós destacamos os riscos."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Marque quais são as apps mais críticas, e a Inteligência de Acesso identifica automaticamente as palavras-passe em risco que precisam de atenção primeiro."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Acompanhe as melhorias em toda a sua equipa"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Os membros são automaticamente notificados de palavras-passe em risco na sua extensão do Bitwarden. Não é necessário fazer follow-up."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Importe os dados da sua organização para começar"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Assim que tiver os dados do cofre, a Inteligência de Acesso terá tudo o que precisa para apresentar relatórios sobre a saúde das palavras-passe da sua organização."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Visita de boas-vindas à Inteligência de Acesso"
+  },
   "startTour": {
     "message": "Iniciar visita guiada"
   },
@@ -1503,6 +1530,28 @@
   "unselectAll": {
     "message": "Desmarcar tudo"
   },
+  "bulkActionsBar": {
+    "message": "Ações em massa"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(ns) selecionado(s). A barra de ações em massa está agora disponível na parte inferior do ecrã. Prima $SHORTCUTBINDING$ para alternar o foco para a barra de ações em massa.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Seleção limpa"
+  },
+  "additionalActions": {
+    "message": "Ações adicionais"
+  },
   "launch": {
     "message": "Iniciar"
   },
@@ -2274,7 +2323,7 @@
     "message": "Esta exportação contém os dados dos seus segredos num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização."
   },
   "encExportKeyWarningDesc": {
-    "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez regenerar a chave de encriptação da sua conta, deve exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
+    "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez rotacionar a sua chave de encriptação, deverá exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
   },
   "encExportAccountWarningDesc": {
     "message": "As chaves de encriptação da conta são únicas para cada conta de utilizador Bitwarden, pelo que não é possível importar uma exportação encriptada para uma conta diferente."
@@ -2611,6 +2660,18 @@
   },
   "deleteAccountWarning": {
     "message": "A eliminação da sua conta é permanente. Não pode ser anulada."
+  },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "É proprietário de pelo menos uma organização. Ao eliminar a sua conta, também serão eliminadas quaisquer organizações das quais seja o único proprietário."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Não pode eliminar a sua conta enquanto for proprietário de uma organização. Transfira a propriedade ou elimine primeiro a organização."
+  },
+  "cannotDeleteAccount": {
+    "message": "Não é possível eliminar a conta"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Esta ação não pode ser concluída porque a sua conta é propriedade de uma organização. Contacte o administrador da sua organização para obter mais informações."
   },
   "accountDeleted": {
     "message": "Conta eliminada"
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "O seu método de pagamento será cobrado por quaisquer subscrições não pagas."
   },
-  "paymentChargedWithTrial": {
-    "message": "O seu plano inclui um período experimental gratuito de 7 dias. O seu método de pagamento não será cobrado até ao fim do período experimental. Pode cancelar a qualquer momento."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Informações de pagamento"
@@ -4369,6 +4436,30 @@
     "message": "Send de ficheiro criado com palavra-passe",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Send de texto editado",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Send de ficheiro editado",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Send de texto eliminado",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Send de ficheiro eliminado",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Send de texto acedido",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Send de ficheiro acedido",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Item $ID$ movido para uma organização.",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "Viewed IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Copied IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Viewed SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Copied SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Viewed national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Copied national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Item $ID$ preenchido automaticamente.",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Se fechar esta vista, as alterações não guardadas serão descartadas."
   },
-  "discardEdits": {
-    "message": "Descartar alterações"
-  },
   "keepEditing": {
     "message": "Continuar a editar"
-  },
-  "backToEditing": {
-    "message": "Voltar à edição"
   },
   "editedPolicyId": {
     "message": "Política $ID$ editada.",
@@ -5652,6 +5791,24 @@
   "regenerateInviteLink": {
     "message": "Regenerar link de convite"
   },
+  "invalidateInviteLink": {
+    "message": "Invalidar link de convite"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Se remover todos os domínios, este link de convite deixará de funcionar para qualquer pessoa."
+  },
+  "invalidateLink": {
+    "message": "Invalidar link"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Link de convite invalidado"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Tem de introduzir pelo menos 1 domínio"
+  },
+  "deactivateLink": {
+    "message": "Desativar link"
+  },
   "inviteByLinkDesc": {
     "message": "Convide membros para a sua organização com um link. Se ainda não tiver sido especificado nenhum papel, serão adicionados como utilizadores predefinidos."
   },
@@ -5783,13 +5940,13 @@
     "message": "Foi identificada uma palavra-passe fraca. Utilize uma palavra-passe forte para proteger a sua conta. Tem a certeza de que pretende utilizar uma palavra-passe fraca?"
   },
   "rotateAccountEncKey": {
-    "message": "Regenerar também a chave de encriptação da minha conta"
+    "message": "Rotacionar também a chave de encriptação da minha conta"
   },
   "rotateEncKeyTitle": {
-    "message": "Regenerar chave de encriptação"
+    "message": "Rotacionar chave de encriptação"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Tem a certeza de que pretende regenerar a chave de encriptação da sua conta?"
+    "message": "Tem a certeza de que pretende rotacionar a chave de encriptação da sua conta?"
   },
   "attachmentsNeedFix": {
     "message": "Este item tem anexos de ficheiros antigos que precisam de ser corrigidos."
@@ -5811,7 +5968,7 @@
     "message": "Anexo atualizado"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+    "message": "Existem anexos antigos no seu cofre que precisam de ser corrigidos antes de poder rotacionar a chave de encriptação da sua conta."
   },
   "itemsTransferred": {
     "message": "Itens transferidos"
@@ -5848,7 +6005,7 @@
     "message": "A sua chave da API pode ser utilizada para autenticar a API pública Bitwarden."
   },
   "apiKeyRotateDesc": {
-    "message": "Regenerar a chave da API invalidará a chave anterior. Pode regenerar a sua chave API se considerar que a chave atual já não é segura para utilização."
+    "message": "A rotação da chave de API irá invalidar a chave anterior. Pode rotacionar a sua chave de API se acreditar que a chave atual já não é segura para utilização."
   },
   "apiKeyWarning": {
     "message": "A sua chave API tem acesso total à organização. Deve ser mantida em segredo."
@@ -5867,7 +6024,7 @@
     "message": "Ver a chave da API"
   },
   "rotateApiKey": {
-    "message": "Regenerar a chave da API"
+    "message": "Rotacionar chave de API"
   },
   "selectOneCollection": {
     "message": "Deve selecionar pelo menos uma coleção."
@@ -8105,13 +8262,13 @@
     "message": "Gerar token"
   },
   "rotateToken": {
-    "message": "Regenerar token"
+    "message": "Rotacionar token"
   },
   "rotateBillingSyncTokenWarning": {
     "message": "Se prosseguir, terá de voltar a configurar a sincronização da faturação no seu servidor auto-hospedado."
   },
   "rotateBillingSyncTokenTitle": {
-    "message": "Regenerar o token de sincronização de faturação invalidará o token anterior."
+    "message": "A rotação do token de sincronização de faturação invalidará o token anterior."
   },
   "selfHostedServer": {
     "message": "auto-hospedado"
@@ -8156,7 +8313,7 @@
     "message": "Para configurar a sua organização no seu próprio servidor, terá de carregar o seu ficheiro de licença. Para suportar os planos Familiar gratuitos e as capacidades avançadas de faturação da sua organização auto-hospedada, terá de configurar a sincronização da faturação."
   },
   "billingSyncApiKeyRotated": {
-    "message": "Token regenerado"
+    "message": "Token rotacionado"
   },
   "billingSyncKeyDesc": {
     "message": "É necessário um token de sincronização de faturação das definições de subscrição da sua organização na nuvem para preencher este formulário."
@@ -8461,7 +8618,7 @@
     }
   },
   "awaitingSyncSingular": {
-    "message": "Token regenerado há $DAYS$ dia. Atualize o token de sincronização de faturação nas definições da sua organização auto-hospedada.",
+    "message": "Token rotacionado há $DAYS$ dia. Atualize o token de sincronização de faturação nas definições da sua organização self-hosted.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -8470,7 +8627,7 @@
     }
   },
   "awaitingSyncPlural": {
-    "message": "Token regenerado há $DAYS$ dias. Atualize o token de sincronização de faturação nas definições da sua organização auto-hospedada.",
+    "message": "Token rotacionado há $DAYS$ dias. Atualize o token de sincronização de faturação nas definições da sua organização self-hosted.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -8708,15 +8865,15 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
-    "message": "Regenerar a chave da API SCIM",
+    "message": "Rotacionar chave de API SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "Tem a certeza de que pretende regenerar a chave da API SCIM? A chave atual deixará de funcionar para quaisquer integrações existentes.",
+    "message": "Tem a certeza de que pretende rotacionar a chave de API SCIM? A chave atual deixará de funcionar em todas as integrações existentes.",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
-    "message": "Regenerar chave"
+    "message": "Rotacionar chave"
   },
   "scimApiKey": {
     "message": "Chave da API SCIM",
@@ -8731,7 +8888,7 @@
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
-    "message": "Chave API SCIM regenerada com sucesso",
+    "message": "Chave de API SCIM rotacionada com sucesso",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
@@ -11847,7 +12004,7 @@
     "message": "Saiba mais sobre a frase de impressão digital da sua conta"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impacto da regeneração da sua chave de encriptação"
+    "message": "Impacto da rotação da sua chave de encriptação"
   },
   "learnMoreAboutEncryptionAlgorithms": {
     "message": "Saiba mais sobre os algoritmos de encriptação"
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "Ação necessária: Está a faltar um NIF nos detalhes de pagamento. Se um número de identificação fiscal não for adicionado, as suas faturas podem incluir impostos adicionais."
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "Copiar IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "bankAccountTypeChecking": {
     "message": "Conta à ordem"
   },
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "A sua conta bancária tem de ser verificada antes de poder ser utilizada para esta atualização. Por favei, verifique a sua conta bancária ou escolha outro método de pagamento."
   },
+  "discardEdits": {
+    "message": "Descartar alterações"
+  },
   "discardEditsMessage": {
     "message": "Se fechar esta vista, as alterações não guardadas serão descartadas"
+  },
+  "backToEditing": {
+    "message": "Voltar à edição"
   },
   "sendHasUnsavedEdits": {
     "message": "O Send tem alterações não guardadas. Tem a certeza de que pretende sair?",
@@ -13939,19 +14115,19 @@
     "message": "Ignorar link"
   },
   "rotateAccountEncryptionKey": {
-    "message": "Regenerar chave de encriptação da conta"
+    "message": "Rotacionar chave de encriptação da conta"
   },
   "rotateAccountEncryptionKeyDescription": {
-    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+    "message": "A rotação da chave de encriptação da sua conta gera uma nova chave de encriptação, que é utilizada para voltar a encriptar todos os dados do cofre. Deve considerar rotacionar a sua chave de encriptação se a sua conta tiver sido comprometida."
   },
   "rotateAccountEncryptionDialogDescription": {
-    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+    "message": "Gerar uma nova chave e voltar a encriptar todos os dados do cofre. Recomendado se acredita que a sua conta possa ter sido comprometida."
   },
   "rotateAccountEncryptionCallout": {
-    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+    "message": "Será terminada a sua sessão e ser-lhe-á pedido que volte a autenticar-se. Para evitar corrupção de dados, não feche o navegador até o processo estar concluído."
   },
   "accountEncryptionKeyRotated": {
-    "message": "Account encryption key rotated"
+    "message": "Chave de encriptação da conta rotacionada"
   },
   "callout": {
     "message": "Aviso",
