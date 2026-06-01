@@ -1,4 +1,4 @@
-import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+import { AUTOFILL_ATTRIBUTES, EVENTS } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
@@ -71,6 +71,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
   private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
+  private handleVisibilityChange = () => {
+    if (globalThis.document.visibilityState === "hidden") {
+      // Tear down all mutation-driven work while the tab is hidden. The rescan
+      // triggered on the visible transition re-derives autofill state from the
+      // current DOM, so we can drop in-flight records without losing signal.
+      // A still-pending debouncedProcessMutations fires harmlessly once the queue
+      // is empty (it early-returns at the length check).
+      this.mutationObserver?.disconnect();
+      this.mutationsQueue = [];
+      if (this.updateAfterMutationIdleCallback !== null) {
+        cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+        this.updateAfterMutationIdleCallback = null;
+      }
+      return;
+    }
+
+    this.observeDocumentMutations();
+    this.updateAutofillElementsAfterMutation();
+  };
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -1300,7 +1319,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupMutationObserver() {
     this.currentLocationHref = globalThis.location.href;
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
-    this.mutationObserver.observe(document.documentElement, {
+    this.observeDocumentMutations();
+    globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChange);
+  }
+
+  private observeDocumentMutations() {
+    this.mutationObserver?.observe(document.documentElement, {
       attributes: true,
       attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
@@ -2030,6 +2054,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
+    globalThis.document.removeEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChange);
     if (this.mutationObserver !== null) {
       this.mutationObserver.disconnect();
       this.mutationObserver = null;

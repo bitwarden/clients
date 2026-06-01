@@ -2434,6 +2434,17 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["mutationObserver"]).toBeInstanceOf(MutationObserver);
       expect(collectAutofillContentService["mutationObserver"].observe).toHaveBeenCalled();
     });
+
+    it("registers the visibilitychange listener on the document", () => {
+      const addListenerSpy = jest.spyOn(document, "addEventListener");
+
+      collectAutofillContentService["setupMutationObserver"]();
+
+      expect(addListenerSpy).toHaveBeenCalledWith(
+        "visibilitychange",
+        collectAutofillContentService["handleVisibilityChange"],
+      );
+    });
   });
 
   describe("handleMutationObserverMutation", () => {
@@ -3327,6 +3338,76 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["processMutations"]();
 
       expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
+    });
+  });
+
+  describe("tab visibility handling", () => {
+    const setVisibilityState = (state: DocumentVisibilityState) => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => state,
+      });
+    };
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      collectAutofillContentService["setupMutationObserver"]();
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+      setVisibilityState("visible");
+    });
+
+    it("disconnects the MutationObserver and clears pending mutation work when the tab becomes hidden", () => {
+      setVisibilityState("hidden");
+      collectAutofillContentService["mutationsQueue"] = [
+        [{ type: "childList" } as unknown as MutationRecord],
+      ];
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = 42 as any;
+      const disconnectSpy = jest.spyOn(
+        collectAutofillContentService["mutationObserver"]!,
+        "disconnect",
+      );
+
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+      expect(collectAutofillContentService["mutationsQueue"]).toEqual([]);
+      expect(collectAutofillContentService["updateAfterMutationIdleCallback"]).toBeNull();
+    });
+
+    it("re-observes the document and triggers a page-details rescan when the tab becomes visible", () => {
+      setVisibilityState("visible");
+      const observeSpy = jest.spyOn(collectAutofillContentService["mutationObserver"]!, "observe");
+      const updateSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "updateAutofillElementsAfterMutation",
+      );
+
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(
+        document.documentElement,
+        expect.objectContaining({
+          attributes: true,
+          childList: true,
+          subtree: true,
+        }),
+      );
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("removes the visibilitychange listener on destroy", () => {
+      const removeListenerSpy = jest.spyOn(document, "removeEventListener");
+
+      collectAutofillContentService.destroy();
+
+      expect(removeListenerSpy).toHaveBeenCalledWith(
+        "visibilitychange",
+        collectAutofillContentService["handleVisibilityChange"],
+      );
     });
   });
 });
