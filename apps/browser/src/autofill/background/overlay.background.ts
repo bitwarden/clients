@@ -2306,10 +2306,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
+    // On password-generation fields the save prompt should only fire once a
+    // new password has actually been entered. Gating on `loginData.password`
+    // here would surface the prompt as soon as the *current* password field
+    // on an update form is filled, which isn't a "save new login" signal.
+    const hasAnyPassword = !!(loginData.password || loginData.newPassword);
+    const hasNewPassword = !!loginData.newPassword;
+
     return (
-      (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
-      !!(loginData.password || loginData.newPassword)
+      (this.shouldShowInlineMenuAccountCreation() && hasAnyPassword) ||
+      (this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) && hasNewPassword)
     );
   }
 
