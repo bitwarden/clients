@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Údaje o bance"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Údaje o pasu"
+  },
+  "passportAdded": {
+    "message": "Pas byl přidán"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovní dokumenty"
+  },
   "folderSubtitle": {
     "message": "Uspořádat položky"
   },
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "Zobrazit bankovní účet",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "Zobrazit licenci",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "Zobrazit řidičský průkaz",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Číslo cestovního pasu"
+  },
+  "sex": {
+    "message": "Pohlaví"
+  },
+  "copySex": {
+    "message": "Kopírovat pohlaví"
+  },
+  "birthPlace": {
+    "message": "Místo narození"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovat místo narození"
+  },
+  "nationality": {
+    "message": "Národnost"
+  },
+  "copyNationality": {
+    "message": "Kopírovat národnost"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovat zemi vydávající doklad"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovat typ pasu"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovat rodné číslo"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovat vydávající orgán/úřad"
   },
   "licenseNumber": {
     "message": "Číslo dokladu totožnosti"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
   },
+  "noValueEntered": {
+    "message": "Nebyla zadána žádná hodnota",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Poslat ověřovací kód na Váš e-mail"
   },
@@ -1908,6 +1956,31 @@
   "selectAll": {
     "message": "Označit vše"
   },
+  "selected": {
+    "message": "Vybráno"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné akce"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Bylo vybráno $COUNT$ položek. Panel hromadných akcí je nyní k dispozici v dolní části obrazovky. Stiskněte $SHORTCUTBINDING$ pro přepnutí zaměření na hromadnou akci.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výběr byl vymazán"
+  },
+  "additionalActions": {
+    "message": "Další akce"
+  },
   "zoomIn": {
     "message": "Přiblížit"
   },
@@ -2229,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Smazání účtu je trvalé. Tuto akci nelze vrátit zpět."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Jste vlastníkem alespoň jedné organizace. Smazáním účtu smažete také všechny organizace, kterých jste výhradním vlastníkem."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Nemůžete smazat svůj účet, pokud jste vlastníkem organizace. Nejprve smažte organizaci nebo převeďte vlastnictví organizace."
+  },
   "cannotDeleteAccount": {
     "message": "Nelze smazat účet"
   },
@@ -2538,9 +2617,6 @@
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Integrace prohlížeče není ve verzi pro Windows Store podporována."
-  },
-  "browserIntegrationLinuxDesc": {
-    "message": "Integrace prohlížeče není aktuálně v Linuxu podporována."
   },
   "enableHardwareAcceleration": {
     "message": "Používat hardwarovou akceleraci"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Neplatná zkratka"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Více...",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,6 +5110,9 @@
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
   },
+  "more": {
+    "message": "Více"
+  },
   "enterMonth": {
     "message": "Zadejte měsíc."
   },
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Hledat bankovní účet"
   },
+  "searchPassport": {
+    "message": "Hledat pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovat číslo účtu"
   },
@@ -5100,6 +5186,15 @@
   "copyIban": {
     "message": "Kopírovat IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Kopírovat jméno na účtu"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovat číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovat SWIFT kód"
+  },
   "copyFirstName": {
     "message": "Kopírovat křestní jméno"
   },
@@ -5111,6 +5206,9 @@
   },
   "copyLicenseNumber": {
     "message": "Kopírovat číslo řidičského průkazu"
+  },
+  "copyPassportNumber": {
+    "message": "Kopírovat číslo pasu"
   },
   "bankAccountTypeChecking": {
     "message": "Kontrolování"
@@ -5188,6 +5286,9 @@
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
   },
   "driversLicenseDetails": {
     "message": "Podrobnosti řidičského průkazu"

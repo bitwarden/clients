@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Dados bancários"
   },
+  "typePassport": {
+    "message": "Passaporte"
+  },
+  "passportDetails": {
+    "message": "Detalhes do passaporte"
+  },
+  "passportAdded": {
+    "message": "Passaporte adicionado"
+  },
+  "typePassportSubtitle": {
+    "message": "Documento de viagem"
+  },
   "folderSubtitle": {
     "message": "Organize os seus itens"
   },
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "Ver conta bancária",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "Ver licença",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "Ver carta de condução",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Número do passaporte"
+  },
+  "sex": {
+    "message": "Género"
+  },
+  "copySex": {
+    "message": "Copiar género"
+  },
+  "birthPlace": {
+    "message": "Local de nascimento"
+  },
+  "copyBirthPlace": {
+    "message": "Copiar local de nascimento"
+  },
+  "nationality": {
+    "message": "Nacionalidade"
+  },
+  "copyNationality": {
+    "message": "Copiar nacionalidade"
+  },
+  "copyIssuingCountry": {
+    "message": "Copiar país de emissão"
+  },
+  "passportType": {
+    "message": "Tipo de passaporte"
+  },
+  "copyPassportType": {
+    "message": "Copiar tipo de passaporte"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copiar número do cartão de cidadão"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Número do cartão de cidadão"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copiar autoridade / entidade emissora"
   },
   "licenseNumber": {
     "message": "Número da carta de condução"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Não existem itens para listar."
   },
+  "noValueEntered": {
+    "message": "Nenhum valor introduzido",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Enviar um código de verificação para o seu e-mail"
   },
@@ -1373,19 +1421,19 @@
     "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
   },
   "rotateAccountEncKey": {
-    "message": "Regenerar também a chave de encriptação da minha conta"
+    "message": "Rotacionar também a chave de encriptação da minha conta"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impacto da regeneração da sua chave de encriptação"
+    "message": "Impacto da rotação da sua chave de encriptação"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+    "message": "Existem anexos antigos no seu cofre que precisam de ser corrigidos antes de poder rotacionar a chave de encriptação da sua conta."
   },
   "rotateEncKeyTitle": {
-    "message": "Regenerar chave de encriptação"
+    "message": "Rotacionar chave de encriptação"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Tem a certeza de que pretende regenerar a chave de encriptação da sua conta?"
+    "message": "Tem a certeza de que pretende rotacionar a chave de encriptação da sua conta?"
   },
   "updateEncryptionKeyWarning": {
     "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
@@ -1908,6 +1956,31 @@
   "selectAll": {
     "message": "Selecionar tudo"
   },
+  "selected": {
+    "message": "Selecionado(s)"
+  },
+  "bulkActionsBar": {
+    "message": "Ações em massa"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(ns) selecionado(s). A barra de ações em massa está agora disponível na parte inferior do ecrã. Prima $SHORTCUTBINDING$ para alternar o foco para a barra de ações em massa.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Seleção limpa"
+  },
+  "additionalActions": {
+    "message": "Ações adicionais"
+  },
   "zoomIn": {
     "message": "Ampliar"
   },
@@ -2136,7 +2209,7 @@
     "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização."
   },
   "encExportKeyWarningDesc": {
-    "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez regenerar a chave de encriptação da sua conta, deve exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
+    "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez rotacionar a sua chave de encriptação, deverá exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
   },
   "encExportAccountWarningDesc": {
     "message": "As chaves de encriptação da conta são únicas para cada conta de utilizador Bitwarden, pelo que não é possível importar uma exportação encriptada para uma conta diferente."
@@ -2228,6 +2301,12 @@
   },
   "deleteAccountWarning": {
     "message": "A eliminação da sua conta é permanente. Não pode ser anulada."
+  },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "É proprietário de pelo menos uma organização. Ao eliminar a sua conta, também serão eliminadas quaisquer organizações das quais seja o único proprietário."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Não pode eliminar a sua conta enquanto for proprietário de uma organização. Transfira a propriedade ou elimine primeiro a organização."
   },
   "cannotDeleteAccount": {
     "message": "Não é possível eliminar a conta"
@@ -2538,9 +2617,6 @@
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Infelizmente, a integração do navegador não é atualmente suportada na versão da Microsoft Store."
-  },
-  "browserIntegrationLinuxDesc": {
-    "message": "Infelizmente, a integração com o navegador não é atualmente suportada na versão Linux."
   },
   "enableHardwareAcceleration": {
     "message": "Utilizar a aceleração de hardware"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Atalho inválido"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,6 +5110,9 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "more": {
+    "message": "Mais"
+  },
   "enterMonth": {
     "message": "Introduza o mês."
   },
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Pesquisar conta bancária"
   },
+  "searchPassport": {
+    "message": "Pesquisar passaportes"
+  },
   "copyAccountNumber": {
     "message": "Copiar número da conta"
   },
@@ -5100,6 +5186,15 @@
   "copyIban": {
     "message": "Copiar IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "copyFirstName": {
     "message": "Copiar nome próprio"
   },
@@ -5111,6 +5206,9 @@
   },
   "copyLicenseNumber": {
     "message": "Copiar número da carta de condução"
+  },
+  "copyPassportNumber": {
+    "message": "Copiar número do passaporte"
   },
   "bankAccountTypeChecking": {
     "message": "Conta à ordem"
@@ -5188,6 +5286,9 @@
   "progressBar": {
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   },
   "driversLicenseDetails": {
     "message": "Detalhes da carta de condução"

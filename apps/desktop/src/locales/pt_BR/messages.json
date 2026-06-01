@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Dados bancários"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize seus itens"
   },
@@ -63,10 +75,10 @@
     "message": "Organize itens compartilhados"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Carteira de habilitação"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Carteira de motorista ou identidade"
   },
   "chooseItemToAdd": {
     "message": "Escolha o item a adicionar"
@@ -147,19 +159,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Ver conta bancária",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "View license",
-    "description": "Header for view license item type"
-  },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Ver carteira de habilitação",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Ver passaporte",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
@@ -183,15 +191,15 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Nova conta bancária",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nova carteira de habilitação",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Novo passaporte",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -215,15 +223,15 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Editar conta bancária",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Editar carteira de habilitação",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Editar passaporte",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -283,19 +291,19 @@
     "message": "Texto para compartilhar"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Novo texto",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Novo arquivo",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Editar texto",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Editar arquivo",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Número do passaporte"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "Número da CNH"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Não há itens para listar."
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Enviar um código de verificação para o seu e-mail"
   },
@@ -1766,7 +1814,7 @@
     "description": "Copy credit card number"
   },
   "copyName": {
-    "message": "Copy name",
+    "message": "Copiar nome",
     "description": "Copy cardholder name"
   },
   "copyEmail": {
@@ -1907,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Selecionar tudo"
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "zoomIn": {
     "message": "Ampliar"
@@ -2229,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "O apagamento da sua conta é permanente. Não pode ser desfeito."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "Não é possível apagar a conta"
   },
@@ -2539,9 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Infelizmente, a integração com o navegador não é suportada na versão da Microsoft Store no momento."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Infelizmente, a integração com o navegador não é suportada na versão de Linux no momento."
-  },
   "enableHardwareAcceleration": {
     "message": "Usar aceleração de hardware"
   },
@@ -2783,7 +2859,7 @@
     "message": "Aguardando interação com a chave de segurança..."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Ocultar meu endereço de e-mail dos destinatários."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Uma ou mais políticas da organização estão afetando as suas opções de Send."
@@ -3031,10 +3107,10 @@
     "message": "Exportando cofre da organização"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "Apenas itens no seu cofre individual serão exportados."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "Apenas itens do cofre associado a $ORGANIZATION$ serão exportados. Itens em cofres individuais não.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3998,10 +4074,10 @@
     "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "1 anexo corrompido foi pulado na exportação. Todos os outros dados e anexos do cofre foram exportados com sucesso."
   },
   "exportSuccessSkippedAttachments": {
-    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "message": "$COUNT$ anexos corrompidos foram pulados na exportação. Todos os outros dados e anexos do cofre foram exportados com sucesso.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4123,20 +4199,20 @@
     "message": "Solução de problemas"
   },
   "downloadDiagnosticReport": {
-    "message": "Download diagnostic report"
+    "message": "Baixar relatório de diagnóstico"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "Está tendo algum problema?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "Baixe e compartilhe o relatório de diagnóstico com"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Suporte do Bitwarden",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Baixar"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Desativar aceleração de hardware e reiniciar"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Atalho inválido"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Mais trilhas",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4821,7 +4901,7 @@
     "message": "Limite de tempo da sessão"
   },
   "browserAccessDenied": {
-    "message": "Either an invalid browser directory was selected, or access was denied"
+    "message": "Um diretório de navegador inválido foi selecionado, ou o acesso foi negado"
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
@@ -4868,7 +4948,7 @@
     "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo"
   },
   "chromiumImporterBrowserNotInstalled": {
-    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "message": "O $BROWSER$ não está instalado. Instale o $BROWSER$ antes de importar senhas dele.",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -4877,7 +4957,7 @@
     }
   },
   "chromiumImporterPickerMessage": {
-    "message": "Please select your $BROWSER$ data folder",
+    "message": "Selecione a pasta de dados do $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -4886,10 +4966,10 @@
     }
   },
   "chromiumImporterPickerExpectedLocation": {
-    "message": "Expected location:"
+    "message": "Localização esperada:"
   },
   "chromiumImporterPickerPrompt": {
-    "message": "Grant Access"
+    "message": "Conceder acesso"
   },
   "upgrade": {
     "message": "Fazer upgrade"
@@ -5030,23 +5110,26 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do usuário."
   },
+  "more": {
+    "message": "More"
+  },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Digite o mês."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Digite o dia."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Digite o ano."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Digite um dia válido."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Digite um ano válido."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Buscar nas carteiras de habilitação"
   },
   "bankAccount": {
     "message": "Conta bancária"
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Buscar nas contas bancárias"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copiar número da conta"
   },
@@ -5100,17 +5186,29 @@
   "copyIban": {
     "message": "Copiar IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Copiar primeiro nome"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Copiar nome do meio"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Copiar sobrenome"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copiar número da CNH"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Corrente"
@@ -5157,20 +5255,20 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Ver texto"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Ver arquivo"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send criado",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "A entrada deve ser númerica"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "A entrada deve ser um número inteiro"
   },
   "hideEmailPolicyInEffect": {
     "message": "Sua organização requer visibilidade de email. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
@@ -5189,46 +5287,49 @@
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Detalhes da habilitação"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Data de nascimento"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "Mês de nascimento"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "Dia de nascimento"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "Ano de nascimento"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "País de emissão"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Estado de emissão"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Data de emissão"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "Mês de emissão"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "Dia de emissão"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "Ano de emissão"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "Data de validade"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Autoridade de emissão"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Classe da carteira de habilitação"
   }
 }

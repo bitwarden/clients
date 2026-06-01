@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
+  },
   "folderSubtitle": {
     "message": "Организуйте свои элементы"
   },
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "Просмотреть банковский счет",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "Просмотреть водительское удостоверение",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "Просмотреть водительское удостоверение",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Номер паспорта"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
   },
   "licenseNumber": {
     "message": "Номер водительского удостоверения"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Нет элементов для отображения."
   },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Отправить код подтверждения на ваш email"
   },
@@ -1908,6 +1956,31 @@
   "selectAll": {
     "message": "Выбрать все"
   },
+  "selected": {
+    "message": "Выбрано"
+  },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
+  },
   "zoomIn": {
     "message": "Увеличить"
   },
@@ -2229,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Удаление вашей учетной записи необратимо. Его нельзя отменить."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Вы являетесь владельцем как минимум одной организации. Удаление вашего аккаунта приведет к удалению всех организаций, единственным владельцем которых вы являетесь."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Вы не можете удалить свой аккаунт, пока являетесь владельцем организации. Сначала передайте права владения или удалите организацию."
+  },
   "cannotDeleteAccount": {
     "message": "Невозможно удалить аккаунт"
   },
@@ -2538,9 +2617,6 @@
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
-  },
-  "browserIntegrationLinuxDesc": {
-    "message": "К сожалению, интеграция с браузером на текущий момент не поддерживается в версии для linux."
   },
   "enableHardwareAcceleration": {
     "message": "Использовать аппаратное ускорение"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Недопустимое сочетание клавиш"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,6 +5110,9 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "more": {
+    "message": "Еще"
+  },
   "enterMonth": {
     "message": "Введите месяц."
   },
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -5100,6 +5186,15 @@
   "copyIban": {
     "message": "Скопировать IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
+  },
   "copyFirstName": {
     "message": "Скопировать имя"
   },
@@ -5111,6 +5206,9 @@
   },
   "copyLicenseNumber": {
     "message": "Скопировать номер водительского удостоверения"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -5188,6 +5286,9 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   },
   "driversLicenseDetails": {
     "message": "Детали водительского удостоверения"
