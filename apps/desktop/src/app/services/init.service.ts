@@ -75,7 +75,6 @@ export class InitService {
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
-      await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
