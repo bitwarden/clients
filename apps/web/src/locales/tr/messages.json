@@ -214,6 +214,33 @@
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
   },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Your entire org's security, in one view"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "You set the priorities. We surface the risks."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Track improvements across your team"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Import your org data to get started"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Access Intelligence welcome tour"
+  },
   "startTour": {
     "message": "Tura başla"
   },
@@ -1449,7 +1476,7 @@
     }
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "Hiçbir değer girilmedi",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
@@ -1502,6 +1529,28 @@
   },
   "unselectAll": {
     "message": "Seçimi iptal et"
+  },
+  "bulkActionsBar": {
+    "message": "Toplu işlemler"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Seçim temizlendi"
+  },
+  "additionalActions": {
+    "message": "Ek işlemler"
   },
   "launch": {
     "message": "Aç"
@@ -2336,7 +2385,7 @@
     "message": "Kasa verileriniz dışa aktarıldı"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Kasa verilerinizi dışa aktarırken bir hata oluştu"
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
@@ -2611,6 +2660,18 @@
   },
   "deleteAccountWarning": {
     "message": "Hesabınızı silmek kalıcıdır. Geri alınamaz."
+  },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
+  "cannotDeleteAccount": {
+    "message": "Hesap silinemiyor"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Hesabınızın sahibi bir kuruluş olduğu için bu işlem tamamlanamadı. Bilgi almak için kuruluş yöneticinizle iletişime geçin."
   },
   "accountDeleted": {
     "message": "Hesap silindi"
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Ödenmemiş abonelikler için ödeme yönteminizden ücret alınacaktır."
   },
-  "paymentChargedWithTrial": {
-    "message": "Paketiniz 7 günlük ücretsiz deneme süresiyle geliyor. Deneme süresi bitene kadar sizden ücret alınmayacak. İstediğiniz zaman aboneliğinizi iptal edebilirsiniz."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Paketiniz $TRIAL_LENGTH$ günlük ücretsiz deneme süresiyle geliyor. Deneme süresi bitene kadar sizden ücret alınmayacak. İstediğiniz zaman aboneliğinizi iptal edebilirsiniz.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Ödeme bilgileri"
@@ -4369,6 +4436,30 @@
     "message": "Created file Send with password",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Send metni düzenlendi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Send dosyası düzenlendi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Send metni silindi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Send dosyası silindi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Send metnine erişildi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Send dosyasına erişildi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "$ID$ kaydı bir kuruluşa taşındı.",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "Viewed IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Copied IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Viewed SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Copied SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Viewed national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Copied national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "$ID$ kaydı otomatik dolduruldu.",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "If you close this view, your unsaved edits will be discarded."
   },
-  "discardEdits": {
-    "message": "Düzenlemeleri sil"
-  },
   "keepEditing": {
     "message": "Düzenlemeye devam et"
-  },
-  "backToEditing": {
-    "message": "Düzenlemeye dön"
   },
   "editedPolicyId": {
     "message": "İlke düzenlendi: $ID$.",
@@ -4679,13 +4818,13 @@
     "message": "No reason logged"
   },
   "revocationReasonManual": {
-    "message": "Revoked by an admin"
+    "message": "Bir yönetici tarafından iptal edildi"
   },
   "revocationReasonTwoFactorNonCompliance": {
-    "message": "Not in compliance with two-step login policy"
+    "message": "İki aşamalı oturum açma politikasına uygun değil"
   },
   "revocationReasonSingleOrganizationNonCompliance": {
-    "message": "Not in compliance with single organization policy"
+    "message": "Tek kuruluş politikasına uygun değil"
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Declined item transfer to organization"
@@ -5630,7 +5769,7 @@
     "message": "Enter allowed domains to generate an invite link"
   },
   "domainsEdited": {
-    "message": "Domains edited"
+    "message": "Alan adları güncellendi"
   },
   "inviteLink": {
     "message": "Davet bağlantısı"
@@ -5651,6 +5790,24 @@
   },
   "regenerateInviteLink": {
     "message": "Davet bağlantısını yeniden oluştur"
+  },
+  "invalidateInviteLink": {
+    "message": "Invalidate invite link"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "If you remove all domains, this invite link will no longer work for anyone."
+  },
+  "invalidateLink": {
+    "message": "Invalidate link"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Invite link invalidated"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Must enter at least 1 domain"
+  },
+  "deactivateLink": {
+    "message": "Deactivate link"
   },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "İşlem gerekli: Ödeme ayrıntılarında vergi kimlik numarası eksik. Vergi kimlik numarası eklenmezse, faturalarınızda ek vergi uygulanabilir."
   },
+  "breadcrumbs": {
+    "message": "Gezinme ipuçları",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Daha fazla gezinme izi",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "Copy IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Hesaptaki adı kopyala"
+  },
+  "copyBranchNumber": {
+    "message": "Şube numarasını kopyala"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT kodunu kopyala"
+  },
   "bankAccountTypeChecking": {
     "message": "Checking"
   },
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   },
+  "discardEdits": {
+    "message": "Düzenlemeleri sil"
+  },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Düzenlemeye dön"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",

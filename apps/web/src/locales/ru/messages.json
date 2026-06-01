@@ -214,6 +214,33 @@
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Ознакомьтесь с кратким обзором Access Intelligence и узнайте, как использовать данные вашей организации."
   },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Безопасность всей вашей организации в одном представлении "
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence позволяет вам в одном месте просматривать все приложения, пароли и пользователей, которые подвергаются риску."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Вы расставляете приоритеты. Мы выявляем риски."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Вы отмечаете, какие приложения наиболее критичны, и Access Intelligence автоматически определяет пароли, подверженные риску, которые требуют внимания в первую очередь."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Отслеживайте улучшения в вашей команде"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Пользователи автоматически получают уведомления о паролях, подверженных риску, в расширении Bitwarden. Никаких дополнительных действий не требуется."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Импортируйте данные вашей организации, чтобы приступить к работе"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Как только Access Intelligence получит данные из хранилища, у него будет все необходимое для составления отчета о состоянии паролей в вашей организации."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Вводный тур по Access Intelligence"
+  },
   "startTour": {
     "message": "Начать знакомство"
   },
@@ -1503,6 +1530,28 @@
   "unselectAll": {
     "message": "Отменить выбор"
   },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
+  },
   "launch": {
     "message": "Перейти"
   },
@@ -2612,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "Удаление вашей учетной записи необратимо. Его нельзя отменить."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Вы являетесь владельцем как минимум одной организации. Удаление вашего аккаунта приведет к удалению всех организаций, единственным владельцем которых вы являетесь."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Вы не можете удалить свой аккаунт, пока являетесь владельцем организации. Сначала передайте права владения или удалите организацию."
+  },
+  "cannotDeleteAccount": {
+    "message": "Невозможно удалить аккаунт"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Это действие не может быть выполнено, поскольку ваша учетная запись принадлежит организации. Обратитесь к администратору организации за дополнительными сведениями."
+  },
   "accountDeleted": {
     "message": "Аккаунт удален"
   },
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "За любые неоплаченные подписки будет взиматься плата с вашего способа оплаты."
   },
-  "paymentChargedWithTrial": {
-    "message": "Ваш план включает семидневную бесплатную пробную версию. Ваш метод оплаты не будет использован до окончания пробной версии. Оплата будет выполняться каждый $INTERVAL$. Вы можете отказаться в любое время."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Ваш план включает $TRIAL_LENGTH$-дневную бесплатную пробную версию. Ваш метод оплаты не будет использован до окончания пробной версии. Вы можете отказаться в любое время.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Платежная информация"
@@ -4369,6 +4436,30 @@
     "message": "Созданная файловая Send с паролем",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Изменена текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Изменена файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Удалена текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Удалена файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Доступ к текстовой Send получен",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Доступ к файловой Send получен",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Элемент $ID$ перемещен в организацию.",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "Просмотрен IBAN элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Скопирован IBAN элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Просмотрен код SWIFT элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Скопирован код SWIFT элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Просмотрен национальный идентификационный номер элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Скопирован национальный идентификационный номер элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Автоматически заполнен элемент $ID$.",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
   },
-  "discardEdits": {
-    "message": "Отменить изменения"
-  },
   "keepEditing": {
     "message": "Продолжить редактирование"
-  },
-  "backToEditing": {
-    "message": "Вернуться к редактированию"
   },
   "editedPolicyId": {
     "message": "Отредактирована политика $ID$.",
@@ -5651,6 +5790,24 @@
   },
   "regenerateInviteLink": {
     "message": "Сгенерировать пригласительную ссылку повторно"
+  },
+  "invalidateInviteLink": {
+    "message": "Аннулировать ссылку на приглашение"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Если вы удалите все домены, эта ссылка-приглашение больше работать не будет."
+  },
+  "invalidateLink": {
+    "message": "Аннулировать ссылку"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Ссылка на приглашение недействительна"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Необходимо ввести хотя бы 1 домен."
+  },
+  "deactivateLink": {
+    "message": "Деактивировать ссылку"
   },
   "inviteByLinkDesc": {
     "message": "Пригласите участников в вашу организацию с помощью ссылки. Если ни одна из ролей не указана, они будут добавлены в качестве пользователей по умолчанию."
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "Необходимые действия: В платежных реквизитах не указан идентификационный номер налогоплательщика. Если идентификационный номер налогоплательщика не указан, в ваших счетах могут быть указаны дополнительные налоги."
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "Скопировать IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
+  },
   "bankAccountTypeChecking": {
     "message": "Проверка"
   },
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Прежде чем использовать этот способ оплаты, необходимо подтвердить ваш банковский счет. Пожалуйста, подтвердите его, либо выберите другой способ оплаты."
   },
+  "discardEdits": {
+    "message": "Отменить изменения"
+  },
   "discardEditsMessage": {
     "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
+  },
+  "backToEditing": {
+    "message": "Вернуться к редактированию"
   },
   "sendHasUnsavedEdits": {
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
