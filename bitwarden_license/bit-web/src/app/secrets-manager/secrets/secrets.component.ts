@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
@@ -33,6 +33,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "./dialog/secret-dialog.component";
+import { openSecretVersionDialog } from "./dialog/secret-version.component";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -46,7 +47,7 @@ import { SecretService } from "./secret.service";
   templateUrl: "./secrets.component.html",
   standalone: false,
 })
-export class SecretsComponent implements OnInit {
+export class SecretsComponent implements OnInit, OnDestroy {
   protected secrets$: Observable<SecretListView[]>;
   protected search: string;
 
@@ -65,6 +66,10 @@ export class SecretsComponent implements OnInit {
     private toastService: ToastService,
     private router: Router,
   ) {}
+
+  ngOnDestroy(): void {
+    void this.dialogService.closeDrawer();
+  }
 
   ngOnInit() {
     this.secrets$ = this.secretService.secret$.pipe(
@@ -161,7 +166,8 @@ export class SecretsComponent implements OnInit {
   }
 
   openEditSecret(secretId: string) {
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    void this.dialogService.closeDrawer();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Edit,
@@ -180,6 +186,20 @@ export class SecretsComponent implements OnInit {
     });
   }
 
+  async openVersionHistory(secretId: string) {
+    const secret = await this.secretService.getBySecretId(secretId);
+    void openSecretVersionDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        secretId: secretId,
+        name: secret?.name,
+        currentValue: secret?.value,
+        revisionDate: secret?.revisionDate,
+        canWrite: secret?.write,
+      },
+    });
+  }
+
   openDeleteSecret(event: SecretListView[]) {
     this.dialogService.open<unknown, SecretDeleteOperation>(SecretDeleteDialogComponent, {
       data: {
@@ -190,7 +210,8 @@ export class SecretsComponent implements OnInit {
   }
 
   openNewSecretDialog() {
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    void this.dialogService.closeDrawer();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Add,

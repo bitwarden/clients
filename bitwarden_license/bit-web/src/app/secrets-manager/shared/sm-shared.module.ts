@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 
 import {
   CardComponent,
+  ItemModule,
   MultiSelectModule,
   SearchModule,
   SelectModule,
@@ -35,6 +36,7 @@ import { SecretsListComponent } from "./secrets-list.component";
     HeaderModule,
     CardComponent,
     FormFieldModule,
+    ItemModule,
   ],
   exports: [
     AccessPolicySelectorComponent,
@@ -42,6 +44,7 @@ import { SecretsListComponent } from "./secrets-list.component";
     BulkStatusDialogComponent,
     FormFieldModule,
     HeaderModule,
+    ItemModule,
     NewMenuComponent,
     NoItemsModule,
     ProjectsListComponent,
@@ -54,7 +57,6 @@ import { SecretsListComponent } from "./secrets-list.component";
   declarations: [
     AccessPolicySelectorComponent,
     BulkConfirmationDialogComponent,
-    BulkStatusDialogComponent,
     BulkStatusDialogComponent,
     NewMenuComponent,
     OrgSuspendedComponent,
