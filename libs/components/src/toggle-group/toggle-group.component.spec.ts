@@ -1,7 +1,13 @@
 import { ChangeDetectionStrategy, Component, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { SelectComponent } from "../select/select.component";
+
+import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleGroupModule } from "./toggle-group.module";
 import { ToggleComponent } from "./toggle.component";
 
@@ -11,22 +17,36 @@ describe("Button", () => {
   let buttonElements: ToggleComponent<unknown>[];
   let radioButtons: HTMLInputElement[];
 
+  beforeAll(() => {
+    // jsdom does not implement ResizeObserver, which `ToggleGroupComponent`'s
+    // responsive width measurement relies on. A no-op stub is enough here:
+    // the tests don't exercise the observer, they only force `displayMode`
+    // directly.
+    globalThis.ResizeObserver ??= class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  });
+
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [TestAppComponent],
+      providers: [{ provide: I18nService, useValue: mock<I18nService>() }],
     });
 
     await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestAppComponent);
     testAppComponent = fixture.debugElement.componentInstance;
+
+    fixture.detectChanges();
+
     buttonElements = fixture.debugElement
       .queryAll(By.css("bit-toggle"))
       .map((e) => e.componentInstance);
     radioButtons = fixture.debugElement
       .queryAll(By.css("input[type=radio]"))
       .map((e) => e.nativeElement);
-
-    fixture.detectChanges();
   });
 
   it("should select second element when setting selected to second", () => {
@@ -51,12 +71,52 @@ describe("Button", () => {
 
     expect(testAppComponent.selected()).toBe("second");
   });
+
+  describe("label", () => {
+    it("renders the label as aria-label on the host while in radiogroup mode", () => {
+      testAppComponent.label.set("Test filter");
+      fixture.detectChanges();
+
+      const host = fixture.debugElement.query(By.css("bit-toggle-group")).nativeElement;
+      expect(host.getAttribute("role")).toBe("radiogroup");
+      expect(host.getAttribute("aria-label")).toBe("Test filter");
+    });
+
+    it("strips host aria-label/role and renders an sr-only <label for> in dropdown mode", () => {
+      testAppComponent.label.set("Test filter");
+      fixture.detectChanges();
+
+      const group = fixture.debugElement.query(By.directive(ToggleGroupComponent));
+      group.componentInstance.displayMode.set("dropdown");
+      fixture.detectChanges();
+
+      const host = group.nativeElement;
+      expect(host.getAttribute("role")).toBeNull();
+      expect(host.getAttribute("aria-label")).toBeNull();
+
+      const srLabel = fixture.debugElement.query(By.css("label.tw-sr-only"));
+      expect(srLabel).not.toBeNull();
+      expect(srLabel.nativeElement.textContent.trim()).toBe("Test filter");
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent))
+        .componentInstance as SelectComponent<unknown>;
+      expect(srLabel.nativeElement.getAttribute("for")).toBe(select.labelForId);
+    });
+
+    it("renders no sr-only label in dropdown mode when no label input is provided", () => {
+      const group = fixture.debugElement.query(By.directive(ToggleGroupComponent));
+      group.componentInstance.displayMode.set("dropdown");
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("label.tw-sr-only"))).toBeNull();
+    });
+  });
 });
 
 @Component({
   selector: "test-app",
   template: `
-    <bit-toggle-group [(selected)]="selected">
+    <bit-toggle-group [(selected)]="selected" [label]="label()">
       <bit-toggle value="first">First</bit-toggle>
       <bit-toggle value="second">Second</bit-toggle>
       <bit-toggle value="third">Third</bit-toggle>
@@ -67,4 +127,5 @@ describe("Button", () => {
 })
 class TestAppComponent {
   readonly selected: WritableSignal<string | undefined> = signal(undefined);
+  readonly label = signal<string | undefined>(undefined);
 }

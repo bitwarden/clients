@@ -75,3 +75,16 @@ Resize the browser window in the story below to see all three modes in action.
 - The user may navigate the options via left/right arrow keys.
 - The screen reader will announce the button group: example “[context label], [button content]
   selected, of [# of buttons]”), the number of buttons and the currently selected button.
+
+## Label
+
+Provide an accessible name for the group via the `label` input:
+
+```html
+<bit-toggle-group label="People list filter"> ...toggle components here... </bit-toggle-group>
+```
+
+In radiogroup mode (`inline`/`fullWidth`) the value is rendered as `aria-label` on the host. When
+the responsive variant switches to the dropdown, the same label is rendered as a screen-reader-only
+`<label for>` tied to the combobox, so screen reader users keep hearing the group's purpose across
+every breakpoint. Consumers do not need to vary their markup between modes.

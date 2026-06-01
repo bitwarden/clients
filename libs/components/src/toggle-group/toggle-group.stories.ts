@@ -40,7 +40,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-toggle-group [(selected)]="selected" aria-label="People list filter">
+      <bit-toggle-group [(selected)]="selected" label="People list filter">
         <bit-toggle value="all">
           All <bit-berry [value]="3" variant="danger"></bit-berry>
         </bit-toggle>
@@ -64,11 +64,7 @@ export const FullWidth: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-toggle-group
-        [(selected)]="selected"
-        aria-label="People list filter"
-        [fullWidth]="fullWidth"
-      >
+      <bit-toggle-group [(selected)]="selected" label="People list filter" [fullWidth]="fullWidth">
         <bit-toggle value="all"> All <bit-berry [value]="3"></bit-berry> </bit-toggle>
 
         <bit-toggle value="invited"> Invited </bit-toggle>
@@ -90,7 +86,7 @@ export const Inline: Story = {
     props: args,
     template: /* HTML */ `
       <bit-card>
-        <bit-toggle-group [(selected)]="selected" aria-label="People list filter" inline>
+        <bit-toggle-group [(selected)]="selected" label="People list filter" inline>
           <bit-toggle value="all"> All </bit-toggle>
           <bit-toggle value="invited"> Invited </bit-toggle>
           <bit-toggle value="accepted"> Accepted </bit-toggle>
@@ -110,7 +106,7 @@ export const Overflow: Story = {
       <p class="tw-text-sm tw-mb-2 tw-text-fg-muted">
         Resize the browser window to see inline → full-width → dropdown transitions.
       </p>
-      <bit-toggle-group [(selected)]="selected" aria-label="Status filter">
+      <bit-toggle-group [(selected)]="selected" label="Status filter">
         <bit-toggle value="all">
           All<bit-berry [value]="3" variant="danger"></bit-berry>
         </bit-toggle>

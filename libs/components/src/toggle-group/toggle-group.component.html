@@ -2,6 +2,7 @@
   <bit-toggle-dropdown
     [items]="dropdownItems()"
     [value]="selected()"
+    [label]="label()"
     (valueChange)="onInputInteraction($event)"
   ></bit-toggle-dropdown>
 } @else {

@@ -8,8 +8,12 @@ import { SelectComponent } from "../select/select.component";
 @Component({
   selector: "bit-toggle-dropdown",
   template: `
+    @if (label()) {
+      <label class="tw-sr-only" [attr.for]="bitSelect.labelForId">{{ label() }}</label>
+    }
     <bit-form-field disableMargin>
       <bit-select
+        #bitSelect
         [items]="items()"
         [ngModel]="value()"
         (ngModelChange)="valueChange.emit($event)"
@@ -22,5 +26,6 @@ import { SelectComponent } from "../select/select.component";
 export class ToggleDropdownComponent<T> {
   readonly items = input<Option<T>[]>([]);
   readonly value = input<T | undefined>();
+  readonly label = input<string>();
   readonly valueChange = output<T>();
 }

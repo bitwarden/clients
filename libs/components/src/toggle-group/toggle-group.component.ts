@@ -27,6 +27,7 @@ let nextId = 0;
   imports: [ToggleDropdownComponent],
   host: {
     "[attr.role]": "displayMode() === 'dropdown' ? null : 'radiogroup'",
+    "[attr.aria-label]": "displayMode() === 'dropdown' ? null : label()",
     "[class]": "classlist()",
     "[style.--count]": "toggles().length",
     "[style.--active]": "activeIndex()",
@@ -56,6 +57,13 @@ export class ToggleGroupComponent<TValue = unknown> {
   readonly inline = input(undefined, { transform: booleanAttribute });
 
   /**
+   * Accessible name for the toggle group. Rendered as `aria-label` on the host
+   * while in radiogroup mode, and forwarded to the dropdown's inner combobox
+   * (via a screen-reader-only `<label for>`) when the responsive variant fires.
+   */
+  readonly label = input<string>();
+
+  /**
    * The selected value in the toggle group.
    *
    * Use `[(selected)]` for two-way binding, or `[selected]` + `(selectedChange)`
@@ -63,7 +71,7 @@ export class ToggleGroupComponent<TValue = unknown> {
    * display modes (inline, full-width, and the responsive dropdown), so
    * consumers do not need to branch on the rendered mode.
    */
-  readonly selected = model<TValue>();
+  readonly selected = model.required<TValue>();
 
   readonly displayMode = signal<"inline" | "full-width" | "dropdown">("inline");
   readonly toggleOptions = signal<Option<TValue>[]>([]);
