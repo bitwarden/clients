@@ -51,6 +51,7 @@ import {
 } from "../tokens/bulk-delete-dialog.token";
 
 import { PasswordRepromptService } from "./password-reprompt.service";
+import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "./routed-vault-filter.service";
 
 /** Context provided by the host vault component to drive permission checks and action availability. */
@@ -88,6 +89,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly accountService = inject(AccountService);
+  private readonly routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
@@ -604,7 +606,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     }
 
     const config = this.config();
-    const filter = await firstValueFrom(this.routedVaultFilterService.filter$);
+    const filter = await firstValueFrom(this.routedVaultFilterBridgeService.activeFilter$);
 
     const { collectionId } = filter;
     const activeCollection =

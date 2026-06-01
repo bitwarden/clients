@@ -26,6 +26,7 @@ import {
 import { BULK_DELETE_DIALOG, BulkDeleteDialogResult } from "../tokens/bulk-delete-dialog.token";
 
 import { PasswordRepromptService } from "./password-reprompt.service";
+import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "./routed-vault-filter.service";
 import { VaultBatchBarConfig, VaultBatchBarService } from "./vault-batch-bar.service";
 
@@ -97,11 +98,13 @@ describe("VaultBatchBarService", () => {
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let mockAssignCollectionsDialogOpen: jest.Mock;
   let mockBulkDeleteDialogOpen: jest.Mock;
+  let activeFilterSubject: BehaviorSubject<RoutedVaultFilterModel>;
 
   beforeEach(() => {
     filterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
     userCanArchiveSubject = new BehaviorSubject<boolean>(false);
+    activeFilterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
 
     mockCipherService = mock<CipherService>();
     mockCipherArchiveService = mock<CipherArchiveService>();
@@ -134,6 +137,10 @@ describe("VaultBatchBarService", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: RoutedVaultFilterService, useValue: { filter$: filterSubject } },
+        {
+          provide: RoutedVaultFilterBridgeService,
+          useValue: { activeFilter$: activeFilterSubject },
+        },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: { open: mockAssignCollectionsDialogOpen } },
