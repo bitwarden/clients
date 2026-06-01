@@ -9,6 +9,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -49,13 +50,14 @@ import {
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
@@ -63,6 +65,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -174,6 +177,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
   private searchBarService = inject(SearchBarService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private totpService = inject(TotpService);
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
@@ -181,6 +186,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   protected activeFilter: VaultFilter = new VaultFilter();
   protected cipherRepromptId: string | null = null;
+  protected showingModal = false;
+
+  private readonly _currentCipher = signal<CipherView | null>(null);
+  protected readonly cipher = this._currentCipher.asReadonly();
 
   private activeUserId: UserId | null = null;
   private passwordReprompted: boolean = false;
@@ -334,11 +343,86 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       void this.ngZone.run(async () => {
-        if (message.command === "syncCompleted" && message.successfully) {
-          if (this.activeUserId) {
-            void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+        let detectChanges = true;
+        try {
+          switch (message.command) {
+            case "newLogin":
+              await this.addCipher(CipherType.Login);
+              break;
+            case "newCard":
+              await this.addCipher(CipherType.Card);
+              break;
+            case "newIdentity":
+              await this.addCipher(CipherType.Identity);
+              break;
+            case "newSecureNote":
+              await this.addCipher(CipherType.SecureNote);
+              break;
+            case "newSshKey":
+              await this.addCipher(CipherType.SshKey);
+              break;
+            case "newFolder":
+              await this.addFolder();
+              break;
+            case "focusSearch":
+              (document.querySelector("bit-search input") as HTMLInputElement)?.select();
+              detectChanges = false;
+              break;
+            case "syncCompleted":
+              if (message.successfully) {
+                if (this.activeUserId) {
+                  void this.vaultItemTransferService.enforceOrganizationDataOwnership(
+                    this.activeUserId,
+                  );
+                }
+                this.refresh();
+              }
+              break;
+            case "modalShown":
+              this.showingModal = true;
+              break;
+            case "modalClosed":
+              this.showingModal = false;
+              break;
+            case "copyUsername": {
+              const cipher = this.cipher();
+              if (cipher?.login?.username) {
+                this.copyValue(cipher, cipher.login.username, "username", "Username");
+              }
+              break;
+            }
+            case "copyPassword": {
+              const cipher = this.cipher();
+              if (cipher?.login?.password && cipher.viewPassword) {
+                this.copyValue(cipher, cipher.login.password, "password", "Password");
+                await this.eventCollectionService.collect(
+                  EventType.Cipher_ClientCopiedPassword,
+                  cipher.id,
+                );
+              }
+              break;
+            }
+            case "copyTotp": {
+              const cipher = this.cipher();
+              if (cipher?.login?.hasTotp && (cipher.organizationUseTotp || this.userHasPremium())) {
+                const value = await firstValueFrom(
+                  this.totpService.getCode$(cipher.login.totp),
+                ).catch((): any => null);
+                if (value) {
+                  this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+                }
+              }
+              break;
+            }
+            default:
+              detectChanges = false;
+              break;
           }
-          this.refresh();
+        } catch {
+          // Ignore errors
+        }
+        if (detectChanges) {
+          this.changeDetectorRef.detectChanges();
         }
       });
     });
@@ -564,6 +648,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
+    this._currentCipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
@@ -901,6 +986,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
     this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       this.activeDrawerRef = undefined;
+      this._currentCipher.set(null);
       void this.router.navigate([], {
         queryParams: { action: null, itemId: null },
         queryParamsHandling: "merge",
@@ -909,6 +995,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       if (result === VaultItemDialogResult.Saved || result === VaultItemDialogResult.Deleted) {
         this.refresh();
       }
+    });
+  }
+
+  private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
+    this.functionWithChangeDetection(() => {
+      (async () => {
+        if (
+          cipher.reprompt !== CipherRepromptType.None &&
+          this.passwordRepromptService.protectedFields().includes(aType) &&
+          !(await this.passwordReprompt(cipher))
+        ) {
+          return;
+        }
+        this.platformUtilsService.copyToClipboard(value);
+        this.toastService.showToast({
+          variant: "info",
+          title: undefined,
+          message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
+        });
+        this.messagingService.send("minimizeOnCopy");
+      })().catch(() => {});
+    });
+  }
+
+  private functionWithChangeDetection(func: () => void) {
+    this.ngZone.run(() => {
+      func();
+      this.changeDetectorRef.detectChanges();
     });
   }
 
