@@ -27,7 +27,7 @@ import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
-import { UnlockOption, UnlockOptions } from "../../services/lock-component.service";
+import { UnlockOptions } from "../../services/lock-component.service";
 import { WebAuthnPrfUnlockService } from "../../services/webauthn-prf-unlock.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock.component";
@@ -351,7 +351,6 @@ describe("MasterPasswordLockComponent", () => {
           },
         },
         expectedText: "unlockWithPin",
-        expectedUnlockOption: UnlockOption.Pin,
         shouldShow: true,
         shouldEnable: true,
       },
@@ -365,7 +364,6 @@ describe("MasterPasswordLockComponent", () => {
           },
         },
         expectedText: "unlockWithPin",
-        expectedUnlockOption: UnlockOption.Pin,
         shouldShow: false,
         shouldEnable: false,
       },
@@ -376,7 +374,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: true,
         shouldEnable: true,
       },
@@ -387,7 +384,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: true,
         shouldEnable: false,
       },
@@ -398,7 +394,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: true, biometricsStatus: BiometricsStatus.PlatformUnsupported },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: false,
         shouldEnable: false,
       },
@@ -409,7 +404,6 @@ describe("MasterPasswordLockComponent", () => {
           biometrics: { enabled: false, biometricsStatus: BiometricsStatus.PlatformUnsupported },
         },
         expectedText: "swapBiometrics",
-        expectedUnlockOption: UnlockOption.Biometrics,
         shouldShow: false,
         shouldEnable: false,
       },
@@ -417,16 +411,15 @@ describe("MasterPasswordLockComponent", () => {
 
     test.each(swapButtonScenarios)(
       "renders and handles $name",
-      ({ unlockOptions, expectedText, expectedUnlockOption, shouldShow, shouldEnable }) => {
-        const { secondaryButton, component } = setupComponent(unlockOptions, expectedText);
+      ({ unlockOptions, expectedText, shouldShow, shouldEnable }) => {
+        const { secondaryButton } = setupComponent(unlockOptions, expectedText);
 
         if (shouldShow) {
           expect(secondaryButton).toBeTruthy();
           expect(secondaryButton.nativeElement.textContent?.trim()).toBe(expectedText);
 
           if (shouldEnable) {
-            secondaryButton.nativeElement.click();
-            expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
+            expect(secondaryButton.nativeElement.getAttribute("aria-disabled")).not.toBe("true");
           } else {
             expect(secondaryButton.nativeElement.getAttribute("aria-disabled")).toBe("true");
           }
@@ -435,6 +428,42 @@ describe("MasterPasswordLockComponent", () => {
         }
       },
     );
+
+    it("emits swapToBiometrics when biometrics swap button is clicked", () => {
+      const { secondaryButton } = setupComponent(
+        {
+          pin: { enabled: false },
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        },
+        "swapBiometrics",
+      );
+      let emitted = false;
+      component.swapToBiometrics.subscribe(() => {
+        emitted = true;
+      });
+
+      secondaryButton.nativeElement.click();
+
+      expect(emitted).toBe(true);
+    });
+
+    it("emits swapToPin when PIN swap button is clicked", () => {
+      const { secondaryButton } = setupComponent({
+        pin: { enabled: true },
+        biometrics: {
+          enabled: false,
+          biometricsStatus: BiometricsStatus.PlatformUnsupported,
+        },
+      });
+      let emitted = false;
+      component.swapToPin.subscribe(() => {
+        emitted = true;
+      });
+
+      secondaryButton.nativeElement.click();
+
+      expect(emitted).toBe(true);
+    });
   });
 
   describe("submit", () => {

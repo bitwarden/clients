@@ -24,7 +24,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { makeSymmetricCryptoKey, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -360,6 +360,67 @@ describe("LockComponent", () => {
       });
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("swapUnlockOption", () => {
+    it("switches to biometrics and immediately attempts biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Biometrics);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
+      expect(unlockViaBiometricsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("switches to pin without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Pin);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+
+    it("switches to master password without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.MasterPassword);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlockViaBiometrics", () => {
+    it("ignores concurrent unlock attempts while one biometric unlock is in progress", async () => {
+      let resolvePendingUnlock: (() => void) | undefined;
+      const pendingUnlock = new Promise<void>((resolve) => {
+        resolvePendingUnlock = resolve;
+      });
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      component.unlockOptions = {
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        pin: { enabled: false },
+        masterPassword: { enabled: true },
+        prf: { enabled: false },
+      };
+      const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      mockUnlockService.unlockWithBiometrics.mockReturnValue(pendingUnlock);
+      mockKeyService.userKey$.mockReturnValue(of(newUserKey));
+
+      const firstAttempt = component.unlockViaBiometrics();
+      await component.unlockViaBiometrics();
+      resolvePendingUnlock?.();
+      await firstAttempt;
+
+      expect(mockUnlockService.unlockWithBiometrics).toHaveBeenCalledTimes(1);
     });
   });
 
