@@ -2915,6 +2915,85 @@ describe("OverlayBackground", () => {
         expect(updateOverlayCiphersSpy).toHaveBeenCalledWith(false);
       });
     });
+
+    describe("routeTargetedFieldsToFrame", () => {
+      const tab = mock<chrome.tabs.Tab>({ id: 10 });
+      const sender = mock<chrome.runtime.MessageSender>({ tab });
+      const iframeTargetedFields = [{ selector: "#username", fieldType: "username" }];
+
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 5,
+            url: "https://example.com/iframe",
+          }),
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 6,
+            url: "https://example.com/other",
+          }),
+        ]);
+      });
+
+      it("sends applyTargetedFields to the matching frame", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          tab,
+          { command: "applyTargetedFields", iframeTargetedFields },
+          { frameId: 5 },
+        );
+      });
+
+      it("does nothing when no frame matches iframeSrc", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/nonexistent",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          tab,
+          expect.objectContaining({ command: "applyTargetedFields" }),
+          expect.anything(),
+        );
+      });
+
+      it("does nothing when iframeSrc is missing", async () => {
+        sendMockExtensionMessage(
+          { command: "routeTargetedFieldsToFrame", iframeTargetedFields },
+          sender,
+        );
+        await flushPromises();
+
+        expect(BrowserApi.getAllFrameDetails).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when iframeTargetedFields is empty", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields: [],
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(BrowserApi.getAllFrameDetails).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe("handle extension onMessage", () => {
