@@ -8,7 +8,7 @@ import { Component } from "@angular/core";
 @Component({
   selector: "bit-tab-header",
   host: {
-    class: "tw-min-h-16 tw-flex tw-items-end tw-border-b tw-border-solid tw-border-border-base",
+    class: "tw-flex tw-items-end tw-border-b tw-border-solid tw-border-border-base",
   },
   template: `<ng-content></ng-content>`,
 })

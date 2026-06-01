@@ -69,7 +69,15 @@ export class DefaultUnlockService implements UnlockService {
     private platformUtilsService: PlatformUtilsService,
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
-  ) {}
+  ) {
+    void biometricsService.setUnlockService(this);
+  }
+
+  registerOnUnlockAction(
+    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+  ): void {
+    this.onUnlockActions.push(action);
+  }
 
   registerOnUnlockAction(
     action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,

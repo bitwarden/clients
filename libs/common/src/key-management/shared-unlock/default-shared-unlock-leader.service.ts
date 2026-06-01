@@ -1,7 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
@@ -14,7 +12,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
-import { createSharedUnlockDriver } from "./shared-unlock-driver";
+import { JsSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockLeaderService } from "./shared-unlock-leader.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 import { pollForUnlockEvents } from "./unlock-state-poll";
@@ -35,7 +33,7 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
   ) {}
 
   async start(): Promise<void> {
-    const sharedUnlockDriver = createSharedUnlockDriver(
+    const sharedUnlockDriver = new JsSharedUnlockDriver(
       this.accountService,
       this.lockService,
       this.unlockService,
@@ -76,11 +74,8 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
     if (!(await this.enabled(userId))) {
       return;
     }
-    if (this.leader == null) {
-      return;
-    }
 
-    await this.leader.handle_device_event({
+    await this.leader!.handle_device_event({
       ManualUnlock: {
         user_id: asUuid(userId),
         user_key: userKey.toSdk(),

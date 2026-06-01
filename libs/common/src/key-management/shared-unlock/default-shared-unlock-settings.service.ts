@@ -4,8 +4,8 @@ import {
   SHARED_UNLOCK_SETTINGS_DISK,
   StateProvider,
   UserKeyDefinition,
-} from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
+} from "../../platform/state";
+import { UserId } from "../../types/guid";
 
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 

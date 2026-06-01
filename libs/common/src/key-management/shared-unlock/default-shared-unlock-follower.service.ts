@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockFollower } from "@bitwarden/sdk-internal";
@@ -10,11 +9,12 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
-import { createSharedUnlockDriver } from "./shared-unlock-driver";
+import { JsSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockFollowerService } from "./shared-unlock-follower.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 import { pollForUnlockEvents } from "./unlock-state-poll";
@@ -35,7 +35,7 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
   ) {}
 
   async start(): Promise<void> {
-    const sharedUnlockDriver = createSharedUnlockDriver(
+    const sharedUnlockDriver = new JsSharedUnlockDriver(
       this.accountService,
       this.lockService,
       this.unlockService,
@@ -77,11 +77,8 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
     if (!(await this.enabled(userId))) {
       return;
     }
-    if (this.follower == null) {
-      return;
-    }
 
-    await this.follower.handle_device_event({
+    await this.follower!.handle_device_event({
       ManualUnlock: {
         user_id: asUuid(userId),
         user_key: userKey.toSdk(),

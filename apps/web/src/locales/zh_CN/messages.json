@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "存在风险的关键 App"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "存在风险的关键应用程序"
+  },
   "allCriticalApps": {
     "message": "所有关键 App"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "无法恢复组织访问权限"
   },
-  "allApplicationsWithCount": {
-    "message": "所有应用程序 ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "创建新的登录项目"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "关键应用程序 ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "关键应用程序已标记"
   },
@@ -222,6 +207,15 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "数据已接入，让数据为您效劳。"
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "快速了解 Access Intelligence，准确掌握如何将您组织的数据转化为实际行动。"
+  },
+  "startTour": {
+    "message": "功能导览"
   },
   "noDataInOrgTitle": {
     "message": "未找到任何数据"
@@ -355,14 +349,27 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "这些成员拥有对关键应用程序中易受攻击项目的访问权限。"
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "密码存在风险的成员"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ 名成员在 $CRITICALAPPCOUNT$ 个关键应用中的密码存在风险",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "您的组织成员将被分配更改易受攻击的密码的任务。他们将在 Bitwarden 浏览器扩展中收到通知。"
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ 个成员存在风险",
+    "message": "$COUNT$ 位成员存在风险",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -385,6 +392,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "总计 $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +688,27 @@
   },
   "passportNumber": {
     "message": "护照号码"
+  },
+  "sex": {
+    "message": "性别"
+  },
+  "copySex": {
+    "message": "复制性别"
+  },
+  "birthPlace": {
+    "message": "出生地点"
+  },
+  "nationality": {
+    "message": "国籍"
+  },
+  "copyNationality": {
+    "message": "复制国籍"
+  },
+  "passportType": {
+    "message": "护照类型"
+  },
+  "nationalIdentificationNumber": {
+    "message": "居民身份证号码"
   },
   "licenseNumber": {
     "message": "驾驶证号码"
@@ -1021,6 +1058,18 @@
   "typeBankAccountSubtitle": {
     "message": "银行详细信息"
   },
+  "typePassport": {
+    "message": "护照"
+  },
+  "passportDetails": {
+    "message": "护照详细信息"
+  },
+  "passportAdded": {
+    "message": "护照已添加"
+  },
+  "typePassportSubtitle": {
+    "message": "护照及通行证"
+  },
   "folderSubtitle": {
     "message": "组织您的项目"
   },
@@ -1308,6 +1357,9 @@
   "copyAddress": {
     "message": "复制地址"
   },
+  "copyBirthPlace": {
+    "message": "复制出生地点"
+  },
   "copyPhone": {
     "message": "复制电话号码"
   },
@@ -1322,6 +1374,12 @@
   },
   "copyPassportNumber": {
     "message": "复制护照号码"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "复制居民身份证号码"
+  },
+  "copyPassportType": {
+    "message": "复制护照类型"
   },
   "copyFirstName": {
     "message": "复制名字"
@@ -1343,6 +1401,12 @@
   },
   "copyFingerprint": {
     "message": "复制指纹"
+  },
+  "copyIssuingAuthority": {
+    "message": "复制签发机构 / 部门"
+  },
+  "copyIssuingCountry": {
+    "message": "复制签发国家 / 地区"
   },
   "copyName": {
     "message": "复制名称"
@@ -1383,6 +1447,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "未输入任何值",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "没有可复制的值"
@@ -2325,7 +2393,7 @@
     "message": "特殊字符 (!@#$%^&*)"
   },
   "numWords": {
-    "message": "单词数"
+    "message": "单词个数"
   },
   "wordSeparator": {
     "message": "单词分隔符"
@@ -3906,12 +3974,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "您的 $PLAN$ 7 天免费试用将在 7 天后转换成付费订阅。",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "您的 $TRIAL_LENGTH$ 天免费试用 $PLAN$ 方案将于 $TRIAL_LENGTH$ 天后转换为付费版订阅。",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4346,29 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "创建了文本 Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "创建了带电子邮箱验证的文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "创建了带密码的文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "创建了文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "创建了带电子邮箱验证的文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "创建了带密码的文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "移动了项目 $ID$ 到组织。",
     "placeholders": {
@@ -4408,6 +4503,24 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "复制了项目 $ID$ 的 PIN 码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "复制了项目 $ID$ 的护照号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "查看了项目 $ID$ 的护照号码。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4562,8 +4675,8 @@
   "revokedEmailError": {
     "message": "一个或多个电子邮箱属于已被撤销的成员。恢复其访问权限以便重新邀请。"
   },
-  "revocationReasonUnknown": {
-    "message": "未知原因"
+  "revocationReasonNotLogged": {
+    "message": "未记录任何原因"
   },
   "revocationReasonManual": {
     "message": "被管理员撤销了"
@@ -4573,6 +4686,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "不符合单一组织策略"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "拒绝了将项目转移到组织"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "因不符合双重验证组织策略，撤销了 $ID$ 的组织访问权限。",
@@ -4648,9 +4764,6 @@
   },
   "userAcceptedTransfer": {
     "message": "接受了转移至组织所有权。"
-  },
-  "userDeclinedTransfer": {
-    "message": "因拒绝转移至组织所有权而被撤销。"
   },
   "invitedUserId": {
     "message": "邀请了用户 $ID$。",
@@ -4758,13 +4871,13 @@
     "message": "今天"
   },
   "recentlyActivePast7Days": {
-    "message": "过去 7 天"
+    "message": "过去 7 天内"
   },
   "recentlyActivePast14Days": {
-    "message": "过去 14 天"
+    "message": "过去 14 天内"
   },
   "recentlyActivePast30Days": {
-    "message": "过去 30 天"
+    "message": "过去 30 天内"
   },
   "recentlyActiveOver30Days": {
     "message": "30 天以前"
@@ -4773,7 +4886,7 @@
     "message": "首次登录"
   },
   "trusted": {
-    "message": "信任"
+    "message": "已信任"
   },
   "needsApproval": {
     "message": "需要批准"
@@ -8654,13 +8767,13 @@
     "message": "输入月份。"
   },
   "enterDay": {
-    "message": "输入日号。"
+    "message": "输入日期。"
   },
   "enterYear": {
     "message": "输入年份。"
   },
   "invalidDay": {
-    "message": "请输入有效的日号。"
+    "message": "请输入有效的日期。"
   },
   "invalidYear": {
     "message": "请输入有效的年份。"
@@ -10800,6 +10913,9 @@
   "assignSecurityTasksToMembers": {
     "message": "发送更改密码的通知"
   },
+  "sendNotifications": {
+    "message": "发送通知"
+  },
   "assignToCollections": {
     "message": "分配到集合"
   },
@@ -12838,12 +12954,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "您的 7 天 $PLAN$ 试用从今天开始。现在就添加一个付款方式，以便在试用结束后继续使用这些功能：",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "您的 $TRIAL_LENGTH$ 天 $PLAN$ 方案试用从今天开始。立即添加付款方式，以在试用结束后继续使用这些功能：",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -13664,6 +13784,9 @@
   "searchBankAccount": {
     "message": "搜索银行账户"
   },
+  "searchPassport": {
+    "message": "搜索护照"
+  },
   "copyAccountNumber": {
     "message": "复制账户号码"
   },
@@ -13677,7 +13800,7 @@
     "message": "复制 IBAN"
   },
   "bankAccountTypeChecking": {
-    "message": "活期"
+    "message": "支票"
   },
   "bankAccountTypeSavings": {
     "message": "储蓄"
@@ -13767,6 +13890,9 @@
       }
     }
   },
+  "more": {
+    "message": "更多"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
   },
@@ -13812,6 +13938,21 @@
   "skipLink": {
     "message": "跳过链接"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "轮换账户加密密钥"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "轮换您的账户加密密钥将生成一个新的加密密钥，用于重新加密所有密码库数据。如果您的账户遭到入侵，您应该考虑轮换您的加密密钥。"
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "生成新密钥并重新加密所有密码库数据。如果您认为您的账户可能遭到入侵，建议您执行此操作。"
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "您将被注销并提示重新验证。为避免数据损坏，请勿在操作完成前关闭您的浏览器。"
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "账户加密密钥已轮换"
+  },
   "callout": {
     "message": "提示框",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +13960,9 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "您不能将属于多个集合的项目导入到「我的项目」"
   },
   "searchDriversLicense": {
     "message": "搜索许可证"
@@ -13851,7 +13995,7 @@
     "message": "签发月份"
   },
   "issueDay": {
-    "message": "签发日号"
+    "message": "签发日期"
   },
   "issueYear": {
     "message": "签发年份"
@@ -13863,7 +14007,7 @@
     "message": "签发机构 / 部门"
   },
   "licenseClass": {
-    "message": "许可证类型"
+    "message": "许可证等级"
   },
   "copy": {
     "message": "复制"
