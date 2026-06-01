@@ -361,9 +361,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             case "newSshKey":
               await this.addCipher(CipherType.SshKey);
               break;
-            case "newFolder":
-              await this.addFolder();
-              break;
             case "focusSearch":
               (document.querySelector("bit-search input") as HTMLInputElement)?.select();
               detectChanges = false;
@@ -679,6 +676,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
+    this._currentCipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
@@ -691,6 +689,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
+    this._currentCipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       "clone",
       cipher.id as CipherId,
