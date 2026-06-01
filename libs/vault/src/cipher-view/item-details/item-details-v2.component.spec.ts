@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -51,6 +52,7 @@ describe("ItemDetailsV2Component", () => {
       imports: [ItemDetailsV2Component],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         {
           provide: EnvironmentService,
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
