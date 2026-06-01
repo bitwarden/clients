@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
