@@ -148,7 +148,7 @@ export class KeyRotationDialogComponent {
       case "keyConnector":
         return await this.keyRotationDialogService.rotateKeysForKeyConnector(userId);
       case "TDE":
-        return this.keyRotationDialogService.rotateKeysForTDE(userId);
+        return await this.keyRotationDialogService.rotateKeysForTDE(userId);
     }
   }
 
