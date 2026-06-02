@@ -179,10 +179,12 @@ export class ServiceAccountService {
           new EncString(serviceAccountResponse.name),
           organizationKey,
         );
-      } catch (error) {
-        this.logService.error("Error decrypting service account name", error);
         serviceAccountView.name = name.value;
         serviceAccountView.decryptionError = name.error;
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        serviceAccountView.name = DECRYPT_ERROR;
+        serviceAccountView.decryptionError = true;
       }
     } else {
       serviceAccountView.name = null;
