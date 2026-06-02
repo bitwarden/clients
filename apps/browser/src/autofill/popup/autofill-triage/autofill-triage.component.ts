@@ -191,7 +191,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
   }
 
   private async promptExportWarning(): Promise<boolean> {
-    return this.dialogService.openSimpleDialog({
+    return await this.dialogService.openSimpleDialog({
       title: "Export Report Data",
       content:
         "Carefully review all data before copying. The report may contain form field details, labels, and partial field values — ensure no sensitive information is included before sharing.",

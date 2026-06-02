@@ -494,7 +494,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (updateAllCipherTypes || !this.cardAndIdentityCiphers) {
-      return this.getAllCipherTypeViews(currentTab, activeUserId);
+      return await this.getAllCipherTypeViews(currentTab, activeUserId);
     }
 
     const cipherViews = (

@@ -391,7 +391,7 @@ export class ContextMenuClickedHandler {
 
   private async getIdentifier(tab: chrome.tabs.Tab, info: chrome.contextMenus.OnClickData) {
     const tabId = tab.id!;
-    return new Promise<string>((resolve, reject) => {
+    return await new Promise<string>((resolve, reject) => {
       BrowserApi.sendTabsMessage(
         tabId,
         { command: "getClickedElement" },

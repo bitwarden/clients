@@ -777,7 +777,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // This operation is mutually-exclusive from heuristic data-gathering
     const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
     if (hasTargetedFields) {
-      return this.generateTargetedFillScript(pageDetails, options);
+      return await this.generateTargetedFillScript(pageDetails, options);
     }
 
     const fillScript = new AutofillScript();
