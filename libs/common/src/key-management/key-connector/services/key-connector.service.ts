@@ -145,7 +145,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
               using ref = sdk.take();
 
-              return await ref.value.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
+              return await ref.value
+                .user_crypto_management()
+                .migrate_to_key_connector(keyConnectorUrl);
             }),
           ),
         );
