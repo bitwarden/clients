@@ -1,5 +1,5 @@
 import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { PasswordProtectedKeyEnvelope, EphemeralPinEnvelopeState } from "@bitwarden/sdk-internal";
+import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { EncryptedString } from "../crypto/models/enc-string";
 
