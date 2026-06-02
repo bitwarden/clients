@@ -36,7 +36,7 @@
     >
       {{ cipher.name }}
     </button>
-    <app-vault-row-lease-badge class="tw-ml-2" [cipherId]="$any(cipher.id)" />
+    <app-vault-row-lease-badge class="tw-ml-2" [cipher]="$any(cipher)" />
 
     @if (hasAttachments) {
       <ng-container>

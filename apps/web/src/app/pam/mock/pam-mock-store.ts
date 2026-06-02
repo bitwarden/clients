@@ -57,12 +57,16 @@ export class PamMockStore {
   }
 
   /**
-   * If the cipher should start with an active lease (per the deterministic
-   * predicate), make sure one exists in the store. Idempotent.
+   * For demo realism, lazily seed a pre-existing active lease for a fraction
+   * of gated ciphers on first open. Idempotent. The decision is deterministic
+   * per cipher id so a returning user lands on the same state. Real gating
+   * (which ciphers are gated at all) is driven by the server's `partialData`
+   * sync field; this method only runs for ciphers already known to be gated
+   * (i.e. `fetchGatedCipher` has been called for them).
    */
   ensureSeedLease(cipherId: string, userId: string): void {
     this.currentUserId ??= userId;
-    if (!PamMockConfig.shouldStartWithActiveLease(cipherId)) {
+    if (!shouldSeedActiveLease(cipherId)) {
       return;
     }
     if (this.leasesByCipher.has(cipherId)) {
@@ -782,3 +786,19 @@ export const PamMockBuilders = {
   buildAccessRequest,
   buildInboxAccessRequest,
 };
+
+// Deterministic predicate used by ensureSeedLease so a returning user sees the
+// same demo state. Seeds an active lease for roughly one in six gated ciphers
+// — enough to exercise the active-lease banner without dominating the demo.
+function shouldSeedActiveLease(cipherId: string): boolean {
+  return hash(cipherId) % 6 === 0;
+}
+
+function hash(value: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0) % 1000000;
+}

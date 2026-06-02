@@ -1,5 +1,5 @@
 /**
- * DEMO ONLY — toggle and deterministic predicates for the PAM mock layer.
+ * DEMO ONLY — toggle and constants for the PAM mock layer.
  *
  * On by default in this demo workspace. To opt out for a session, run:
  *   localStorage.setItem("pam-mock", "false")
@@ -8,6 +8,10 @@
  * `FeatureFlag.Pam` is also defaulted to TRUE in this worktree (see
  * libs/common/src/enums/feature-flag.enum.ts) so the cipher-open interceptor
  * round-trips through the mock without any LaunchDarkly setup.
+ *
+ * Note: gating is no longer decided here. Whether a cipher is gated comes from
+ * the server via `partialData` on the cipher sync response; the mock layer
+ * only fakes the lease/request/inbox transport for already-gated rows.
  */
 export const PamMockConfig = {
   isEnabled(): boolean {
@@ -15,39 +19,6 @@ export const PamMockConfig = {
       return true;
     }
     return localStorage.getItem("pam-mock") !== "false";
-  },
-
-  /**
-   * Returns the PAM state for a cipher. Roughly one third of ciphers fall into
-   * each gated bucket; the rest are passthrough (not gated at all).
-   *
-   * - "active"        → pre-seeded active lease; opens with the active-lease banner.
-   * - "pre_pending"   → pre-seeded pending request (30 min old); opens with pending banner.
-   * - "needs_request" → gated but no request yet; triggers the request-access form.
-   * - "passthrough"   → not gated; opens normally.
-   */
-  stateForCipher(cipherId: string): "active" | "pre_pending" | "needs_request" | "passthrough" {
-    const h = hash(cipherId);
-    if (h % 6 === 0) {
-      return "active";
-    }
-    if (h % 6 === 1) {
-      return "pre_pending";
-    }
-    if (h % 6 === 2) {
-      return "needs_request";
-    }
-    return "passthrough";
-  },
-
-  /** @deprecated Use stateForCipher instead. */
-  shouldGate(cipherId: string): boolean {
-    return this.stateForCipher(cipherId) !== "passthrough";
-  },
-
-  /** @deprecated Use stateForCipher instead. */
-  shouldStartWithActiveLease(cipherId: string): boolean {
-    return this.stateForCipher(cipherId) === "active";
   },
 
   /** ~20% of submitted requests auto-deny instead of auto-approve. */

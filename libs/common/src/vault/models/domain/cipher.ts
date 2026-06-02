@@ -70,6 +70,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
   data?: string;
+  /** Raw JSON-string partial-data payload for PAM-gated rows; see CipherResponse. */
+  partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -98,6 +100,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
     this.data = obj.data;
+    this.partialData = obj.partialData;
 
     switch (this.type) {
       case CipherType.Login:
@@ -300,6 +303,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -382,6 +386,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (obj.permissions != null) {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
+
+    domain.partialData = obj.partialData ?? undefined;
 
     domain.collectionIds = obj.collectionIds;
     domain.localData = obj.localData;
