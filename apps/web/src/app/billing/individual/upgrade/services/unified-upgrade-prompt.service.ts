@@ -77,7 +77,7 @@ export class UnifiedUpgradePromptService {
     const shouldShow = await firstValueFrom(this.shouldShowPrompt$);
 
     if (shouldShow) {
-      return this.launchUpgradeDialog();
+      return await this.launchUpgradeDialog();
     }
 
     return null;

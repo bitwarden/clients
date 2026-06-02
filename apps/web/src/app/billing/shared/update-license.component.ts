@@ -97,7 +97,7 @@ export class UpdateLicenseComponent implements OnInit {
       message: this.i18nService.t("licenseUploadSuccess"),
     });
     this.onUpdated.emit();
-    return new Promise((resolve) => resolve(UpdateLicenseDialogResult.Updated));
+    return await new Promise((resolve) => resolve(UpdateLicenseDialogResult.Updated));
   };
 
   cancel = () => {

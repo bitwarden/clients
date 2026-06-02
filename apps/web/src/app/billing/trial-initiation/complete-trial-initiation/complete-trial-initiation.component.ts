@@ -415,7 +415,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
   async finishRegistration(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
-    return this.registrationFinishService
+    return await this.registrationFinishService
       .finishRegistration(this.email, passwordInputResult, this.emailVerificationToken)
       .catch((e: unknown): null => {
         this.validationService.showError(e);

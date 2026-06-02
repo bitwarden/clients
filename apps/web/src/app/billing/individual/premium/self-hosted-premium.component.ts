@@ -122,7 +122,7 @@ export class SelfHostedPremiumComponent {
   };
 
   protected navigateToSubscription = async (): Promise<boolean> =>
-    this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
+    await this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
 
   protected onPremiumUpgradeClick = async () => {
     const url = await firstValueFrom(this.cloudPremiumPageUrl$);
