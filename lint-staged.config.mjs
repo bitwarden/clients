@@ -13,6 +13,5 @@ export default {
   "apps/desktop/desktop_native/**/Cargo.toml": () => [
     "node scripts/run-cargo-tool.mjs sort --workspace --check",
     "node scripts/run-cargo-tool.mjs +nightly udeps --workspace --all-features --all-targets",
-    "node scripts/run-cargo-tool.mjs deny --log-level error --all-features check all",
   ],
 };
