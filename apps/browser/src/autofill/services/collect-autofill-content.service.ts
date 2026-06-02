@@ -1427,25 +1427,26 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    if (drainingAttrs.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
-      return;
-    }
+    const hasWork = drainingAttrs.size > 0 || drainingTopLayer.size > 0 || childListNeeded;
 
     requestIdleCallbackPolyfill(
       () => {
-        for (const el of drainingTopLayer) {
-          this.setupTopLayerCandidateListener(el);
-        }
-        if (childListNeeded) {
-          // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
-          this.requirePageDetailsUpdate();
-        } else {
-          for (const [target, attrs] of drainingAttrs) {
-            for (const attr of attrs) {
-              this.applyAttributeMutation(target, attr);
+        if (hasWork) {
+          for (const el of drainingTopLayer) {
+            this.setupTopLayerCandidateListener(el);
+          }
+          if (childListNeeded) {
+            // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
+            this.requirePageDetailsUpdate();
+          } else {
+            for (const [target, attrs] of drainingAttrs) {
+              for (const attr of attrs) {
+                this.applyAttributeMutation(target, attr);
+              }
             }
           }
         }
+        // Reap unconditionally — gate-rejected removals (e.g. a shadow host) still orphan tracked nodes.
         this.reapDetachedFieldMetadata();
         this.domQueryService.reapDetachedShadowRoots();
         if (this.domRecentlyMutated) {
