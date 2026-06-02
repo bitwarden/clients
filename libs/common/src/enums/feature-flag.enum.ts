@@ -62,6 +62,7 @@ export enum FeatureFlag {
 
   /* Tools */
   SendControls = "pm-31885-send-controls",
+  Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
@@ -93,6 +94,7 @@ export enum FeatureFlag {
   PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
 
   /* Platform */
+  FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
@@ -101,8 +103,7 @@ export enum FeatureFlag {
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
-  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
-  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
+  DesktopSettingsDialog = "desktop-ui-settings-dialog",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -143,6 +144,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
+  [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
@@ -202,6 +204,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
+  [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
@@ -210,8 +213,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
+  [FeatureFlag.DesktopSettingsDialog]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

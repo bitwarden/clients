@@ -8,6 +8,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -44,6 +46,7 @@ describe("WebVaultPromptService", () => {
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
 
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
 
   function createAccount(overrides: Partial<Account> = {}): Account {
@@ -58,6 +61,7 @@ describe("WebVaultPromptService", () => {
     jest.clearAllMocks();
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -66,6 +70,7 @@ describe("WebVaultPromptService", () => {
         { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
         { provide: PolicyService, useValue: { policies$ } },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
         {
           provide: AutomaticUserConfirmationService,
           useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
@@ -110,6 +115,17 @@ describe("WebVaultPromptService", () => {
       expect(
         service["webVaultExtensionPromptService"].conditionallyPromptUserForExtension,
       ).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("skips onboarding prompts but not policy flows when suppressOnboardingInterstitials is enabled", async () => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      await service.conditionallyPromptUser();
+
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+      expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
     });
   });
 
