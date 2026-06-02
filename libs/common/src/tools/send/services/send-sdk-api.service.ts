@@ -78,11 +78,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const sdkView = await this.mutateSend(sendView, userId);
 
     // Patch server-assigned identifiers onto the input for callers that read them after
-    // save (matches the legacy SendApiService contract).
+    // save (matches the legacy SendApiService contract). The server always returns id
+    // and accessId on a successful create.
     const sendId = sdkView.id as unknown as string;
     if (send.id == null) {
       send.id = sendId;
-      send.accessId = sdkView.accessId ?? null;
+      send.accessId = sdkView.accessId as unknown as string;
     }
 
     try {
