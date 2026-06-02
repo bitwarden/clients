@@ -178,14 +178,14 @@ describe("VaultOnboardingComponent", () => {
           });
         });
 
-      (component as any).showOnboarding = true;
+      (component as any).showOnboarding.set(true);
       (component as any).onboardingTasks$ = (
         component as any
       ).vaultOnboardingService.vaultOnboardingState$();
 
       await component.getMessages({ data: { command: VaultMessages.HasBwInstalled } });
 
-      expect((component as any).showOnboarding).toBe(false);
+      expect((component as any).showOnboarding()).toBe(false);
     });
   });
 });
