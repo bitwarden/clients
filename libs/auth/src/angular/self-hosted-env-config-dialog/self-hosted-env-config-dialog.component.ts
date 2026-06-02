@@ -45,8 +45,17 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
     const identityUrl = formGroup.get("identityUrl")?.value;
     const iconsUrl = formGroup.get("iconsUrl")?.value;
     const notificationsUrl = formGroup.get("notificationsUrl")?.value;
+    const sendUrl = formGroup.get("sendUrl")?.value;
 
-    if (baseUrl || webVaultUrl || apiUrl || identityUrl || iconsUrl || notificationsUrl) {
+    if (
+      baseUrl ||
+      webVaultUrl ||
+      apiUrl ||
+      identityUrl ||
+      iconsUrl ||
+      notificationsUrl ||
+      sendUrl
+    ) {
       return null; // valid
     } else {
       return { atLeastOneUrlIsRequired: true }; // invalid
