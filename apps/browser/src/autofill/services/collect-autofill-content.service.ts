@@ -1428,27 +1428,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    const hasWork =
-      drainingAttributeMutations.size > 0 || drainingTopLayer.size > 0 || childListNeeded;
+    if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
+      return;
+    }
 
     requestIdleCallbackPolyfill(
       () => {
-        if (hasWork) {
-          for (const element of drainingTopLayer) {
-            this.setupTopLayerCandidateListener(element);
-          }
-          if (childListNeeded) {
-            // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
-            this.requirePageDetailsUpdate();
-          } else {
-            for (const [target, attributeNames] of drainingAttributeMutations) {
-              for (const attributeName of attributeNames) {
-                this.applyAttributeMutation(target, attributeName);
-              }
+        for (const element of drainingTopLayer) {
+          this.setupTopLayerCandidateListener(element);
+        }
+        if (childListNeeded) {
+          // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
+          this.requirePageDetailsUpdate();
+        } else {
+          for (const [target, attributeNames] of drainingAttributeMutations) {
+            for (const attributeName of attributeNames) {
+              this.applyAttributeMutation(target, attributeName);
             }
           }
         }
-        // Purge unconditionally — gate-rejected removals (e.g. a shadow host) still orphan tracked nodes.
         this.purgeDetachedFieldMetadata();
         this.domQueryService.purgeDetachedShadowRoots();
         if (this.domRecentlyMutated) {

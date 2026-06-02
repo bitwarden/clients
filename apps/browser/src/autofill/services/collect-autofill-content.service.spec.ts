@@ -3395,22 +3395,18 @@ describe("CollectAutofillContentService", () => {
       expect(domQueryService.purgeDetachedShadowRoots).toHaveBeenCalled();
     });
 
-    it("runs purges but skips rebuild/attribute work when nothing is pending", () => {
+    it("returns without scheduling work when nothing is pending", () => {
       collectAutofillContentService["pendingAttributeMutations"] = new Map();
       collectAutofillContentService["pendingTopLayerTargets"] = new Set();
       collectAutofillContentService["pendingChildListUpdate"] = false;
       jest.spyOn(collectAutofillContentService as any, "requirePageDetailsUpdate");
       jest.spyOn(collectAutofillContentService as any, "applyAttributeMutation");
-      jest.spyOn(collectAutofillContentService as any, "purgeDetachedFieldMetadata");
-      jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
 
       collectAutofillContentService["processMutations"]();
       jest.runAllTimers();
 
       expect(collectAutofillContentService["requirePageDetailsUpdate"]).not.toHaveBeenCalled();
       expect(collectAutofillContentService["applyAttributeMutation"]).not.toHaveBeenCalled();
-      expect(collectAutofillContentService["purgeDetachedFieldMetadata"]).toHaveBeenCalled();
-      expect(domQueryService.purgeDetachedShadowRoots).toHaveBeenCalled();
     });
 
     it("reentrant attribute mutations during drain land in the next cycle", () => {
