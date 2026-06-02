@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  ElementRef,
   inject,
   NgZone,
   OnDestroy,
@@ -174,6 +175,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
   private searchBarService = inject(SearchBarService);
+  private elementRef = inject(ElementRef<HTMLElement>);
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
@@ -321,6 +323,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.activeUserId = activeUserId;
 
     this.searchBarService.setEnabled(false);
+    this.searchBarService.setSearchResultFocusTarget(() => this.focusFirstResult());
 
     // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
@@ -484,6 +487,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    this.searchBarService.setSearchResultFocusTarget(null);
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
@@ -926,5 +930,39 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
+  }
+
+  protected focusSearchResults(event: Event) {
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+
+    if (event.shiftKey || !this.searchInputValue()) {
+      return;
+    }
+
+    if (this.focusFirstResult()) {
+      event.preventDefault();
+    }
+  }
+
+  private focusFirstResult() {
+    const firstResult = this.elementRef.nativeElement.querySelector(
+      "app-vault-list tr[appVaultCipherRow] button[bitLink]:not([disabled]), app-vault-list tr[appVaultCollectionRow] button[bitLink]:not([disabled])",
+    ) as HTMLElement | null;
+
+    if (firstResult == null) {
+      return false;
+    }
+
+    firstResult.focus();
+    return document.activeElement === firstResult;
+  }
+
+  private searchInputValue() {
+    return (
+      (this.elementRef.nativeElement.querySelector("bit-search input") as HTMLInputElement | null)
+        ?.value ?? ""
+    );
   }
 }
