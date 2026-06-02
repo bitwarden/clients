@@ -17,6 +17,7 @@ export enum FeatureFlag {
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   PM36859RefactorOrgCollectionsVaultComponent = "pm-36859-refactor-org-collections-vault-component",
+  PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
 
   /* Auth */
   SafariAccountSwitching = "pm-5594-safari-account-switching",
@@ -31,11 +32,14 @@ export enum FeatureFlag {
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  EnableAutofillTriage = "enable-autofill-triage",
+  FillAssistTargetingRules = "fill-assist-targeting-rules",
+
+  /* Desktop Native */
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
-  EnableAutofillTriage = "enable-autofill-triage",
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
+  SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -53,12 +57,10 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
-  UnlockViaSDK = "unlock-via-sdk",
+  BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
-  UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
-  SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
   SendEventLogging = "pm-36560-send-event-logging",
 
@@ -79,7 +81,6 @@ export enum FeatureFlag {
   PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   CipherKeyEncryption = "cipher-key-encryption",
-  MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
@@ -91,6 +92,7 @@ export enum FeatureFlag {
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
 
   /* Platform */
+  FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
@@ -99,8 +101,7 @@ export enum FeatureFlag {
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
-  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
-  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
+  DesktopSettingsDialog = "desktop-ui-settings-dialog",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -124,20 +125,22 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
+  [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
-  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
-  [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
+  /* Desktop Native */
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.SSHecdsa]: FALSE,
+
   /* Tools */
-  [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,
 
@@ -161,7 +164,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
-  [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
@@ -195,9 +197,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
-  [FeatureFlag.UnlockViaSDK]: FALSE,
+  [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
+  [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
@@ -206,8 +209,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
+  [FeatureFlag.DesktopSettingsDialog]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

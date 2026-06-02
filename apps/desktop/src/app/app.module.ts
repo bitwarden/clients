@@ -19,9 +19,6 @@ import { DesktopPremiumUpgradePromptService } from "../billing/services/desktop-
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { AvatarComponent } from "./components/avatar.component";
-import { AccountSwitcherComponent } from "./layout/account-switcher.component";
-import { HeaderComponent } from "./layout/header.component";
-import { SearchComponent } from "./layout/search/search.component";
 import { ServicesModule } from "./services/services.module";
 
 /**
@@ -41,14 +38,7 @@ import { ServicesModule } from "./services/services.module";
     OverlayModule,
     ServicesModule,
   ],
-  declarations: [
-    AvatarComponent,
-    AccountSwitcherComponent,
-    AppComponent,
-    HeaderComponent,
-    PremiumComponent,
-    SearchComponent,
-  ],
+  declarations: [AvatarComponent, AppComponent, PremiumComponent],
   providers: [
     SshAgentService,
     {
