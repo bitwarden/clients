@@ -76,7 +76,7 @@ export default abstract class AbstractChromeStorageService
   }
 
   async get<T>(key: string): Promise<T> {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.chromeStorageApi.get(key, (obj) => {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);
@@ -100,11 +100,11 @@ export default abstract class AbstractChromeStorageService
 
     if (obj == null) {
       // Safari does not support set of null values
-      return this.remove(key);
+      return await this.remove(key);
     }
 
     const keyedObj = { [key]: obj };
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       this.chromeStorageApi.set(keyedObj, () => {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);
@@ -116,7 +116,7 @@ export default abstract class AbstractChromeStorageService
   }
 
   async remove(key: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       this.chromeStorageApi.remove(key, () => {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);

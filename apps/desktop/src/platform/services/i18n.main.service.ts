@@ -19,8 +19,9 @@ export class I18nMainService extends BaseI18nService {
       globalStateProvider,
     );
 
-    ipcMain.handle("getLanguageFile", async (event, formattedLocale: string) =>
-      this.readLanguageFile(formattedLocale),
+    ipcMain.handle(
+      "getLanguageFile",
+      async (event, formattedLocale: string) => await this.readLanguageFile(formattedLocale),
     );
 
     // Please leave 'en' where it is, as it's our fallback language in case no translation can be found

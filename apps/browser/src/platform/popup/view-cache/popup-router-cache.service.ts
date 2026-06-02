@@ -79,7 +79,7 @@ export class PopupRouterCacheService {
   }
 
   async setHistory(state: RouteHistoryCacheState[]): Promise<RouteHistoryCacheState[]> {
-    return this.state.update(() => state);
+    return await this.state.update(() => state);
   }
 
   /** Get the last item from the history stack, or `null` if empty */

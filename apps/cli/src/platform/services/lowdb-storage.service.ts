@@ -117,7 +117,7 @@ export class LowdbStorageService implements AbstractStorageService {
 
   async get<T>(key: string): Promise<T> {
     await this.waitForReady();
-    return this.lockDbFile(() => {
+    return await this.lockDbFile(() => {
       this.readForNoCache();
       const val = this.db.get(key).value();
       this.logService.debug(`Successfully read ${key} from db`);
@@ -134,7 +134,7 @@ export class LowdbStorageService implements AbstractStorageService {
 
   async save(key: string, obj: any): Promise<void> {
     await this.waitForReady();
-    return this.lockDbFile(() => {
+    return await this.lockDbFile(() => {
       this.readForNoCache();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -147,7 +147,7 @@ export class LowdbStorageService implements AbstractStorageService {
 
   async remove(key: string): Promise<void> {
     await this.waitForReady();
-    return this.lockDbFile(() => {
+    return await this.lockDbFile(() => {
       this.readForNoCache();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

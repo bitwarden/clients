@@ -109,14 +109,15 @@ export class PopupViewCacheBackgroundService {
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
-        concatMap(async ({ key, value, options }) =>
-          this.popupViewCacheState.update((state) => ({
-            ...state,
-            [key]: {
-              value,
-              options,
-            },
-          })),
+        concatMap(
+          async ({ key, value, options }) =>
+            await this.popupViewCacheState.update((state) => ({
+              ...state,
+              [key]: {
+                value,
+                options,
+              },
+            })),
         ),
       )
       .subscribe();
@@ -188,7 +189,7 @@ export class PopupViewCacheBackgroundService {
   }
 
   async clearState() {
-    return Promise.all([
+    return await Promise.all([
       this.popupViewCacheState.update(() => ({}), { shouldUpdate: this.objNotEmpty }),
       this.popupRouteHistoryState.update(() => [], { shouldUpdate: this.objNotEmpty }),
     ]);

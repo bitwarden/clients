@@ -131,7 +131,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     this.createdOrUpdatedTabEvents$,
     this.createdOrUpdatedTabEvents$.pipe(
       concatMap(async () => {
-        return this.getActiveTabs();
+        return await this.getActiveTabs();
       }),
       pairwise(),
       map(([previousTabs, currentTabs]) => {
@@ -154,7 +154,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
 
   activeTabs$ = this.tabEvents$.pipe(
     concatMap(async () => {
-      return this.getActiveTabs();
+      return await this.getActiveTabs();
     }),
   );
 

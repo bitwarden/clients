@@ -59,7 +59,7 @@ export class AddKeyTypeToOrgKeysMigrator extends Migrator<4, 5> {
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Promise.all(accounts.map(async ({ userId, account }) => updateOrgKey(userId, account)));
+    Promise.all(accounts.map(async ({ userId, account }) => await updateOrgKey(userId, account)));
   }
 
   // Override is necessary because default implementation assumes `stateVersion` at the root, but for this version

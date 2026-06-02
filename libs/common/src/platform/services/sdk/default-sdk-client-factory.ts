@@ -14,6 +14,6 @@ export class DefaultSdkClientFactory implements SdkClientFactory {
   async createSdkClient(
     ...args: ConstructorParameters<typeof sdk.PasswordManagerClient>
   ): Promise<sdk.PasswordManagerClient> {
-    return Promise.resolve(new sdk.PasswordManagerClient(...args));
+    return await Promise.resolve(new sdk.PasswordManagerClient(...args));
   }
 }

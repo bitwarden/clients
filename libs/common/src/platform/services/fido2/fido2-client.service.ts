@@ -324,7 +324,7 @@ export class Fido2ClientService<
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
 
     if (params.mediation === "conditional") {
-      return this.handleMediatedConditionalRequest(
+      return await this.handleMediatedConditionalRequest(
         params,
         window,
         abortController,

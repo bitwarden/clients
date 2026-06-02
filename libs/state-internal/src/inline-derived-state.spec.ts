@@ -18,7 +18,7 @@ describe("InlineDerivedState", () => {
     new StateDefinition("test", "disk"),
     "test",
     {
-      derive: async (value, deps) => Promise.resolve(!value),
+      derive: async (value, deps) => await Promise.resolve(!value),
       deserializer: (value) => value,
     },
   );
