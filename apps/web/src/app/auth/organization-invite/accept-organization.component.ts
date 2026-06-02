@@ -1,57 +1,63 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { isId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
-
-import { BaseAcceptComponent } from "../../common/base.accept.component";
-
-import { AcceptOrganizationInviteService } from "./accept-organization.service";
+import { IconModule, ToastService } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-organization.component.html",
-  standalone: false,
+  imports: [IconModule, I18nPipe],
 })
-export class AcceptOrganizationComponent extends BaseAcceptComponent {
-  orgName$ = this.acceptOrganizationInviteService.orgName$;
-  protected requiredParameters: string[] = ["organizationId", "organizationUserId", "token"];
+export class AcceptOrganizationComponent implements OnInit {
+  loading = true;
+
+  private readonly failedMessage = "inviteAcceptFailed";
+  private readonly requiredParameters = ["organizationId", "organizationUserId", "token"];
 
   constructor(
-    protected router: Router,
-    protected platformUtilsService: PlatformUtilsService,
-    protected i18nService: I18nService,
-    protected route: ActivatedRoute,
-    protected authService: AuthService,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private router: Router,
+    private i18nService: I18nService,
+    private route: ActivatedRoute,
+    private acceptFlowService: AcceptFlowService,
     private organizationInviteService: OrganizationInviteService,
     private accountService: AccountService,
     private toastService: ToastService,
-  ) {
-    super(router, platformUtilsService, i18nService, route, authService);
+  ) {}
+
+  async ngOnInit() {
+    const qParams = await firstValueFrom(this.route.queryParams);
+    await this.acceptFlowService.run(qParams, {
+      requiredParameters: this.requiredParameters,
+      failedMessage: this.failedMessage,
+      authedHandler: (p) => this.authedHandler(p),
+      unauthedHandler: (p) => this.unauthedHandler(p),
+      getErrorMessage: (apiError) => this.getErrorMessage(apiError),
+    });
+    this.loading = false;
   }
 
-  async authedHandler(qParams: Params): Promise<void> {
+  private async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
     if (invite === null) {
-      // The BaseAcceptComponent handles thrown errors for the authedHandler (only),
-      // but for clarity and consistency with the unauthedHandler, opting to handle and redirect here.
+      // AcceptFlowService handles thrown errors in authedHandler, but for clarity and
+      // consistency with unauthedHandler we handle invalid-invite redirect inline here.
       return await this.handleInvalidInvite();
     }
 
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
+    const success = await this.organizationInviteService.validateAndAcceptInvite(
       invite,
       activeUserId,
     );
@@ -71,11 +77,11 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     await this.router.navigate(["/"]);
   }
 
-  async unauthedHandler(qParams: Params): Promise<void> {
+  private async unauthedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
     if (invite === null) {
-      // If invite is null (fromParams failed to validate, etc.), we must handle that case here in full.
-      // The unauthedHandler does not account for error handling in the BaseAcceptComponent.
+      // AcceptFlowService does not handle errors thrown from unauthedHandler, so we must
+      // handle the invalid-invite redirect inline here.
       return await this.handleInvalidInvite();
     }
 
@@ -83,13 +89,16 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     await this.navigateInviteAcceptance(invite);
   }
 
-  protected override getErrorMessage(errorMessage: string | null): string {
-    // Handle expired token specifically for org invites
+  private getErrorMessage(errorMessage: string | null): string {
+    // Handle expired token specifically for org invites by returning the generic
+    // failed message rather than the raw API error.
     if (errorMessage === "Expired token.") {
       return this.i18nService.t(this.failedMessage);
     }
 
-    return super.getErrorMessage(errorMessage);
+    return errorMessage != null
+      ? this.i18nService.t("inviteAcceptFailedShort", errorMessage)
+      : this.i18nService.t(this.failedMessage);
   }
 
   /**
