@@ -215,8 +215,10 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -968,12 +970,14 @@ export default class MainBackground {
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
+      () => this.configService,
       this.logService,
       this.keyService,
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
       this.pinService,
+      () => this.ipcService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -1148,10 +1152,21 @@ export default class MainBackground {
       this.encryptService,
       this.configService,
     );
-    this.sendApiService = new SendApiService(
+    const legacySendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
       this.sendService,
+    );
+    this.sendApiService = new SendApiServiceSelector(
+      this.configService,
+      legacySendApiService,
+      new SendSdkApiService(
+        this.sdkService,
+        legacySendApiService,
+        this.sendService,
+        this.accountService,
+        this.logService,
+      ),
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);

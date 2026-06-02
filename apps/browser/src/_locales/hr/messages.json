@@ -167,14 +167,17 @@
   "copyPassportNumber": {
     "message": "Kopiraj broj putovnice"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Kopiraj ime"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Kopiraj srednje ime"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Kopiraj prezime"
   },
   "copyLicenseNumber": {
     "message": "Kopiraj broj osobne iskaznice"
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Vrsta kartice"
   },
+  "birthDay": {
+    "message": "dan"
+  },
+  "birthMonth": {
+    "message": "mjesec"
+  },
+  "birthYear": {
+    "message": "godina"
+  },
+  "expirationDay": {
+    "message": "Datum isteka"
+  },
   "expirationMonth": {
     "message": "Mjesec isteka"
   },
   "expirationYear": {
     "message": "Godina isteka"
+  },
+  "issueDay": {
+    "message": "dan"
+  },
+  "issueMonth": {
+    "message": "mjesec"
+  },
+  "issueYear": {
+    "message": "godina"
   },
   "monthly": {
     "message": "mjesečno"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Broj putovnice"
   },
+  "dateOfBirth": {
+    "message": "Datum rođenja"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Država izdavanja"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "issuingAuthority": {
+    "message": "Izdao"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Datum izdavanja"
+  },
   "licenseNumber": {
     "message": "Broj osobne iskaznice"
   },
@@ -2190,53 +2259,32 @@
   "typeBankAccountSubtitle": {
     "message": "Podaci o banci"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "typeDriversLicense": {
     "message": "License"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Osobna iskaznica"
   },
   "driversLicenseDetails": {
-    "message": "License details"
-  },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Detalji osobne iskaznice"
   },
   "issuingState": {
-    "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
+    "message": "Pokrajina izdavatelj"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Vrsta dozvole"
   },
   "newItemHeaderLogin": {
     "message": "Nova prijava",
@@ -2303,7 +2351,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Uredi osobnu iskaznicu",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2343,7 +2391,7 @@
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Pogledaj osobnu iskaznicu",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Očisti",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "Provjeri je li lozinka bila ukradena."
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometrija se ne može dovršiti. Pokušaj glavnom lozinkom ili se odjavi i ponovno prijavi. Ako se ovo nastavi, obrati se Bitwarden podršci."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Dopuštenje nije dano"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez odobrenja za komunikaciju s Bitwarden Desktop aplikacijom nije moguće korištenje biometrije u proširenju preglednika."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Greška zahtjeva dozvole"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Ovu ranju nije moguće napraviti u bočnom meniju. Pokušaj ponovno u iskočnom prozoru."
   },
   "personalOwnershipSubmitError": {
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Nema vrijednosti za kopiranje"
   },
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "Sljedeće"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6424,22 +6493,22 @@
     "message": "Nije uspjela provjera korisnika."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Unesi mjesec."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Unesi dan."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Unesi godinu."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Unesi ispravan dan."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Unesi ispravnu godinu."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Pretraži osobne iskaznice"
   },
   "bankName": {
     "message": "Naziv banke"
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Pretraži bankovne račune"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Kopiraj broj računa"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "Kopiraj IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Tekući račun"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "Preuzimanje neuspjelo."
+  },
+  "more": {
+    "message": "More"
   },
   "maxAccessCount": {
     "message": "Najveći proj pristupanja",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Tvoja organizacija zahtijeva vidljivost e-pošte. Odznači „Sakrij moju adresu e-pošte od primatelja”."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   }
 }
