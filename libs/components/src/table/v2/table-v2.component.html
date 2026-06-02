@@ -58,7 +58,7 @@
         <bit-header-row>
           <ng-container *ngTemplateOutlet="headerCells"></ng-container>
         </bit-header-row>
-        <bit-row *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0">
+        <bit-row *cdkVirtualFor="let r of rows(); trackBy: trackBy(); templateCacheSize: 0">
           <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
         </bit-row>
       </cdk-virtual-scroll-viewport>
@@ -66,7 +66,7 @@
       <bit-header-row>
         <ng-container *ngTemplateOutlet="headerCells"></ng-container>
       </bit-header-row>
-      @for (r of (rows$ | async) ?? []; track r) {
+      @for (r of rows(); track r) {
         <bit-row>
           <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
         </bit-row>
@@ -79,6 +79,19 @@
       -->
       <ng-content select="bit-header-row"></ng-content>
       <ng-content select="bit-row"></ng-content>
+    }
+
+    <!--
+      Empty state: shown below the header in column-def mode when no rows
+      render (no data, or all filtered out). Projects `[slot=empty]`; falls back
+      to a default `<bit-no-items>` when the consumer doesn't provide one.
+    -->
+    @if (isEmpty()) {
+      <ng-content select="[slot=empty]">
+        <bit-no-items>
+          <span slot="title">{{ "nothingToShow" | i18n }}</span>
+        </bit-no-items>
+      </ng-content>
     }
   </div>
 </div>

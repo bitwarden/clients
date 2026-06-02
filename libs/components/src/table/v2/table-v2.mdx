@@ -227,6 +227,20 @@ The `truncate` input (default `true`) controls whether title and subtitle trunca
 or wrap. Slot=secondary and slot=end are hidden when empty, so plain cells render exactly the
 default slot's content with no empty wrappers.
 
+## Empty state
+
+When no rows render (in column-def mode) — empty data, or a filter that excluded everything — the
+table shows a default `<bit-no-items>` below the header. Project `slot="empty"` to override it:
+
+```html
+<bit-table-v2 [table]="table">
+  <div slot="empty" class="tw-p-10 tw-text-center tw-text-muted">No items found</div>
+  <bit-column>…</bit-column>
+</bit-table-v2>
+```
+
+Manual mode has no empty state — you control the rows.
+
 ## Manual mode
 
 For simple presentational tables — no sort, filter, selection, or virtualization — skip the model

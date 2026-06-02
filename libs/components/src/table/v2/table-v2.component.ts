@@ -22,7 +22,10 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { finalize, Observable } from "rxjs";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { ScrollLayoutDirective } from "../../layout";
+import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
 import { TableDataSource } from "../table-data-source";
 
@@ -42,6 +45,8 @@ import { TableModel } from "./table-model";
     ScrollLayoutDirective,
     BitHeaderRowComponent,
     BitRowComponent,
+    NoItemsComponent,
+    I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: SEARCH_CONSUMER, useExisting: forwardRef(() => BitTableV2Component) }],
@@ -171,9 +176,15 @@ export class BitTableV2Component<T = unknown>
   ];
 
   /** The rendered (filtered + sorted) rows; disconnects on unsubscribe. */
-  protected readonly rows$: Observable<readonly T[]> = this.dataSource
+  private readonly rows$: Observable<readonly T[]> = this.dataSource
     .connect()
     .pipe(finalize(() => this.dataSource.disconnect()));
+
+  /** Rendered rows as a signal — the single subscription to {@link rows$}. */
+  protected readonly rows = toSignal(this.rows$, { initialValue: [] as readonly T[] });
+
+  /** Column-def mode with no rows to render (empty data or fully filtered out). */
+  protected readonly isEmpty = computed(() => this.hasColumns() && this.rows().length === 0);
 
   /**
    * Bridges the data source's `sort$` into a signal so header-cell computeds

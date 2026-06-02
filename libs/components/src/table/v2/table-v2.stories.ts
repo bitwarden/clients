@@ -173,6 +173,7 @@ export default {
               removeItem: (name) => `Remove ${name}`,
               clearFilters: "Clear all filters",
               filtersApplied: (count) => `${count} filters applied`,
+              nothingToShow: "Nothing to show",
             }),
         },
       ],
@@ -203,6 +204,7 @@ const reorderTable = new TableModel<DemoRow>({
   data: basicData,
   columns: { order: ["name", "id"] },
 });
+const emptyTable = new TableModel<DemoRow>({ data: signal<DemoRow[]>([]) });
 
 export const Default: Story = {
   render: () => ({
@@ -526,6 +528,29 @@ export const SelectableSubset: Story = {
       `,
     };
   },
+};
+
+/**
+ * When no rows render (in column-def mode) — empty data, or a filter that
+ * excluded everything — the table shows a default `<bit-no-items>`. Project
+ * `slot="empty"` to override it with your own empty state.
+ */
+export const Empty: Story = {
+  render: () => ({
+    props: { table: emptyTable },
+    template: `
+      <bit-table-v2 [table]="table">
+        <bit-column>
+          <bit-header-cell>Id</bit-header-cell>
+          <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
 };
 
 /**
