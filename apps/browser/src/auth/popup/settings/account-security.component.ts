@@ -320,8 +320,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.form.controls.allowSharingUnlockState.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
+          await this.updateAllowSharingUnlockState(enabled);
         }),
         takeUntil(this.destroy$),
       )
