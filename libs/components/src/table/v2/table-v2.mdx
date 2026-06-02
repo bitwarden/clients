@@ -58,12 +58,14 @@ each cell template.
 the row type; `S` declares synthetic column names (see [Synthetic columns](#synthetic-columns)). It
 exposes:
 
-| Facet              | What it owns                                                       |
-| ------------------ | ------------------------------------------------------------------ |
-| `table.dataSource` | Row data, sort state, filter application.                          |
-| `table.columns`    | Typed refs (`table.ref` is shorthand), display order, visibility.  |
-| `table.filter`     | Search term, facet definitions, applied state, composed predicate. |
-| `table.selection`  | Selection state — present only when `selection` is configured.     |
+| Facet             | What it owns                                                       |
+| ----------------- | ------------------------------------------------------------------ |
+| `table.data`      | Row data, as a `Signal<T[]>`.                                      |
+| `table.columns`   | Typed refs (`table.ref` is shorthand), display order, visibility.  |
+| `table.filter`    | Search term, facet definitions, applied state, composed predicate. |
+| `table.selection` | Selection state — present only when `selection` is configured.     |
+
+Filtering and sorting are applied internally; there's no exposed data source.
 
 Construct it with one config object; every facet is optional:
 
@@ -281,14 +283,14 @@ sortByName = (a: User, b: User, direction?: SortDirection) => {
 </bit-column>
 ```
 
-Sort state lives on the model's data source — see
+Sort state is managed internally by the table — see
 [Table → Sorting](?path=/docs/component-library-table--docs#sorting) for the mechanics.
 
 ## Filtering
 
 Configure filtering on the model's `filter`: a `search` matcher and/or facet definitions. The model
-composes them into the predicate the table applies (re-filtering reactively — no manual
-`dataSource.filter` assignment):
+composes them into a predicate the table applies internally, re-filtering reactively — you never
+touch a data source:
 
 ```ts
 const table = new TableModel<Member>({

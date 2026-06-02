@@ -1,7 +1,5 @@
 import { Signal, signal } from "@angular/core";
 
-import { TableDataSource } from "../table-data-source";
-
 import { ColumnModel, ColumnModelConfig } from "./column-model";
 import { FilterModel, FilterModelConfig } from "./filter-model";
 import { TableSelectionModel } from "./table-selection-model";
@@ -19,18 +17,16 @@ export type TableModelConfig<T, S extends string> = {
 
 /**
  * The single construct a `bit-table-v2` is configured with, passed via
- * `[table]`. A thin facade that composes the focused sub-models — data
- * ({@link dataSource}), {@link columns}, {@link filter}, and optional
- * {@link selection}) — so a table is built and bound once instead of wiring
- * four inputs. The sub-models stay reachable for typed refs and runtime ops;
- * the table component reads them and owns the small reactive glue (applying
- * the filter predicate, scoping select-all to filtered rows).
+ * `[table]`. A thin facade composing the focused pieces — {@link data},
+ * {@link columns}, {@link filter}, and optional {@link selection} — so a table
+ * is built and bound once instead of wiring four inputs. They stay reachable
+ * for typed refs and runtime ops; the table component reads them and owns the
+ * runtime engine (filtering, sorting) and its reactive glue.
  *
  * @example
  * ```ts
  * const table = new TableModel<Member, "actions">({
- *   data: members,
- *   columns: { synthetic: ["actions"] },
+ *   data: members, // Signal<Member[]>
  *   filter: { search: (r, t) => r.name.toLowerCase().includes(t.toLowerCase()) },
  *   selection: { multiple: true },
  * });
@@ -40,10 +36,7 @@ export type TableModelConfig<T, S extends string> = {
  * ```
  */
 export class TableModel<T, S extends string = never> {
-  /** Sort state and filter application. Data is synced into it from {@link data}. */
-  readonly dataSource = new TableDataSource<T>();
-
-  /** Current row data. The table syncs this into {@link dataSource}. */
+  /** Current row data. The table filters and sorts it for display. */
   readonly data: Signal<T[]>;
 
   /** Column identity, typed references, order, and visibility. */

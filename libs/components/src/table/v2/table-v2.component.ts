@@ -19,11 +19,12 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { finalize, Observable, switchMap } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { finalize, Observable } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
+import { TableDataSource } from "../table-data-source";
 
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
@@ -73,8 +74,12 @@ export class BitTableV2Component<T = unknown>
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
 
-  /** The model's data source. */
-  protected readonly dataSource = computed(() => this.table().dataSource);
+  /**
+   * The RxJS engine that filters and sorts the model's data into rendered rows.
+   * A private implementation detail — fed from the model's `data` and `filter`,
+   * and owns sort state. Not exposed on the model.
+   */
+  private readonly dataSource = new TableDataSource<T>();
 
   /** The model's column model. */
   protected readonly columnModel = computed(() => this.table().columns);
@@ -165,21 +170,17 @@ export class BitTableV2Component<T = unknown>
     "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
   ];
 
-  /**
-   * Connects to the model's data source (including model swaps), tearing down
-   * the connection on unsubscribe. Driven via `toObservable` so the pipeline
-   * can be `readonly` rather than reassigned in `ngOnInit`.
-   */
-  protected readonly rows$: Observable<readonly T[]> = toObservable(this.dataSource).pipe(
-    switchMap((ds) => ds.connect().pipe(finalize(() => ds.disconnect()))),
-  );
+  /** The rendered (filtered + sorted) rows; disconnects on unsubscribe. */
+  protected readonly rows$: Observable<readonly T[]> = this.dataSource
+    .connect()
+    .pipe(finalize(() => this.dataSource.disconnect()));
 
   /**
    * Bridges the data source's `sort$` into a signal so header-cell computeds
    * can react to sort changes (the data source is RxJS-internal; v2 is signal-
-   * based). Re-subscribes when the model swaps.
+   * based).
    */
-  readonly sort = toSignal(toObservable(this.dataSource).pipe(switchMap((ds) => ds.sort$)));
+  readonly sort = toSignal(this.dataSource.sort$);
 
   /** Height of the thead element (px); used to pad the virtual scroll viewport. */
   protected readonly headerHeight = signal(0);
@@ -188,13 +189,13 @@ export class BitTableV2Component<T = unknown>
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    // Bridge the model's signals into its RxJS data source (the component has
-    // the injection context the plain model lacks).
+    // Bridge the model's signals into the data source (the component has the
+    // injection context the plain model lacks).
     effect(() => {
-      this.dataSource().data = this.table().data();
+      this.dataSource.data = this.table().data();
     });
     effect(() => {
-      this.dataSource().filter = this.table().filter.predicate();
+      this.dataSource.filter = this.table().filter.predicate();
     });
   }
 
@@ -223,7 +224,7 @@ export class BitTableV2Component<T = unknown>
    * header component when its sort button is clicked.
    */
   toggleSort(col: BitColumnComponent): void {
-    const ds = this.dataSource();
+    const ds = this.dataSource;
     const current = ds.sort;
     const colName = col.name();
     if (!colName) {
@@ -241,7 +242,7 @@ export class BitTableV2Component<T = unknown>
   }
 
   protected selectableRows(): T[] {
-    const ds = this.dataSource();
+    const ds = this.dataSource;
     const rows = ds.filteredData ?? ds.data ?? [];
     return rows.filter((row) => this.isSelectable(row));
   }
@@ -279,7 +280,7 @@ export class BitTableV2Component<T = unknown>
   }
 
   private applyInitialSort(): void {
-    const ds = this.dataSource();
+    const ds = this.dataSource;
     if (ds.sort?.column) {
       return;
     }
