@@ -11,8 +11,18 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
+import { NavigationEnd, Router } from "@angular/router";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  lastValueFrom,
+  map,
+  startWith,
+  Subject,
+  takeUntil,
+  timeout,
+} from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
@@ -53,6 +63,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
@@ -62,13 +73,20 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
-import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
+import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  CopyCipherFieldService,
+} from "@bitwarden/vault";
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
@@ -84,6 +102,9 @@ import { ImportDesktopComponent } from "./tools/import/import-desktop.component"
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
+const QuickAccessMaxResults = 6;
+
+type QuickAccessCopyAction = "username" | "password";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -119,7 +140,14 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
 
-  showHeader$ = this.accountService.showHeader$;
+  showHeader$ = combineLatest([
+    this.accountService.showHeader$,
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      startWith(null),
+      map(() => !this.router.url.includes("/quick-access")),
+    ),
+  ]).pipe(map(([showHeader, showForRoute]) => showHeader && showForRoute));
   loading = false;
 
   private lastActivity: Date = null;
@@ -140,6 +168,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private folderService: InternalFolderService,
     private syncService: SyncService,
     private cipherService: CipherService,
+    private searchService: SearchService,
+    private copyCipherFieldService: CopyCipherFieldService,
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
@@ -231,9 +261,9 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.processReloadService.startProcessReload();
             break;
           case "authBlocked":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["login"]);
+            if (!this.isQuickAccessRoute()) {
+              void this.router.navigate(["login"]);
+            }
             break;
           case "logout":
             this.loading = message.userId == null || message.userId === this.activeUserId;
@@ -250,9 +280,12 @@ export class AppComponent implements OnInit, OnDestroy {
           case "locked":
             this.modalService.closeAll();
             if (
-              message.userId == null ||
-              message.userId ===
-                (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))))
+              !this.isQuickAccessRoute() &&
+              (message.userId == null ||
+                message.userId ===
+                  (await firstValueFrom(
+                    this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+                  )))
             ) {
               await this.router.navigate(["lock"]);
             }
@@ -324,6 +357,35 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "showToast":
             this.toastService._showToast(message);
+            break;
+          case "quickAccessOpenApp":
+            await this.router.navigate(message.route ?? ["/vault"]);
+            break;
+          case "quickAccessOpenCipher":
+            if (message.cipherId != null) {
+              if (this.router.url.includes("/vault")) {
+                break;
+              }
+
+              await this.router.navigate(["/vault"], {
+                queryParams: {
+                  action: "view",
+                  cipherId: message.cipherId,
+                  search: message.searchText || null,
+                },
+                replaceUrl: true,
+              });
+            }
+            break;
+          case "quickAccessSearchRequest":
+            await this.handleQuickAccessSearchRequest(message.requestId, message.query);
+            break;
+          case "quickAccessCopyRequest":
+            await this.handleQuickAccessCopyRequest(
+              message.requestId,
+              message.cipherId,
+              message.action,
+            );
             break;
           case "copiedToClipboard":
             if (!message.clearing) {
@@ -626,6 +688,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.messagingService.send("updateAppMenu", { updateRequest: updateRequest });
   }
 
+  private isQuickAccessRoute() {
+    return (
+      this.router.url.includes("/quick-access") ||
+      globalThis.location?.href?.includes("redirectUrl=%2Fquick-access")
+    );
+  }
+
   private async displayLogoutReason(logoutReason: LogoutReason) {
     let toastOptions: ToastOptions;
 
@@ -908,6 +977,139 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private async deleteAccount() {
     await this.accountDeletionService.openDeleteAccountFlow();
+  }
+
+  private async handleQuickAccessSearchRequest(requestId: string, query: string) {
+    const activeUserId =
+      this.activeUserId ?? (await firstValueFrom(getUserId(this.accountService.activeAccount$)));
+
+    if (activeUserId == null) {
+      this.messagingService.send("quickAccessSearchResponse", {
+        requestId,
+        authStatus: AuthenticationStatus.LoggedOut,
+        results: [],
+      });
+      return;
+    }
+
+    const authStatus = await this.authService.getAuthStatus(activeUserId);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      this.messagingService.send("quickAccessSearchResponse", {
+        requestId,
+        authStatus,
+        results: [],
+      });
+      return;
+    }
+
+    const searchText = (query ?? "").trim();
+    if (searchText === "") {
+      this.messagingService.send("quickAccessSearchResponse", {
+        requestId,
+        authStatus,
+        results: [],
+      });
+      return;
+    }
+
+    const [ciphers, failedCiphers, restrictedTypes] = await Promise.all([
+      firstValueFrom(
+        this.cipherService.cipherListViews$(activeUserId).pipe(filter((c) => c != null)),
+      ),
+      firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId)),
+      firstValueFrom(this.restrictedItemTypesService.restricted$),
+    ]);
+    const allowedCiphers = [...(failedCiphers ?? []), ...(ciphers ?? [])].filter(
+      (cipher) =>
+        !CipherViewLikeUtils.isDeleted(cipher) &&
+        !CipherViewLikeUtils.isArchived(cipher) &&
+        !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
+    );
+    const results = (await this.searchService.isSearchable(searchText))
+      ? await this.searchService.searchCiphers(activeUserId, null, searchText, allowedCiphers)
+      : allowedCiphers;
+
+    this.messagingService.send("quickAccessSearchResponse", {
+      requestId,
+      authStatus,
+      results: results
+        .filter((cipher) => cipher.id != null)
+        .slice(0, QuickAccessMaxResults)
+        .map((cipher) => ({
+          cipherId: uuidAsString(cipher.id),
+          name: cipher.name ?? "",
+          subtitle: CipherViewLikeUtils.subtitle(cipher) || CipherViewLikeUtils.uri(cipher) || "",
+          typeIcon: buildCipherIcon(null, cipher, false).icon,
+          typeI18nKey: this.quickAccessTypeI18nKey(CipherViewLikeUtils.getType(cipher)),
+          canCopyUsername: CipherViewLikeUtils.hasCopyableValue(cipher, "username"),
+          canCopyPassword: CipherViewLikeUtils.hasCopyableValue(cipher, "password"),
+        })),
+    });
+  }
+
+  private async handleQuickAccessCopyRequest(
+    requestId: string,
+    cipherId: string,
+    action: QuickAccessCopyAction,
+  ) {
+    const activeUserId =
+      this.activeUserId ?? (await firstValueFrom(getUserId(this.accountService.activeAccount$)));
+    let copied = false;
+
+    try {
+      if (
+        activeUserId != null &&
+        cipherId != null &&
+        this.isQuickAccessCopyAction(action) &&
+        (await this.authService.getAuthStatus(activeUserId)) === AuthenticationStatus.Unlocked
+      ) {
+        const encryptedCipher = await this.cipherService.get(cipherId, activeUserId);
+        const cipher = await this.cipherService.decrypt(encryptedCipher, activeUserId);
+        const value =
+          action === "username"
+            ? cipher.login?.username || cipher.identity?.username
+            : cipher.login?.password;
+
+        if (value != null && value !== "") {
+          copied = await this.copyCipherFieldService.copy(value, action, cipher);
+        }
+      }
+    } catch (error) {
+      this.logService.error("[AppComponent] Failed to copy Quick Access field", error);
+    }
+
+    this.messagingService.send("quickAccessCopyResponse", {
+      requestId,
+      copied,
+      action,
+    });
+  }
+
+  private isQuickAccessCopyAction(action: string): action is QuickAccessCopyAction {
+    return action === "username" || action === "password";
+  }
+
+  private quickAccessTypeI18nKey(cipherType: CipherType) {
+    switch (cipherType) {
+      case CipherType.Login:
+        return "typeLogin";
+      case CipherType.SecureNote:
+        return "typeSecureNote";
+      case CipherType.Card:
+        return "typeCard";
+      case CipherType.Identity:
+        return "typeIdentity";
+      case CipherType.SshKey:
+        return "typeSshKey";
+      case CipherType.BankAccount:
+        return "bankAccount";
+      case CipherType.DriversLicense:
+        return "typeDriversLicense";
+      case CipherType.Passport:
+        return "typePassport";
+      default:
+        return "item";
+    }
   }
 
   private async processPendingAuthRequests() {

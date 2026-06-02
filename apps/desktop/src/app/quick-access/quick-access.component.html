@@ -1,0 +1,143 @@
+<main
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="'searchVault' | i18n"
+  class="qa-shell"
+  cdkTrapFocus
+  cdkTrapFocusAutoCapture
+  (keydown)="handleKeydown($event)"
+>
+  <section class="qa-card tw-app-region-drag">
+    <header class="qa-top" *ngIf="authStatus === AuthenticationStatus.Unlocked">
+      <div class="qa-search tw-app-region-no-drag">
+        <i class="bwi bwi-search qa-search-icon" aria-hidden="true"></i>
+        <input
+          class="qa-search-input"
+          [(ngModel)]="searchText"
+          (ngModelChange)="search($event)"
+          [placeholder]="'searchVault' | i18n"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button
+          *ngIf="searchText !== ''"
+          class="qa-clear"
+          type="button"
+          [attr.aria-label]="'clear' | i18n"
+          [attr.title]="'clear' | i18n"
+          (click)="clearSearch()"
+        >
+          <i class="bwi bwi-close" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <section class="qa-body tw-app-region-no-drag">
+      <ng-container [ngSwitch]="authStatus">
+        <ng-container *ngSwitchCase="AuthenticationStatus.Unlocked">
+          <div class="qa-results" *ngIf="currentResults.length > 0">
+            <button
+              *ngFor="let result of currentResults; let i = index; trackBy: trackByCipher"
+              class="qa-row"
+              type="button"
+              [class.is-selected]="i === selectedIndex"
+              (mouseenter)="selectedIndex = i"
+              (click)="openSelected()"
+            >
+              <span
+                class="qa-icon"
+                [attr.aria-label]="result.typeI18nKey | i18n"
+                [attr.title]="result.typeI18nKey | i18n"
+              >
+                <i class="bwi" [ngClass]="result.typeIcon" aria-hidden="true"></i>
+              </span>
+              <span class="tw-min-w-0">
+                <span class="qa-title">{{ result.name }}</span>
+                <span class="qa-subtitle">{{ result.subtitle }}</span>
+              </span>
+              <i
+                class="bwi bwi-angle-right qa-hint"
+                [attr.title]="'view' | i18n"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="AuthenticationStatus.Locked">
+          <div class="qa-panel">
+            <div class="qa-unlock-form">
+              <div class="qa-panel-title">{{ "yourVaultIsLockedV2" | i18n }}</div>
+              <div class="qa-panel-copy">
+                {{ "quickAccessLockedDescription" | i18n }}
+              </div>
+              <div class="qa-unlock-actions">
+                <button class="qa-primary" type="button" (click)="openUnlock()">
+                  {{ "unlock" | i18n }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+          <div class="qa-panel">
+            <div>
+              <div class="qa-panel-title">{{ "logInToBitwarden" | i18n }}</div>
+              <div class="qa-panel-copy">{{ "quickAccessLoggedOutDescription" | i18n }}</div>
+              <button class="qa-secondary" type="button" (click)="openSignIn()">
+                {{ "logIn" | i18n }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <ng-template #noResults>
+        <div class="qa-panel">
+          <div>
+            <div class="qa-panel-title">
+              {{ isSearching ? ("loading" | i18n) : ("noSearchResults" | i18n) }}
+            </div>
+            <div class="qa-panel-copy">{{ "quickAccessNoResultsDescription" | i18n }}</div>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <footer
+      class="qa-footer tw-app-region-no-drag"
+      *ngIf="authStatus === AuthenticationStatus.Unlocked && currentResults.length > 0"
+    >
+      <button
+        class="qa-action"
+        type="button"
+        [disabled]="selectedResult == null || !selectedResult.canCopyUsername"
+        (click)="copySelected('username', $event)"
+      >
+        <span class="qa-key">Cmd U</span>
+        <span>{{ "copyUsername" | i18n }}</span>
+      </button>
+      <button
+        class="qa-action"
+        type="button"
+        [disabled]="selectedResult == null || !selectedResult.canCopyPassword"
+        (click)="copySelected('password', $event)"
+      >
+        <span class="qa-key">Cmd P</span>
+        <span>{{ "copyPassword" | i18n }}</span>
+      </button>
+      <button
+        class="qa-action"
+        type="button"
+        [disabled]="selectedResult == null"
+        (click)="openSelected()"
+      >
+        <span class="qa-key">Enter</span>
+        <span>{{ "view" | i18n }}</span>
+      </button>
+    </footer>
+
+    <div class="qa-status" *ngIf="statusMessageKey !== ''">{{ statusMessageKey | i18n }}</div>
+  </section>
+</main>

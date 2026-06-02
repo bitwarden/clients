@@ -20,6 +20,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { isDev } from "../../utils";
+import { DEFAULT_QUICK_ACCESS_SHORTCUT } from "../models/domain/quick-access-shortcut";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -63,6 +64,22 @@ const BROWSER_INTEGRATION_ENABLED = new KeyDefinition<boolean>(
   "browserIntegrationEnabled",
   {
     deserializer: (b) => b,
+  },
+);
+
+const QUICK_ACCESS_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "quickAccessEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
+const QUICK_ACCESS_SHORTCUT = new KeyDefinition<string>(
+  DESKTOP_SETTINGS_DISK,
+  "quickAccessShortcut",
+  {
+    deserializer: (s) => s,
   },
 );
 
@@ -147,6 +164,14 @@ export class DesktopSettingsService {
    * The application setting for whether or not the browser integration is enabled.
    */
   browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(map(Boolean));
+
+  private readonly quickAccessEnabledState = this.stateProvider.getGlobal(QUICK_ACCESS_ENABLED);
+  quickAccessEnabled$ = this.quickAccessEnabledState.state$.pipe(map((v) => v ?? true));
+
+  private readonly quickAccessShortcutState = this.stateProvider.getGlobal(QUICK_ACCESS_SHORTCUT);
+  quickAccessShortcut$ = this.quickAccessShortcutState.state$.pipe(
+    map((v) => v ?? DEFAULT_QUICK_ACCESS_SHORTCUT),
+  );
 
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
@@ -264,6 +289,14 @@ export class DesktopSettingsService {
    */
   async setBrowserIntegrationEnabled(value: boolean) {
     await this.browserIntegrationEnabledState.update(() => value);
+  }
+
+  async setQuickAccessEnabled(value: boolean) {
+    await this.quickAccessEnabledState.update(() => value);
+  }
+
+  async setQuickAccessShortcut(value: string) {
+    await this.quickAccessShortcutState.update(() => value);
   }
 
   /**

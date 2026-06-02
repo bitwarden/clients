@@ -55,6 +55,7 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { QuickAccessComponent } from "./quick-access/quick-access.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
 import { SendComponent } from "./tools/send/send.component";
 
@@ -128,6 +129,10 @@ const routes: Routes = [
   {
     path: "fido2-excluded",
     component: Fido2ExcludedCiphersComponent,
+  },
+  {
+    path: "quick-access",
+    component: QuickAccessComponent,
   },
   {
     path: "",

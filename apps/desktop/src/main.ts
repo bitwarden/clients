@@ -44,6 +44,8 @@ import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { QuickAccessWindowMain } from "./main/quick-access-window.main";
+import { QuickAccessMain } from "./main/quick-access.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
@@ -98,6 +100,8 @@ export class Main {
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
+  quickAccessWindowMain: QuickAccessWindowMain;
+  quickAccessMain: QuickAccessMain;
 
   constructor() {
     // Set paths for portable builds
@@ -287,6 +291,7 @@ export class Main {
       this.desktopSettingsService,
       this.versionMain,
       this.shell,
+      () => void this.quickAccessMain?.toggle(),
     );
 
     this.trayMain = new TrayMain(
@@ -340,7 +345,16 @@ export class Main {
       this.windowMain,
     );
 
+    this.quickAccessWindowMain = new QuickAccessWindowMain(this.logService);
+    this.quickAccessMain = new QuickAccessMain(
+      this.logService,
+      this.windowMain,
+      this.quickAccessWindowMain,
+      this.desktopSettingsService,
+    );
+
     app.on("will-quit", () => {
+      this.quickAccessMain.dispose();
       this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
     });
@@ -359,6 +373,7 @@ export class Main {
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
+        await this.quickAccessMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();

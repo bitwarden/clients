@@ -26,6 +26,7 @@ export class MenuMain {
     private desktopSettingsService: DesktopSettingsService,
     private versionMain: VersionMain,
     private shell: SafeShell,
+    private toggleQuickAccess?: () => void,
   ) {}
 
   async init() {
@@ -50,6 +51,7 @@ export class MenuMain {
         await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
         this.versionMain,
         this.shell,
+        this.toggleQuickAccess,
         updateRequest,
       ).menu,
     );

@@ -85,11 +85,50 @@ export class MessagingMain {
       case "removeOpenAtLogin":
         this.removeOpenAtLogin();
         break;
+      case "lockVault":
+      case "lockAllVaults":
+      case "locked":
+      case "logout":
+      case "loggedOut":
+        this.main.quickAccessMain.resetWindow();
+        break;
       case "setFocus":
         this.setFocus();
         break;
       case "getWindowIsFocused":
         this.windowIsFocused();
+        break;
+      case "quickAccessHide":
+        this.main.quickAccessMain.hide();
+        break;
+      case "quickAccessOpenCipher":
+        if (message.cipherId != null) {
+          this.main.quickAccessMain.openCipher(message.cipherId, message.searchText);
+        }
+        break;
+      case "quickAccessOpenApp":
+        this.main.quickAccessMain.openApp(message.route);
+        break;
+      case "quickAccessSearchRequest":
+      case "quickAccessCopyRequest":
+        this.main.windowMain.win?.webContents.send("messagingService", message);
+        break;
+      case "quickAccessSearchResponse":
+      case "quickAccessCopyResponse":
+        this.main.quickAccessMain.send(message);
+        break;
+      case "quickAccessResize":
+        if (typeof message.height === "number") {
+          this.main.quickAccessMain.resize(message.height);
+        }
+        break;
+      case "quickAccessSetEnabled":
+        this.main.quickAccessMain.setEnabled(message.enabled === true);
+        break;
+      case "quickAccessSetShortcut":
+        if (typeof message.shortcut === "string") {
+          this.main.quickAccessMain.setShortcut(message.shortcut);
+        }
         break;
       default:
         break;

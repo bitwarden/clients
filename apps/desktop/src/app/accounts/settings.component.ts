@@ -59,7 +59,9 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { DEFAULT_QUICK_ACCESS_SHORTCUT } from "../../platform/models/domain/quick-access-shortcut";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { QuickAccessShortcutComponent } from "../quick-access/quick-access-shortcut.component";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -149,6 +151,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     openAtLogin: false,
     alwaysShowDock: false,
     enableBrowserIntegration: false,
+    enableQuickAccess: true,
+    quickAccessShortcut: [null as string | null],
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
@@ -308,6 +312,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,
       ),
+      enableQuickAccess: await firstValueFrom(this.desktopSettingsService.quickAccessEnabled$),
+      quickAccessShortcut: await firstValueFrom(this.desktopSettingsService.quickAccessShortcut$),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -650,6 +656,38 @@ export class SettingsComponent implements OnInit, OnDestroy {
         type: "danger",
       });
     }
+  }
+
+  async saveQuickAccessEnabled() {
+    await this.desktopSettingsService.setQuickAccessEnabled(this.form.value.enableQuickAccess);
+    this.messagingService.send("quickAccessSetEnabled", {
+      enabled: this.form.value.enableQuickAccess,
+    });
+  }
+
+  async saveQuickAccessShortcut() {
+    const wasEnabled = this.form.value.enableQuickAccess;
+    if (wasEnabled) {
+      this.messagingService.send("quickAccessSetEnabled", { enabled: false });
+    }
+
+    const dialogRef = QuickAccessShortcutComponent.open(
+      this.dialogService,
+      this.form.value.quickAccessShortcut ?? DEFAULT_QUICK_ACCESS_SHORTCUT,
+    );
+    const shortcut = await firstValueFrom(dialogRef.closed);
+
+    if (wasEnabled) {
+      this.messagingService.send("quickAccessSetEnabled", { enabled: true });
+    }
+
+    if (!shortcut) {
+      return;
+    }
+
+    this.form.controls.quickAccessShortcut.setValue(shortcut);
+    await this.desktopSettingsService.setQuickAccessShortcut(shortcut);
+    this.messagingService.send("quickAccessSetShortcut", { shortcut });
   }
 
   async saveDdgBrowserIntegration() {

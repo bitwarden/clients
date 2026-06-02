@@ -34,6 +34,9 @@ export class ViewMenu implements IMenubarMenu {
     ];
 
     if (isDev()) {
+      if (this._toggleQuickAccess != null) {
+        items.push(this.separator, this.quickAccess);
+      }
       items.push(this.toggleDevTools);
     }
 
@@ -44,17 +47,20 @@ export class ViewMenu implements IMenubarMenu {
   private readonly _messagingService: MessagingService;
   private readonly _isLocked: boolean;
   private readonly _windowMain: WindowMain;
+  private readonly _toggleQuickAccess?: () => void;
 
   constructor(
     i18nService: I18nService,
     messagingService: MessagingService,
     isLocked: boolean,
     windowMain: WindowMain,
+    toggleQuickAccess?: () => void,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
     this._isLocked = isLocked;
     this._windowMain = windowMain;
+    this._toggleQuickAccess = toggleQuickAccess;
   }
 
   private get searchVault(): MenuItemConstructorOptions {
@@ -144,6 +150,14 @@ export class ViewMenu implements IMenubarMenu {
       id: "reload",
       label: this.localize("reload"),
       role: "forceReload",
+    };
+  }
+
+  private get quickAccess(): MenuItemConstructorOptions {
+    return {
+      id: "quickAccess",
+      label: "Toggle Quick Access",
+      click: () => this._toggleQuickAccess?.(),
     };
   }
 

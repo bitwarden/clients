@@ -4769,6 +4769,33 @@
   "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
+  "quickAccessShortcut": {
+    "message": "Quick Access shortcut"
+  },
+  "enableQuickAccessShortcutPreview": {
+    "message": "Enable Quick Access"
+  },
+  "enableQuickAccessShortcutDescription": {
+    "message": "Open a standalone vault search window without switching to the main Bitwarden window."
+  },
+  "editQuickAccessKeyboardModifiersDescription": {
+    "message": "Press a shortcut with Command, Control, or Alt. Space and Shift are supported for Spotlight-style shortcuts."
+  },
+  "quickAccessLockedDescription": {
+    "message": "Unlock Bitwarden to search your vault from Quick Access."
+  },
+  "quickAccessLoggedOutDescription": {
+    "message": "Sign in before using Quick Access search."
+  },
+  "quickAccessNoResultsDescription": {
+    "message": "Search by item name, username, or website."
+  },
+  "usernameCopied": {
+    "message": "Copied username"
+  },
+  "passwordCopied": {
+    "message": "Copied password"
+  },
   "editShortcut": {
     "message": "Edit shortcut"
   },

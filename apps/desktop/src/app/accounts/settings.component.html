@@ -281,6 +281,37 @@
                   "enableBrowserIntegrationDesc1" | i18n
                 }}</small>
               </div>
+              <div class="form-group">
+                <div class="checkbox">
+                  <label for="enableQuickAccess">
+                    <input
+                      id="enableQuickAccess"
+                      type="checkbox"
+                      aria-describedby="enableQuickAccessHelp"
+                      formControlName="enableQuickAccess"
+                      (change)="saveQuickAccessEnabled()"
+                    />
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      {{ "enableQuickAccessShortcutPreview" | i18n }}
+                      <div>
+                        <code>{{ form.value.quickAccessShortcut }}</code>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <small id="enableQuickAccessHelp" class="help-block">
+                  {{ "enableQuickAccessShortcutDescription" | i18n }}
+                  <a
+                    class="settings-link"
+                    tabindex="0"
+                    *ngIf="form.value.enableQuickAccess"
+                    (click)="saveQuickAccessShortcut()"
+                    (keydown.enter)="saveQuickAccessShortcut(); $event.preventDefault()"
+                  >
+                    {{ "editShortcut" | i18n }}
+                  </a>
+                </small>
+              </div>
               <div class="form-group" *ngIf="showEnableAutotype">
                 <div class="checkbox">
                   <label for="enableAutotype">

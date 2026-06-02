@@ -60,6 +60,7 @@ export class Menubar {
     hardwareAccelerationEnabled: boolean,
     versionMain: VersionMain,
     shell: SafeShell,
+    toggleQuickAccess?: () => void,
     updateRequest?: MenuUpdateRequest,
   ) {
     let isLocked = true;
@@ -94,7 +95,7 @@ export class Menubar {
         updateRequest?.restrictedCipherTypes,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
-      new ViewMenu(i18nService, messagingService, isLocked, windowMain),
+      new ViewMenu(i18nService, messagingService, isLocked, windowMain, toggleQuickAccess),
       new AccountMenu(
         i18nService,
         messagingService,

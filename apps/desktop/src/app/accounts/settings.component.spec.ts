@@ -38,6 +38,7 @@ import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { DEFAULT_QUICK_ACCESS_SHORTCUT } from "../../platform/models/domain/quick-access-shortcut";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
@@ -177,6 +178,8 @@ describe("SettingsComponent", () => {
     desktopSettingsService.openAtLogin$ = of(false);
     desktopSettingsService.alwaysShowDock$ = of(false);
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
+    desktopSettingsService.quickAccessEnabled$ = of(true);
+    desktopSettingsService.quickAccessShortcut$ = of(DEFAULT_QUICK_ACCESS_SHORTCUT);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
