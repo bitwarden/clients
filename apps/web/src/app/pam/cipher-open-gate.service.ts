@@ -7,13 +7,11 @@ import { DialogService } from "@bitwarden/components";
 import {
   CipherOpenGate,
   CipherOpenVerdict,
+  GatedCipherLike,
 } from "../vault/individual-vault/cipher-open-gate";
 
 import { AccessRequestDetailModalComponent } from "./access-request-detail-modal/access-request-detail-modal.component";
 import { CipherOpenInterceptorService } from "./cipher-open-interceptor.service";
-// DEMO ONLY: gated-ness comes from a deterministic predicate. In production this
-// signal is cipher/collection access-rule metadata held client-side.
-import { PamMockConfig } from "./mock/pam-mock-config";
 
 @Injectable({ providedIn: "root" })
 export class PamCipherOpenGate implements CipherOpenGate {
@@ -23,8 +21,8 @@ export class PamCipherOpenGate implements CipherOpenGate {
     private readonly i18nService: I18nService,
   ) {}
 
-  async check(cipher: { id: string }, userId: string): Promise<CipherOpenVerdict> {
-    const gated = PamMockConfig.isEnabled() && PamMockConfig.shouldGate(cipher.id);
+  async check(cipher: GatedCipherLike, userId: string): Promise<CipherOpenVerdict> {
+    const gated = cipher.partialData != null;
     const decision = await this.cipherOpenInterceptorService.open({
       cipherId: cipher.id,
       gated,

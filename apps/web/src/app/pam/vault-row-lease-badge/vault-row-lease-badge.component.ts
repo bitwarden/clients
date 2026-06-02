@@ -9,7 +9,15 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { GatedState, PamApiService } from "@bitwarden/pam";
 
 import { CipherLeaseBadgeComponent } from "../cipher-lease-badge/cipher-lease-badge.component";
-import { PamMockConfig } from "../mock/pam-mock-config";
+
+/**
+ * Minimal cipher shape needed to drive the badge. `partialData` (the raw
+ * JSON-string the server attaches to PAM-gated rows) is the gating signal:
+ * when present, we render the badge. Compatible with both `CipherView`
+ * (carries partialData) and the SDK `CipherListView` (does not — those rows
+ * never render the badge today).
+ */
+type BadgeCipher = { id: string; partialData?: string };
 
 type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
 
@@ -33,28 +41,28 @@ type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
   `,
 })
 export class VaultRowLeaseBadgeComponent {
-  readonly cipherId = input.required<string>();
+  readonly cipher = input.required<BadgeCipher>();
 
   private readonly accountService = inject(AccountService);
   private readonly configService = inject(ConfigService);
   private readonly pamApiService = inject(PamApiService);
 
-  private readonly cipherId$ = toObservable(this.cipherId);
+  private readonly cipher$ = toObservable(this.cipher);
   private readonly enabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly view$: Observable<LeaseBadgeView | null> = combineLatest([
-    this.cipherId$,
+    this.cipher$,
     this.enabled$,
     this.userId$,
   ]).pipe(
-    switchMap(([cipherId, enabled, userId]) => {
-      // DEMO: real gating will arrive on the cipher view via sync. Until then
-      // the mock predicate decides which ciphers are gated at all.
-      if (!cipherId || !enabled || !PamMockConfig.isEnabled() || !PamMockConfig.shouldGate(cipherId)) {
+    switchMap(([cipher, enabled, userId]) => {
+      // Gating is driven by the server-supplied `partialData` blob that ships
+      // with each cipher on sync. No blob → not gated → no badge.
+      if (!cipher || !enabled || cipher.partialData == null) {
         return of(null);
       }
-      return this.pamApiService.getCipherAccessState$(cipherId, userId).pipe(
+      return this.pamApiService.getCipherAccessState$(cipher.id, userId).pipe(
         map(({ lease }): LeaseBadgeView => {
           if (lease.activeLease != null) {
             return {

@@ -1,6 +1,6 @@
 import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -35,9 +35,10 @@ import { VaultCipherRowComponent } from "./vault-cipher-row.component";
   selector: "app-vault-row-lease-badge",
   standalone: true,
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class VaultRowLeaseBadgeStubComponent {
-  readonly cipherId = input.required<string>();
+  readonly cipher = input.required<{ id: string }>();
 }
 
 // eslint-disable-next-line no-console
@@ -267,5 +268,4 @@ describe("VaultCipherRowComponent", () => {
       expect(component["showAssignToCollections"]).toBeFalsy();
     });
   });
-
 });

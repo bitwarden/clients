@@ -2439,16 +2439,26 @@ export class CipherService implements CipherServiceAbstraction {
       return [[], []];
     }
 
+    // PAM gated rows can't go through the SDK (no partial-data decrypt path).
+    // Decrypt just their name client-side via the legacy Cipher.decrypt path
+    // and re-merge into the result so the vault list still shows them.
+    const partialCiphers = ciphers.filter((c) => c.partialData != null);
+    const decryptableCiphers = ciphers.filter((c) => c.partialData == null);
+    const partialViews = await this.decryptPartialCiphers(partialCiphers, userId);
+
     if (fullDecryption) {
       const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
-        ciphers,
+        decryptableCiphers,
         userId,
       );
-      return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+      return [
+        [...partialViews, ...decryptedViews].sort(this.getLocaleSortingFunction()),
+        failedViews,
+      ];
     }
 
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
-      ciphers,
+      decryptableCiphers,
       userId,
     );
 
@@ -2459,7 +2469,39 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher_view;
     });
 
-    return [decrypted.sort(this.getLocaleSortingFunction()), failedViews];
+    return [[...partialViews, ...decrypted].sort(this.getLocaleSortingFunction()), failedViews];
+  }
+
+  /**
+   * Decrypt the name on PAM gated rows client-side. The encrypted Name has
+   * been lifted from `partialData` onto `cipher.name` by CipherResponse, so
+   * the standard `Cipher.decrypt(key)` path decrypts it. All other fields on
+   * the partial cipher are null, so the type-specific decrypt branches
+   * naturally short-circuit and the view ends up with just a decrypted name
+   * plus the `partialData` marker for the vault-row badge.
+   */
+  private async decryptPartialCiphers(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
+    if (ciphers.length === 0) {
+      return [];
+    }
+    const keys = await firstValueFrom(
+      this.keyService.cipherDecryptionKeys$(userId, true).pipe(filterOutNullish()),
+    );
+    return Promise.all(
+      ciphers.map(async (cipher) => {
+        const key = cipher.organizationId
+          ? keys.orgKeys?.[cipher.organizationId as OrganizationId]
+          : keys.userKey;
+        if (key == null) {
+          // No key available for this cipher's scope — render the row with
+          // partialData preserved but an empty name. Better than dropping it.
+          const view = new CipherView(cipher);
+          view.name = "";
+          return view;
+        }
+        return cipher.decrypt(key);
+      }),
+    );
   }
 
   /** Fetches the full `CipherView` when a `CipherListView` is passed. */
