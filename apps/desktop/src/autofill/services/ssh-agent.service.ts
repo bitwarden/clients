@@ -195,12 +195,12 @@ export class SshAgentService implements OnDestroy {
 
             if (await firstValueFrom(dialogRef.closed)) {
               await this.rememberAuthorization(cipherId);
-              return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
+              return await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             } else {
-              return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+              return await ipc.autofill.sshAgent.signRequestResponse(requestId, false);
             }
           } else {
-            return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
+            return await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
           }
         }),
         catchError((error: unknown, source) => {

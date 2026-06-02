@@ -210,7 +210,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     }
 
     if (cipher.reprompt) {
-      return this.passwordRepromptService.showPasswordPrompt();
+      return await this.passwordRepromptService.showPasswordPrompt();
     }
 
     return true;

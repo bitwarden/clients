@@ -65,7 +65,7 @@ export default class IPCService {
       this._connect();
     }
 
-    return deferredConnections.getPromise();
+    return await deferredConnections.getPromise();
   }
 
   private _connect() {
@@ -137,7 +137,7 @@ export default class IPCService {
     try {
       // Since we can not guarantee that a response message will ever be sent, we put a timeout
       // on messages
-      return race({
+      return await race({
         promise: deferred.getPromise(),
         timeout: options?.overrideTimeout ?? DEFAULT_MESSAGE_TIMEOUT,
         error: new Error(`Message: ${message.messageId} timed out`),
@@ -198,7 +198,7 @@ export default class IPCService {
         continue;
       }
 
-      this.processMessage(message);
+      await this.processMessage(message);
     }
   }
 
