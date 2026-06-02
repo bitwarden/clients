@@ -167,14 +167,17 @@
   "copyPassportNumber": {
     "message": "Copier le numéro de passeport"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copier le numéro d'identification national"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Copier le prénom"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Copier le deuxième prénom"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Copier le nom de famille"
   },
   "copyLicenseNumber": {
     "message": "Copier la plaque d'immatriculation"
@@ -718,20 +721,20 @@
     "message": "Noter l'extension"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Résolution de problèmes"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "Vous rencontrez un problème ?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "Téléchargez puis partagez le rapport de diagnostic avec"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "support Bitwarden",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Télécharger"
   },
   "browserNotSupportClipboard": {
     "message": "Votre navigateur web ne supporte pas la copie rapide depuis le presse-papier. Copiez-le manuellement à la place."
@@ -1841,10 +1844,10 @@
     "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Saisir automatiquement et enregistrer ce site"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Saisie automatique uniquement"
   },
   "showInlineMenuLabel": {
     "message": "Afficher les suggestions de saisie automatique dans les champs d'un formulaire"
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Réseau de paiement"
   },
+  "birthDay": {
+    "message": "Jour de naissance"
+  },
+  "birthMonth": {
+    "message": "Mois de naissance"
+  },
+  "birthYear": {
+    "message": "Année de naissance"
+  },
+  "expirationDay": {
+    "message": "Jour d'expiration"
+  },
   "expirationMonth": {
     "message": "Mois d'expiration"
   },
   "expirationYear": {
     "message": "Année d'expiration"
+  },
+  "issueDay": {
+    "message": "Jour d'émission"
+  },
+  "issueMonth": {
+    "message": "Mois d'émission"
+  },
+  "issueYear": {
+    "message": "Année d'émission"
   },
   "monthly": {
     "message": "mois"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Numéro de passeport"
   },
+  "dateOfBirth": {
+    "message": "Date de naissance"
+  },
+  "sex": {
+    "message": "Sexe"
+  },
+  "copySex": {
+    "message": "Copier le sexe"
+  },
+  "birthPlace": {
+    "message": "Lieu de naissance"
+  },
+  "copyBirthPlace": {
+    "message": "Copier le lieu de naissance"
+  },
+  "nationality": {
+    "message": "Nationalité"
+  },
+  "copyNationality": {
+    "message": "Copier la nationalité"
+  },
+  "issuingCountry": {
+    "message": "Pays émetteur"
+  },
+  "copyIssuingCountry": {
+    "message": "Copier le pays émetteur"
+  },
+  "passportType": {
+    "message": "Type de passeport"
+  },
+  "copyPassportType": {
+    "message": "Copier le type de passeport"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Numéro d'identification national"
+  },
+  "issuingAuthority": {
+    "message": "Autorité émettrice"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copier l'autorité émettrice / bureau"
+  },
+  "issueDate": {
+    "message": "Date d'émission"
+  },
   "licenseNumber": {
     "message": "Numéro de licence"
   },
@@ -2190,53 +2259,32 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passeport"
+  },
+  "passportDetails": {
+    "message": "Détails du passeport"
+  },
+  "passportAdded": {
+    "message": "Passeport ajouté"
+  },
+  "typePassportSubtitle": {
+    "message": "Document de voyage"
+  },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Permis de conduire"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Permis de conduire ou ID"
   },
   "driversLicenseDetails": {
-    "message": "License details"
-  },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Détails du permis"
   },
   "issuingState": {
-    "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
+    "message": "État / province émetteur"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Classe de permis"
   },
   "newItemHeaderLogin": {
     "message": "Nouvel Identifiant",
@@ -2259,23 +2307,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Nouveau compte de banque",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nouveau permis",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nouveau passeport",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Nouveau texte",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Nouveau fichier",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Effacer",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "Vérifier si le mot de passe a été exposé."
@@ -2897,18 +2970,6 @@
   "biometricsFailedDesc": {
     "message": "Impossible d'utiliser le déverrouillage biométrique, utilisez votre mot de passe principal ou déconnectez-vous. Si le problème persiste, veuillez contacter le support Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Permission non accordée"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Sans la permission de communiquer avec l'application de bureau Bitwarden, nous ne pouvons pas activer le déverrouillage biométrique dans l'extension navigateur. Veuillez réessayer."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Erreur de demande de permission"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Cette action ne peut pas être effectuée dans la barre latérale, veuillez réessayer l'action dans la popup ou la nouvelle fenêtre."
-  },
   "personalOwnershipSubmitError": {
     "message": "En raison d'une politique d'entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Changez l'option Propriété au profit d'une organisation et choisissez parmi les collections disponibles."
   },
@@ -3345,7 +3406,7 @@
     "message": "Une erreur s'est produite lors de l'enregistrement de vos dates de suppression et d'expiration."
   },
   "hideYourEmail": {
-    "message": "Masquer votre adresse courriel aux regards indiscrets."
+    "message": "Masquer votre courriel aux visiteurs"
   },
   "passwordPrompt": {
     "message": "Ressaisir le mot de passe principal"
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Aucune valeur à copier"
   },
@@ -5068,7 +5133,7 @@
     "message": "Assigner aux collections"
   },
   "copyEmail": {
-    "message": "Copier l'email"
+    "message": "Copier le courriel"
   },
   "copyPhone": {
     "message": "Copier le numéro de téléphone"
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "Suivant"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Plus de fil d'Ariane",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6424,37 +6493,37 @@
     "message": "Échec de la vérification d'utilisateur."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Entrez le mois."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Entrez le jour."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Entrez l'année."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Entrez un jour valide."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Entrez une année valide."
   },
   "searchDriversLicense": {
     "message": "Search licenses"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "Nom de la banque"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "Nom sur le compte"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "Type de compte"
   },
   "bankAccountTypeCompany": {
-    "message": "Company (business)"
+    "message": "Entreprise (professionnel)"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual (personal)"
+    "message": "Individuel (personnel)"
   },
   "accountNumber": {
     "message": "Account number"
@@ -6467,7 +6536,7 @@
     "message": "Branch/institution number"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "Code SWIFT"
   },
   "iban": {
     "message": "IBAN"
@@ -6476,7 +6545,10 @@
     "message": "Bank contact phone"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "Rechercher un compte bancaire"
+  },
+  "searchPassport": {
+    "message": "Search passports"
   },
   "copyAccountNumber": {
     "message": "Copy account number"
@@ -6485,77 +6557,92 @@
     "message": "Copy routing number"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "Copier le NIP"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "Copier l'IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "Compte courant"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "Compte épargne"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "Compte à terme"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "Ligne de crédit"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "Compte titres"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "Compte du marché monétaire"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "Autres"
   },
   "downloadFailed": {
     "message": "Échec du téléchargement."
   },
+  "more": {
+    "message": "Plus"
+  },
   "maxAccessCount": {
-    "message": "Maximum access count",
+    "message": "Nombre maximum d'accès",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Masquer mon courriel aux destinataires."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Afficher le texte"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Afficher le fichier"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send créé",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "L'entrée doit être numérique"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "L'entrée doit être un nombre entier"
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Navigation latérale"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Passer le lien"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Alerte",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Barre de progression",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+    "message": "L'enregistrement des modifications du Send a échoué",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "Votre organisation exige que votre adresse e-mail soit visible. Décochez « Masquer votre courriel aux visiteurs » pour enregistrer."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Vous ne pouvez pas importer des éléments dans Mes éléments qui font partie de plusieurs collections"
   }
 }

@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Podaci o banci"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organiziraj svoje stavke"
   },
@@ -66,7 +78,7 @@
     "message": "License"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Osobna iskaznica"
   },
   "chooseItemToAdd": {
     "message": "Odaberi stavku za dodavanje"
@@ -150,12 +162,8 @@
     "message": "Pogledaj broj bankovnog računa",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Pogledaj osobnu iskaznicu",
-    "description": "Header for view license item type"
-  },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Pogledaj osobnu iskaznicu",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -219,7 +227,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Uredi osobnu iskaznicu",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Broj putovnice"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "Broj osobne iskaznice"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Slanje verifikacijskog kôda e-poštom"
   },
@@ -1766,7 +1814,7 @@
     "description": "Copy credit card number"
   },
   "copyName": {
-    "message": "Copy name",
+    "message": "Kopiraj ime",
     "description": "Copy cardholder name"
   },
   "copyEmail": {
@@ -1907,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Odaberi sve"
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "zoomIn": {
     "message": "Povećaj"
@@ -2229,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Brisanje računa je TRAJNO i NEPOVRATNO i naknadno ga nije moguće vratiti."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "Nije moguće izbrisati račun"
   },
@@ -2538,9 +2617,6 @@
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija s preglednikom trenutno nije podržana u Windows Store verziji aplikacije."
-  },
-  "browserIntegrationLinuxDesc": {
-    "message": "Nažalost, integracija preglednika trenutno nije podržana u Linux verziji aplikacije."
   },
   "enableHardwareAcceleration": {
     "message": "Koristi hardversko ubrzanje"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Nevažeći prečac"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,23 +5110,26 @@
   "userVerificationFailed": {
     "message": "Nije uspjela provjera korisnika."
   },
+  "more": {
+    "message": "More"
+  },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Unesi mjesec."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Unesi dan."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Unesi godinu."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Unesi ispravan dan."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Unesi ispravnu godinu."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Pretraži osobne iskaznice"
   },
   "bankAccount": {
     "message": "Bankovni račun"
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Pretraži bankovne račune"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Kopiraj broj računa"
   },
@@ -5100,17 +5186,29 @@
   "copyIban": {
     "message": "Kopiraj IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Kopiraj ime"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Kopiraj srednje ime"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Kopiraj prezime"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopiraj broj osobne iskaznice"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Tekući račun"
@@ -5189,46 +5287,49 @@
     "message": "Traka napretka",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Detalji osobne iskaznice"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Datum rođenja"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "mjesec"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "dan"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "godina"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Država izdavanja"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Pokrajina izdavatelj"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Datum izdavanja"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "mjesec"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "dan"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "godina"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "Datum isteka"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Izdao"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Vrsta dozvole"
   }
 }
