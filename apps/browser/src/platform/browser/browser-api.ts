@@ -113,7 +113,7 @@ export class BrowserApi {
    * @returns A promise that resolves to an array of browser windows.
    */
   static async getWindows(): Promise<chrome.windows.Window[]> {
-    return new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
+    return await new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
   }
 
   /**
@@ -123,7 +123,7 @@ export class BrowserApi {
    */
   static async getWindow(windowId?: number): Promise<chrome.windows.Window> {
     if (!windowId) {
-      return BrowserApi.getCurrentWindow();
+      return await BrowserApi.getCurrentWindow();
     }
 
     return await BrowserApi.getWindowById(windowId);
@@ -133,7 +133,7 @@ export class BrowserApi {
    * Gets the currently active browser window.
    */
   static async getCurrentWindow(): Promise<chrome.windows.Window> {
-    return new Promise((resolve) => chrome.windows.getCurrent({ populate: true }, resolve));
+    return await new Promise((resolve) => chrome.windows.getCurrent({ populate: true }, resolve));
   }
 
   /**
@@ -142,11 +142,11 @@ export class BrowserApi {
    * @param windowId - The id of the window to get.
    */
   static async getWindowById(windowId: number): Promise<chrome.windows.Window> {
-    return new Promise((resolve) => chrome.windows.get(windowId, { populate: true }, resolve));
+    return await new Promise((resolve) => chrome.windows.get(windowId, { populate: true }, resolve));
   }
 
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       chrome.windows.create(options, async (newWindow) => {
         if (!BrowserApi.isSafariApi) {
           return resolve(newWindow);
@@ -181,7 +181,7 @@ export class BrowserApi {
    * @param windowId - The id of the window to remove.
    */
   static async removeWindow(windowId: number): Promise<void> {
-    return new Promise((resolve) => chrome.windows.remove(windowId, () => resolve()));
+    return await new Promise((resolve) => chrome.windows.remove(windowId, () => resolve()));
   }
 
   /**
@@ -194,7 +194,7 @@ export class BrowserApi {
     windowId: number,
     options: chrome.windows.UpdateInfo,
   ): Promise<void> {
-    return new Promise((resolve) =>
+    return await new Promise((resolve) =>
       chrome.windows.update(windowId, options, () => {
         resolve();
       }),
@@ -252,7 +252,7 @@ export class BrowserApi {
       return await chrome.tabs.get(tabId);
     }
 
-    return new Promise((resolve) =>
+    return await new Promise((resolve) =>
       chrome.tabs.get(tabId, (tab) => {
         resolve(tab);
       }),
@@ -280,7 +280,7 @@ export class BrowserApi {
       return await chrome.tabs.getCurrent();
     }
 
-    return new Promise((resolve) =>
+    return await new Promise((resolve) =>
       chrome.tabs.getCurrent((tab) => {
         resolve(tab);
       }),
@@ -329,7 +329,7 @@ export class BrowserApi {
   }
 
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
         resolve(tabs);
       });
@@ -416,7 +416,7 @@ export class BrowserApi {
       return;
     }
 
-    return new Promise<TResponse>((resolve, reject) => {
+    return await new Promise<TResponse>((resolve, reject) => {
       chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
         if (chrome.runtime.lastError && rejectOnError) {
           // Some error happened
@@ -572,7 +572,7 @@ export class BrowserApi {
   static async getFrameDetails(
     details: chrome.webNavigation.GetFrameDetails,
   ): Promise<chrome.webNavigation.GetFrameResultDetails> {
-    return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
+    return await new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
   }
 
   /**
@@ -583,7 +583,7 @@ export class BrowserApi {
   static async getAllFrameDetails(
     tabId: chrome.tabs.Tab["id"],
   ): Promise<chrome.webNavigation.GetAllFrameResultDetails[]> {
-    return new Promise((resolve) => chrome.webNavigation.getAllFrames({ tabId }, resolve));
+    return await new Promise((resolve) => chrome.webNavigation.getAllFrames({ tabId }, resolve));
   }
 
   // Keep track of all the events registered in a Safari popup so we can remove
@@ -802,7 +802,7 @@ export class BrowserApi {
   static async permissionsGranted(
     permissions: chrome.runtime.ManifestPermissions[],
   ): Promise<boolean> {
-    return new Promise((resolve) =>
+    return await new Promise((resolve) =>
       chrome.permissions.contains({ permissions }, (result) => resolve(result)),
     );
   }

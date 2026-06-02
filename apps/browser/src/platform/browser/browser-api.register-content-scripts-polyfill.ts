@@ -30,7 +30,7 @@ export async function registerContentScriptsPolyfill(
     registerContentScripts = buildRegisterContentScriptsPolyfill();
   }
 
-  return registerContentScripts(contentScriptOptions, callback);
+  return await registerContentScripts(contentScriptOptions, callback);
 }
 
 function buildRegisterContentScriptsPolyfill() {
@@ -187,19 +187,19 @@ function buildRegisterContentScriptsPolyfill() {
 
         if (gotScripting) {
           if ("file" in content) {
-            return chrome.scripting.insertCSS({
+            return await chrome.scripting.insertCSS({
               target: createTarget(tabId, frameId, allFrames),
               files: [content.file],
             });
           } else {
-            return chrome.scripting.insertCSS({
+            return await chrome.scripting.insertCSS({
               target: createTarget(tabId, frameId, allFrames),
               css: content.code,
             });
           }
         }
 
-        return chromeProxy.tabs.insertCSS(tabId, {
+        return await chromeProxy.tabs.insertCSS(tabId, {
           ...content,
           matchAboutBlank,
           allFrames,
@@ -294,7 +294,7 @@ function buildRegisterContentScriptsPolyfill() {
     const targets = castArray(where);
     await Promise.all(
       targets.map(async (target) =>
-        injectContentScriptInSpecificTarget(castAllFramesTarget(target), scripts, options),
+        await injectContentScriptInSpecificTarget(castAllFramesTarget(target), scripts, options),
       ),
     );
   }
@@ -349,7 +349,7 @@ function buildRegisterContentScriptsPolyfill() {
   }
 
   async function isOriginPermitted(url: string) {
-    return chromeProxy.permissions.contains({
+    return await chromeProxy.permissions.contains({
       origins: [new URL(url).origin + "/*"],
     });
   }

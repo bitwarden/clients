@@ -37,7 +37,7 @@ describe("buildFetchPipeline", () => {
   });
 
   it("passes request through a single pass-through middleware", async () => {
-    const middleware: FetchMiddleware = async (req, next) => next(req);
+    const middleware: FetchMiddleware = async (req, next) => await next(req);
     const pipeline = buildFetchPipeline([middleware], terminal);
     const request = makeRequest();
 
@@ -50,7 +50,7 @@ describe("buildFetchPipeline", () => {
   it("allows middleware to modify the request before next", async () => {
     const middleware: FetchMiddleware = async (req, next) => {
       req.headers.set("X-Custom", "value");
-      return next(req);
+      return await next(req);
     };
     const pipeline = buildFetchPipeline([middleware], terminal);
     const request = makeRequest();
@@ -104,7 +104,7 @@ describe("buildFetchPipeline", () => {
     const retryMiddleware: FetchMiddleware = async (req, next) => {
       const response = await next(req);
       if (response.status === 500) {
-        return next(req);
+        return await next(req);
       }
       return response;
     };
@@ -144,7 +144,7 @@ describe("buildFetchPipeline", () => {
     const error = new Error("network failure");
     terminal.mockRejectedValue(error);
 
-    const middleware: FetchMiddleware = async (req, next) => next(req);
+    const middleware: FetchMiddleware = async (req, next) => await next(req);
     const pipeline = buildFetchPipeline([middleware], terminal);
     const request = makeRequest();
 

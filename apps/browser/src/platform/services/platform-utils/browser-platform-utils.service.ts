@@ -150,11 +150,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   async isPopupOpen(): Promise<boolean> {
-    return BrowserApi.isPopupOpen();
+    return await BrowserApi.isPopupOpen();
   }
 
   async isAnyViewFocused(): Promise<boolean> {
-    return BrowserApi.isAnyViewFocused();
+    return await BrowserApi.isAnyViewFocused();
   }
 
   lockTimeout(): number {

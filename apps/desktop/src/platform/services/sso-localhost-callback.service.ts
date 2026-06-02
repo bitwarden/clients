@@ -33,7 +33,7 @@ export class SSOLocalhostCallbackService {
           await this.closeCurrentServer();
         }
 
-        return this.openSsoPrompt(codeChallenge, state, email, orgSsoIdentifier).then(
+        return await this.openSsoPrompt(codeChallenge, state, email, orgSsoIdentifier).then(
           ({ ssoCode, recvState }) => {
             this.messagingService.send("ssoCallback", {
               code: ssoCode,
@@ -51,7 +51,7 @@ export class SSOLocalhostCallbackService {
       return;
     }
 
-    return new Promise<void>((resolve) => {
+    return await new Promise<void>((resolve) => {
       this.currentServer!.close(() => {
         this.currentServer = null;
         resolve();
@@ -67,7 +67,7 @@ export class SSOLocalhostCallbackService {
   ): Promise<{ ssoCode: string; recvState: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       const callbackServer = http.createServer((req, res) => {
         const urlString = "http://localhost" + req.url;
         const url = new URL(urlString);

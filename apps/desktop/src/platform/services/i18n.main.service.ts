@@ -20,7 +20,7 @@ export class I18nMainService extends BaseI18nService {
     );
 
     ipcMain.handle("getLanguageFile", async (event, formattedLocale: string) =>
-      this.readLanguageFile(formattedLocale),
+      await this.readLanguageFile(formattedLocale),
     );
 
     // Please leave 'en' where it is, as it's our fallback language in case no translation can be found

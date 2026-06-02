@@ -10,7 +10,7 @@ export class RemoveEverBeenUnlockedMigrator extends Migrator<3, 4> {
     async function removeEverBeenUnlocked(userId: string, account: ExpectedAccountType) {
       if (account?.profile?.everBeenUnlocked != null) {
         delete account.profile.everBeenUnlocked;
-        return helper.set(userId, account);
+        return await helper.set(userId, account);
       }
     }
 

@@ -254,9 +254,9 @@ export class FakeDerivedState<
         concatMap(async (v) => {
           const newState = deriveDefinition.derive(v, dependencies);
           if (newState instanceof Promise) {
-            return newState;
+            return await newState;
           }
-          return Promise.resolve(newState);
+          return await Promise.resolve(newState);
         }),
       )
       .subscribe((newState) => {

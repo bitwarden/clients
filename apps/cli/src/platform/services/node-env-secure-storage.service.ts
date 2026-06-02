@@ -41,7 +41,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
 
   async save(key: string, obj: any): Promise<void> {
     if (obj == null) {
-      return this.remove(key);
+      return await this.remove(key);
     }
 
     if (obj !== null && typeof obj !== "string") {
