@@ -5,9 +5,9 @@ export class NativeMessagingManifestService {
   constructor() {}
 
   async generate(create: boolean): Promise<Error | null> {
-    return ipc.platform.nativeMessaging.manifests.generate(create);
+    return await ipc.platform.nativeMessaging.manifests.generate(create);
   }
   async generateDuckDuckGo(create: boolean): Promise<Error | null> {
-    return ipc.platform.nativeMessaging.manifests.generateDuckDuckGo(create);
+    return await ipc.platform.nativeMessaging.manifests.generateDuckDuckGo(create);
   }
 }

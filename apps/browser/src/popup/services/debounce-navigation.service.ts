@@ -15,7 +15,7 @@ import { filter, pairwise } from "rxjs/operators";
 export function debounceNavigationGuard(): CanActivateFn {
   return async () => {
     const debounceNavigationService = inject(DebounceNavigationService);
-    return debounceNavigationService.canActivate();
+    return await debounceNavigationService.canActivate();
   };
 }
 

@@ -88,6 +88,7 @@ export default tseslint.config(
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
       "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/return-await": ["error", "always"],
       "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
       "@typescript-eslint/no-this-alias": ["error", { allowedNames: ["self"] }],
       "@typescript-eslint/no-unused-expressions": ["error", { allowTernary: true }],

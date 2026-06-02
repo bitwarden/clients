@@ -1274,7 +1274,7 @@ describe("ApiService", () => {
 
     it("executes a registered middleware before sending the request", async () => {
       const middleware = jest.fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>(
-        async (req, next) => next(req),
+        async (req, next) => await next(req),
       );
       sut.addMiddleware(middleware);
 
@@ -1303,13 +1303,13 @@ describe("ApiService", () => {
         .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
         .mockImplementation(async (req, next) => {
           callOrder.push(1);
-          return next(req);
+          return await next(req);
         });
       const middleware2 = jest
         .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
         .mockImplementation(async (req, next) => {
           callOrder.push(2);
-          return next(req);
+          return await next(req);
         });
       sut.addMiddleware(middleware1);
       sut.addMiddleware(middleware2);

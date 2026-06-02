@@ -10,6 +10,6 @@ export class DefaultChangeKdfApiService implements ChangeKdfApiService {
   constructor(private apiService: ApiService) {}
 
   async updateUserKdfParams(request: KdfRequest): Promise<void> {
-    return this.apiService.send("POST", "/accounts/kdf", request, true, false);
+    return await this.apiService.send("POST", "/accounts/kdf", request, true, false);
   }
 }
