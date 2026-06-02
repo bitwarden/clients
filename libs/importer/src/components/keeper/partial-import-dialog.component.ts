@@ -8,6 +8,7 @@ import {
   ButtonModule,
   DialogModule,
   TableDataSource,
+  TableModule,
 } from "@bitwarden/components";
 
 import {
@@ -20,9 +21,9 @@ export interface PartialImportDialogData {
   canImport: boolean;
 }
 
-interface PartialImportRow {
-  name: string;
-  reasonKey: string;
+interface SkippedItemRow {
+  typeKey: string;
+  count: number;
 }
 
 const REASON_I18N_KEYS: Record<ImportRecordErrorReason, string> = {
@@ -36,10 +37,10 @@ const REASON_I18N_KEYS: Record<ImportRecordErrorReason, string> = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./partial-import-dialog.component.html",
-  imports: [CommonModule, JslibModule, DialogModule, ButtonModule],
+  imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TableModule],
 })
 export class PartialImportDialogComponent implements OnInit {
-  protected dataSource = new TableDataSource<PartialImportRow>();
+  protected dataSource = new TableDataSource<SkippedItemRow>();
 
   constructor(
     public dialogRef: DialogRef<boolean>,
@@ -47,17 +48,23 @@ export class PartialImportDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.dataSource.data = this.data.errors.map((error) => ({
-      name: error.name,
-      reasonKey: REASON_I18N_KEYS[error.reason] ?? "importRecordErrorGeneric",
-    }));
+    this.dataSource.data = this.buildRows(this.data.errors);
   }
 
-  protected importAnyway(): void {
+  protected continueImport(): void {
     void this.dialogRef.close(true);
   }
 
   protected cancel(): void {
     void this.dialogRef.close(false);
+  }
+
+  private buildRows(errors: ImportRecordError[]): SkippedItemRow[] {
+    const counts = new Map<string, number>();
+    for (const error of errors) {
+      const typeKey = REASON_I18N_KEYS[error.reason] ?? "importRecordErrorGeneric";
+      counts.set(typeKey, (counts.get(typeKey) ?? 0) + 1);
+    }
+    return Array.from(counts, ([typeKey, count]) => ({ typeKey, count }));
   }
 }

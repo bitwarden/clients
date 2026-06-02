@@ -629,6 +629,9 @@
   "type": {
     "message": "Type"
   },
+  "items": {
+    "message": "Items"
+  },
   "firstName": {
     "message": "First name"
   },
@@ -4004,10 +4007,7 @@
     "message": "Nothing was imported."
   },
   "importPartialErrorTitle": {
-    "message": "Some items couldn't be imported"
-  },
-  "importPartialErrorDescription": {
-    "message": "We found $COUNT$ item(s) in your file that couldn't be read and will be skipped during import. Your other items will import as expected.",
+    "message": "$COUNT$ items will be skipped",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4015,11 +4015,20 @@
       }
     }
   },
-  "importPartialErrorContinue": {
-    "message": "Would you like to continue?"
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
   },
-  "importAnyway": {
-    "message": "Import anyway"
+  "importRecordErrorGeneric": {
+    "message": "An error occurred"
+  },
+  "importRecordErrorUnsupportedFeature": {
+    "message": "Unsupported feature"
+  },
+  "importRecordErrorUnsupportedType": {
+    "message": "Unsupported entry type"
+  },
+  "importRecordErrorFolderDecryptionFailed": {
+    "message": "Folder could not be decrypted (items imported to the root)"
   },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
