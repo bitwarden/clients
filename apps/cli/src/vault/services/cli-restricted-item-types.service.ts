@@ -16,7 +16,7 @@ export class CliRestrictedItemTypesService {
    * @returns Promise resolving to array of restricted cipher types with allowed organization IDs
    */
   async getRestrictedTypes(): Promise<RestrictedCipherType[]> {
-    return firstValueFrom(this.restrictedItemTypesService.restricted$);
+    return await firstValueFrom(this.restrictedItemTypesService.restricted$);
   }
 
   /**
@@ -40,6 +40,6 @@ export class CliRestrictedItemTypesService {
    * @returns Promise resolving to true if the cipher type is restricted, false otherwise
    */
   async isCipherRestricted(cipher: Cipher | CipherView): Promise<boolean> {
-    return firstValueFrom(this.restrictedItemTypesService.isCipherRestricted$(cipher));
+    return await firstValueFrom(this.restrictedItemTypesService.isCipherRestricted$(cipher));
   }
 }

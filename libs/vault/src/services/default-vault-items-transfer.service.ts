@@ -138,7 +138,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     const leaveResult = await firstValueFrom(leaveDialogRef.closed);
 
     if (leaveResult === LeaveConfirmationDialogResult.Back) {
-      return this.promptUserForTransfer(organizationName);
+      return await this.promptUserForTransfer(organizationName);
     }
 
     return false;

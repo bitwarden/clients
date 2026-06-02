@@ -1568,7 +1568,7 @@ describe("Cipher Service", () => {
         name: `Enc ${id}`,
       }) as CipherData;
 
-    const tick = async () => new Promise((r) => setTimeout(r, 0));
+    const tick = async () => await new Promise((r) => setTimeout(r, 0));
 
     const setEncryptedState = async (data: Record<CipherId, CipherData>, uid = userId) => {
       // Directly set the encrypted state, this will result in a single emission

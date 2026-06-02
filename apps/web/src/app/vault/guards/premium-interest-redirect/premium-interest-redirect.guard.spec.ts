@@ -43,8 +43,8 @@ describe("premiumInterestRedirectGuard", () => {
   function runPremiumInterestGuard(route?: ActivatedRouteSnapshot) {
     // Run the guard within injection context so `inject` works as you'd expect
     // Pass state object to make TypeScript happy
-    return TestBed.runInInjectionContext(async () =>
-      premiumInterestRedirectGuard(route ?? emptyRoute, _state),
+    return TestBed.runInInjectionContext(
+      async () => await premiumInterestRedirectGuard(route ?? emptyRoute, _state),
     );
   }
 

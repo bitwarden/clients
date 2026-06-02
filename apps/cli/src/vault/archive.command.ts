@@ -28,7 +28,7 @@ export class ArchiveCommand {
     const normalizedObject = object.toLowerCase();
 
     if (normalizedObject === "item") {
-      return this.archiveCipher(id);
+      return await this.archiveCipher(id);
     }
 
     return Response.badRequest("Unknown object.");

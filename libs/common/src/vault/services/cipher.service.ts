@@ -429,7 +429,7 @@ export class CipherService implements CipherServiceAbstraction {
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.getAllDecryptedUsingSdk(userId);
+      return await this.getAllDecryptedUsingSdk(userId);
     }
 
     const decCiphers = await this.getDecryptedCiphers(userId);
@@ -560,7 +560,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.cipherViews$(userId).pipe(
         filter((ciphers) => ciphers != null),
         map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
@@ -635,7 +635,10 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
+      return await this.getAllFromApiForOrganizationUsingSdk(
+        organizationId,
+        includeMemberItems ?? false,
+      );
     }
 
     const response = await this.apiService.getCiphersOrganization(
@@ -676,7 +679,7 @@ export class CipherService implements CipherServiceAbstraction {
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
     if (useSdk) {
-      return this.getManyFromApiForOrganizationUsingSdk(organizationId);
+      return await this.getManyFromApiForOrganizationUsingSdk(organizationId);
     }
 
     const r = await this.apiService.send(
@@ -687,7 +690,7 @@ export class CipherService implements CipherServiceAbstraction {
       true,
     );
     const response = new ListResponse(r, CipherResponse);
-    return this.decryptOrganizationCiphersResponse(response, organizationId);
+    return await this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 
   private async getManyFromApiForOrganizationUsingSdk(
@@ -739,7 +742,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     autofillOnPageLoad = false,
   ): Promise<CipherView> {
-    return this.getCipherForUrl(url, userId, true, false, autofillOnPageLoad);
+    return await this.getCipherForUrl(url, userId, true, false, autofillOnPageLoad);
   }
 
   async getLastLaunchedForUrl(
@@ -747,11 +750,11 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     autofillOnPageLoad = false,
   ): Promise<CipherView> {
-    return this.getCipherForUrl(url, userId, false, true, autofillOnPageLoad);
+    return await this.getCipherForUrl(url, userId, false, true, autofillOnPageLoad);
   }
 
   async getNextCipherForUrl(url: string, userId: UserId): Promise<CipherView> {
-    return this.getCipherForUrl(url, userId, false, false, false);
+    return await this.getCipherForUrl(url, userId, false, false, false);
   }
 
   async getNextCardCipher(userId: UserId): Promise<CipherView> {
@@ -994,7 +997,7 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<Cipher> {
     const useSdkShare = await firstValueFrom(this.sdkCipherShareEnabled$);
     if (useSdkShare) {
-      return this.shareWithServerUsingSdk(
+      return await this.shareWithServerUsingSdk(
         cipher,
         organizationId,
         collectionIds,
@@ -1041,7 +1044,7 @@ export class CipherService implements CipherServiceAbstraction {
   ) {
     const useSdkShare = await firstValueFrom(this.sdkCipherShareEnabled$);
     if (useSdkShare) {
-      return this.shareManyWithServerUsingSdk(ciphers, organizationId, collectionIds, userId);
+      return await this.shareManyWithServerUsingSdk(ciphers, organizationId, collectionIds, userId);
     }
 
     const promises: Promise<any>[] = [];
@@ -1522,7 +1525,7 @@ export class CipherService implements CipherServiceAbstraction {
         ? await this.apiService.deleteCipherAttachmentAdmin(id, attachmentId)
         : await this.apiService.deleteCipherAttachment(id, attachmentId);
     } catch (e) {
-      return Promise.reject((e as ErrorResponse).getSingleMessage());
+      return await Promise.reject((e as ErrorResponse).getSingleMessage());
     }
 
     const cipherData = new CipherData(response.cipher);
@@ -1829,7 +1832,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     if (!useLegacyDecryption) {
       const encryptedContent = await response.arrayBuffer();
-      return this.cipherEncryptionService.decryptAttachmentContent(
+      return await this.cipherEncryptionService.decryptAttachmentContent(
         cipherDomain,
         attachment,
         new Uint8Array(encryptedContent),
@@ -2386,7 +2389,7 @@ export class CipherService implements CipherServiceAbstraction {
     );
 
     // Finally, we can encrypt the cipher with the decrypted cipher key.
-    return this.encryptCipher(model, cipher, decryptedCipherKey);
+    return await this.encryptCipher(model, cipher, decryptedCipherKey);
   }
 
   private async getCipherKeyEncryptionEnabled(): Promise<boolean> {
@@ -2469,9 +2472,9 @@ export class CipherService implements CipherServiceAbstraction {
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
       const cipher = await this.get(uuidAsString(c.id!), activeUserId);
-      return this.decrypt(cipher, activeUserId);
+      return await this.decrypt(cipher, activeUserId);
     }
 
-    return Promise.resolve(c);
+    return await Promise.resolve(c);
   }
 }
