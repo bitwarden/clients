@@ -39,36 +39,50 @@
 
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
-<div [ngClass]="containerClass" role="table">
-  @if (isVirtualized() && hasColumns()) {
-    <cdk-virtual-scroll-viewport
-      bitScrollLayout
-      [itemSize]="rowSize()!"
-      [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
-    >
+<div [ngClass]="containerClass">
+  <!--
+    Toolbar slot: search / filter controls inside the chrome, above the header
+    row. Kept outside the `role="table"` element so it isn't treated as a table
+    row. `:not(:has(*))` collapses the bar when no `[slot=toolbar]` content is
+    projected, so there's no empty bordered strip.
+  -->
+  <div
+    class="tw-flex tw-items-center tw-gap-2 tw-p-3 tw-border-0 tw-border-b tw-border-solid tw-border-border-base [&:not(:has(*))]:tw-hidden"
+  >
+    <ng-content select="[slot=toolbar]"></ng-content>
+  </div>
+
+  <div role="table">
+    @if (isVirtualized() && hasColumns()) {
+      <cdk-virtual-scroll-viewport
+        bitScrollLayout
+        [itemSize]="rowSize()!"
+        [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
+      >
+        <bit-header-row>
+          <ng-container *ngTemplateOutlet="headerCells"></ng-container>
+        </bit-header-row>
+        <bit-row *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0">
+          <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
+        </bit-row>
+      </cdk-virtual-scroll-viewport>
+    } @else if (hasColumns()) {
       <bit-header-row>
         <ng-container *ngTemplateOutlet="headerCells"></ng-container>
       </bit-header-row>
-      <bit-row *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0">
-        <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
-      </bit-row>
-    </cdk-virtual-scroll-viewport>
-  } @else if (hasColumns()) {
-    <bit-header-row>
-      <ng-container *ngTemplateOutlet="headerCells"></ng-container>
-    </bit-header-row>
-    @for (r of (rows$ | async) ?? []; track r) {
-      <bit-row>
-        <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
-      </bit-row>
+      @for (r of (rows$ | async) ?? []; track r) {
+        <bit-row>
+          <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
+        </bit-row>
+      }
+    } @else {
+      <!--
+        Manual mode. The consumer projects `<bit-header-row>` and `<bit-row>`
+        directly; rows fall back to `grid-auto-columns: 1fr` because no
+        `<bit-column>` registry exists to drive `grid-template-columns`.
+      -->
+      <ng-content select="bit-header-row"></ng-content>
+      <ng-content select="bit-row"></ng-content>
     }
-  } @else {
-    <!--
-      Manual mode. The consumer projects `<bit-header-row>` and `<bit-row>`
-      directly; rows fall back to `grid-auto-columns: 1fr` because no
-      `<bit-column>` registry exists to drive `grid-template-columns`.
-    -->
-    <ng-content select="bit-header-row"></ng-content>
-    <ng-content select="bit-row"></ng-content>
-  }
+  </div>
 </div>

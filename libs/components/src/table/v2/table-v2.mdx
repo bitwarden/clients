@@ -262,6 +262,27 @@ dataSource.filter = (row) => row.orgType === "family";
 
 See [Table → Filtering](?path=/docs/component-library-table--docs#filtering).
 
+## Toolbar
+
+Project elements with `slot="toolbar"` to add a slot inside the table's chrome, above the header row
+— the natural home for a `<bit-search>` that drives [filtering](#filtering), plus filter
+(`<bit-chip-filter>`) and action (`bit-chip-action`) controls. The slot lays its children out in a
+row and collapses when empty, so tables without a toolbar show no empty bar.
+
+```html
+<bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+  <bit-search
+    slot="toolbar"
+    class="tw-flex-1"
+    ngModel
+    (ngModelChange)="dataSource.filter = $event"
+  />
+  <bit-chip-filter slot="toolbar" placeholderText="Filter" [options]="filterOptions" />
+  <button slot="toolbar" type="button" bit-chip-action label="Add" startIcon="bwi-plus"></button>
+  <bit-column>...</bit-column>
+</bit-table-v2>
+```
+
 ## Selection
 
 Pass a `TableSelectionModel<T>` (a `SelectionModel` subclass) and the table prepends an internal

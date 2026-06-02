@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
@@ -8,10 +9,13 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
+import { ChipActionComponent, ChipFilterComponent } from "../../chips";
 import { countries } from "../../form/countries";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { LayoutComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
+import { MenuModule } from "../../menu";
+import { SearchModule } from "../../search";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
 import { TableDataSource } from "../table-data-source";
@@ -63,8 +67,13 @@ export default {
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
+        ChipActionComponent,
+        ChipFilterComponent,
+        FormsModule,
         IconTileComponent,
         LayoutComponent,
+        MenuModule,
+        SearchModule,
         RouterTestingModule,
       ],
       providers: [
@@ -79,6 +88,12 @@ export default {
               bulkActionsBar: "Bulk actions",
               bulkActionsBarAnnouncement: "__$1__ item(s) selected. Press __$2__ to focus the bar.",
               additionalActions: "Additional actions",
+              search: "Search",
+              resetSearch: "Reset search",
+              viewItemsIn: (name) => `View items in ${name}`,
+              back: "Back",
+              backTo: (name) => `Back to ${name}`,
+              removeItem: (name) => `Remove ${name}`,
             }),
         },
       ],
@@ -295,16 +310,69 @@ export const Filterable: Story = {
     props: { dataSource: filterable, displayedColumns: ["name", "value"] },
     template: `
       <bit-layout>
-        <input
-          type="search"
-          placeholder="Search"
-          (input)="dataSource.filter = $event.target.value"
-        />
         <bit-table-v2
           [dataSource]="dataSource"
           [displayedColumns]="displayedColumns"
           [rowSize]="64"
         >
+          <bit-search
+            slot="toolbar"
+            class="tw-flex-1"
+            placeholder="Search"
+            ngModel
+            (ngModelChange)="dataSource.filter = $event"
+          ></bit-search>
+          <bit-column sortable defaultSort="asc">
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column sortable width="120px">
+            <bit-header-cell>Value</bit-header-cell>
+            <bit-cell *bitCellDef="dataSource.columns.value; let row">{{ row.value }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      </bit-layout>
+    `,
+  }),
+};
+
+/**
+ * Project an element with `slot="toolbar"` to add a slot inside the table's
+ * chrome, above the header row — for search inputs, filter buttons, and similar
+ * controls. The slot lays its children out in a row and collapses when empty,
+ * so tables without a toolbar show no empty bar.
+ */
+export const WithToolbar: Story = {
+  render: () => ({
+    props: {
+      dataSource: filterable,
+      displayedColumns: ["name", "value"],
+      filterOptions: [
+        { label: "Starts with A–M", value: "a-m", icon: "bwi-list" },
+        { label: "Starts with N–Z", value: "n-z", icon: "bwi-list" },
+      ],
+    },
+    template: `
+      <bit-layout>
+        <bit-table-v2
+          [dataSource]="dataSource"
+          [displayedColumns]="displayedColumns"
+          [rowSize]="64"
+        >
+          <bit-search
+            slot="toolbar"
+            class="tw-flex-1"
+            placeholder="Search"
+            ngModel
+            (ngModelChange)="dataSource.filter = $event"
+          ></bit-search>
+          <bit-chip-filter
+            slot="toolbar"
+            placeholderText="Filter"
+            placeholderIcon="bwi-filter"
+            [options]="filterOptions"
+          ></bit-chip-filter>
+          <button slot="toolbar" type="button" bit-chip-action label="Add" startIcon="bwi-plus"></button>
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Name</bit-header-cell>
             <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
