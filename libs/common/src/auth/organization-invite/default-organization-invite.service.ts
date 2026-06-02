@@ -58,9 +58,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async setOrganizationInvitation(invite: OrganizationInvite): Promise<void> {
-    if (invite == null) {
-      throw new Error("Invite cannot be null. Use clearOrganizationInvitation instead.");
-    }
     await this.organizationInvitationState.update(() => invite);
     this.policyCache.clear();
   }
@@ -82,10 +79,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     invite: OrganizationInvite,
     activeUserId: UserId,
   ): Promise<boolean> {
-    if (invite == null) {
-      throw new Error("Invite cannot be null.");
-    }
-
     // Creation of a new org
     if (invite.initOrganization) {
       await this.acceptAndInitOrganization(invite, activeUserId);

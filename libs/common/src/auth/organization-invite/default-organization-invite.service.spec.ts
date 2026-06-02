@@ -98,12 +98,6 @@ describe("DefaultOrganizationInviteService", () => {
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(invite);
     });
-
-    it("throws when invite is null", async () => {
-      await expect(sut.setOrganizationInvitation(null)).rejects.toThrow(
-        "Invite cannot be null. Use clearOrganizationInvitation instead.",
-      );
-    });
   });
 
   describe("clearOrganizationInvitation", () => {
@@ -120,12 +114,6 @@ describe("DefaultOrganizationInviteService", () => {
 
   describe("validateAndAcceptInvite", () => {
     const activeUserId = newGuid() as UserId;
-
-    it("throws when invite is null", async () => {
-      await expect(sut.validateAndAcceptInvite(null, activeUserId)).rejects.toThrow(
-        "Invite cannot be null.",
-      );
-    });
 
     it("initializes an organization when given an invite where initOrganization is true", async () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;

@@ -9,9 +9,8 @@ export abstract class OrganizationInviteService {
   abstract getOrganizationInvite(): Promise<OrganizationInvite | null>;
 
   /**
-   * Stores a new organization invite
-   * @param invite an organization invite
-   * @throws if the invite is nullish
+   * Stores a new organization invite. Pass a non-null OrganizationInvite; callers that
+   * want to remove the stored invite should use {@link clearOrganizationInvitation}.
    */
   abstract setOrganizationInvitation(invite: OrganizationInvite): Promise<void>;
 
@@ -25,7 +24,6 @@ export abstract class OrganizationInviteService {
    * first satisfy the org's master-password policy. The stashed invite is consumed when
    * the user returns after re-authenticating with a compliant master password.
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
-   * @throws if `invite` is nullish.
    */
   abstract validateAndAcceptInvite(
     invite: OrganizationInvite,
