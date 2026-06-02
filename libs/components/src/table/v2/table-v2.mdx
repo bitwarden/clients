@@ -8,10 +8,12 @@ import * as stories from "./table-v2.stories";
 
 `bit-table-v2` is a column-driven evolution of `bit-table`. Each column is a `<bit-column>` wrapper
 containing a `<bit-header-cell>` for the header markup and a `*bitCellDef` cell template for the
-per-row cell markup, and column-level metadata (sortable, sortFn, defaultSort, width) lives as
-inputs on the wrapper. The table renders a CSS-grid layout of ARIA-role elements
+per-row cell markup. The table renders a CSS-grid layout of ARIA-role elements
 (`role="table"`/`"row"`/`"columnheader"`/`"cell"`); the consumer's `<bit-header-cell>`/`<bit-cell>`
 become the grid items, and column widths map to grid tracks.
+
+A table is configured by a single `TableModel`, bound via `[table]`. The model composes the focused
+sub-models — data, columns, filter, and (optional) selection — so a table is built and bound once.
 
 Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and isn't being migrated
 — see [Table](?path=/docs/component-library-table--docs) for its docs.
@@ -24,33 +26,55 @@ Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and 
 type User = { id: number; name: string; email: string };
 
 class UserListComponent {
-  protected readonly users = new TableDataSource<User>();
-  protected readonly columns = new ColumnModel<User>();
+  protected readonly table = new TableModel<User>({ data: this.users });
   // ...
 }
 ```
 
 ```html
-<bit-table-v2 [dataSource]="users" [columns]="columns">
+<bit-table-v2 [table]="table">
   <bit-column sortable defaultSort="asc">
     <bit-header-cell>Id</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
   </bit-column>
   <bit-column sortable>
     <bit-header-cell>Name</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
   </bit-column>
   <bit-column>
     <bit-header-cell>Email</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.email; let row">{{ row.email }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.email; let row">{{ row.email }}</bit-cell>
   </bit-column>
 </bit-table-v2>
 ```
 
-Columns come from a `ColumnModel<User>` passed via `[columns]` — it provides the typed
-`columns.ref.*` references and owns column order/visibility. `columns.ref.X` is a typed reference:
-autocomplete lists every property of `User`, typos fail at compile time, and the row type flows
-through `*bitCellDef` so `let row` is typed as `User` inside each cell template.
+`table.ref.X` is a typed column reference: autocomplete lists every property of `User`, typos fail
+at compile time, and the row type flows through `*bitCellDef` so `let row` is typed as `User` inside
+each cell template.
+
+## The model
+
+`TableModel<T, S>` is parallel to nothing else you have to assemble — it _is_ the assembly. `T` is
+the row type; `S` declares synthetic column names (see [Synthetic columns](#synthetic-columns)). It
+exposes:
+
+| Facet              | What it owns                                                       |
+| ------------------ | ------------------------------------------------------------------ |
+| `table.dataSource` | Row data, sort state, filter application.                          |
+| `table.columns`    | Typed refs (`table.ref` is shorthand), display order, visibility.  |
+| `table.filter`     | Search term, facet definitions, applied state, composed predicate. |
+| `table.selection`  | Selection state — present only when `selection` is configured.     |
+
+Construct it with one config object; every facet is optional:
+
+```ts
+const table = new TableModel<User, "actions">({
+  data: users,
+  columns: { order: ["name", "email"] },
+  filter: { search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()) },
+  selection: { multiple: true, canSelect: (user) => user.canManage },
+});
+```
 
 ## Column definitions
 
@@ -68,12 +92,11 @@ template, and the row context come from a `*bitCellDef` child; the header markup
 ### `*bitCellDef` — the cell template
 
 The structural directive `*bitCellDef` captures the per-row cell template and identifies which
-column it belongs to. Its required input is a typed column reference from the column model
-(`columns.ref.*`).
+column it belongs to. Its required input is a typed column reference from the model (`table.ref.*`).
 
 ```html
 <bit-column>
-  <bit-cell *bitCellDef="columns.ref.email; let row">{{ row.email }}</bit-cell>
+  <bit-cell *bitCellDef="table.ref.email; let row">{{ row.email }}</bit-cell>
 </bit-column>
 ```
 
@@ -88,7 +111,7 @@ directive — the column reads the cell's template directly, and the column key 
 ```html
 <bit-column sortable>
   <bit-header-cell><i class="bwi bwi-envelope tw-me-1"></i> Email</bit-header-cell>
-  <bit-cell *bitCellDef="columns.ref.email; let row">{{ row.email }}</bit-cell>
+  <bit-cell *bitCellDef="table.ref.email; let row">{{ row.email }}</bit-cell>
 </bit-column>
 ```
 
@@ -98,46 +121,46 @@ The sort button affordance is added by `<bit-header-cell>` automatically when th
 ### Synthetic columns
 
 For columns that don't correspond to a field on `T` (action columns, expand/collapse, etc.), declare
-them as synthetics via the model's second type parameter, then reference them like any other column:
+them via the model's second type parameter, then reference them like any other column:
 
 ```ts
-columns = new ColumnModel<User, "actions">();
+const table = new TableModel<User, "actions">({ data: users });
 ```
 
 ```html
 <bit-column>
   <bit-header-cell></bit-header-cell>
-  <bit-cell *bitCellDef="columns.ref.actions; let row">
+  <bit-cell *bitCellDef="table.ref.actions; let row">
     <button bitIconButton="bwi-ellipsis-v">Actions</button>
   </bit-cell>
 </bit-column>
 ```
 
-`columns.ref.actions` still carries the row type, so `let row` is typed `User`.
+`table.ref.actions` still carries the row type, so `let row` is typed `User`.
 
 ### Reordering and hiding columns
 
-The model's `order` sets display order; columns it omits aren't rendered even though they're
-declared. Toggle visibility at runtime with `hide` / `show` / `showAll`:
+`columns.order` sets display order; columns it omits aren't rendered even though they're declared.
+Toggle visibility at runtime with `hide` / `show` / `showAll`:
 
 ```ts
-columns = new ColumnModel<User>({ order: ["name", "id"] }); // email declared but not shown
-// later: columns.hide("name"); columns.show("name"); columns.showAll();
+const table = new TableModel<User>({ data: users, columns: { order: ["name", "id"] } });
+// later: table.columns.hide("name"); table.columns.show("name"); table.columns.showAll();
 ```
 
 ```html
-<bit-table-v2 [dataSource]="users" [columns]="columns">
+<bit-table-v2 [table]="table">
   <bit-column>
     <bit-header-cell>Id</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
   </bit-column>
   <bit-column>
     <bit-header-cell>Name</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
   </bit-column>
   <bit-column>
     <bit-header-cell>Email (not displayed)</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.email; let row">{{ row.email }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.email; let row">{{ row.email }}</bit-cell>
   </bit-column>
 </bit-table-v2>
 ```
@@ -145,7 +168,7 @@ columns = new ColumnModel<User>({ order: ["name", "id"] }); // email declared bu
 ### Composing columns into reusable wrappers
 
 Columns register via DI lookup of the ancestor `<bit-table-v2>`, so a `<bit-column>` inside another
-component's view still finds the table:
+component's view still finds the table. Pass the model in for its typed refs:
 
 ```ts
 @Component({
@@ -154,26 +177,26 @@ component's view still finds the table:
   template: `
     <bit-column sortable>
       <bit-header-cell>Status</bit-header-cell>
-      <bit-cell *bitCellDef="columns().ref.status; let row">
+      <bit-cell *bitCellDef="table().ref.status; let row">
         <span class="…">{{ row.status }}</span>
       </bit-cell>
     </bit-column>
   `,
 })
 class DemoStatusColumnComponent {
-  readonly columns = input.required<ColumnModel<User>>();
+  readonly table = input.required<TableModel<User>>();
 }
 ```
 
 Used as:
 
 ```html
-<bit-table-v2 [dataSource]="users" [columns]="columns">
+<bit-table-v2 [table]="table">
   <bit-column>
     <bit-header-cell>Name</bit-header-cell>
-    <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
+    <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
   </bit-column>
-  <demo-status-column [columns]="columns" />
+  <demo-status-column [table]="table" />
 </bit-table-v2>
 ```
 
@@ -186,7 +209,7 @@ cells use only the default slot and the layout collapses to bare content.
 ```html
 <bit-column sortable defaultSort="asc">
   <bit-header-cell>Name</bit-header-cell>
-  <bit-cell *bitCellDef="columns.ref.name; let row">
+  <bit-cell *bitCellDef="table.ref.name; let row">
     <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
     {{ row.name }}
     <span slot="secondary">{{ row.email }}</span>
@@ -200,8 +223,8 @@ default slot's content with no empty wrappers.
 
 ## Manual mode
 
-For simple presentational tables — no sort, filter, selection, or virtualization — skip
-`<bit-column>` and project rows directly:
+For simple presentational tables — no sort, filter, selection, or virtualization — skip the model
+and `<bit-column>`, and project rows directly:
 
 ```html
 <bit-table-v2>
@@ -219,12 +242,8 @@ For simple presentational tables — no sort, filter, selection, or virtualizati
 ```
 
 The consumer projects one `<bit-header-row>` and any number of `<bit-row>` components. The header
-row picks up the design's styling (secondary background, bottom border) automatically.
-
-Manual mode has no `[dataSource]` plumbing — the consumer iterates their own data signal/observable
-directly. Rich cells still work; `<bit-cell>`'s slot vocab is the same in both modes. Columns
-default to equal-share (`grid-auto-columns: 1fr`) since no `<bit-column>` registry exists to drive
-`grid-template-columns`.
+row picks up the design's styling automatically. Manual mode has no `[table]` — the consumer
+iterates their own data directly; columns default to equal-share (`grid-auto-columns: 1fr`).
 
 Mode selection is automatic: any projected `<bit-column>` ⇒ column-def mode; otherwise the
 consumer's `<bit-header-row>` and `<bit-row>` components render directly. Don't mix the two within a
@@ -238,7 +257,7 @@ ascending. Apply an initial sort with `defaultSort`:
 ```html
 <bit-column sortable defaultSort="asc">
   <bit-header-cell>Name</bit-header-cell>
-  <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
+  <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
 </bit-column>
 ```
 
@@ -254,49 +273,48 @@ sortByName = (a: User, b: User, direction?: SortDirection) => {
 ```html
 <bit-column sortable [sortFn]="sortByName">
   <bit-header-cell>Name</bit-header-cell>
-  <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
+  <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
 </bit-column>
 ```
 
-Sort state lives on the `TableDataSource` — see
+Sort state lives on the model's data source — see
 [Table → Sorting](?path=/docs/component-library-table--docs#sorting) for the mechanics.
 
 ## Filtering
 
-Construct a `FilterModel` — parallel to `TableDataSource` and `TableSelectionModel` — and pass it
-via `[filterModel]`. It owns the search matcher, the facet definitions, and the applied state, and
-composes them into the predicate the table applies to its data source (re-filtering whenever it
-changes — no manual `dataSource.filter` assignment):
+Configure filtering on the model's `filter`: a `search` matcher and/or facet definitions. The model
+composes them into the predicate the table applies (re-filtering reactively — no manual
+`dataSource.filter` assignment):
 
 ```ts
-protected readonly filterModel = new FilterModel<Member>({
-  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
-  filters: [
-    { id: "role:admin", label: "Admin", predicate: (r) => r.role === "admin" },
-    { id: "role:user", label: "User", predicate: (r) => r.role === "user" },
-  ],
+const table = new TableModel<Member>({
+  data: members,
+  filter: {
+    search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
+    filters: [
+      { id: "role:admin", label: "Admin", predicate: (r) => r.role === "admin" },
+      { id: "role:user", label: "User", predicate: (r) => r.role === "user" },
+    ],
+  },
 });
 ```
 
-```html
-<bit-table-v2 [dataSource]="ds" [columns]="columns" [filterModel]="filterModel" />
-```
-
-Apply facets with `filterModel.apply(id)` (also `remove`, `toggle`, `clear`); the search box writes
-the `searchTerm` writable signal for you. Applied facets are surfaced as value-only `AppliedFilter`
+Apply facets with `table.filter.apply(id)` (also `remove`, `toggle`, `clear`); the search box writes
+the `searchTerm` signal for you. Applied facets are surfaced as value-only `AppliedFilter`
 (`{ id, label }`) for the toolbar — the predicate logic stays in the definitions, keyed off `id`.
-The toolbar is the UI for this state — see [Toolbar](#toolbar).
+Omit a facet's `predicate` for server-side filtering and read `table.filter.appliedFilters()` to
+build your query. The toolbar is the UI for this state — see [Toolbar](#toolbar).
 
 ## Toolbar
 
 `<bit-table-toolbar>`, projected into the table, renders inside the chrome above the header row and
 owns the applied-filters row (clear-all, count, dismissible chips). A `<bit-search>` goes in its own
-slot (rendered first, on the left) and binds to the `FilterModel` automatically — the table provides
-it as a `SEARCH_CONSUMER`, so the search needs no `ngModel` or output binding. Other left controls
-use `slot="start"`; actions use `slot="end"`:
+slot (rendered first, on the left) and binds to the model's `filter` automatically — the table
+provides it as a `SEARCH_CONSUMER`, so the search needs no `ngModel` or output binding. Other left
+controls use `slot="start"`; actions use `slot="end"`:
 
 ```html
-<bit-table-v2 [dataSource]="ds" [columns]="columns" [filterModel]="filterModel">
+<bit-table-v2 [table]="table">
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
     <button slot="start" bitButton buttonType="secondary" [bitMenuTriggerFor]="filterMenu">
@@ -308,52 +326,51 @@ use `slot="start"`; actions use `slot="end"`:
 </bit-table-v2>
 
 <bit-menu #filterMenu>
-  <button bitMenuItem (click)="filterModel.apply('role:admin')">Admin</button>
-  <button bitMenuItem (click)="filterModel.apply('role:user')">User</button>
+  <button bitMenuItem (click)="table.filter.apply('role:admin')">Admin</button>
+  <button bitMenuItem (click)="table.filter.apply('role:user')">User</button>
 </bit-menu>
 ```
 
-The Filters menu calls `filterModel.apply(id)`; the toolbar renders each applied facet as a
+The Filters menu calls `table.filter.apply(id)`; the toolbar renders each applied facet as a
 dismissible chip and handles removal and clear-all. Any component implementing `SearchConsumer` (not
 just the table) gets the same automatic `<bit-search>` wiring.
 
 ## Selection
 
-Pass a `TableSelectionModel<T>` (a `SelectionModel` subclass) and the table prepends an internal
-checkbox column (generated by the table; consumers don't declare it):
+Configure `selection` on the model and the table prepends an internal checkbox column (generated by
+the table; consumers don't declare it):
 
 ```ts
-selection = new TableSelectionModel<User>(true, []);
+const table = new TableModel<User>({ data: users, selection: { multiple: true } });
 ```
 
 ```html
-<bit-table-v2 [dataSource]="users" [selection]="selection" [columns]="columns">
-  …columns…
-</bit-table-v2>
+<bit-table-v2 [table]="table">…columns…</bit-table-v2>
 ```
 
-The header checkbox targets `dataSource.filteredData` (matches CDK conventions). Selected rows pick
-up a soft background via the existing `bitRow` styling. The model is consumer-owned — the table
-reads from and writes to it but does not construct it.
+The header checkbox targets the filtered rows (matches CDK conventions). Selected rows pick up a
+soft background. Read or mutate the selection via `table.selection`.
 
 ### Selectable rows
 
 When only some rows are selectable, supply a `canSelect` predicate. The table renders a checkbox
 only for selectable rows, and select-all / indeterminate scope to them; the predicate is also
-enforced in the model's `select`, so a non-selectable row can't be selected even programmatically.
+enforced when selecting, so a non-selectable row can't be selected even programmatically.
 
 ```ts
-// Only rows the user can act on are selectable.
-selection = new TableSelectionModel<User>(true, [], { canSelect: (user) => user.canManage });
+const table = new TableModel<User>({
+  data: users,
+  selection: { multiple: true, canSelect: (user) => user.canManage },
+});
 ```
 
 ### Bulk actions
 
 `<bit-bulk-actions-bar>` projected inside the table reads `selectedCount` implicitly from the
-table's selection model via DI; its clear button also clears the model. No explicit wiring:
+model's selection via DI; its clear button also clears the selection. No explicit wiring:
 
 ```html
-<bit-table-v2 [dataSource]="users" [selection]="selection" [columns]="columns">
+<bit-table-v2 [table]="table">
   <bit-bulk-actions-bar>
     <bit-bulk-action [action]="onDelete" icon="bwi-trash" label="Delete" />
     <bit-bulk-action [action]="onArchive" icon="bwi-archive" label="Archive" />
@@ -372,9 +389,7 @@ For large datasets, set `[rowSize]` (the height per row, in px). The table rende
 `cdk-virtual-scroll-viewport`; only the visible rows are stamped:
 
 ```html
-<bit-table-v2 [dataSource]="users" [columns]="columns" [rowSize]="64" [trackBy]="trackById">
-  …columns…
-</bit-table-v2>
+<bit-table-v2 [table]="table" [rowSize]="64" [trackBy]="trackById">…columns…</bit-table-v2>
 ```
 
 `[rowSize]` forces `table-fixed` layout regardless of `[layout]` — virtual scrolling needs
@@ -384,12 +399,12 @@ predictable row geometry. Specify `width="…"` on columns for stable widths.
 
 ## Type safety
 
-`BitTableV2Component<T>` is generic over the row type, inferred from `[dataSource]`. The
-`ColumnModel<T>`'s `columns.ref.X` references (fields and synthetics alike) carry `T` to
-`*bitCellDef`, which uses `ngTemplateContextGuard` to type `let row` as `T`. Result:
+`BitTableV2Component<T>` is generic over the row type, inferred from `[table]`. The
+`TableModel<T>`'s `table.ref.X` references (fields and synthetics alike) carry `T` to `*bitCellDef`,
+which uses `ngTemplateContextGuard` to type `let row` as `T`. Result:
 
-- `columns.ref.email.typed` fails (no such property)
-- `columns.ref.emial` fails (typo)
+- `table.ref.email.typed` fails (no such property)
+- `table.ref.emial` fails (typo)
 - `let row` inside `*bitCellDef` is typed `T` — `row.email` autocompletes, `row.emial` fails
 
 This is meaningfully stronger than `MatTable`, which provides only static-API typing (cell `let-row`

@@ -6,14 +6,13 @@ import { BadgeGroupComponent } from "../../../badge-group";
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
 import { SectionComponent } from "../../../section";
-import { TableDataSource } from "../../../table/table-data-source";
 import {
   BitCellComponent,
   BitCellDefDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableV2Component,
-  ColumnModel,
+  TableModel,
 } from "../../../table/v2";
 
 type Row = { id: number; name: string; updatedAt: Date; tags: string[] };
@@ -37,24 +36,24 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     BitCellComponent,
   ],
   template: `<bit-section>
-    <bit-table-v2 [dataSource]="dataSource" [columns]="columns" [rowSize]="64">
+    <bit-table-v2 [table]="table" [rowSize]="64">
       <bit-column sortable defaultSort="asc">
         <bit-header-cell>Id</bit-header-cell>
-        <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
+        <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
       </bit-column>
       <bit-column sortable>
         <bit-header-cell>Name</bit-header-cell>
-        <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
+        <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
       <bit-column sortable>
         <bit-header-cell>Updated</bit-header-cell>
-        <bit-cell *bitCellDef="columns.ref.updatedAt; let row">
+        <bit-cell *bitCellDef="table.ref.updatedAt; let row">
           {{ row.updatedAt | date: "mediumDate" }}
         </bit-cell>
       </bit-column>
       <bit-column sortable [sortFn]="sortByTags">
         <bit-header-cell>Tags</bit-header-cell>
-        <bit-cell *bitCellDef="columns.ref.tags; let row" [truncate]="false">
+        <bit-cell *bitCellDef="table.ref.tags; let row" [truncate]="false">
           <bit-badge-group>
             @for (tag of row.tags; track tag) {
               <span bitBadge variant="subtle">{{ tag }}</span>
@@ -64,7 +63,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
       </bit-column>
       <bit-column width="64px">
         <bit-header-cell></bit-header-cell>
-        <bit-cell *bitCellDef="columns.ref.actions; let row">
+        <bit-cell *bitCellDef="table.ref.actions; let row">
           <button
             slot="end"
             bitIconButton="bwi-ellipsis-v"
@@ -79,24 +78,25 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
 })
 export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly dialogService = inject(DialogService);
-  protected readonly columns = new ColumnModel<Row, "actions">();
-  protected readonly dataSource = new TableDataSource<Row>();
+  protected readonly table = new TableModel<Row, "actions">();
 
   protected readonly sortByTags = (a: Row, b: Row) =>
     a.tags.join(",").localeCompare(b.tags.join(","));
 
   ngOnInit(): void {
     const base = new Date(Date.UTC(2026, 0, 1));
-    this.dataSource.data = [...Array(100).keys()].map((i) => {
-      const date = new Date(base);
-      date.setUTCDate(base.getUTCDate() + i);
-      return {
-        id: i,
-        name: `name-${i}`,
-        updatedAt: date,
-        tags: Array.from({ length: (i % 3) + 1 }, (_, j) => TAG_POOL[(i + j) % TAG_POOL.length]),
-      };
-    });
+    this.table.setData(
+      [...Array(100).keys()].map((i) => {
+        const date = new Date(base);
+        date.setUTCDate(base.getUTCDate() + i);
+        return {
+          id: i,
+          name: `name-${i}`,
+          updatedAt: date,
+          tags: Array.from({ length: (i % 3) + 1 }, (_, j) => TAG_POOL[(i + j) % TAG_POOL.length]),
+        };
+      }),
+    );
   }
 
   async openDefaultDialog() {

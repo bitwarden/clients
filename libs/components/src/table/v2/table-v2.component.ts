@@ -1,4 +1,3 @@
-import { isDataSource } from "@angular/cdk/collections";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -21,18 +20,15 @@ import {
   signal,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { finalize, Observable, of, switchMap } from "rxjs";
+import { finalize, Observable, switchMap } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
-import { Sort, TableDataSource } from "../table-data-source";
 
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
-import { ColumnModel } from "./column-model";
-import { FilterModel } from "./filter-model";
-import { TableSelectionModel } from "./table-selection-model";
+import { TableModel } from "./table-model";
 
 @Component({
   selector: "bit-table-v2",
@@ -53,19 +49,12 @@ export class BitTableV2Component<T = unknown>
   implements AfterContentInit, AfterViewInit, SearchConsumer
 {
   /**
-   * Data source for the table. Sort state is read from / written to this
-   * source. The row type `T` is inferred from this binding and threads
-   * through {@link selection}, {@link trackBy}, and other typed surfaces.
+   * The single construct that configures the table — data, columns, filter, and
+   * optional selection — see {@link TableModel}. Also the source of the typed
+   * `table.ref.*` references bound to `*bitCellDef`. Defaults to an empty model,
+   * so manual-mode tables need not bind it.
    */
-  readonly dataSource = input<TableDataSource<T>>();
-
-  /**
-   * Column identity, order, and visibility — a {@link ColumnModel} (parallel to
-   * {@link dataSource} and {@link selection}), and the source of the typed
-   * `columns.ref.*` references bound to `*bitCellDef`. When omitted, registered
-   * columns render in declaration order, all visible. Omitted in manual mode.
-   */
-  readonly columns = input<ColumnModel<T>>();
+  readonly table = input(new TableModel<T>());
 
   /**
    * Defaults to `"auto"`. Forced to `"fixed"` when virtualization is on
@@ -84,40 +73,21 @@ export class BitTableV2Component<T = unknown>
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
 
-  /**
-   * Selection model. When provided, the table prepends a checkbox column
-   * with a select-all header. Select-all targets the currently filtered
-   * rows (per `dataSource.filteredData`), matching CDK conventions. Supply a
-   * `canSelect` option on the model to make only some rows selectable.
-   */
-  readonly selection = input<TableSelectionModel<T>>();
+  /** The model's data source. */
+  protected readonly dataSource = computed(() => this.table().dataSource);
 
-  /**
-   * Filter state and definitions, constructed by the consumer (parallel to
-   * {@link dataSource} and {@link selection}). The table applies the model's
-   * composed `predicate` to `dataSource.filter` and re-filters whenever it
-   * changes; `<bit-table-toolbar>` renders the applied-filters chips from it,
-   * and a projected `<bit-search>` binds to it via the provided
-   * {@link SEARCH_CONSUMER}. Defaults to an empty model (matches nothing), so
-   * tables without filtering need not bind it.
-   */
-  readonly filterModel = input(new FilterModel<T>());
+  /** The model's column model. */
+  protected readonly columnModel = computed(() => this.table().columns);
 
-  constructor() {
-    effect(() => {
-      const ds = this.dataSource();
-      if (ds) {
-        ds.filter = this.filterModel().predicate();
-      }
-    });
-  }
+  /** The model's selection model, if configured. Read by `bit-bulk-actions-bar` via DI. */
+  readonly selection = computed(() => this.table().selection);
 
   /**
    * The {@link SearchConsumer} surface a projected `<bit-search>` binds to —
-   * the current {@link filterModel}'s `searchTerm` signal, forwarded along.
+   * the model's filter `searchTerm` signal, forwarded along.
    */
   get searchTerm() {
-    return this.filterModel().searchTerm;
+    return this.table().filter.searchTerm;
   }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
@@ -132,16 +102,16 @@ export class BitTableV2Component<T = unknown>
   protected readonly hasColumns = computed(() => this._columns().length > 0);
 
   /**
-   * Registered columns ordered and filtered by the {@link columns} model:
+   * Registered columns ordered and filtered by the model's {@link ColumnModel}:
    * its `order` (or declaration order when unset), minus its hidden set.
    */
   readonly effectiveColumns = computed(() => {
     const registry = new Map(this._columns().map((c) => [c.name(), c]));
-    const model = this.columns();
-    const names = model?.order() ?? this._columns().map((c) => c.name());
-    const hidden = model?.hidden();
+    const model = this.columnModel();
+    const names = model.order() ?? this._columns().map((c) => c.name());
+    const hidden = model.hidden();
     return names
-      .filter((name): name is string => name != null && !(hidden?.has(name) ?? false))
+      .filter((name): name is string => name != null && !hidden.has(name))
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
   });
@@ -196,32 +166,32 @@ export class BitTableV2Component<T = unknown>
   ];
 
   /**
-   * Connects to whatever `dataSource` resolves to (including changes), and
-   * tears down the connection on unsubscribe. Driven via `toObservable` so
-   * the pipeline can be `readonly` rather than reassigned in `ngOnInit`.
+   * Connects to the model's data source (including model swaps), tearing down
+   * the connection on unsubscribe. Driven via `toObservable` so the pipeline
+   * can be `readonly` rather than reassigned in `ngOnInit`.
    */
-  protected readonly rows$: Observable<T[]> = toObservable(this.dataSource).pipe(
-    switchMap((ds) =>
-      isDataSource(ds) ? ds.connect().pipe(finalize(() => ds.disconnect())) : of<T[]>([]),
-    ),
+  protected readonly rows$: Observable<readonly T[]> = toObservable(this.dataSource).pipe(
+    switchMap((ds) => ds.connect().pipe(finalize(() => ds.disconnect()))),
   );
 
   /**
-   * Bridges `dataSource.sort$` into a signal so header-cell computeds can
-   * react to sort changes (the data source is RxJS-internal; v2 is signal-
-   * based). Re-subscribes when `dataSource` swaps.
+   * Bridges the data source's `sort$` into a signal so header-cell computeds
+   * can react to sort changes (the data source is RxJS-internal; v2 is signal-
+   * based). Re-subscribes when the model swaps.
    */
-  readonly sort = toSignal(
-    toObservable(this.dataSource).pipe(
-      switchMap((ds) => (ds ? ds.sort$ : of<Sort | undefined>(undefined))),
-    ),
-  );
+  readonly sort = toSignal(toObservable(this.dataSource).pipe(switchMap((ds) => ds.sort$)));
 
   /** Height of the thead element (px); used to pad the virtual scroll viewport. */
   protected readonly headerHeight = signal(0);
 
   private readonly el = inject(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    effect(() => {
+      this.dataSource().filter = this.table().filter.predicate();
+    });
+  }
 
   ngAfterContentInit(): void {
     this.applyInitialSort();
@@ -244,14 +214,11 @@ export class BitTableV2Component<T = unknown>
   }
 
   /**
-   * Updates `dataSource.sort` for the column. Called by the bit-cell header
-   * component when its sort button is clicked.
+   * Updates the data source's sort for the column. Called by the bit-cell
+   * header component when its sort button is clicked.
    */
   toggleSort(col: BitColumnComponent): void {
     const ds = this.dataSource();
-    if (!ds) {
-      return;
-    }
     const current = ds.sort;
     const colName = col.name();
     if (!colName) {
@@ -269,7 +236,8 @@ export class BitTableV2Component<T = unknown>
   }
 
   protected selectableRows(): T[] {
-    const rows = this.dataSource()?.filteredData ?? this.dataSource()?.data ?? [];
+    const ds = this.dataSource();
+    const rows = ds.filteredData ?? ds.data ?? [];
     return rows.filter((row) => this.isSelectable(row));
   }
 
@@ -307,7 +275,7 @@ export class BitTableV2Component<T = unknown>
 
   private applyInitialSort(): void {
     const ds = this.dataSource();
-    if (!ds || ds.sort?.column) {
+    if (ds.sort?.column) {
       return;
     }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());

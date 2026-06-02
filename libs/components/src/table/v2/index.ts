@@ -17,5 +17,6 @@ export {
   type FilterModelConfig,
   type AppliedFilter,
 } from "./filter-model";
+export { TableModel, type TableModelConfig } from "./table-model";
 export { TableSelectionModel } from "./table-selection-model";
 export { BitTableV2Component } from "./table-v2.component";
