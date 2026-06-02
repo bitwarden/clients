@@ -8,7 +8,8 @@ export interface DomQueryService {
   ): T[];
   updatePageContainsShadowDom(): boolean;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
-  checkForNewShadowRoots(): boolean;
+  checkForNewShadowRoots(addedElements?: Element[]): boolean;
   resetObservedShadowRoots(): void;
+  purgeDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;
 }
