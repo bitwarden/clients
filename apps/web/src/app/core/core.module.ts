@@ -136,7 +136,6 @@ import {
   DefaultSshImportPromptService,
   SshImportPromptService,
 } from "@bitwarden/vault";
-import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 
@@ -281,11 +280,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CLIENT_TYPE,
     useValue: ClientType.Web,
-  }),
-  safeProvider({
-    provide: OrganizationInviteService,
-    useClass: WebOrganizationInviteService,
-    deps: [GlobalStateProvider],
   }),
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,
