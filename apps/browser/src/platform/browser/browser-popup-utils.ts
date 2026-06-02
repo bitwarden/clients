@@ -114,7 +114,7 @@ export default class BrowserPopupUtils {
     },
   ) {
     const { delay, containerSelector } = options;
-    return new Promise<void>((resolve) =>
+    return await new Promise<void>((resolve) =>
       win.setTimeout(() => {
         const container = win.document.querySelector(containerSelector);
         if (!isNaN(scrollYAmount) && container) {

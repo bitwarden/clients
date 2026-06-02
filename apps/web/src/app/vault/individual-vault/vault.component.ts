@@ -1009,7 +1009,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
-    return this.editCipherId(uuidAsString(cipher.id), cloneMode);
+    return await this.editCipherId(uuidAsString(cipher.id), cloneMode);
   }
 
   /**
@@ -1631,7 +1631,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   private async getPasswordFromCipherViewLike(cipher: C): Promise<string | undefined> {
     if (!CipherViewLikeUtils.isCipherListView(cipher)) {
-      return Promise.resolve(cipher?.login?.password);
+      return await Promise.resolve(cipher?.login?.password);
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

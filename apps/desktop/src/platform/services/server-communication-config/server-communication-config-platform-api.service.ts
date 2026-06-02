@@ -64,7 +64,7 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
         this.logService.info(
           "Cookie acquisition already in progress for hostname, returning existing promise",
         );
-        return this.pendingPromise;
+        return await this.pendingPromise;
       }
       // Different hostname - cancel previous and start new
       this.logService.warning("Cancelling previous cookie acquisition for different hostname");
@@ -77,7 +77,7 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
 
     this.pendingHostname = vaultUrl;
     this.pendingPromise = this.runAcquisitionFlow(vaultUrl, url, normalizedVaultUrl);
-    return this.pendingPromise;
+    return await this.pendingPromise;
   }
 
   /**

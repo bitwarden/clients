@@ -190,7 +190,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(masterKey, newUserKey);
+    return await this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
   /**
@@ -416,7 +416,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       32,
       "sha256",
     );
-    return this.hashPhrase(userFingerprint);
+    return await this.hashPhrase(userFingerprint);
   }
 
   async makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]> {

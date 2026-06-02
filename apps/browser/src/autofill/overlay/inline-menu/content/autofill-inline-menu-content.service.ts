@@ -185,10 +185,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
-      return this.appendButtonElement();
+      return await this.appendButtonElement();
     }
 
-    return this.appendListElement();
+    return await this.appendListElement();
   }
 
   /**

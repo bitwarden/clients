@@ -51,7 +51,7 @@ describe("setupExtensionRedirectGuard", () => {
     // Run the guard within injection context so `inject` works as you'd expect
     // Pass state object to make TypeScript happy
     return TestBed.runInInjectionContext(async () =>
-      setupExtensionRedirectGuard(route ?? emptyRoute, _state),
+      await setupExtensionRedirectGuard(route ?? emptyRoute, _state),
     );
   }
 

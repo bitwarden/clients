@@ -62,10 +62,10 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
     });
 
     this.unlockService.registerOnUnlockAction(async (userId, userKey) =>
-      this.onUnlock(userId, userKey),
+      await this.onUnlock(userId, userKey),
     );
     pollForUnlockEvents(this.keyService, this.accountService, async (userId, userKey) =>
-      this.onUnlock(userId, userKey),
+      await this.onUnlock(userId, userKey),
     );
   }
 

@@ -29,7 +29,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       return [];
     }
 
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {

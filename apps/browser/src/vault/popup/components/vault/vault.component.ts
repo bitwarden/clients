@@ -343,7 +343,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             }
           }
 
-          return this.autoConfirmService.upsert(userId, newState);
+          return await this.autoConfirmService.upsert(userId, newState);
         }),
         takeUntilDestroyed(this.destroyRef),
       )

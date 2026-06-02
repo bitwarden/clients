@@ -60,7 +60,7 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
     }
 
     if (isUnencrypted(results)) {
-      return super.parse(data);
+      return await super.parse(data);
     }
 
     return await this.parseEncrypted(results);

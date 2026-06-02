@@ -83,7 +83,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     if (this.secret === undefined || this.verificationType === undefined) {
       throw new Error("User verification data is missing");
     }
-    return this.userVerificationService.buildRequest(
+    return await this.userVerificationService.buildRequest(
       {
         secret: this.secret,
         type: this.verificationType,

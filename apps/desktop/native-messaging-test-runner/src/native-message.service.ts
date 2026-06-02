@@ -87,7 +87,7 @@ export default class NativeMessageService {
       encryptedCommand,
     });
 
-    return this.decryptResponsePayload(response.encryptedPayload, key);
+    return await this.decryptResponsePayload(response.encryptedPayload, key);
   }
 
   async credentialRetrieval(key: string, uri: string): Promise<DecryptedCommandData> {
@@ -104,7 +104,7 @@ export default class NativeMessageService {
       encryptedCommand,
     });
 
-    return this.decryptResponsePayload(response.encryptedPayload, key);
+    return await this.decryptResponsePayload(response.encryptedPayload, key);
   }
 
   async credentialCreation(
@@ -122,7 +122,7 @@ export default class NativeMessageService {
       encryptedCommand,
     });
 
-    return this.decryptResponsePayload(response.encryptedPayload, key);
+    return await this.decryptResponsePayload(response.encryptedPayload, key);
   }
 
   async credentialUpdate(
@@ -140,7 +140,7 @@ export default class NativeMessageService {
       encryptedCommand,
     });
 
-    return this.decryptResponsePayload(response.encryptedPayload, key);
+    return await this.decryptResponsePayload(response.encryptedPayload, key);
   }
 
   async generatePassword(key: string, userId: string): Promise<DecryptedCommandData> {
@@ -157,7 +157,7 @@ export default class NativeMessageService {
       encryptedCommand,
     });
 
-    return this.decryptResponsePayload(response.encryptedPayload, key);
+    return await this.decryptResponsePayload(response.encryptedPayload, key);
   }
 
   // Private message sending
@@ -220,7 +220,7 @@ export default class NativeMessageService {
 
     const sharedKey = await this.getSharedKeyForKey(key);
 
-    return this.encryptService.encryptString(commandDataString, sharedKey);
+    return await this.encryptService.encryptString(commandDataString, sharedKey);
   }
 
   private async decryptResponsePayload(

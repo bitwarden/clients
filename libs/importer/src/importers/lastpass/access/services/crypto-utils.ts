@@ -43,7 +43,7 @@ export class CryptoUtils {
     defaultValue: string,
   ) {
     try {
-      return this.decryptAes256Plain(data, encryptionKey);
+      return await this.decryptAes256Plain(data, encryptionKey);
     } catch {
       return defaultValue;
     }
@@ -55,7 +55,7 @@ export class CryptoUtils {
     defaultValue: string,
   ) {
     try {
-      return this.decryptAes256Base64(data, encryptionKey);
+      return await this.decryptAes256Base64(data, encryptionKey);
     } catch {
       return defaultValue;
     }
@@ -67,9 +67,9 @@ export class CryptoUtils {
     }
     // Byte 33 == character '!'
     if (data[0] === 33 && data.length % 16 === 1 && data.length > 32) {
-      return this.decryptAes256CbcPlain(data, encryptionKey);
+      return await this.decryptAes256CbcPlain(data, encryptionKey);
     }
-    return this.decryptAes256EcbPlain(data, encryptionKey);
+    return await this.decryptAes256EcbPlain(data, encryptionKey);
   }
 
   async decryptAes256Base64(data: Uint8Array, encryptionKey: Uint8Array) {
@@ -78,9 +78,9 @@ export class CryptoUtils {
     }
     // Byte 33 == character '!'
     if (data[0] === 33) {
-      return this.decryptAes256CbcBase64(data, encryptionKey);
+      return await this.decryptAes256CbcBase64(data, encryptionKey);
     }
-    return this.decryptAes256EcbBase64(data, encryptionKey);
+    return await this.decryptAes256EcbBase64(data, encryptionKey);
   }
 
   async decryptAes256(
@@ -104,23 +104,23 @@ export class CryptoUtils {
   }
 
   private async decryptAes256EcbPlain(data: Uint8Array, encryptionKey: Uint8Array) {
-    return this.decryptAes256(data, encryptionKey, "ecb");
+    return await this.decryptAes256(data, encryptionKey, "ecb");
   }
 
   private async decryptAes256EcbBase64(data: Uint8Array, encryptionKey: Uint8Array) {
     const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data)!)!;
-    return this.decryptAes256(d, encryptionKey, "ecb");
+    return await this.decryptAes256(d, encryptionKey, "ecb");
   }
 
   private async decryptAes256CbcPlain(data: Uint8Array, encryptionKey: Uint8Array) {
     const d = data.subarray(17);
     const iv = data.subarray(1, 17);
-    return this.decryptAes256(d, encryptionKey, "cbc", iv);
+    return await this.decryptAes256(d, encryptionKey, "cbc", iv);
   }
 
   private async decryptAes256CbcBase64(data: Uint8Array, encryptionKey: Uint8Array) {
     const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(26))!)!;
     const iv = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(1, 25))!)!;
-    return this.decryptAes256(d, encryptionKey, "cbc", iv);
+    return await this.decryptAes256(d, encryptionKey, "cbc", iv);
   }
 }

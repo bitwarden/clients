@@ -27,7 +27,7 @@ export class VaultProfileService {
    */
   async getProfileCreationDate(userId: string): Promise<Date> {
     if (this.profileCreatedDate && userId === this.userId) {
-      return Promise.resolve(new Date(this.profileCreatedDate));
+      return await Promise.resolve(new Date(this.profileCreatedDate));
     }
 
     const profile = await this.fetchAndCacheProfile();

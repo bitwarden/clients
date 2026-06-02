@@ -47,6 +47,6 @@ export class SubaddressGeneratorStrategy implements GeneratorStrategy<
       return this.emailCalculator.appendToSubaddress(options.website, options.subaddressEmail);
     }
 
-    return this.emailRandomizer.randomAsciiSubaddress(options.subaddressEmail);
+    return await this.emailRandomizer.randomAsciiSubaddress(options.subaddressEmail);
   }
 }

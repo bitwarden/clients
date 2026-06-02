@@ -72,7 +72,7 @@ export class UnlockCommand {
 
     await this.encryptedMigrator.runMigrations(userId, password);
 
-    return this.successResponse();
+    return await this.successResponse();
   }
 
   private async setNewSessionKey() {

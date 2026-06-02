@@ -88,7 +88,7 @@ export class EncryptedMessageHandlerService {
       return [];
     }
 
-    return Promise.all(
+    return await Promise.all(
       Object.keys(accounts).map(async (userId: UserId) => {
         const authStatus = await this.authService.getAuthStatus(userId);
         const email = accounts[userId].email;

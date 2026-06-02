@@ -519,7 +519,7 @@ export class MemberAccessReportService {
 
     const fetchPromise = this.cipherService.getAllFromApiForOrganization(organizationId);
 
-    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
+    return await Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutId);
     });
   }

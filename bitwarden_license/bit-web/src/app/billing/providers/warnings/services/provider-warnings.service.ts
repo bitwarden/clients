@@ -119,7 +119,7 @@ export class ProviderWarningsService {
               cancelButtonText: null,
               acceptAction: async () => {
                 window.open("https://bitwarden.com/contact/", "_blank");
-                return Promise.resolve();
+                return await Promise.resolve();
               },
             });
           }

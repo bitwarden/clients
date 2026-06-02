@@ -269,7 +269,7 @@ describe("Fido2Background", () => {
       let duringRequestResult: boolean;
       fido2ClientService.createCredential.mockImplementation(async () => {
         duringRequestResult = fido2Background.isCredentialRequestInProgress(tabMock.id);
-        return mock();
+        return await mock();
       });
 
       const message = mock<Fido2ExtensionMessage>({
@@ -288,7 +288,7 @@ describe("Fido2Background", () => {
       let duringRequestResult: boolean;
       fido2ClientService.assertCredential.mockImplementation(async () => {
         duringRequestResult = fido2Background.isCredentialRequestInProgress(tabMock.id);
-        return mock();
+        return await mock();
       });
 
       const message = mock<Fido2ExtensionMessage>({

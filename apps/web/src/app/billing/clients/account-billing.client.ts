@@ -37,7 +37,7 @@ export class AccountBillingClient {
 
   getLicense = async (): Promise<string> => {
     const path = `${this.endpoint}/license`;
-    return this.apiService.send("GET", path, null, true, true);
+    return await this.apiService.send("GET", path, null, true, true);
   };
 
   getSubscription = async (): Promise<Maybe<BitwardenSubscription>> => {

@@ -61,11 +61,11 @@ export class IndividualVaultExportService
    */
   async getExport(userId: UserId, format: ExportFormat = "csv"): Promise<ExportedVault> {
     if (format === "encrypted_json") {
-      return this.getEncryptedExport(userId);
+      return await this.getEncryptedExport(userId);
     } else if (format === "zip") {
-      return this.getDecryptedExportZip(userId);
+      return await this.getDecryptedExportZip(userId);
     }
-    return this.getDecryptedExport(userId, format);
+    return await this.getDecryptedExport(userId, format);
   }
 
   /** Creates a password protected export of an individual vault (My Vault) as a JSON file

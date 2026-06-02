@@ -118,7 +118,7 @@ export class SecretState<
     }
 
     // decrypt each item
-    const decryptTasks = data.map(async (item) => this.declassifyItem(encryptor, item));
+    const decryptTasks = data.map(async (item) => await this.declassifyItem(encryptor, item));
 
     // reconstruct expected type
     const results = await Promise.all(decryptTasks);
@@ -154,7 +154,7 @@ export class SecretState<
     const desconstructed = this.key.deconstruct(data);
 
     // encrypt each value individually
-    const classifyTasks = desconstructed.map(async (item) => this.classifyItem(encryptor, item));
+    const classifyTasks = desconstructed.map(async (item) => await this.classifyItem(encryptor, item));
     const classified = await Promise.all(classifyTasks);
 
     return classified;

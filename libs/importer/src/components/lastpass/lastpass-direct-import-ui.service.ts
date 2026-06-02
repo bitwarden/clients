@@ -44,24 +44,24 @@ export class LastPassDirectImportUIService implements Ui {
   }
 
   async provideGoogleAuthPasscode() {
-    return this.getOTPResult("otp");
+    return await this.getOTPResult("otp");
   }
 
   async provideMicrosoftAuthPasscode() {
-    return this.getOTPResult("otp");
+    return await this.getOTPResult("otp");
   }
 
   async provideYubikeyPasscode() {
-    return this.getOTPResult("yubikey");
+    return await this.getOTPResult("yubikey");
   }
 
   async approveLastPassAuth() {
-    return this.getOOBResult("oob");
+    return await this.getOOBResult("oob");
   }
   async approveDuo() {
-    return this.getOOBResult("oob");
+    return await this.getOOBResult("oob");
   }
   async approveSalesforceAuth() {
-    return this.getOOBResult("oob");
+    return await this.getOOBResult("oob");
   }
 }

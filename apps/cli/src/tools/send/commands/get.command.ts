@@ -65,13 +65,13 @@ export class SendGetCommand extends DownloadCommand {
         return Response.multipleResults(sends.map((s) => s.id));
       }
       if (sends.length > 0) {
-        return selector(sends[0]);
+        return await selector(sends[0]);
       } else {
         return Response.notFound();
       }
     }
 
-    return selector(sends);
+    return await selector(sends);
   }
 
   private async getSendView(id: string): Promise<SendView | SendView[]> {

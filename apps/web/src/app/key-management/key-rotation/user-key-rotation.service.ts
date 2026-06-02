@@ -306,14 +306,14 @@ export class UserKeyRotationService {
     cryptographicStateParameters: V1CryptographicStateParameters | V2CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
     if (cryptographicStateParameters.version === 1) {
-      return this.upgradeV1UserToV2UserAccountKeys(
+      return await this.upgradeV1UserToV2UserAccountKeys(
         userId,
         masterKeyKdfConfig,
         masterKeySalt,
         cryptographicStateParameters as V1CryptographicStateParameters,
       );
     } else {
-      return this.rotateV2UserAccountKeys(
+      return await this.rotateV2UserAccountKeys(
         userId,
         masterKeyKdfConfig,
         masterKeySalt,
@@ -607,7 +607,7 @@ export class UserKeyRotationService {
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(masterPassword, masterKey);
+    return await this.keyService.hashMasterKey(masterPassword, masterKey);
   }
 
   /**

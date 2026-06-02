@@ -102,11 +102,11 @@ export class DefaultTwoFactorApiService implements TwoFactorApiService {
   }
 
   async postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
-    return this.apiService.send("POST", "/two-factor/send-email", request, true, false);
+    return await this.apiService.send("POST", "/two-factor/send-email", request, true, false);
   }
 
   async postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
-    return this.apiService.send("POST", "/two-factor/send-email-login", request, false, false);
+    return await this.apiService.send("POST", "/two-factor/send-email-login", request, false, false);
   }
 
   async putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse> {

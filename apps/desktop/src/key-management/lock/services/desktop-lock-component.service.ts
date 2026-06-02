@@ -34,7 +34,7 @@ export class DesktopLockComponentService implements LockComponentService {
   }
 
   async isWindowVisible(): Promise<boolean> {
-    return ipc.platform.isWindowVisible();
+    return await ipc.platform.isWindowVisible();
   }
 
   getBiometricsUnlockBtnText(): string {

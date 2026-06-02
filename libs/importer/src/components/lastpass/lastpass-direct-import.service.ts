@@ -114,7 +114,7 @@ export class LastPassDirectImportService {
       throw Error("SSO auth cancelled");
     });
 
-    return Promise.race<{
+    return await Promise.race<{
       oidcCode: string;
       oidcState: string;
     }>([cancelled, ssoCallbackPromise]).finally(() => {

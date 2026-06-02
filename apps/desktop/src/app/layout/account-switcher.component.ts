@@ -132,7 +132,7 @@ export class AccountSwitcherComponent implements OnInit {
               accountStatuses[id] !== AuthenticationStatus.LoggedOut || id === activeAccount?.id,
           ),
         );
-        return this.createInactiveAccounts(accounts);
+        return await this.createInactiveAccounts(accounts);
       }),
     );
     this.showSwitcher$ = combineLatest([this.activeAccount$, this.inactiveAccounts$]).pipe(

@@ -52,7 +52,7 @@ export class NodeApiService extends ApiService {
       const { HttpsProxyAgent } = await import("https-proxy-agent");
       (request as any).agent = new HttpsProxyAgent(proxy);
     }
-    return fetch(request);
+    return await fetch(request);
   }
 
   /** XMLHttpRequest is not supported in Node.js, fallback to fetch */

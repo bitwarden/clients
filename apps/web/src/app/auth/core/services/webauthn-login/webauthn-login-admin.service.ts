@@ -324,7 +324,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
       throw new Error("newUserKey is required");
     }
 
-    return Promise.all(
+    return await Promise.all(
       (await this.apiService.getCredentials()).data
         .filter((credential) => credential.hasPrfKeyset())
         .map(async (response) => {

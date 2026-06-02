@@ -358,7 +358,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
           const decryptBufferFn = async (resp: globalThis.Response) => {
             const encBuf = await EncArrayBuffer.fromResponse(resp);
-            return this.encryptService.decryptFileData(encBuf, this.decKey);
+            return await this.encryptService.decryptFileData(encBuf, this.decKey);
           };
 
           return await this.saveAttachmentToFile(

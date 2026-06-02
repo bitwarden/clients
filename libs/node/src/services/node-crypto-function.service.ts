@@ -36,7 +36,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   ): Promise<Uint8Array> {
     const saltArr = typeof salt === "string" ? Utils.fromUtf8ToArray(salt) : salt;
     const prk = await this.hmac(ikm, saltArr, algorithm);
-    return this.hkdfExpand(prk, info, outputByteSize, algorithm);
+    return await this.hkdfExpand(prk, info, outputByteSize, algorithm);
   }
 
   // ref: https://tools.ietf.org/html/rfc5869

@@ -69,7 +69,7 @@ export class ProjectService {
       this.projectCache.set(projectId, request);
     }
 
-    return this.projectCache.get(projectId)!;
+    return await (this.projectCache.get(projectId)!);
   }
 
   async getProjects(organizationId: string): Promise<ProjectListView[]> {

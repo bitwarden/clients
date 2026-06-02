@@ -360,14 +360,14 @@ export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
           const billingDetails = this.group().controls.billingAddress.enabled
             ? this.group().controls.billingAddress.getRawValue()
             : undefined;
-          return this.stripeService.setupCardPaymentMethod(
+          return await this.stripeService.setupCardPaymentMethod(
             this.instanceId,
             clientSecret,
             billingDetails,
           );
         }
         case "payPal": {
-          return this.braintreeService.requestPaymentMethod();
+          return await this.braintreeService.requestPaymentMethod();
         }
       }
     };

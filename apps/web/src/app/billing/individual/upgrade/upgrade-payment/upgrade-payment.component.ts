@@ -354,12 +354,12 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     }
 
     return this.isFamiliesPlan()
-      ? this.processFamiliesUpgrade(
+      ? await this.processFamiliesUpgrade(
           organizationName!,
           billingAddress,
           paymentMethod as TokenizedPaymentMethod,
         )
-      : this.processPremiumUpgrade(paymentMethod, billingAddress);
+      : await this.processPremiumUpgrade(paymentMethod, billingAddress);
   }
 
   private async processFamiliesUpgrade(

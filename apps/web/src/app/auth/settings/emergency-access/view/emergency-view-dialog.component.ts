@@ -29,7 +29,7 @@ export interface EmergencyViewDialogParams {
 class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
   async promptForPremium() {
-    return Promise.resolve();
+    return await Promise.resolve();
   }
 }
 

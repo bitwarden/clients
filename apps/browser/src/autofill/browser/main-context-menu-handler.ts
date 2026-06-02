@@ -267,7 +267,7 @@ export class MainContextMenuHandler {
       return;
     }
 
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       const itemId = chrome.contextMenus.create(options, () => {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);
@@ -282,7 +282,7 @@ export class MainContextMenuHandler {
   };
 
   static async removeAll() {
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       chrome.contextMenus.removeAll(() => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);

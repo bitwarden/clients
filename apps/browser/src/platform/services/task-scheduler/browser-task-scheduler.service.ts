@@ -351,10 +351,10 @@ export class BrowserTaskSchedulerServiceImplementation
    */
   private async clearAlarm(alarmName: string): Promise<boolean> {
     if (this.isNonChromeEnvironment()) {
-      return browser.alarms.clear(alarmName);
+      return await browser.alarms.clear(alarmName);
     }
 
-    return new Promise((resolve) => chrome.alarms.clear(alarmName, resolve));
+    return await new Promise((resolve) => chrome.alarms.clear(alarmName, resolve));
   }
 
   /**
@@ -380,10 +380,10 @@ export class BrowserTaskSchedulerServiceImplementation
     createInfo: chrome.alarms.AlarmCreateInfo,
   ): Promise<void> {
     if (this.isNonChromeEnvironment()) {
-      return browser.alarms.create(alarmName, createInfo);
+      return await browser.alarms.create(alarmName, createInfo);
     }
 
-    return new Promise((resolve) => chrome.alarms.create(alarmName, createInfo, resolve));
+    return await new Promise((resolve) => chrome.alarms.create(alarmName, createInfo, resolve));
   }
 
   /**

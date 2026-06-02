@@ -95,7 +95,7 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
   });
 
   async function runSideEffect() {
-    return component.policySteps[0].sideEffect!();
+    return await component.policySteps[0].sideEffect!();
   }
 
   describe("SingleOrg prerequisite enablement", () => {

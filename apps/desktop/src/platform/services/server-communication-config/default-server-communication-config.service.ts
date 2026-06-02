@@ -68,7 +68,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
   }
 
   async getCookies(hostname: string): Promise<Array<[string, string]>> {
-    return this.client.cookies(hostname);
+    return await this.client.cookies(hostname);
   }
 
   async acquireCookie(url: string): Promise<void> {
@@ -103,7 +103,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
 
       await this.acquireCookie(hostname);
       // Retry with original request (follow redirect mode, cookies now in session)
-      return next(request);
+      return await next(request);
     };
   }
 }

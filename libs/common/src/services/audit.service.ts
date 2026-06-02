@@ -43,7 +43,7 @@ export class AuditService implements AuditServiceAbstraction {
   }
 
   async passwordLeaked(password: string): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+    return await new Promise<number>((resolve, reject) => {
       this.passwordLeakedSubject.next({ password, resolve, reject });
     });
   }
@@ -69,6 +69,6 @@ export class AuditService implements AuditServiceAbstraction {
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
-    return this.hibpApiService.getHibpBreach(username);
+    return await this.hibpApiService.getHibpBreach(username);
   }
 }

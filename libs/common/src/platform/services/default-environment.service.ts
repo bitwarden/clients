@@ -308,7 +308,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     // Add backwards compatibility support for null userId
     const definedUserId = userId ?? (await firstValueFrom(this.activeAccountId$));
 
-    return firstValueFrom(this.getEnvironment$(definedUserId));
+    return await firstValueFrom(this.getEnvironment$(definedUserId));
   }
 
   async seedUserEnvironment(userId: UserId) {

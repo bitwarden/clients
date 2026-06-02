@@ -57,7 +57,7 @@ export class PostImportModalDialogComponent {
     dialogService: DialogService,
     organizationId: OrganizationId,
   ): Promise<DialogRef<unknown, PostImportModalDialogComponent> | undefined> {
-    return runInInjectionContext(injector, async () => {
+    return await runInInjectionContext(injector, async () => {
       const logger = inject(LogService);
       const onboardingService = inject(OnboardingService);
       const acknowledged = await onboardingService.isPostImportDialogAcknowledged();

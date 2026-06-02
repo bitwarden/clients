@@ -29,6 +29,6 @@ export class LegacyPasswordHistoryDecryptor {
       return new GeneratedPasswordHistory(decrypted, item.date);
     });
 
-    return Promise.all(promises);
+    return await Promise.all(promises);
   }
 }

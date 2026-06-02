@@ -52,21 +52,21 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
     try {
       if (message.type === MessageTypes.CredentialCreationRequest) {
-        return handleCredentialCreationRequestMessage(
+        return await handleCredentialCreationRequestMessage(
           requestId,
           message.data as InsecureCreateCredentialParams,
         );
       }
 
       if (message.type === MessageTypes.CredentialGetRequest) {
-        return handleCredentialGetRequestMessage(
+        return await handleCredentialGetRequestMessage(
           requestId,
           message.data as InsecureAssertCredentialParams,
         );
       }
 
       if (message.type === MessageTypes.AbortRequest) {
-        return sendExtensionMessage("fido2AbortRequest", { abortedRequestId: requestId });
+        return await sendExtensionMessage("fido2AbortRequest", { abortedRequestId: requestId });
       }
     } finally {
       abortController?.signal.removeEventListener("abort", abortHandler);
@@ -83,7 +83,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     requestId: string,
     data: InsecureCreateCredentialParams,
   ): Promise<Message | undefined> {
-    return respondToCredentialRequest(
+    return await respondToCredentialRequest(
       "fido2RegisterCredentialRequest",
       MessageTypes.CredentialCreationResponse,
       requestId,
@@ -101,7 +101,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     requestId: string,
     data: InsecureAssertCredentialParams,
   ): Promise<Message | undefined> {
-    return respondToCredentialRequest(
+    return await respondToCredentialRequest(
       "fido2GetCredentialRequest",
       MessageTypes.CredentialGetResponse,
       requestId,
@@ -135,10 +135,10 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     const result = await sendExtensionMessage(command, { data, requestId });
 
     if (result && result.error !== undefined) {
-      return Promise.reject(result.error);
+      return await Promise.reject(result.error);
     }
 
-    return Promise.resolve({ type, result });
+    return await Promise.resolve({ type, result });
   }
 
   /**

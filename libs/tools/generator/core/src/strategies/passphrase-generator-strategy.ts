@@ -48,6 +48,6 @@ export class PassphraseGeneratorStrategy implements GeneratorStrategy<
   async generate(options: PassphraseGenerationOptions): Promise<string> {
     const request = optionsToEffWordListRequest(options);
 
-    return this.randomizer.randomEffLongWords(request);
+    return await this.randomizer.randomEffLongWords(request);
   }
 }

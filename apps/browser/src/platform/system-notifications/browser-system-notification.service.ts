@@ -43,7 +43,7 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
   }
 
   async create(createInfo: SystemNotificationCreateInfo): Promise<string> {
-    return new Promise<string>((resolve) => {
+    return await new Promise<string>((resolve) => {
       const deviceType: DeviceType = this.platformUtilsService.getDevice();
 
       const options: chrome.notifications.NotificationCreateOptions = {

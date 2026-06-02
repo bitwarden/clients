@@ -11,7 +11,7 @@ export class UserVerificationApiService implements UserVerificationApiServiceAbs
     return this.apiService.send("POST", "/accounts/verify-otp", request, true, false);
   }
   async postAccountRequestOTP(): Promise<void> {
-    return this.apiService.send("POST", "/accounts/request-otp", null, true, false);
+    return await this.apiService.send("POST", "/accounts/request-otp", null, true, false);
   }
   postAccountVerifyPassword(
     request: SecretVerificationRequest,

@@ -31,7 +31,7 @@ export class ServerCommunicationConfigRepository implements SdkRepository {
   }
 
   async get(hostname: string): Promise<ServerCommunicationConfig | undefined> {
-    return firstValueFrom(this.get$(hostname));
+    return await firstValueFrom(this.get$(hostname));
   }
 
   /**

@@ -177,7 +177,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
   ): Promise<MasterKey> {
     // if we have prefetched prelogin data, use it
     if (preFetchedPreloginData) {
-      return this.keyService.makeMasterKey(masterPassword, email, preFetchedPreloginData.kdfConfig);
+      return await this.keyService.makeMasterKey(masterPassword, email, preFetchedPreloginData.kdfConfig);
     }
 
     // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.
@@ -187,7 +187,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       throw new Error("KDF config is required");
     }
 
-    return this.keyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
+    return await this.keyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
   }
 
   private async evaluateMasterPasswordIfRequired(

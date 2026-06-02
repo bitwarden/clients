@@ -26,7 +26,7 @@ export default class BrowserLocalStorageService extends AbstractChromeStorageSer
   async getKeys(): Promise<string[]> {
     // getKeys function is only available since Chrome 130
     if ("getKeys" in this.chromeStorageApi) {
-      return this.chromeStorageApi.getKeys();
+      return await this.chromeStorageApi.getKeys();
     }
     return [];
   }
@@ -61,7 +61,7 @@ export default class BrowserLocalStorageService extends AbstractChromeStorageSer
       return null;
     }
 
-    return new Promise<{ [key: string]: unknown }>((resolve) => {
+    return await new Promise<{ [key: string]: unknown }>((resolve) => {
       this.chromeStorageApi.get(key, (store) => {
         if (chrome.runtime.lastError) {
           this.logService.warning(`Failed to get value for key '${key}'`, chrome.runtime.lastError);

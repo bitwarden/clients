@@ -69,7 +69,7 @@ export class NewAdminWelcomeDialogComponent {
     dialogService: DialogService,
     organizationId: OrganizationId,
   ): Promise<DialogRef<unknown, NewAdminWelcomeDialogComponent> | undefined> {
-    return runInInjectionContext(injector, async () => {
+    return await runInInjectionContext(injector, async () => {
       const logger = inject(LogService);
       const onboardingService = inject(OnboardingService);
       const acknowledged = await onboardingService.isNewAdminWelcomeDialogAcknowledged();

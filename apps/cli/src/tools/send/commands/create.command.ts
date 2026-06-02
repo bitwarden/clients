@@ -70,7 +70,7 @@ export class SendCreateCommand {
     }
 
     const normalizedOptions = new Options(cmdOptions);
-    return this.createSend(req, normalizedOptions);
+    return await this.createSend(req, normalizedOptions);
   }
 
   private async createSend(req: SendResponse, options: Options) {

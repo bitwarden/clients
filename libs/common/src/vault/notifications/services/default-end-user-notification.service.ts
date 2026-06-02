@@ -187,7 +187,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
     userId: UserId,
     notification: NotificationViewData,
   ): Promise<NotificationViewData[] | null> {
-    return this.notificationState(userId).update((current) => {
+    return await this.notificationState(userId).update((current) => {
       current ??= [];
 
       const existingIndex = current.findIndex((n) => n.id === notification.id);

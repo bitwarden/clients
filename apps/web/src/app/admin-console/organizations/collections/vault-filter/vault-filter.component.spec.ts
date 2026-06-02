@@ -215,7 +215,7 @@ describe("OrganizationVaultFilterComponent", () => {
         );
 
         const getIds = async () =>
-          firstValueFrom(section.data$).then((tree) => tree.children.map((c) => c.node.id));
+          await firstValueFrom(section.data$).then((tree) => tree.children.map((c) => c.node.id));
 
         // Initially no card ciphers — card should be hidden
         expect(await getIds()).not.toContain("card");

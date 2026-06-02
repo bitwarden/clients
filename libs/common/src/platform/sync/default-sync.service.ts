@@ -418,7 +418,7 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
 
-    return this.domainSettingsService.setEquivalentDomains(eqDomains, userId);
+    return await this.domainSettingsService.setEquivalentDomains(eqDomains, userId);
   }
 
   private async syncPolicies(response: PolicyResponse[], userId: UserId) {

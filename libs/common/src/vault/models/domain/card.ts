@@ -32,7 +32,7 @@ export class Card extends Domain {
   }
 
   async decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<CardView> {
-    return this.decryptObj<Card, CardView>(
+    return await this.decryptObj<Card, CardView>(
       this,
       new CardView(),
       ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],

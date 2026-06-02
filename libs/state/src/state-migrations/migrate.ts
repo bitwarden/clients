@@ -210,7 +210,7 @@ export async function waitForMigrations(
       // likely to.
       return;
     }
-    return new Promise<void>((resolve) => {
+    return await new Promise<void>((resolve) => {
       setTimeout(async () => {
         if (!(await isReady())) {
           logService.info(`Waiting for migrations to finish, waiting for ${nextTime}ms`);

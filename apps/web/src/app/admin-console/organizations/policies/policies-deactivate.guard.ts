@@ -30,6 +30,6 @@ export class PoliciesDeactivateGuard implements CanDeactivate<PoliciesComponent>
     if (status !== AuthenticationStatus.Unlocked) {
       return true;
     }
-    return component.canDeactivate();
+    return await component.canDeactivate();
   }
 }

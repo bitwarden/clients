@@ -218,7 +218,7 @@ export class Fido2Component implements OnInit, OnDestroy {
             this.ciphers = await Promise.all(
               message.cipherIds.map(async (cipherId) => {
                 const cipher = await this.cipherService.get(cipherId, activeUserId);
-                return this.cipherService.decrypt(cipher, activeUserId);
+                return await this.cipherService.decrypt(cipher, activeUserId);
               }),
             );
 
@@ -237,7 +237,7 @@ export class Fido2Component implements OnInit, OnDestroy {
             this.ciphers = await Promise.all(
               message.existingCipherIds.map(async (cipherId) => {
                 const cipher = await this.cipherService.get(cipherId, activeUserId);
-                return this.cipherService.decrypt(cipher, activeUserId);
+                return await this.cipherService.decrypt(cipher, activeUserId);
               }),
             );
 

@@ -21,7 +21,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   ) {}
 
   async encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -51,7 +51,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
       return [];
     }
 
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -84,7 +84,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     organizationId: OrganizationId,
     userId: UserId,
   ): Promise<EncryptionContext | undefined> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -119,7 +119,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     userId: UserId,
     newKey: UserKey,
   ): Promise<EncryptionContext | undefined> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -148,7 +148,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   }
 
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -262,7 +262,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     ciphers: Cipher[],
     userId: UserId,
   ): Promise<[CipherListView[], Cipher[]]> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -303,7 +303,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     encryptedContent: Uint8Array,
     userId: UserId,
   ): Promise<Uint8Array> {
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
           if (!sdk) {

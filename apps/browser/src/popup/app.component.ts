@@ -334,7 +334,7 @@ export class AppComponent implements OnInit, OnDestroy {
       fingerprint: msg.fingerprint,
     });
 
-    return firstValueFrom(dialogRef.closed);
+    return await firstValueFrom(dialogRef.closed);
   }
 
   // Displaying toasts isn't super useful on the popup due to the reloads we do.

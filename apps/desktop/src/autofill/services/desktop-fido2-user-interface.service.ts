@@ -157,7 +157,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async getRpId(): Promise<string> {
-    return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
+    return await firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
   }
 
   confirmChosenCipher(cipherId: string, userVerified: boolean = false): void {
@@ -195,7 +195,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * @returns
    */
   private async waitForUiNewCredentialConfirmation(): Promise<boolean> {
-    return lastValueFrom(this.confirmCredentialSubject);
+    return await lastValueFrom(this.confirmCredentialSubject);
   }
 
   /**

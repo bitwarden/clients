@@ -79,7 +79,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   }
 
   async getLicense(id: string, installationId: string): Promise<unknown> {
-    return this.apiService.send(
+    return await this.apiService.send(
       "GET",
       "/organizations/" + id + "/license?installationId=" + installationId,
       null,
@@ -201,7 +201,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   }
 
   async reinstate(id: string): Promise<void> {
-    return this.apiService.send("POST", "/organizations/" + id + "/reinstate", null, true, false);
+    return await this.apiService.send("POST", "/organizations/" + id + "/reinstate", null, true, false);
   }
 
   async leave(id: string): Promise<void> {
@@ -238,7 +238,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   }
 
   async importDirectory(organizationId: string, request: ImportDirectoryRequest): Promise<void> {
-    return this.apiService.send(
+    return await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/import",
       request,

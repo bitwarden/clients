@@ -32,7 +32,7 @@ export class OnboardingService {
   private stateProvider = inject(StateProvider);
 
   async isPostImportDialogAcknowledged(): Promise<boolean> {
-    return this.isAcknowledged(ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY);
+    return await this.isAcknowledged(ACCESS_INTELLIGENCE_POST_IMPORT_DIALOG_ACKNOWLEDGED_KEY);
   }
 
   async setPostImportDialogAcknowledged(value = true) {
@@ -40,7 +40,7 @@ export class OnboardingService {
   }
 
   async isNewAdminWelcomeDialogAcknowledged(): Promise<boolean> {
-    return this.isAcknowledged(ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY);
+    return await this.isAcknowledged(ACCESS_INTELLIGENCE_NEW_ADMIN_WELCOME_ACKNOWLEDGED_KEY);
   }
 
   async setNewAdminWelcomeDialogAcknowledged(value = true) {
