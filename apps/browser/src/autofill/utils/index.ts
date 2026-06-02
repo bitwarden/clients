@@ -114,10 +114,10 @@ export async function sendExtensionMessage(
     typeof browser.runtime !== "undefined" &&
     typeof browser.runtime.sendMessage !== "undefined"
   ) {
-    return browser.runtime.sendMessage({ command, ...options });
+    return await browser.runtime.sendMessage({ command, ...options });
   }
 
-  return new Promise((resolve) =>
+  return await new Promise((resolve) =>
     chrome.runtime.sendMessage(Object.assign({ command }, options), (response) => {
       if (chrome.runtime.lastError) {
         resolve(null);

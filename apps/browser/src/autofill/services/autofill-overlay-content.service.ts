@@ -1075,7 +1075,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return null;
     }
 
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       const intersectionObserver = new IntersectionObserver(
         (entries) => {
           let fieldBoundingClientRects: DOMRectReadOnly | null =

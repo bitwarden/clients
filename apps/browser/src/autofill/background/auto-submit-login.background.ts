@@ -289,7 +289,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    * Retrieves the authentication status of the active user.
    */
   private getAuthStatus = async () => {
-    return firstValueFrom(this.authService.activeAccountStatus$);
+    return await firstValueFrom(this.authService.activeAccountStatus$);
   };
 
   /**
