@@ -144,7 +144,12 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_ephemeral_pin_envelope(pinEnvelope: PasswordProtectedKeyEnvelope): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, pinEnvelope);
+    await writeAtomic(
+      this.stateProvider,
+      this.userId,
+      PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+      pinEnvelope,
+    );
   }
 
   async get_ephemeral_pin_envelope(): Promise<PasswordProtectedKeyEnvelope | null> {
