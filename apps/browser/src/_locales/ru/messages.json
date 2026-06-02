@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
   "copyFirstName": {
     "message": "Скопировать имя"
   },
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Тип карты"
   },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
   "expirationMonth": {
     "message": "Месяц"
   },
   "expirationYear": {
     "message": "Год"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
   },
   "monthly": {
     "message": "месяц"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Номер паспорта"
   },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
   "licenseNumber": {
     "message": "Номер водительского удостоверения"
   },
@@ -2190,6 +2259,18 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
+  },
   "typeDriversLicense": {
     "message": "Водительское удостоверение"
   },
@@ -2199,41 +2280,8 @@
   "driversLicenseDetails": {
     "message": "Детали водительского удостоверения"
   },
-  "dateOfBirth": {
-    "message": "Дата рождения"
-  },
-  "birthMonth": {
-    "message": "Месяц рождения"
-  },
-  "birthDay": {
-    "message": "День рождения"
-  },
-  "birthYear": {
-    "message": "Год рождения"
-  },
-  "issuingCountry": {
-    "message": "Страна выдачи"
-  },
   "issuingState": {
     "message": "Республика / область выдачи"
-  },
-  "issuingAuthority": {
-    "message": "Выдавший орган"
-  },
-  "issueDate": {
-    "message": "Дата выдачи"
-  },
-  "issueMonth": {
-    "message": "Месяц выдачи"
-  },
-  "issueDay": {
-    "message": "День выдачи"
-  },
-  "issueYear": {
-    "message": "Год выдачи"
-  },
-  "expirationDay": {
-    "message": "Срок действия"
   },
   "licenseClass": {
     "message": "Категории водительского удостоверения"
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Очистить",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Выбрано"
+  },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
   },
   "checkPassword": {
     "message": "Проверьте, не скомпрометирован ли пароль."
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Не удалось выполнить биометрическую идентификацию, попробуйте использовать мастер-пароль или выполнить выход. Если ситуация не изменится, обратитесь в службу поддержки Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Разрешение не представлено"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Без разрешения на взаимодействие с Bitwarden для компьютера биометрия в расширении браузера работать не сможет. Попробуйте еще раз."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Ошибка при запросе разрешения"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Это действие невозможно выполнить в боковой панели. Попробуйте снова в всплывающем или отдельном окне."
   },
   "personalOwnershipSubmitError": {
     "message": "В соответствии с корпоративной политикой вам запрещено сохранять элементы в личном хранилище. Измените владельца на организацию и выберите из доступных Коллекций."
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Нет значений для копирования"
   },
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "Далее"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "Скопировать IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "Не удалось загрузить."
+  },
+  "more": {
+    "message": "Еще"
   },
   "maxAccessCount": {
     "message": "Максимум обращений",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   }
 }
