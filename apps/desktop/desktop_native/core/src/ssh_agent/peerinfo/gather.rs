@@ -1,12 +1,28 @@
 use sysinfo::{Pid, System};
+use tracing::{debug, warn};
 
 use super::models::PeerInfo;
 
-/// Resolve a [`PeerInfo`] for `peer_pid` by trying the platform-specific
-/// fast path first and falling back to the cross-platform `sysinfo` path.
-/// Returns an error only when neither path can resolve the peer process.
+/// Resolve a [`PeerInfo`] for `peer_pid`, trying the macOS fast path
+/// first and falling back to the cross-platform `sysinfo` path.
+/// Intermediate failures are logged; only the final-failure error is
+/// returned.
 pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
-    try_peer_info_for_platform(peer_pid).or_else(|_| try_peer_info_sysinfo(peer_pid))
+    #[cfg(target_os = "macos")]
+    match peer_info_from_libproc(peer_pid) {
+        Ok(info) => return Ok(info),
+        Err(e) => debug!(
+            "libproc peer-info resolution failed for pid {peer_pid}: {e}; falling back to sysinfo"
+        ),
+    }
+
+    match peer_info_from_sysinfo(peer_pid) {
+        Ok(info) => Ok(info),
+        Err(e) => {
+            warn!("failed to resolve peer process for pid {peer_pid}: {e}");
+            Err(e)
+        }
+    }
 }
 
 /// macOS-specific peer-info resolution via `libproc::proc_pid::pidpath`
@@ -15,7 +31,7 @@ pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
 /// so it can still resolve the caller when `sysinfo` cannot (notably
 /// inside the Mac App Store sandbox).
 #[cfg(target_os = "macos")]
-fn try_peer_info_for_platform(peer_pid: u32) -> Result<PeerInfo, String> {
+fn peer_info_from_libproc(peer_pid: u32) -> Result<PeerInfo, String> {
     let pid_i32 = i32::try_from(peer_pid)
         .map_err(|_| format!("peer pid {peer_pid} exceeds i32 range"))?;
     let path = libproc::proc_pid::pidpath(pid_i32)
@@ -27,12 +43,7 @@ fn try_peer_info_for_platform(peer_pid: u32) -> Result<PeerInfo, String> {
     Ok(PeerInfo::new(peer_pid, peer_pid, process_name))
 }
 
-#[cfg(not(target_os = "macos"))]
-fn try_peer_info_for_platform(_peer_pid: u32) -> Result<PeerInfo, String> {
-    Err("platform fast path not implemented".to_string())
-}
-
-fn try_peer_info_sysinfo(peer_pid: u32) -> Result<PeerInfo, String> {
+fn peer_info_from_sysinfo(peer_pid: u32) -> Result<PeerInfo, String> {
     let mut system = System::new();
     system.refresh_processes(
         sysinfo::ProcessesToUpdate::Some(&[Pid::from_u32(peer_pid)]),
@@ -77,8 +88,8 @@ mod tests {
 
     #[cfg(target_os = "macos")]
     #[test]
-    fn macos_fast_path_returns_basename_for_self() {
-        let info = try_peer_info_for_platform(std::process::id())
+    fn peer_info_from_libproc_returns_basename_for_self() {
+        let info = peer_info_from_libproc(std::process::id())
             .expect("libproc should resolve self pid on macOS");
         let name = info.process_name();
         assert!(!name.is_empty());
@@ -87,10 +98,10 @@ mod tests {
 
     #[cfg(target_os = "macos")]
     #[test]
-    fn macos_fast_path_propagates_error_for_dead_pid() {
+    fn peer_info_from_libproc_propagates_error_for_dead_pid() {
         // u32::MAX far exceeds the macOS PID range, so libproc returns an
-        // error. We must surface that error rather than swallow it to None.
-        let err = try_peer_info_for_platform(u32::MAX)
+        // error. We must surface that error rather than swallow it.
+        let err = peer_info_from_libproc(u32::MAX)
             .expect_err("dead pid should yield an Err with context");
         assert!(
             err.contains("exceeds i32 range") || err.contains("proc_pidpath"),

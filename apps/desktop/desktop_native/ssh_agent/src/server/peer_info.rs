@@ -1,6 +1,7 @@
 //! Peer process information for SSH agent connections
 
 use sysinfo::{Pid, System};
+use tracing::{debug, warn};
 
 /// Information about the connecting peer process
 #[derive(Debug, Clone)]
@@ -10,54 +11,26 @@ pub(crate) struct PeerInfo {
 }
 
 impl PeerInfo {
-    /// Looks up the process name for `pid` by trying the platform-specific
-    /// fast path first and falling back to the cross-platform `sysinfo`
-    /// path. Returns `None` only when neither path can resolve the peer
-    /// process.
+    /// Looks up the process name for `pid`, trying the macOS fast path
+    /// first and falling back to the cross-platform `sysinfo` path.
+    /// Intermediate failures are logged; returns `None` only when both
+    /// paths fail.
     pub(crate) fn from_pid(pid: u32) -> Option<Self> {
-        Self::try_peer_info_for_platform(pid)
-            .or_else(|_| Self::try_peer_info_sysinfo(pid))
-            .ok()
-    }
-
-    /// macOS-specific peer-info resolution via `libproc::proc_pid::pidpath`
-    /// (the BSD `proc_pidpath(2)` syscall). This avoids the `task_for_pid`
-    /// entitlement that `sysinfo::Process::name()` ends up needing on
-    /// macOS, so it can still resolve the caller when `sysinfo` cannot
-    /// (notably inside the Mac App Store sandbox).
-    #[cfg(target_os = "macos")]
-    fn try_peer_info_for_platform(pid: u32) -> Result<Self, String> {
-        let pid_i32 = i32::try_from(pid)
-            .map_err(|_| format!("peer pid {pid} exceeds i32 range"))?;
-        let path = libproc::proc_pid::pidpath(pid_i32)
-            .map_err(|e| format!("proc_pidpath({pid_i32}) failed: {e}"))?;
-        let process_name = basename_or_path(&path);
-        if process_name.is_empty() {
-            return Err("Process name is empty".to_string());
+        #[cfg(target_os = "macos")]
+        match peer_info_from_libproc(pid) {
+            Ok(info) => return Some(info),
+            Err(e) => debug!(
+                "libproc peer-info resolution failed for pid {pid}: {e}; falling back to sysinfo"
+            ),
         }
-        Ok(Self { pid, process_name })
-    }
 
-    #[cfg(not(target_os = "macos"))]
-    fn try_peer_info_for_platform(_pid: u32) -> Result<Self, String> {
-        Err("platform fast path not implemented".to_string())
-    }
-
-    fn try_peer_info_sysinfo(pid: u32) -> Result<Self, String> {
-        let mut system = System::new();
-        system.refresh_processes(
-            sysinfo::ProcessesToUpdate::Some(&[Pid::from_u32(pid)]),
-            true,
-        );
-        let process = system
-            .process(Pid::from_u32(pid))
-            .ok_or_else(|| format!("sysinfo: process {pid} not found"))?;
-        let process_name = process
-            .name()
-            .to_str()
-            .ok_or_else(|| format!("sysinfo: process {pid} name is not valid UTF-8"))?
-            .to_string();
-        Ok(Self { pid, process_name })
+        match peer_info_from_sysinfo(pid) {
+            Ok(info) => Some(info),
+            Err(e) => {
+                warn!("failed to resolve peer process for pid {pid}: {e}");
+                None
+            }
+        }
     }
 
     pub(crate) fn pid(&self) -> u32 {
@@ -67,6 +40,41 @@ impl PeerInfo {
     pub(crate) fn process_name(&self) -> &str {
         &self.process_name
     }
+}
+
+/// macOS-specific peer-info resolution via `libproc::proc_pid::pidpath`
+/// (the BSD `proc_pidpath(2)` syscall). This avoids the `task_for_pid`
+/// entitlement that `sysinfo::Process::name()` ends up needing on macOS,
+/// so it can still resolve the caller when `sysinfo` cannot (notably
+/// inside the Mac App Store sandbox).
+#[cfg(target_os = "macos")]
+fn peer_info_from_libproc(pid: u32) -> Result<PeerInfo, String> {
+    let pid_i32 =
+        i32::try_from(pid).map_err(|_| format!("peer pid {pid} exceeds i32 range"))?;
+    let path = libproc::proc_pid::pidpath(pid_i32)
+        .map_err(|e| format!("proc_pidpath({pid_i32}) failed: {e}"))?;
+    let process_name = basename_or_path(&path);
+    if process_name.is_empty() {
+        return Err("Process name is empty".to_string());
+    }
+    Ok(PeerInfo { pid, process_name })
+}
+
+fn peer_info_from_sysinfo(pid: u32) -> Result<PeerInfo, String> {
+    let mut system = System::new();
+    system.refresh_processes(
+        sysinfo::ProcessesToUpdate::Some(&[Pid::from_u32(pid)]),
+        true,
+    );
+    let process = system
+        .process(Pid::from_u32(pid))
+        .ok_or_else(|| format!("sysinfo: process {pid} not found"))?;
+    let process_name = process
+        .name()
+        .to_str()
+        .ok_or_else(|| format!("sysinfo: process {pid} name is not valid UTF-8"))?
+        .to_string();
+    Ok(PeerInfo { pid, process_name })
 }
 
 /// Extract the basename from a path string, falling back to the original
@@ -104,8 +112,8 @@ mod tests {
 
     #[cfg(target_os = "macos")]
     #[test]
-    fn test_macos_fast_path_returns_basename() {
-        let info = PeerInfo::try_peer_info_for_platform(std::process::id())
+    fn test_peer_info_from_libproc_returns_basename() {
+        let info = peer_info_from_libproc(std::process::id())
             .expect("libproc should resolve self pid on macOS");
         let name = info.process_name();
         assert!(!name.is_empty());
@@ -114,10 +122,10 @@ mod tests {
 
     #[cfg(target_os = "macos")]
     #[test]
-    fn test_macos_fast_path_propagates_error_for_dead_pid() {
+    fn test_peer_info_from_libproc_propagates_error_for_dead_pid() {
         // u32::MAX far exceeds the macOS PID range, so libproc returns an
-        // error. We must surface that error rather than collapse it to None.
-        let err = PeerInfo::try_peer_info_for_platform(u32::MAX)
+        // error. We must surface that error rather than collapse it.
+        let err = peer_info_from_libproc(u32::MAX)
             .expect_err("dead pid should yield an Err with context");
         assert!(
             err.contains("exceeds i32 range") || err.contains("proc_pidpath"),
