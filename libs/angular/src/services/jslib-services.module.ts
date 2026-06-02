@@ -414,6 +414,11 @@ import {
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  UserCryptoDialogService,
+  UserKeyRotationService,
+  UserKeyRotationServiceAbstraction,
+} from "@bitwarden/user-crypto-management";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -651,6 +656,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherSdkService,
     useClass: DefaultCipherSdkService,
     deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: UserKeyRotationServiceAbstraction,
+    useClass: UserKeyRotationService,
+    deps: [SdkService, LogService, UserCryptoDialogService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,

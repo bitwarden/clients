@@ -574,6 +574,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Refresh from local state so attachments modified during edit aren't stale in view mode.
+    const activeUserId = await firstValueFrom(this.userId$);
+    const latestCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+    if (latestCipher != null) {
+      this.cipher = await this.cipherService.decrypt(latestCipher, activeUserId);
+    }
+
     // We're in Form mode, and we have a cipher, switch back to View mode.
     await this.changeMode("view");
   };
