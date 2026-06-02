@@ -1,12 +1,15 @@
 import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+import {
+  generate_organization_invite_crypto_bundle,
+  unseal_organization_invite_key,
+} from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
@@ -23,8 +26,6 @@ import { ORGANIZATION_INVITE_LINK_KEY } from "../state/organization-invite-link-
 export class DefaultOrganizationInviteLinkService implements OrganizationInviteLinkService {
   constructor(
     private readonly keyService: KeyService,
-    private readonly encryptService: EncryptService,
-    private readonly keyGenerationService: KeyGenerationService,
     private readonly apiService: OrganizationInviteLinkApiService,
     private readonly stateProvider: StateProvider,
     private readonly environmentService: EnvironmentService,
@@ -80,11 +81,11 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     inviteLink: OrganizationInviteLink,
   ): Observable<string> {
     return this.getOrgKey(userId, orgId).pipe(
-      switchMap((orgKey) => {
-        const encKey = new EncString(inviteLink.encryptedInviteKey);
-        return this.encryptService.unwrapSymmetricKey(encKey, orgKey);
+      switchMap(async (orgKey) => {
+        await SdkLoadService.Ready;
+        return unseal_organization_invite_key(orgKey.toEncoded(), inviteLink.encryptedInviteKey);
       }),
-      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64)),
+      switchMap((inviteKeyB64url) => this.buildInviteUrl(inviteLink.code, inviteKeyB64url)),
     );
   }
 
@@ -140,16 +141,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  /**
-   * Generates and returns an encrypted invite key.
-   *
-   * TODO: Replace with `generateOrganizationInviteCryptoBundle` from the SDK once available.
-   */
   private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<EncString> {
-    // Important: this rawInviteKey must never be sent to the server!
-    const rawInviteKey = await this.keyGenerationService.createKey(256);
     const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
-    const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
-    return encryptedInviteKey;
+    await SdkLoadService.Ready;
+    const bundle = generate_organization_invite_crypto_bundle(orgKey.toEncoded());
+    return new EncString(bundle.sealedInviteKeyEnvelope);
   }
 }

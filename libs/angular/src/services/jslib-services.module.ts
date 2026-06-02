@@ -1323,14 +1323,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationInviteLinkService,
     useClass: DefaultOrganizationInviteLinkService,
-    deps: [
-      KeyService,
-      EncryptService,
-      KeyGenerationService,
-      OrganizationInviteLinkApiService,
-      StateProvider,
-      EnvironmentService,
-    ],
+    deps: [KeyService, OrganizationInviteLinkApiService, StateProvider, EnvironmentService],
   }),
   safeProvider({
     provide: PasswordResetEnrollmentServiceAbstraction,
