@@ -1822,12 +1822,6 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
-  "confirmAutofill": {
-    "message": "Confirm autofill"
-  },
-  "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
-  },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
   },
@@ -4433,12 +4427,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Cannot autofill"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "Okay"
