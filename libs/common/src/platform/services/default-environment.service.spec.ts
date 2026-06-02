@@ -216,6 +216,22 @@ describe("EnvironmentService", () => {
         send: null,
       });
     });
+
+    it("getSendUrl falls back to webVault when only webVault is configured (regression)", async () => {
+      // Regression: self-hosted user sets only webVault (no base, no send).
+      // getSendUrl() must use the self-hosted webVault, not the Bitwarden cloud send URL.
+      const userEnvironmentUrls = new EnvironmentUrls();
+      userEnvironmentUrls.webVault = "https://vault.myserver.com";
+      setUserData(Region.SelfHosted, userEnvironmentUrls);
+
+      await switchUser(testUser);
+
+      const env = await firstValueFrom(sut.environment$);
+
+      expect(env.getWebVaultUrl()).toBe("https://vault.myserver.com");
+      // Must NOT return "https://send.bitwarden.com/#/" (cloud fallback)
+      expect(env.getSendUrl()).toBe("https://vault.myserver.com/#/send/");
+    });
   });
 
   describe("without user", () => {
