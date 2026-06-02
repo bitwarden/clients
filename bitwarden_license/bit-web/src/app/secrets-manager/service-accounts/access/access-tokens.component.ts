@@ -52,7 +52,7 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
       startWith(null),
       combineLatestWith(this.route.params),
       switchMap(async ([_, params]) =>
-        this.accessService.getAccessTokens(params.organizationId, params.serviceAccountId),
+        await this.accessService.getAccessTokens(params.organizationId, params.serviceAccountId),
       ),
     );
 
