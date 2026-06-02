@@ -77,7 +77,7 @@ function convertPasswordRequest(settings: PasswordGenerationOptions): PasswordGe
     numbers: settings.number!,
     special: settings.special!,
     length: settings.length!,
-    avoidAmbiguous: settings.ambiguous!,
+    avoidAmbiguous: !settings.ambiguous!,
     minLowercase: settings.minLowercase!,
     minUppercase: settings.minUppercase!,
     minNumber: settings.minNumber!,
