@@ -12,4 +12,7 @@ export interface DomQueryService {
   resetObservedShadowRoots(): void;
   reapDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;
+  findIframeCrossing(
+    selector: string,
+  ): { iframeElement: HTMLIFrameElement; innerSelector: string } | null;
 }
