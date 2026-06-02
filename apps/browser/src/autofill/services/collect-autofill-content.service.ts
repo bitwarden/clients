@@ -1428,6 +1428,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
+    this.purgeDetachedFieldMetadata();
+    this.domQueryService.purgeDetachedShadowRoots();
+
     if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
       return;
     }
@@ -1447,8 +1450,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             }
           }
         }
-        this.purgeDetachedFieldMetadata();
-        this.domQueryService.purgeDetachedShadowRoots();
+
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
