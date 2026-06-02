@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordAuthenticationData,
@@ -62,7 +61,10 @@ describe("MasterPasswordApiService", () => {
         unlockData,
         "masterPasswordHint",
         "orgIdentifier",
-        new AccountKeysRequest(),
+        {
+          publicKey: "publicKey",
+          encryptedPrivateKey: "encryptedPrivateKey",
+        },
       );
 
       // Act

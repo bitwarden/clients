@@ -17,8 +17,6 @@ import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { AccountKeysRequest } from "@bitwarden/common/key-management/account-keys/request/account-keys.request";
-import { V1UserCryptographicState } from "@bitwarden/common/key-management/account-keys/types/v1-cryptographic-state";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -27,7 +25,7 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { UnsignedPublicKey, WrappedPrivateKey } from "@bitwarden/common/key-management/types";
+import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -109,7 +107,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     let keyPair: [string, EncString] | null = null;
-    let accountKeysRequest: AccountKeysRequest | null = null;
+    let keysRequest: KeysRequest | null = null;
 
     if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
       /**
@@ -154,14 +152,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         throw new Error("encrypted private key not found. Could not set password.");
       }
 
-      const v1CryptographicState: V1UserCryptographicState = {
-        userKey: masterKeyEncryptedUserKey[0],
-        publicKeyEncryptionKeyPair: {
-          wrappedPrivateKey: keyPair[1].encryptedString as string as WrappedPrivateKey,
-          publicKey: Utils.fromB64ToArray(keyPair[0]) as UnsignedPublicKey,
-        },
-      };
-      accountKeysRequest = AccountKeysRequest.fromV1CryptographicState(v1CryptographicState);
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
     const authenticationData: MasterPasswordAuthenticationData =
@@ -184,7 +175,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       unlockData,
       newPasswordHint,
       orgSsoIdentifier,
-      accountKeysRequest,
+      keysRequest,
     );
 
     await this.masterPasswordApiService.setPassword(request);
@@ -422,7 +413,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       unlockData,
       newPasswordHint,
       orgSsoIdentifier,
-      null, // no AccountKeysRequest for TDE user because they already have a key pair
+      null, // no KeysRequest for TDE user because they already have a key pair
     );
 
     await this.masterPasswordApiService.setPassword(request);
