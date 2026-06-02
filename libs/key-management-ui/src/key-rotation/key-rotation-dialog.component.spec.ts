@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -30,6 +31,7 @@ describe("KeyRotationDialogComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockKeyConnectorService: MockProxy<KeyConnectorService>;
   let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
+  let mockDeviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
 
   const userId = "test-user-id" as UserId;
 
@@ -44,15 +46,18 @@ describe("KeyRotationDialogComponent", () => {
     mockLogService = mock<LogService>();
     mockKeyConnectorService = mock<KeyConnectorService>();
     mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
+    mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
 
     mockKeyRotationDialogService.hasLegacyCipherAttachments.mockResolvedValue(false);
     mockKeyRotationDialogService.rotateKeys.mockResolvedValue(false);
     mockKeyRotationDialogService.rotateKeysForKeyConnector.mockResolvedValue(false);
+    mockKeyRotationDialogService.rotateKeysForTDE.mockResolvedValue(false);
     mockKeyConnectorService.getUsesKeyConnector.mockResolvedValue(false);
     mockKeyConnectorService.getManagingOrganization.mockResolvedValue(
       null as unknown as Organization,
     );
     mockUserDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
+    mockDeviceTrustService.supportsDeviceTrustByUserId$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [KeyRotationDialogComponent],
@@ -70,6 +75,7 @@ describe("KeyRotationDialogComponent", () => {
           provide: UserDecryptionOptionsServiceAbstraction,
           useValue: mockUserDecryptionOptionsService,
         },
+        { provide: DeviceTrustServiceAbstraction, useValue: mockDeviceTrustService },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -103,7 +109,15 @@ describe("KeyRotationDialogComponent", () => {
       expect(component["userPrimaryEncryptionType"]()).toBe("keyConnector");
     });
 
-    it("resolves to undefined when user has no master password and no key connector", async () => {
+    it("resolves to 'TDE' when user supports trusted device unlock", async () => {
+      mockDeviceTrustService.supportsDeviceTrustByUserId$.mockReturnValue(of(true));
+
+      await createComponent();
+
+      expect(component["userPrimaryEncryptionType"]()).toBe("TDE");
+    });
+
+    it("resolves to undefined when user has no master password, no key connector, and no tde support", async () => {
       await createComponent();
 
       expect(component["userPrimaryEncryptionType"]()).toBeUndefined();
@@ -300,6 +314,7 @@ describe("KeyRotationDialogComponent", () => {
 
         expect(mockKeyRotationDialogService.rotateKeysForKeyConnector).toHaveBeenCalledWith(userId);
         expect(mockKeyRotationDialogService.rotateKeys).not.toHaveBeenCalled();
+        expect(mockKeyRotationDialogService.rotateKeysForTDE).not.toHaveBeenCalled();
       });
 
       it("checks for legacy cipher attachments", async () => {
@@ -348,6 +363,57 @@ describe("KeyRotationDialogComponent", () => {
           expect(mockLogService.error).toHaveBeenCalledWith(error);
           expect(mockValidationService.showError).toHaveBeenCalledWith(error);
         });
+      });
+    });
+
+    describe("tde user", () => {
+      beforeEach(async () => {
+        mockDeviceTrustService.supportsDeviceTrustByUserId$.mockReturnValue(of(true));
+        await createComponent();
+      });
+
+      it("calls rotateKeysforTDE without requiring master password", async () => {
+        await callSubmit();
+
+        expect(mockKeyRotationDialogService.rotateKeysForTDE).toHaveBeenCalledWith(userId);
+        expect(mockKeyRotationDialogService.rotateKeys).not.toHaveBeenCalled();
+        expect(mockKeyRotationDialogService.rotateKeysForKeyConnector).not.toHaveBeenCalled();
+      });
+
+      it("checks for legacy cipher attachments", async () => {
+        await callSubmit();
+
+        expect(mockKeyRotationDialogService.hasLegacyCipherAttachments).toHaveBeenCalledWith(
+          userId,
+        );
+      });
+
+      it("closes dialog when rotation succeeds", async () => {
+        mockKeyRotationDialogService.rotateKeysForTDE.mockResolvedValue(true);
+
+        await callSubmit();
+
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("legacy cipher attachments closes dialog and does not rotate", async () => {
+        mockKeyRotationDialogService.hasLegacyCipherAttachments.mockResolvedValue(true);
+        mockDialogService.openSimpleDialog.mockResolvedValue(false);
+
+        await callSubmit();
+
+        expect(mockDialogRef.close).toHaveBeenCalled();
+        expect(mockKeyRotationDialogService.rotateKeysForTDE).not.toHaveBeenCalled();
+      });
+
+      it("logs and shows error when rotation throws", async () => {
+        const error = new Error("rotation failed");
+        mockKeyRotationDialogService.rotateKeysForTDE.mockRejectedValue(error);
+
+        await callSubmit();
+
+        expect(mockLogService.error).toHaveBeenCalledWith(error);
+        expect(mockValidationService.showError).toHaveBeenCalledWith(error);
       });
     });
   });

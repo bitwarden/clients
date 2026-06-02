@@ -6,6 +6,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
@@ -34,6 +35,7 @@ export class SecurityKeysComponent implements OnInit {
     private dialogService: DialogService,
     private configService: ConfigService,
     private keyConnectorService: KeyConnectorService,
+    private deviceTrustService: DeviceTrustServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -45,9 +47,12 @@ export class SecurityKeysComponent implements OnInit {
     const hasManagingOrganization = usesKeyConnector
       ? (await this.keyConnectorService.getManagingOrganization(userId)) != null
       : false;
+    const hasTdeKeys = await firstValueFrom(
+      this.deviceTrustService.supportsDeviceTrustByUserId$(userId),
+    );
 
     this.showChangeKdf = hasMasterPassword;
-    this.showKeyRotation = hasMasterPassword || hasManagingOrganization;
+    this.showKeyRotation = hasMasterPassword || hasManagingOrganization || hasTdeKeys;
   }
 
   async viewUserApiKey() {

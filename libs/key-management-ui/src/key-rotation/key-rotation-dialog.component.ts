@@ -8,6 +8,7 @@ import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verb
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -65,6 +66,7 @@ export class KeyRotationDialogComponent {
   private readonly logService = inject(LogService);
   private readonly keyConnectorService = inject(KeyConnectorService);
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
+  private readonly deviceTrustService = inject(DeviceTrustServiceAbstraction);
 
   protected readonly userPrimaryEncryptionType = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -74,9 +76,10 @@ export class KeyRotationDialogComponent {
           firstValueFrom(this.userDecryptionOptionsService.hasMasterPasswordById$(userId)),
           this.keyConnectorService.getUsesKeyConnector(userId),
           this.keyConnectorService.getManagingOrganization(userId),
+          firstValueFrom(this.deviceTrustService.supportsDeviceTrustByUserId$(userId)),
         ]).pipe(
           map(
-            ([hasMasterPassword, usesKeyConnector, keyConnectorManagingOrganization]):
+            ([hasMasterPassword, usesKeyConnector, keyConnectorManagingOrganization, usesTde]):
               | UserPrimaryEncryptionType
               | undefined => {
               if (hasMasterPassword) {
@@ -84,6 +87,9 @@ export class KeyRotationDialogComponent {
               }
               if (usesKeyConnector && keyConnectorManagingOrganization != null) {
                 return "keyConnector";
+              }
+              if (usesTde) {
+                return "TDE";
               }
               return undefined;
             },
@@ -142,7 +148,7 @@ export class KeyRotationDialogComponent {
       case "keyConnector":
         return this.keyRotationDialogService.rotateKeysForKeyConnector(userId);
       case "TDE":
-        throw new Error("TDE key rotation is not yet supported");
+        return this.keyRotationDialogService.rotateKeysForTDE(userId);
     }
   }
 
