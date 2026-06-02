@@ -55,8 +55,8 @@ export class KeeperDirectImporter extends BaseImporter {
 
   private mapVaultErrors(vaultErrors: VaultRecordError[], errors: ImportRecordError[]): void {
     for (const error of vaultErrors) {
-      // The record/folder name was never decrypted, so there is no name to show.
-      errors.push(new ImportRecordError("", mapVaultErrorReason(error.reason)));
+      // The record/folder name was never decrypted, so the UID is the only identifier we have.
+      errors.push(new ImportRecordError(error.id, mapVaultErrorReason(error.reason)));
     }
   }
 
@@ -67,14 +67,22 @@ export class KeeperDirectImporter extends BaseImporter {
   ): void {
     for (const item of items) {
       if (UNSUPPORTED_RECORD_TYPES.has(item.type)) {
-        errors.push(new ImportRecordError(item.title, ImportRecordErrorReason.UnsupportedType));
+        errors.push(
+          new ImportRecordError(
+            item.title || item.id,
+            ImportRecordErrorReason.UnsupportedType,
+            item.type,
+          ),
+        );
         continue;
       }
 
       try {
         this.parseRecord(item, result);
       } catch {
-        errors.push(new ImportRecordError(item.title, ImportRecordErrorReason.Error));
+        errors.push(
+          new ImportRecordError(item.title || item.id, ImportRecordErrorReason.Error, item.type),
+        );
       }
     }
   }

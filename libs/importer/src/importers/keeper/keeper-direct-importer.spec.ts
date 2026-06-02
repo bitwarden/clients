@@ -191,7 +191,11 @@ describe("Keeper Direct Importer", () => {
   it("should not import file records and report them as unsupported", () => {
     expect(result.ciphers.find((c) => c.name === "Project Proposal Document")).toBeUndefined();
     expect(errors).toContainEqual(
-      new ImportRecordError("Project Proposal Document", ImportRecordErrorReason.UnsupportedType),
+      new ImportRecordError(
+        "Project Proposal Document",
+        ImportRecordErrorReason.UnsupportedType,
+        "file",
+      ),
     );
   });
 
@@ -339,7 +343,11 @@ describe("Keeper Direct Importer", () => {
   it("should not import photo records and report them as unsupported", () => {
     expect(result.ciphers.find((c) => c.name === "Family Vacation 2024")).toBeUndefined();
     expect(errors).toContainEqual(
-      new ImportRecordError("Family Vacation 2024", ImportRecordErrorReason.UnsupportedType),
+      new ImportRecordError(
+        "Family Vacation 2024",
+        ImportRecordErrorReason.UnsupportedType,
+        "photo",
+      ),
     );
   });
 
@@ -571,24 +579,24 @@ describe("Keeper Direct Importer error handling", () => {
     return new KeeperDirectImporter().convertVaultToImportResult(vault);
   }
 
-  it("maps an UnsupportedVersion vault error to UnsupportedFeature with no readable name", () => {
+  it("maps an UnsupportedVersion vault error to UnsupportedFeature with the UID as name", () => {
     const { errors } = importWith(
       [],
       [{ id: "uid-1", reason: VaultRecordErrorReason.UnsupportedVersion }],
     );
 
     expect(errors).toContainEqual(
-      new ImportRecordError("", ImportRecordErrorReason.UnsupportedFeature),
+      new ImportRecordError("uid-1", ImportRecordErrorReason.UnsupportedFeature),
     );
   });
 
-  it("maps a DecryptionFailed vault error to a generic error with no readable name", () => {
+  it("maps a DecryptionFailed vault error to a generic error with the UID as name", () => {
     const { errors } = importWith(
       [],
       [{ id: "uid-2", reason: VaultRecordErrorReason.DecryptionFailed }],
     );
 
-    expect(errors).toContainEqual(new ImportRecordError("", ImportRecordErrorReason.Error));
+    expect(errors).toContainEqual(new ImportRecordError("uid-2", ImportRecordErrorReason.Error));
   });
 
   it("maps a FolderDecryptionFailed vault error and still imports the affected record at the root", () => {
@@ -600,7 +608,7 @@ describe("Keeper Direct Importer error handling", () => {
     );
 
     expect(errors).toContainEqual(
-      new ImportRecordError("", ImportRecordErrorReason.FolderDecryptionFailed),
+      new ImportRecordError("folder-uid", ImportRecordErrorReason.FolderDecryptionFailed),
     );
 
     const cipher = result.ciphers.find((c) => c.name === "Rootless Record");
@@ -627,7 +635,7 @@ describe("Keeper Direct Importer error handling", () => {
 
     // The throwing record produces exactly one generic error.
     expect(errors).toContainEqual(
-      new ImportRecordError("Throwing Record", ImportRecordErrorReason.Error),
+      new ImportRecordError("Throwing Record", ImportRecordErrorReason.Error, "login"),
     );
     expect(errors.filter((e) => e.reason === ImportRecordErrorReason.Error).length).toBe(1);
 
