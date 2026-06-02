@@ -1,5 +1,14 @@
 import { NgIf, NgClass } from "@angular/common";
-import { Component, ElementRef, input, model, signal, computed, viewChild } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  inject,
+  input,
+  model,
+  signal,
+  computed,
+  viewChild,
+} from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -12,6 +21,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { InputModule } from "../input/input.module";
 import { FocusableElement } from "../shared/focusable-element";
+
+import { SEARCH_CONSUMER } from "./search-consumer";
 
 let nextId = 0;
 
@@ -40,10 +51,21 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private notifyOnChange?: (v: string) => void;
   private notifyOnTouch?: () => void;
 
+  /**
+   * Optional ancestor that owns the search term (e.g. a table). When present,
+   * the search two-way binds to it instead of behaving as a standalone control.
+   */
+  private readonly consumer = inject(SEARCH_CONSUMER, { optional: true });
+
   private readonly input = viewChild<ElementRef<HTMLInputElement>>("input");
 
   protected id = `search-id-${nextId++}`;
-  protected searchText?: string;
+  /** Internal value used when there's no {@link consumer} (standalone / CVA use). */
+  private readonly internalValue = signal<string>("");
+  /** Displayed value: the consumer's term when present, otherwise the CVA value. */
+  protected readonly searchText = computed(() =>
+    this.consumer ? this.consumer.searchTerm() : this.internalValue(),
+  );
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
@@ -64,7 +86,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   onChange(searchText: string) {
-    this.searchText = searchText; // update the model when the input changes (so we can use it with *ngIf in the template)
+    this.internalValue.set(searchText);
+    this.consumer?.searchTerm.set(searchText);
     if (this.notifyOnChange != undefined) {
       this.notifyOnChange(searchText);
     }
@@ -72,7 +95,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   // Handle the reset button click
   clearSearch() {
-    this.searchText = "";
+    this.internalValue.set("");
+    this.consumer?.searchTerm.set("");
     if (this.notifyOnChange) {
       this.notifyOnChange("");
     }
@@ -95,7 +119,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   writeValue(searchText: string): void {
-    this.searchText = searchText;
+    this.internalValue.set(searchText ?? "");
   }
 
   setDisabledState(isDisabled: boolean) {

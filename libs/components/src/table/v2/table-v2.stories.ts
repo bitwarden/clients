@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
-import { FormsModule } from "@angular/forms";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
@@ -9,7 +8,8 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
-import { ChipActionComponent, ChipFilterComponent } from "../../chips";
+import { ButtonModule } from "../../button";
+import { ChipActionComponent } from "../../chips";
 import { countries } from "../../form/countries";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { LayoutComponent } from "../../layout";
@@ -26,6 +26,8 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
+import { FilterModel } from "./filter-model";
 import { TableSelectionModel } from "./table-selection-model";
 import { BitTableV2Component } from "./table-v2.component";
 
@@ -50,6 +52,94 @@ class DemoStatusColumnComponent {
   readonly ds = input.required<TableDataSource<DemoRow>>();
 }
 
+type Country = { value: string; name: string };
+
+/**
+ * Demonstrates the integrated toolbar + filter flow. A `FilterModel` (parallel
+ * to `TableDataSource`) owns the search matcher, facet definitions, and applied
+ * state, and composes them into the predicate the table applies. The projected
+ * `<bit-search>` binds to it automatically; the Filters menu applies facets by
+ * id; the toolbar renders the applied chips.
+ */
+@Component({
+  selector: "demo-toolbar-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    ButtonModule,
+    ChipActionComponent,
+    LayoutComponent,
+    MenuModule,
+    SearchModule,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2
+        [dataSource]="dataSource"
+        [displayedColumns]="displayedColumns"
+        [rowSize]="64"
+        [filterModel]="filterModel"
+      >
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+          <button
+            slot="start"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            startIcon="bwi-filter"
+            [endIcon]="filterTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
+            [bitMenuTriggerFor]="filterMenu"
+            #filterTrigger="menuTrigger"
+          >
+            Filters
+          </button>
+          <button
+            slot="end"
+            type="button"
+            bit-chip-action
+            label="Add"
+            startIcon="bwi-plus"
+          ></button>
+        </bit-table-toolbar>
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Value</bit-header-cell>
+          <bit-cell *bitCellDef="dataSource.columns.value; let row">{{ row.value }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </bit-layout>
+
+    <bit-menu #filterMenu>
+      <button type="button" bitMenuItem (click)="filterModel.apply('range:a-m')">A–M</button>
+      <button type="button" bitMenuItem (click)="filterModel.apply('range:n-z')">N–Z</button>
+    </bit-menu>
+  `,
+})
+class DemoToolbarTableComponent {
+  protected readonly dataSource = new TableDataSource<Country>();
+  protected readonly displayedColumns = ["name", "value"];
+  protected readonly filterModel = new FilterModel<Country>({
+    search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
+    filters: [
+      { id: "range:a-m", label: "A–M", predicate: (row) => row.name.toLowerCase() < "n" },
+      { id: "range:n-z", label: "N–Z", predicate: (row) => row.name.toLowerCase() >= "n" },
+    ],
+  });
+
+  constructor() {
+    this.dataSource.data = countries.slice(0, 100);
+  }
+}
+
 export default {
   title: "Component Library/Table V2",
   decorators: [
@@ -63,17 +153,14 @@ export default {
         BitCellComponent,
         BitHeaderRowComponent,
         BitRowComponent,
+        BitTableToolbarComponent,
         DemoStatusColumnComponent,
+        DemoToolbarTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
-        ChipActionComponent,
-        ChipFilterComponent,
-        FormsModule,
         IconTileComponent,
         LayoutComponent,
-        MenuModule,
-        SearchModule,
         RouterTestingModule,
       ],
       providers: [
@@ -94,6 +181,8 @@ export default {
               back: "Back",
               backTo: (name) => `Back to ${name}`,
               removeItem: (name) => `Remove ${name}`,
+              clearFilters: "Clear all filters",
+              filtersApplied: (count) => `${count} filters applied`,
             }),
         },
       ],
@@ -305,23 +394,28 @@ export const Scrollable: Story = {
 const filterable = new TableDataSource<{ value: string; name: string }>();
 filterable.data = countries.slice(0, 100);
 
+const filterableModel = new FilterModel<{ value: string; name: string }>({
+  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
+});
+
 export const Filterable: Story = {
   render: () => ({
-    props: { dataSource: filterable, displayedColumns: ["name", "value"] },
+    props: {
+      dataSource: filterable,
+      displayedColumns: ["name", "value"],
+      filterModel: filterableModel,
+    },
     template: `
       <bit-layout>
         <bit-table-v2
           [dataSource]="dataSource"
           [displayedColumns]="displayedColumns"
           [rowSize]="64"
+          [filterModel]="filterModel"
         >
-          <bit-search
-            slot="toolbar"
-            class="tw-flex-1"
-            placeholder="Search"
-            ngModel
-            (ngModelChange)="dataSource.filter = $event"
-          ></bit-search>
+          <bit-table-toolbar>
+            <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+          </bit-table-toolbar>
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Name</bit-header-cell>
             <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
@@ -337,53 +431,18 @@ export const Filterable: Story = {
 };
 
 /**
- * Project an element with `slot="toolbar"` to add a slot inside the table's
- * chrome, above the header row — for search inputs, filter buttons, and similar
- * controls. The slot lays its children out in a row and collapses when empty,
- * so tables without a toolbar show no empty bar.
+ * `<bit-table-toolbar>` renders inside the chrome above the header row and owns
+ * the applied-filters row. A `<bit-search>` goes in its own slot and binds to
+ * the table's `FilterModel` automatically; other left controls (a Filters menu)
+ * use `slot="start"`, actions use `slot="end"`. Picking from the menu calls
+ * `filterModel.apply(id)`, which the toolbar renders as a value-only chip and
+ * the model folds into the composed predicate the table applies. The Filters
+ * trigger is a stateless `bitButton` + `bit-menu` with a chevron `endIcon` that
+ * flips with the menu's open state. See `DemoToolbarTableComponent`.
  */
 export const WithToolbar: Story = {
   render: () => ({
-    props: {
-      dataSource: filterable,
-      displayedColumns: ["name", "value"],
-      filterOptions: [
-        { label: "Starts with A–M", value: "a-m", icon: "bwi-list" },
-        { label: "Starts with N–Z", value: "n-z", icon: "bwi-list" },
-      ],
-    },
-    template: `
-      <bit-layout>
-        <bit-table-v2
-          [dataSource]="dataSource"
-          [displayedColumns]="displayedColumns"
-          [rowSize]="64"
-        >
-          <bit-search
-            slot="toolbar"
-            class="tw-flex-1"
-            placeholder="Search"
-            ngModel
-            (ngModelChange)="dataSource.filter = $event"
-          ></bit-search>
-          <bit-chip-filter
-            slot="toolbar"
-            placeholderText="Filter"
-            placeholderIcon="bwi-filter"
-            [options]="filterOptions"
-          ></bit-chip-filter>
-          <button slot="toolbar" type="button" bit-chip-action label="Add" startIcon="bwi-plus"></button>
-          <bit-column sortable defaultSort="asc">
-            <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
-          </bit-column>
-          <bit-column sortable width="120px">
-            <bit-header-cell>Value</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.value; let row">{{ row.value }}</bit-cell>
-          </bit-column>
-        </bit-table-v2>
-      </bit-layout>
-    `,
+    template: `<demo-toolbar-table></demo-toolbar-table>`,
   }),
 };
 

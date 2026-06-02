@@ -1,0 +1,28 @@
+<!-- Toolbar row: search + start controls fill the left, end controls sit right. -->
+<div class="tw-flex tw-items-center tw-gap-2 tw-p-3">
+  <div class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
+    <ng-content select="bit-search"></ng-content>
+    <ng-content select="[slot=start]"></ng-content>
+  </div>
+  <div class="tw-flex tw-items-center tw-gap-2">
+    <ng-content select="[slot=end]"></ng-content>
+  </div>
+</div>
+
+<!-- Applied-filters row: clear-all, count, then a dismissible chip per filter. -->
+@if (applied().length > 0) {
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-3 tw-pb-3">
+    <button
+      bitIconButton="bwi-close"
+      buttonType="subtleGhost"
+      size="small"
+      type="button"
+      [label]="'clearFilters' | i18n"
+      (click)="clear()"
+    ></button>
+    <span class="tw-text-sm tw-text-muted">{{ "filtersApplied" | i18n: applied().length }}</span>
+    @for (filter of applied(); track filter.id) {
+      <bit-chip [label]="filter.label" (dismissed)="remove(filter.id)"></bit-chip>
+    }
+  </div>
+}

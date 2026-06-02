@@ -14,6 +14,8 @@ import {
   ElementRef,
   TrackByFunction,
   computed,
+  effect,
+  forwardRef,
   inject,
   input,
   signal,
@@ -22,11 +24,13 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { finalize, Observable, of, switchMap } from "rxjs";
 
 import { ScrollLayoutDirective } from "../../layout";
+import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
 import { Sort, TableDataSource } from "../table-data-source";
 
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { FilterModel } from "./filter-model";
 import { TableSelectionModel } from "./table-selection-model";
 
 @Component({
@@ -42,8 +46,11 @@ import { TableSelectionModel } from "./table-selection-model";
     BitRowComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [{ provide: SEARCH_CONSUMER, useExisting: forwardRef(() => BitTableV2Component) }],
 })
-export class BitTableV2Component<T = unknown> implements AfterContentInit, AfterViewInit {
+export class BitTableV2Component<T = unknown>
+  implements AfterContentInit, AfterViewInit, SearchConsumer
+{
   /**
    * Data source for the table. Sort state is read from / written to this
    * source. The row type `T` is inferred from this binding and threads
@@ -82,6 +89,34 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
    * `canSelect` option on the model to make only some rows selectable.
    */
   readonly selection = input<TableSelectionModel<T>>();
+
+  /**
+   * Filter state and definitions, constructed by the consumer (parallel to
+   * {@link dataSource} and {@link selection}). The table applies the model's
+   * composed `predicate` to `dataSource.filter` and re-filters whenever it
+   * changes; `<bit-table-toolbar>` renders the applied-filters chips from it,
+   * and a projected `<bit-search>` binds to it via the provided
+   * {@link SEARCH_CONSUMER}. Defaults to an empty model (matches nothing), so
+   * tables without filtering need not bind it.
+   */
+  readonly filterModel = input(new FilterModel<T>());
+
+  constructor() {
+    effect(() => {
+      const ds = this.dataSource();
+      if (ds) {
+        ds.filter = this.filterModel().predicate();
+      }
+    });
+  }
+
+  /**
+   * The {@link SearchConsumer} surface a projected `<bit-search>` binds to —
+   * the current {@link filterModel}'s `searchTerm` signal, forwarded along.
+   */
+  get searchTerm() {
+    return this.filterModel().searchTerm;
+  }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
 

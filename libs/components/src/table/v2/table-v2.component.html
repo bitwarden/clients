@@ -41,16 +41,12 @@
 
 <div [ngClass]="containerClass">
   <!--
-    Toolbar slot: search / filter controls inside the chrome, above the header
-    row. Kept outside the `role="table"` element so it isn't treated as a table
-    row. `:not(:has(*))` collapses the bar when no `[slot=toolbar]` content is
-    projected, so there's no empty bordered strip.
+    Toolbar: a `<bit-table-toolbar>` projected inside the chrome, above the
+    header row, holding search / filter / action controls and the applied-
+    filters row. Kept outside the `role="table"` element so it isn't treated as
+    a table row. Renders only when the consumer projects one.
   -->
-  <div
-    class="tw-flex tw-items-center tw-gap-2 tw-p-3 tw-border-0 tw-border-b tw-border-solid tw-border-border-base [&:not(:has(*))]:tw-hidden"
-  >
-    <ng-content select="[slot=toolbar]"></ng-content>
-  </div>
+  <ng-content select="bit-table-toolbar"></ng-content>
 
   <div role="table">
     @if (isVirtualized() && hasColumns()) {

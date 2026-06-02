@@ -20,7 +20,7 @@
     [placeholder]="placeholder() ?? ('search' | i18n)"
     class="tw-ps-9 tw-h-full"
     name="searchText"
-    [ngModel]="searchText"
+    [ngModel]="searchText()"
     (ngModelChange)="onChange($event)"
     (focus)="isInputFocused.set(true)"
     (blur)="isInputFocused.set(false); onTouch()"
@@ -28,7 +28,7 @@
     [attr.autocomplete]="autocomplete()"
   />
   <button
-    *ngIf="searchText"
+    *ngIf="searchText()"
     [ngClass]="{
       'tw-opacity-0': !showResetButton(),
       'tw-bg-text-muted': showResetButton(),
