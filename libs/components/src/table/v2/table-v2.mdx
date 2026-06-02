@@ -241,6 +241,27 @@ table shows a default `<bit-no-items>` below the header. Project `slot="empty"` 
 
 Manual mode has no empty state — you control the rows.
 
+## Loading
+
+Set `loading` on the model (e.g. a resource's `isLoading`) to show skeleton rows in place of data.
+Control the count with `[loadingRows]` (default 3). Each column renders its optional
+`bitCellLoading` template; columns without one get a default skeleton. Loading takes precedence over
+the empty state.
+
+```ts
+const table = new TableModel<User>({ data: users, loading: usersResource.isLoading });
+```
+
+```html
+<bit-table-v2 [table]="table" [loadingRows]="5">
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
+    <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-3/4" /></bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
 ## Manual mode
 
 For simple presentational tables — no sort, filter, selection, or virtualization — skip the model

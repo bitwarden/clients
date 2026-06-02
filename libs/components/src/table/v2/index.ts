@@ -1,4 +1,5 @@
 export { BitCellDefDirective } from "./bit-cell-def.directive";
+export { BitCellLoadingDirective } from "./bit-cell-loading.directive";
 export { BitCellComponent } from "./bit-cell.component";
 export { BitColumnComponent } from "./bit-column.component";
 export { BitHeaderCellComponent } from "./bit-header-cell.component";

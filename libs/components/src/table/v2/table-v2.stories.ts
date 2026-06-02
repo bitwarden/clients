@@ -16,10 +16,12 @@ import { LayoutComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
 import { MenuModule } from "../../menu";
 import { SearchModule } from "../../search";
+import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
+import { BitCellLoadingDirective } from "./bit-cell-loading.directive";
 import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
@@ -143,6 +145,8 @@ export default {
         BitHeaderRowComponent,
         BitRowComponent,
         BitTableToolbarComponent,
+        BitCellLoadingDirective,
+        SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoToolbarTableComponent,
         BulkActionsBarComponent,
@@ -205,6 +209,10 @@ const reorderTable = new TableModel<DemoRow>({
   columns: { order: ["name", "id"] },
 });
 const emptyTable = new TableModel<DemoRow>({ data: signal<DemoRow[]>([]) });
+const loadingTable = new TableModel<DemoRow>({
+  data: signal<DemoRow[]>([]),
+  loading: signal(true),
+});
 
 export const Default: Story = {
   render: () => ({
@@ -547,6 +555,34 @@ export const Empty: Story = {
         <bit-column>
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+/**
+ * When `loading` is true, the table shows skeleton rows (count via `[loadingRows]`)
+ * in place of data. Each column renders its `bitCellLoading` template if it has
+ * one — here the Id column does — otherwise a default skeleton.
+ */
+export const Loading: Story = {
+  render: () => ({
+    props: { table: loadingTable },
+    template: `
+      <bit-table-v2 [table]="table" [loadingRows]="4">
+        <bit-column width="80px">
+          <bit-header-cell>Id</bit-header-cell>
+          <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
+          <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-8"></bit-skeleton-text></bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Other</bit-header-cell>
+          <bit-cell *bitCellDef="table.ref.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     `,

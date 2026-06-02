@@ -13,6 +13,7 @@ import {
 import type { SortDirection, SortFn } from "../table-data-source";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
+import { BitCellLoadingDirective } from "./bit-cell-loading.directive";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableV2Component } from "./table-v2.component";
 
@@ -58,6 +59,7 @@ export class BitColumnComponent {
 
   private readonly cellDir = contentChild(BitCellDefDirective);
   private readonly headerCell = contentChild(BitHeaderCellComponent);
+  private readonly loadingDir = contentChild(BitCellLoadingDirective);
 
   /**
    * Column key, sourced from the `*bitCellDef` child. Returns `undefined`
@@ -71,6 +73,9 @@ export class BitColumnComponent {
 
   /** Template for the header cell, sourced from the `<bit-header-cell>` child. */
   readonly headerTemplate = computed(() => this.headerCell()?.template());
+
+  /** Optional skeleton template for loading rows, from a `bitCellLoading` child. */
+  readonly loadingTemplate = computed(() => this.loadingDir()?.template);
 
   constructor() {
     const table = inject<BitTableV2Component>(forwardRef(() => BitTableV2Component));

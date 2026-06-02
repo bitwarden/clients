@@ -7,6 +7,8 @@ import { TableSelectionModel } from "./table-selection-model";
 export type TableModelConfig<T, S extends string> = {
   /** Row data as a signal. Pass a writable signal and update it to change rows reactively. */
   data?: Signal<T[]>;
+  /** Loading state. When `true`, the table shows skeleton rows. e.g. a resource's `isLoading`. */
+  loading?: Signal<boolean>;
   /** Column identity, order, and visibility — see {@link ColumnModel}. */
   columns?: ColumnModelConfig<T, S>;
   /** Search and facet filtering — see {@link FilterModel}. */
@@ -39,6 +41,9 @@ export class TableModel<T, S extends string = never> {
   /** Current row data. The table filters and sorts it for display. */
   readonly data: Signal<T[]>;
 
+  /** Whether the table is loading. When `true`, the table shows skeleton rows. */
+  readonly loading: Signal<boolean>;
+
   /** Column identity, typed references, order, and visibility. */
   readonly columns: ColumnModel<T, S>;
 
@@ -50,6 +55,7 @@ export class TableModel<T, S extends string = never> {
 
   constructor(config: TableModelConfig<T, S> = {}) {
     this.data = config.data ?? signal<T[]>([]);
+    this.loading = config.loading ?? signal(false);
     this.columns = new ColumnModel<T, S>(config.columns);
     this.filter = new FilterModel<T>(config.filter);
     if (config.selection) {

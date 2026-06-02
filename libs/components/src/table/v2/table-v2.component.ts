@@ -27,8 +27,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { ScrollLayoutDirective } from "../../layout";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
+import { SkeletonTextComponent } from "../../skeleton";
 import { TableDataSource } from "../table-data-source";
 
+import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
@@ -43,9 +45,11 @@ import { TableModel } from "./table-model";
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     ScrollLayoutDirective,
+    BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
     NoItemsComponent,
+    SkeletonTextComponent,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,6 +83,9 @@ export class BitTableV2Component<T = unknown>
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
 
+  /** Number of skeleton rows to show while {@link TableModel.loading} is true. */
+  readonly loadingRows = input(3);
+
   /**
    * The RxJS engine that filters and sorts the model's data into rendered rows.
    * A private implementation detail — fed from the model's `data` and `filter`,
@@ -91,6 +98,9 @@ export class BitTableV2Component<T = unknown>
 
   /** The model's selection model, if configured. Read by `bit-bulk-actions-bar` via DI. */
   readonly selection = computed(() => this.table().selection);
+
+  /** Whether the model is loading — shows skeleton rows in place of data. */
+  protected readonly loading = computed(() => this.table().loading());
 
   /**
    * The {@link SearchConsumer} surface a projected `<bit-search>` binds to —
@@ -183,8 +193,13 @@ export class BitTableV2Component<T = unknown>
   /** Rendered rows as a signal — the single subscription to {@link rows$}. */
   protected readonly rows = toSignal(this.rows$, { initialValue: [] as readonly T[] });
 
-  /** Column-def mode with no rows to render (empty data or fully filtered out). */
-  protected readonly isEmpty = computed(() => this.hasColumns() && this.rows().length === 0);
+  /** Index array for the skeleton rows shown while loading. */
+  protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);
+
+  /** Column-def mode, not loading, with no rows to render (empty or fully filtered out). */
+  protected readonly isEmpty = computed(
+    () => this.hasColumns() && !this.loading() && this.rows().length === 0,
+  );
 
   /**
    * Bridges the data source's `sort$` into a signal so header-cell computeds

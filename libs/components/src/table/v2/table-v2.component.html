@@ -37,6 +37,19 @@
   }
 </ng-template>
 
+<ng-template #loadingCells>
+  @if (selection()) {
+    <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0"></div>
+  }
+  @for (col of effectiveColumns(); track col.name()) {
+    @if (col.loadingTemplate(); as tpl) {
+      <ng-container *ngTemplateOutlet="tpl"></ng-container>
+    } @else {
+      <bit-cell><bit-skeleton-text class="tw-w-1/2"></bit-skeleton-text></bit-cell>
+    }
+  }
+</ng-template>
+
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
 <div [ngClass]="containerClass">
@@ -49,7 +62,7 @@
   <ng-content select="bit-table-toolbar"></ng-content>
 
   <div role="table">
-    @if (isVirtualized() && hasColumns()) {
+    @if (isVirtualized() && hasColumns() && !loading()) {
       <cdk-virtual-scroll-viewport
         bitScrollLayout
         [itemSize]="rowSize()!"
@@ -66,10 +79,18 @@
       <bit-header-row>
         <ng-container *ngTemplateOutlet="headerCells"></ng-container>
       </bit-header-row>
-      @for (r of rows(); track r) {
-        <bit-row>
-          <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
-        </bit-row>
+      @if (loading()) {
+        @for (i of skeletonRows(); track i) {
+          <bit-row>
+            <ng-container *ngTemplateOutlet="loadingCells"></ng-container>
+          </bit-row>
+        }
+      } @else {
+        @for (r of rows(); track r) {
+          <bit-row>
+            <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
+          </bit-row>
+        }
       }
     } @else {
       <!--
