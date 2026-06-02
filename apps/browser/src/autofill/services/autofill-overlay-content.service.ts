@@ -9,7 +9,6 @@ import {
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   EVENTS,
 } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -61,6 +60,7 @@ import {
   loginQualifiers,
   cardQualifiers,
   identityQualifiers,
+  isAutofillTargetingRuleType,
 } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -1173,33 +1173,27 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * bypassing heuristic qualification.
    */
   private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
-    // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
-    // which are distinct from the heuristic AutofillFieldQualifierType values.
-    const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
+    // Targeted fields use `AutofillTargetingRuleType` values in `fieldQualifier`,
+    // which are distinct from the heuristic `AutofillFieldQualifierType` values.
+    const qualifier = autofillFieldData.fieldQualifier;
 
-    if (qualifier === AutofillTargetingRuleTypes.newPassword) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
-      return;
-    }
-
-    if (loginQualifiers.includes(qualifier)) {
+    if (!isAutofillTargetingRuleType(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Login;
-      return;
-    }
-
-    if (cardQualifiers.includes(qualifier)) {
+    } else if (qualifier === AutofillTargetingRuleTypes.newPassword) {
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+    } else if (loginQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
+    } else if (cardQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Card;
-      return;
-    }
-
-    if (identityQualifiers.includes(qualifier)) {
+    } else if (identityQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Identity;
-      return;
+    } else {
+      // The fallback `CipherType.Login` covers both the unrecognized-qualifier
+      // case and qualifier groups that don't have a dedicated fill type yet;
+      // it avoids inline menu re-render churn that occurs when
+      // `inlineMenuFillType` is left undefined.
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
     }
-
-    // Fallback: default to Login to avoid inline menu re-render churn that
-    // occurs when `inlineMenuFillType` is left undefined.
-    autofillFieldData.inlineMenuFillType = CipherType.Login;
   }
 
   /**
