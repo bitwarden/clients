@@ -1,10 +1,8 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-
 export class OrganizationInviteLinkRefreshRequest {
-  encryptedInviteKey: EncString;
-  encryptedOrgKey: EncString | undefined;
+  encryptedInviteKey: string;
+  encryptedOrgKey: string | undefined;
 
-  constructor(c: { encryptedInviteKey: EncString; encryptedOrgKey?: EncString | undefined }) {
+  constructor(c: { encryptedInviteKey: string; encryptedOrgKey?: string | undefined }) {
     if (!c.encryptedInviteKey) {
       throw new Error("EncryptedInviteKey is required.");
     }

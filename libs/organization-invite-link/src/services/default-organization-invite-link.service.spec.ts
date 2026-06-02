@@ -167,7 +167,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("createInviteLink", () => {
-    it("generates key, wraps with orgKey, calls API, and caches result", async () => {
+    it("generates sealed envelope via SDK, calls API, and caches result", async () => {
       const orgKey = makeKey("orgkeyB64==");
       const response = makeResponseModel({ code: "code1", allowedDomains: ["bitwarden.com"] });
 
@@ -192,13 +192,17 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const orgKey = makeKey();
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
 
-      await expect(sut.createInviteLink(mockUserId, mockOrgId, [])).rejects.toThrow();
+      await expect(sut.createInviteLink(mockUserId, mockOrgId, [])).rejects.toThrow(
+        "At least one allowed domain is required.",
+      );
     });
 
     it("throws when orgKey is missing", async () => {
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
 
-      await expect(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"])).rejects.toThrow();
+      await expect(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"])).rejects.toThrow(
+        `Organization key not found for org ${mockOrgId}`,
+      );
     });
   });
 
@@ -242,9 +246,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       expect(apiService.refresh).toHaveBeenCalledWith(
         mockOrgId,
         expect.objectContaining({
-          encryptedInviteKey: expect.objectContaining({
-            encryptedString: "sealed-envelope-base64",
-          }),
+          encryptedInviteKey: "sealed-envelope-base64",
         }),
       );
 

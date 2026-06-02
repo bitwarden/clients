@@ -1,6 +1,5 @@
 import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -141,10 +140,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<EncString> {
+  private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<string> {
     const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
     await SdkLoadService.Ready;
     const bundle = generate_organization_invite_crypto_bundle(orgKey.toEncoded());
-    return new EncString(bundle.sealedInviteKeyEnvelope);
+    return bundle.sealedInviteKeyEnvelope;
   }
 }
