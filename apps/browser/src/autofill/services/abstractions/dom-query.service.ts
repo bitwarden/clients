@@ -10,7 +10,7 @@ export interface DomQueryService {
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
   checkForNewShadowRoots(addedElements?: Element[]): boolean;
   resetObservedShadowRoots(): void;
-  reapDetachedShadowRoots(): void;
+  purgeDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;
   findIframeCrossing(
     selector: string,

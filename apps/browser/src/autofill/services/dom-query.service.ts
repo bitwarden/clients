@@ -197,7 +197,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   // `ShadowRoot.host` is non-nullable per spec; persists after host removal from document.
-  reapDetachedShadowRoots = (): void => {
+  purgeDetachedShadowRoots = (): void => {
     for (const root of this.knownShadowRoots) {
       if (!root.host.isConnected) {
         this.knownShadowRoots.delete(root);

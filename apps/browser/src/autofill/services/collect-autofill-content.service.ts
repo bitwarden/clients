@@ -65,6 +65,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingShadowDomCheck = false;
   private pendingMutationAddedElements: Set<Element> = new Set();
   private pendingMutationAddedElementsOverflowed = false;
+  // Caps the batch handed to suppressDescendantsInBatch; overflow → full-document scan fallback.
   private readonly pendingMutationAddedElementsCap = 256;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
@@ -1358,18 +1359,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (mutation.target.nodeType !== 1) {
           continue;
         }
-        const attr = mutation.attributeName?.toLowerCase();
-        if (!attr) {
+        const attributeName = mutation.attributeName?.toLowerCase();
+        if (!attributeName) {
           continue;
         }
         const target = mutation.target as Element;
-        let attrs = this.pendingAttributeMutations.get(target);
-        if (!attrs) {
-          attrs = new Set();
-          this.pendingAttributeMutations.set(target, attrs);
+        let attributeNames = this.pendingAttributeMutations.get(target);
+        if (!attributeNames) {
+          attributeNames = new Set();
+          this.pendingAttributeMutations.set(target, attributeNames);
         }
-        attrs.add(attr);
-        if (this.isPopoverAttribute(attr)) {
+        attributeNames.add(attributeName);
+        if (this.isPopoverAttribute(attributeName)) {
           this.pendingTopLayerTargets.add(target);
         }
       } else if (mutation.type === "childList") {
@@ -1378,9 +1379,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           if (node.nodeType !== 1) {
             continue;
           }
-          const el = node as Element;
-          if (this.shouldListenToTopLayerCandidate(el)) {
-            this.pendingTopLayerTargets.add(el);
+          const element = node as Element;
+          if (this.shouldListenToTopLayerCandidate(element)) {
+            this.pendingTopLayerTargets.add(element);
           }
         }
       }
@@ -1420,35 +1421,36 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private processMutations = () => {
     // Swap first so reentrant mutations during processing land in fresh structures
     // and drain on the next cycle, mirroring the queue-swap the previous design relied on.
-    const drainingAttrs = this.pendingAttributeMutations;
+    const drainingAttributeMutations = this.pendingAttributeMutations;
     const drainingTopLayer = this.pendingTopLayerTargets;
     const childListNeeded = this.pendingChildListUpdate;
     this.pendingAttributeMutations = new Map();
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    const hasWork = drainingAttrs.size > 0 || drainingTopLayer.size > 0 || childListNeeded;
+    const hasWork =
+      drainingAttributeMutations.size > 0 || drainingTopLayer.size > 0 || childListNeeded;
 
     requestIdleCallbackPolyfill(
       () => {
         if (hasWork) {
-          for (const el of drainingTopLayer) {
-            this.setupTopLayerCandidateListener(el);
+          for (const element of drainingTopLayer) {
+            this.setupTopLayerCandidateListener(element);
           }
           if (childListNeeded) {
             // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
             this.requirePageDetailsUpdate();
           } else {
-            for (const [target, attrs] of drainingAttrs) {
-              for (const attr of attrs) {
-                this.applyAttributeMutation(target, attr);
+            for (const [target, attributeNames] of drainingAttributeMutations) {
+              for (const attributeName of attributeNames) {
+                this.applyAttributeMutation(target, attributeName);
               }
             }
           }
         }
-        // Reap unconditionally — gate-rejected removals (e.g. a shadow host) still orphan tracked nodes.
-        this.reapDetachedFieldMetadata();
-        this.domQueryService.reapDetachedShadowRoots();
+        // Purge unconditionally — gate-rejected removals (e.g. a shadow host) still orphan tracked nodes.
+        this.purgeDetachedFieldMetadata();
+        this.domQueryService.purgeDetachedShadowRoots();
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
@@ -1480,19 +1482,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  private reapDetachedFieldMetadata(): void {
-    for (const el of this._autofillFormElements.keys()) {
-      if (!el.isConnected) {
-        this._autofillFormElements.delete(el);
+  private purgeDetachedFieldMetadata(): void {
+    for (const formElement of this._autofillFormElements.keys()) {
+      if (!formElement.isConnected) {
+        this._autofillFormElements.delete(formElement);
       }
     }
-    for (const el of this.autofillFieldElements.keys()) {
-      if (!el.isConnected) {
-        this.autofillFieldElements.delete(el);
+    for (const fieldElement of this.autofillFieldElements.keys()) {
+      if (!fieldElement.isConnected) {
+        this.autofillFieldElements.delete(fieldElement);
       }
     }
-    for (const [opid, el] of this.autofillFieldsByOpid) {
-      if (!el.isConnected) {
+    for (const [opid, fieldElement] of this.autofillFieldsByOpid) {
+      if (!fieldElement.isConnected) {
         this.autofillFieldsByOpid.delete(opid);
       }
     }
@@ -1521,9 +1523,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private handleNewShadowRoots = () => {
     // Hosts added by mutation may have been removed during the 500ms debounce.
     const connected: Element[] = [];
-    for (const el of this.pendingMutationAddedElements) {
-      if (el.isConnected) {
-        connected.push(el);
+    for (const element of this.pendingMutationAddedElements) {
+      if (element.isConnected) {
+        connected.push(element);
       }
     }
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
@@ -1541,7 +1543,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes ?? []) {
-        if (!this.couldContainShadowRoot(node)) {
+        if (!this.isShadowRootCandidate(node)) {
           continue;
         }
         this.pendingMutationAddedElements.add(node);
@@ -1555,7 +1557,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  private couldContainShadowRoot(node: Node): node is Element {
+  private isShadowRootCandidate(node: Node): node is Element {
     if (!(node instanceof Element)) {
       return false;
     }

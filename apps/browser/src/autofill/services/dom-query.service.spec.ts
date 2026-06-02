@@ -284,7 +284,7 @@ describe("DomQueryService", () => {
     });
   });
 
-  describe("reapDetachedShadowRoots", () => {
+  describe("purgeDetachedShadowRoots", () => {
     it("removes only entries whose host has left the document", () => {
       const attachedHost = document.createElement("attached-host");
       const attachedRoot = attachedHost.attachShadow({ mode: "open" });
@@ -297,7 +297,7 @@ describe("DomQueryService", () => {
       domQueryService["knownShadowRoots"].add(attachedRoot);
       domQueryService["knownShadowRoots"].add(detachedRoot);
 
-      domQueryService.reapDetachedShadowRoots();
+      domQueryService.purgeDetachedShadowRoots();
 
       expect(domQueryService["knownShadowRoots"].size).toBe(1);
       expect(domQueryService["knownShadowRoots"].has(attachedRoot)).toBe(true);
@@ -310,7 +310,7 @@ describe("DomQueryService", () => {
       document.body.appendChild(host);
       domQueryService["knownShadowRoots"].add(root);
 
-      domQueryService.reapDetachedShadowRoots();
+      domQueryService.purgeDetachedShadowRoots();
 
       expect(domQueryService["knownShadowRoots"].size).toBe(1);
     });

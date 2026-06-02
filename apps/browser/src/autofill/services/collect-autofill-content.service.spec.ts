@@ -2493,7 +2493,7 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      // The reaper sweeps via !isConnected, so the form actually has to leave the document.
+      // The purge sweeps via !isConnected, so the form actually has to leave the document.
       document.body.removeChild(form);
 
       collectAutofillContentService["handleMutationObserverMutation"]([
@@ -3025,7 +3025,7 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("reapDetachedFieldMetadata", () => {
+  describe("purgeDetachedFieldMetadata", () => {
     it("removes form/field/opid entries whose elements are no longer connected", () => {
       const attachedForm = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
       const attachedField = document.createElement("input") as ElementWithOpId<FormFieldElement>;
@@ -3048,7 +3048,7 @@ describe("CollectAutofillContentService", () => {
         ["detached", detachedField],
       ]);
 
-      collectAutofillContentService["reapDetachedFieldMetadata"]();
+      collectAutofillContentService["purgeDetachedFieldMetadata"]();
 
       expect(collectAutofillContentService["_autofillFormElements"].size).toBe(1);
       expect(collectAutofillContentService["_autofillFormElements"].has(attachedForm)).toBe(true);
@@ -3383,34 +3383,34 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
     });
 
-    it("invokes the field and shadow-root reapers each drain", () => {
+    it("invokes the field and shadow-root purges each drain", () => {
       collectAutofillContentService["pendingChildListUpdate"] = true;
-      jest.spyOn(collectAutofillContentService as any, "reapDetachedFieldMetadata");
-      jest.spyOn(domQueryService, "reapDetachedShadowRoots");
+      jest.spyOn(collectAutofillContentService as any, "purgeDetachedFieldMetadata");
+      jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
 
       collectAutofillContentService["processMutations"]();
       jest.runAllTimers();
 
-      expect(collectAutofillContentService["reapDetachedFieldMetadata"]).toHaveBeenCalled();
-      expect(domQueryService.reapDetachedShadowRoots).toHaveBeenCalled();
+      expect(collectAutofillContentService["purgeDetachedFieldMetadata"]).toHaveBeenCalled();
+      expect(domQueryService.purgeDetachedShadowRoots).toHaveBeenCalled();
     });
 
-    it("runs reapers but skips rebuild/attribute work when nothing is pending", () => {
+    it("runs purges but skips rebuild/attribute work when nothing is pending", () => {
       collectAutofillContentService["pendingAttributeMutations"] = new Map();
       collectAutofillContentService["pendingTopLayerTargets"] = new Set();
       collectAutofillContentService["pendingChildListUpdate"] = false;
       jest.spyOn(collectAutofillContentService as any, "requirePageDetailsUpdate");
       jest.spyOn(collectAutofillContentService as any, "applyAttributeMutation");
-      jest.spyOn(collectAutofillContentService as any, "reapDetachedFieldMetadata");
-      jest.spyOn(domQueryService, "reapDetachedShadowRoots");
+      jest.spyOn(collectAutofillContentService as any, "purgeDetachedFieldMetadata");
+      jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
 
       collectAutofillContentService["processMutations"]();
       jest.runAllTimers();
 
       expect(collectAutofillContentService["requirePageDetailsUpdate"]).not.toHaveBeenCalled();
       expect(collectAutofillContentService["applyAttributeMutation"]).not.toHaveBeenCalled();
-      expect(collectAutofillContentService["reapDetachedFieldMetadata"]).toHaveBeenCalled();
-      expect(domQueryService.reapDetachedShadowRoots).toHaveBeenCalled();
+      expect(collectAutofillContentService["purgeDetachedFieldMetadata"]).toHaveBeenCalled();
+      expect(domQueryService.purgeDetachedShadowRoots).toHaveBeenCalled();
     });
 
     it("reentrant attribute mutations during drain land in the next cycle", () => {
