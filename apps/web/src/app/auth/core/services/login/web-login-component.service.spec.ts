@@ -101,9 +101,9 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined if getInvitePolicies returns null", async () => {
+    it("returns undefined if getInvitePolicies returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(null);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
       const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });

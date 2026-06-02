@@ -111,9 +111,9 @@ describe("WebRegistrationFinishService", () => {
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
-    it("returns null when the policies are null", async () => {
+    it("returns null when the policies are undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(null);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 

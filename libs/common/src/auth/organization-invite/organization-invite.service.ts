@@ -25,10 +25,7 @@ export abstract class OrganizationInviteService {
    * the user returns after re-authenticating with a compliant master password.
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
-  abstract validateAndAcceptInvite(
-    invite: OrganizationInvite,
-    activeUserId: UserId,
-  ): Promise<boolean>;
+  abstract validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean>;
 
   /**
    * Fetches all enabled policies for the inviting organization, authenticated via the invite token
@@ -36,7 +33,7 @@ export abstract class OrganizationInviteService {
    * `ResetPassword`). Results are cached on the service instance keyed by invite token; the cache
    * is cleared on `setOrganizationInvitation` and `clearOrganizationInvitation` so state transitions
    * never leave stale entries behind.
-   * @returns all enabled policies for the org, or null on fetch error.
+   * @returns all enabled policies for the org, or undefined on fetch error.
    */
-  abstract getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | null>;
+  abstract getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined>;
 }

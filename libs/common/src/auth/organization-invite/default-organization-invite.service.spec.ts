@@ -12,7 +12,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -42,7 +41,6 @@ describe("DefaultOrganizationInviteService", () => {
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let i18nService: MockProxy<I18nService>;
-  let accountService: MockProxy<AccountService>;
   let globalStateProvider: FakeGlobalStateProvider;
 
   beforeEach(() => {
@@ -56,7 +54,6 @@ describe("DefaultOrganizationInviteService", () => {
     organizationApiService = mock();
     organizationUserApiService = mock();
     i18nService = mock();
-    accountService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
 
     sut = new DefaultOrganizationInviteService(
@@ -70,7 +67,6 @@ describe("DefaultOrganizationInviteService", () => {
       organizationApiService,
       organizationUserApiService,
       i18nService,
-      accountService,
       globalStateProvider,
     );
   });
@@ -232,7 +228,6 @@ describe("DefaultOrganizationInviteService", () => {
           publicKey: "publicKey",
         }),
       );
-      accountService.activeAccount$ = new BehaviorSubject({ id: "activeUserId" }) as any;
       keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
       encryptService.encapsulateKeyUnsigned.mockResolvedValue({
         encryptedString: "encryptedString",
@@ -277,14 +272,14 @@ describe("DefaultOrganizationInviteService", () => {
       );
     });
 
-    it("returns null and logs when the policy fetch throws", async () => {
+    it("returns undefined and logs when the policy fetch throws", async () => {
       const invite = createOrgInvite();
       const error = new Error("fetch failed");
       policyApiService.getPoliciesByToken.mockRejectedValue(error);
 
       const result = await sut.getInvitePolicies(invite);
 
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
       expect(logService.error).toHaveBeenCalledWith(error);
     });
 

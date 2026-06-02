@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -16,7 +14,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { ORGANIZATION_INVITE } from "@bitwarden/common/auth/organization-invite/organization-invite-state";
@@ -47,7 +44,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly organizationApiService: OrganizationApiServiceAbstraction,
     private readonly organizationUserApiService: OrganizationUserApiService,
     private readonly i18nService: I18nService,
-    private readonly accountService: AccountService,
     private readonly globalStateProvider: GlobalStateProvider,
   ) {
     this.organizationInvitationState = this.globalStateProvider.get(ORGANIZATION_INVITE);
@@ -72,16 +68,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * Note: Users might need to pass a MP policy check before accepting an invite to an existing organization. If the user
    * has not passed this check, they will be logged out and the invite will be stored for later use.
    * @param invite an organization invite
-   * @param activeUserId the user ID of the active user accepting the invite
+   * @param userId the user ID of the active user accepting the invite
    * @returns a promise that resolves a boolean indicating if the invite was accepted.
    */
-  async validateAndAcceptInvite(
-    invite: OrganizationInvite,
-    activeUserId: UserId,
-  ): Promise<boolean> {
+  async validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean> {
     // Creation of a new org
     if (invite.initOrganization) {
-      await this.acceptAndInitOrganization(invite, activeUserId);
+      await this.acceptAndInitOrganization(invite, userId);
       return true;
     }
 
@@ -95,11 +88,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
 
     // We know the user has already logged in and passed a MP policy check
-    await this.accept(invite);
+    await this.accept(invite, userId);
     return true;
   }
 
-  async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | null> {
+  async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined> {
     const cached = this.policyCache.get(invite.token);
     if (cached != null) {
       return cached;
@@ -118,15 +111,15 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return policies;
     } catch (e) {
       this.logService.error(e);
-      return null;
+      return undefined;
     }
   }
 
   private async acceptAndInitOrganization(
     invite: OrganizationInvite,
-    activeUserId: UserId,
+    userId: UserId,
   ): Promise<void> {
-    await this.prepareAcceptAndInitRequest(invite, activeUserId).then((request) =>
+    await this.prepareAcceptAndInitRequest(invite, userId).then((request) =>
       this.organizationUserApiService.postOrganizationUserAcceptInit(
         invite.organizationId,
         invite.organizationUserId,
@@ -139,14 +132,22 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
   private async prepareAcceptAndInitRequest(
     invite: OrganizationInvite,
-    activeUserId: UserId,
+    userId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
-    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
+    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(userId);
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
     const collection = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       orgKey,
     );
+
+    if (
+      encryptedOrgKey.encryptedString == null ||
+      encryptedOrgPrivateKey.encryptedString == null ||
+      collection.encryptedString == null
+    ) {
+      throw new Error("Failed to encrypt organization init data.");
+    }
 
     return new OrganizationUserAcceptInitRequest(
       invite.token,
@@ -156,8 +157,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     );
   }
 
-  private async accept(invite: OrganizationInvite): Promise<void> {
-    await this.prepareAcceptRequest(invite).then((request) =>
+  private async accept(invite: OrganizationInvite, userId: UserId): Promise<void> {
+    await this.prepareAcceptRequest(invite, userId).then((request) =>
       this.organizationUserApiService.postOrganizationUserAccept(
         invite.organizationId,
         invite.organizationUserId,
@@ -171,6 +172,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
   private async prepareAcceptRequest(
     invite: OrganizationInvite,
+    userId: UserId,
   ): Promise<OrganizationUserAcceptRequest> {
     const request = new OrganizationUserAcceptRequest();
     request.token = invite.token;
@@ -184,10 +186,16 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
       const publicKey = Utils.fromB64ToArray(response.publicKey);
 
-      const activeUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
-      const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      if (userKey == null) {
+        throw new Error("User key is required to enroll in password reset.");
+      }
+
       // RSA Encrypt user's encKey.key with organization public key
       const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
+      if (encryptedKey.encryptedString == null) {
+        throw new Error("Failed to encrypt user key for password reset enrollment.");
+      }
 
       // Add reset password key to accept request
       request.resetPasswordKey = encryptedKey.encryptedString;
