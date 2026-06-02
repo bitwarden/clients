@@ -69,6 +69,6 @@ export class PhishingWarningComponent {
   }
 
   private async getTabId() {
-    return BrowserApi.getCurrentTab()?.then((tab) => tab.id);
+    return await BrowserApi.getCurrentTab()?.then((tab) => tab.id);
   }
 }

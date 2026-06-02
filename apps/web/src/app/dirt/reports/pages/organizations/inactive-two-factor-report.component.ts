@@ -125,7 +125,7 @@ export class InactiveTwoFactorReportComponent
 
   async getAllCiphers(): Promise<CipherView[]> {
     if (this.organization) {
-      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+      return await this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
     }
     return [];
   }

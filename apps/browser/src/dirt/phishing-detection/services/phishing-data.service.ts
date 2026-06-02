@@ -448,7 +448,7 @@ export class PhishingDataService {
 
     if (applicationVersion !== previous?.applicationVersion) {
       this.logService.info("[PhishingDataService] App version changed — performing full update");
-      return this._performFullUpdate(applicationVersion);
+      return await this._performFullUpdate(applicationVersion);
     }
 
     let manifest: PhishingManifest;
@@ -459,14 +459,14 @@ export class PhishingDataService {
         "[PhishingDataService] Failed to fetch manifest — falling back to legacy sync",
         e,
       );
-      return this._performLegacySync(previous, applicationVersion);
+      return await this._performLegacySync(previous, applicationVersion);
     }
 
     const localSha256 = previous?.sha256;
 
     if (!localSha256) {
       this.logService.info("[PhishingDataService] No local sha256 — performing full update");
-      return this._performFullUpdate(applicationVersion, manifest);
+      return await this._performFullUpdate(applicationVersion, manifest);
     }
 
     if (localSha256 === manifest.full_list.sha256) {
@@ -480,7 +480,7 @@ export class PhishingDataService {
     const resultSha256 = await this.applyPatchChain(manifest, localSha256);
 
     if (resultSha256 === null) {
-      return this._performFullUpdate(applicationVersion, manifest);
+      return await this._performFullUpdate(applicationVersion, manifest);
     }
 
     // Patch chain structure guarantees integrity via from_sha256 -> to_sha256 chaining.
