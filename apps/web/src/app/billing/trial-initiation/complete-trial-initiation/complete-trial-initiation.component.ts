@@ -171,13 +171,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     const invite = await this.organizationInviteService.getOrganizationInvite();
     let policies: Policy[] | undefined | null = null;
 
-    if (
-      invite != null &&
-      invite.organizationId &&
-      invite.token &&
-      invite.email &&
-      invite.organizationUserId
-    ) {
+    if (invite != null) {
       policies = await this.organizationInviteService.getInvitePolicies(invite);
     }
 

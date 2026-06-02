@@ -59,11 +59,15 @@ describe("WebRegistrationFinishService", () => {
     let orgInvite: OrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite();
-      orgInvite.organizationId = "organizationId";
-      orgInvite.organizationUserId = "organizationUserId";
-      orgInvite.token = "orgInviteToken";
-      orgInvite.email = "email";
+      orgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "organizationUserId",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
     });
 
     it("returns null when the org invite is null", async () => {
@@ -89,11 +93,15 @@ describe("WebRegistrationFinishService", () => {
     let orgInvite: OrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite();
-      orgInvite.organizationId = "organizationId";
-      orgInvite.organizationUserId = "organizationUserId";
-      orgInvite.token = "orgInviteToken";
-      orgInvite.email = "email";
+      orgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "organizationUserId",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
     });
 
     it("returns null when the org invite is null", async () => {
@@ -169,9 +177,15 @@ describe("WebRegistrationFinishService", () => {
       userKeyEncString = new EncString("userKeyEncrypted");
       userKeyPair = ["publicKey", new EncString("privateKey")];
 
-      orgInvite = new OrganizationInvite();
-      orgInvite.organizationUserId = "organizationUserId";
-      orgInvite.token = "orgInviteToken";
+      orgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "organizationUserId",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
 
       orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
       acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";

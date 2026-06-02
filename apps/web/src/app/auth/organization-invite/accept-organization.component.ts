@@ -10,7 +10,6 @@ import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/o
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { isId } from "@bitwarden/common/types/guid";
 import { IconModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -49,7 +48,7 @@ export class AcceptOrganizationComponent implements OnInit {
   }
 
   private async authedHandler(qParams: Params): Promise<void> {
-    const invite = this.fromParams(qParams);
+    const invite = OrganizationInvite.fromUrlParams(qParams);
     if (invite === null) {
       // AcceptFlowService handles thrown errors in authedHandler, but for clarity and
       // consistency with unauthedHandler we handle invalid-invite redirect inline here.
@@ -78,7 +77,7 @@ export class AcceptOrganizationComponent implements OnInit {
   }
 
   private async unauthedHandler(qParams: Params): Promise<void> {
-    const invite = this.fromParams(qParams);
+    const invite = OrganizationInvite.fromUrlParams(qParams);
     if (invite === null) {
       // AcceptFlowService does not handle errors thrown from unauthedHandler, so we must
       // handle the invalid-invite redirect inline here.
@@ -136,27 +135,6 @@ export class AcceptOrganizationComponent implements OnInit {
       },
     });
     return;
-  }
-
-  private fromParams(params: Params): OrganizationInvite | null {
-    if (params == null) {
-      return null;
-    }
-
-    if (!isId(params.organizationId) || !isId(params.organizationUserId)) {
-      return null;
-    }
-
-    return Object.assign(new OrganizationInvite(), {
-      email: params.email,
-      initOrganization: params.initOrganization?.toLocaleLowerCase() === "true",
-      orgSsoIdentifier: params.orgSsoIdentifier,
-      orgUserHasExistingUser: params.orgUserHasExistingUser?.toLocaleLowerCase() === "true",
-      organizationId: params.organizationId,
-      organizationName: params.organizationName,
-      organizationUserId: params.organizationUserId,
-      token: params.token,
-    });
   }
 
   private async handleInvalidInvite(): Promise<void> {

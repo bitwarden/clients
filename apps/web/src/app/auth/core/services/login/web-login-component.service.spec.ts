@@ -84,7 +84,7 @@ describe("WebLoginComponentService", () => {
 
   describe("getOrgPoliciesFromOrgInvite", () => {
     const mockEmail = "test@example.com";
-    const orgInvite: OrganizationInvite = {
+    const orgInvite = new OrganizationInvite({
       organizationId: "org-id",
       token: "token",
       email: mockEmail,
@@ -93,7 +93,7 @@ describe("WebLoginComponentService", () => {
       orgSsoIdentifier: "sso-id",
       orgUserHasExistingUser: false,
       organizationName: "org-name",
-    };
+    });
 
     it("returns undefined if organization invite is null", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);

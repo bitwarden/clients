@@ -340,17 +340,14 @@ describe("DefaultOrganizationInviteService", () => {
 });
 
 function createOrgInvite(custom: Partial<OrganizationInvite> = {}): OrganizationInvite {
-  return Object.assign(
-    {
-      email: "user@example.com",
-      initOrganization: false,
-      orgSsoIdentifier: null,
-      orgUserHasExistingUser: false,
-      organizationId: "organizationId",
-      organizationName: "organizationName",
-      organizationUserId: "organizationUserId",
-      token: "token",
-    },
-    custom,
-  );
+  return new OrganizationInvite({
+    email: "user@example.com",
+    initOrganization: false,
+    orgUserHasExistingUser: false,
+    organizationId: "organizationId",
+    organizationName: "organizationName",
+    organizationUserId: "organizationUserId",
+    token: "token",
+    ...custom,
+  });
 }
