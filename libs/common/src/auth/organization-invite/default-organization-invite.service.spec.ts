@@ -133,6 +133,8 @@ describe("DefaultOrganizationInviteService", () => {
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       expect(authService.logOut).not.toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
     });
 
     it("logs out the user and stores the invite when a master password policy check is required", async () => {
@@ -182,6 +184,8 @@ describe("DefaultOrganizationInviteService", () => {
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       expect(authService.logOut).not.toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
     });
 
     it("accepts the invitation request when the org has a master password policy, but the user has already passed it and autoenroll is not enabled", async () => {

@@ -86,6 +86,10 @@ export class OrganizationInvite {
     });
   }
 
+  /**
+   * Hydrates from persisted state. Trusts its input - the only write path goes through
+   * the typed constructor, which enforces required fields.
+   */
   static fromJSON(json: Jsonify<OrganizationInvite>): OrganizationInvite | null {
     if (json == null) {
       return null;
