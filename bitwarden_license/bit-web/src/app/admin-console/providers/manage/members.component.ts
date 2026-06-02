@@ -270,7 +270,7 @@ export class MembersComponent {
   }
 
   private async removeUserConfirmationDialog(user: ProviderUser) {
-    return this.dialogService.openSimpleDialog({
+    return await this.dialogService.openSimpleDialog({
       title: this.userNamePipe.transform(user),
       content: { key: "removeUserConfirmation" },
       type: "warning",

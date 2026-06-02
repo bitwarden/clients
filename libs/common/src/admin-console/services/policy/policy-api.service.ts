@@ -99,7 +99,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
         return null;
       }
 
-      return firstValueFrom(
+      return await firstValueFrom(
         this.accountService.activeAccount$.pipe(
           getUserId,
           switchMap((userId) =>

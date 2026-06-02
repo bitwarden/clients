@@ -158,7 +158,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgUserId: string,
     orgId: OrganizationId,
   ): Promise<void> {
-    return this.recoverAccount({
+    return await this.recoverAccount({
       organizationUserId: orgUserId,
       organizationId: orgId,
       resetMasterPassword: true,

@@ -91,8 +91,8 @@ describe("Organization Permissions Guard", () => {
     });
 
     it("permits navigation if no permissions are specified", async () => {
-      const actual = await TestBed.runInInjectionContext(async () =>
-        organizationPermissionsGuard()(route, state),
+      const actual = await TestBed.runInInjectionContext(
+        async () => await organizationPermissionsGuard()(route, state),
       );
 
       expect(actual).toBe(true);

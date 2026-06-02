@@ -1458,8 +1458,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     const organization = await firstValueFrom(this.organization$);
     const asAdmin = organization.canEditAllCiphers || isUnassigned;
     return permanent
-      ? this.cipherService.deleteWithServer(id, userId, asAdmin)
-      : this.cipherService.softDeleteWithServer(id, userId, asAdmin);
+      ? await this.cipherService.deleteWithServer(id, userId, asAdmin)
+      : await this.cipherService.softDeleteWithServer(id, userId, asAdmin);
   }
 
   protected async repromptCipher(ciphers: CipherViewLike[]) {

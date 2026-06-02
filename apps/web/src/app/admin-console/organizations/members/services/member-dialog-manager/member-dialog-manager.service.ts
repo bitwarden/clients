@@ -353,7 +353,7 @@ export class MemberDialogManagerService {
   private async openNoMasterPasswordConfirmationDialog(
     user: OrganizationUserView,
   ): Promise<boolean> {
-    return this.dialogService.openSimpleDialog({
+    return await this.dialogService.openSimpleDialog({
       title: {
         key: "removeOrgUserNoMasterPasswordTitle",
       },
