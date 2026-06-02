@@ -128,9 +128,9 @@ import {
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
@@ -517,7 +517,7 @@ const safeProviders: SafeProvider[] = [
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule, UserCryptoManagementModule, GeneratorServicesModule],
+  imports: [CommonModule, JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
