@@ -90,7 +90,7 @@ import {
   ImportSuccessDialogData,
 } from "./dialog";
 import { ImporterProviders } from "./importer-providers";
-import { ImportKeeperComponent } from "./keeper";
+import { ImportKeeperComponent, defaultKeeperImportMethod } from "./keeper";
 import { ImportLastPassComponent } from "./lastpass";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -308,7 +308,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
     const subgroup = this.formGroup.get("keeperOptions");
-    return subgroup?.get("method")?.value;
+    // Default before import-keeper registers keeperOptions, or the @if below throws NG0100.
+    return subgroup?.get("method")?.value ?? defaultKeeperImportMethod(this.platformUtilsService);
   }
 
   // Factory only exposes "keeper"; csv/json variants are picked from the Method dropdown.

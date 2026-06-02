@@ -1,2 +1,2 @@
-export { ImportKeeperComponent } from "./import-keeper.component";
+export { ImportKeeperComponent, defaultKeeperImportMethod } from "./import-keeper.component";
 export * from "./services";

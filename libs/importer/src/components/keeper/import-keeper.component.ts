@@ -46,6 +46,13 @@ import {
 
 export type KeeperImportMethod = "direct" | "csv" | "json";
 
+export function defaultKeeperImportMethod(
+  platformUtilsService: PlatformUtilsService,
+): KeeperImportMethod {
+  const client = platformUtilsService.getClientType();
+  return client === ClientType.Desktop || client === ClientType.Browser ? "direct" : "csv";
+}
+
 @Component({
   selector: "import-keeper",
   templateUrl: "import-keeper.component.html",
@@ -98,7 +105,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     {
       // Method must update on change so the template can react before submit.
       method: this.formBuilder.nonNullable.control<KeeperImportMethod>(
-        this.directSupported ? "direct" : "csv",
+        defaultKeeperImportMethod(this.platformUtilsService),
         { updateOn: "change" },
       ),
       email: this.formBuilder.control({ value: "", disabled: !this.directSupported }, [
