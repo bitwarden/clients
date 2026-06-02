@@ -49,6 +49,7 @@ export class MainDesktopAutotypeService {
         stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
         stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
+        console.log("EXECUTE AUTOTYPE");
         this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
@@ -99,6 +100,9 @@ export class MainDesktopAutotypeService {
         // Capture the foreground window title before showing the dialog,
         // because opening the dialog changes the foreground window.
         const windowTitle = autotype.getForegroundWindowTitle();
+        //const windowHandle = autotype.getWindowHandle();
+
+        console.log("REGISTERING THE SHORTCUT CALLBACK");
 
         const { response } = await dialog.showMessageBox(this.windowMain.win, {
           type: "question",
@@ -107,7 +111,9 @@ export class MainDesktopAutotypeService {
           cancelId: 1,
           noLink: true,
           title: "Bitwarden Autotype",
-          message: "Do you want to autotype?",
+          message:
+            "Press yes if you want to autotype into this window, this is a lot of text for a test: " +
+            windowTitle,
         });
 
         if (response !== 0) {

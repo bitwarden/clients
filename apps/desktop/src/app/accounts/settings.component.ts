@@ -263,12 +263,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
     if (isWindows) {
-      this.configService
+      /*this.configService
         .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
         .pipe(takeUntil(this.destroy$))
         .subscribe((enabled) => {
           this.showEnableAutotype = enabled;
-        });
+          });*/
+      this.showEnableAutotype = true;
     }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -333,14 +334,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
     if (isWindows) {
-      this.billingAccountProfileStateService
+      this.form.controls.enableAutotype.enable();
+      /*this.billingAccountProfileStateService
         .hasPremiumFromAnySource$(activeAccount.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe((hasPremium) => {
           if (hasPremium) {
             this.form.controls.enableAutotype.enable();
           }
-        });
+          });*/
     }
 
     // Form events

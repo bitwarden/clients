@@ -131,8 +131,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
-  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
-  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotype]: true,
+  [FeatureFlag.WindowsDesktopAutotypeGA]: false,
   [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
