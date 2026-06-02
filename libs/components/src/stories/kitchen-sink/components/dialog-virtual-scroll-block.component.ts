@@ -13,6 +13,7 @@ import {
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableV2Component,
+  ColumnModel,
 } from "../../../table/v2";
 
 type Row = { id: number; name: string; updatedAt: Date; tags: string[] };
@@ -36,24 +37,24 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     BitCellComponent,
   ],
   template: `<bit-section>
-    <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns" [rowSize]="64">
+    <bit-table-v2 [dataSource]="dataSource" [columns]="columns" [rowSize]="64">
       <bit-column sortable defaultSort="asc">
         <bit-header-cell>Id</bit-header-cell>
-        <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+        <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
       </bit-column>
       <bit-column sortable>
         <bit-header-cell>Name</bit-header-cell>
-        <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+        <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
       <bit-column sortable>
         <bit-header-cell>Updated</bit-header-cell>
-        <bit-cell *bitCellDef="dataSource.columns.updatedAt; let row">
+        <bit-cell *bitCellDef="columns.ref.updatedAt; let row">
           {{ row.updatedAt | date: "mediumDate" }}
         </bit-cell>
       </bit-column>
       <bit-column sortable [sortFn]="sortByTags">
         <bit-header-cell>Tags</bit-header-cell>
-        <bit-cell *bitCellDef="dataSource.columns.tags; let row" [truncate]="false">
+        <bit-cell *bitCellDef="columns.ref.tags; let row" [truncate]="false">
           <bit-badge-group>
             @for (tag of row.tags; track tag) {
               <span bitBadge variant="subtle">{{ tag }}</span>
@@ -63,7 +64,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
       </bit-column>
       <bit-column width="64px">
         <bit-header-cell></bit-header-cell>
-        <bit-cell *bitCellDef="dataSource.synthetic('actions'); let row">
+        <bit-cell *bitCellDef="columns.ref.actions; let row">
           <button
             slot="end"
             bitIconButton="bwi-ellipsis-v"
@@ -78,7 +79,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
 })
 export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly dialogService = inject(DialogService);
-  protected readonly displayedColumns = ["id", "name", "updatedAt", "tags", "actions"];
+  protected readonly columns = new ColumnModel<Row, "actions">();
   protected readonly dataSource = new TableDataSource<Row>();
 
   protected readonly sortByTags = (a: Row, b: Row) =>

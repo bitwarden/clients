@@ -1,6 +1,6 @@
 import { Directive, TemplateRef, computed, inject, input } from "@angular/core";
 
-import { ColumnRef } from "../table-data-source";
+import { ColumnRef } from "./column-model";
 
 /**
  * Structural directive that captures the per-row cell template for a column.

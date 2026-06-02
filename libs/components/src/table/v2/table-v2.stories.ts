@@ -27,11 +27,14 @@ import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
+import { ColumnModel } from "./column-model";
 import { FilterModel } from "./filter-model";
 import { TableSelectionModel } from "./table-selection-model";
 import { BitTableV2Component } from "./table-v2.component";
 
 type DemoRow = { id: number; name: string; other: string };
+type UsersRow = { id: number; name: string; email: string; starred: boolean };
+type Country = { value: string; name: string };
 
 @Component({
   selector: "demo-status-column",
@@ -40,7 +43,7 @@ type DemoRow = { id: number; name: string; other: string };
   template: `
     <bit-column sortable>
       <bit-header-cell>Status</bit-header-cell>
-      <bit-cell *bitCellDef="ds().columns.other; let row">
+      <bit-cell *bitCellDef="columns().ref.other; let row">
         <span class="tw-rounded tw-bg-primary-100 tw-px-2 tw-py-0.5 tw-text-xs">
           {{ row.other }}
         </span>
@@ -49,10 +52,8 @@ type DemoRow = { id: number; name: string; other: string };
   `,
 })
 class DemoStatusColumnComponent {
-  readonly ds = input.required<TableDataSource<DemoRow>>();
+  readonly columns = input.required<ColumnModel<DemoRow>>();
 }
-
-type Country = { value: string; name: string };
 
 /**
  * Demonstrates the integrated toolbar + filter flow. A `FilterModel` (parallel
@@ -81,7 +82,7 @@ type Country = { value: string; name: string };
     <bit-layout>
       <bit-table-v2
         [dataSource]="dataSource"
-        [displayedColumns]="displayedColumns"
+        [columns]="columns"
         [rowSize]="64"
         [filterModel]="filterModel"
       >
@@ -109,11 +110,11 @@ type Country = { value: string; name: string };
         </bit-table-toolbar>
         <bit-column sortable defaultSort="asc">
           <bit-header-cell>Name</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
         <bit-column sortable width="120px">
           <bit-header-cell>Value</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.value; let row">{{ row.value }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.value; let row">{{ row.value }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     </bit-layout>
@@ -126,7 +127,7 @@ type Country = { value: string; name: string };
 })
 class DemoToolbarTableComponent {
   protected readonly dataSource = new TableDataSource<Country>();
-  protected readonly displayedColumns = ["name", "value"];
+  protected readonly columns = new ColumnModel<Country>();
   protected readonly filterModel = new FilterModel<Country>({
     search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
     filters: [
@@ -161,6 +162,7 @@ export default {
         BulkAdditionalActionComponent,
         IconTileComponent,
         LayoutComponent,
+        SearchModule,
         RouterTestingModule,
       ],
       providers: [
@@ -207,26 +209,29 @@ basic.data = [...Array(5).keys()].map((i) => ({
   other: `other-${i}`,
 }));
 
+const demoColumns = new ColumnModel<DemoRow>();
+const reorderedColumns = new ColumnModel<DemoRow>({ order: ["name", "id"] });
+
 export const Default: Story = {
   render: () => ({
     props: {
       dataSource: basic,
-      displayedColumns: ["id", "name", "other"],
+      columns: demoColumns,
       sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
     },
     template: `
-      <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+      <bit-table-v2 [dataSource]="dataSource" [columns]="columns">
         <bit-column sortable defaultSort="asc">
           <bit-header-cell>Id</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
         </bit-column>
         <bit-column sortable>
           <bit-header-cell>Name</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
         <bit-column sortable [sortFn]="sortFn">
           <bit-header-cell>Other</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     `,
@@ -235,20 +240,20 @@ export const Default: Story = {
 
 export const CustomCell: Story = {
   render: () => ({
-    props: { dataSource: basic, displayedColumns: ["id", "name", "other"] },
+    props: { dataSource: basic, columns: demoColumns },
     template: `
-      <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+      <bit-table-v2 [dataSource]="dataSource" [columns]="columns">
         <bit-column width="80px">
           <bit-header-cell>Id</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
         </bit-column>
         <bit-column>
           <bit-header-cell>Name</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
         <bit-column>
           <bit-header-cell>Link</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.other; let row">
+          <bit-cell *bitCellDef="columns.ref.other; let row">
             <a href="#">{{ row.other }} →</a>
           </bit-cell>
         </bit-column>
@@ -257,17 +262,14 @@ export const CustomCell: Story = {
   }),
 };
 
-const users = new TableDataSource<{
-  id: number;
-  name: string;
-  email: string;
-  starred: boolean;
-}>();
+const users = new TableDataSource<UsersRow>();
 users.data = [
   { id: 1, name: "Alex Johnson", email: "alex@example.com", starred: true },
   { id: 2, name: "Sam Rivera", email: "sam.rivera@example.com", starred: false },
   { id: 3, name: "Jordan Park", email: "jordan.park@example.com", starred: true },
 ];
+
+const userColumns = new ColumnModel<UsersRow>();
 
 /**
  * Rich cells use the slot vocabulary on `<bit-cell>` directly:
@@ -276,12 +278,12 @@ users.data = [
  */
 export const RichCells: Story = {
   render: () => ({
-    props: { dataSource: users, displayedColumns: ["name", "email"] },
+    props: { dataSource: users, columns: userColumns },
     template: `
-      <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+      <bit-table-v2 [dataSource]="dataSource" [columns]="columns">
         <bit-column sortable defaultSort="asc">
           <bit-header-cell>Name</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.name; let row">
+          <bit-cell *bitCellDef="columns.ref.name; let row">
             <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
             {{ row.name }}
             <span slot="secondary">{{ row.email }}</span>
@@ -294,7 +296,7 @@ export const RichCells: Story = {
           <bit-header-cell>
             <i class="bwi bwi-envelope tw-me-1"></i> Contact
           </bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.email; let row">
+          <bit-cell *bitCellDef="columns.ref.email; let row">
             {{ row.email }}
             <span slot="secondary">User #{{ row.id }}</span>
           </bit-cell>
@@ -304,22 +306,26 @@ export const RichCells: Story = {
   }),
 };
 
+/**
+ * The `ColumnModel`'s `order` sets display order; columns it omits aren't
+ * rendered even though they're declared. Here `other` is declared but left out.
+ */
 export const ReorderedAndHidden: Story = {
   render: () => ({
-    props: { dataSource: basic, displayedColumns: ["name", "id"] },
+    props: { dataSource: basic, columns: reorderedColumns },
     template: `
-      <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+      <bit-table-v2 [dataSource]="dataSource" [columns]="columns">
         <bit-column>
           <bit-header-cell>Id</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
         </bit-column>
         <bit-column>
           <bit-header-cell>Name</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
         <bit-column>
           <bit-header-cell>Hidden</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     `,
@@ -333,18 +339,18 @@ export const ReorderedAndHidden: Story = {
  */
 export const WrappedColumn: Story = {
   render: () => ({
-    props: { dataSource: basic, displayedColumns: ["id", "name", "other"] },
+    props: { dataSource: basic, columns: demoColumns },
     template: `
-      <bit-table-v2 [dataSource]="dataSource" [displayedColumns]="displayedColumns">
+      <bit-table-v2 [dataSource]="dataSource" [columns]="columns">
         <bit-column>
           <bit-header-cell>Id</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
         </bit-column>
         <bit-column sortable>
           <bit-header-cell>Name</bit-header-cell>
-          <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
-        <demo-status-column [ds]="dataSource" />
+        <demo-status-column [columns]="columns" />
       </bit-table-v2>
     `,
   }),
@@ -361,7 +367,7 @@ export const Scrollable: Story = {
   render: () => ({
     props: {
       dataSource: large,
-      displayedColumns: ["id", "name", "other"],
+      columns: demoColumns,
       sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
       trackBy: (_: number, item: DemoRow) => item.id,
     },
@@ -369,21 +375,21 @@ export const Scrollable: Story = {
       <bit-layout>
         <bit-table-v2
           [dataSource]="dataSource"
-          [displayedColumns]="displayedColumns"
+          [columns]="columns"
           [rowSize]="64"
           [trackBy]="trackBy"
         >
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Id</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
           </bit-column>
           <bit-column sortable>
             <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
           </bit-column>
           <bit-column sortable [sortFn]="sortFn">
             <bit-header-cell>Other</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.other; let row">{{ row.other }}</bit-cell>
           </bit-column>
         </bit-table-v2>
       </bit-layout>
@@ -391,10 +397,11 @@ export const Scrollable: Story = {
   }),
 };
 
-const filterable = new TableDataSource<{ value: string; name: string }>();
+const filterable = new TableDataSource<Country>();
 filterable.data = countries.slice(0, 100);
 
-const filterableModel = new FilterModel<{ value: string; name: string }>({
+const filterableColumns = new ColumnModel<Country>();
+const filterableModel = new FilterModel<Country>({
   search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
 });
 
@@ -402,14 +409,14 @@ export const Filterable: Story = {
   render: () => ({
     props: {
       dataSource: filterable,
-      displayedColumns: ["name", "value"],
+      columns: filterableColumns,
       filterModel: filterableModel,
     },
     template: `
       <bit-layout>
         <bit-table-v2
           [dataSource]="dataSource"
-          [displayedColumns]="displayedColumns"
+          [columns]="columns"
           [rowSize]="64"
           [filterModel]="filterModel"
         >
@@ -418,11 +425,11 @@ export const Filterable: Story = {
           </bit-table-toolbar>
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
           </bit-column>
           <bit-column sortable width="120px">
             <bit-header-cell>Value</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.value; let row">{{ row.value }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.value; let row">{{ row.value }}</bit-cell>
           </bit-column>
         </bit-table-v2>
       </bit-layout>
@@ -460,7 +467,7 @@ export const WithBulkActions: Story = {
     return {
       props: {
         dataSource: basic,
-        displayedColumns: ["id", "name", "other"],
+        columns: demoColumns,
         selection,
         move: noop,
         archive: noop,
@@ -468,11 +475,7 @@ export const WithBulkActions: Story = {
         exp: noop,
       },
       template: `
-        <bit-table-v2
-          [dataSource]="dataSource"
-          [displayedColumns]="displayedColumns"
-          [selection]="selection"
-        >
+        <bit-table-v2 [dataSource]="dataSource" [columns]="columns" [selection]="selection">
           <bit-bulk-actions-bar>
             <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
             <bit-bulk-action [action]="archive" icon="bwi-archive" label="Archive" />
@@ -482,15 +485,15 @@ export const WithBulkActions: Story = {
 
           <bit-column>
             <bit-header-cell>Id</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
           </bit-column>
           <bit-column>
             <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
           </bit-column>
           <bit-column>
             <bit-header-cell>Other</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.other; let row">{{ row.other }}</bit-cell>
           </bit-column>
         </bit-table-v2>
       `,
@@ -499,7 +502,7 @@ export const WithBulkActions: Story = {
 };
 
 /**
- * Passing a `SelectionModel` to `[selection]` prepends an internal checkbox
+ * Passing a `TableSelectionModel` to `[selection]` prepends an internal checkbox
  * column. The header checkbox selects all currently-filtered rows; row
  * checkboxes toggle individually. The model is owned by the consumer.
  */
@@ -509,26 +512,22 @@ export const Selectable: Story = {
     return {
       props: {
         dataSource: basic,
-        displayedColumns: ["id", "name", "other"],
+        columns: demoColumns,
         selection,
       },
       template: `
-        <bit-table-v2
-          [dataSource]="dataSource"
-          [displayedColumns]="displayedColumns"
-          [selection]="selection"
-        >
+        <bit-table-v2 [dataSource]="dataSource" [columns]="columns" [selection]="selection">
           <bit-column>
             <bit-header-cell>Id</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
           </bit-column>
           <bit-column>
             <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
           </bit-column>
           <bit-column>
             <bit-header-cell>Other</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.other; let row">{{ row.other }}</bit-cell>
           </bit-column>
         </bit-table-v2>
       `,
@@ -538,9 +537,9 @@ export const Selectable: Story = {
 
 /**
  * When only some rows are selectable, pass a `TableSelectionModel` with a
- * predicate instead of a plain `SelectionModel`. Non-selectable rows render no
- * checkbox, and select-all / indeterminate scope to selectable rows only. Here
- * only even-`id` rows are selectable.
+ * predicate. Non-selectable rows render no checkbox, and select-all /
+ * indeterminate scope to selectable rows only. Here only even-`id` rows are
+ * selectable.
  */
 export const SelectableSubset: Story = {
   render: () => {
@@ -550,26 +549,22 @@ export const SelectableSubset: Story = {
     return {
       props: {
         dataSource: basic,
-        displayedColumns: ["id", "name", "other"],
+        columns: demoColumns,
         selection,
       },
       template: `
-        <bit-table-v2
-          [dataSource]="dataSource"
-          [displayedColumns]="displayedColumns"
-          [selection]="selection"
-        >
+        <bit-table-v2 [dataSource]="dataSource" [columns]="columns" [selection]="selection">
           <bit-column>
             <bit-header-cell>Id</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.id; let row">{{ row.id }}</bit-cell>
           </bit-column>
           <bit-column>
             <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.name; let row">{{ row.name }}</bit-cell>
           </bit-column>
           <bit-column>
             <bit-header-cell>Other</bit-header-cell>
-            <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+            <bit-cell *bitCellDef="columns.ref.other; let row">{{ row.other }}</bit-cell>
           </bit-column>
         </bit-table-v2>
       `,
@@ -578,11 +573,10 @@ export const SelectableSubset: Story = {
 };
 
 /**
- * Manual mode — for simple presentational tables. Project a standard HTML
- * `<thead>` / `<tbody>` structure inside the table; the table provides only
- * the chrome and the cell/row directives' styling. No datasource, no
- * column registry, no built-in sort / select / virtualization. Use
- * column-def mode if you need any of those.
+ * Manual mode — for simple presentational tables. Project `<bit-header-row>` /
+ * `<bit-row>` directly inside the table; the table provides only the chrome and
+ * the cell/row styling. No datasource, no column registry, no built-in
+ * sort / select / virtualization. Use column-def mode if you need any of those.
  */
 export const Manual: Story = {
   render: () => ({

@@ -6,6 +6,12 @@ export { BitHeaderRowComponent } from "./bit-header-row.component";
 export { BitRowComponent } from "./bit-row.component";
 export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 export {
+  ColumnModel,
+  type ColumnRef,
+  type ColumnName,
+  type ColumnModelConfig,
+} from "./column-model";
+export {
   FilterModel,
   type FilterDefinition,
   type FilterModelConfig,

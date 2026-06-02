@@ -12,19 +12,6 @@ export type Sort = {
 
 export type FilterFn<T> = (data: T) => boolean;
 
-/**
- * A column key paired with the row type it targets. Looks like a plain string
- * at runtime; carries the row type `T` at the type level so consumers binding
- * it to `*bitCellDef` get strict typing on `let-row` and on the column key.
- *
- * Construct via {@link TableDataSource.columns} (for fields on `T`) or
- * {@link TableDataSource.synthetic} (for action / select / other synthetic
- * columns that don't map to a property).
- */
-export type ColumnRef<T, K extends string = string> = K & {
-  readonly __columnRef?: T;
-};
-
 // Loosely based on CDK TableDataSource
 //  https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
 export class TableDataSource<T> extends DataSource<T> {
@@ -42,28 +29,8 @@ export class TableDataSource<T> extends DataSource<T> {
    */
   filteredData?: T[];
 
-  /**
-   * Typed column references for binding to `*bitCellDef`. Property access
-   * (`ds.columns.name`) returns the property name as a branded string; the
-   * brand carries `T` so the directive infers both the column key and the row
-   * type from a single binding. Available keys are constrained to `keyof T`.
-   */
-  readonly columns: { readonly [K in keyof T & string]: ColumnRef<T, K> } = new Proxy(
-    {} as { readonly [K in keyof T & string]: ColumnRef<T, K> },
-    { get: (_target, prop) => prop },
-  );
-
   constructor() {
     super();
-  }
-
-  /**
-   * Create a typed reference for a synthetic column — one that doesn't map to
-   * a property on `T` (e.g. an action column, a selection column). Carries
-   * `T` so `*bitCellDef` still types `let-row` correctly.
-   */
-  synthetic<K extends string>(name: K): ColumnRef<T, K> {
-    return name as ColumnRef<T, K>;
   }
 
   get data() {

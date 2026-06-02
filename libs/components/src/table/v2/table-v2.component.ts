@@ -30,6 +30,7 @@ import { Sort, TableDataSource } from "../table-data-source";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { ColumnModel } from "./column-model";
 import { FilterModel } from "./filter-model";
 import { TableSelectionModel } from "./table-selection-model";
 
@@ -59,11 +60,12 @@ export class BitTableV2Component<T = unknown>
   readonly dataSource = input<TableDataSource<T>>();
 
   /**
-   * Order and visibility of columns, by `name`. Columns whose names aren't
-   * listed here are not rendered, even if registered. Required in column-def
-   * mode; omitted in manual-rows mode.
+   * Column identity, order, and visibility — a {@link ColumnModel} (parallel to
+   * {@link dataSource} and {@link selection}), and the source of the typed
+   * `columns.ref.*` references bound to `*bitCellDef`. When omitted, registered
+   * columns render in declaration order, all visible. Omitted in manual mode.
    */
-  readonly displayedColumns = input<string[]>([]);
+  readonly columns = input<ColumnModel<T>>();
 
   /**
    * Defaults to `"auto"`. Forced to `"fixed"` when virtualization is on
@@ -120,22 +122,26 @@ export class BitTableV2Component<T = unknown>
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
 
-  /** All registered columns, regardless of `displayedColumns`. */
-  protected readonly columns = this._columns.asReadonly();
-
   /**
    * Whether any `<bit-column>` has been projected. When false, the table
-   * renders in manual mode — the consumer's `<thead>` / `<tbody>` markup is
-   * projected directly inside the v2 chrome with no datasource or column
-   * registry. Use column-def mode if you need sort, selection, filter, or
-   * virtualization.
+   * renders in manual mode — the consumer's `<bit-header-row>` / `<bit-row>`
+   * markup is projected directly inside the v2 chrome with no datasource or
+   * column registry. Use column-def mode if you need sort, selection, filter,
+   * or virtualization.
    */
   protected readonly hasColumns = computed(() => this._columns().length > 0);
 
-  /** Registered columns filtered/ordered by {@link displayedColumns}. */
+  /**
+   * Registered columns ordered and filtered by the {@link columns} model:
+   * its `order` (or declaration order when unset), minus its hidden set.
+   */
   readonly effectiveColumns = computed(() => {
     const registry = new Map(this._columns().map((c) => [c.name(), c]));
-    return this.displayedColumns()
+    const model = this.columns();
+    const names = model?.order() ?? this._columns().map((c) => c.name());
+    const hidden = model?.hidden();
+    return names
+      .filter((name): name is string => name != null && !(hidden?.has(name) ?? false))
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
   });
