@@ -28,12 +28,13 @@ import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-r
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
+import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
+import { openUserAddEditDialog } from "../../components/member-dialog";
 import {
   MemberDialogResult,
   MemberDialogTab,
-  openUserAddEditDialog,
-} from "../../components/member-dialog";
+} from "../../components/member-dialog/member-dialog.types";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
 import { BulkActionResult } from "../member-actions/member-actions.types";
 
@@ -90,7 +91,7 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
-    const dialog = openUserAddEditDialog(this.dialogService, {
+    const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
