@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Kopírovat číslo pasu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovat rodné číslo"
+  },
   "copyFirstName": {
     "message": "Kopírovat křestní jméno"
   },
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Značka"
   },
+  "birthDay": {
+    "message": "Den narození"
+  },
+  "birthMonth": {
+    "message": "Měsíc narození"
+  },
+  "birthYear": {
+    "message": "Rok narození"
+  },
+  "expirationDay": {
+    "message": "Den vypršení platnosti"
+  },
   "expirationMonth": {
     "message": "Měsíc expirace"
   },
   "expirationYear": {
     "message": "Rok expirace"
+  },
+  "issueDay": {
+    "message": "Den vystavení"
+  },
+  "issueMonth": {
+    "message": "Měsíc vystavení"
+  },
+  "issueYear": {
+    "message": "Rok vystavení"
   },
   "monthly": {
     "message": "měsíčně"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Číslo cestovního pasu"
   },
+  "dateOfBirth": {
+    "message": "Datum narození"
+  },
+  "sex": {
+    "message": "Pohlaví"
+  },
+  "copySex": {
+    "message": "Kopírovat pohlaví"
+  },
+  "birthPlace": {
+    "message": "Místo narození"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovat místo narození"
+  },
+  "nationality": {
+    "message": "Národnost"
+  },
+  "copyNationality": {
+    "message": "Kopírovat národnost"
+  },
+  "issuingCountry": {
+    "message": "Země vydání průkazu"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovat zemi vydávající doklad"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovat typ pasu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "issuingAuthority": {
+    "message": "Vydávající orgán"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovat vydávající orgán/úřad"
+  },
+  "issueDate": {
+    "message": "Datum vystavení"
+  },
   "licenseNumber": {
     "message": "Číslo dokladu totožnosti"
   },
@@ -2190,6 +2259,18 @@
   "typeBankAccountSubtitle": {
     "message": "Údaje o bance"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Údaje o pasu"
+  },
+  "passportAdded": {
+    "message": "Pas byl přidán"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovní dokumenty"
+  },
   "typeDriversLicense": {
     "message": "Řidičský průkaz"
   },
@@ -2199,41 +2280,8 @@
   "driversLicenseDetails": {
     "message": "Podrobnosti řidičského průkazu"
   },
-  "dateOfBirth": {
-    "message": "Datum narození"
-  },
-  "birthMonth": {
-    "message": "Měsíc narození"
-  },
-  "birthDay": {
-    "message": "Den narození"
-  },
-  "birthYear": {
-    "message": "Rok narození"
-  },
-  "issuingCountry": {
-    "message": "Země vydání průkazu"
-  },
   "issuingState": {
     "message": "Vydávající stát/Provincie"
-  },
-  "issuingAuthority": {
-    "message": "Vydávající orgán"
-  },
-  "issueDate": {
-    "message": "Datum vystavení"
-  },
-  "issueMonth": {
-    "message": "Měsíc vystavení"
-  },
-  "issueDay": {
-    "message": "Den vystavení"
-  },
-  "issueYear": {
-    "message": "Rok vystavení"
-  },
-  "expirationDay": {
-    "message": "Den vypršení platnosti"
   },
   "licenseClass": {
     "message": "Skupina řidičského průkazu"
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Vymazat",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Vybráno"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné akce"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Bylo vybráno $COUNT$ položek. Panel hromadných akcí je nyní k dispozici v dolní části obrazovky. Stiskněte $SHORTCUTBINDING$ pro přepnutí zaměření na hromadnou akci.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výběr byl vymazán"
+  },
+  "additionalActions": {
+    "message": "Další akce"
   },
   "checkPassword": {
     "message": "Zkontrolujte, zda nedošlo k úniku hesla."
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometriku nelze dokončit, zvažte použití hlavního hesla nebo odhlášení. Pokud to přetrvává, kontaktujte podporu Bitwardenu."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Oprávnění nebylo uděleno"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez oprávnění ke komunikaci s aplikací Bitwarden pro počítač nelze v rozšíření prohlížeče používat biometrické údaje. Zkuste to znovu."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Žádost o oprávnění selhala"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Tuto akci nelze provést v postranním panelu, zkuste akci znovu v novém okně."
   },
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte dostupných sbírek."
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Nebyla zadána žádná hodnota",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Žádné hodnoty ke zkopírování"
   },
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "Další"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Více...",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Hledat bankovní účet"
   },
+  "searchPassport": {
+    "message": "Hledat pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovat číslo účtu"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "Kopírovat IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Kopírovat jméno na účtu"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovat číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovat SWIFT kód"
   },
   "bankAccountTypeChecking": {
     "message": "Kontrolování"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "Stažení se nezdařilo."
+  },
+  "more": {
+    "message": "Více"
   },
   "maxAccessCount": {
     "message": "Maximální počet přístupů",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Vaše organizace vyžaduje viditelnost e-mailu. Zrušte zaškrtnutí \"Skrýt Vaši e-mailovou adresu\" pro uložení."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
   }
 }
