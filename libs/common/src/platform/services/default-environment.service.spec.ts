@@ -131,6 +131,7 @@ describe("EnvironmentService", () => {
           events: expectedUrls.events,
           scim: expectedUrls.scim.replace("/v2", ""),
           keyConnector: undefined,
+          send: expectedUrls.send,
         });
       },
     );
@@ -212,6 +213,7 @@ describe("EnvironmentService", () => {
         notifications: null,
         scim: null,
         webVault: null,
+        send: null,
       });
     });
   });
@@ -243,6 +245,7 @@ describe("EnvironmentService", () => {
         events: expectedUrls.events,
         scim: expectedUrls.scim.replace("/v2", ""),
         keyConnector: undefined,
+        send: expectedUrls.send,
       });
     });
 
@@ -280,6 +283,7 @@ describe("EnvironmentService", () => {
         keyConnector: "https://global-key-connector.example.com",
         notifications: null,
         scim: null,
+        send: null,
       });
     });
   });
@@ -304,6 +308,7 @@ describe("EnvironmentService", () => {
         scim: null,
         events: null,
         keyConnector: null,
+        send: null,
       });
     });
 
@@ -334,6 +339,7 @@ describe("EnvironmentService", () => {
         scim: null,
         events: null,
         keyConnector: null,
+        send: null,
       });
       expect(env.getScimUrl()).toBe("https://vault.example.com/scim/v2");
     });

@@ -51,6 +51,8 @@ describe("WebEnvironmentService", () => {
       const expectedProdUSUrls: Urls = {
         ...mockInitialProdUSUrls,
         base: mockProdUSBaseUrl,
+        send: PROD_US_REGION.urls.send,
+        keyConnector: undefined,
       };
 
       const expectedModifiedScimUrl = expectedProdUSUrls.scim + "/v2";
@@ -169,6 +171,8 @@ describe("WebEnvironmentService", () => {
       const expectedProdEUUrls: Urls = {
         ...mockInitialProdEUUrls,
         base: mockProdEUBaseUrl,
+        send: prodEURegionConfig.urls.send,
+        keyConnector: undefined,
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";

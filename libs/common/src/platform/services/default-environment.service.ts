@@ -32,6 +32,7 @@ export class EnvironmentUrls {
   events: string = null;
   webVault: string = null;
   keyConnector: string = null;
+  send: string = null;
 }
 
 class EnvironmentState {
@@ -378,6 +379,7 @@ abstract class UrlEnvironment implements Environment {
       events: this.urls.events,
       keyConnector: this.urls.keyConnector,
       scim: this.urls.scim,
+      send: this.urls.send,
     };
   }
 
