@@ -45,7 +45,7 @@ pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn st
 
 async fn lock_monitor_connection() -> zbus::Result<Connection> {
     Builder::session()?
-        .method_timeout(Duration::from_secs(25))
+        .method_timeout(Duration::from_secs(2))
         .build()
         .await
 }
