@@ -138,7 +138,7 @@ export class TwoFactorSetupAuthenticatorComponent
 
   async auth(authResponse: AuthResponse<TwoFactorAuthenticatorResponse>) {
     super.auth(authResponse);
-    return this.processResponse(authResponse.response);
+    return await this.processResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -207,10 +207,10 @@ export class TwoFactorSetupAuthenticatorComponent
   private async waitForQRiousToLoadOrError(): Promise<void> {
     // Check if QRious is already loaded or if there was an error loading it either way don't wait for it to try and load again
     if (typeof window.QRious !== "undefined" || this.qrScriptError) {
-      return Promise.resolve();
+      return await Promise.resolve();
     }
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.qrScript.onload = () => resolve();
       this.qrScript.onerror = () =>
         reject(new Error(this.i18nService.t("twoStepAuthenticatorQRCanvasError")));

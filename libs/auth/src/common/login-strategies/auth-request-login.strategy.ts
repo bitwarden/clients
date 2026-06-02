@@ -68,7 +68,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     const data = this.cache.value;
     this.cache.next(data);
 
-    return super.logInTwoFactor(twoFactor);
+    return await super.logInTwoFactor(twoFactor);
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {

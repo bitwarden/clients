@@ -512,7 +512,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       fingerprint,
     });
 
-    return firstValueFrom(dialogRef.closed);
+    return await firstValueFrom(dialogRef.closed);
   }
 
   async lock() {

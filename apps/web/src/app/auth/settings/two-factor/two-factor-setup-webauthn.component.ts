@@ -114,9 +114,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   submit = async () => {
     if (this.webAuthnResponse == null || this.keyIdAvailable == null) {
       // Should never happen.
-      return Promise.reject();
+      return await Promise.reject();
     }
-    return this.enable();
+    return await this.enable();
   };
 
   protected async enable() {

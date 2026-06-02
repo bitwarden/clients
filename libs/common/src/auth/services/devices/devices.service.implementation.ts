@@ -87,7 +87,7 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
   getCurrentDevice$(): Observable<DeviceResponse> {
     return defer(async () => {
       const deviceIdentifier = await this.appIdService.getAppId();
-      return this.devicesApiService.getDeviceByIdentifier(deviceIdentifier);
+      return await this.devicesApiService.getDeviceByIdentifier(deviceIdentifier);
     });
   }
 
