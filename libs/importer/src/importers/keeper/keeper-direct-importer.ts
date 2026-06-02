@@ -68,11 +68,7 @@ export class KeeperDirectImporter extends BaseImporter {
     for (const item of items) {
       if (UNSUPPORTED_RECORD_TYPES.has(item.type)) {
         errors.push(
-          new ImportRecordError(
-            item.title || item.id,
-            ImportRecordErrorReason.UnsupportedType,
-            item.type,
-          ),
+          new ImportRecordError(item.id, ImportRecordErrorReason.UnsupportedType, item.type),
         );
         continue;
       }
@@ -80,9 +76,7 @@ export class KeeperDirectImporter extends BaseImporter {
       try {
         this.parseRecord(item, result);
       } catch {
-        errors.push(
-          new ImportRecordError(item.title || item.id, ImportRecordErrorReason.Error, item.type),
-        );
+        errors.push(new ImportRecordError(item.id, ImportRecordErrorReason.Error, item.type));
       }
     }
   }

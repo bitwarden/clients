@@ -9,7 +9,8 @@ export type ImportRecordErrorReason =
 
 export class ImportRecordError {
   constructor(
-    readonly name: string,
+    // The record/folder UID. Always available without decryption.
+    readonly id: string,
     readonly reason: ImportRecordErrorReason,
     // Raw Keeper record type (e.g. "login", "bankCard", "file"). Undefined when the item could not
     // be read, so its type is unknown.
