@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, computed, inject, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
-import { concatMap, map, switchMap, takeUntil, timeout } from "rxjs/operators";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { concatMap, map, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -35,16 +35,20 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
+  ButtonModule,
   CheckboxModule,
+  DialogModule,
   DialogService,
   FormFieldModule,
   IconButtonModule,
   IconModule,
   ItemModule,
   LinkModule,
+  Option,
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
+  TabsModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
@@ -62,14 +66,9 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
-/**
- * @deprecated - In process of being migrated to `settings-dialog.component.ts`. Ensure both are updated.
- */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-settings",
-  templateUrl: "settings.component.html",
+  templateUrl: "settings-dialog.component.html",
   standalone: true,
   providers: [
     {
@@ -78,8 +77,9 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     },
   ],
   imports: [
+    ButtonModule,
     CheckboxModule,
-    CommonModule,
+    DialogModule,
     FormFieldModule,
     FormsModule,
     ReactiveFormsModule,
@@ -92,50 +92,85 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    TabsModule,
     TypographyModule,
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
   ],
 })
-export class SettingsComponent implements OnInit, OnDestroy {
-  showMinToTray = false;
-  localeOptions: any[];
-  themeOptions: any[];
-  clearClipboardOptions: any[];
-  sshAgentPromptBehaviorOptions: any[];
-  supportsBiometric: boolean;
-  private timerId: any;
-  showAlwaysShowDock = false;
-  requireEnableTray = false;
-  showDuckDuckGoIntegrationOption = false;
-  showEnableAutotype = false;
-  autotypeShortcut: string;
-  showOpenAtLoginOption = false;
-  isWindows: boolean;
-  isLinux: boolean;
-  isMac: boolean;
+export class SettingsDialogComponent implements OnInit {
+  private readonly accountService = inject(AccountService);
+  private readonly policyService = inject(PolicyService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
+  private readonly stateService = inject(StateService);
+  private readonly autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
+  private readonly messagingService = inject(MessagingService);
+  private readonly keyService = inject(KeyService);
+  private readonly themeStateService = inject(ThemeStateService);
+  private readonly domainSettingsService = inject(DomainSettingsService);
+  private readonly dialogService = inject(DialogService);
+  private readonly userVerificationService = inject(UserVerificationServiceAbstraction);
+  private readonly desktopSettingsService = inject(DesktopSettingsService);
+  private readonly desktopAutotypeService = inject(DesktopAutotypeService);
+  private readonly biometricStateService = inject(BiometricStateService);
+  private readonly biometricsService = inject(DesktopBiometricsService);
+  private readonly desktopAutofillSettingsService = inject(DesktopAutofillSettingsService);
+  private readonly pinService = inject(PinServiceAbstraction);
+  private readonly logService = inject(LogService);
+  private readonly nativeMessagingManifestService = inject(NativeMessagingManifestService);
+  private readonly configService = inject(ConfigService);
+  private readonly validationService = inject(ValidationService);
+  private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  enableTrayText: string;
-  enableTrayDescText: string;
-  enableMinToTrayText: string;
-  enableMinToTrayDescText: string;
-  enableCloseToTrayText: string;
-  enableCloseToTrayDescText: string;
+  protected readonly localeOptions: Option<string>[];
+  protected readonly themeOptions: Option<string>[];
+  protected readonly clearClipboardOptions: Option<string>[];
+  protected readonly sshAgentPromptBehaviorOptions: Option<string>[];
 
-  showSecurity = true;
-  showAccountPreferences = true;
-  showAppPreferences = true;
+  protected readonly isWindows: boolean;
+  protected readonly isLinux: boolean;
+  protected readonly isMac: boolean;
+  protected readonly requireEnableTray: boolean;
+  protected readonly showOpenAtLoginOption: boolean;
+  protected readonly showDuckDuckGoIntegrationOption: boolean;
+  protected readonly enableTrayText: string;
+  protected readonly enableTrayDescText: string;
+  protected readonly enableMinToTrayText: string;
+  protected readonly enableMinToTrayDescText: string;
+  protected readonly enableCloseToTrayText: string;
+  protected readonly enableCloseToTrayDescText: string;
 
-  currentUserEmail: string;
-  currentUserId: UserId;
+  protected readonly supportsBiometric = signal(false);
+  protected readonly showEnableAutotype = signal(false);
+  protected readonly showMinToTray: boolean;
+  protected readonly showAlwaysShowDock: boolean;
+  private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
+    requireSync: true,
+  });
+  protected readonly currentUserEmail = computed(() => this.activeAccount().email);
+  protected readonly currentUserId = computed(() => this.activeAccount().id);
+  protected readonly userHasMasterPassword = signal(false);
+  protected readonly userHasPinSet = signal(false);
 
-  userHasMasterPassword: boolean;
-  userHasPinSet: boolean;
+  protected readonly pinEnabled = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
+      ),
+      getFirstPolicy,
+      map((policy) => policy == null || !policy.enabled),
+    ),
+    { initialValue: true },
+  );
+  protected readonly refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
 
-  pinEnabled$: Observable<boolean> = of(true);
-
-  form = this.formBuilder.group({
+  protected readonly form = this.formBuilder.group({
     // Security
     pin: [null as boolean | null],
     biometric: false,
@@ -166,39 +201,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     locale: [null as string | null],
   });
 
-  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
-  private destroy$ = new Subject<void>();
-
-  constructor(
-    private accountService: AccountService,
-    private policyService: PolicyService,
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private stateService: StateService,
-    private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private messagingService: MessagingService,
-    private keyService: KeyService,
-    private themeStateService: ThemeStateService,
-    private domainSettingsService: DomainSettingsService,
-    private dialogService: DialogService,
-    private userVerificationService: UserVerificationServiceAbstraction,
-    private desktopSettingsService: DesktopSettingsService,
-    private desktopAutotypeService: DesktopAutotypeService,
-    private biometricStateService: BiometricStateService,
-    private biometricsService: DesktopBiometricsService,
-    private desktopAutofillSettingsService: DesktopAutofillSettingsService,
-    private pinService: PinServiceAbstraction,
-    private logService: LogService,
-    private nativeMessagingManifestService: NativeMessagingManifestService,
-    private configService: ConfigService,
-    private validationService: ValidationService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-  ) {
+  constructor() {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
+    this.showMinToTray = !this.isLinux;
+    this.showAlwaysShowDock = this.isMac;
 
     // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
     this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -220,84 +228,66 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
 
-    const localeOptions: any[] = [];
+    const localeOptions: Option<string>[] = [];
     this.i18nService.supportedTranslationLocales.forEach((locale) => {
       let name = locale;
       if (this.i18nService.localeNames.has(locale)) {
         name += " - " + this.i18nService.localeNames.get(locale);
       }
-      localeOptions.push({ name: name, value: locale });
+      localeOptions.push({ label: name, value: locale });
     });
-    localeOptions.sort(Utils.getSortFunction(this.i18nService, "name"));
-    localeOptions.splice(0, 0, { name: this.i18nService.t("default"), value: null });
+    localeOptions.sort(Utils.getSortFunction(this.i18nService, "label"));
+    localeOptions.splice(0, 0, { label: this.i18nService.t("default"), value: null });
     this.localeOptions = localeOptions;
 
     this.themeOptions = [
-      { name: this.i18nService.t("default"), value: ThemeTypes.System },
-      { name: this.i18nService.t("light"), value: ThemeTypes.Light },
-      { name: this.i18nService.t("dark"), value: ThemeTypes.Dark },
+      { label: this.i18nService.t("default"), value: ThemeTypes.System },
+      { label: this.i18nService.t("light"), value: ThemeTypes.Light },
+      { label: this.i18nService.t("dark"), value: ThemeTypes.Dark },
     ];
 
     this.clearClipboardOptions = [
-      { name: i18nService.t("never"), value: ClearClipboardDelay.Never },
-      { name: i18nService.t("tenSeconds"), value: ClearClipboardDelay.TenSeconds },
-      { name: i18nService.t("twentySeconds"), value: ClearClipboardDelay.TwentySeconds },
-      { name: i18nService.t("thirtySeconds"), value: ClearClipboardDelay.ThirtySeconds },
-      { name: i18nService.t("oneMinute"), value: ClearClipboardDelay.OneMinute },
-      { name: i18nService.t("twoMinutes"), value: ClearClipboardDelay.TwoMinutes },
-      { name: i18nService.t("fiveMinutes"), value: ClearClipboardDelay.FiveMinutes },
+      { label: this.i18nService.t("never"), value: ClearClipboardDelay.Never },
+      { label: this.i18nService.t("tenSeconds"), value: ClearClipboardDelay.TenSeconds },
+      { label: this.i18nService.t("twentySeconds"), value: ClearClipboardDelay.TwentySeconds },
+      { label: this.i18nService.t("thirtySeconds"), value: ClearClipboardDelay.ThirtySeconds },
+      { label: this.i18nService.t("oneMinute"), value: ClearClipboardDelay.OneMinute },
+      { label: this.i18nService.t("twoMinutes"), value: ClearClipboardDelay.TwoMinutes },
+      { label: this.i18nService.t("fiveMinutes"), value: ClearClipboardDelay.FiveMinutes },
     ];
     this.sshAgentPromptBehaviorOptions = [
       {
-        name: this.i18nService.t("sshAgentPromptBehaviorAlways"),
+        label: this.i18nService.t("sshAgentPromptBehaviorAlways"),
         value: SshAgentPromptType.Always,
       },
-      { name: this.i18nService.t("sshAgentPromptBehaviorNever"), value: SshAgentPromptType.Never },
+      { label: this.i18nService.t("sshAgentPromptBehaviorNever"), value: SshAgentPromptType.Never },
       {
-        name: this.i18nService.t("sshAgentPromptBehaviorRememberUntilLock"),
+        label: this.i18nService.t("sshAgentPromptBehaviorRememberUntilLock"),
         value: SshAgentPromptType.RememberUntilLock,
       },
     ];
   }
 
   async ngOnInit() {
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
     // Autotype is for Windows initially
-    const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    if (isWindows) {
+    if (this.isWindows) {
       this.configService
         .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((enabled) => {
-          this.showEnableAutotype = enabled;
+          this.showEnableAutotype.set(enabled);
         });
     }
 
-    this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
+    this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
 
-    this.currentUserEmail = activeAccount.email;
-    this.currentUserId = activeAccount.id;
-
-    // Load initial values
-    this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
-
-    this.pinEnabled$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
-      ),
-      getFirstPolicy,
-      map((policy) => {
-        return policy == null || !policy.enabled;
-      }),
-    );
+    this.userHasPinSet.set(await this.pinService.isPinSet(this.currentUserId()));
 
     const initialValues = {
-      pin: this.userHasPinSet,
-      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
+      pin: this.userHasPinSet(),
+      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(this.currentUserId()),
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
-        activeAccount.id,
+        this.currentUserId(),
       )),
       autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
@@ -331,14 +321,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
-    // Non-form values
-    this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
-    this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
-
-    if (isWindows) {
+    if (this.isWindows) {
       this.billingAccountProfileStateService
-        .hasPremiumFromAnySource$(activeAccount.id)
-        .pipe(takeUntil(this.destroy$))
+        .hasPremiumFromAnySource$(this.currentUserId())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((hasPremium) => {
           if (hasPremium) {
             this.form.controls.enableAutotype.enable();
@@ -353,7 +339,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           await this.updatePinHandler(value);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -363,26 +349,55 @@ export class SettingsComponent implements OnInit, OnDestroy {
           await this.updateBiometricHandler(enabled);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.requireMasterPasswordOnAppRestart.valueChanges
       .pipe(
         concatMap(async (value) => {
-          await this.updateRequireMasterPasswordOnAppRestartHandler(value, activeAccount.id);
+          await this.updateRequireMasterPasswordOnAppRestartHandler(value, this.currentUserId());
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
-    this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
-    this.timerId = setInterval(async () => {
-      this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
+    this.form.controls.clearClipboard.valueChanges
+      .pipe(
+        concatMap(async () => this.saveClearClipboard()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.sshAgentPromptBehavior.valueChanges
+      .pipe(
+        concatMap(async () => this.saveSshAgentPromptBehavior()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.theme.valueChanges
+      .pipe(
+        concatMap(async () => this.saveTheme()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.locale.valueChanges
+      .pipe(
+        concatMap(async () => this.saveLocale()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.supportsBiometric.set(await this.biometricsService.canEnableBiometricUnlock());
+    const timerId = setInterval(async () => {
+      this.supportsBiometric.set(await this.biometricsService.canEnableBiometricUnlock());
     }, 1000);
+    this.destroyRef.onDestroy(() => clearInterval(timerId));
   }
 
-  async updatePinHandler(value: boolean) {
+  private async updatePinHandler(value: boolean) {
     try {
       await this.updatePin(value);
     } catch (error) {
@@ -394,7 +409,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updatePin(value: boolean) {
+  private async updatePin(value: boolean) {
     if (value) {
       const dialogRef = SetPinComponent.open(this.dialogService);
 
@@ -403,18 +418,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.userHasPinSet = await firstValueFrom(dialogRef.closed);
-      this.form.controls.pin.setValue(this.userHasPinSet, { emitEvent: false });
+      const pinSet = await firstValueFrom(dialogRef.closed);
+      this.userHasPinSet.set(pinSet);
+      this.form.controls.pin.setValue(this.userHasPinSet(), { emitEvent: false });
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
       // On Windows if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
       if (
         this.isWindows &&
-        this.supportsBiometric &&
+        this.supportsBiometric() &&
         this.form.value.requireMasterPasswordOnAppRestart &&
         this.form.value.biometric &&
-        !this.userHasMasterPassword
+        !this.userHasMasterPassword()
       ) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
         await this.enrollPersistentBiometricIfNeeded(userId);
@@ -423,7 +439,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateBiometricHandler(value: boolean) {
+  private async updateBiometricHandler(value: boolean) {
     try {
       await this.updateBiometric(value);
     } catch (error) {
@@ -435,14 +451,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateBiometric(enabled: boolean) {
+  private async updateBiometric(enabled: boolean) {
     // NOTE: A bug in angular causes [ngModel] to not reflect the backing field value
     // causing the checkbox to remain checked even if authentication fails.
     // The bug should resolve itself once the angular issue is resolved.
     // See: https://github.com/angular/angular/issues/13063
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    if (!enabled || !this.supportsBiometric) {
+    if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
       await this.biometricStateService.setBiometricUnlockEnabled(false);
       await this.keyService.refreshAdditionalKeys(activeUserId);
@@ -472,7 +488,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       await this.biometricStateService.setPromptAutomatically(false);
 
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
-      if (!this.userHasMasterPassword && !this.userHasPinSet) {
+      if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
         await this.enrollPersistentBiometricIfNeeded(activeUserId);
       } else {
@@ -495,7 +511,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateRequireMasterPasswordOnAppRestartHandler(enabled: boolean, userId: UserId) {
+  private async updateRequireMasterPasswordOnAppRestartHandler(enabled: boolean, userId: UserId) {
     try {
       await this.updateRequireMasterPasswordOnAppRestart(enabled, userId);
     } catch (error) {
@@ -504,7 +520,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateRequireMasterPasswordOnAppRestart(enabled: boolean, userId: UserId) {
+  private async updateRequireMasterPasswordOnAppRestart(enabled: boolean, userId: UserId) {
     if (enabled) {
       // Require master password or PIN on app restart
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
@@ -526,7 +542,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateAutoPromptBiometrics() {
+  protected async updateAutoPromptBiometrics() {
     if (this.form.value.autoPromptBiometrics) {
       await this.biometricStateService.setPromptAutomatically(true);
     } else {
@@ -534,16 +550,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async saveFavicons() {
+  protected async saveFavicons() {
     await this.domainSettingsService.setShowFavicons(this.form.value.enableFavicons);
     this.messagingService.send("refreshCiphers");
   }
 
-  async saveMinToTray() {
+  protected async saveMinToTray() {
     await this.desktopSettingsService.setMinimizeToTray(this.form.value.enableMinToTray);
   }
 
-  async saveCloseToTray() {
+  protected async saveCloseToTray() {
     if (this.requireEnableTray) {
       this.form.controls.enableTray.setValue(true);
       await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
@@ -552,7 +568,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
   }
 
-  async saveTray() {
+  protected async saveTray() {
     if (
       this.requireEnableTray &&
       !this.form.value.enableTray &&
@@ -579,26 +595,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
   }
 
-  async saveLocale() {
+  protected async saveLocale() {
     await this.i18nService.setLocale(this.form.value.locale);
   }
 
-  async saveTheme() {
+  protected async saveTheme() {
     await this.themeStateService.setSelectedTheme(this.form.value.theme);
   }
 
-  async saveMinOnCopyToClipboard() {
+  protected async saveMinOnCopyToClipboard() {
     await this.desktopSettingsService.setMinimizeOnCopy(
       this.form.value.minimizeOnCopyToClipboard,
-      this.currentUserId,
+      this.currentUserId(),
     );
   }
 
-  async saveClearClipboard() {
+  protected async saveClearClipboard() {
     await this.autofillSettingsService.setClearClipboardDelay(this.form.value.clearClipboard);
   }
 
-  async saveAlwaysShowDock() {
+  protected async saveAlwaysShowDock() {
     await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
   }
 
@@ -609,7 +625,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
   }
 
-  async saveOpenAtLogin() {
+  protected async saveOpenAtLogin() {
     await this.desktopSettingsService.setOpenAtLogin(this.form.value.openAtLogin);
     // TODO: Ideally DesktopSettingsService.openAtLogin$ could be subscribed to directly rather than sending a message
     this.messagingService.send(
@@ -617,7 +633,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
   }
 
-  async saveBrowserIntegration() {
+  protected async saveBrowserIntegration() {
     const skipSupportedPlatformCheck =
       ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
 
@@ -655,7 +671,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async saveDdgBrowserIntegration() {
+  protected async saveDdgBrowserIntegration() {
     await this.desktopAutofillSettingsService.setEnableDuckDuckGoBrowserIntegration(
       this.form.value.enableDuckDuckGoBrowserIntegration,
     );
@@ -677,23 +693,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async saveHardwareAcceleration() {
+  protected async saveHardwareAcceleration() {
     await this.desktopSettingsService.setHardwareAcceleration(
       this.form.value.enableHardwareAcceleration,
     );
   }
 
-  async saveSshAgent() {
+  protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
   }
 
-  async saveSshAgentPromptBehavior() {
+  protected async saveSshAgentPromptBehavior() {
     await this.desktopSettingsService.setSshAgentPromptBehavior(
       this.form.value.sshAgentPromptBehavior,
     );
   }
 
-  async savePreventScreenshots() {
+  protected async savePreventScreenshots() {
     await this.desktopSettingsService.setPreventScreenshots(!this.form.value.allowScreenshots);
 
     if (!this.form.value.allowScreenshots) {
@@ -720,7 +736,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async saveEnableAutotype() {
+  protected async saveEnableAutotype() {
     await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
     const currentShortcut = await firstValueFrom(
       this.desktopAutotypeService.autotypeKeyboardShortcut$,
@@ -732,11 +748,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async saveAutotypeShortcut() {
+  protected async saveAutotypeShortcut() {
     // disable the shortcut so that the user can't re-enter the existing
     // shortcut and trigger the feature during the settings menu.
     // it is not necessary to check if it's already enabled, because
-    // the edit shortcut is only avaialble if the feature is enabled
+    // the edit shortcut is only available if the feature is enabled
     // in the settings.
     await this.desktopAutotypeService.setAutotypeEnabledState(false);
 
@@ -757,13 +773,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-    clearInterval(this.timerId);
-  }
-
-  get biometricText() {
+  protected get biometricText() {
     switch (this.platformUtilsService.getDevice()) {
       case DeviceType.MacOsDesktop:
         return "unlockWithTouchId";
@@ -776,7 +786,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getFormattedAutotypeShortcutText(shortcut: string[]) {
+  private getFormattedAutotypeShortcutText(shortcut: string[]) {
     return shortcut ? shortcut.join("+").replace("Super", "Win") : null;
+  }
+
+  static open(dialogService: DialogService) {
+    return dialogService.open(SettingsDialogComponent);
   }
 }
