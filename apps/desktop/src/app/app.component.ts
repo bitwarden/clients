@@ -450,6 +450,9 @@ export class AppComponent implements OnInit, OnDestroy {
           case "newSecureNote":
             this.routeToVault("add", CipherType.SecureNote);
             break;
+          case "newSshKey":
+            this.routeToVault("add", CipherType.SshKey);
+            break;
           default:
             break;
           case "newFolder":
