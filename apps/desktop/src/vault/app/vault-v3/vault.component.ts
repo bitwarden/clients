@@ -324,7 +324,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
-    if (currentParams.itemId || currentParams.cipherId) {
+    if (currentParams.cipherId && currentParams.action === "view") {
+      await this.viewCipherById(currentParams.cipherId).catch((e) => this.logService.error(e));
+      await this.router.navigate([], {
+        queryParams: { itemId: null, cipherId: null, action: null },
+        queryParamsHandling: "merge",
+        replaceUrl: true,
+      });
+    } else if (currentParams.itemId || currentParams.cipherId) {
       await this.router.navigate([], {
         queryParams: { itemId: null, cipherId: null, action: null },
         queryParamsHandling: "merge",
@@ -339,6 +346,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
           }
           this.refresh();
+        }
+        if (message.command === "quickAccessOpenCipher" && message.cipherId != null) {
+          await this.viewCipherById(message.cipherId).catch((e) => this.logService.error(e));
         }
       });
     });
@@ -570,6 +580,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       cipher.type,
     );
     await this.openDialog("view", formConfig);
+  }
+
+  private async viewCipherById(cipherId: string) {
+    if (this.activeUserId == null) {
+      return;
+    }
+
+    const ciphers = await firstValueFrom(
+      this.cipherService.cipherListViews$(this.activeUserId).pipe(filter((c) => c != null)),
+    );
+    const cipher = ciphers.find((cipher) => cipher.id === cipherId);
+    if (cipher == null) {
+      return;
+    }
+
+    await this.viewCipher(cipher);
   }
 
   async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
@@ -902,7 +928,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       this.activeDrawerRef = undefined;
       void this.router.navigate([], {
-        queryParams: { action: null, itemId: null },
+        queryParams: { action: null, itemId: null, cipherId: null },
         queryParamsHandling: "merge",
         replaceUrl: true,
       });

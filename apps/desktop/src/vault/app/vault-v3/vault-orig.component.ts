@@ -310,6 +310,12 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
                   );
                 }
                 break;
+              case "quickAccessOpenCipher": {
+                if (message.cipherId != null) {
+                  await this.viewCipherById(message.cipherId).catch(() => {});
+                }
+                break;
+              }
               case "modalShown":
                 this.showingModal = true;
                 break;
@@ -440,14 +446,16 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     const params = await firstValueFrom(this.route.queryParams).catch();
     const paramCipherAddType = toCipherType(params.addType);
     if (params.cipherId) {
-      const cipherView = new CipherView();
-      cipherView.id = params.cipherId;
       if (params.action === "clone") {
+        const cipherView = new CipherView();
+        cipherView.id = params.cipherId;
         await this.cloneCipher(cipherView).catch(() => {});
       } else if (params.action === "edit") {
+        const cipherView = new CipherView();
+        cipherView.id = params.cipherId;
         await this.editCipher(cipherView).catch(() => {});
       } else {
-        await this.viewCipher(cipherView).catch(() => {});
+        await this.viewCipherById(params.cipherId).catch(() => {});
       }
     } else if (params.action === "add" && paramCipherAddType) {
       this.addType = paramCipherAddType;
@@ -486,6 +494,22 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       false,
       cipher.organizationId,
     );
+  }
+
+  private async viewCipherById(cipherId: string) {
+    if (this.activeUserId == null) {
+      return;
+    }
+
+    const ciphers = await firstValueFrom(
+      this.cipherService.cipherListViews$(this.activeUserId).pipe(filter((c) => c != null)),
+    );
+    const cipher = ciphers.find((cipher) => cipher.id === cipherId);
+    if (cipher == null) {
+      return;
+    }
+
+    await this.viewCipher(cipher);
   }
 
   formStatusChanged(status: "disabled" | "enabled") {
