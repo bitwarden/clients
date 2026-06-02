@@ -62,6 +62,6 @@ export class PopupHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   backAction: FunctionReturningAwaitable = async () => {
-    return this.popupRouterCacheService.back();
+    return await this.popupRouterCacheService.back();
   };
 }

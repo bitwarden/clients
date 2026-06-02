@@ -77,7 +77,7 @@ class MockProviderService implements Partial<ProviderService> {
 
 class MockSyncService implements Partial<SyncService> {
   async getLastSync() {
-    return Promise.resolve(new Date());
+    return await Promise.resolve(new Date());
   }
 }
 

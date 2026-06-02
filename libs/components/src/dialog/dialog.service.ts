@@ -423,7 +423,7 @@ export class DialogService {
 
   /** Close the open drawer */
   async closeDrawer(): Promise<DialogCloseRef> {
-    return this.activeDrawer?.close() ?? { closed: true };
+    return await (this.activeDrawer?.close() ?? { closed: true });
   }
 
   /**
