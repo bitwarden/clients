@@ -17,6 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   LinkComponent,
   TypographyModule,
@@ -33,6 +34,7 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     CommonModule,
     JslibModule,
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     OrgIconDirective,
     FormFieldModule,

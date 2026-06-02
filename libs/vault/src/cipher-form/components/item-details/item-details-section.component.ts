@@ -23,8 +23,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BadgeComponent,
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
@@ -46,6 +46,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
   templateUrl: "./item-details-section.component.html",
   imports: [
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -54,7 +55,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
-    BadgeComponent,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {

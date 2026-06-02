@@ -39,9 +39,9 @@ import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-l
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AsyncActionsModule,
-  BadgeModule,
   ButtonModule,
   CalloutModule,
+  ChipActionComponent,
   DialogService,
   IconButtonModule,
   SearchModule,
@@ -105,7 +105,7 @@ type LoadAction =
     AsyncActionsModule,
     PopOutComponent,
     CalloutModule,
-    BadgeModule,
+    ChipActionComponent,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },

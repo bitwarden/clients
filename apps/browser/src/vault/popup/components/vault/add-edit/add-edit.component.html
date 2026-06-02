@@ -9,9 +9,7 @@
   >
     @if (config?.originalCipher?.archivedDate) {
       <ng-container slot="end">
-        <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
-          {{ "archived" | i18n }}
-        </span>
+        <button type="button" bit-chip-action [label]="'archived' | i18n"></button>
       </ng-container>
     }
     <app-pop-out slot="end" />

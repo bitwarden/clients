@@ -33,8 +33,8 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
-  BadgeModule,
   BitIconButtonComponent,
+  ChipActionComponent,
   ButtonModule,
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -129,7 +129,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
-    BadgeModule,
+    ChipActionComponent,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
