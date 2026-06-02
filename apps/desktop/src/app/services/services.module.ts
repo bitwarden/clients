@@ -129,6 +129,7 @@ import {
   SessionTimeoutSettingsComponentService,
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
@@ -646,7 +647,7 @@ const safeProviders: SafeProvider[] = [
 ];
 
 @NgModule({
-  imports: [JslibServicesModule, GeneratorServicesModule],
+  imports: [JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
