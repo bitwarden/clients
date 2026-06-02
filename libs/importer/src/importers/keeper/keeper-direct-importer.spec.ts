@@ -191,7 +191,11 @@ describe("Keeper Direct Importer", () => {
   it("should not import file records and report them as unsupported", () => {
     expect(result.ciphers.find((c) => c.name === "Project Proposal Document")).toBeUndefined();
     expect(errors).toContainEqual(
-      new ImportRecordError("Project Proposal Document", ImportRecordErrorReason.UnsupportedType),
+      new ImportRecordError(
+        "Project Proposal Document",
+        ImportRecordErrorReason.UnsupportedType,
+        "file",
+      ),
     );
   });
 
@@ -339,7 +343,11 @@ describe("Keeper Direct Importer", () => {
   it("should not import photo records and report them as unsupported", () => {
     expect(result.ciphers.find((c) => c.name === "Family Vacation 2024")).toBeUndefined();
     expect(errors).toContainEqual(
-      new ImportRecordError("Family Vacation 2024", ImportRecordErrorReason.UnsupportedType),
+      new ImportRecordError(
+        "Family Vacation 2024",
+        ImportRecordErrorReason.UnsupportedType,
+        "photo",
+      ),
     );
   });
 
@@ -627,7 +635,7 @@ describe("Keeper Direct Importer error handling", () => {
 
     // The throwing record produces exactly one generic error.
     expect(errors).toContainEqual(
-      new ImportRecordError("Throwing Record", ImportRecordErrorReason.Error),
+      new ImportRecordError("Throwing Record", ImportRecordErrorReason.Error, "login"),
     );
     expect(errors.filter((e) => e.reason === ImportRecordErrorReason.Error).length).toBe(1);
 

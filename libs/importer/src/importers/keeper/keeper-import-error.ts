@@ -11,5 +11,8 @@ export class ImportRecordError {
   constructor(
     readonly name: string,
     readonly reason: ImportRecordErrorReason,
+    // Raw Keeper record type (e.g. "login", "bankCard", "file"). Undefined when the item could not
+    // be read, so its type is unknown.
+    readonly type?: string,
   ) {}
 }
