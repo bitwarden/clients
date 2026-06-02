@@ -2,8 +2,11 @@ use anyhow::Result;
 use itertools::Itertools;
 use tracing::debug;
 use windows::Win32::{
-    Foundation::{GetLastError, SetLastError, WIN32_ERROR},
-    UI::Input::KeyboardAndMouse::INPUT,
+    Foundation::{GetLastError, SetLastError, HWND, WIN32_ERROR},
+    UI::{
+        Input::KeyboardAndMouse::INPUT,
+        WindowsAndMessaging::{SetForegroundWindow, SwitchToThisWindow},
+    },
 };
 
 mod type_input;
@@ -38,6 +41,36 @@ impl ErrorOperations for Win32ErrorOperations {}
 
 pub fn get_foreground_window_title() -> Result<String> {
     window_title::get_foreground_window_title()
+}
+
+/// Returns the raw bytes of the foreground window handle (HWND).
+pub fn get_foreground_window_handle() -> Result<Vec<u8>> {
+    window_title::get_foreground_window_handle_raw()
+}
+
+/// Restores focus to the window identified by the given HWND bytes.
+///
+/// `settle` — if true, sleeps 50ms after restoring focus to give the window manager
+/// time to process the focus change before `SendInput` fires.
+pub fn focus_window(hwnd: Vec<u8>, settle: bool) -> Result<()> {
+    use anyhow::anyhow;
+
+    let bytes: [u8; 8] = hwnd
+        .try_into()
+        .map_err(|_| anyhow!("Invalid HWND: expected 8 bytes"))?;
+    let ptr = usize::from_ne_bytes(bytes);
+    let hwnd = HWND(ptr as *mut core::ffi::c_void);
+
+    unsafe {
+        let _ = SetForegroundWindow(hwnd);
+        SwitchToThisWindow(hwnd, true);
+    }
+
+    if settle {
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+
+    Ok(())
 }
 
 /// `KeyboardShortcutInput` is an `INPUT` of one of the valid shortcut keys:

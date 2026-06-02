@@ -22,6 +22,27 @@ pub fn get_foreground_window_title() -> Result<String> {
     windowing::get_foreground_window_title()
 }
 
+/// Returns the raw bytes of the foreground window handle (HWND).
+///
+/// # Errors
+///
+/// Returns an error if the foreground window handle cannot be retrieved or is invalid.
+pub fn get_foreground_window_handle() -> Result<Vec<u8>> {
+    windowing::get_foreground_window_handle()
+}
+
+/// Restores focus to the window identified by the given HWND bytes.
+///
+/// `settle` — if true, sleeps briefly after restoring focus to give the window manager
+/// time to process the focus change before `SendInput` fires.
+///
+/// # Errors
+///
+/// Returns an error if the HWND bytes are invalid or the focus cannot be restored.
+pub fn focus_window(hwnd: Vec<u8>, settle: bool) -> Result<()> {
+    windowing::focus_window(hwnd, settle)
+}
+
 /// Attempts to type the input text wherever the user's cursor is.
 ///
 /// # Arguments

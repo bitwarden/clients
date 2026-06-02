@@ -167,6 +167,14 @@ where
     Ok(window_title.to_string_lossy().into_owned())
 }
 
+/// Returns the raw bytes of the foreground window handle (HWND).
+/// The HWND is a pointer stored as native-endian bytes.
+pub(super) fn get_foreground_window_handle_raw() -> Result<Vec<u8>> {
+    let window_handle = get_foreground_window_handle()?;
+    let ptr = window_handle.handle.0 as usize;
+    Ok(ptr.to_ne_bytes().to_vec())
+}
+
 #[cfg(test)]
 mod tests {
     //! For the mocking of the traits that are static methods, we need to use the `serial_test`

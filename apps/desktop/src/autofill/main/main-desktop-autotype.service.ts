@@ -49,7 +49,9 @@ export class MainDesktopAutotypeService {
         stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
         stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
-        console.log("EXECUTE AUTOTYPE");
+        if (vaultData.windowHandle) {
+          autotype.focusWindow(vaultData.windowHandle, true);
+        }
         this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
@@ -97,12 +99,10 @@ export class MainDesktopAutotypeService {
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       async () => {
-        // Capture the foreground window title before showing the dialog,
+        // Capture the foreground window title and handle before showing the dialog,
         // because opening the dialog changes the foreground window.
         const windowTitle = autotype.getForegroundWindowTitle();
-        //const windowHandle = autotype.getWindowHandle();
-
-        console.log("REGISTERING THE SHORTCUT CALLBACK");
+        const windowHandle = autotype.getForegroundWindowHandle();
 
         const { response } = await dialog.showMessageBox(this.windowMain.win, {
           type: "question",
@@ -117,11 +117,14 @@ export class MainDesktopAutotypeService {
         });
 
         if (response !== 0) {
+          // Restore focus to the target app even when the user declines.
+          autotype.focusWindow(windowHandle, false);
           return;
         }
 
         this.windowMain.win.webContents.send(AUTOTYPE_IPC_CHANNELS.LISTEN, {
           windowTitle,
+          windowHandle,
         });
       },
     );

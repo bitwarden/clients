@@ -80,6 +80,8 @@ export declare namespace autostart {
 }
 
 export declare namespace autotype {
+  export function focusWindow(hwnd: Array<number>, settle: boolean): void
+  export function getForegroundWindowHandle(): Array<number>
   export function getForegroundWindowTitle(): string
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }
