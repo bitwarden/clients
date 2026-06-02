@@ -1,5 +1,5 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from "@angular/core";
 
 import { BadgeComponent } from "../../../badge";
 import { BadgeGroupComponent } from "../../../badge-group";
@@ -78,14 +78,15 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
 })
 export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly dialogService = inject(DialogService);
-  protected readonly table = new TableModel<Row, "actions">();
+  private readonly rows = signal<Row[]>([]);
+  protected readonly table = new TableModel<Row, "actions">({ data: this.rows });
 
   protected readonly sortByTags = (a: Row, b: Row) =>
     a.tags.join(",").localeCompare(b.tags.join(","));
 
   ngOnInit(): void {
     const base = new Date(Date.UTC(2026, 0, 1));
-    this.table.setData(
+    this.rows.set(
       [...Array(100).keys()].map((i) => {
         const date = new Date(base);
         date.setUTCDate(base.getUTCDate() + i);

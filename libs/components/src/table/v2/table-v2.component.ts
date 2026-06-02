@@ -188,6 +188,11 @@ export class BitTableV2Component<T = unknown>
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    // Bridge the model's signals into its RxJS data source (the component has
+    // the injection context the plain model lacks).
+    effect(() => {
+      this.dataSource().data = this.table().data();
+    });
     effect(() => {
       this.dataSource().filter = this.table().filter.predicate();
     });

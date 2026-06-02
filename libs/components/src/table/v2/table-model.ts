@@ -1,3 +1,5 @@
+import { Signal, signal } from "@angular/core";
+
 import { TableDataSource } from "../table-data-source";
 
 import { ColumnModel, ColumnModelConfig } from "./column-model";
@@ -5,8 +7,8 @@ import { FilterModel, FilterModelConfig } from "./filter-model";
 import { TableSelectionModel } from "./table-selection-model";
 
 export type TableModelConfig<T, S extends string> = {
-  /** Initial row data. */
-  data?: T[];
+  /** Row data as a signal. Pass a writable signal and update it to change rows reactively. */
+  data?: Signal<T[]>;
   /** Column identity, order, and visibility — see {@link ColumnModel}. */
   columns?: ColumnModelConfig<T, S>;
   /** Search and facet filtering — see {@link FilterModel}. */
@@ -38,8 +40,11 @@ export type TableModelConfig<T, S extends string> = {
  * ```
  */
 export class TableModel<T, S extends string = never> {
-  /** Row data, sort state, and filter application. */
+  /** Sort state and filter application. Data is synced into it from {@link data}. */
   readonly dataSource = new TableDataSource<T>();
+
+  /** Current row data. The table syncs this into {@link dataSource}. */
+  readonly data: Signal<T[]>;
 
   /** Column identity, typed references, order, and visibility. */
   readonly columns: ColumnModel<T, S>;
@@ -51,9 +56,7 @@ export class TableModel<T, S extends string = never> {
   readonly selection?: TableSelectionModel<T>;
 
   constructor(config: TableModelConfig<T, S> = {}) {
-    if (config.data) {
-      this.dataSource.data = config.data;
-    }
+    this.data = config.data ?? signal<T[]>([]);
     this.columns = new ColumnModel<T, S>(config.columns);
     this.filter = new FilterModel<T>(config.filter);
     if (config.selection) {
@@ -68,10 +71,5 @@ export class TableModel<T, S extends string = never> {
   /** Typed column references — shorthand for {@link columns}`.ref`. */
   get ref() {
     return this.columns.ref;
-  }
-
-  /** Replaces the table data. */
-  setData(data: T[]): void {
-    this.dataSource.data = data;
   }
 }

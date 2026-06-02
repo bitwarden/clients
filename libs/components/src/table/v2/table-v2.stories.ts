@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
@@ -118,7 +118,7 @@ class DemoStatusColumnComponent {
 })
 class DemoToolbarTableComponent {
   protected readonly table = new TableModel<Country>({
-    data: countries.slice(0, 100),
+    data: signal(countries.slice(0, 100)),
     filter: {
       search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
       filters: [
@@ -190,11 +190,13 @@ export default {
 
 type Story = StoryObj;
 
-const basicData: DemoRow[] = [...Array(5).keys()].map((i) => ({
-  id: i,
-  name: `name-${i}`,
-  other: `other-${i}`,
-}));
+const basicData = signal<DemoRow[]>(
+  [...Array(5).keys()].map((i) => ({
+    id: i,
+    name: `name-${i}`,
+    other: `other-${i}`,
+  })),
+);
 
 const basicTable = new TableModel<DemoRow>({ data: basicData });
 const reorderTable = new TableModel<DemoRow>({
@@ -252,11 +254,11 @@ export const CustomCell: Story = {
 };
 
 const userTable = new TableModel<UsersRow>({
-  data: [
+  data: signal([
     { id: 1, name: "Alex Johnson", email: "alex@example.com", starred: true },
     { id: 2, name: "Sam Rivera", email: "sam.rivera@example.com", starred: false },
     { id: 3, name: "Jordan Park", email: "jordan.park@example.com", starred: true },
-  ],
+  ]),
 });
 
 /**
@@ -345,7 +347,9 @@ export const WrappedColumn: Story = {
 };
 
 const largeTable = new TableModel<DemoRow>({
-  data: [...Array(100).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` })),
+  data: signal(
+    [...Array(100).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` })),
+  ),
 });
 
 export const Scrollable: Story = {
@@ -377,7 +381,7 @@ export const Scrollable: Story = {
 };
 
 const filterTable = new TableModel<Country>({
-  data: countries.slice(0, 100),
+  data: signal(countries.slice(0, 100)),
   filter: { search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()) },
 });
 

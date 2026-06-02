@@ -76,6 +76,10 @@ const table = new TableModel<User, "actions">({
 });
 ```
 
+`data` is a `Signal<T[]>` — the table re-renders as it changes. For mutable data, pass a writable
+signal and `.set()` it; for static data, wrap the array in `signal(...)`. There's no `setData` — you
+own the signal.
+
 ## Column definitions
 
 Each `<bit-column>` is a thin wrapper carrying column-level metadata. The column key, the cell
