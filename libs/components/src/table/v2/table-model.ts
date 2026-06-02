@@ -1,4 +1,6 @@
-import { Signal, signal } from "@angular/core";
+import { Signal, signal, WritableSignal } from "@angular/core";
+
+import { Sort } from "../table-data-source";
 
 import { ColumnModel, ColumnModelConfig } from "./column-model";
 import { FilterModel, FilterModelConfig } from "./filter-model";
@@ -9,6 +11,8 @@ export type TableModelConfig<T, S extends string> = {
   data?: Signal<T[]>;
   /** Loading state. When `true`, the table shows skeleton rows. e.g. a resource's `isLoading`. */
   loading?: Signal<boolean>;
+  /** Initial sort. Header clicks update it; read or set {@link TableModel.sort} programmatically. */
+  sort?: Sort;
   /** Column identity, order, and visibility — see {@link ColumnModel}. */
   columns?: ColumnModelConfig<T, S>;
   /** Search and facet filtering — see {@link FilterModel}. */
@@ -44,6 +48,14 @@ export class TableModel<T, S extends string = never> {
   /** Whether the table is loading. When `true`, the table shows skeleton rows. */
   readonly loading: Signal<boolean>;
 
+  /**
+   * Active sort (`{ column, direction }`). Two-way: header clicks update it, and
+   * you can read or set it programmatically (e.g. to persist/restore). The
+   * comparator comes from the sorted column's `sortFn`, so this stays
+   * serializable.
+   */
+  readonly sort: WritableSignal<Sort>;
+
   /** Column identity, typed references, order, and visibility. */
   readonly columns: ColumnModel<T, S>;
 
@@ -56,6 +68,7 @@ export class TableModel<T, S extends string = never> {
   constructor(config: TableModelConfig<T, S> = {}) {
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
+    this.sort = signal<Sort>(config.sort ?? { direction: "asc" });
     this.columns = new ColumnModel<T, S>(config.columns);
     this.filter = new FilterModel<T>(config.filter);
     if (config.selection) {

@@ -1,3 +1,4 @@
+import { _isNumberValue } from "@angular/cdk/coercion";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -13,14 +14,11 @@ import {
   ElementRef,
   TrackByFunction,
   computed,
-  effect,
   forwardRef,
   inject,
   input,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { finalize, Observable } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -28,13 +26,77 @@ import { ScrollLayoutDirective } from "../../layout";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
 import { SkeletonTextComponent } from "../../skeleton";
-import { TableDataSource } from "../table-data-source";
+import { SortDirection, SortFn } from "../table-data-source";
 
 import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
 import { TableModel } from "./table-model";
+
+/** Reads a column's value for default sorting, coercing numeric strings to numbers. */
+function sortAccessor<T>(row: T, column: string): string | number {
+  const value = (row as Record<string, unknown>)[column];
+  if (_isNumberValue(value)) {
+    const num = Number(value);
+    return num < Number.MAX_SAFE_INTEGER ? num : (value as string);
+  }
+  return value as string | number;
+}
+
+/**
+ * Returns a sorted copy of `data` by `column`/`direction`, using `fn` when the
+ * column supplies one. The default comparison (number/string coercion, null
+ * handling) is ported from Angular Material's `MatTableDataSource` (MIT,
+ * Copyright (c) 2024 Google LLC).
+ */
+function sortRows<T>(
+  data: readonly T[],
+  column: string,
+  direction: SortDirection,
+  fn: SortFn | undefined,
+): T[] {
+  const dirMod = direction === "asc" ? 1 : -1;
+  return [...data].sort((a, b) => {
+    if (fn) {
+      return fn(a, b, direction) * dirMod;
+    }
+
+    let valueA = sortAccessor(a, column);
+    let valueB = sortAccessor(b, column);
+
+    // Coerce mismatched types to strings so they order consistently.
+    const typeA = typeof valueA;
+    const typeB = typeof valueB;
+    if (typeA !== typeB) {
+      if (typeA === "number") {
+        valueA += "";
+      }
+      if (typeB === "number") {
+        valueB += "";
+      }
+    }
+
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return valueA.localeCompare(valueB) * dirMod;
+    }
+
+    // Existing values sort before missing ones; equal/both-missing stay put.
+    let result = 0;
+    if (valueA != null && valueB != null) {
+      if (valueA > valueB) {
+        result = 1;
+      } else if (valueA < valueB) {
+        result = -1;
+      }
+    } else if (valueA != null) {
+      result = 1;
+    } else if (valueB != null) {
+      result = -1;
+    }
+    return result * dirMod;
+  });
+}
 
 @Component({
   selector: "bit-table-v2",
@@ -86,12 +148,13 @@ export class BitTableV2Component<T = unknown>
   /** Number of skeleton rows to show while {@link TableModel.loading} is true. */
   readonly loadingRows = input(3);
 
-  /**
-   * The RxJS engine that filters and sorts the model's data into rendered rows.
-   * A private implementation detail — fed from the model's `data` and `filter`,
-   * and owns sort state. Not exposed on the model.
-   */
-  private readonly dataSource = new TableDataSource<T>();
+  /** The model's active sort (`{ column, direction }`). Read by header cells. */
+  readonly sort = computed(() => this.table().sort());
+
+  /** Model rows after the filter predicate (pre-sort); also drives select-all. */
+  protected readonly filtered = computed(() =>
+    this.table().data().filter(this.table().filter.predicate()),
+  );
 
   /** The model's column model. */
   protected readonly columnModel = computed(() => this.table().columns);
@@ -185,13 +248,15 @@ export class BitTableV2Component<T = unknown>
     "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
   ];
 
-  /** The rendered (filtered + sorted) rows; disconnects on unsubscribe. */
-  private readonly rows$: Observable<readonly T[]> = this.dataSource
-    .connect()
-    .pipe(finalize(() => this.dataSource.disconnect()));
-
-  /** Rendered rows as a signal — the single subscription to {@link rows$}. */
-  protected readonly rows = toSignal(this.rows$, { initialValue: [] as readonly T[] });
+  /** Rendered rows: {@link filtered} sorted by {@link sort} using the column's `sortFn` or default. */
+  protected readonly rows = computed(() => {
+    const sort = this.table().sort();
+    if (!sort.column) {
+      return this.filtered();
+    }
+    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+    return sortRows(this.filtered(), sort.column, sort.direction, sort.fn ?? col?.sortFn());
+  });
 
   /** Index array for the skeleton rows shown while loading. */
   protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);
@@ -201,29 +266,11 @@ export class BitTableV2Component<T = unknown>
     () => this.hasColumns() && !this.loading() && this.rows().length === 0,
   );
 
-  /**
-   * Bridges the data source's `sort$` into a signal so header-cell computeds
-   * can react to sort changes (the data source is RxJS-internal; v2 is signal-
-   * based).
-   */
-  readonly sort = toSignal(this.dataSource.sort$);
-
   /** Height of the thead element (px); used to pad the virtual scroll viewport. */
   protected readonly headerHeight = signal(0);
 
   private readonly el = inject(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
-
-  constructor() {
-    // Bridge the model's signals into the data source (the component has the
-    // injection context the plain model lacks).
-    effect(() => {
-      this.dataSource.data = this.table().data();
-    });
-    effect(() => {
-      this.dataSource.filter = this.table().filter.predicate();
-    });
-  }
 
   ngAfterContentInit(): void {
     this.applyInitialSort();
@@ -246,20 +293,19 @@ export class BitTableV2Component<T = unknown>
   }
 
   /**
-   * Updates the data source's sort for the column. Called by the bit-cell
-   * header component when its sort button is clicked.
+   * Cycles the model's sort for the column. Called by the bit-cell header
+   * component when its sort button is clicked.
    */
   toggleSort(col: BitColumnComponent): void {
-    const ds = this.dataSource;
-    const current = ds.sort;
     const colName = col.name();
     if (!colName) {
       return;
     }
-    const active = current?.column === colName;
+    const current = this.table().sort();
+    const active = current.column === colName;
     const defaultDir = col.defaultSort() === "desc" ? "desc" : "asc";
-    const direction = active ? (current?.direction === "asc" ? "desc" : "asc") : defaultDir;
-    ds.sort = { column: colName, direction, fn: col.sortFn() };
+    const direction = active ? (current.direction === "asc" ? "desc" : "asc") : defaultDir;
+    this.table().sort.set({ column: colName, direction });
   }
 
   /** Whether a row may be selected, per the selection model's predicate. */
@@ -268,9 +314,7 @@ export class BitTableV2Component<T = unknown>
   }
 
   protected selectableRows(): T[] {
-    const ds = this.dataSource;
-    const rows = ds.filteredData ?? ds.data ?? [];
-    return rows.filter((row) => this.isSelectable(row));
+    return this.filtered().filter((row) => this.isSelectable(row));
   }
 
   protected isAllSelected(): boolean {
@@ -306,20 +350,13 @@ export class BitTableV2Component<T = unknown>
   }
 
   private applyInitialSort(): void {
-    const ds = this.dataSource;
-    if (ds.sort?.column) {
+    if (this.table().sort().column) {
       return;
     }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
-    if (defaultCol) {
-      const name = defaultCol.name();
-      if (name) {
-        ds.sort = {
-          column: name,
-          direction: defaultCol.defaultSort() ?? "asc",
-          fn: defaultCol.sortFn(),
-        };
-      }
+    const name = defaultCol?.name();
+    if (name) {
+      this.table().sort.set({ column: name, direction: defaultCol!.defaultSort() ?? "asc" });
     }
   }
 }

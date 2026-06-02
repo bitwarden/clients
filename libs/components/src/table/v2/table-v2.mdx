@@ -302,13 +302,11 @@ ascending. Apply an initial sort with `defaultSort`:
 </bit-column>
 ```
 
-For non-trivial comparisons, pass a `sortFn`:
+For non-trivial comparisons, pass a `sortFn` — return the ascending comparison; the table applies
+the active direction:
 
 ```ts
-sortByName = (a: User, b: User, direction?: SortDirection) => {
-  const result = a.name.localeCompare(b.name);
-  return direction === "asc" ? result : -result;
-};
+sortByName = (a: User, b: User) => a.name.localeCompare(b.name);
 ```
 
 ```html
@@ -318,8 +316,9 @@ sortByName = (a: User, b: User, direction?: SortDirection) => {
 </bit-column>
 ```
 
-Sort state is managed internally by the table — see
-[Table → Sorting](?path=/docs/component-library-table--docs#sorting) for the mechanics.
+Sort state lives on the model as `table.sort` (`{ column, direction }`) — read it, or set it
+programmatically (e.g. to persist/restore). The comparator comes from the column's `sortFn`, so the
+state stays serializable.
 
 ## Filtering
 
