@@ -223,7 +223,7 @@ export class OrganizationVaultExportService
           }
         });
     }
-    return this.BuildEncryptedExport(userId, organizationId, collections, ciphers);
+    return await this.BuildEncryptedExport(userId, organizationId, collections, ciphers);
   }
 
   private async getDecryptedManagedExport(
@@ -303,7 +303,7 @@ export class OrganizationVaultExportService
         !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
     );
 
-    return this.BuildEncryptedExport(activeUserId, organizationId, encCollections, encCiphers);
+    return await this.BuildEncryptedExport(activeUserId, organizationId, encCollections, encCiphers);
   }
 
   private async BuildEncryptedExport(

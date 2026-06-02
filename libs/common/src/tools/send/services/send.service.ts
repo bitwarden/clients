@@ -314,7 +314,7 @@ export class SendService implements InternalSendServiceAbstraction {
 
     const req = await firstValueFrom(
       this.sends$.pipe(
-        concatMap(async (sends) => this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey)),
+        concatMap(async (sends) => await this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey)),
       ),
     );
     // separate return for easier debugging

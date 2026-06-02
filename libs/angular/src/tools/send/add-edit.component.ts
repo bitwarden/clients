@@ -386,7 +386,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async copyLinkToClipboard(link: string): Promise<void | boolean> {
-    return Promise.resolve(this.platformUtilsService.copyToClipboard(link));
+    return await Promise.resolve(this.platformUtilsService.copyToClipboard(link));
   }
 
   protected async delete(): Promise<boolean> {

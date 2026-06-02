@@ -8,5 +8,5 @@ export const unsavedSendEditsGuard: CanDeactivateFn<SendComponent> = async (comp
   if (component == null) {
     return true;
   }
-  return component.saveUnsavedSendEdits();
+  return await component.saveUnsavedSendEdits();
 };

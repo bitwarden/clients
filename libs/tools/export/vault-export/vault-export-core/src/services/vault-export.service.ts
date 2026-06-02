@@ -42,9 +42,9 @@ export class VaultExportService implements VaultExportServiceAbstraction {
         throw new Error("CSV does not support password protected export");
       }
 
-      return this.individualVaultExportService.getPasswordProtectedExport(userId, password);
+      return await this.individualVaultExportService.getPasswordProtectedExport(userId, password);
     }
-    return this.individualVaultExportService.getExport(userId, format);
+    return await this.individualVaultExportService.getExport(userId, format);
   }
 
   /** Creates an export of an organizational vault. Based on the provided format it will either be unencrypted, encrypted or password protected
@@ -74,7 +74,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
         throw new Error("CSV does not support password protected export");
       }
 
-      return this.organizationVaultExportService.getPasswordProtectedExport(
+      return await this.organizationVaultExportService.getPasswordProtectedExport(
         userId,
         organizationId,
         password,
@@ -82,7 +82,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
       );
     }
 
-    return this.organizationVaultExportService.getOrganizationExport(
+    return await this.organizationVaultExportService.getOrganizationExport(
       userId,
       organizationId,
       format,

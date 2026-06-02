@@ -640,8 +640,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected async getExportData(): Promise<ExportedVault> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return Utils.isNullOrWhitespace(this.organizationId)
-      ? this.exportService.getExport(userId, this.format, this.filePassword)
-      : this.exportService.getOrganizationExport(
+      ? await this.exportService.getExport(userId, this.format, this.filePassword)
+      : await this.exportService.getOrganizationExport(
           userId,
           this.organizationId,
           this.format,

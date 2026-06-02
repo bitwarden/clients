@@ -99,7 +99,7 @@ export class Client {
         privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, initVec);
       }
 
-      return this.parseVault(blob, key, privateKey, options);
+      return await this.parseVault(blob, key, privateKey, options);
     } finally {
       await this.logout(session, rest);
     }
@@ -350,7 +350,7 @@ export class Client {
       extraParameters.set("outofbandretry", "1");
       extraParameters.set("outofbandretryid", this.getErrorAttribute(response, "retryid"));
 
-      return attemptLogin(extraParameters);
+      return await attemptLogin(extraParameters);
     };
 
     const pollingLoginSession = () => {
@@ -395,11 +395,11 @@ export class Client {
     }
     switch (method) {
       case "lastpassauth":
-        return ui.approveLastPassAuth();
+        return await ui.approveLastPassAuth();
       case "duo":
-        return this.approveDuo(username, parameters, ui, rest);
+        return await this.approveDuo(username, parameters, ui, rest);
       case "salesforcehash":
-        return ui.approveSalesforceAuth();
+        return await ui.approveSalesforceAuth();
       default:
         throw new Error("Out of band method " + method + " is not supported");
     }
@@ -412,8 +412,8 @@ export class Client {
     rest: RestClient,
   ): Promise<OobResult> {
     return parameters.get("preferduowebsdk") == "1"
-      ? this.approveDuoWebSdk(username, parameters, ui, rest)
-      : ui.approveDuo();
+      ? await this.approveDuoWebSdk(username, parameters, ui, rest)
+      : await ui.approveDuo();
   }
 
   private approveDuoWebSdk(

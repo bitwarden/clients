@@ -40,9 +40,9 @@ export class CatchallGeneratorStrategy implements GeneratorStrategy<
     }
 
     if (options.catchallType === "website-name") {
-      return await this.emailCalculator.concatenate(options.website, options.catchallDomain);
+      return this.emailCalculator.concatenate(options.website, options.catchallDomain);
     }
 
-    return this.emailRandomizer.randomAsciiCatchall(options.catchallDomain);
+    return await this.emailRandomizer.randomAsciiCatchall(options.catchallDomain);
   }
 }
