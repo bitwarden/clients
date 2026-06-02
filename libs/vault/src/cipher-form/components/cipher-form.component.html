@@ -41,6 +41,20 @@
       ></vault-bank-account-section>
     }
 
+    @if (config.cipherType === CipherType.DriversLicense) {
+      <vault-drivers-license-section
+        [disabled]="config.mode === 'partial-edit'"
+        [originalCipherView]="originalCipherView"
+      ></vault-drivers-license-section>
+    }
+
+    @if (config.cipherType === CipherType.Passport) {
+      <vault-passport-section
+        [disabled]="config.mode === 'partial-edit'"
+        [originalCipherView]="originalCipherView"
+      ></vault-passport-section>
+    }
+
     <vault-additional-options-section
       [disableSectionMargin]="config.mode !== 'edit'"
     ></vault-additional-options-section>

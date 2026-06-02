@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdaten"
   },
+  "typePassport": {
+    "message": "Reisepass"
+  },
+  "passportDetails": {
+    "message": "Reisepassdetails"
+  },
+  "passportAdded": {
+    "message": "Reisepass hinzugefügt"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisedokument"
+  },
   "folderSubtitle": {
     "message": "Organisiere deine Einträge"
   },
   "collectionSubtitle": {
     "message": "Geteilte Einträge organisieren"
+  },
+  "typeDriversLicense": {
+    "message": "Führerschein"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Führerschein oder Personalausweis"
   },
   "chooseItemToAdd": {
     "message": "Wähle einen Eintrag zum Hinzufügen aus"
@@ -141,15 +159,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Bankkonto anzeigen",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "View license",
+  "viewItemHeaderLicense": {
+    "message": "Führerschein anzeigen",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Reisepass anzeigen",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
@@ -173,15 +191,15 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Neues Bankkonto",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Neuer Führerschein",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Neuer Reisepass",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -205,15 +223,15 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Bankkonto bearbeiten",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Edit license",
+  "editItemHeaderLicense": {
+    "message": "Führerschein bearbeiten",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Reisepass bearbeiten",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -272,20 +290,20 @@
   "sendTypeTextToShare": {
     "message": "Zu teilender Text"
   },
-  "newItemHeaderTextSend": {
-    "message": "Neues Text-Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Neuer Text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Neues Datei-Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Neue Datei",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Text-Send bearbeiten",
+  "editItemHeaderTextSendV2": {
+    "message": "Text bearbeiten",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Datei-Send bearbeiten",
+  "editItemHeaderFileSendV2": {
+    "message": "Datei bearbeiten",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Reisepassnummer"
+  },
+  "sex": {
+    "message": "Geschlecht"
+  },
+  "copySex": {
+    "message": "Geschlecht kopieren"
+  },
+  "birthPlace": {
+    "message": "Geburtsort"
+  },
+  "copyBirthPlace": {
+    "message": "Geburtsort kopieren"
+  },
+  "nationality": {
+    "message": "Nationalität"
+  },
+  "copyNationality": {
+    "message": "Nationalität kopieren"
+  },
+  "copyIssuingCountry": {
+    "message": "Ausgabeland kopieren"
+  },
+  "passportType": {
+    "message": "Reisepasstyp"
+  },
+  "copyPassportType": {
+    "message": "Reisepasstyp kopieren"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer kopieren"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer"
+  },
+  "copyIssuingAuthority": {
+    "message": "Ausstellende Behörde/Stelle kopieren"
   },
   "licenseNumber": {
     "message": "Lizenznummer"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Keine Einträge vorhanden."
   },
+  "noValueEntered": {
+    "message": "Kein Wert eingegeben",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Einen Bestätigungscode an deine E-Mail senden"
   },
@@ -1755,6 +1813,10 @@
     "message": "Nummer kopieren",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Name kopieren",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "E-Mail-Adresse kopieren"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Alles auswählen"
+  },
+  "selected": {
+    "message": "Ausgewählt"
+  },
+  "bulkActionsBar": {
+    "message": "Massenaktionen"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ Einträge ausgewählt. Die Massenaktionsleiste ist nun am unteren Bildschirmrand verfügbar. Mit $SHORTCUTBINDING$ kannst du den Fokus auf die Massenaktionsleiste umschalten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Auswahl aufgehoben"
+  },
+  "additionalActions": {
+    "message": "Weitere Aktionen"
   },
   "zoomIn": {
     "message": "Vergrößern"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Die Kontolöschung ist dauerhaft. Sie kann nicht rückgängig gemacht werden."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Du bist der Eigentümer von mindestens einer Organisation. Durch das Löschen deines Kontos werden auch alle Organisationen gelöscht, deren alleinige Eigentümer du bist."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Du kannst dein Konto nicht löschen, solange du Eigentümer einer Organisation bist. Übertrage zunächst die Eigentumsrechte oder lösche die Organisation."
+  },
   "cannotDeleteAccount": {
     "message": "Konto kann nicht gelöscht werden"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nicht in der Linux Version unterstützt."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Verifizierung für Browser-Integration verlangen"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Eine zusätzliche Sicherheitsebene hinzufügen, indem eine Fingerabdruck-Phrasen-Validierung verlangt wird, wenn eine Verbindung zwischen deiner Desktop-Anwendung und dem Browser aufgebaut wird. Nach Aktivierung ist bei jedem Verbindungsaufbau ein Benutzer-Eingriff und Verifizierung erforderlich."
-  },
   "enableHardwareAcceleration": {
     "message": "Hardwarebeschleunigung verwenden"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Genehmigen"
-  },
-  "verifyBrowserTitle": {
-    "message": "Browser Verbindung bestätigen"
-  },
-  "verifyBrowserDesc": {
-    "message": "Bitte stelle sicher, dass der angezeigte Prüfschlüssel identisch mit dem Prüfschlüssel in der Browser-Erweiterung ist."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ möchte sich mit Bitwarden verbinden",
@@ -2780,7 +2858,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3103,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Persönlichen Tresor exportieren"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Tresor der Organisation wird exportiert"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Nur der mit $ORGANIZATION$ verbundene Organisationstresor wird exportiert. Einträge in persönlichen Tresoren oder anderen Organisationen werden nicht berücksichtigt.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Nur Einträge in deinem persönlichen Tresor werden exportiert."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Nur Einträge, die mit dem $ORGANIZATION$ Tresor verknüpft sind, werden exportiert. Einträge in persönlichen Tresoren werden nicht exportiert.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +4073,18 @@
   "exportError": {
     "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschädigter Anhang wurde beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschädigte Anhänge wurden beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktor-Authentifizierung abgebrochen"
   },
@@ -4122,6 +4197,22 @@
   },
   "troubleshooting": {
     "message": "Problembehandlung"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Diagnosebericht herunterladen"
+  },
+  "experiencingAnIssue": {
+    "message": "Hast du ein Problem?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Lade den Diagnosebericht herunter und sende ihn an den"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden Support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Herunterladen"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Hardwarebeschleunigung deaktivieren und neu starten"
@@ -4655,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Ungültiges Tastaturkürzel"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Weitere Navigationspfade",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4805,6 +4900,9 @@
   "sessionTimeoutHeader": {
     "message": "Sitzungs-Timeout"
   },
+  "browserAccessDenied": {
+    "message": "Entweder wurde ein ungültiges Browserverzeichnis ausgewählt oder der Zugriff wurde verweigert"
+  },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
   },
@@ -4848,6 +4946,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ ist nicht installiert. Bitte installiere $BROWSER$, bevor du Passwörter daraus importierst.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Bitte wähle deinen $BROWSER$-Datenordner aus",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Erwarteter Speicherort:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Zugriff gewähren"
   },
   "upgrade": {
     "message": "Upgrade"
@@ -4988,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
+  "more": {
+    "message": "Mehr"
+  },
+  "enterMonth": {
+    "message": "Monat eingeben."
+  },
+  "enterDay": {
+    "message": "Tag eingeben."
+  },
+  "enterYear": {
+    "message": "Jahr eingeben."
+  },
+  "invalidDay": {
+    "message": "Gib einen gültigen Tag ein."
+  },
+  "invalidYear": {
+    "message": "Gib ein gültiges Jahr ein."
+  },
+  "searchDriversLicense": {
+    "message": "Führerscheine suchen"
+  },
   "bankAccount": {
     "message": "Bankkonto"
   },
@@ -5028,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Bankkonto suchen"
   },
+  "searchPassport": {
+    "message": "Reisepässe suchen"
+  },
   "copyAccountNumber": {
     "message": "Kontonummer kopieren"
   },
@@ -5039,6 +5185,30 @@
   },
   "copyIban": {
     "message": "IBAN kopieren"
+  },
+  "copyNameOnAccount": {
+    "message": "Name des Kontoinhabers kopieren"
+  },
+  "copyBranchNumber": {
+    "message": "Filial-/Institutionsnummer kopieren"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT-Code kopieren"
+  },
+  "copyFirstName": {
+    "message": "Vornamen kopieren"
+  },
+  "copyMiddleName": {
+    "message": "Zweiten Vornamen kopieren"
+  },
+  "copyLastName": {
+    "message": "Nachnamen kopieren"
+  },
+  "copyLicenseNumber": {
+    "message": "Führerscheinnummer kopieren"
+  },
+  "copyPassportNumber": {
+    "message": "Reisepassnummer kopieren"
   },
   "bankAccountTypeChecking": {
     "message": "Wird überprüft"
@@ -5084,6 +5254,22 @@
     "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "Text anzeigen"
+  },
+  "viewFileSendHeader": {
+    "message": "Datei anzeigen"
+  },
+  "sendCreated": {
+    "message": "Send erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Die Eingabe muss eine Zahl sein"
+  },
+  "integerInputError": {
+    "message": "Die Eingabe muss eine ganze Zahl sein"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
   },
@@ -5100,5 +5286,50 @@
   "progressBar": {
     "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  },
+  "driversLicenseDetails": {
+    "message": "Führerscheindetails"
+  },
+  "dateOfBirth": {
+    "message": "Geburtsdatum"
+  },
+  "birthMonth": {
+    "message": "Geburtsmonat"
+  },
+  "birthDay": {
+    "message": "Geburtstag"
+  },
+  "birthYear": {
+    "message": "Geburtsjahr"
+  },
+  "issuingCountry": {
+    "message": "Ausstellendes Land"
+  },
+  "issuingState": {
+    "message": "Ausstellendes Bundesland/Stadt/Landkreis"
+  },
+  "issueDate": {
+    "message": "Ausstellungsdatum"
+  },
+  "issueMonth": {
+    "message": "Ausstellungsmonat"
+  },
+  "issueDay": {
+    "message": "Ausstellungstag"
+  },
+  "issueYear": {
+    "message": "Ausstellungsjahr"
+  },
+  "expirationDay": {
+    "message": "Ablaufdatum"
+  },
+  "issuingAuthority": {
+    "message": "Ausstellende Behörde"
+  },
+  "licenseClass": {
+    "message": "Führerscheinklasse"
   }
 }

@@ -33,14 +33,6 @@ export class WebVaultExtensionPromptService {
    * Conditionally prompts the user to install the web extension
    */
   async conditionallyPromptUserForExtension(userId: UserId) {
-    const featureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt,
-    );
-
-    if (!featureFlagEnabled) {
-      return false;
-    }
-
     // Extension check takes time, trigger it early
     const hasExtensionInstalled = firstValueFrom(
       this.webBrowserInteractionService.extensionInstalled$,

@@ -120,6 +120,34 @@ export abstract class CipherSdkService {
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
 
   /**
+   * Updates the collections for a cipher as an org admin using the SDK.
+   *
+   * @param cipherId The cipher ID to update
+   * @param collectionIds The new collection IDs to assign
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the updated cipher view
+   */
+  abstract saveCollectionsWithServerAdmin(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined>;
+
+  /**
+   * Updates the collections for a cipher using the SDK.
+   *
+   * @param cipherId The cipher ID to update
+   * @param collectionIds The new collection IDs to assign
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the updated cipher view, or undefined if unavailable
+   */
+  abstract saveCollectionsWithServer(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined>;
+
+  /**
    * Shares a cipher with an organization using the SDK.
    * Handles encryption and API call in one operation.
    *
@@ -193,4 +221,49 @@ export abstract class CipherSdkService {
     userId: UserId,
     includeMemberItems: boolean,
   ): Promise<[Cipher[], CipherListView[]]>;
+
+  /**
+   * Fetches the ciphers an organization member is assigned to (via collections) using the SDK.
+   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
+   *
+   * @param organizationId The organization ID to fetch ciphers for
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
+   */
+  abstract getManyFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<[Cipher[], CipherListView[]]>;
+
+  /**
+   * Bulk update collections for many ciphers using the SDK.
+   * When `removeCollections` is true the collections are removed from each cipher,
+   * otherwise they are added without introducing duplicates.
+   *
+   * @param orgId The organization that owns the ciphers and collections
+   * @param userId The user ID to use for SDK client
+   * @param cipherIds The ciphers to update
+   * @param collectionIds The collections to add or remove
+   * @param removeCollections If true, removes the collections; otherwise adds them
+   */
+  abstract bulkUpdateCollectionsWithServer(
+    orgId: OrganizationId,
+    userId: UserId,
+    cipherIds: CipherId[],
+    collectionIds: CollectionId[],
+    removeCollections: boolean,
+  ): Promise<void>;
+
+  /**
+   * Moves multiple ciphers to a folder using the SDK, or clears the folder when `folderId` is null.
+   *
+   * @param ids The cipher IDs to move
+   * @param folderId The destination folder ID, or null to clear the folder
+   * @param userId The user ID to use for SDK client
+   */
+  abstract moveManyWithServer(
+    ids: string[],
+    folderId: string | null,
+    userId: UserId,
+  ): Promise<void>;
 }

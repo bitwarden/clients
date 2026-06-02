@@ -12,18 +12,9 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import {
-  filter,
-  firstValueFrom,
-  lastValueFrom,
-  map,
-  Subject,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs";
+import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
 
-import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
+import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -37,7 +28,6 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -86,6 +76,7 @@ import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
+import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
@@ -104,13 +95,18 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
     <ng-template #loginApproval></ng-template>
-    <app-header *ngIf="showHeader$ | async"></app-header>
+    @if (showHeader$ | async) {
+      <div class="header"></div>
+    }
 
     <div id="container">
-      <div class="loading" *ngIf="loading">
-        <bit-spinner></bit-spinner>
-      </div>
-      <router-outlet *ngIf="!loading"></router-outlet>
+      @if (loading) {
+        <div class="loading">
+          <bit-spinner />
+        </div>
+      } @else {
+        <router-outlet />
+      }
     </div>
 
     <bit-toast-container></bit-toast-container>
@@ -172,7 +168,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
-    private organizationService: OrganizationService,
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private readonly destroyRef: DestroyRef,
@@ -186,6 +181,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
+    private accountDeletionService: AccountDeletionService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -291,9 +287,14 @@ export class AppComponent implements OnInit, OnDestroy {
               await this.configService.ensureConfigFetched();
             }
             break;
-          case "openSettings":
-            await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+          case "openSettings": {
+            if (await this.configService.getFeatureFlag(FeatureFlag.DesktopSettingsDialog)) {
+              SettingsDialogComponent.open(this.dialogService);
+            } else {
+              await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+            }
             break;
+          }
           case "openTroubleshootingDialog":
             TroubleshootingDialogComponent.open(this.dialogService);
             break;
@@ -448,6 +449,9 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "newSecureNote":
             this.routeToVault("add", CipherType.SecureNote);
+            break;
+          case "newSshKey":
+            this.routeToVault("add", CipherType.SshKey);
             break;
           default:
             break;
@@ -917,28 +921,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
-    const userIsManaged = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.organizationService.organizations$(userId)),
-        map((orgs) => orgs.some((o) => o.userIsManagedByOrganization === true)),
-      ),
-    );
-
-    if (userIsManaged) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotDeleteAccount" },
-        content: { key: "cannotDeleteAccountDesc" },
-        cancelButtonText: null,
-        acceptButtonText: { key: "close" },
-        type: "danger",
-      });
-
-      return;
-    }
-
-    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
-    await lastValueFrom(dialogRef.closed);
+    await this.accountDeletionService.openDeleteAccountFlow();
   }
 
   private async processPendingAuthRequests() {

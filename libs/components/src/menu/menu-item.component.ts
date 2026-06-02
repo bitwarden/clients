@@ -64,11 +64,12 @@ export class MenuItemComponent implements FocusableOption {
     "focus-visible:tw-ring-border-focus",
     "active:!tw-ring-0",
     "active:!tw-ring-offset-0",
-    "disabled:tw-text-fg-disabled",
-    "disabled:tw-bg-transparent",
-    "disabled:hover:tw-text-fg-disabled",
-    "disabled:hover:tw-bg-transparent",
-    "disabled:tw-cursor-not-allowed",
+    "disabled:hover:tw-bg-background",
+    "disabled:tw-cursor-default",
+    "disabled:!tw-text-fg-inactive",
+    "aria-disabled:hover:tw-bg-background",
+    "aria-disabled:tw-cursor-default",
+    "aria-disabled:!tw-text-fg-inactive",
     ...this.computedStyles(),
   ]);
 
