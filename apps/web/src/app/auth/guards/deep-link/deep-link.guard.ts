@@ -36,7 +36,7 @@ export function deepLinkGuard(): CanActivateFn {
       // Check if the url is empty or null
       if (!Utils.isNullOrEmpty(persistedPreLoginUrl)) {
         // const urlTree: string | UrlTree = persistedPreLoginUrl;
-        return router.navigateByUrl(persistedPreLoginUrl);
+        return await router.navigateByUrl(persistedPreLoginUrl);
       }
       return true;
     }

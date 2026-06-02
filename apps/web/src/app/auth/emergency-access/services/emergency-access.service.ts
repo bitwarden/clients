@@ -268,7 +268,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
 
     let ciphers: CipherView[] = [];
     const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
-    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
+    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => await c.decrypt(grantorUserKey)));
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 

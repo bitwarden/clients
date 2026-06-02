@@ -68,5 +68,5 @@ async function unauthGuard(
 }
 
 export function unauthGuardFn(overrides: Partial<UnauthRoutes> = {}): CanActivateFn {
-  return async (route) => unauthGuard(route, { ...defaultRoutes, ...overrides });
+  return async (route) => await unauthGuard(route, { ...defaultRoutes, ...overrides });
 }

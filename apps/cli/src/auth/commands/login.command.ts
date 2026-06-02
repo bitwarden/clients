@@ -558,7 +558,7 @@ export class LoginCommand {
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       const callbackServer = http.createServer((req, res) => {
         const urlString = "http://localhost" + req.url;
         const url = new URL(urlString);

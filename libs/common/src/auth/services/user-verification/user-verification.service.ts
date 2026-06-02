@@ -143,14 +143,14 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     switch (verification.type) {
       case VerificationType.OTP:
-        return this.verifyUserByOTP(verification);
+        return await this.verifyUserByOTP(verification);
       case VerificationType.MasterPassword:
         await this.verifyUserByMasterPassword(verification, userId, email);
         return true;
       case VerificationType.PIN:
-        return this.verifyUserByPIN(verification, userId);
+        return await this.verifyUserByPIN(verification, userId);
       case VerificationType.Biometrics:
-        return this.verifyUserByBiometrics();
+        return await this.verifyUserByBiometrics();
       default: {
         // Compile-time check for exhaustive switch
         const _exhaustiveCheck: never = verification;
@@ -235,7 +235,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   }
 
   private async verifyUserByBiometrics(): Promise<boolean> {
-    return this.biometricsService.authenticateWithBiometrics();
+    return await this.biometricsService.authenticateWithBiometrics();
   }
 
   async requestOTP() {
