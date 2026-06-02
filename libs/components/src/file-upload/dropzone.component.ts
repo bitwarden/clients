@@ -22,17 +22,33 @@ import { ButtonComponent } from "../button/button.component";
   },
 })
 export class DropzoneComponent {
-  /** Accepted file types (e.g. ".png,.jpg,.svg") */
+  /**
+   * Accepted file types. Uses comma separated list
+   *
+   * @example
+   * Images only: "image/*"
+   * PDF and Word docs: ".pdf,.doc,.docx"
+   * Specific audio formats: "audio/mpeg,audio/wav"
+   * Mixed types: "image/*,.pdf"
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/accept#unique_file_type_specifiers
+   *
+   * NOTE: This is only a browser html hint. Not a validation
+   */
   readonly accept = input("");
 
-  /** Maximum file size in MB. When omitted, the size hint is hidden. */
-  readonly maxFileSize = input<number | undefined>(undefined);
+  /**
+   * Maximum file size in MB. When omitted, the size hint is hidden.
+   *
+   * NOTE: This is only a user hint. Not a validation
+   **/
+  readonly maxFileSize = input<number>();
 
   /** Allow multiple file selection */
   readonly multiple = input(false, { transform: booleanAttribute });
 
   /** Error state — shows danger border and message */
-  readonly errorMessage = input<string>(undefined);
+  readonly errorMessage = input<string>();
 
   /** Disabled state — prevents file selection and drag/drop */
   readonly disabled = input(false, { transform: booleanAttribute });
