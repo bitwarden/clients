@@ -1,6 +1,7 @@
 import { catchError, firstValueFrom, switchMap } from "rxjs";
 
 import {
+  PasswordManagerClient,
   SendAddRequest,
   SendAuthType,
   SendEditRequest,
@@ -100,11 +101,45 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   }
 
   async delete(id: string): Promise<any> {
-    return this.legacySendApiService.delete(id);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return await ref.value.sends().delete(asUuid<SdkSendId>(id));
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to delete send: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+    await this.sendService.delete(id);
   }
 
+  // Note: the SDK calls the V2 endpoint which removes all auth (password and any other
+  // auth type), not just the password.
   async removePassword(id: string): Promise<any> {
-    return this.legacySendApiService.removePassword(id);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return await ref.value.sends().remove_password(asUuid<SdkSendId>(id));
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to remove send auth: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+    await this.refreshSendFromServer(id);
   }
 
   /**
@@ -119,11 +154,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
   // to the legacy service.
   async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
-    return this.legacySendApiService.postSendAccess(id, request);
+    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
+    return new SendAccessResponse(view);
   }
 
   async postSendAccessV2(accessToken: SendAccessToken): Promise<SendAccessResponse> {
-    return this.legacySendApiService.postSendAccessV2(accessToken);
+    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const view = await sdk.sends().access_send(accessToken.token);
+    return new SendAccessResponse(view);
   }
 
   /**
@@ -147,7 +186,22 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   }
 
   async deleteSend(id: string): Promise<any> {
-    return this.legacySendApiService.deleteSend(id);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return await ref.value.sends().delete(asUuid<SdkSendId>(id));
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to delete send: ${error}`);
+          throw error;
+        }),
+      ),
+    );
   }
 
   // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
@@ -156,7 +210,11 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     send: SendAccessView,
     request: SendAccessRequest,
   ): Promise<SendFileDownloadDataResponse> {
-    return this.legacySendApiService.getSendFileDownloadData(send, request);
+    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const data = await sdk
+      .sends()
+      .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
+    return new SendFileDownloadDataResponse(data);
   }
 
   // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
@@ -165,7 +223,9 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     send: SendAccessView,
     accessToken: SendAccessToken,
   ): Promise<SendFileDownloadDataResponse> {
-    return this.legacySendApiService.getSendFileDownloadDataV2(send, accessToken);
+    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
+    return new SendFileDownloadDataResponse(data);
   }
 
   private async mutateSend(sendView: SendView, userId: UserId): Promise<SdkSendView> {
