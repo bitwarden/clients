@@ -34,11 +34,11 @@ import {
   CoreOrganizationModule,
   GroupApiService,
 } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/edit-member-dialog";
 import {
-  openUserAddEditDialog,
   MemberDialogResult,
   MemberDialogTab,
-} from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog";
+} from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog/member-dialog.types";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -165,7 +165,7 @@ export class MemberAccessReportComponent implements OnInit {
   };
 
   edit = async (user: MemberAccessReportView): Promise<void> => {
-    const dialog = openUserAddEditDialog(this.dialogService, {
+    const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),

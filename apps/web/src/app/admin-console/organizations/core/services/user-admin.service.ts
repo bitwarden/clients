@@ -5,7 +5,7 @@ import {
   OrganizationUserInviteRequest,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
@@ -33,19 +33,26 @@ export class UserAdminService {
     return OrganizationUserAdminView.fromResponse(organizationId, userResponse);
   }
 
-  async save(user: OrganizationUserAdminView): Promise<void> {
-    const request = new OrganizationUserUpdateRequest();
-    request.permissions = user.permissions;
-    request.type = user.type;
-    request.collections = user.collections;
-    request.groups = user.groups;
-    request.accessSecretsManager = user.accessSecretsManager;
+  // TODO: Remove this wrapper once MemberDialogComponent (the old dialog) is deleted.
+  // Callers should use saveV2() directly with an OrganizationUserUpdateRequest.
+  async save(userView: OrganizationUserAdminView): Promise<void> {
+    const request = new OrganizationUserUpdateRequest({
+      type: userView.type,
+      permissions: userView.permissions,
+      collections: userView.collections,
+      groups: userView.groups,
+      accessSecretsManager: userView.accessSecretsManager,
+    });
 
-    await this.organizationUserApiService.putOrganizationUser(
-      user.organizationId,
-      user.id,
-      request,
-    );
+    await this.saveV2(request, userView.id, userView.organizationId);
+  }
+
+  async saveV2(
+    request: OrganizationUserUpdateRequest,
+    userId: Guid,
+    organizationId: OrganizationId,
+  ): Promise<void> {
+    await this.organizationUserApiService.putOrganizationUser(organizationId, userId, request);
   }
 
   async invite(emails: string[], user: OrganizationUserAdminView): Promise<void> {
