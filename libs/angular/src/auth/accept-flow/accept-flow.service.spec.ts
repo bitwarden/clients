@@ -1,0 +1,168 @@
+import { Router } from "@angular/router";
+import { MockProxy, mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
+
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ToastService } from "@bitwarden/components";
+
+import { AcceptFlowConfig, AcceptFlowService } from "./accept-flow.service";
+
+describe("AcceptFlowService", () => {
+  let sut: AcceptFlowService;
+  let authService: MockProxy<AuthService>;
+  let router: MockProxy<Router>;
+  let i18nService: MockProxy<I18nService>;
+  let toastService: MockProxy<ToastService>;
+
+  const requiredParameters = ["organizationId", "token"];
+
+  beforeEach(() => {
+    authService = mock<AuthService>();
+    router = mock<Router>();
+    i18nService = mock<I18nService>();
+    toastService = mock<ToastService>();
+
+    sut = new AcceptFlowService(authService, router, i18nService, toastService);
+
+    authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+      AuthenticationStatus.LoggedOut,
+    );
+    i18nService.t.mockImplementation((key: string) => key);
+  });
+
+  function buildConfig(overrides: Partial<AcceptFlowConfig> = {}): AcceptFlowConfig {
+    return {
+      requiredParameters,
+      failedMessage: "inviteAcceptFailed",
+      authedHandler: jest.fn(),
+      unauthedHandler: jest.fn(),
+      ...overrides,
+    };
+  }
+
+  describe("run", () => {
+    it("shows the failed-message toast and redirects to / when a required param is missing", async () => {
+      const config = buildConfig();
+
+      await sut.run({ organizationId: "org-id" /* token missing */ }, config);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "inviteAcceptFailed",
+        variant: "error",
+        timeout: 10000,
+      });
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      expect(config.authedHandler).not.toHaveBeenCalled();
+      expect(config.unauthedHandler).not.toHaveBeenCalled();
+    });
+
+    it("shows the failed-message toast when a required param is empty string", async () => {
+      const config = buildConfig();
+
+      await sut.run({ organizationId: "org-id", token: "" }, config);
+
+      expect(toastService.showToast).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+
+    it("calls unauthedHandler when the user is logged out", async () => {
+      const config = buildConfig();
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(config.unauthedHandler).toHaveBeenCalledWith({
+        organizationId: "org-id",
+        token: "tok",
+      });
+      expect(config.authedHandler).not.toHaveBeenCalled();
+    });
+
+    it("calls authedHandler when the user has any non-LoggedOut status", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Unlocked,
+      );
+      const config = buildConfig();
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(config.authedHandler).toHaveBeenCalledWith({
+        organizationId: "org-id",
+        token: "tok",
+      });
+      expect(config.unauthedHandler).not.toHaveBeenCalled();
+    });
+
+    it("handles errors thrown by authedHandler with the default short message", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Unlocked,
+      );
+      const config = buildConfig({
+        authedHandler: jest.fn().mockRejectedValue(new Error("API exploded")),
+      });
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(i18nService.t).toHaveBeenCalledWith("inviteAcceptFailedShort", "API exploded");
+      expect(toastService.showToast).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+
+    it("uses config.failedShortMessage when provided", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Unlocked,
+      );
+      const config = buildConfig({
+        failedShortMessage: "customShort",
+        authedHandler: jest.fn().mockRejectedValue(new Error("API exploded")),
+      });
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(i18nService.t).toHaveBeenCalledWith("customShort", "API exploded");
+    });
+
+    it("uses config.getErrorMessage callback when provided", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Unlocked,
+      );
+      const getErrorMessage = jest.fn().mockReturnValue("custom-message");
+      const config = buildConfig({
+        authedHandler: jest.fn().mockRejectedValue(new Error("Expired token.")),
+        getErrorMessage,
+      });
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(getErrorMessage).toHaveBeenCalledWith("Expired token.");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "custom-message",
+        variant: "error",
+        timeout: 10000,
+      });
+    });
+
+    it("uses config.getErrorMessage with null when missing-param triggers the error path", async () => {
+      const getErrorMessage = jest.fn().mockReturnValue("custom-message");
+      const config = buildConfig({ getErrorMessage });
+
+      await sut.run({ organizationId: "org-id" /* missing token */ }, config);
+
+      expect(getErrorMessage).toHaveBeenCalledWith(null);
+    });
+
+    it("does not call handleError when unauthedHandler throws (only authedHandler is wrapped)", async () => {
+      const config = buildConfig({
+        unauthedHandler: jest.fn().mockRejectedValue(new Error("boom")),
+      });
+
+      await expect(sut.run({ organizationId: "org-id", token: "tok" }, config)).rejects.toThrow(
+        "boom",
+      );
+
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+});
