@@ -209,13 +209,40 @@
     }
   },
   "yourDataIsInLetsPutItToWork": {
-    "message": "数据已接入，让数据为您效劳。"
+    "message": "您的数据已接入，让我们开始使用吧。"
   },
   "takeAQuickTourOfAccessIntelligence": {
     "message": "快速了解 Access Intelligence，准确掌握如何将您组织的数据转化为实际行动。"
   },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "整个团队的安全状况，一览无余"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "通过Access Intelligence，在一个页面，即可查看所有存在风险的应用、密码和成员。"
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "您确定优先级，我们负责提示风险。"
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "您只需标记最重要的应用，Access Intelligence就会自动帮您找出需要优先处理的风险密码。"
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "查看整个团队的安全提升"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "成员会在 Bitwarden 扩展程序中自动收到风险密码提醒，无需您逐个提醒。"
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "导入组织数据以开始使用"
+  },
+  "onceItHasTheVaultData": {
+    "message": "获取密码库数据后，Access Intelligence 即可开始生成组织的密码健康状况报告。"
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Access Intelligence 欢迎导览"
+  },
   "startTour": {
-    "message": "功能导览"
+    "message": "开始导览"
   },
   "noDataInOrgTitle": {
     "message": "未找到任何数据"
@@ -353,7 +380,7 @@
     "message": "密码存在风险的成员"
   },
   "membersWithAtRiskPasswordsAndForCriticalApplications": {
-    "message": "$ATRISKAPPCOUNT$ 名成员在 $CRITICALAPPCOUNT$ 个关键应用中的密码存在风险",
+    "message": "$ATRISKAPPCOUNT$ 位成员在 $CRITICALAPPCOUNT$ 个关键应用程序中的密码存在风险",
     "placeholders": {
       "atRiskAppCount": {
         "content": "$1",
@@ -396,7 +423,7 @@
     }
   },
   "ofCountTotal": {
-    "message": "总计 $TOTAL$",
+    "message": "/ 总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -459,7 +486,7 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "审查新应用程序并将其标记为关键，以确保您的组织安全"
+    "message": "审查新应用程序以将其标记为关键，并确保您的组织安全。"
   },
   "reviewNow": {
     "message": "立即审查"
@@ -1068,13 +1095,13 @@
     "message": "护照已添加"
   },
   "typePassportSubtitle": {
-    "message": "护照及通行证"
+    "message": "旅行证件"
   },
   "folderSubtitle": {
-    "message": "组织您的项目"
+    "message": "整理您的项目"
   },
   "collectionSubtitle": {
-    "message": "组织共享的项目"
+    "message": "整理共享的项目"
   },
   "typeLoginPlural": {
     "message": "登录"
@@ -1502,6 +1529,28 @@
   },
   "unselectAll": {
     "message": "取消全选"
+  },
+  "bulkActionsBar": {
+    "message": "批量操作"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "已选择 $COUNT$ 个项目。批量操作栏现已显示在屏幕底部。按 $SHORTCUTBINDING$ 可将焦点切换至批量操作栏。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "选择已清除"
+  },
+  "additionalActions": {
+    "message": "其他操作"
   },
   "launch": {
     "message": "前往"
@@ -2612,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "您至少是一个组织的所有者。删除您的账户时，也会一并删除所有由您作为唯一所有者的组织。"
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "当您是某个组织的所有者时，无法删除您的账户。请先转移组织所有权或先删除该组织。"
+  },
+  "cannotDeleteAccount": {
+    "message": "无法删除账户"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "由于您的账户由某个组织拥有，此操作无法完成。请联系您的组织管理员以获取更多详细信息。"
+  },
   "accountDeleted": {
     "message": "账户已删除"
   },
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "任何未支付的订阅都将通过您的付款方式扣款。"
   },
-  "paymentChargedWithTrial": {
-    "message": "您的方案包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "您的方案包含 $TRIAL_LENGTH$ 天免费试用。在试用结束前，不会从您的付款方式中扣款。您可以随时取消。",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "付款信息"
@@ -4369,6 +4436,30 @@
     "message": "创建了带密码的文件 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "编辑了文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "编辑了文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "删除了文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "删除了文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "访问了文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "访问了文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "移动了项目 $ID$ 到组织。",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "查看了项目 $ID$ 的 IBAN。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "复制了项目 $ID$ 的 IBAN。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "查看了项目 $ID$ 的 SWIFT 代码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "复制了项目 $ID$ 的 SWIFT 代码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "查看了项目 $ID$ 的居民身份证号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "复制了项目 $ID$ 的居民身份证号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "自动填充了项目 $ID$。",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃。"
   },
-  "discardEdits": {
-    "message": "放弃编辑"
-  },
   "keepEditing": {
     "message": "继续编辑"
-  },
-  "backToEditing": {
-    "message": "返回继续编辑"
   },
   "editedPolicyId": {
     "message": "编辑了策略 $ID$。",
@@ -4871,13 +5010,13 @@
     "message": "今天"
   },
   "recentlyActivePast7Days": {
-    "message": "过去 7 天内"
+    "message": "过去 7 天"
   },
   "recentlyActivePast14Days": {
-    "message": "过去 14 天内"
+    "message": "过去 14 天"
   },
   "recentlyActivePast30Days": {
-    "message": "过去 30 天内"
+    "message": "过去 30 天"
   },
   "recentlyActiveOver30Days": {
     "message": "30 天以前"
@@ -5028,7 +5167,7 @@
     "message": "确认成员"
   },
   "usersNeedConfirmed": {
-    "message": "您的用户已经接受了发给他们的邀请，但仍需要被确认。成员在被确认之前将无法访问组织。"
+    "message": "您有成员已经接受了发给他们的邀请，但仍需要被确认。成员在被确认之前将不会拥有对组织的访问权限。"
   },
   "startDate": {
     "message": "开始日期"
@@ -5290,7 +5429,7 @@
     "message": "税务信息"
   },
   "taxInformationDesc": {
-    "message": "对于美国境内的客户，需要提供邮政编码以满足销售税要求。对于其他国家，您可以选择提供一个税号 (VAT/GST) 和/或地址来显示在您的账单上。"
+    "message": "对于美国境内的客户，需要提供邮政编码以满足销售税要求。对于其他国家 / 地区，您可以选择提供一个税号 (VAT/GST) 和/或地址来显示在您的账单上。"
   },
   "billingPlan": {
     "message": "方案",
@@ -5651,6 +5790,24 @@
   },
   "regenerateInviteLink": {
     "message": "重新生成邀请链接"
+  },
+  "invalidateInviteLink": {
+    "message": "使邀请链接失效"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "如果您移除所有域名，此邀请链接将不再对任何人有效。"
+  },
+  "invalidateLink": {
+    "message": "使链接失效"
+  },
+  "inviteLinkInvalidated": {
+    "message": "邀请链接已失效"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "必须至少输入 1 个域名"
+  },
+  "deactivateLink": {
+    "message": "停用链接"
   },
   "inviteByLinkDesc": {
     "message": "通过链接邀请成员加入您的组织。如果尚未指定任何角色，他们将被添加为默认用户。"
@@ -7419,7 +7576,7 @@
     "message": "管理员确认您的成员资格后，您就可以访问此提供商了。届时我们会向您发送一封电子邮件。"
   },
   "providerUsersNeedConfirmed": {
-    "message": "您有用户已接受他们的邀请，但仍然需要确认。用户在确认之前将无法访问提供商。"
+    "message": "您有用户已经接受了发给他们的邀请，但仍需要被确认。用户在被确认之前将不会拥有对提供商的访问权限。"
   },
   "provider": {
     "message": "提供商"
@@ -7510,7 +7667,7 @@
     "message": "更改您的主密码以完成账户恢复。"
   },
   "updateMasterPasswordSubtitle": {
-    "message": "您的主密码不符合本组织的要求。更改您的主密码以继续。"
+    "message": "您的主密码不符合此组织的要求。更改您的主密码以继续。"
   },
   "updateMasterPasswordWarning": {
     "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "需要采取操作：您的付款详细信息缺少税务 ID 号码。如果未添加税务 ID，您的账单可能会包含附加税。"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "更多导航项",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "复制 IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "复制账户名称"
+  },
+  "copyBranchNumber": {
+    "message": "复制分行号码"
+  },
+  "copySwiftCode": {
+    "message": "复制 SWIFT 代码"
+  },
   "bankAccountTypeChecking": {
     "message": "支票"
   },
@@ -13833,7 +14003,7 @@
     "message": "清除筛选或尝试其他搜索词"
   },
   "pastMonth": {
-    "message": "上个月"
+    "message": "过去 1 个月"
   },
   "past3Months": {
     "message": "过去 3 个月"
@@ -13842,10 +14012,10 @@
     "message": "过去 6 个月"
   },
   "pastYear": {
-    "message": "去年"
+    "message": "过去 1 年"
   },
   "allTime": {
-    "message": "所有时间"
+    "message": "全部时间"
   },
   "timePeriod": {
     "message": "时间段"
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
   },
+  "discardEdits": {
+    "message": "放弃编辑"
+  },
   "discardEditsMessage": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
+  },
+  "backToEditing": {
+    "message": "返回继续编辑"
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
@@ -14007,7 +14183,7 @@
     "message": "签发机构 / 部门"
   },
   "licenseClass": {
-    "message": "许可证等级"
+    "message": "驾驶证等级"
   },
   "copy": {
     "message": "复制"
