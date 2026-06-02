@@ -8,14 +8,12 @@
     <bit-table [dataSource]="dataSource">
       <ng-container header>
         <tr>
-          <th bitCell>{{ "type" | i18n }}</th>
-          <th bitCell>{{ "items" | i18n }}</th>
+          <th bitCell>{{ "name" | i18n }}</th>
         </tr>
       </ng-container>
       <ng-template body let-rows$>
         <tr bitRow *ngFor="let r of rows$ | async">
-          <td bitCell>{{ r.type }}</td>
-          <td bitCell>{{ r.count }}</td>
+          <td bitCell>{{ r.name }}</td>
         </tr>
       </ng-template>
     </bit-table>
