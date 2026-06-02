@@ -17,18 +17,22 @@ export type Urls = {
 /**
  * A subset of available regions, additional regions can be loaded through configuration.
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum Region {
-  US = "US",
-  EU = "EU",
-  SelfHosted = "Self-hosted",
-}
+const _Region = Object.freeze({
+  US: "US",
+  EU: "EU",
+  SelfHosted: "Self-hosted",
+} as const);
+
+type _Region = typeof _Region;
+
+export type Region = _Region[keyof _Region];
+
+export const Region = _Region satisfies Record<keyof _Region, Region>;
 
 /**
  * The possible cloud regions.
  */
-export type CloudRegion = Exclude<Region, Region.SelfHosted>;
+export type CloudRegion = Exclude<Region, typeof Region.SelfHosted>;
 
 export type RegionConfig = {
   // Beware this isn't completely true, it's actually a string for custom environments,
