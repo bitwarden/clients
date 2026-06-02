@@ -1,4 +1,3 @@
-import { SelectionModel } from "@angular/cdk/collections";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -23,6 +22,7 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { TableSelectionModel } from "./table-selection-model";
 import { BitTableV2Component } from "./table-v2.component";
 
 type DemoRow = { id: number; name: string; other: string };
@@ -326,7 +326,7 @@ export const Filterable: Story = {
  */
 export const WithBulkActions: Story = {
   render: () => {
-    const selection = new SelectionModel<DemoRow>(true, []);
+    const selection = new TableSelectionModel<DemoRow>(true, []);
     const noop = () => {
       /* story noop */
     };
@@ -378,7 +378,48 @@ export const WithBulkActions: Story = {
  */
 export const Selectable: Story = {
   render: () => {
-    const selection = new SelectionModel<DemoRow>(true, []);
+    const selection = new TableSelectionModel<DemoRow>(true, []);
+    return {
+      props: {
+        dataSource: basic,
+        displayedColumns: ["id", "name", "other"],
+        selection,
+      },
+      template: `
+        <bit-table-v2
+          [dataSource]="dataSource"
+          [displayedColumns]="displayedColumns"
+          [selection]="selection"
+        >
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="dataSource.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="dataSource.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Other</bit-header-cell>
+            <bit-cell *bitCellDef="dataSource.columns.other; let row">{{ row.other }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      `,
+    };
+  },
+};
+
+/**
+ * When only some rows are selectable, pass a `TableSelectionModel` with a
+ * predicate instead of a plain `SelectionModel`. Non-selectable rows render no
+ * checkbox, and select-all / indeterminate scope to selectable rows only. Here
+ * only even-`id` rows are selectable.
+ */
+export const SelectableSubset: Story = {
+  render: () => {
+    const selection = new TableSelectionModel<DemoRow>(true, [], {
+      canSelect: (row) => row.id % 2 === 0,
+    });
     return {
       props: {
         dataSource: basic,

@@ -1,4 +1,4 @@
-import { isDataSource, SelectionModel } from "@angular/cdk/collections";
+import { isDataSource } from "@angular/cdk/collections";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -27,6 +27,7 @@ import { Sort, TableDataSource } from "../table-data-source";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { TableSelectionModel } from "./table-selection-model";
 
 @Component({
   selector: "bit-table-v2",
@@ -77,9 +78,10 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
   /**
    * Selection model. When provided, the table prepends a checkbox column
    * with a select-all header. Select-all targets the currently filtered
-   * rows (per `dataSource.filteredData`), matching CDK conventions.
+   * rows (per `dataSource.filteredData`), matching CDK conventions. Supply a
+   * `canSelect` option on the model to make only some rows selectable.
    */
-  readonly selection = input<SelectionModel<T>>();
+  readonly selection = input<TableSelectionModel<T>>();
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
 
@@ -220,8 +222,14 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, After
     ds.sort = { column: colName, direction, fn: col.sortFn() };
   }
 
+  /** Whether a row may be selected, per the selection model's predicate. */
+  protected isSelectable(row: T): boolean {
+    return this.selection()?.isSelectable(row) ?? true;
+  }
+
   protected selectableRows(): T[] {
-    return this.dataSource()?.filteredData ?? this.dataSource()?.data ?? [];
+    const rows = this.dataSource()?.filteredData ?? this.dataSource()?.data ?? [];
+    return rows.filter((row) => this.isSelectable(row));
   }
 
   protected isAllSelected(): boolean {

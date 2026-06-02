@@ -20,12 +20,14 @@
 <ng-template #bodyCells let-row>
   @if (selection(); as sel) {
     <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0">
-      <input
-        type="checkbox"
-        aria-label="Select row"
-        [checked]="sel.isSelected(row)"
-        (change)="sel.toggle(row)"
-      />
+      @if (isSelectable(row)) {
+        <input
+          type="checkbox"
+          aria-label="Select row"
+          [checked]="sel.isSelected(row)"
+          (change)="sel.toggle(row)"
+        />
+      }
     </div>
   }
   @for (col of effectiveColumns(); track col.name()) {
