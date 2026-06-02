@@ -18,6 +18,9 @@ export const PopupWidthOptions = Object.freeze({
 type PopupWidthOptions = typeof PopupWidthOptions;
 export type PopupWidthOption = keyof PopupWidthOptions;
 
+/** localStorage key used to cache the user's configured popup width. */
+export const POPUP_WIDTH_STORAGE_KEY = "bw-popup-width";
+
 export default class BrowserPopupUtils {
   /**
    * Identifies if the popup is within the sidebar.
@@ -149,10 +152,7 @@ export default class BrowserPopupUtils {
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
       focused: true,
-      width: Math.max(
-        PopupWidthOptions.default,
-        typeof document === "undefined" ? PopupWidthOptions.default : document.body.clientWidth,
-      ),
+      width: await BrowserPopupUtils.getPopupWidth(),
       height: 630,
     };
     const offsetRight = 15;
@@ -256,6 +256,47 @@ export default class BrowserPopupUtils {
         }),
       ),
     );
+  }
+
+  /**
+   * Returns the configured popup window width in pixels.
+   *
+   * Reads the user's stored width preference from localStorage when available (popup context),
+   * falls back to chrome.storage.local for background/service-worker contexts, and finally
+   * falls back to the default width.
+   */
+  private static async getPopupWidth(): Promise<number> {
+    // Popup context: localStorage is synchronously available
+    if (typeof localStorage !== "undefined") {
+      const storedWidth = localStorage.getItem(POPUP_WIDTH_STORAGE_KEY);
+      if (storedWidth != null && storedWidth in PopupWidthOptions) {
+        return PopupWidthOptions[storedWidth as PopupWidthOption];
+      }
+    }
+
+    // Background/service-worker context: read from chrome.storage.local
+    // Key format is derived from the state framework: global_<stateDefinitionName>_<keyName>
+    // Values are stored with a serialization wrapper: { "__json__": true, value: '"narrow"' }
+    const chromeStorageKey = "global_popupStyle_popup-width";
+    try {
+      const result = await chrome.storage.local.get(chromeStorageKey);
+      let storedWidth = result[chromeStorageKey];
+      // Deserialize the state framework's serialization wrapper if present
+      if (
+        storedWidth != null &&
+        storedWidth["__json__"] === true &&
+        typeof storedWidth.value === "string"
+      ) {
+        storedWidth = JSON.parse(storedWidth.value);
+      }
+      if (storedWidth != null && storedWidth in PopupWidthOptions) {
+        return PopupWidthOptions[storedWidth as PopupWidthOption];
+      }
+    } catch {
+      // Ignore storage errors and fall through to the default
+    }
+
+    return PopupWidthOptions.default;
   }
 
   /**
