@@ -8,6 +8,8 @@ ignore = [
   # rand 0.8.5 pulled transitively by num-bigint-dig (via rsa, ssh-key, oo7). No updated version available.
   # Not affected: no custom log::Log logger uses rand in this codebase.
   { id = "RUSTSEC-2026-0097", reason = "Transitive dep via num-bigint-dig; no fix available. Not exploitable: no custom logger uses rand." },
+  # Vulnerability in `russh-cryptovec` crate: https://rustsec.org/advisories/RUSTSEC-2026-0153
+  { id = "RUSTSEC-2026-0153", reason = "This will be fixed by removal of the russh dependency in upcoming SSH Agent v2 release." },
 ]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
