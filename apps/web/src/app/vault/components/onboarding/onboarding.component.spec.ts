@@ -40,7 +40,7 @@ describe("OnboardingComponent", () => {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              complete: "__$1__ of __$2__ complete",
+              onboardingTasksComplete: "__$1__ of __$2__ complete",
               completed: "Completed",
               dismissThisChecklist: "Dismiss this checklist",
             }),

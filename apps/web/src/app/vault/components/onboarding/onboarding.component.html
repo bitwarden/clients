@@ -1,7 +1,7 @@
 <bit-accordion [title]="title()" [subtitle]="subtitle()" [startIcon]="startIcon()" [(open)]="open">
   @if (tasks().length > 0) {
     <bit-badge variant="primary" startIcon="bwi-clock" slot="end">
-      {{ "complete" | i18n: amountCompleted() : tasks().length }}
+      {{ "onboardingTasksComplete" | i18n: amountCompleted() : tasks().length }}
     </bit-badge>
   } @else {
     <bit-icon name="bwi-spinner" class="bwi-spin" slot="end"></bit-icon>
