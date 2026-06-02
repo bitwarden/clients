@@ -10,7 +10,6 @@ import {
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -25,7 +24,6 @@ import {
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -102,8 +100,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     protected router: Router,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private logService: LogService,
-    private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
     private i18nService: I18nService,
     private routerService: RouterService,
@@ -182,16 +178,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       invite.email &&
       invite.organizationUserId
     ) {
-      try {
-        policies = await this.policyApiService.getPoliciesByToken(
-          invite.organizationId,
-          invite.token,
-          invite.email,
-          invite.organizationUserId,
-        );
-      } catch (e) {
-        this.logService.error(e);
-      }
+      policies = await this.organizationInviteService.getInvitePolicies(invite);
     }
 
     if (policies !== null) {

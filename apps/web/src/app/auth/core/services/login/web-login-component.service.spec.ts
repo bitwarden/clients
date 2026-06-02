@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -35,7 +34,6 @@ describe("WebLoginComponentService", () => {
   let service: WebLoginComponentService;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let logService: MockProxy<LogService>;
-  let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let internalPolicyService: MockProxy<InternalPolicyService>;
   let routerService: MockProxy<RouterService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
@@ -50,7 +48,6 @@ describe("WebLoginComponentService", () => {
   beforeEach(() => {
     organizationInviteService = mock<OrganizationInviteService>();
     logService = mock<LogService>();
-    policyApiService = mock<PolicyApiServiceAbstraction>();
     internalPolicyService = mock<InternalPolicyService>();
     routerService = mock<RouterService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -67,7 +64,6 @@ describe("WebLoginComponentService", () => {
         { provide: DefaultLoginComponentService, useClass: WebLoginComponentService },
         { provide: OrganizationInviteService, useValue: organizationInviteService },
         { provide: LogService, useValue: logService },
-        { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
         { provide: InternalPolicyService, useValue: internalPolicyService },
         { provide: RouterService, useValue: routerService },
         { provide: CryptoFunctionService, useValue: cryptoFunctionService },
@@ -105,12 +101,11 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("logs an error if getPoliciesByToken throws an error", async () => {
-      const error = new Error("Test error");
+    it("returns undefined if getInvitePolicies returns null", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      policyApiService.getPoliciesByToken.mockRejectedValue(error);
-      await service.getOrgPoliciesFromOrgInvite(mockEmail);
-      expect(logService.error).toHaveBeenCalledWith(error);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(null);
+      const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+      expect(result).toBeUndefined();
     });
 
     it.each([
@@ -125,7 +120,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,

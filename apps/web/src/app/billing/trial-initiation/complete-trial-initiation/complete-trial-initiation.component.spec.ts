@@ -8,7 +8,6 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { RegistrationFinishService } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
@@ -58,7 +57,6 @@ describe("CompleteTrialInitiationComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
         { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: RouterService, useValue: mock<RouterService>() },
