@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "பாஸ்போர்ட் எண்ணை நகலெடு"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "உரிமம் எண்ணை நகலெடு"
   },
@@ -707,6 +719,22 @@
   },
   "rateExtension": {
     "message": "நீட்டிப்புக்கு மதிப்பிடு"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "browserNotSupportClipboard": {
     "message": "உங்கள் உலாவி எளிதான நகலெடுப்பதை ஆதரிக்கவில்லை. அதற்குப் பதிலாக கைமுறையாக நகலெடுக்கவும்."
@@ -1976,11 +2004,32 @@
   "brand": {
     "message": "பிராண்ட்"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "காலாவதி மாதம்"
   },
   "expirationYear": {
     "message": "காலாவதி ஆண்டு"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
   },
   "monthly": {
     "message": "மாதம்"
@@ -2075,6 +2124,51 @@
   "passportNumber": {
     "message": "கடவுச்சீட்டு எண்"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "உரிமம் எண்"
   },
@@ -2165,6 +2259,33 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "புதிய உள்நுழைவு",
     "description": "Header for new login item type"
@@ -2197,12 +2318,12 @@
     "message": "New passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "புதிய உரை அனுப்புதல்",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "புதிய கோப்பு அனுப்புதல்",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2229,7 +2350,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -2237,12 +2358,12 @@
     "message": "Edit passport",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "உரை அனுப்புதலைத் திருத்து",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "கோப்பைத் திருத்து அனுப்பு",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2269,7 +2390,7 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
@@ -2334,6 +2455,31 @@
   "clear": {
     "message": "அழி",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "கடவுச்சொல் வெளிப்பட்டதா எனச் சரிபார்க்கவும்."
@@ -2823,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "பயோமெட்ரிக்ஸ் முடிக்க முடியாது, ஒரு முதன்மை கடவுச்சொல்லைப் பயன்படுத்த அல்லது வெளியேற பரிசீலிக்கவும். இது தொடர்ந்தால், Bitwarden ஆதரவை தொடர்பு கொள்ளவும்."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "அனுமதி வழங்கப்படவில்லை"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bitwarden டெஸ்க்டாப் பயன்பாட்டுடன் தொடர்பு கொள்ள அனுமதி இல்லாமல், உலாவி நீட்டிப்பில் நாங்கள் பயோமெட்ரிக்ஸை வழங்க முடியாது. மீண்டும் முயற்சிக்கவும்."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "அனுமதி கோரிக்கை பிழை"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "இந்த நடவடிக்கை பக்கவாட்டில் செய்ய முடியாது, பாப்அப் அல்லது பாப்அவுட்டில் மீண்டும் நடவடிக்கை எடுக்கவும்."
   },
   "personalOwnershipSubmitError": {
     "message": "ஒரு என்டர்பிரைஸ் கொள்கை காரணமாக, உங்கள் தனிப்பட்ட பெட்டகத்தில் பொருட்களைச் சேமிப்பதிலிருந்து நீங்கள் தடை செய்யப்பட்டுள்ளீர்கள். உரிமை விருப்பத்தை ஒரு அமைப்புக்கு மாற்றி, கிடைக்கக்கூடிய சேகரிப்புகளில் இருந்து தேர்ந்தெடுக்கவும்."
@@ -3460,33 +3594,18 @@
   "exportingPersonalVaultTitle": {
     "message": "தனிப்பட்ட பெட்டகத்தை ஏற்றுமதி செய்கிறது"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட பெட்டக பொருட்கள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன பெட்டக பொருட்கள் சேர்க்கப்படாது. பெட்டக பொருள் தகவல்கள் மட்டுமே ஏற்றுமதி செய்யப்படும் மற்றும் அதனுடன் தொடர்புடைய இணைப்புகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய இணைப்புகள் உட்பட தனிப்பட்ட பெட்டக பொருட்கள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன பெட்டக பொருட்கள் சேர்க்கப்படாது",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "நிறுவன பெட்டகத்தை ஏற்றுமதி செய்கிறது"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ உடன் தொடர்புடைய நிறுவன பெட்டகம் மட்டுமே ஏற்றுமதி செய்யப்படும். தனிப்பட்ட பெட்டகங்கள் அல்லது பிற நிறுவனங்களில் உள்ள பொருட்கள் சேர்க்கப்படாது.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4577,6 +4696,18 @@
   "exportError": {
     "message": "An error occurred while exporting your vault data"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "typePasskey": {
     "message": "பாஸ்கி"
   },
@@ -4990,6 +5121,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "நகலெடுக்க மதிப்புகள் எதுவும் இல்லை"
@@ -6090,6 +6225,10 @@
   "next": {
     "message": "அடுத்து"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்ப்கள்",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6353,6 +6492,24 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankName": {
     "message": "Bank name"
   },
@@ -6390,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -6401,6 +6561,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -6423,14 +6592,34 @@
   "bankAccountTypeOther": {
     "message": "Other"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
-  },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "more": {
+    "message": "More"
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -6452,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   }
 }

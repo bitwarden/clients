@@ -128,17 +128,17 @@ import {
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   SshImportPromptService,
 } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
-import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
@@ -457,9 +457,7 @@ const safeProviders: SafeProvider[] = [
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [
       DialogService,
-      ConfigService,
       AccountService,
-      ApiService,
       SyncService,
       BillingAccountProfileStateService,
       PlatformUtilsService,
@@ -519,7 +517,7 @@ const safeProviders: SafeProvider[] = [
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule, UserCryptoManagementModule, GeneratorServicesModule],
+  imports: [CommonModule, JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })

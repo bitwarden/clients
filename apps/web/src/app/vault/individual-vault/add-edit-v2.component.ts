@@ -153,7 +153,7 @@ export class AddEditComponentV2 implements OnInit {
         ? "editItemHeaderBankAccount"
         : "newItemHeaderBankAccount",
       [CipherType.DriversLicense]: isEditMode
-        ? "editItemHeaderDriversLicense"
+        ? "editItemHeaderLicense"
         : "newItemHeaderDriversLicense",
       [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "newItemHeaderPassport",
     };

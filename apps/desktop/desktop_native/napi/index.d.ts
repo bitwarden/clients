@@ -11,7 +11,7 @@ export declare namespace autofill {
      */
     static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void): Promise<AutofillIpcServer>
     /** Return the path to the IPC server. */
-    getPath(): string
+    getPaths(): Array<string>
     /** Stop the IPC server. */
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
@@ -182,8 +182,8 @@ export declare namespace ipc {
      * This function will be called whenever a message is received from a client.
      */
     static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<NativeIpcServer>
-    /** Return the path to the IPC server. */
-    getPath(): string
+    /** Return the paths to the IPC server. */
+    getPaths(): Array<string>
     /** Stop the IPC server. */
     stop(): void
     /**
@@ -295,7 +295,7 @@ export declare namespace sshagent_v2 {
      * * `unlock_callback` - Allows agent to vault unlock
      * * `sign_callback` - Allows agent to get approval for sign requests
      */
-    static serve(signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
+    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>)): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     replace(newKeys: Array<SshKeyData>): void

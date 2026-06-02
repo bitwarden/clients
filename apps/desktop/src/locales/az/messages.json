@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Bank məlumatları"
   },
+  "typePassport": {
+    "message": "Pasport"
+  },
+  "passportDetails": {
+    "message": "Pasport məlumatları"
+  },
+  "passportAdded": {
+    "message": "Pasport əlavə olundu"
+  },
+  "typePassportSubtitle": {
+    "message": "Səyahət sənədi"
+  },
   "folderSubtitle": {
     "message": "Elementlərinizi təşkil edin"
   },
   "collectionSubtitle": {
     "message": "Paylaşılan elementləri təşkil edin"
+  },
+  "typeDriversLicense": {
+    "message": "Sür. vəsiqəsi"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Sürücülük vəsiqəsi və ya kimlik"
   },
   "chooseItemToAdd": {
     "message": "Əlavə olunacaq elementi seç"
@@ -141,15 +159,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Bank hesabına bax",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "View license",
+  "viewItemHeaderLicense": {
+    "message": "Sür. vəsiqəsinə bax",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Pasporta bax",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
@@ -173,15 +191,15 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Yeni bank hesabı",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Yeni sür. vəsiqəsi",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Yeni pasport",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -205,15 +223,15 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Bank hesabına düzəliş",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Edit license",
+  "editItemHeaderLicense": {
+    "message": "Sür. vəsiqəsinə düzəliş",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Pasporta düzəliş",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -272,20 +290,20 @@
   "sendTypeTextToShare": {
     "message": "Paylaşılacaq mətn"
   },
-  "newItemHeaderTextSend": {
-    "message": "Yeni Send mətni",
+  "newItemHeaderTextSendV2": {
+    "message": "Yeni mətn",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Yeni Send faylı",
+  "newItemHeaderFileSendV2": {
+    "message": "Yeni fayl",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send mətninə düzəliş et",
+  "editItemHeaderTextSendV2": {
+    "message": "Mətnə düzəliş",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send faylına düzəliş et",
+  "editItemHeaderFileSendV2": {
+    "message": "Fayla düzəliş",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Pasport nömrəsi"
+  },
+  "sex": {
+    "message": "Cinsi"
+  },
+  "copySex": {
+    "message": "Cinsi kopyala"
+  },
+  "birthPlace": {
+    "message": "Doğum yeri"
+  },
+  "copyBirthPlace": {
+    "message": "Doğum yerini kopyala"
+  },
+  "nationality": {
+    "message": "Milliyəti"
+  },
+  "copyNationality": {
+    "message": "Milliyətini kopyala"
+  },
+  "copyIssuingCountry": {
+    "message": "Təqdim edən ölkəni kopyala"
+  },
+  "passportType": {
+    "message": "Pasport növü"
+  },
+  "copyPassportType": {
+    "message": "Pasport növünü kopyala"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Şəxsiyyət vəsiqəsi nömrəsini kopyala"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Şəxsiyyət vəsiqəsi nömrəsi"
+  },
+  "copyIssuingAuthority": {
+    "message": "Təqdim edən orqanı/ofisi kopyala"
   },
   "licenseNumber": {
     "message": "Lisenziya nömrəsi"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Sadalanacaq heç bir element yoxdur."
   },
+  "noValueEntered": {
+    "message": "Heç bir dəyər daxil edilməyib",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Doğrulama kodunu e-poçtunuza göndərin"
   },
@@ -1755,6 +1813,10 @@
     "message": "Nömrəni kopyala",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Adı kopyala",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "E-poçtu kopyala"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Hamısını seç"
+  },
+  "selected": {
+    "message": "Seçildi"
+  },
+  "bulkActionsBar": {
+    "message": "Toplu əməliyyat"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ element seçildi. Toplu əməliyyat çubuğu artıq ekranın alt hissəsində mövcuddur. Toplu əməliyyat çubuğuna fokuslanmaq üçün  $SHORTCUTBINDING$ basın.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Seçim təmizləndi"
+  },
+  "additionalActions": {
+    "message": "Əlavə əməliyyatlar"
   },
   "zoomIn": {
     "message": "Yaxınlaşdır"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Hesabınızı silmək birdəfəlik prosesdir. Bu əməliyyatın geri dönüşü yoxdur."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Ən azı bir təşkilatın sahibisiniz. Hesabınızı silsəniz, sahibi tək siz olan bütün təşkilatlar da silinəcək."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Bir təşkilata sahiblik etdiyiniz müddətcə hesabınızı silə bilməzsiniz. Əvvəlcə sahibliyi təhvil verin və ya təşkilatı silin."
+  },
   "cannotDeleteAccount": {
     "message": "Hesab silinə bilmir"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Təəssüf ki, brauzer inteqrasiyası hal-hazırda Windows Store versiyasında dəstəklənmir."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Təəssüf ki, brauzer inteqrasiyası hal-hazırda Linux versiyasında dəstəklənmir."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Brauzer inteqrasiyası üçün doğrulama tələb et"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Masaüstü tətbiqi ilə brauzer arasında bağlantı qurarkən barmaq izi ifadəsinin təsdiqlənməsini tələb edərək əlavə bir güvənlik qatını fəallaşdıra bilərsiniz. Bu, hər bağlantı qurulanda istifadəçi müdaxiləsi və doğrulama tələb edir."
-  },
   "enableHardwareAcceleration": {
     "message": "Donanım sürətləndirməsini istifadə et"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Təsdiqlə"
-  },
-  "verifyBrowserTitle": {
-    "message": "Brauzer bağlantısını doğrula"
-  },
-  "verifyBrowserDesc": {
-    "message": "Lütfən göstərilən barmaq izinin brauzer uzantısında göstərilən barmaq izi ilə eyni olduğuna əmin olun."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$, Bitwarden ilə bağlantı qurmaq istəyir",
@@ -2780,7 +2858,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "E-poçt ünvanımı alıcılardan gizlət."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3103,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Fərdi seyfin xaricə köçürülməsi"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş fərdi seyf elementləri xaricə köçürüləcək. Təşkilat seyf elementləri daxil edilməyəcək. Yalnız seyf element məlumatları xaricə köçürüləcək və əlaqələndirilmiş qoşmalar daxil edilməyəcək.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş qoşmalar daxil olmaqla fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Təşkilat seyfini xaricə köçürmə"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Fərdi seyfdə və digər təşkilatlardakı elementlər daxil edilməyəcək.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Yalnız fərdi seyfinizdəki elementlər xaricə köçürüləcək."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Yalnız $ORGANIZATION$ seyfi ilə əlaqələndirilmiş elementlər xaricə köçürüləcək. Fərdi seyfinizdə elementlər deyil.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +4073,18 @@
   "exportError": {
     "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "Xaricə köçürmə zamanı 1 zədəli qoşma ötürüldü. Digər bütün seyf veriləri və qoşmaları uğurla xaricə köçürüldü."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "Xaricə köçürmə zamanı $COUNT$ zədəli qoşma ötürüldü. Digər bütün seyf veriləri və qoşmaları uğurla xaricə köçürüldü.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Çox faktorlu kimlik doğrulama ləğv edildi"
   },
@@ -4122,6 +4197,22 @@
   },
   "troubleshooting": {
     "message": "Problemlərin aradan qaldırılması"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Diaqnostika hesabatını endir"
+  },
+  "experiencingAnIssue": {
+    "message": "Problemlə üzləşmisiniz?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Diaqnostika hesabatını endirib paylaşın"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden dəstək",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Endir"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Donanım sürətləndirməni sıradan çıxart və yenidən başlat"
@@ -4655,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Yararsız qısayol"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Daha çox naviqasiya yolu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4805,6 +4900,9 @@
   "sessionTimeoutHeader": {
     "message": "Sessiya vaxt bitməsi"
   },
+  "browserAccessDenied": {
+    "message": "Yararsız bir brauzer qovluğu seçilib və ya erişimə rədd cavabı verilib"
+  },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"
   },
@@ -4848,6 +4946,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ quraşdırılmayıb. Lütfən parolları daxilə köçürməzdən əvvəl quraşdırın: $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Lütfən $BROWSER$ veri qovluğunuzu seçin",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Gözlənən yer:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Erişimə icazə ver"
   },
   "upgrade": {
     "message": "Yüksəlt"
@@ -4988,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
   },
+  "more": {
+    "message": "Daha çox"
+  },
+  "enterMonth": {
+    "message": "Ayı daxil edin."
+  },
+  "enterDay": {
+    "message": "Günü daxil edin."
+  },
+  "enterYear": {
+    "message": "İli daxil edin."
+  },
+  "invalidDay": {
+    "message": "Yararlı bir gün daxil edin."
+  },
+  "invalidYear": {
+    "message": "Yararlı bir il daxil edin."
+  },
+  "searchDriversLicense": {
+    "message": "Sür. vəsiqəsi axtar"
+  },
   "bankAccount": {
     "message": "Bank hesabı"
   },
@@ -5028,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Bank hesabını axtar"
   },
+  "searchPassport": {
+    "message": "Pasport axtar"
+  },
   "copyAccountNumber": {
     "message": "Hesab nömrəsini kopyala"
   },
@@ -5039,6 +5185,30 @@
   },
   "copyIban": {
     "message": "IBAN-ı kopyala"
+  },
+  "copyNameOnAccount": {
+    "message": "Hesabdakı adı kopyala"
+  },
+  "copyBranchNumber": {
+    "message": "Filial nömrəsini kopyala"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT kodunu kopyala"
+  },
+  "copyFirstName": {
+    "message": "Adı kopyala"
+  },
+  "copyMiddleName": {
+    "message": "Orta adı kopyala"
+  },
+  "copyLastName": {
+    "message": "Soyadı kopyala"
+  },
+  "copyLicenseNumber": {
+    "message": "Sür. vəsiqəsi nömrəsini kopyala"
+  },
+  "copyPassportNumber": {
+    "message": "Pasport nömrəsini kopyala"
   },
   "bankAccountTypeChecking": {
     "message": "Yoxlanılır"
@@ -5084,6 +5254,22 @@
     "message": "Send düzəlişlərini saxlama uğursuz oldu",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "Mətnə bax"
+  },
+  "viewFileSendHeader": {
+    "message": "Fayla bax"
+  },
+  "sendCreated": {
+    "message": "Send yaradıldı",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Rəqəmsal daxil edin"
+  },
+  "integerInputError": {
+    "message": "Tam ədəd daxil edin"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Təşkilatınızın e-poçtun görünməsini tələb edir. Saxlamaq üçün \"E-poçtunuzu baxanlardan gizlədin\" seçimini ləğv edin."
   },
@@ -5100,5 +5286,50 @@
   "progressBar": {
     "message": "İrəliləyiş çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Birdən çox kolleksiyanın parçası olan elementləri \"Elementlərim\"ə köçürə bilməzsiniz"
+  },
+  "driversLicenseDetails": {
+    "message": "Sür. vəs. məlumatları"
+  },
+  "dateOfBirth": {
+    "message": "Doğum tarixi"
+  },
+  "birthMonth": {
+    "message": "Doğum ayı"
+  },
+  "birthDay": {
+    "message": "Doğum günü"
+  },
+  "birthYear": {
+    "message": "Doğum ili"
+  },
+  "issuingCountry": {
+    "message": "Təqdim edən ölkə"
+  },
+  "issuingState": {
+    "message": "Təqdim edən ştat/əyalət"
+  },
+  "issueDate": {
+    "message": "Təqdim edilmə tarixi"
+  },
+  "issueMonth": {
+    "message": "Təqdim edilmə ayı"
+  },
+  "issueDay": {
+    "message": "Təqdim edilmə günü"
+  },
+  "issueYear": {
+    "message": "Təqdim edilmə ili"
+  },
+  "expirationDay": {
+    "message": "Bitmə günü"
+  },
+  "issuingAuthority": {
+    "message": "Təqdim edən orqan"
+  },
+  "licenseClass": {
+    "message": "Sür. vəs. sinifi"
   }
 }
