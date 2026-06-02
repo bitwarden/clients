@@ -345,6 +345,19 @@ describe("EnvironmentService", () => {
 
       expect(data.getRegion()).toBe(Region.US);
     });
+
+    it("normalizes a blank send url to null", async () => {
+      await sut.setEnvironment(Region.SelfHosted, {
+        base: "base.example.com",
+        send: "", // empty string from the dialog — should be normalized to null
+      });
+      await awaitAsync();
+
+      const env = await firstValueFrom(sut.environment$);
+
+      // A blank send URL should fall back through base, not persist as "" causing getSendUrl() to return "/#/"
+      expect(env.getSendUrl()).toBe("https://base.example.com/#/send/");
+    });
   });
 
   describe("getEnvironment$", () => {

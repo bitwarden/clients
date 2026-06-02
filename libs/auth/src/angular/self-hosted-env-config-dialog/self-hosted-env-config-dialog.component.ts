@@ -206,7 +206,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       webVault: this.webVaultUrl.value,
       icons: this.iconsUrl.value,
       notifications: this.notificationsUrl.value,
-      send: this.sendUrl.value || null,
+      send: this.sendUrl.value,
     });
 
     await this.dialogRef.close(true);

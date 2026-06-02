@@ -242,6 +242,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
       urls.notifications = formatUrl(urls.notifications);
       urls.events = formatUrl(urls.events);
       urls.keyConnector = formatUrl(urls.keyConnector);
+      urls.send = formatUrl(urls.send);
       urls.scim = null;
 
       await this.globalState.update(() => ({
