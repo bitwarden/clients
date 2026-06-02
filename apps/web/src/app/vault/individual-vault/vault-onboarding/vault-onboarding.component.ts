@@ -20,13 +20,14 @@ import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { OnboardingModule } from "../../../shared/components/onboarding/onboarding.module";
+import { OnboardingTaskComponent } from "../../components/onboarding/onboarding-task.component";
+import { OnboardingComponent } from "../../components/onboarding/onboarding.component";
 
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
 import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
 @Component({
-  imports: [OnboardingModule, CommonModule, I18nPipe],
+  imports: [OnboardingComponent, OnboardingTaskComponent, CommonModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {

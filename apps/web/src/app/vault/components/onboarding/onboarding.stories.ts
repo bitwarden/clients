@@ -6,15 +6,15 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
+import { OnboardingTaskComponent } from "./onboarding-task.component";
 import { OnboardingComponent } from "./onboarding.component";
-import { OnboardingModule } from "./onboarding.module";
 
 export default {
   title: "Web/Vault/Onboarding",
   component: OnboardingComponent,
   decorators: [
     moduleMetadata({
-      imports: [OnboardingModule, RouterModule, I18nPipe],
+      imports: [OnboardingComponent, OnboardingTaskComponent, RouterModule, I18nPipe],
     }),
     applicationConfig({
       providers: [

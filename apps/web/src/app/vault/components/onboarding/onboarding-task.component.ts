@@ -11,7 +11,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterModule, BadgeComponent, ButtonComponent, I18nPipe],
   host: {
-    class: "tw-block",
+    class:
+      "tw-block tw-py-4 -tw-mx-4 tw-px-4 tw-border-b tw-border-solid tw-border-border-base first:tw-pt-0",
     role: "listitem",
   },
 })

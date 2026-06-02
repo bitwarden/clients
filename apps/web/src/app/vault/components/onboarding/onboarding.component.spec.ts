@@ -5,8 +5,8 @@ import { provideRouter } from "@angular/router";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
 
+import { OnboardingTaskComponent } from "./onboarding-task.component";
 import { OnboardingComponent } from "./onboarding.component";
-import { OnboardingModule } from "./onboarding.module";
 
 @Component({
   template: `
@@ -32,7 +32,7 @@ describe("OnboardingComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OnboardingModule],
+      imports: [OnboardingComponent, OnboardingTaskComponent],
       declarations: [TestHostComponent],
       providers: [
         provideRouter([]),
