@@ -4,9 +4,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher-sdk-mapper";
 import { Repository, StateClient } from "@bitwarden/sdk-internal";
 
-import { EphemeralPinEnvelopeMapper } from "../../../key-management/ephemeral-pin-envelope-mapper";
 import { LocalUserDataKeyRecordMapper } from "../../../key-management/local-user-data-key-mapper";
-import { UserKeyRecordMapper } from "../../../key-management/user-key-mapper";
 import { StateProvider, UserKeyDefinition } from "../../state";
 
 export async function initializeClientManagedState(
@@ -17,17 +15,13 @@ export async function initializeClientManagedState(
   stateClient.register_client_managed_repositories({
     cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper(), true),
     folder: null,
-    user_key_state: new RepositoryRecord(userId, stateProvider, new UserKeyRecordMapper()),
+    user_key_state: null,
     local_user_data_key_state: new RepositoryRecord(
       userId,
       stateProvider,
       new LocalUserDataKeyRecordMapper(),
     ),
-    ephemeral_pin_envelope_state: new RepositoryRecord(
-      userId,
-      stateProvider,
-      new EphemeralPinEnvelopeMapper(),
-    ),
+    ephemeral_pin_envelope_state: null,
     organization_shared_key: null,
   });
 }
