@@ -99,6 +99,9 @@ export enum FeatureFlag {
 
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
+
+  /* Desktop */
+  DesktopSettingsDialog = "desktop-ui-settings-dialog",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -204,6 +207,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
+
+  /* Desktop */
+  [FeatureFlag.DesktopSettingsDialog]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

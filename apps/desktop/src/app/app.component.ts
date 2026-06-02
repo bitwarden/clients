@@ -76,6 +76,7 @@ import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
+import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
@@ -286,9 +287,14 @@ export class AppComponent implements OnInit, OnDestroy {
               await this.configService.ensureConfigFetched();
             }
             break;
-          case "openSettings":
-            await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+          case "openSettings": {
+            if (await this.configService.getFeatureFlag(FeatureFlag.DesktopSettingsDialog)) {
+              SettingsDialogComponent.open(this.dialogService);
+            } else {
+              await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+            }
             break;
+          }
           case "openTroubleshootingDialog":
             TroubleshootingDialogComponent.open(this.dialogService);
             break;
