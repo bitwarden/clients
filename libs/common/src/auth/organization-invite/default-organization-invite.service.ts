@@ -1,5 +1,5 @@
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
   /**

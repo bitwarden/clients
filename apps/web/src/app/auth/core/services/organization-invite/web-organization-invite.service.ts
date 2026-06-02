@@ -1,8 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
-import { ORGANIZATION_INVITE } from "@bitwarden/common/auth/services/organization-invite/organization-invite-state";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { ORGANIZATION_INVITE } from "@bitwarden/common/auth/organization-invite/organization-invite-state";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 export class WebOrganizationInviteService implements OrganizationInviteService {

@@ -1,4 +1,4 @@
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 
 export abstract class OrganizationInviteService {
   /**
