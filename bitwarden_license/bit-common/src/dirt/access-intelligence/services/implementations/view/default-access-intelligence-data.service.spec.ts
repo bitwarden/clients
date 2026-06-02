@@ -4,6 +4,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,6 +23,7 @@ import { DefaultAccessIntelligenceDataService } from "./default-access-intellige
 
 describe("DefaultAccessIntelligenceDataService", () => {
   let service: DefaultAccessIntelligenceDataService;
+  let apiService: jest.Mocked<ApiService>;
   let cipherService: jest.Mocked<CipherService>;
   let organizationUserApiService: jest.Mocked<OrganizationUserApiService>;
   let reportGenerationService: jest.Mocked<ReportGenerationService>;
@@ -36,8 +38,12 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   beforeEach(() => {
     // Create mocks
+    apiService = {
+      getManyCollectionsWithAccessDetails: jest.fn().mockResolvedValue({ data: [] }),
+    } as any;
+
     cipherService = {
-      getAllFromApiForOrganization: jest.fn(),
+      getAllFromApiForOrganization: jest.fn().mockResolvedValue([]),
     } as any;
 
     organizationUserApiService = {
@@ -45,11 +51,11 @@ describe("DefaultAccessIntelligenceDataService", () => {
     } as any;
 
     reportGenerationService = {
-      generateReport: jest.fn(),
+      generateReport$: jest.fn(),
     } as any;
 
     reportPersistenceService = {
-      loadReport$: jest.fn(),
+      loadLastReport$: jest.fn(),
       saveReport$: jest.fn(),
       saveApplicationMetadata$: jest.fn(),
     } as any;
@@ -61,6 +67,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     } as any;
 
     service = new DefaultAccessIntelligenceDataService(
+      apiService,
       cipherService,
       organizationUserApiService,
       reportGenerationService,
@@ -71,7 +78,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Initialization", () => {
     it("should load existing report and emit via report$", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
 
@@ -79,11 +86,11 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const report = await firstValueFrom(service.report$);
       expect(report).toBe(testReport);
-      expect(reportPersistenceService.loadReport$).toHaveBeenCalledWith(orgId);
+      expect(reportPersistenceService.loadLastReport$).toHaveBeenCalledWith(orgId);
     });
 
     it("should emit null if no report exists", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
@@ -98,7 +105,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const newId = "report-id-123" as OrganizationReportId;
       const newKey = new EncString("new-key");
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: legacyReport, hadLegacyBlobs: true }),
       );
       reportPersistenceService.saveReport$.mockReturnValue(
@@ -114,7 +121,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should handle load errors gracefully", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         throwError(() => new Error("Load failed")),
       );
 
@@ -130,6 +137,19 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Report Generation", () => {
     beforeEach(() => {
+      apiService.getManyCollectionsWithAccessDetails.mockResolvedValue({
+        data: [
+          {
+            id: "collection-1",
+            name: "test",
+            organizationId: "org-1",
+            groups: [],
+            users: [],
+            hidePasswords: false,
+          },
+        ],
+        continuationToken: "",
+      } as any);
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -142,8 +162,8 @@ describe("DefaultAccessIntelligenceDataService", () => {
           } as OrganizationUserUserDetailsResponse,
         ],
       } as any);
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
@@ -162,10 +182,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
-        includeCollections: true,
         includeGroups: true,
       });
-      expect(reportGenerationService.generateReport).toHaveBeenCalled();
+      expect(reportGenerationService.generateReport$).toHaveBeenCalled();
       expect(reportPersistenceService.saveReport$).toHaveBeenCalledWith(testReport, orgId);
     });
 
@@ -177,14 +196,14 @@ describe("DefaultAccessIntelligenceDataService", () => {
       });
 
       // Prime in-memory report state via initialize so generateNewReport$ can read it
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: previousReport, hadLegacyBlobs: false }),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
-      expect(reportGenerationService.generateReport).toHaveBeenCalledWith(
+      expect(reportGenerationService.generateReport$).toHaveBeenCalledWith(
         testCiphers,
         expect.anything(),
         expect.anything(),
@@ -201,12 +220,12 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should handle generation errors and keep previous report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
-      reportGenerationService.generateReport.mockReturnValue(
+      reportGenerationService.generateReport$.mockReturnValue(
         throwError(() => new Error("Generation failed")),
       );
 
@@ -252,7 +271,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should reset reportProgress$ to null on generation error", async () => {
-      reportGenerationService.generateReport.mockReturnValue(
+      reportGenerationService.generateReport$.mockReturnValue(
         throwError(() => new Error("Generation failed")),
       );
 
@@ -267,7 +286,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Load Existing Report", () => {
     it("should load and emit report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
 
@@ -278,7 +297,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should emit null if no report exists", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
 
       await firstValueFrom(service.loadExistingReport$(orgId));
 
@@ -300,7 +319,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       mockReport.unmarkApplicationsAsCritical = jest.fn();
       mockReport.markApplicationAsReviewed = jest.fn();
 
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: mockReport, hadLegacyBlobs: false }),
       );
       reportPersistenceService.saveApplicationMetadata$.mockReturnValue(of(undefined as void));
@@ -337,7 +356,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should throw error if no report loaded", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       await expect(
@@ -376,14 +395,14 @@ describe("DefaultAccessIntelligenceDataService", () => {
     it("should use correct organizationId when marking critical after report generation", async () => {
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
           contentEncryptionKey: new EncString(""),
         }),
       );
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
 
       await firstValueFrom(service.generateNewReport$(orgId));
       await firstValueFrom(service.markApplicationsAsCritical$(["test-app.com"]));
@@ -435,7 +454,8 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Organization Switching", () => {
     it("should reset state when switching organizations", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      cipherService.getAllFromApiForOrganization.mockResolvedValue([]);
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
 
@@ -445,7 +465,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       // Switch to different org
       const newOrgId = "org-456" as OrganizationId;
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
 
       await firstValueFrom(service.initializeForOrganization$(newOrgId));
       const secondReport = await firstValueFrom(service.report$);
@@ -457,8 +477,8 @@ describe("DefaultAccessIntelligenceDataService", () => {
     it("should expose ciphers$ for UI icon display", async () => {
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
       );
@@ -471,7 +491,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     it("should clear error after successful operation", async () => {
       // First operation fails
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         throwError(() => new Error("Load failed")),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
@@ -480,7 +500,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(error).toBe("Failed to initialize");
 
       // Second operation succeeds
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
@@ -509,32 +529,41 @@ describe("DefaultAccessIntelligenceDataService", () => {
         } as OrganizationUserUserDetailsResponse,
       ];
 
+      apiService.getManyCollectionsWithAccessDetails.mockResolvedValue({
+        data: [
+          {
+            id: "col-1",
+            users: [{ id: "user-1" }, { id: "user-2" }],
+            groups: [{ id: "group-1" }],
+          },
+        ],
+      } as any);
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: apiUsers } as any);
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
       );
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
-      expect(reportGenerationService.generateReport).toHaveBeenCalledWith(
+      expect(reportGenerationService.generateReport$).toHaveBeenCalledWith(
         testCiphers,
         expect.arrayContaining([
           { id: "user-1", name: "Alice", email: "alice@example.com" },
           { id: "user-2", name: "Bob", email: "bob@example.com" },
         ]),
-        expect.arrayContaining([
+        [
           {
             collectionId: "col-1",
-            users: expect.any(Set),
-            groups: expect.any(Set),
+            users: new Set(["user-1", "user-2"]),
+            groups: new Set(["group-1"]),
           },
-        ]),
+        ],
         expect.arrayContaining([
-          { groupId: "group-1", users: expect.any(Set) },
-          { groupId: "group-2", users: expect.any(Set) },
+          { groupId: "group-1", users: new Set(["user-1"]) },
+          { groupId: "group-2", users: new Set(["user-2"]) },
         ]),
         expect.anything(),
       );

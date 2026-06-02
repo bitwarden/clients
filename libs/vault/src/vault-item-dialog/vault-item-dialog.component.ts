@@ -33,8 +33,8 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
-  BadgeModule,
   BitIconButtonComponent,
+  ChipActionComponent,
   ButtonModule,
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -129,7 +129,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
-    BadgeModule,
+    ChipActionComponent,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
@@ -574,6 +574,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Refresh from local state so attachments modified during edit aren't stale in view mode.
+    const activeUserId = await firstValueFrom(this.userId$);
+    const latestCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+    if (latestCipher != null) {
+      this.cipher = await this.cipherService.decrypt(latestCipher, activeUserId);
+    }
+
     // We're in Form mode, and we have a cipher, switch back to View mode.
     await this.changeMode("view");
   };
@@ -660,6 +667,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SecureNote]: "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
         [CipherType.BankAccount]: "viewItemHeaderBankAccount",
+        [CipherType.DriversLicense]: "viewItemHeaderLicense",
+        [CipherType.Passport]: "viewItemHeaderPassport",
       },
       new: {
         [CipherType.Login]: "newItemHeaderLogin",
@@ -668,6 +677,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SecureNote]: "newItemHeaderNote",
         [CipherType.SshKey]: "newItemHeaderSshKey",
         [CipherType.BankAccount]: "newItemHeaderBankAccount",
+        [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
+        [CipherType.Passport]: "newItemHeaderPassport",
       },
       edit: {
         [CipherType.Login]: "editItemHeaderLogin",
@@ -676,6 +687,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SecureNote]: "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
         [CipherType.BankAccount]: "editItemHeaderBankAccount",
+        [CipherType.DriversLicense]: "editItemHeaderLicense",
+        [CipherType.Passport]: "editItemHeaderPassport",
       },
     };
     const type = this.cipher?.type ?? this.formConfig.cipherType;

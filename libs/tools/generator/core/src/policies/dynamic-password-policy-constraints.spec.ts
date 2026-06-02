@@ -276,8 +276,8 @@ describe("DynamicPasswordPolicyConstraints", () => {
       expect(calibrated.constraints.minSpecial).toEqual(Zero);
     });
 
-    it("activates special constraint when policy mandates minSpecial even if state.special is false", () => {
-      const policy = { ...disabledPolicy, specialCount: 5, useSpecial: true };
+    it("preserves the minSpecial constraint when the policy sets specialCount and the state's special flag is false", () => {
+      const policy = { ...disabledPolicy, specialCount: 3 };
       const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
       const state = {
         ...defaultOptions,
@@ -286,12 +286,11 @@ describe("DynamicPasswordPolicyConstraints", () => {
 
       const calibrated = dynamic.calibrate(state);
 
-      // minSpecial should NOT be zero because the policy requires specialCount=5
-      expect(calibrated.constraints.minSpecial).toMatchObject({ min: 5 });
+      expect(calibrated.constraints.minSpecial).toEqual({ min: 3, max: 9 });
     });
 
-    it("activates number constraint when policy mandates minNumber even if state.number is false", () => {
-      const policy = { ...disabledPolicy, numberCount: 3, useNumbers: true };
+    it("preserves the minNumber constraint when the policy sets numberCount and the state's number flag is false", () => {
+      const policy = { ...disabledPolicy, numberCount: 3 };
       const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
       const state = {
         ...defaultOptions,
@@ -300,24 +299,7 @@ describe("DynamicPasswordPolicyConstraints", () => {
 
       const calibrated = dynamic.calibrate(state);
 
-      // minNumber should NOT be zero because the policy requires numberCount=3
-      expect(calibrated.constraints.minNumber).toMatchObject({ min: 3 });
-    });
-
-    it("enforces minSpecial through adjust when policy sets specialCount", () => {
-      const policy = { ...disabledPolicy, specialCount: 5, useSpecial: true };
-      const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
-      const state = {
-        ...defaultOptions,
-        special: false,
-        minSpecial: 0,
-      };
-
-      const calibrated = dynamic.calibrate(state);
-      const result = calibrated.adjust(state);
-
-      expect(result.state.special).toBe(true);
-      expect(result.state.minSpecial).toBeGreaterThanOrEqual(5);
+      expect(calibrated.constraints.minNumber).toEqual({ min: 3, max: 9 });
     });
   });
 });

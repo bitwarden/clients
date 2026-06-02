@@ -1,17 +1,17 @@
 import { NgModule } from "@angular/core";
-import { from, take } from "rxjs";
+import { firstValueFrom, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
@@ -62,7 +62,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     safeProvider({
       provide: LegacyEncryptorProvider,
       useClass: KeyServiceLegacyEncryptorProvider,
-      deps: [EncryptService, KeyService],
+      deps: [EncryptService, KeyService, SdkService],
     }),
     safeProvider({
       provide: ExtensionRegistry,
@@ -133,6 +133,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         state: StateProvider,
         i18n: I18nService,
         api: ApiService,
+        sdkService: SdkService,
       ) => {
         const userStateDeps = {
           encryptor,
@@ -141,25 +142,34 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           now: Date.now,
         } satisfies UserStateSubjectDependencyProvider;
 
-        const featureFlagObs$ = from(
-          system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
-        );
-        let featureFlag: boolean = false;
-        featureFlagObs$.pipe(take(1)).subscribe((ff) => (featureFlag = ff));
         const metadata = new providers.GeneratorMetadataProvider(
           userStateDeps,
           system,
           Object.values(BuiltIn),
         );
 
-        const sdkService = featureFlag ? system.sdk : undefined;
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
+
+        // Hold a single warm subscription to `sdkService.client$` so each
+        // generator invocation replays the cached client instead of re-running
+        // the inner `concatMap` (which would re-pay `createSdkClient` and
+        // `loadFeatureFlags`). `refCount: false` keeps the upstream
+        // subscription alive even when no downstream subscribers exist between
+        // `firstValueFrom` calls. Environment changes still propagate because
+        // the inner `client$` is wired to `environmentService.environment$`.
+        // Trade-off: an SDK initialization failure becomes sticky — every
+        // subsequent `sdk()` call resolves to the cached error. This matches
+        // today's observable behavior (a broken SDK already breaks every
+        // downstream consumer).
+        const sharedClient$ = sdkService.client$.pipe(
+          shareReplay({ refCount: false, bufferSize: 1 }),
+        );
 
         const generator: providers.GeneratorDependencyProvider = {
           randomizer: random,
           client: new RestClient(api, i18n),
           i18nService: i18n,
-          sdk: sdkService,
+          sdk: () => firstValueFrom(sharedClient$),
           now: Date.now,
         };
 
@@ -184,6 +194,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         StateProvider,
         I18nService,
         ApiService,
+        SdkService,
       ],
     }),
     safeProvider({

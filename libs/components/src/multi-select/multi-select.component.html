@@ -18,9 +18,10 @@
   [labelForId]="labelForId"
   [keyDownFn]="keyDown"
   appendTo="body"
+  outsideClickEvent="mousedown"
 >
   <ng-template ng-loadingspinner-tmp>
-    <bit-spinner size="small"></bit-spinner>
+    <bit-spinner size="sm" />
   </ng-template>
   <ng-template ng-label-tmp let-item="item" let-clear="clear">
     <bit-chip

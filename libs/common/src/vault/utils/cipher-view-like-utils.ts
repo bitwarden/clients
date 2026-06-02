@@ -132,12 +132,16 @@ export class CipherViewLikeUtils {
         return CipherType.SshKey;
       case cipher.type === "bankAccount":
         return CipherType.BankAccount;
+      case cipher.type === "passport":
+        return CipherType.Passport;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
         return CipherType.Card;
       case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      case cipher.type === "driversLicense":
+        return CipherType.DriversLicense;
       default:
         throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
@@ -282,14 +286,36 @@ export class CipherViewLikeUtils {
         return !!cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return !!cipher.sshKey?.keyFingerprint;
+      case "nameOnAccount":
+        return !!cipher.bankAccount?.nameOnAccount;
       case "accountNumber":
         return !!cipher.bankAccount?.accountNumber;
       case "routingNumber":
         return !!cipher.bankAccount?.routingNumber;
+      case "branchNumber":
+        return !!cipher.bankAccount?.branchNumber;
       case "pin":
         return !!cipher.bankAccount?.pin;
       case "iban":
         return !!cipher.bankAccount?.iban;
+      case "swiftCode":
+        return !!cipher.bankAccount?.swiftCode;
+      case "firstNameLicense":
+        return !!cipher.driversLicense?.firstName;
+      case "middleNameLicense":
+        return !!cipher.driversLicense?.middleName;
+      case "lastNameLicense":
+        return !!cipher.driversLicense?.lastName;
+      case "licenseNumber":
+        return !!cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
+      case "givenName":
+        return !!cipher.passport?.givenName;
+      case "surname":
+        return !!cipher.passport?.surname;
       default:
         return false;
     }
@@ -393,10 +419,21 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+  nameOnAccount: "BankAccountNameOnAccount",
   accountNumber: "BankAccountAccountNumber",
   routingNumber: "BankAccountRoutingNumber",
+  branchNumber: "BankAccountBranchNumber",
   pin: "BankAccountPin",
   iban: "BankAccountIban",
+  swiftCode: "BankAccountSwift",
+  firstNameLicense: "DriversLicenseFirstName",
+  middleNameLicense: "DriversLicenseMiddleName",
+  lastNameLicense: "DriversLicenseLastName",
+  licenseNumber: "DriversLicenseLicenseNumber",
+  givenName: "PassportGivenName",
+  surname: "PassportSurname",
+  passportNumber: "PassportPassportNumber",
+  nationalIdentificationNumber: "PassportNationalIdentificationNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */
