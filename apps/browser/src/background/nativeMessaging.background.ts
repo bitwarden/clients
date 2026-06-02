@@ -100,7 +100,7 @@ export class NativeMessagingBackground {
     this.appId = appId;
     await this.biometricStateService.setFingerprintValidated(false);
 
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       this.port = BrowserApi.connectNative("com.8bit.bitwarden");
 
       this.connecting = true;
@@ -287,7 +287,7 @@ export class NativeMessagingBackground {
       }
     }, MessageNoResponseTimeout);
 
-    return callback;
+    return await callback;
   }
 
   async send(message: Message) {
@@ -391,7 +391,7 @@ export class NativeMessagingBackground {
       messageId: this.messageId++,
     });
 
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       this.secureChannel = {
         publicKey,
         privateKey,

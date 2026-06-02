@@ -7,7 +7,7 @@ import { isMacAppStore } from "../../../utils";
 export class ChromiumImporterService {
   constructor() {
     ipcMain.handle("chromium_importer.getMetadata", async () => {
-      return await chromium_importer.getMetadata(isMacAppStore());
+      return chromium_importer.getMetadata(isMacAppStore());
     });
 
     // Used on Mac OS App Store builds to request permissions to browser entries outside the sandbox

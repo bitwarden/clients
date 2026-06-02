@@ -1767,7 +1767,7 @@ export default class MainBackground {
     await this.ipcService.init();
     this.badgeService.startListening();
 
-    return new Promise<void>((resolve) => {
+    return await new Promise<void>((resolve) => {
       setTimeout(async () => {
         await this.fullSync(false);
         this.backgroundSyncService.init();

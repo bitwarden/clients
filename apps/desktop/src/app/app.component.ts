@@ -659,7 +659,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // Don't create multiple dialogs if this fires multiple times
         if (this.activeSimpleDialog) {
           // Let the caller of this function listen for the dialog to close
-          return firstValueFrom(this.activeSimpleDialog.closed);
+          return await firstValueFrom(this.activeSimpleDialog.closed);
         }
 
         this.activeSimpleDialog = this.dialogService.openSimpleDialogRef({
@@ -679,7 +679,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // Don't create multiple dialogs if this fires multiple times
         if (this.activeSimpleDialog) {
           // Let the caller of this function listen for the dialog to close
-          return firstValueFrom(this.activeSimpleDialog.closed);
+          return await firstValueFrom(this.activeSimpleDialog.closed);
         }
 
         this.activeSimpleDialog = this.dialogService.openSimpleDialogRef({

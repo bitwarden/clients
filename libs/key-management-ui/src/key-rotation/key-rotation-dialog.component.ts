@@ -144,11 +144,14 @@ export class KeyRotationDialogComponent {
   ): Promise<boolean> {
     switch (encryptionType) {
       case "masterPassword":
-        return this.keyRotationDialogService.rotateKeys(this.form.value.masterPassword!, userId);
+        return await this.keyRotationDialogService.rotateKeys(
+          this.form.value.masterPassword!,
+          userId,
+        );
       case "keyConnector":
-        return this.keyRotationDialogService.rotateKeysForKeyConnector(userId);
+        return await this.keyRotationDialogService.rotateKeysForKeyConnector(userId);
       case "TDE":
-        return this.keyRotationDialogService.rotateKeysForTDE(userId);
+        return await this.keyRotationDialogService.rotateKeysForTDE(userId);
     }
   }
 

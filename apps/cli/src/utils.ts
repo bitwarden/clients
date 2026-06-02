@@ -288,5 +288,5 @@ export async function firstValueFromOrNull<T>(
   observable: Observable<T>,
   timeoutMs = 5000,
 ): Promise<T | null> {
-  return firstValueFrom(observable.pipe(timeout({ first: timeoutMs, with: () => of(null) })));
+  return await firstValueFrom(observable.pipe(timeout({ first: timeoutMs, with: () => of(null) })));
 }

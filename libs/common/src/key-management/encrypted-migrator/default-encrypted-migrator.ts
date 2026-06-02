@@ -121,7 +121,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     assertNonNullish(userId, "userId");
 
     const migrationRequirements = await Promise.all(
-      this.migrations.map(async ({ migration }) => migration.needsMigration(userId)),
+      this.migrations.map(async ({ migration }) => await migration.needsMigration(userId)),
     );
 
     if (migrationRequirements.includes("needsMigrationWithMasterPassword")) {

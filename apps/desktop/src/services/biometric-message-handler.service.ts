@@ -212,7 +212,7 @@ export class BiometricMessageHandlerService {
       }
       case BiometricsCommands.GetBiometricsStatus: {
         const status = await this.biometricsService.getBiometricsStatus();
-        return this.send(
+        return await this.send(
           {
             command: BiometricsCommands.GetBiometricsStatus,
             messageId,
@@ -228,7 +228,7 @@ export class BiometricMessageHandlerService {
         if (status == BiometricsStatus.NotEnabledLocally) {
           status = BiometricsStatus.NotEnabledInConnectedDesktopApp;
         }
-        return this.send(
+        return await this.send(
           {
             command: BiometricsCommands.GetBiometricsStatusForUser,
             messageId,

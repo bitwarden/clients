@@ -44,7 +44,7 @@ async function waitForStateValue<T>(
   keyDefinition: UserKeyDefinition<T>,
   expectedValue: T | null,
 ): Promise<T | null> {
-  return firstValueFrom(
+  return await firstValueFrom(
     race(
       stateProvider
         .getUserState$(keyDefinition, userId)

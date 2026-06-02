@@ -510,7 +510,7 @@ const safeProviders: SafeProvider[] = [
     useFactory:
       (messagingService: MessagingServiceAbstraction) =>
       async (logoutReason: LogoutReason, userId?: string) => {
-        return Promise.resolve(
+        return await Promise.resolve(
           messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
         );
       },

@@ -224,7 +224,7 @@ export class ApiService implements ApiServiceAbstraction {
       }
     }
 
-    return Promise.reject(new ErrorResponse(responseJson, response.status, true));
+    return await Promise.reject(new ErrorResponse(responseJson, response.status, true));
   }
 
   async refreshIdentityToken(userId: UserId | null = null): Promise<any> {
@@ -341,11 +341,11 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async deleteSsoUser(organizationId: string): Promise<void> {
-    return this.send("DELETE", "/accounts/sso/" + organizationId, null, true, false);
+    return await this.send("DELETE", "/accounts/sso/" + organizationId, null, true, false);
   }
 
   async getSsoUserIdentifier(): Promise<string> {
-    return this.send("GET", "/accounts/sso/user-identifier", null, true, true);
+    return await this.send("GET", "/accounts/sso/user-identifier", null, true, true);
   }
 
   async postUserApiKey(id: string, request: SecretVerificationRequest): Promise<ApiKeyResponse> {
@@ -636,10 +636,16 @@ export class ApiService implements ApiServiceAbstraction {
         body: data,
         headers,
       });
-      return this.nativeXMLHttpRequest(request, options.onProgress);
+      return await this.nativeXMLHttpRequest(request, options.onProgress);
     }
 
-    return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
+    return await this.send(
+      "POST",
+      "/ciphers/" + id + "/attachment/" + attachmentId,
+      data,
+      true,
+      false,
+    );
   }
 
   // Collections APIs
@@ -842,7 +848,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async deleteOrganizationConnection(id: string): Promise<void> {
-    return this.send("DELETE", "/organizations/connections/" + id, null, true, false);
+    return await this.send("DELETE", "/organizations/connections/" + id, null, true, false);
   }
 
   // Provider User APIs
@@ -1212,7 +1218,7 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
     if (response.status !== 200) {
-      return Promise.reject("Event post failed.");
+      return await Promise.reject("Event post failed.");
     }
   }
 
@@ -1259,7 +1265,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status !== HttpStatusCode.Ok) {
       const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
+      return await Promise.reject(error);
     }
 
     return new KeyConnectorUserKeyResponse(await response.json());
@@ -1290,7 +1296,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status !== HttpStatusCode.Ok) {
       const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
+      return await Promise.reject(error);
     }
   }
 
@@ -1308,7 +1314,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status !== HttpStatusCode.Ok) {
       const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
+      return await Promise.reject(error);
     }
   }
 
@@ -1336,7 +1342,7 @@ export class ApiService implements ApiServiceAbstraction {
     await this.applyPlatformHeaders(request.headers);
 
     const pipeline = buildFetchPipeline(this.middlewares, (req) => this.nativeFetch(req));
-    return pipeline(request);
+    return await pipeline(request);
   }
 
   nativeFetch(request: Request): Promise<Response> {
@@ -1423,7 +1429,7 @@ export class ApiService implements ApiServiceAbstraction {
       return new SsoPreValidateResponse(body);
     } else {
       const error = await this.handleApiRequestError(response, false);
-      return Promise.reject(error);
+      return await Promise.reject(error);
     }
   }
 
@@ -1578,7 +1584,7 @@ export class ApiService implements ApiServiceAbstraction {
       return refreshedTokens.accessToken;
     } else {
       const error = await this.handleTokenRefreshRequestError(response);
-      return Promise.reject(error);
+      return await Promise.reject(error);
     }
   }
 
@@ -1700,7 +1706,7 @@ export class ApiService implements ApiServiceAbstraction {
       return { blob, fileName };
     } else if (!responseIsSuccess && response.status !== HttpStatusCode.NoContent) {
       const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
-      return Promise.reject(error);
+      return await Promise.reject(error);
     }
   }
 

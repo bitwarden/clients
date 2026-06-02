@@ -131,7 +131,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     );
     this.logService.info("result", { emergencyAccessV1Memberships, organizationV1Memberships });
 
-    return this.userCryptoDialogService.verifyTrust(
+    return await this.userCryptoDialogService.verifyTrust(
       organizationV1Memberships,
       emergencyAccessV1Memberships,
     );

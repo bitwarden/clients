@@ -64,7 +64,7 @@ export class PinService implements PinServiceAbstraction {
       this.pinStateService.userKeyEncryptedPin$(userId),
       "userKeyEncryptedPin",
     );
-    return this.encryptService.decryptString(userKeyEncryptedPin, userKey);
+    return await this.encryptService.decryptString(userKeyEncryptedPin, userKey);
   }
 
   async setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void> {

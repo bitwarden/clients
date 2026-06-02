@@ -43,9 +43,9 @@ export class RestoreCommand {
     // Determine if restoring from archive or trash
     // When a cipher is archived and deleted, restore from the trash first
     if (cipher.archivedDate && cipher.deletedDate == null) {
-      return this.restoreArchivedCipher(cipher, activeUserId);
+      return await this.restoreArchivedCipher(cipher, activeUserId);
     } else {
-      return this.restoreDeletedCipher(cipher, activeUserId);
+      return await this.restoreDeletedCipher(cipher, activeUserId);
     }
   }
 

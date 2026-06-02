@@ -35,7 +35,7 @@ export class OrganizationAuthRequestService {
   async listPendingRequestsWithFingerprint(
     organizationId: string,
   ): Promise<PendingAuthRequestWithFingerprintView[]> {
-    return Promise.all(
+    return await Promise.all(
       ((await this.listPendingRequests(organizationId)) ?? []).map(
         async (r) => await PendingAuthRequestWithFingerprintView.fromView(r, this.keyService),
       ),

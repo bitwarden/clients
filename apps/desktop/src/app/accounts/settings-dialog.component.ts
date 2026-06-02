@@ -364,28 +364,28 @@ export class SettingsDialogComponent implements OnInit {
 
     this.form.controls.clearClipboard.valueChanges
       .pipe(
-        concatMap(async () => this.saveClearClipboard()),
+        concatMap(async () => await this.saveClearClipboard()),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.sshAgentPromptBehavior.valueChanges
       .pipe(
-        concatMap(async () => this.saveSshAgentPromptBehavior()),
+        concatMap(async () => await this.saveSshAgentPromptBehavior()),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.theme.valueChanges
       .pipe(
-        concatMap(async () => this.saveTheme()),
+        concatMap(async () => await this.saveTheme()),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.locale.valueChanges
       .pipe(
-        concatMap(async () => this.saveLocale()),
+        concatMap(async () => await this.saveLocale()),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
