@@ -15,12 +15,25 @@
 
 ## Known Architecture Gaps
 
-### V2 Model Class Names
+### Model Class Names (current vs. legacy)
 
-V2 model families use the final glossary names. V1 names are `@deprecated` in `report-models.ts`
-and will be removed when V1 code is deleted. Use these names in all V2 code and comments.
+The current Access Intelligence models live under
+`/bitwarden_license/bit-common/src/dirt/access-intelligence/models/` (`api/`, `data/`, `domain/`,
+`view/`) and use the names in the table below. Use these names in all new code and comments.
 
-| V2 Model Name          | Layer classes                                                                                             |
+The legacy ("V1") models still live in
+`/bitwarden_license/bit-common/src/dirt/reports/risk-insights/models/report-models.ts`
+(`RiskInsightsData`, `OrganizationReportSummary`, `OrganizationReportApplication`,
+`ApplicationHealthReportDetail`). They are **not** annotated `@deprecated` in code; treat them as
+legacy regardless. Do not extend them in new work; they are expected to be removed once the V1 code
+path is deleted.
+
+The V2 models are the new architecture, gated behind
+`FeatureFlag.AccessIntelligenceNewArchitecture` (`pm-31936-access-intelligence-new-architecture`,
+currently off by default); V1 remains the active path until that flag is enabled and the V1 cleanup
+lands.
+
+| V2 Model Name          | Layer classes (api / data / domain / view)                                                                |
 | ---------------------- | --------------------------------------------------------------------------------------------------------- |
 | `AccessReport`         | `AccessReportApi`, `AccessReportData`, `AccessReport`, `AccessReportView`                                 |
 | `ApplicationHealth`    | `ApplicationHealthApi`, `ApplicationHealthData`, `ApplicationHealth`, `ApplicationHealthView`             |
