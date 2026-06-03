@@ -1,11 +1,13 @@
+import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
+
 export class OrganizationInviteLinkCreateRequest {
   allowedDomains: string[];
-  encryptedInviteKey: string;
+  encryptedInviteKey: InviteKeyEnvelope;
   encryptedOrgKey: string | undefined;
 
   constructor(c: {
     allowedDomains: string[];
-    encryptedInviteKey: string;
+    encryptedInviteKey: InviteKeyEnvelope;
     encryptedOrgKey?: string | undefined;
   }) {
     if (!c.allowedDomains || c.allowedDomains.length === 0) {

@@ -24,6 +24,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import {
   generate_organization_invite_crypto_bundle,
+  SymmetricKey,
   unseal_organization_invite_key,
 } from "@bitwarden/sdk-internal";
 import { FakeActiveUserAccessor, FakeStateProvider } from "@bitwarden/state-test-utils";
@@ -43,7 +44,7 @@ const mockOrgId = "org-1" as OrganizationId;
 function makeKey(keyB64 = "dGVzdGtleWJ5dGVzZm9ydGVzdGluZw=="): SymmetricCryptoKey {
   const key = mock<SymmetricCryptoKey>();
   key.keyB64 = keyB64;
-  key.toEncoded.mockReturnValue(new Uint8Array([1, 2, 3]));
+  key.toSdk.mockReturnValue(keyB64 as SymmetricKey);
   return key;
 }
 
@@ -176,7 +177,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
 
       await sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"]);
 
-      expect(generate_organization_invite_crypto_bundle).toHaveBeenCalledWith(orgKey.toEncoded());
+      expect(generate_organization_invite_crypto_bundle).toHaveBeenCalledWith(orgKey.toSdk());
       expect(apiService.create).toHaveBeenCalledWith(
         mockOrgId,
         expect.objectContaining({ allowedDomains: ["bitwarden.com"] }),
@@ -242,7 +243,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
 
       await sut.refreshInviteLink(mockUserId, mockOrgId);
 
-      expect(generate_organization_invite_crypto_bundle).toHaveBeenCalledWith(orgKey.toEncoded());
+      expect(generate_organization_invite_crypto_bundle).toHaveBeenCalledWith(orgKey.toSdk());
       expect(apiService.refresh).toHaveBeenCalledWith(
         mockOrgId,
         expect.objectContaining({
@@ -278,7 +279,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const url = await firstValueFrom(sut.reconstructUrl(mockUserId, mockOrgId, inviteLink));
 
       expect(unseal_organization_invite_key).toHaveBeenCalledWith(
-        orgKey.toEncoded(),
+        orgKey.toSdk(),
         "sealed-envelope-base64",
       );
       expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");

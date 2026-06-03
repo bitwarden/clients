@@ -1,8 +1,10 @@
+import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
+
 export class OrganizationInviteLinkRefreshRequest {
-  encryptedInviteKey: string;
+  encryptedInviteKey: InviteKeyEnvelope;
   encryptedOrgKey: string | undefined;
 
-  constructor(c: { encryptedInviteKey: string; encryptedOrgKey?: string | undefined }) {
+  constructor(c: { encryptedInviteKey: InviteKeyEnvelope; encryptedOrgKey?: string | undefined }) {
     if (!c.encryptedInviteKey) {
       throw new Error("EncryptedInviteKey is required.");
     }

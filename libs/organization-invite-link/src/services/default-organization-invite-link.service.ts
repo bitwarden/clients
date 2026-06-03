@@ -7,6 +7,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import {
   generate_organization_invite_crypto_bundle,
+  InviteKeyEnvelope,
   unseal_organization_invite_key,
 } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
@@ -82,7 +83,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     return this.getOrgKey(userId, orgId).pipe(
       switchMap(async (orgKey) => {
         await SdkLoadService.Ready;
-        return unseal_organization_invite_key(orgKey.toEncoded(), inviteLink.encryptedInviteKey);
+        return unseal_organization_invite_key(orgKey.toSdk(), inviteLink.encryptedInviteKey);
       }),
       switchMap((inviteKeyB64url) => this.buildInviteUrl(inviteLink.code, inviteKeyB64url)),
     );
@@ -140,10 +141,13 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<string> {
+  private async generateEncryptedKey(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Promise<InviteKeyEnvelope> {
     const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
     await SdkLoadService.Ready;
-    const bundle = generate_organization_invite_crypto_bundle(orgKey.toEncoded());
+    const bundle = generate_organization_invite_crypto_bundle(orgKey.toSdk());
     return bundle.sealedInviteKeyEnvelope;
   }
 }
