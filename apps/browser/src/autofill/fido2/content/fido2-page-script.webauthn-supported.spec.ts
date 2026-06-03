@@ -143,6 +143,56 @@ describe("Fido2 page script with native WebAuthn support", () => {
     });
   });
 
+  describe("Permissions Policy enforcement", () => {
+    beforeEach(() => {
+      messenger.request = jest.fn();
+    });
+
+    afterEach(() => {
+      delete (mockGlobalThisDocument as any).featurePolicy;
+    });
+
+    it("throws NotAllowedError without messaging the background when publickey-credentials-create is denied", async () => {
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: jest.fn((feature: string) => feature !== "publickey-credentials-create"),
+      };
+
+      await expect(navigator.credentials.create(mockCredentialCreationOptions)).rejects.toEqual(
+        expect.objectContaining({
+          name: "NotAllowedError",
+        }),
+      );
+      expect(messenger.request).not.toHaveBeenCalled();
+    });
+
+    it("throws NotAllowedError without messaging the background when publickey-credentials-get is denied", async () => {
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: jest.fn((feature: string) => feature !== "publickey-credentials-get"),
+      };
+
+      await expect(navigator.credentials.get(mockCredentialRequestOptions)).rejects.toEqual(
+        expect.objectContaining({
+          name: "NotAllowedError",
+        }),
+      );
+      expect(messenger.request).not.toHaveBeenCalled();
+    });
+
+    it("proceeds when the document's Permissions Policy allows the WebAuthn feature", async () => {
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: jest.fn(() => true),
+      };
+      messenger.request = jest.fn().mockResolvedValue({
+        type: MessageTypes.CredentialGetResponse,
+        result: mockCredentialAssertResult,
+      });
+
+      await navigator.credentials.get(mockCredentialRequestOptions);
+
+      expect(messenger.request).toHaveBeenCalled();
+    });
+  });
+
   describe("destroy", () => {
     it("should destroy the message listener when receiving a disconnect request", async () => {
       jest.spyOn(globalThis.top, "removeEventListener");

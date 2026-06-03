@@ -89,6 +89,10 @@ import { Messenger } from "./messaging/messenger";
       return await browserCredentials.create(options);
     }
 
+    if (!isFeaturePolicyAllowed("publickey-credentials-create")) {
+      throw buildPermissionsPolicyError("publickey-credentials-create");
+    }
+
     const authenticatorAttachmentIsPlatform =
       options?.publicKey?.authenticatorSelection?.authenticatorAttachment === "platform";
 
@@ -135,6 +139,10 @@ import { Messenger } from "./messaging/messenger";
   ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.get(options);
+    }
+
+    if (!isFeaturePolicyAllowed("publickey-credentials-get")) {
+      throw buildPermissionsPolicyError("publickey-credentials-get");
     }
 
     const abortSignal = options?.signal || new AbortController().signal;
@@ -217,6 +225,42 @@ import { Messenger } from "./messaging/messenger";
     options?: CredentialCreationOptions | CredentialRequestOptions,
   ): options is CredentialCreationOptions | CredentialRequestOptions {
     return options != null && "publicKey" in options;
+  }
+
+  /**
+   * Checks whether the document's Permissions Policy allows the requested WebAuthn feature.
+   * Defaults to allowing the request when the FeaturePolicy API is unavailable (e.g. Safari),
+   * preserving existing functionality on browsers that do not expose the API.
+   *
+   * @param featureName Permissions Policy feature name, e.g. `publickey-credentials-get`.
+   */
+  function isFeaturePolicyAllowed(featureName: string): boolean {
+    try {
+      const featurePolicy = (
+        globalContext.document as Document & {
+          featurePolicy?: { allowsFeature(feature: string): boolean };
+        }
+      ).featurePolicy;
+
+      if (featurePolicy == null || typeof featurePolicy.allowsFeature !== "function") {
+        return true;
+      }
+
+      return featurePolicy.allowsFeature(featureName);
+    } catch {
+      return true;
+    }
+  }
+
+  /**
+   * Builds a DOMException that mirrors the error the browser raises when a Permissions
+   * Policy denies a WebAuthn ceremony.
+   */
+  function buildPermissionsPolicyError(featureName: string): DOMException {
+    return new DOMException(
+      `The '${featureName}' feature is not enabled in this document. Permissions Policy may be used to delegate Web Authentication capabilities to cross-origin child frames.`,
+      "NotAllowedError",
+    );
   }
 
   /**
