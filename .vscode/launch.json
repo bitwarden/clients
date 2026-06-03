@@ -26,6 +26,43 @@
       "windows": {
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Desktop: Main (attach)",
+      "port": 5858,
+      "restart": true,
+      "continueOnAttach": true,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/apps/desktop/build/**/*.js"],
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": { "hidden": true }
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Desktop: Renderer (attach)",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/apps/desktop",
+      "sourceMaps": true,
+      "timeout": 60000,
+      "presentation": { "hidden": true }
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Web: Renderer (attach)",
+      "port": 9223,
+      "webRoot": "${workspaceFolder}/apps/web",
+      "sourceMaps": true,
+      "timeout": 60000
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Desktop: Attach Debugger (main + renderer)",
+      "configurations": ["Desktop: Main (attach)", "Desktop: Renderer (attach)"]
     }
   ]
 }
