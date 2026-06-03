@@ -1390,8 +1390,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        // nodeType === 1 instead of `instanceof Element` — works across realms (adopted-from-iframe).
-        if (mutation.target.nodeType !== 1) {
+        // nodeType === 1 (Node.ELEMENT_NODE) instead of `instanceof Element`; faster & includes iframes
+        if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
           continue;
         }
         const attributeName = mutation.attributeName?.toLowerCase();
@@ -1409,9 +1409,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingTopLayerTargets.add(target);
         }
       } else if (mutation.type === "childList") {
-        this.pendingChildListUpdate = true;
+        // Without this gate, cosmetic mutations invalidate the noFieldsFound cache.
+        if (this.mutationAffectsAutofillTarget(mutation)) {
+          this.pendingChildListUpdate = true;
+        }
         for (const node of mutation.addedNodes ?? []) {
-          if (node.nodeType !== 1) {
+          if (node.nodeType !== Node.ELEMENT_NODE) {
             continue;
           }
           const element = node as Element;
@@ -1602,6 +1605,32 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         }
       }
     }
+  }
+
+  private mutationAffectsAutofillTarget(mutation: MutationRecord): boolean {
+    return (
+      this.nodeListIsAutofillRelevant(mutation.addedNodes) ||
+      this.nodeListIsAutofillRelevant(mutation.removedNodes)
+    );
+  }
+
+  private nodeListIsAutofillRelevant(nodes: NodeList | undefined): boolean {
+    if (!nodes) {
+      return false;
+    }
+    for (const node of nodes) {
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        continue;
+      }
+      const el = node as Element;
+      if (
+        el.matches(this.formFieldQueryString) ||
+        el.querySelector(this.formFieldQueryString) !== null
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private isShadowRootCandidate(node: Node): node is Element {
