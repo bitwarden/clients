@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -487,6 +488,11 @@ export const WithBulkActions: Story = {
         </bit-table-v2>
       `,
     };
+  },
+  play: async ({ canvas }) => {
+    // Check the header "select all" box so the bulk actions bar is shown.
+    const selectAll = await canvas.findByRole("checkbox", { name: "Select all rows" });
+    await userEvent.click(selectAll);
   },
 };
 
