@@ -1,4 +1,4 @@
-import { Signal, signal, WritableSignal } from "@angular/core";
+import { computed, Signal, signal, WritableSignal } from "@angular/core";
 
 import { Sort } from "../table-data-source";
 
@@ -74,6 +74,12 @@ export class TableModel<T, S extends string = never> {
   /** Facet-filter definitions, applied state, and matcher. */
   readonly filters: FiltersModel<T>;
 
+  /**
+   * Rows passing both {@link search} and {@link filters} (pre-sort). The render
+   * set the table sorts and displays, and the scope for select-all.
+   */
+  readonly filtered: Signal<T[]>;
+
   /** Selection state, present only when configured. */
   readonly selection?: TableSelectionModel<T>;
 
@@ -84,12 +90,16 @@ export class TableModel<T, S extends string = never> {
     this.columns = new ColumnModel<T, S>(config.displayedColumns);
     this.search = new SearchModel<T>(config.search);
     this.filters = new FiltersModel<T>(config.filters ?? []);
+    this.filtered = computed(() =>
+      this.data().filter((row) => this.search.matches(row) && this.filters.matches(row)),
+    );
     if (config.selection) {
-      this.selection = new TableSelectionModel<T>(
-        config.selection.multiple ?? false,
-        config.selection.initial ?? [],
-        config.selection.canSelect ? { canSelect: config.selection.canSelect } : undefined,
-      );
+      this.selection = new TableSelectionModel<T>({
+        multiple: config.selection.multiple,
+        initial: config.selection.initial,
+        canSelect: config.selection.canSelect,
+        rows: this.filtered,
+      });
     }
   }
 

@@ -75,7 +75,7 @@ export class BulkActionsBarComponent {
 
   /** Explicit input wins; otherwise infer from ancestor table; otherwise 0. */
   protected readonly effectiveCount = computed(
-    () => this.selectedCount() ?? this.table?.selection()?.selected.length ?? 0,
+    () => this.selectedCount() ?? this.table?.selection()?.count() ?? 0,
   );
 
   private readonly clear$ = new Subject<void>();

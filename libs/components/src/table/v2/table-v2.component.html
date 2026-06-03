@@ -1,12 +1,12 @@
 <ng-template #headerCells>
-  @if (selection()) {
+  @if (selection(); as sel) {
     <div role="columnheader" class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0">
       <input
         type="checkbox"
         aria-label="Select all rows"
-        [checked]="isAllSelected()"
-        [indeterminate]="isIndeterminate()"
-        (change)="toggleAll()"
+        [checked]="sel.allSelected()"
+        [indeterminate]="sel.indeterminate()"
+        (change)="sel.toggleAll()"
       />
     </div>
   }
@@ -20,7 +20,7 @@
 <ng-template #bodyCells let-row>
   @if (selection(); as sel) {
     <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0">
-      @if (isSelectable(row)) {
+      @if (sel.isSelectable(row)) {
         <input
           type="checkbox"
           aria-label="Select row"

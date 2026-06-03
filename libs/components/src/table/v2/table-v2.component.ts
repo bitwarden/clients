@@ -121,10 +121,10 @@ export class BitTableV2Component<T = unknown>
   implements AfterContentInit, AfterViewInit, SearchConsumer
 {
   /**
-   * The single construct that configures the table — data, columns, filter, and
-   * optional selection — see {@link TableModel}. Also the source of the typed
-   * `table.ref.*` references bound to `*bitCellDef`. Defaults to an empty model,
-   * so manual-mode tables need not bind it.
+   * The single construct that configures the table — data, columns, search,
+   * filters, and optional selection — see {@link TableModel}. Also the source of
+   * the typed `table.ref.*` references bound to `*bitCellDef`. Defaults to an
+   * empty model, so manual-mode tables need not bind it.
    */
   readonly table = input(new TableModel<T>({ displayedColumns: [] }));
 
@@ -150,12 +150,6 @@ export class BitTableV2Component<T = unknown>
 
   /** The model's active sort (`{ column, direction }`). Read by header cells. */
   readonly sort = computed(() => this.table().sort());
-
-  /** Model rows passing both search and facet filters (pre-sort); also drives select-all. */
-  protected readonly filtered = computed(() => {
-    const model = this.table();
-    return model.data().filter((row) => model.search.matches(row) && model.filters.matches(row));
-  });
 
   /** The model's selection model, if configured. Read by `bit-bulk-actions-bar` via DI. */
   readonly selection = computed(() => this.table().selection);
@@ -244,14 +238,15 @@ export class BitTableV2Component<T = unknown>
     "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
   ];
 
-  /** Rendered rows: {@link filtered} sorted by {@link sort} using the column's `sortFn` or default. */
+  /** Rendered rows: the model's `filtered` sorted by {@link sort} using the column's `sortFn` or default. */
   protected readonly rows = computed(() => {
+    const filtered = this.table().filtered();
     const sort = this.table().sort();
     if (!sort.column) {
-      return this.filtered();
+      return filtered;
     }
     const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-    return sortRows(this.filtered(), sort.column, sort.direction, sort.fn ?? col?.sortFn());
+    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
   });
 
   /** Index array for the skeleton rows shown while loading. */
@@ -302,47 +297,6 @@ export class BitTableV2Component<T = unknown>
     const defaultDir = col.defaultSort() === "desc" ? "desc" : "asc";
     const direction = active ? (current.direction === "asc" ? "desc" : "asc") : defaultDir;
     this.table().sort.set({ column: colName, direction });
-  }
-
-  /** Whether a row may be selected, per the selection model's predicate. */
-  protected isSelectable(row: T): boolean {
-    return this.selection()?.isSelectable(row) ?? true;
-  }
-
-  protected selectableRows(): T[] {
-    return this.filtered().filter((row) => this.isSelectable(row));
-  }
-
-  protected isAllSelected(): boolean {
-    const sel = this.selection();
-    if (!sel) {
-      return false;
-    }
-    const rows = this.selectableRows();
-    return rows.length > 0 && rows.every((r) => sel.isSelected(r));
-  }
-
-  protected isIndeterminate(): boolean {
-    const sel = this.selection();
-    if (!sel) {
-      return false;
-    }
-    const rows = this.selectableRows();
-    const selected = rows.filter((r) => sel.isSelected(r)).length;
-    return selected > 0 && selected < rows.length;
-  }
-
-  protected toggleAll(): void {
-    const sel = this.selection();
-    if (!sel) {
-      return;
-    }
-    const rows = this.selectableRows();
-    if (this.isAllSelected()) {
-      rows.forEach((r) => sel.deselect(r));
-    } else {
-      rows.forEach((r) => sel.select(r));
-    }
   }
 
   private applyInitialSort(): void {
