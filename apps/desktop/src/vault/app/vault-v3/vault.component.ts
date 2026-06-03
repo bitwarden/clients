@@ -106,6 +106,7 @@ import {
   All,
   VaultItemsTransferService,
   NewCipherMenuComponent,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -138,6 +139,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     NewCipherMenuComponent,
     SearchModule,
     FormsModule,
+    VaultOrganizationUserNotificationsComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
