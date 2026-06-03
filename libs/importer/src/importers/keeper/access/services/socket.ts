@@ -2,16 +2,23 @@ import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 
 import { ApiRequestSchema, ApiRequestPayloadSchema } from "../generated/api-request_pb";
 import { WssClientResponseSchema, WssConnectionRequestSchema } from "../generated/push_pb";
-import { PendingMessage, PushMessage, SocketListener } from "../models";
+import {
+  DeviceToken,
+  KeeperKey,
+  MessageSessionUid,
+  PendingMessage,
+  PushMessage,
+  SocketListener,
+} from "../models";
 
 import { base64UrlEncode, decryptAesV2, encryptAesV2 } from "./crypto";
 import { encryptWithKeeperKey } from "./keys";
 
 export async function connectPushSocket(
   server: string,
-  deviceToken: Uint8Array,
-  messageSessionUid: Uint8Array,
-  transmissionKey: Uint8Array,
+  deviceToken: DeviceToken,
+  messageSessionUid: MessageSessionUid,
+  transmissionKey: KeeperKey,
   serverKeyId: number = 7,
   locale: string = "en_US",
 ): Promise<SocketListener> {

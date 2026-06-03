@@ -2,6 +2,7 @@ import * as sd from "./generated/sync-down_pb";
 import {
   ClientOptions,
   Decryptor,
+  KeeperKey,
   RecordV3,
   VaultItem,
   VaultRecordError,
@@ -97,7 +98,7 @@ export class Vault {
   // Processes the merged SyncDown response and decrypts all data to build the Vault.
   private static async processMergedSyncDownPages(
     merged: sd.SyncDownResponse,
-    masterKey: Uint8Array,
+    masterKey: KeeperKey,
   ): Promise<Vault> {
     // 1. Each folder is encrypted with its own folder key that is encrypted with the master key.
     //    We only need the folder names.
@@ -174,7 +175,7 @@ export class Vault {
 
   private static async decryptFolderNames(
     userFolders: sd.UserFolder[],
-    masterKey: Uint8Array,
+    masterKey: KeeperKey,
   ): Promise<[Map<string, string>, VaultRecordError[]]> {
     const result = new Map<string, string>();
     const errors: VaultRecordError[] = [];
@@ -193,9 +194,9 @@ export class Vault {
 
   private static async decryptSharedFolderKeys(
     sharedFolders: sd.SharedFolder[],
-    masterKey: Uint8Array,
-  ): Promise<Map<string, Uint8Array>> {
-    const result = new Map<string, Uint8Array>();
+    masterKey: KeeperKey,
+  ): Promise<Map<string, KeeperKey>> {
+    const result = new Map<string, KeeperKey>();
     for (const folder of sharedFolders) {
       const uid = uidToString(folder.sharedFolderUid);
       try {
@@ -210,7 +211,7 @@ export class Vault {
 
   private static async decryptSharedFolderNames(
     sharedFolders: sd.SharedFolder[],
-    keys: Map<string, Uint8Array>,
+    keys: Map<string, KeeperKey>,
   ): Promise<[Map<string, string>, VaultRecordError[]]> {
     const result = new Map<string, string>();
     const errors: VaultRecordError[] = [];
@@ -235,9 +236,9 @@ export class Vault {
 
   private static async decryptSharedFolderRecordKeys(
     sharedFolderRecords: sd.SharedFolderRecord[],
-    sharedFolderKeys: Map<string, Uint8Array>,
-  ): Promise<Map<string, Uint8Array>> {
-    const result = new Map<string, Uint8Array>();
+    sharedFolderKeys: Map<string, KeeperKey>,
+  ): Promise<Map<string, KeeperKey>> {
+    const result = new Map<string, KeeperKey>();
     for (const sfr of sharedFolderRecords) {
       const uid = uidToString(sfr.sharedFolderUid);
       const key = sharedFolderKeys.get(uid);
@@ -246,10 +247,11 @@ export class Vault {
       }
       try {
         const encryptedKey = new Uint8Array(sfr.recordKey);
-        const recordKey =
+        const recordKey = (
           encryptedKey.length === 60
             ? await decryptAesV2(encryptedKey, key)
-            : await decryptAesV1(encryptedKey, key);
+            : await decryptAesV1(encryptedKey, key)
+        ) as KeeperKey;
         result.set(uidToString(sfr.recordUid), recordKey);
       } catch {
         // Ignored here. The record that needs this key reports its own error later.
@@ -263,9 +265,9 @@ export class Vault {
   // can be resolved has been resolved.
   private static async decryptLinkedRecordKeys(
     recordLinks: sd.RecordLink[],
-    recordKeys: Map<string, Uint8Array>,
-  ): Promise<Map<string, Uint8Array>> {
-    const resolved = new Map<string, Uint8Array>();
+    recordKeys: Map<string, KeeperKey>,
+  ): Promise<Map<string, KeeperKey>> {
+    const resolved = new Map<string, KeeperKey>();
     const keyFor = (uid: string) => recordKeys.get(uid) ?? resolved.get(uid);
 
     let progress = true;
@@ -282,10 +284,11 @@ export class Vault {
           continue;
         }
         try {
-          const childKey =
+          const childKey = (
             encryptedKey.length === 60
               ? await decryptAesV2(encryptedKey, parentKey)
-              : await decryptAesV1(encryptedKey, parentKey);
+              : await decryptAesV1(encryptedKey, parentKey)
+          ) as KeeperKey;
           resolved.set(childUid, childKey);
           progress = true;
         } catch {
@@ -298,9 +301,9 @@ export class Vault {
 
   private static async decryptRecordKeys(
     metaData: sd.RecordMetaData[],
-    masterKey: Uint8Array,
-  ): Promise<Map<string, Uint8Array>> {
-    const result = new Map<string, Uint8Array>();
+    masterKey: KeeperKey,
+  ): Promise<Map<string, KeeperKey>> {
+    const result = new Map<string, KeeperKey>();
     for (const meta of metaData) {
       const uid = uidToString(meta.recordUid);
       try {
@@ -315,7 +318,7 @@ export class Vault {
 
   private static async decryptRecords(
     records: sd.Record[],
-    keys: Map<string, Uint8Array>,
+    keys: Map<string, KeeperKey>,
   ): Promise<[Map<string, RecordV3>, VaultRecordError[]]> {
     const result = new Map<string, RecordV3>();
     const errors: VaultRecordError[] = [];
@@ -348,7 +351,7 @@ export class Vault {
 
   private static async decryptSharedFolderFolderNames(
     sharedFolderFolders: sd.SharedFolderFolder[],
-    sharedFolderKeys: Map<string, Uint8Array>,
+    sharedFolderKeys: Map<string, KeeperKey>,
   ): Promise<[Map<string, string>, VaultRecordError[]]> {
     const result = new Map<string, string>();
     const errors: VaultRecordError[] = [];
@@ -474,17 +477,17 @@ export class Vault {
     return result;
   }
 
-  private static async decryptJsonV1<T>(data: Uint8Array, key: Uint8Array): Promise<T> {
+  private static async decryptJsonV1<T>(data: Uint8Array, key: KeeperKey): Promise<T> {
     return await Vault.decryptJson(data, key, decryptAesV1);
   }
 
-  private static async decryptJsonV2<T>(data: Uint8Array, key: Uint8Array): Promise<T> {
+  private static async decryptJsonV2<T>(data: Uint8Array, key: KeeperKey): Promise<T> {
     return await Vault.decryptJson(data, key, decryptAesV2);
   }
 
   private static async decryptJson<T>(
     data: Uint8Array,
-    key: Uint8Array,
+    key: KeeperKey,
     decrypt: Decryptor,
   ): Promise<T> {
     return JSON.parse(await Vault.decryptString(data, key, decrypt));
@@ -492,7 +495,7 @@ export class Vault {
 
   private static async decryptString(
     data: Uint8Array,
-    key: Uint8Array,
+    key: KeeperKey,
     decrypt: Decryptor,
   ): Promise<string> {
     return new TextDecoder().decode(await decrypt(data, key));

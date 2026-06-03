@@ -1,3 +1,5 @@
+import { KeeperKey, RsaPublicKey } from "../models/crypto-types";
+
 import { base64UrlDecode, encryptEc, encryptRsa, loadEcPublicKey } from "./crypto";
 
 // Keeper's RSA public keys (keyId 1-6)
@@ -25,16 +27,16 @@ const KEEPER_EC_KEYS: Record<number, string> = {
   17: "BFX68cb97m9_sweGdOVavFM3j5ot6gveg6xT4BtGahfGhKib-zdZyO9pwvv1cBda9ahkSzo1BQ4NVXp9qRyqVGU",
 };
 
-const rsaKeysCache = new Map<number, Uint8Array>();
+const rsaKeysCache = new Map<number, RsaPublicKey>();
 const ecKeysCache = new Map<number, CryptoKey>();
 
-export function getKeeperRsaKeyBytes(keyId: number): Uint8Array {
+export function getKeeperRsaKeyBytes(keyId: number): RsaPublicKey {
   if (!rsaKeysCache.has(keyId)) {
     const keyString = KEEPER_RSA_KEYS[keyId];
     if (!keyString) {
       throw new Error(`Invalid RSA key ID: ${keyId}`);
     }
-    rsaKeysCache.set(keyId, base64UrlDecode(keyString));
+    rsaKeysCache.set(keyId, base64UrlDecode(keyString) as RsaPublicKey);
   }
   return rsaKeysCache.get(keyId)!;
 }
@@ -52,7 +54,7 @@ export async function getKeeperEcKey(keyId: number): Promise<CryptoKey> {
   return ecKeysCache.get(keyId)!;
 }
 
-export async function encryptWithKeeperKey(data: Uint8Array, keyId: number): Promise<Uint8Array> {
+export async function encryptWithKeeperKey(data: KeeperKey, keyId: number): Promise<Uint8Array> {
   if (keyId >= 1 && keyId <= 6) {
     return encryptRsa(data, getKeeperRsaKeyBytes(keyId));
   } else if (keyId >= 7 && keyId <= 17) {

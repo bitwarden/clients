@@ -3,6 +3,13 @@ import * as forge from "node-forge";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { RecordKeyType } from "../generated/record_pb";
+import {
+  KeeperKey,
+  KeeperNonce,
+  KeeperSalt,
+  RsaPrivateKey,
+  RsaPublicKey,
+} from "../models/crypto-types";
 
 const AES_GCM_NONCE_SIZE = 12;
 const AES_GCM_TAG_SIZE = 16;
@@ -14,14 +21,14 @@ export function getRandomBytes(length: number): Uint8Array {
   return arr;
 }
 
-export function generateEncryptionKey(): Uint8Array {
-  return getRandomBytes(32);
+export function generateEncryptionKey(): KeeperKey {
+  return getRandomBytes(32) as KeeperKey;
 }
 
 /**
  * Decrypt an aes-v1 packet. Keeper aes-v1 is AES-CBC without any authentication (MAC).
  */
-export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
+export async function decryptAesV1(data: Uint8Array, key: KeeperKey): Promise<Uint8Array> {
   const iv = data.subarray(0, AES_BLOCK_SIZE);
   const encrypted = data.subarray(AES_BLOCK_SIZE);
   const cryptoKey = await crypto.subtle.importKey(
@@ -46,11 +53,11 @@ export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<U
  */
 export async function encryptAesV2(
   data: Uint8Array,
-  key: Uint8Array,
-  nonce?: Uint8Array,
+  key: KeeperKey,
+  nonce?: KeeperNonce,
   nonceLength = AES_GCM_NONCE_SIZE,
 ): Promise<Uint8Array> {
-  const nonceBuffer = nonce || getRandomBytes(nonceLength);
+  const nonceBuffer = nonce ?? (getRandomBytes(nonceLength) as KeeperNonce);
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
     toBuffer(key),
@@ -72,7 +79,7 @@ export async function encryptAesV2(
  */
 export async function decryptAesV2(
   data: Uint8Array,
-  key: Uint8Array,
+  key: KeeperKey,
   nonceLength = AES_GCM_NONCE_SIZE,
 ): Promise<Uint8Array> {
   const nonce = data.subarray(0, nonceLength);
@@ -93,7 +100,7 @@ export async function decryptAesV2(
   return new Uint8Array(decrypted);
 }
 
-export function encryptRsa(data: Uint8Array, publicKeyBytes: Uint8Array): Uint8Array {
+export function encryptRsa(data: Uint8Array, publicKeyBytes: RsaPublicKey): Uint8Array {
   // Use node-forge for RSA PKCS#1 v1.5 padding (required by Keeper)
   // Web Crypto API doesn't support PKCS#1 v1.5 for encryption
   const publicKeyDer = forge.util.createBuffer(uint8ArrayToByteString(publicKeyBytes));
@@ -105,7 +112,7 @@ export function encryptRsa(data: Uint8Array, publicKeyBytes: Uint8Array): Uint8A
   return byteStringToUint8Array(encrypted);
 }
 
-export function decryptRsa(data: Uint8Array, privateKeyBytes: Uint8Array): Uint8Array {
+export function decryptRsa(data: Uint8Array, privateKeyBytes: RsaPrivateKey): Uint8Array {
   // Use node-forge for RSA PKCS#1 v1.5 padding
   const privateKeyDer = forge.util.createBuffer(uint8ArrayToByteString(privateKeyBytes));
   const asn1 = forge.asn1.fromDer(privateKeyDer);
@@ -151,14 +158,14 @@ export async function loadEcPrivateKey(privateKeyBytes: Uint8Array): Promise<Cry
   );
 }
 
-async function deriveEcdhKey(publicKey: CryptoKey, privateKey: CryptoKey): Promise<Uint8Array> {
+async function deriveEcdhKey(publicKey: CryptoKey, privateKey: CryptoKey): Promise<KeeperKey> {
   const sharedSecret = await crypto.subtle.deriveBits(
     { name: "ECDH", public: publicKey },
     privateKey,
     256,
   );
   const hash = await crypto.subtle.digest("SHA-256", sharedSecret);
-  return new Uint8Array(hash);
+  return new Uint8Array(hash) as KeeperKey;
 }
 
 /**
@@ -188,9 +195,9 @@ export async function decryptEc(data: Uint8Array, privateKey: CryptoKey): Promis
  */
 export async function deriveKeyV1(
   password: string,
-  salt: Uint8Array,
+  salt: KeeperSalt,
   iterations: number,
-): Promise<Uint8Array> {
+): Promise<KeeperKey> {
   const passwordKey = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -208,12 +215,12 @@ export async function deriveKeyV1(
     passwordKey,
     256,
   );
-  return new Uint8Array(derivedBits);
+  return new Uint8Array(derivedBits) as KeeperKey;
 }
 
 export async function deriveV1KeyHash(
   password: string,
-  salt: Uint8Array,
+  salt: KeeperSalt,
   iterations: number,
 ): Promise<Uint8Array> {
   const key = await deriveKeyV1(password, salt, iterations);
@@ -232,7 +239,7 @@ export async function deriveV1KeyHash(
 export async function decryptEncryptionParams(
   password: string,
   encryptionParams: Uint8Array,
-): Promise<Uint8Array> {
+): Promise<KeeperKey> {
   const CORRUPTED_MESSAGE = "Corrupted encryption parameters";
 
   if (encryptionParams[0] !== 1) {
@@ -244,12 +251,12 @@ export async function decryptEncryptionParams(
   }
 
   const iterations = (encryptionParams[1] << 16) + (encryptionParams[2] << 8) + encryptionParams[3];
-  const salt = encryptionParams.subarray(4, 20);
+  const salt = encryptionParams.subarray(4, 20) as KeeperSalt;
   const key = await deriveKeyV1(password, salt, iterations);
 
   // Decrypt data with no padding
   // We need to manually handle this since Web Crypto always expects PKCS7 padding
-  const iv = encryptionParams.subarray(20, 36);
+  const iv = encryptionParams.subarray(20, 36) as KeeperNonce;
   const encryptedData = encryptionParams.subarray(36);
   const decrypted = await decryptAesNoPadding(encryptedData, key, iv);
 
@@ -259,13 +266,13 @@ export async function decryptEncryptionParams(
     throw new Error(CORRUPTED_MESSAGE);
   }
 
-  return first32;
+  return first32 as KeeperKey;
 }
 
 async function decryptAesNoPadding(
   data: Uint8Array,
-  key: Uint8Array,
-  iv: Uint8Array,
+  key: KeeperKey,
+  iv: KeeperNonce,
 ): Promise<Uint8Array> {
   // Web Crypto doesn't support no-padding mode, so we need a workaround.
   // AES-CBC chains individual aes encryption operation blocks using the previous ciphertext
@@ -316,31 +323,31 @@ async function decryptAesNoPadding(
 export async function decryptKeeperKey(
   encryptedKey: Uint8Array,
   keyType: RecordKeyType,
-  dataKey: Uint8Array,
-  rsaPrivateKey?: Uint8Array,
+  dataKey: KeeperKey,
+  rsaPrivateKey?: RsaPrivateKey,
   ecPrivateKey?: CryptoKey,
-): Promise<Uint8Array> {
+): Promise<KeeperKey> {
   switch (keyType) {
     case RecordKeyType.NO_KEY:
       throw new Error("Cannot decrypt NO_KEY type");
 
     case RecordKeyType.ENCRYPTED_BY_DATA_KEY:
-      return await decryptAesV1(encryptedKey, dataKey);
+      return (await decryptAesV1(encryptedKey, dataKey)) as KeeperKey;
 
     case RecordKeyType.ENCRYPTED_BY_PUBLIC_KEY:
       if (!rsaPrivateKey) {
         throw new Error("RSA private key required for ENCRYPTED_BY_PUBLIC_KEY");
       }
-      return decryptRsa(encryptedKey, rsaPrivateKey);
+      return decryptRsa(encryptedKey, rsaPrivateKey) as KeeperKey;
 
     case RecordKeyType.ENCRYPTED_BY_DATA_KEY_GCM:
-      return await decryptAesV2(encryptedKey, dataKey);
+      return (await decryptAesV2(encryptedKey, dataKey)) as KeeperKey;
 
     case RecordKeyType.ENCRYPTED_BY_PUBLIC_KEY_ECC:
       if (!ecPrivateKey) {
         throw new Error("EC private key required for ENCRYPTED_BY_PUBLIC_KEY_ECC");
       }
-      return await decryptEc(encryptedKey, ecPrivateKey);
+      return (await decryptEc(encryptedKey, ecPrivateKey)) as KeeperKey;
 
     default:
       throw new Error(`Unknown key type: ${keyType}`);

@@ -9,7 +9,7 @@ import * as fixture from "../../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { RecordKeyType } from "./generated/record_pb";
 import { SyncDownResponseSchema } from "./generated/sync-down_pb";
-import { VaultItem, VaultRecordErrorReason } from "./models";
+import { KeeperKey, VaultItem, VaultRecordErrorReason } from "./models";
 import { encryptAesV2 } from "./services/crypto";
 
 // Vault is a temporary data structure. It's only used to store the decoded vault data from the Keeper API response.
@@ -203,7 +203,7 @@ describe("Keeper Vault error production", () => {
     it("derives a child record key from the parent record key", async () => {
       const parentUid = new Uint8Array([10]);
       const childUid = new Uint8Array([11]);
-      const parentKey = new Uint8Array(32).fill(7);
+      const parentKey = new Uint8Array(32).fill(7) as KeeperKey;
       const childKey = new Uint8Array(32).fill(9);
 
       // The link carries the child key encrypted with the parent key (AES-GCM, 60 bytes).
@@ -222,8 +222,8 @@ describe("Keeper Vault error production", () => {
       const rootUid = new Uint8Array([20]);
       const midUid = new Uint8Array([21]);
       const leafUid = new Uint8Array([22]);
-      const rootKey = new Uint8Array(32).fill(1);
-      const midKey = new Uint8Array(32).fill(2);
+      const rootKey = new Uint8Array(32).fill(1) as KeeperKey;
+      const midKey = new Uint8Array(32).fill(2) as KeeperKey;
       const leafKey = new Uint8Array(32).fill(3);
 
       const encryptedMidKey = await encryptAesV2(midKey, rootKey);
