@@ -65,7 +65,7 @@
     @if (isVirtualized() && hasColumns() && !loading()) {
       <cdk-virtual-scroll-viewport
         bitScrollLayout
-        [itemSize]="rowSize()!"
+        [itemSize]="virtualRowHeight()!"
         [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
       >
         <bit-header-row>

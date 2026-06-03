@@ -130,17 +130,17 @@ export class BitTableV2Component<T = unknown>
 
   /**
    * Defaults to `"auto"`. Forced to `"fixed"` when virtualization is on
-   * ({@link rowSize} is set) — virtual scrolling requires predictable row
-   * geometry, which a fixed layout provides.
+   * ({@link virtualRowHeight} is set) — virtual scrolling requires predictable
+   * row geometry, which a fixed layout provides.
    */
   readonly layout = input<"auto" | "fixed">("auto");
 
   /**
-   * Row height in pixels. When set, the table renders inside a virtual
-   * scroll viewport; columns lay out with `table-fixed` regardless of
-   * {@link layout}.
+   * Fixed row height in pixels for virtual scrolling. Setting it turns the
+   * table into a virtual scroll viewport (rows lay out with `table-fixed`
+   * regardless of {@link layout}); omit it for a non-virtualized table.
    */
-  readonly rowSize = input<number>();
+  readonly virtualRowHeight = input<number>();
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
@@ -231,7 +231,7 @@ export class BitTableV2Component<T = unknown>
     this._columns.update((cols) => cols.filter((c) => c !== col));
   }
 
-  protected readonly isVirtualized = computed(() => this.rowSize() !== undefined);
+  protected readonly isVirtualized = computed(() => this.virtualRowHeight() !== undefined);
 
   /** Outer container chrome: border, rounded corners, subtle shadow. */
   protected readonly containerClass = [

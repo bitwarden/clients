@@ -56,8 +56,8 @@ class DemoStatusColumnComponent {
 
 /**
  * Demonstrates the integrated toolbar + filter flow. A single `TableModel`
- * configures the table — data plus the search matcher and facet definitions on
- * its `filter`. The projected `<bit-search>` binds to it automatically; the
+ * configures the table — data plus the top-level `search` matcher and `filters`
+ * facet definitions. The projected `<bit-search>` binds to it automatically; the
  * Filters menu applies facets by id; the toolbar renders the applied chips.
  */
 @Component({
@@ -78,7 +78,7 @@ class DemoStatusColumnComponent {
   ],
   template: `
     <bit-layout>
-      <bit-table-v2 [table]="table" [rowSize]="64">
+      <bit-table-v2 [table]="table" [virtualRowHeight]="64">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
           <button
@@ -379,7 +379,7 @@ export const Scrollable: Story = {
     },
     template: `
       <bit-layout>
-        <bit-table-v2 [table]="table" [rowSize]="64" [trackBy]="trackBy">
+        <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackBy">
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Id</bit-header-cell>
             <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
@@ -409,7 +409,7 @@ export const Filterable: Story = {
     props: { table: filterTable },
     template: `
       <bit-layout>
-        <bit-table-v2 [table]="table" [rowSize]="64">
+        <bit-table-v2 [table]="table" [virtualRowHeight]="64">
           <bit-table-toolbar>
             <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
           </bit-table-toolbar>

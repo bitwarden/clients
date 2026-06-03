@@ -36,7 +36,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     BitCellComponent,
   ],
   template: `<bit-section>
-    <bit-table-v2 [table]="table" [rowSize]="64">
+    <bit-table-v2 [table]="table" [virtualRowHeight]="64">
       <bit-column sortable defaultSort="asc">
         <bit-header-cell>Id</bit-header-cell>
         <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>

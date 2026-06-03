@@ -444,14 +444,14 @@ Outside a table, the bar's explicit API (`[selectedCount]`, `(clear)`) still wor
 
 ## Virtual scrolling
 
-For large datasets, set `[rowSize]` (the height per row, in px). The table renders inside a
+For large datasets, set `[virtualRowHeight]` (the height per row, in px). The table renders inside a
 `cdk-virtual-scroll-viewport`; only the visible rows are stamped:
 
 ```html
-<bit-table-v2 [table]="table" [rowSize]="64" [trackBy]="trackById">…columns…</bit-table-v2>
+<bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackById">…columns…</bit-table-v2>
 ```
 
-`[rowSize]` forces `table-fixed` layout regardless of `[layout]` — virtual scrolling needs
+`[virtualRowHeight]` forces `table-fixed` layout regardless of `[layout]` — virtual scrolling needs
 predictable row geometry. Specify `width="…"` on columns for stable widths.
 
 `[trackBy]` is optional but recommended for stable identity across data updates.
