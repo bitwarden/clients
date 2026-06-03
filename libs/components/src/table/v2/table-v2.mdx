@@ -13,7 +13,8 @@ per-row cell markup. The table renders a CSS-grid layout of ARIA-role elements
 become the grid items, and column widths map to grid tracks.
 
 A table is configured by a single `TableModel`, bound via `[table]`. The model composes the focused
-sub-models — data, columns, filter, and (optional) selection — so a table is built and bound once.
+sub-models — data, columns, search, filters, and (optional) selection — so a table is built and
+bound once.
 
 Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and isn't being migrated
 — see [Table](?path=/docs/component-library-table--docs) for its docs.
@@ -26,7 +27,10 @@ Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and 
 type User = { id: number; name: string; email: string };
 
 class UserListComponent {
-  protected readonly table = new TableModel<User>({ data: this.users });
+  protected readonly table = new TableModel<User>({
+    data: this.users,
+    displayedColumns: ["id", "name", "email"],
+  });
   // ...
 }
 ```
@@ -58,22 +62,23 @@ each cell template.
 the row type; `S` declares synthetic column names (see [Synthetic columns](#synthetic-columns)). It
 exposes:
 
-| Facet             | What it owns                                                       |
-| ----------------- | ------------------------------------------------------------------ |
-| `table.data`      | Row data, as a `Signal<T[]>`.                                      |
-| `table.columns`   | Typed refs (`table.ref` is shorthand), display order, visibility.  |
-| `table.filter`    | Search term, facet definitions, applied state, composed predicate. |
-| `table.selection` | Selection state — present only when `selection` is configured.     |
+| Facet             | What it owns                                                        |
+| ----------------- | ------------------------------------------------------------------- |
+| `table.data`      | Row data, as a `Signal<T[]>`.                                       |
+| `table.columns`   | Typed refs (`table.ref` is shorthand) and `displayedColumns` order. |
+| `table.search`    | Search term and matcher.                                            |
+| `table.filters`   | Facet definitions, applied state, and matcher.                      |
+| `table.selection` | Selection state — present only when `selection` is configured.      |
 
 Filtering and sorting are applied internally; there's no exposed data source.
 
-Construct it with one config object; every facet is optional:
+Construct it with one config object. `displayedColumns` is required; the rest are optional:
 
 ```ts
 const table = new TableModel<User, "actions">({
   data: users,
-  columns: { order: ["name", "email"] },
-  filter: { search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()) },
+  displayedColumns: ["name", "email", "actions"],
+  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
   selection: { multiple: true, canSelect: (user) => user.canManage },
 });
 ```
@@ -130,7 +135,10 @@ For columns that don't correspond to a field on `T` (action columns, expand/coll
 them via the model's second type parameter, then reference them like any other column:
 
 ```ts
-const table = new TableModel<User, "actions">({ data: users });
+const table = new TableModel<User, "actions">({
+  data: users,
+  displayedColumns: ["name", "email", "actions"],
+});
 ```
 
 ```html
@@ -146,12 +154,14 @@ const table = new TableModel<User, "actions">({ data: users });
 
 ### Reordering and hiding columns
 
-`columns.order` sets display order; columns it omits aren't rendered even though they're declared.
-Toggle visibility at runtime with `hide` / `show` / `showAll`:
+`displayedColumns` is the ordered list of columns to show; a column is rendered only if it's listed,
+at the position it's listed — names omitted aren't rendered even though they're declared. Reorder or
+hide at runtime by setting a new array:
 
 ```ts
-const table = new TableModel<User>({ data: users, columns: { order: ["name", "id"] } });
-// later: table.columns.hide("name"); table.columns.show("name"); table.columns.showAll();
+const table = new TableModel<User>({ data: users, displayedColumns: ["name", "id"] });
+// later, reorder/hide/show by setting the signal:
+table.displayedColumns.set(["id", "name"]);
 ```
 
 ```html
@@ -249,7 +259,11 @@ Control the count with `[loadingRows]` (default 3). Each column renders its opti
 the empty state.
 
 ```ts
-const table = new TableModel<User>({ data: users, loading: usersResource.isLoading });
+const table = new TableModel<User>({
+  data: users,
+  displayedColumns: ["id", "name", "email"],
+  loading: usersResource.isLoading,
+});
 ```
 
 ```html
@@ -322,34 +336,34 @@ state stays serializable.
 
 ## Filtering
 
-Configure filtering on the model's `filter`: a `search` matcher and/or facet definitions. The model
-composes them into a predicate the table applies internally, re-filtering reactively — you never
-touch a data source:
+Configure filtering with a top-level `search` matcher and/or `filters` facet definitions. They
+become the model's `search` and `filters` sub-models; the table composes both into the rendered set
+internally, re-filtering reactively — you never touch a data source:
 
 ```ts
 const table = new TableModel<Member>({
   data: members,
-  filter: {
-    search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
-    filters: [
-      { id: "role:admin", label: "Admin", predicate: (r) => r.role === "admin" },
-      { id: "role:user", label: "User", predicate: (r) => r.role === "user" },
-    ],
-  },
+  displayedColumns: ["name", "role"],
+  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
+  filters: [
+    { id: "role:admin", label: "Admin", predicate: (r) => r.role === "admin" },
+    { id: "role:user", label: "User", predicate: (r) => r.role === "user" },
+  ],
 });
 ```
 
-Apply facets with `table.filter.apply(id)` (also `remove`, `toggle`, `clear`); the search box writes
-the `searchTerm` signal for you. Applied facets are surfaced as value-only `AppliedFilter`
-(`{ id, label }`) for the toolbar — the predicate logic stays in the definitions, keyed off `id`.
-Omit a facet's `predicate` for server-side filtering and read `table.filter.appliedFilters()` to
-build your query. The toolbar is the UI for this state — see [Toolbar](#toolbar).
+Apply facets with `table.filters.apply(id)` (also `remove`, `toggle`, `clear`); the search box
+writes the `table.search.term` signal for you. Applied facets are surfaced as value-only
+`AppliedFilter` (`{ id, label }`) for the toolbar — the predicate logic stays in the definitions,
+keyed off `id`. Omit a facet's `predicate` for server-side filtering and read
+`table.filters.applied()` to build your query. The toolbar is the UI for this state — see
+[Toolbar](#toolbar).
 
 ## Toolbar
 
 `<bit-table-toolbar>`, projected into the table, renders inside the chrome above the header row and
 owns the applied-filters row (clear-all, count, dismissible chips). A `<bit-search>` goes in its own
-slot (rendered first, on the left) and binds to the model's `filter` automatically — the table
+slot (rendered first, on the left) and binds to the model's `search` automatically — the table
 provides it as a `SEARCH_CONSUMER`, so the search needs no `ngModel` or output binding. Other left
 controls use `slot="start"`; actions use `slot="end"`:
 
@@ -366,12 +380,12 @@ controls use `slot="start"`; actions use `slot="end"`:
 </bit-table-v2>
 
 <bit-menu #filterMenu>
-  <button bitMenuItem (click)="table.filter.apply('role:admin')">Admin</button>
-  <button bitMenuItem (click)="table.filter.apply('role:user')">User</button>
+  <button bitMenuItem (click)="table.filters.apply('role:admin')">Admin</button>
+  <button bitMenuItem (click)="table.filters.apply('role:user')">User</button>
 </bit-menu>
 ```
 
-The Filters menu calls `table.filter.apply(id)`; the toolbar renders each applied facet as a
+The Filters menu calls `table.filters.apply(id)`; the toolbar renders each applied facet as a
 dismissible chip and handles removal and clear-all. Any component implementing `SearchConsumer` (not
 just the table) gets the same automatic `<bit-search>` wiring.
 
@@ -381,7 +395,11 @@ Configure `selection` on the model and the table prepends an internal checkbox c
 the table; consumers don't declare it):
 
 ```ts
-const table = new TableModel<User>({ data: users, selection: { multiple: true } });
+const table = new TableModel<User>({
+  data: users,
+  displayedColumns: ["id", "name", "email"],
+  selection: { multiple: true },
+});
 ```
 
 ```html
@@ -400,6 +418,7 @@ enforced when selecting, so a non-selectable row can't be selected even programm
 ```ts
 const table = new TableModel<User>({
   data: users,
+  displayedColumns: ["id", "name", "email"],
   selection: { multiple: true, canSelect: (user) => user.canManage },
 });
 ```

@@ -2,8 +2,9 @@ import { Signal, signal, WritableSignal } from "@angular/core";
 
 import { Sort } from "../table-data-source";
 
-import { ColumnModel, ColumnModelConfig } from "./column-model";
-import { FilterModel, FilterModelConfig } from "./filter-model";
+import { ColumnModel, ColumnName } from "./column-model";
+import { FilterDefinition, FiltersModel } from "./filters-model";
+import { SearchModel } from "./search-model";
 import { TableSelectionModel } from "./table-selection-model";
 
 export type TableModelConfig<T, S extends string> = {
@@ -13,10 +14,16 @@ export type TableModelConfig<T, S extends string> = {
   loading?: Signal<boolean>;
   /** Initial sort. Header clicks update it; read or set {@link TableModel.sort} programmatically. */
   sort?: Sort;
-  /** Column identity, order, and visibility — see {@link ColumnModel}. */
-  columns?: ColumnModelConfig<T, S>;
-  /** Search and facet filtering — see {@link FilterModel}. */
-  filter?: FilterModelConfig<T>;
+  /**
+   * The columns to display, in order. A column is shown iff it appears here, at
+   * the position it appears. Reorder or hide at runtime via
+   * {@link TableModel.displayedColumns}.
+   */
+  displayedColumns: readonly ColumnName<T, S>[];
+  /** How free-text search matches a row. Omit to disable search — see {@link SearchModel}. */
+  search?: (row: T, term: string) => boolean;
+  /** Available filter facets, applied by id — see {@link FiltersModel}. */
+  filters?: FilterDefinition<T>[];
   /** Row selection. Omit for a non-selectable table (no checkbox column). */
   selection?: { multiple?: boolean; initial?: T[]; canSelect?: (row: T) => boolean };
 };
@@ -24,20 +31,22 @@ export type TableModelConfig<T, S extends string> = {
 /**
  * The single construct a `bit-table-v2` is configured with, passed via
  * `[table]`. A thin facade composing the focused pieces — {@link data},
- * {@link columns}, {@link filter}, and optional {@link selection} — so a table
- * is built and bound once instead of wiring four inputs. They stay reachable
- * for typed refs and runtime ops; the table component reads them and owns the
- * runtime engine (filtering, sorting) and its reactive glue.
+ * {@link columns}, {@link search}, {@link filters}, and optional
+ * {@link selection} — so a table is built and bound once instead of wiring
+ * several inputs. They stay reachable for typed refs and runtime ops; the table
+ * component reads them and owns the runtime engine (filtering, sorting) and its
+ * reactive glue.
  *
  * @example
  * ```ts
  * const table = new TableModel<Member, "actions">({
  *   data: members, // Signal<Member[]>
- *   filter: { search: (r, t) => r.name.toLowerCase().includes(t.toLowerCase()) },
+ *   displayedColumns: ["name", "email", "actions"],
+ *   search: (r, t) => r.name.toLowerCase().includes(t.toLowerCase()),
  *   selection: { multiple: true },
  * });
  * table.ref.name;            // typed column ref
- * table.filter.apply("...");
+ * table.filters.apply("...");
  * table.selection?.toggle(row);
  * ```
  */
@@ -56,21 +65,25 @@ export class TableModel<T, S extends string = never> {
    */
   readonly sort: WritableSignal<Sort>;
 
-  /** Column identity, typed references, order, and visibility. */
+  /** Column identity, typed references, and display order. */
   readonly columns: ColumnModel<T, S>;
 
-  /** Search term, facet definitions, applied state, and composed predicate. */
-  readonly filter: FilterModel<T>;
+  /** Free-text search state and matcher. */
+  readonly search: SearchModel<T>;
+
+  /** Facet-filter definitions, applied state, and matcher. */
+  readonly filters: FiltersModel<T>;
 
   /** Selection state, present only when configured. */
   readonly selection?: TableSelectionModel<T>;
 
-  constructor(config: TableModelConfig<T, S> = {}) {
+  constructor(config: TableModelConfig<T, S>) {
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
     this.sort = signal<Sort>(config.sort ?? { direction: "asc" });
-    this.columns = new ColumnModel<T, S>(config.columns);
-    this.filter = new FilterModel<T>(config.filter);
+    this.columns = new ColumnModel<T, S>(config.displayedColumns);
+    this.search = new SearchModel<T>(config.search);
+    this.filters = new FiltersModel<T>(config.filters ?? []);
     if (config.selection) {
       this.selection = new TableSelectionModel<T>(
         config.selection.multiple ?? false,
@@ -83,5 +96,13 @@ export class TableModel<T, S extends string = never> {
   /** Typed column references — shorthand for {@link columns}`.ref`. */
   get ref() {
     return this.columns.ref;
+  }
+
+  /**
+   * The columns shown, in order. Set a new array to reorder or hide. Shorthand
+   * for {@link columns}`.displayedColumns`.
+   */
+  get displayedColumns() {
+    return this.columns.displayedColumns;
   }
 }

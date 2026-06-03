@@ -79,7 +79,10 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
 export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly dialogService = inject(DialogService);
   private readonly rows = signal<Row[]>([]);
-  protected readonly table = new TableModel<Row, "actions">({ data: this.rows });
+  protected readonly table = new TableModel<Row, "actions">({
+    data: this.rows,
+    displayedColumns: ["id", "name", "updatedAt", "tags", "actions"],
+  });
 
   protected readonly sortByTags = (a: Row, b: Row) =>
     a.tags.join(",").localeCompare(b.tags.join(","));

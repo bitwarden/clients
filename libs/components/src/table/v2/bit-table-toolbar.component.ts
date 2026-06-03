@@ -16,8 +16,8 @@ import { BitTableV2Component } from "./table-v2.component";
  * A `<bit-search>` is projected into its own slot (rendered first, on the left)
  * and wires to the table's search term automatically. Other left controls (e.g.
  * a Filters menu) use `slot="start"`; actions use `slot="end"`. Append filter
- * chips from those controls by updating the table model's `filter`; the
- * applied-filters row and removal are handled here.
+ * chips from those controls by applying facets on the table model's `filters`;
+ * the applied-filters row and removal are handled here.
  */
 @Component({
   selector: "bit-table-toolbar",
@@ -34,15 +34,13 @@ export class BitTableToolbarComponent {
     { optional: true },
   );
 
-  protected readonly applied = computed(
-    () => this.tableComponent?.table().filter.appliedFilters() ?? [],
-  );
+  protected readonly applied = computed(() => this.tableComponent?.table().filters.applied() ?? []);
 
   protected remove(id: string): void {
-    this.tableComponent?.table().filter.remove(id);
+    this.tableComponent?.table().filters.remove(id);
   }
 
   protected clear(): void {
-    this.tableComponent?.table().filter.clear();
+    this.tableComponent?.table().filters.clear();
   }
 }

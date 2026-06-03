@@ -126,7 +126,7 @@ export class BitTableV2Component<T = unknown>
    * `table.ref.*` references bound to `*bitCellDef`. Defaults to an empty model,
    * so manual-mode tables need not bind it.
    */
-  readonly table = input(new TableModel<T>());
+  readonly table = input(new TableModel<T>({ displayedColumns: [] }));
 
   /**
    * Defaults to `"auto"`. Forced to `"fixed"` when virtualization is on
@@ -151,13 +151,11 @@ export class BitTableV2Component<T = unknown>
   /** The model's active sort (`{ column, direction }`). Read by header cells. */
   readonly sort = computed(() => this.table().sort());
 
-  /** Model rows after the filter predicate (pre-sort); also drives select-all. */
-  protected readonly filtered = computed(() =>
-    this.table().data().filter(this.table().filter.predicate()),
-  );
-
-  /** The model's column model. */
-  protected readonly columnModel = computed(() => this.table().columns);
+  /** Model rows passing both search and facet filters (pre-sort); also drives select-all. */
+  protected readonly filtered = computed(() => {
+    const model = this.table();
+    return model.data().filter((row) => model.search.matches(row) && model.filters.matches(row));
+  });
 
   /** The model's selection model, if configured. Read by `bit-bulk-actions-bar` via DI. */
   readonly selection = computed(() => this.table().selection);
@@ -167,10 +165,10 @@ export class BitTableV2Component<T = unknown>
 
   /**
    * The {@link SearchConsumer} surface a projected `<bit-search>` binds to —
-   * the model's filter `searchTerm` signal, forwarded along.
+   * the model's `search.term` signal, forwarded along.
    */
   get searchTerm() {
-    return this.table().filter.searchTerm;
+    return this.table().search.term;
   }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
@@ -185,16 +183,14 @@ export class BitTableV2Component<T = unknown>
   protected readonly hasColumns = computed(() => this._columns().length > 0);
 
   /**
-   * Registered columns ordered and filtered by the model's {@link ColumnModel}:
-   * its `order` (or declaration order when unset), minus its hidden set.
+   * Registered columns resolved against the model's
+   * {@link TableModel.displayedColumns}: shown in its order, omitting any name
+   * with no registered `<bit-column>`.
    */
   readonly effectiveColumns = computed(() => {
     const registry = new Map(this._columns().map((c) => [c.name(), c]));
-    const model = this.columnModel();
-    const names = model.order() ?? this._columns().map((c) => c.name());
-    const hidden = model.hidden();
-    return names
-      .filter((name): name is string => name != null && !hidden.has(name))
+    return this.table()
+      .displayedColumns()
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
   });

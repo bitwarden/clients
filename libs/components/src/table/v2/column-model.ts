@@ -1,4 +1,4 @@
-import { signal, Signal, WritableSignal } from "@angular/core";
+import { signal, WritableSignal } from "@angular/core";
 
 /**
  * A column key paired with the row type it targets. Looks like a plain string
@@ -17,29 +17,20 @@ type ColumnRefs<T, S extends string> = {
   readonly [K in keyof T & string]: ColumnRef<T, K>;
 } & { readonly [K in S]: ColumnRef<T, K> };
 
-export type ColumnModelConfig<T, S extends string> = {
-  /** Explicit display order by name. Defaults to the order columns are declared. */
-  order?: readonly ColumnName<T, S>[];
-  /** Columns hidden initially. */
-  hidden?: readonly ColumnName<T, S>[];
-};
-
 /**
- * Column identity, typed references, and layout state for `bit-table-v2` —
- * parallel to `TableDataSource` and `TableSelectionModel`, passed via
- * `[columns]`. The row type `T` types the field columns; declare synthetic
- * columns (actions, select, etc.) via the second type parameter `S`.
+ * Column identity and display state for `bit-table-v2`. The row type `T` types
+ * the field columns; declare synthetic columns (actions, select, etc.) via the
+ * second type parameter `S`.
  *
- * It owns column *state* (order, visibility — width / reorder / pinning later),
- * not rendering: `<bit-column>` / `*bitCellDef` still declare what each column
- * renders, matched back to this model by name.
+ * `<bit-column>` / `*bitCellDef` declare what each column renders, matched back
+ * to this model by name; {@link displayedColumns} decides which of them show
+ * and in what order.
  *
  * @example
  * ```ts
- * const columns = new ColumnModel<Member, "actions">();
+ * const columns = new ColumnModel<Member, "actions">(["name", "email", "actions"]);
  * columns.ref.name;     // ColumnRef<Member, "name">
- * columns.ref.actions;  // ColumnRef<Member, "actions">
- * columns.hide("email");
+ * columns.displayedColumns.set(["email", "name"]); // reorder / hide
  * ```
  */
 export class ColumnModel<T, S extends string = never> {
@@ -51,42 +42,14 @@ export class ColumnModel<T, S extends string = never> {
     get: (_target, prop) => prop,
   });
 
-  private readonly _order: WritableSignal<readonly string[] | undefined>;
-  private readonly _hidden: WritableSignal<ReadonlySet<string>>;
+  /**
+   * The columns to display, in order. A column is shown iff it appears here, at
+   * the position it appears; reorder or hide by setting a new array. Names with
+   * no matching `<bit-column>` are ignored.
+   */
+  readonly displayedColumns: WritableSignal<readonly ColumnName<T, S>[]>;
 
-  /** Explicit display order by name, or `undefined` to use declaration order. Read by the table. */
-  readonly order: Signal<readonly string[] | undefined>;
-
-  /** Currently hidden column names. Read by the table. */
-  readonly hidden: Signal<ReadonlySet<string>>;
-
-  constructor(config: ColumnModelConfig<T, S> = {}) {
-    this._order = signal<readonly string[] | undefined>(config.order);
-    this._hidden = signal<ReadonlySet<string>>(new Set(config.hidden ?? []));
-    this.order = this._order.asReadonly();
-    this.hidden = this._hidden.asReadonly();
-  }
-
-  isHidden(name: ColumnName<T, S>): boolean {
-    return this._hidden().has(name);
-  }
-
-  /** Hides one or more columns. */
-  hide(...names: ColumnName<T, S>[]): void {
-    this._hidden.update((hidden) => new Set([...hidden, ...names]));
-  }
-
-  /** Shows one or more previously-hidden columns. */
-  show(...names: ColumnName<T, S>[]): void {
-    this._hidden.update((hidden) => {
-      const next = new Set(hidden);
-      names.forEach((name) => next.delete(name));
-      return next;
-    });
-  }
-
-  /** Shows all columns. */
-  showAll(): void {
-    this._hidden.set(new Set());
+  constructor(displayedColumns: readonly ColumnName<T, S>[]) {
+    this.displayedColumns = signal(displayedColumns);
   }
 }

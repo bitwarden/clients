@@ -113,21 +113,20 @@ class DemoStatusColumnComponent {
     </bit-layout>
 
     <bit-menu #filterMenu>
-      <button type="button" bitMenuItem (click)="table.filter.apply('range:a-m')">A–M</button>
-      <button type="button" bitMenuItem (click)="table.filter.apply('range:n-z')">N–Z</button>
+      <button type="button" bitMenuItem (click)="table.filters.apply('range:a-m')">A–M</button>
+      <button type="button" bitMenuItem (click)="table.filters.apply('range:n-z')">N–Z</button>
     </bit-menu>
   `,
 })
 class DemoToolbarTableComponent {
   protected readonly table = new TableModel<Country>({
     data: signal(countries.slice(0, 100)),
-    filter: {
-      search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
-      filters: [
-        { id: "range:a-m", label: "A–M", predicate: (row) => row.name.toLowerCase() < "n" },
-        { id: "range:n-z", label: "N–Z", predicate: (row) => row.name.toLowerCase() >= "n" },
-      ],
-    },
+    displayedColumns: ["name", "value"],
+    search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
+    filters: [
+      { id: "range:a-m", label: "A–M", predicate: (row) => row.name.toLowerCase() < "n" },
+      { id: "range:n-z", label: "N–Z", predicate: (row) => row.name.toLowerCase() >= "n" },
+    ],
   });
 }
 
@@ -203,14 +202,21 @@ const basicData = signal<DemoRow[]>(
   })),
 );
 
-const basicTable = new TableModel<DemoRow>({ data: basicData });
+const basicTable = new TableModel<DemoRow>({
+  data: basicData,
+  displayedColumns: ["id", "name", "other"],
+});
 const reorderTable = new TableModel<DemoRow>({
   data: basicData,
-  columns: { order: ["name", "id"] },
+  displayedColumns: ["name", "id"],
 });
-const emptyTable = new TableModel<DemoRow>({ data: signal<DemoRow[]>([]) });
+const emptyTable = new TableModel<DemoRow>({
+  data: signal<DemoRow[]>([]),
+  displayedColumns: ["id", "name"],
+});
 const loadingTable = new TableModel<DemoRow>({
   data: signal<DemoRow[]>([]),
+  displayedColumns: ["id", "name", "other"],
   loading: signal(true),
 });
 
@@ -269,6 +275,7 @@ const userTable = new TableModel<UsersRow>({
     { id: 2, name: "Sam Rivera", email: "sam.rivera@example.com", starred: false },
     { id: 3, name: "Jordan Park", email: "jordan.park@example.com", starred: true },
   ]),
+  displayedColumns: ["name", "email"],
 });
 
 /**
@@ -307,7 +314,7 @@ export const RichCells: Story = {
 };
 
 /**
- * The model's `columns.order` sets display order; columns it omits aren't
+ * The model's `displayedColumns` sets display order; columns it omits aren't
  * rendered even though they're declared. Here `other` is declared but left out.
  */
 export const ReorderedAndHidden: Story = {
@@ -360,6 +367,7 @@ const largeTable = new TableModel<DemoRow>({
   data: signal(
     [...Array(100).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` })),
   ),
+  displayedColumns: ["id", "name", "other"],
 });
 
 export const Scrollable: Story = {
@@ -392,7 +400,8 @@ export const Scrollable: Story = {
 
 const filterTable = new TableModel<Country>({
   data: signal(countries.slice(0, 100)),
-  filter: { search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()) },
+  displayedColumns: ["name", "value"],
+  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
 });
 
 export const Filterable: Story = {
@@ -423,8 +432,8 @@ export const Filterable: Story = {
  * the applied-filters row. A `<bit-search>` goes in its own slot and binds to
  * the table model's `filter` automatically; other left controls (a Filters
  * menu) use `slot="start"`, actions use `slot="end"`. Picking from the menu
- * calls `table.filter.apply(id)`, which the toolbar renders as a value-only
- * chip and the model folds into the composed predicate the table applies. The
+ * calls `table.filters.apply(id)`, which the toolbar renders as a value-only
+ * chip and the model folds into the row test the table applies. The
  * Filters trigger is a stateless `bitButton` + `bit-menu` with a chevron
  * `endIcon` that flips with the menu's open state. See `DemoToolbarTableComponent`.
  */
@@ -442,7 +451,11 @@ export const WithToolbar: Story = {
  */
 export const WithBulkActions: Story = {
   render: () => {
-    const table = new TableModel<DemoRow>({ data: basicData, selection: { multiple: true } });
+    const table = new TableModel<DemoRow>({
+      data: basicData,
+      displayedColumns: ["id", "name", "other"],
+      selection: { multiple: true },
+    });
     const noop = () => {
       /* story noop */
     };
@@ -482,7 +495,11 @@ export const WithBulkActions: Story = {
  */
 export const Selectable: Story = {
   render: () => {
-    const table = new TableModel<DemoRow>({ data: basicData, selection: { multiple: true } });
+    const table = new TableModel<DemoRow>({
+      data: basicData,
+      displayedColumns: ["id", "name", "other"],
+      selection: { multiple: true },
+    });
     return {
       props: { table },
       template: `
@@ -514,6 +531,7 @@ export const SelectableSubset: Story = {
   render: () => {
     const table = new TableModel<DemoRow>({
       data: basicData,
+      displayedColumns: ["id", "name", "other"],
       selection: { multiple: true, canSelect: (row) => row.id % 2 === 0 },
     });
     return {
