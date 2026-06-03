@@ -30,9 +30,9 @@ export type CoseKey = {
  *  This can be done via `inner()`.
  */
 export class SymmetricCryptoKey {
-  private innerKey: Aes256CbcHmacKey | Aes256CbcKey | CoseKey;
+  #innerKey: Aes256CbcHmacKey | Aes256CbcKey | CoseKey;
 
-  keyB64: string;
+  #keyB64: string;
 
   /**
    * @param key The key in one of the permitted serialization formats
@@ -43,24 +43,24 @@ export class SymmetricCryptoKey {
     }
 
     if (key.byteLength === 32) {
-      this.innerKey = {
+      this.#innerKey = {
         type: EncryptionType.AesCbc256_B64,
         encryptionKey: key,
       };
-      this.keyB64 = this.toBase64();
+      this.#keyB64 = this.toBase64();
     } else if (key.byteLength === 64) {
-      this.innerKey = {
+      this.#innerKey = {
         type: EncryptionType.AesCbc256_HmacSha256_B64,
         encryptionKey: key.slice(0, 32),
         authenticationKey: key.slice(32),
       };
-      this.keyB64 = this.toBase64();
+      this.#keyB64 = this.toBase64();
     } else if (key.byteLength > 64) {
-      this.innerKey = {
+      this.#innerKey = {
         type: EncryptionType.CoseEncrypt0,
         encryptionKey: key,
       };
-      this.keyB64 = this.toBase64();
+      this.#keyB64 = this.toBase64();
     } else {
       throw new Error(`Unsupported encType/key length ${key.byteLength}`);
     }
@@ -68,7 +68,7 @@ export class SymmetricCryptoKey {
 
   toJSON() {
     // The whole object is constructed from the initial key, so just store the B64 key
-    return { keyB64: this.keyB64 };
+    return { keyB64: this.#keyB64 };
   }
 
   /**
@@ -78,7 +78,7 @@ export class SymmetricCryptoKey {
    * @returns The inner key instance that can be directly used for encryption primitives
    */
   inner(): Aes256CbcHmacKey | Aes256CbcKey | CoseKey {
-    return this.innerKey;
+    return this.#innerKey;
   }
 
   /**
@@ -97,15 +97,15 @@ export class SymmetricCryptoKey {
    * @returns The serialized key that can be written to state or encrypted and then written to state / shared
    */
   toEncoded(): Uint8Array {
-    if (this.innerKey.type === EncryptionType.AesCbc256_B64) {
-      return this.innerKey.encryptionKey;
-    } else if (this.innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+    if (this.#innerKey.type === EncryptionType.AesCbc256_B64) {
+      return this.#innerKey.encryptionKey;
+    } else if (this.#innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       const encodedKey = new Uint8Array(64);
-      encodedKey.set(this.innerKey.encryptionKey, 0);
-      encodedKey.set(this.innerKey.authenticationKey, 32);
+      encodedKey.set(this.#innerKey.encryptionKey, 0);
+      encodedKey.set(this.#innerKey.authenticationKey, 32);
       return encodedKey;
-    } else if (this.innerKey.type === EncryptionType.CoseEncrypt0) {
-      return this.innerKey.encryptionKey;
+    } else if (this.#innerKey.type === EncryptionType.CoseEncrypt0) {
+      return this.#innerKey.encryptionKey;
     } else {
       throw new Error("Unsupported encryption type.");
     }
