@@ -84,7 +84,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
         const encKey = new EncString(inviteLink.encryptedInviteKey);
         return this.encryptService.unwrapSymmetricKey(encKey, orgKey);
       }),
-      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64)),
+      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.toBase64())),
     );
   }
 

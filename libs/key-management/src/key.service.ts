@@ -546,7 +546,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   protected async storeAdditionalKeys(key: UserKey, userId: UserId) {
     const storeAuto = await this.shouldStoreKey(KeySuffixOptions.Auto, userId);
     if (storeAuto) {
-      await this.stateService.setUserKeyAutoUnlock(key.keyB64, { userId: userId });
+      await this.stateService.setUserKeyAutoUnlock(key.toBase64(), { userId: userId });
     } else {
       await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }

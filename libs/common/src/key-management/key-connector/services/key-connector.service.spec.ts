@@ -696,7 +696,7 @@ describe("KeyConnectorService", () => {
 
           expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
           expect(keyService.makeMasterKey).toHaveBeenCalledWith(
-            passwordKey.keyB64,
+            passwordKey.toBase64(),
             mockEmail,
             expectedKdfConfig,
           );
@@ -746,7 +746,7 @@ describe("KeyConnectorService", () => {
 
         expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
         expect(keyService.makeMasterKey).toHaveBeenCalledWith(
-          passwordKey.keyB64,
+          passwordKey.toBase64(),
           mockEmail,
           new PBKDF2KdfConfig(600_000),
         );

@@ -103,7 +103,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
             throw new Error("SDK is undefined");
           }
           return sdk.crypto().verify_asymmetric_keys({
-            userKey: userKey.keyB64,
+            userKey: userKey.toBase64(),
             userPublicKey: publicKeyResponse.publicKey,
             userKeyEncryptedPrivateKey: userKeyEncryptedPrivateKey,
           });
@@ -153,7 +153,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
           if (sdk === undefined) {
             throw new Error("SDK is undefined");
           }
-          return sdk.crypto().make_key_pair(userKey.keyB64);
+          return sdk.crypto().make_key_pair(userKey.toBase64());
         }),
       ),
     );

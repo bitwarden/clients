@@ -232,7 +232,7 @@ describe("MainBiometricsService", function () {
       const userKey = await sut.unlockWithBiometricsForUser(userId);
 
       expect(userKey).not.toBeNull();
-      expect(userKey!.keyB64).toBe(biometricKey.toBase64());
+      expect(userKey!.toBase64()).toBe(biometricKey.toBase64());
       expect(userKey!.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
       expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(userId);
     });

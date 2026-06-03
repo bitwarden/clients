@@ -1,4 +1,9 @@
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { Jsonify } from "type-fest";
+
+import {
+  JsonSymmetricCryptoKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsCommands, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
@@ -33,13 +38,13 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     const response = await BrowserApi.sendMessageWithResponse<{
-      result: UserKey;
+      result: Jsonify<JsonSymmetricCryptoKey>;
       error: string;
     }>(BiometricsCommands.UnlockWithBiometricsForUser, { userId });
     if (!response.result) {
       return null;
     }
-    return SymmetricCryptoKey.fromString(response.result.keyB64) as UserKey;
+    return SymmetricCryptoKey.fromJSON(response.result) as UserKey;
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {

@@ -270,7 +270,7 @@ export class BiometricMessageHandlerService {
   ) {
     const secret = await this.cryptoFunctionService.randomBytes(64);
 
-    connectedApp.sessionSecret = new SymmetricCryptoKey(secret).keyB64;
+    connectedApp.sessionSecret = new SymmetricCryptoKey(secret).toBase64();
     await this.connectedApps.set(appId, connectedApp);
 
     this.logService.info("[Native Messaging IPC] Setting up secure channel");
@@ -303,7 +303,7 @@ export class BiometricMessageHandlerService {
             command: BiometricsCommands.UnlockWithBiometricsForUser,
             response: true,
             messageId,
-            userKeyB64: userKey.keyB64,
+            userKeyB64: userKey.toBase64(),
           },
           appId,
         );

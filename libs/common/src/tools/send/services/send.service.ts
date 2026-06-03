@@ -101,7 +101,7 @@ export class SendService implements InternalSendServiceAbstraction {
           model.key,
           new PBKDF2KdfConfig(SEND_KDF_ITERATIONS),
         );
-        send.password = passwordKey.keyB64;
+        send.password = passwordKey.toBase64();
       }
     }
     const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;

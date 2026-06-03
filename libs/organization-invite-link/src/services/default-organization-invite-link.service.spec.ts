@@ -29,7 +29,7 @@ const mockOrgId = "org-1" as OrganizationId;
 
 function makeKey(keyB64 = "dGVzdGtleWJ5dGVzZm9ydGVzdGluZw=="): SymmetricCryptoKey {
   const key = mock<SymmetricCryptoKey>();
-  key.keyB64 = keyB64;
+  key.toBase64.mockReturnValue(keyB64);
   return key;
 }
 

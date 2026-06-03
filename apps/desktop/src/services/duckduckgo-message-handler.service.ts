@@ -118,7 +118,7 @@ export class DuckDuckGoMessageHandlerService {
 
       const secret = await this.cryptoFunctionService.randomBytes(64);
       this.duckduckgoSharedSecret = new SymmetricCryptoKey(secret);
-      const sharedKeyB64 = new SymmetricCryptoKey(secret).keyB64;
+      const sharedKeyB64 = new SymmetricCryptoKey(secret).toBase64();
 
       await this.stateService.setDuckDuckGoSharedKey(sharedKeyB64);
 

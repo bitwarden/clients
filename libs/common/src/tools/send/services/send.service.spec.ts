@@ -664,7 +664,7 @@ describe("SendService", () => {
       it("should set password when no emails are provided", async () => {
         sendView.emails = [];
         keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
-          keyB64: "hashedPassword",
+          toBase64: () => "hashedPassword",
         } as any);
 
         const [send] = await sendService.encrypt(sendView, null, "password123");

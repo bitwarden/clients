@@ -18,12 +18,10 @@ describe("SymmetricCryptoKey", () => {
       const key = makeStaticByteArray(32);
       const cryptoKey = new SymmetricCryptoKey(key);
 
-      expect(cryptoKey).toEqual({
-        keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        innerKey: {
-          type: EncryptionType.AesCbc256_B64,
-          encryptionKey: key,
-        },
+      expect(cryptoKey.toBase64()).toEqual("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=");
+      expect(cryptoKey.inner()).toEqual({
+        type: EncryptionType.AesCbc256_B64,
+        encryptionKey: key,
       });
     });
 
@@ -31,14 +29,13 @@ describe("SymmetricCryptoKey", () => {
       const key = makeStaticByteArray(64);
       const cryptoKey = new SymmetricCryptoKey(key);
 
-      expect(cryptoKey).toEqual({
-        keyB64:
-          "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
-        innerKey: {
-          type: EncryptionType.AesCbc256_HmacSha256_B64,
-          encryptionKey: key.slice(0, 32),
-          authenticationKey: key.slice(32),
-        },
+      expect(cryptoKey.toBase64()).toEqual(
+        "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
+      );
+      expect(cryptoKey.inner()).toEqual({
+        type: EncryptionType.AesCbc256_HmacSha256_B64,
+        encryptionKey: key.slice(0, 32),
+        authenticationKey: key.slice(32),
       });
     });
 
@@ -55,14 +52,14 @@ describe("SymmetricCryptoKey", () => {
     const key = new SymmetricCryptoKey(makeStaticByteArray(64));
     const actual = key.toJSON();
 
-    const expected = { keyB64: key.keyB64 };
+    const expected = { keyB64: key.toBase64() };
 
     expect(actual).toEqual(expected);
   });
 
   it("fromJSON hydrates new object", () => {
     const expected = new SymmetricCryptoKey(makeStaticByteArray(64));
-    const actual = SymmetricCryptoKey.fromJSON({ keyB64: expected.keyB64 });
+    const actual = SymmetricCryptoKey.fromJSON({ keyB64: expected.toBase64() });
 
     expect(actual).toEqual(expected);
     expect(actual).toBeInstanceOf(SymmetricCryptoKey);
@@ -113,7 +110,7 @@ describe("SymmetricCryptoKey", () => {
     it("base64 string creates object", () => {
       const key = makeStaticByteArray(64);
       const expected = new SymmetricCryptoKey(key);
-      const actual = SymmetricCryptoKey.fromString(expected.keyB64);
+      const actual = SymmetricCryptoKey.fromString(expected.toBase64());
 
       expect(actual).toEqual(expected);
       expect(actual).toBeInstanceOf(SymmetricCryptoKey);

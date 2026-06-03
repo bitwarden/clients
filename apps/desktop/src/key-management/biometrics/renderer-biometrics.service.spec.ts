@@ -92,7 +92,7 @@ describe("renderer biometrics service tests", function () {
 
       expect(result).not.toBeNull();
       expect(result).toBeInstanceOf(SymmetricCryptoKey);
-      expect(result!.keyB64).toEqual(mockUserKey.keyB64);
+      expect(result!.toBase64()).toEqual(mockUserKey.toBase64());
       expect(result!.inner()).toEqual(mockUserKey.inner());
     });
   });

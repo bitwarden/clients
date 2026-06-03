@@ -25,14 +25,20 @@ export type CoseKey = {
 };
 
 /**
+ * The JSON representation of a SymmetricKey
+ */
+export class JsonSymmetricCryptoKey {
+  keyB64: string;
+}
+
+/**
  *  A symmetric crypto key represents a symmetric key usable for symmetric encryption and decryption operations.
  *  The specific algorithm used is private to the key, and should only be exposed to encrypt service implementations.
  *  This can be done via `inner()`.
  */
 export class SymmetricCryptoKey {
+  // Prevent accidental logging or direct access of the key by making this field private at runtime
   #innerKey: Aes256CbcHmacKey | Aes256CbcKey | CoseKey;
-
-  #keyB64: string;
 
   /**
    * @param key The key in one of the permitted serialization formats
@@ -47,28 +53,25 @@ export class SymmetricCryptoKey {
         type: EncryptionType.AesCbc256_B64,
         encryptionKey: key,
       };
-      this.#keyB64 = this.toBase64();
     } else if (key.byteLength === 64) {
       this.#innerKey = {
         type: EncryptionType.AesCbc256_HmacSha256_B64,
         encryptionKey: key.slice(0, 32),
         authenticationKey: key.slice(32),
       };
-      this.#keyB64 = this.toBase64();
     } else if (key.byteLength > 64) {
       this.#innerKey = {
         type: EncryptionType.CoseEncrypt0,
         encryptionKey: key,
       };
-      this.#keyB64 = this.toBase64();
     } else {
       throw new Error(`Unsupported encType/key length ${key.byteLength}`);
     }
   }
 
-  toJSON() {
+  toJSON(): JsonSymmetricCryptoKey {
     // The whole object is constructed from the initial key, so just store the B64 key
-    return { keyB64: this.#keyB64 };
+    return { keyB64: this.toBase64() };
   }
 
   /**
@@ -124,8 +127,8 @@ export class SymmetricCryptoKey {
     return new SymmetricCryptoKey(arrayBuffer);
   }
 
-  static fromJSON(obj: Jsonify<SymmetricCryptoKey>): SymmetricCryptoKey {
-    return SymmetricCryptoKey.fromString(obj?.keyB64);
+  static fromJSON(obj: Jsonify<JsonSymmetricCryptoKey>): SymmetricCryptoKey {
+    return SymmetricCryptoKey.fromString((obj?.keyB64));
   }
 
   static fromSdk(key: SymmetricKey): SymmetricCryptoKey {

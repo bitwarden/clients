@@ -261,7 +261,7 @@ describe("keyService", () => {
 
         await keyService.setUserKey(mockUserKey, mockUserId);
 
-        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.keyB64, {
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.toBase64(), {
           userId: mockUserId,
         });
       });
@@ -272,7 +272,7 @@ describe("keyService", () => {
 
         await keyService.setUserKey(mockUserKey, mockUserId);
 
-        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.keyB64, {
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.toBase64(), {
           userId: mockUserId,
         });
       });
@@ -553,7 +553,7 @@ describe("keyService", () => {
       expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
       expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
       const orgKey = decryptionKeys!.orgKeys![org1Id];
-      expect(orgKey.keyB64).toContain("org1Key");
+      expect(orgKey.toBase64()).toContain("org1Key");
     });
 
     it("returns decryption keys when there is an empty record for provider keys", async () => {
@@ -574,7 +574,7 @@ describe("keyService", () => {
       expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
       expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
       const orgKey = decryptionKeys!.orgKeys![org1Id];
-      expect(orgKey.keyB64).toContain("org1Key");
+      expect(orgKey.toBase64()).toContain("org1Key");
     });
 
     it("returns decryption keys when some of the org keys are providers", async () => {
@@ -604,7 +604,7 @@ describe("keyService", () => {
 
       const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey).not.toBeNull();
-      expect(orgKey.keyB64).toContain("org1Key");
+      expect(orgKey.toBase64()).toContain("org1Key");
 
       const org2Key = decryptionKeys!.orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
@@ -978,7 +978,7 @@ describe("keyService", () => {
 
     describe("with Auto keySuffix", () => {
       it("returns validated key from storage when key exists and is valid", async () => {
-        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
+        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.toBase64());
         validateUserKeySpy.mockResolvedValue(true);
 
         const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
@@ -1000,7 +1000,7 @@ describe("keyService", () => {
       });
 
       it("clears stored keys when userKey validation fails", async () => {
-        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
+        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.toBase64());
         validateUserKeySpy.mockResolvedValue(false);
 
         const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);

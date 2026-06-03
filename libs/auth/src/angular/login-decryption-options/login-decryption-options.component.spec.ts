@@ -305,8 +305,8 @@ describe("LoginDecryptionOptionsComponent", () => {
       const [, deviceKeyArg] = deviceTrustService.setDeviceKey.mock.calls[0];
       const [userKeyArg] = keyService.setUserKey.mock.calls[0];
 
-      expect((deviceKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedDeviceKey.keyB64);
-      expect((userKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedUserKey.keyB64);
+      expect((deviceKeyArg as SymmetricCryptoKey).toBase64()).toBe(expectedDeviceKey.toBase64());
+      expect((userKeyArg as SymmetricCryptoKey).toBase64()).toBe(expectedUserKey.toBase64());
 
       // Verify success toast and navigation
       expect(toastService.showToast).toHaveBeenCalledWith({

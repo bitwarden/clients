@@ -939,7 +939,7 @@ describe("DefaultSetInitialPasswordService", () => {
         masterKeyWrappedUserKey: makeEncString().encryptedString!,
         salt: "user@example.com" as unknown as MasterPasswordSalt,
       },
-      user_key: makeSymmetricCryptoKey(64).keyB64,
+      user_key: makeSymmetricCryptoKey(64).toBase64(),
     };
 
     beforeEach(() => {
