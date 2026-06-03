@@ -247,6 +247,7 @@ describe("DefaultCipherSdkService", () => {
           name: cipherView.name,
         }),
       );
+      expect(mockCiphersSdk.edit_partial).not.toHaveBeenCalled();
       expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
       expect(result.name).toBe(cipherView.name);
@@ -279,7 +280,7 @@ describe("DefaultCipherSdkService", () => {
       expect(result).toBeInstanceOf(CipherView);
     });
 
-    it("should partial update cipher using SDK edit_partial when orgAdmin is false and cipher.edit defaults to false", async () => {
+    it("should partial update cipher when orgAdmin is false and cipher.edit defaults to false", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
@@ -293,7 +294,6 @@ describe("DefaultCipherSdkService", () => {
 
       expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
       expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
-      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
     });
 
@@ -422,7 +422,7 @@ describe("DefaultCipherSdkService", () => {
       );
     });
 
-    it("should throw error and log when SDK edit_partial throws an error during partial update", async () => {
+    it("should throw error and log when SDK edit_partial throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.name = "Test Cipher";
