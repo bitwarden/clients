@@ -189,7 +189,7 @@ export class ServiceAccountService {
     } else {
       serviceAccountView.name = null;
     }
-      
+
     return serviceAccountView;
   }
 
@@ -210,9 +210,9 @@ export class ServiceAccountService {
         view.name = name.value;
         view.decryptionError = name.error;
       } catch (error) {
-         this.logService.error("Error decrypting service account name", error);
-         view.name = DECRYPT_ERROR;
-         view.decryptionError = view.error;
+        this.logService.error("Error decrypting service account name", error);
+        view.name = DECRYPT_ERROR;
+        view.decryptionError = true;
       }
     } else {
       view.name = null;
