@@ -704,7 +704,10 @@ export default class NotificationBackground {
     }
 
     // If there is an active passkey prompt, exit early
-    if (tab.id !== undefined && this.fido2Background.isCredentialRequestInProgress(tab.id)) {
+    if (
+      tab.id !== undefined &&
+      this.fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tab.id)
+    ) {
       return false;
     }
 
