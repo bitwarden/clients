@@ -7,6 +7,10 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
+/**
+ * Caller-supplied behavior for one accept flow (org invite, emergency access, etc.).
+ * The flow itself is generic over `TInvite` - the shape produced by {@link parse}.
+ */
 export interface AcceptFlowConfig<TInvite> {
   /** Toast i18n key used when no API error message is available (invalid link, non-Error throw). */
   failedMessage: string;
@@ -17,12 +21,20 @@ export interface AcceptFlowConfig<TInvite> {
    * link - the service then short-circuits to the failed-toast + redirect path before dispatching.
    */
   parse: (params: Params | null) => TInvite | null;
+  /** Invoked when the active account is not LoggedOut (Locked counts as authed). */
   authedHandler: (invite: TInvite) => Promise<void>;
+  /** Invoked when the active account is LoggedOut. */
   unauthedHandler: (invite: TInvite) => Promise<void>;
   /** Override default error-message resolution. Receives the API error message, or null for invalid-link. */
   getErrorMessage?: (apiError: string | null) => string;
 }
 
+/**
+ * Shared scaffolding for "accept invite via emailed link" flows. Parses query params, picks the
+ * authed or unauthed handler based on the active account, and routes any failure to a uniform
+ * error toast + redirect to `/`. Per-flow specifics (parse shape, handlers, error wording) come
+ * from {@link AcceptFlowConfig}.
+ */
 @Injectable({ providedIn: "root" })
 export class AcceptFlowService {
   constructor(
@@ -32,6 +44,11 @@ export class AcceptFlowService {
     private toastService: ToastService,
   ) {}
 
+  /**
+   * Runs the accept flow: parse params, dispatch to the matching handler, and route any failure
+   * (invalid link or handler throw) through the configured error path. Resolves when the flow
+   * has finished or failed - never rejects.
+   */
   async run<TInvite>(queryParams: Params, config: AcceptFlowConfig<TInvite>): Promise<void> {
     const invite = config.parse(queryParams);
     if (invite == null) {
