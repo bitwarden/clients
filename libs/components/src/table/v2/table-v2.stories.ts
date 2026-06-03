@@ -177,6 +177,8 @@ export default {
               clearFilters: "Clear all filters",
               filtersApplied: (count) => `${count} filters applied`,
               nothingToShow: "Nothing to show",
+              selectAllRows: "Select all rows",
+              selectRow: "Select row",
             }),
         },
       ],

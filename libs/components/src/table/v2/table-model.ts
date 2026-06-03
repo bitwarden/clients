@@ -8,7 +8,7 @@ import { SearchModel } from "./search-model";
 import { SortModel } from "./sort-model";
 import { TableSelectionModel } from "./table-selection-model";
 
-export type TableModelConfig<T, S extends string> = {
+export type TableModelConfig<T, S extends string, F extends string = string> = {
   /** Row data as a signal. Pass a writable signal and update it to change rows reactively. */
   data?: Signal<T[]>;
   /** Loading state. When `true`, the table shows skeleton rows. e.g. a resource's `isLoading`. */
@@ -24,7 +24,7 @@ export type TableModelConfig<T, S extends string> = {
   /** How free-text search matches a row. Omit to disable search — see {@link SearchModel}. */
   search?: (row: T, term: string) => boolean;
   /** Available filter facets, applied by id — see {@link FiltersModel}. */
-  filters?: FilterDefinition<T>[];
+  filters?: FilterDefinition<T, F>[];
   /** Row selection. Omit for a non-selectable table (no checkbox column). */
   selection?: { multiple?: boolean; initial?: T[]; canSelect?: (row: T) => boolean };
 };
@@ -51,7 +51,7 @@ export type TableModelConfig<T, S extends string> = {
  * table.selection?.toggle(row);
  * ```
  */
-export class TableModel<T, S extends string = never> {
+export class TableModel<T, S extends string = never, F extends string = string> {
   /** Current row data. The table filters and sorts it for display. */
   readonly data: Signal<T[]>;
 
@@ -68,7 +68,7 @@ export class TableModel<T, S extends string = never> {
   readonly search: SearchModel<T>;
 
   /** Facet-filter definitions, applied state, and matcher. */
-  readonly filters: FiltersModel<T>;
+  readonly filters: FiltersModel<T, F>;
 
   /**
    * Rows passing both {@link search} and {@link filters} (pre-sort). The render
@@ -79,13 +79,13 @@ export class TableModel<T, S extends string = never> {
   /** Selection state, present only when configured. */
   readonly selection?: TableSelectionModel<T>;
 
-  constructor(config: TableModelConfig<T, S>) {
+  constructor(config: TableModelConfig<T, S, F>) {
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
     this.sort = new SortModel(config.sort);
     this.columns = new ColumnModel<T, S>(config.displayedColumns);
     this.search = new SearchModel<T>(config.search);
-    this.filters = new FiltersModel<T>(config.filters ?? []);
+    this.filters = new FiltersModel<T, F>(config.filters ?? []);
     this.filtered = computed(() =>
       this.data().filter((row) => this.search.matches(row) && this.filters.matches(row)),
     );

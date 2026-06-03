@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -9,6 +10,8 @@ import {
   inject,
   input,
 } from "@angular/core";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import type { SortDirection, SortFn } from "../table-data-source";
 
@@ -81,5 +84,18 @@ export class BitColumnComponent {
     const table = inject<BitTableV2Component>(forwardRef(() => BitTableV2Component));
     table.register(this);
     inject(DestroyRef).onDestroy(() => table.unregister(this));
+
+    // The column key comes from `*bitCellDef`; without it the column is nameless
+    // and silently drops out. Check after the first render — by then a wrapped
+    // column's late-resolving binding has settled (see BitCellDefDirective).
+    const logService = inject(LogService, { optional: true });
+    afterNextRender(() => {
+      if (this.name() == null) {
+        logService?.warning(
+          "bit-table-v2: a `<bit-column>` is missing a `*bitCellDef` and has no column key, " +
+            'so it will not render. Add `*bitCellDef="table.ref.<field>"`.',
+        );
+      }
+    });
   }
 }

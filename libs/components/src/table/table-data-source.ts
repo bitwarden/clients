@@ -12,6 +12,98 @@ export type Sort = {
 
 export type FilterFn<T> = (data: T) => boolean;
 
+/**
+ * Copied from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
+ * License: MIT
+ * Copyright (c) 2022 Google LLC.
+ *
+ * Default data accessor for sorting: reads `data[sortHeaderId]`, coercing numeric
+ * strings to numbers so they order numerically. Assumes the sort column name
+ * matches the data's property name.
+ */
+export function defaultSortingDataAccessor<T>(data: T, sortHeaderId: string): string | number {
+  const value = (data as unknown as Record<string, any>)[sortHeaderId];
+
+  if (_isNumberValue(value)) {
+    const numberValue = Number(value);
+
+    return numberValue < Number.MAX_SAFE_INTEGER ? numberValue : value;
+  }
+
+  return value;
+}
+
+/**
+ * Copied from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
+ * License: MIT
+ * Copyright (c) 2022 Google LLC.
+ *
+ * Returns a sorted copy of `data` for the given `sort`. Uses `sort.fn` when set;
+ * otherwise compares values read through `dataAccessor` (numbers numerically,
+ * strings via `localeCompare`, with existing values ordering before missing ones).
+ * Shared by {@link TableDataSource} (v1) and `bit-table-v2` so the two stay in step.
+ */
+export function sortRows<T>(
+  data: readonly T[],
+  sort: Sort,
+  dataAccessor: (data: T, sortHeaderId: string) => string | number = defaultSortingDataAccessor,
+): T[] {
+  const column = sort.column;
+  const directionModifier = sort.direction === "asc" ? 1 : -1;
+  if (!column) {
+    return [...data];
+  }
+
+  return [...data].sort((a, b) => {
+    // If a custom sort function is provided, use it instead of the default.
+    if (sort.fn) {
+      return sort.fn(a, b, sort.direction) * directionModifier;
+    }
+
+    let valueA = dataAccessor(a, column);
+    let valueB = dataAccessor(b, column);
+
+    // If there are data in the column that can be converted to a number,
+    // it must be ensured that the rest of the data
+    // is of the same type so as not to order incorrectly.
+    const valueAType = typeof valueA;
+    const valueBType = typeof valueB;
+
+    if (valueAType !== valueBType) {
+      if (valueAType === "number") {
+        valueA += "";
+      }
+      if (valueBType === "number") {
+        valueB += "";
+      }
+    }
+
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return valueA.localeCompare(valueB) * directionModifier;
+    }
+
+    // If both valueA and valueB exist (truthy), then compare the two. Otherwise, check if
+    // one value exists while the other doesn't. In this case, existing value should come last.
+    // This avoids inconsistent results when comparing values to undefined/null.
+    // If neither value exists, return 0 (equal).
+    let comparatorResult = 0;
+    if (valueA != null && valueB != null) {
+      // Check if one value is greater than the other; if equal, comparatorResult should remain 0.
+      if (valueA > valueB) {
+        comparatorResult = 1;
+      } else if (valueA < valueB) {
+        comparatorResult = -1;
+      }
+    } else if (valueA != null) {
+      comparatorResult = 1;
+    } else if (valueB != null) {
+      comparatorResult = -1;
+    }
+
+    return comparatorResult * directionModifier;
+  });
+}
+
 // Loosely based on CDK TableDataSource
 //  https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
 export class TableDataSource<T> extends DataSource<T> {
@@ -120,98 +212,25 @@ export class TableDataSource<T> extends DataSource<T> {
   }
 
   /**
-   * Copied from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
-   * License: MIT
-   * Copyright (c) 2022 Google LLC.
-   *
-   * Data accessor function that is used for accessing data properties for sorting through
-   * the default sortData function.
-   * This default function assumes that the sort header IDs (which defaults to the column name)
-   * matches the data's properties (e.g. column Xyz represents data['Xyz']).
-   * May be set to a custom function for different behavior.
+   * Data accessor used for sorting. Defaults to {@link defaultSortingDataAccessor} —
+   * assumes the sort header id matches the data's property name. Override for
+   * different behavior.
    * @param data Data object that is being accessed.
    * @param sortHeaderId The name of the column that represents the data.
    */
   protected sortingDataAccessor(data: T, sortHeaderId: string): string | number {
-    const value = (data as unknown as Record<string, any>)[sortHeaderId];
-
-    if (_isNumberValue(value)) {
-      const numberValue = Number(value);
-
-      return numberValue < Number.MAX_SAFE_INTEGER ? numberValue : value;
-    }
-
-    return value;
+    return defaultSortingDataAccessor(data, sortHeaderId);
   }
 
   /**
-   * Copied from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
-   * License: MIT
-   * Copyright (c) 2022 Google LLC.
-   *
-   * Gets a sorted copy of the data array based on the state of the MatSort. Called
-   * after changes are made to the filtered data or when sort changes are emitted from MatSort.
-   * By default, the function retrieves the active sort and its direction and compares data
-   * by retrieving data using the sortingDataAccessor. May be overridden for a custom implementation
-   * of data ordering.
+   * Gets a sorted copy of the data array based on the current sort, using
+   * {@link sortingDataAccessor} to read values. Delegates to the shared
+   * {@link sortRows}. May be overridden for a custom implementation of data ordering.
    * @param data The array of data that should be sorted.
-   * @param sort The connected MatSort that holds the current sort state.
+   * @param sort The current sort state.
    */
   protected sortData(data: T[], sort: Sort): T[] {
-    const column = sort.column;
-    const directionModifier = sort.direction === "asc" ? 1 : -1;
-    if (!column) {
-      return data;
-    }
-
-    return data.sort((a, b) => {
-      // If a custom sort function is provided, use it instead of the default.
-      if (sort.fn) {
-        return sort.fn(a, b, sort.direction) * directionModifier;
-      }
-
-      let valueA = this.sortingDataAccessor(a, column);
-      let valueB = this.sortingDataAccessor(b, column);
-
-      // If there are data in the column that can be converted to a number,
-      // it must be ensured that the rest of the data
-      // is of the same type so as not to order incorrectly.
-      const valueAType = typeof valueA;
-      const valueBType = typeof valueB;
-
-      if (valueAType !== valueBType) {
-        if (valueAType === "number") {
-          valueA += "";
-        }
-        if (valueBType === "number") {
-          valueB += "";
-        }
-      }
-
-      if (typeof valueA === "string" && typeof valueB === "string") {
-        return valueA.localeCompare(valueB) * directionModifier;
-      }
-
-      // If both valueA and valueB exist (truthy), then compare the two. Otherwise, check if
-      // one value exists while the other doesn't. In this case, existing value should come last.
-      // This avoids inconsistent results when comparing values to undefined/null.
-      // If neither value exists, return 0 (equal).
-      let comparatorResult = 0;
-      if (valueA != null && valueB != null) {
-        // Check if one value is greater than the other; if equal, comparatorResult should remain 0.
-        if (valueA > valueB) {
-          comparatorResult = 1;
-        } else if (valueA < valueB) {
-          comparatorResult = -1;
-        }
-      } else if (valueA != null) {
-        comparatorResult = 1;
-      } else if (valueB != null) {
-        comparatorResult = -1;
-      }
-
-      return comparatorResult * directionModifier;
-    });
+    return sortRows(data, sort, (d, id) => this.sortingDataAccessor(d, id));
   }
 
   /**

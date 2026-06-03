@@ -3,7 +3,7 @@
     <div role="columnheader" class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0">
       <input
         type="checkbox"
-        aria-label="Select all rows"
+        [attr.aria-label]="'selectAllRows' | i18n"
         [checked]="sel.allSelected()"
         [indeterminate]="sel.indeterminate()"
         (change)="sel.toggleAll()"
@@ -23,7 +23,7 @@
       @if (sel.isSelectable(row)) {
         <input
           type="checkbox"
-          aria-label="Select row"
+          [attr.aria-label]="'selectRow' | i18n"
           [checked]="sel.isSelected(row)"
           (change)="sel.toggle(row)"
         />

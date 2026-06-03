@@ -451,8 +451,8 @@ For large datasets, set `[virtualRowHeight]` (the height per row, in px). The ta
 <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackById">…columns…</bit-table-v2>
 ```
 
-`[virtualRowHeight]` forces `table-fixed` layout regardless of `[layout]` — virtual scrolling needs
-predictable row geometry. Specify `width="…"` on columns for stable widths.
+`[virtualRowHeight]` lays rows out with a fixed grid — virtual scrolling needs predictable row
+geometry. Specify `width="…"` on columns for stable widths.
 
 `[trackBy]` is optional but recommended for stable identity across data updates.
 
@@ -476,7 +476,7 @@ is `any`).
 - Avoid spanning data across cells.
 - For repeating row-level actions, give each one an associating label — `aria-label="Edit Netflix"`
   rather than a bare "Edit".
-- The select-all checkbox uses `aria-label="Select all rows"`; row checkboxes use
-  `aria-label="Select row"`. Override via the cell template if richer context is needed.
+- The select-all checkbox is labelled by the `selectAllRows` i18n key; row checkboxes use
+  `selectRow`. Override via the cell template if richer context is needed.
 - Sort buttons expose `aria-sort` (`"ascending"` / `"descending"`) on the `<th>` and `aria-pressed`
   on the button.

@@ -1956,6 +1956,12 @@
   "selectAll": {
     "message": "Select all"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
   "selected": {
     "message": "Selected"
   },

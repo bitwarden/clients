@@ -2489,6 +2489,12 @@
     "message": "Clear",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
   "selected": {
     "message": "Selected"
   },

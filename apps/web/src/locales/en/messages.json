@@ -1524,6 +1524,12 @@
   "selectAll": {
     "message": "Select all"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
   "deselectAll": {
     "message": "Deselect all"
   },

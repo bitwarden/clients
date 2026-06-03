@@ -1,4 +1,3 @@
-import { _isNumberValue } from "@angular/cdk/coercion";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -20,13 +19,14 @@ import {
   signal,
 } from "@angular/core";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ScrollLayoutDirective } from "../../layout";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
 import { SkeletonTextComponent } from "../../skeleton";
-import { SortDirection, SortFn } from "../table-data-source";
+import { sortRows } from "../table-data-source";
 
 import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
@@ -34,69 +34,8 @@ import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
 import { TableModel } from "./table-model";
 
-/** Reads a column's value for default sorting, coercing numeric strings to numbers. */
-function sortAccessor<T>(row: T, column: string): string | number {
-  const value = (row as Record<string, unknown>)[column];
-  if (_isNumberValue(value)) {
-    const num = Number(value);
-    return num < Number.MAX_SAFE_INTEGER ? num : (value as string);
-  }
-  return value as string | number;
-}
-
-/**
- * Returns a sorted copy of `data` by `column`/`direction`, using `fn` when the
- * column supplies one. The default comparison (number/string coercion, null
- * handling) is ported from Angular Material's `MatTableDataSource` (MIT,
- * Copyright (c) 2024 Google LLC).
- */
-function sortRows<T>(
-  data: readonly T[],
-  column: string,
-  direction: SortDirection,
-  fn: SortFn | undefined,
-): T[] {
-  const dirMod = direction === "asc" ? 1 : -1;
-  return [...data].sort((a, b) => {
-    if (fn) {
-      return fn(a, b, direction) * dirMod;
-    }
-
-    let valueA = sortAccessor(a, column);
-    let valueB = sortAccessor(b, column);
-
-    // Coerce mismatched types to strings so they order consistently.
-    const typeA = typeof valueA;
-    const typeB = typeof valueB;
-    if (typeA !== typeB) {
-      if (typeA === "number") {
-        valueA += "";
-      }
-      if (typeB === "number") {
-        valueB += "";
-      }
-    }
-
-    if (typeof valueA === "string" && typeof valueB === "string") {
-      return valueA.localeCompare(valueB) * dirMod;
-    }
-
-    // Existing values sort before missing ones; equal/both-missing stay put.
-    let result = 0;
-    if (valueA != null && valueB != null) {
-      if (valueA > valueB) {
-        result = 1;
-      } else if (valueA < valueB) {
-        result = -1;
-      }
-    } else if (valueA != null) {
-      result = 1;
-    } else if (valueB != null) {
-      result = -1;
-    }
-    return result * dirMod;
-  });
-}
+/** Grid track width for the internal selection (checkbox) column. */
+const SELECTION_COLUMN_WIDTH = "40px";
 
 @Component({
   selector: "bit-table-v2",
@@ -129,16 +68,10 @@ export class BitTableV2Component<T = unknown>
   readonly table = input(new TableModel<T>({ displayedColumns: [] }));
 
   /**
-   * Defaults to `"auto"`. Forced to `"fixed"` when virtualization is on
-   * ({@link virtualRowHeight} is set) — virtual scrolling requires predictable
-   * row geometry, which a fixed layout provides.
-   */
-  readonly layout = input<"auto" | "fixed">("auto");
-
-  /**
    * Fixed row height in pixels for virtual scrolling. Setting it turns the
-   * table into a virtual scroll viewport (rows lay out with `table-fixed`
-   * regardless of {@link layout}); omit it for a non-virtualized table.
+   * table into a virtual scroll viewport — virtual scrolling needs predictable
+   * row geometry, so give columns explicit widths. Omit it for a non-virtualized
+   * table.
    */
   readonly virtualRowHeight = input<number>();
 
@@ -203,7 +136,7 @@ export class BitTableV2Component<T = unknown>
     }
     const parts: string[] = [];
     if (this.selection()) {
-      parts.push("40px");
+      parts.push(SELECTION_COLUMN_WIDTH);
     }
     for (const col of cols) {
       parts.push(col.width() ?? "1fr");
@@ -246,7 +179,7 @@ export class BitTableV2Component<T = unknown>
       return filtered;
     }
     const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+    return sortRows(filtered, { ...sort, fn: sort.fn ?? col?.sortFn() });
   });
 
   /** Index array for the skeleton rows shown while loading. */
@@ -262,8 +195,20 @@ export class BitTableV2Component<T = unknown>
 
   private readonly el = inject(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly logService = inject(LogService, { optional: true });
 
   ngAfterContentInit(): void {
+    if (!this.hasColumns()) {
+      // Manual mode renders projected rows directly and has no column registry,
+      // so a configured selection has nothing to attach its checkbox column to.
+      if (this.table().selection) {
+        this.logService?.warning(
+          "bit-table-v2: `selection` is configured but no `<bit-column>` was projected. " +
+            "Selection requires column-def mode; no checkbox column will render.",
+        );
+      }
+      return;
+    }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
     const name = defaultCol?.name();
     if (name) {
