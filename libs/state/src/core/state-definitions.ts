@@ -37,9 +37,13 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
   },
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
+export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_DISK_LOCAL = new StateDefinition("billingLocal", "disk", {
+  web: "disk-local",
+});
 export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
@@ -81,6 +85,7 @@ export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_TIMEOUT_SETTINGS_MEMORY = new StateDefinition("vaultTimeoutSettings", "memory");
 
 // Autofill
 
@@ -235,6 +240,13 @@ export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // KM
 
@@ -246,3 +258,4 @@ export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
 export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
+export const SHARED_UNLOCK_SETTINGS_DISK = new StateDefinition("sharedUnlockSettings", "disk");

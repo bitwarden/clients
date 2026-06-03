@@ -4,6 +4,7 @@ import { lastValueFrom, firstValueFrom, take } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -16,11 +17,10 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
@@ -29,23 +29,12 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-export const REQUESTS_PER_BATCH = 500;
-
-export interface MemberActionResult {
-  success: boolean;
-  error?: string;
-}
-
-export class BulkActionResult {
-  successful: OrganizationUserBulkResponse[] = [];
-  failed: { id: string; error: string }[] = [];
-}
+import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
 
 @Injectable()
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
-  private configService = inject(ConfigService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
@@ -75,24 +64,13 @@ export class MemberActionsService {
 
   private readonly progressCount: WritableSignal<number> = signal(0);
 
-  async inviteUser(
-    organization: Organization,
-    email: string,
-    type: OrganizationUserType,
-    permissions?: any,
-    collections?: any[],
-    groups?: string[],
+  async invite(
+    organizationId: OrganizationId,
+    request: OrganizationUserInviteRequest,
   ): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.postOrganizationUserInvite(organization.id, {
-        emails: [email],
-        type,
-        accessSecretsManager: false,
-        collections: collections ?? [],
-        groups: groups ?? [],
-        permissions,
-      });
+      await this.organizationUserApiService.postOrganizationUserInvite(organizationId, request);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
@@ -189,15 +167,7 @@ export class MemberActionsService {
     users: OrganizationUserView[],
   ): Promise<BulkActionResult> {
     let result = new BulkActionResult();
-    const bulkReinviteUIEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
-    );
-
-    if (bulkReinviteUIEnabled) {
-      this.startProcessing(users.length);
-    } else {
-      this.startProcessing();
-    }
+    this.startProcessing(users.length);
 
     try {
       result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) => {
@@ -208,8 +178,14 @@ export class MemberActionsService {
         );
       });
 
-      if (bulkReinviteUIEnabled && result.failed.length > 0) {
-        this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result);
+      if (result.failed.length > 0) {
+        const resendUsers = await firstValueFrom(
+          this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result),
+        );
+
+        if (resendUsers.length > 0) {
+          await this.bulkReinvite(organization, resendUsers);
+        }
       }
     } catch (error) {
       result.failed = users.map((user) => ({
@@ -226,6 +202,7 @@ export class MemberActionsService {
     orgUser: OrganizationUserView,
     organization: Organization,
     resetPasswordEnabled: boolean,
+    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     let callingUserHasPermission = false;
 
@@ -243,6 +220,11 @@ export class MemberActionsService {
         break;
     }
 
+    const statusAllowed =
+      orgUser.status === OrganizationUserStatusType.Confirmed ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Revoked) ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Accepted);
+
     return (
       organization.canManageUsersPassword &&
       callingUserHasPermission &&
@@ -250,7 +232,7 @@ export class MemberActionsService {
       organization.hasPublicAndPrivateKeys &&
       orgUser.resetPasswordEnrolled &&
       resetPasswordEnabled &&
-      orgUser.status === OrganizationUserStatusType.Confirmed
+      statusAllowed
     );
   }
 

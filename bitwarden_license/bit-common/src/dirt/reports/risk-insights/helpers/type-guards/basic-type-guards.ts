@@ -38,6 +38,12 @@ export function isBoundedPositiveNumber(value: unknown): value is PositiveSafeNu
   );
 }
 
+export function isBoundedPositiveNumberOrUndefined(
+  value: unknown,
+): value is PositiveSafeNumber | undefined {
+  return value === undefined || isBoundedPositiveNumber(value);
+}
+
 export function isBoundedString(value: unknown): value is BoundedString {
   return typeof value === "string" && value.length > 0 && value.length <= BOUNDED_STRING_MAX_LENGTH;
 }

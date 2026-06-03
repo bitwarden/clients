@@ -1,36 +1,61 @@
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  MASTER_KEY,
-  MASTER_KEY_HASH,
-} from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
+import {
+  VAULT_TIMEOUT,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { BiometricsService, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricStateService,
+  KdfConfig,
+  KdfConfigService,
+} from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
+  EncString,
+  InitUserCryptoMethod,
   Kdf,
   MasterPasswordUnlockData,
+  PasswordManagerClient,
   PasswordProtectedKeyEnvelope,
   PureCrypto,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
-import { StateProvider } from "@bitwarden/state";
+import { StateProvider, StateService } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockService } from "./unlock.service";
 
+export type KeyConnectorUnlockData = {
+  /**
+   * The URL of the key connector. This should be verified by the user manually before being used to unlock.
+   */
+  url: string;
+  /**
+   * The user-key wrapped by the key-connector-key
+   */
+  keyConnectorKeyWrappedUserKey: EncString;
+};
+
 export class DefaultUnlockService implements UnlockService {
+  private onUnlockActions: Array<(userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>> =
+    [];
+
   constructor(
     private registerSdkService: RegisterSdkService,
     private accountCryptographicStateService: AccountCryptographicStateService,
@@ -38,63 +63,41 @@ export class DefaultUnlockService implements UnlockService {
     private kdfService: KdfConfigService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cryptoFunctionService: CryptoFunctionService,
     private stateProvider: StateProvider,
     private logService: LogService,
     private biometricsService: BiometricsService,
-  ) {}
+    private platformUtilsService: PlatformUtilsService,
+    private stateService: StateService,
+    private biometricStateService: BiometricStateService,
+  ) {
+    void biometricsService.setUnlockService(this);
+  }
+
+  registerOnUnlockAction(
+    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+  ): void {
+    this.onUnlockActions.push(action);
+  }
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
     const startTime = performance.now();
-    await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          return ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
-            kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId)!,
-            accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              pinEnvelope: {
-                pin: pin,
-                pin_protected_user_key_envelope: await this.getPinProtectedUserKeyEnvelope(userId),
-              },
-            },
-          });
-        }),
-      ),
-    );
+    await this.unlockWithMethod(userId, {
+      pinEnvelope: {
+        pin,
+        pin_protected_user_key_envelope: await this.getPinProtectedUserKeyEnvelope(userId),
+      },
+    });
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithPin");
   }
 
   async unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void> {
     const startTime = performance.now();
-    await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          return ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
-            kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId),
-            accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              masterPasswordUnlock: {
-                password: masterPassword,
-                master_password_unlock: await this.getMasterPasswordUnlockData(userId),
-              },
-            },
-          });
-        }),
-      ),
-    );
+    await this.unlockWithMethod(userId, {
+      masterPasswordUnlock: {
+        password: masterPassword,
+        master_password_unlock: await this.getMasterPasswordUnlockData(userId),
+      },
+    });
     await this.setLegacyMasterKeyFromUnlockData(
       masterPassword,
       await this.getMasterPasswordUnlockData(userId),
@@ -117,28 +120,68 @@ export class DefaultUnlockService implements UnlockService {
 
     // Now that we have the biometrics-protected user key, we can initialize the SDK with it to complete the unlock process.
     const startTime = performance.now();
+    await this.unlockWithMethod(userId, {
+      decryptedKey: {
+        decrypted_user_key: userKey.toSdk(),
+      },
+    });
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
+  }
+
+  async unlockWithKeyConnector(
+    userId: UserId,
+    keyConnectorUnlockData: KeyConnectorUnlockData,
+  ): Promise<void> {
+    // The SDK is responsible for fetching the key-connector-key from the key-connector using the
+    // key-connector-unlock-data. It will unwrap the provided key and set it to state, unlocking
+    // the vault.
+    const startTime = performance.now();
+    await this.unlockWithMethod(userId, {
+      keyConnectorUrl: {
+        url: keyConnectorUnlockData.url,
+        key_connector_key_wrapped_user_key: keyConnectorUnlockData.keyConnectorKeyWrappedUserKey,
+      },
+    });
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
+  }
+
+  async unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
+    const startTime = performance.now();
+    await this.unlockWithMethod(userId, {
+      decryptedKey: {
+        decrypted_user_key: userKey.toSdk(),
+      },
+    });
+    this.logService.measure(
+      startTime,
+      "Unlock",
+      "DefaultUnlockService",
+      "unlockWithDecryptedUserKey",
+    );
+  }
+
+  private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
+
           using ref = sdk.take();
-          return ref.value.crypto().initialize_user_crypto({
+
+          await ref.value.crypto().initialize_user_crypto({
             userId: asUuid(userId),
             kdfParams: await this.getKdfParams(userId),
             email: await this.getEmail(userId),
             accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              decryptedKey: {
-                decrypted_user_key: userKey.toBase64(),
-              },
-            },
+            method,
           });
+
+          await this.runOnUnlockSideEffects(userId, ref);
         }),
       ),
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
   }
 
   private async getAccountCryptographicState(
@@ -211,17 +254,44 @@ export class DefaultUnlockService implements UnlockService {
       saltBuffer,
       masterPasswordUnlockData.kdf,
     );
-    const hash = await this.cryptoFunctionService.pbkdf2(
-      masterKey,
-      password,
-      "sha256",
-      2, // HashPurpose.LocalAuthorization
-    );
     await this.stateProvider
       .getUser(userId, MASTER_KEY)
       .update((_) => new SymmetricCryptoKey(masterKey) as MasterKey);
-    await this.stateProvider
-      .getUser(userId, MASTER_KEY_HASH)
-      .update((_) => Utils.fromBufferToB64(hash));
+  }
+
+  // When unlocking, certain side-effects must be run, such as setting the never-lock key and the biometrics key.
+  // Currently this does not happen from within the SDK but form here instead.
+  private async runOnUnlockSideEffects(
+    userId: UserId,
+    client: Ref<PasswordManagerClient>,
+  ): Promise<void> {
+    const userKey = SymmetricCryptoKey.fromString(
+      await client.value.crypto().get_user_encryption_key(),
+    );
+    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
+      await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
+    }
+    if (await this.shouldStoreUserKeyAutoUnlock(userId)) {
+      await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
+    }
+    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
+
+    for (const action of this.onUnlockActions) {
+      await action(userId, userKey);
+    }
+  }
+
+  private async shouldStoreUserKeyAutoUnlock(userId: UserId): Promise<boolean> {
+    if (this.platformUtilsService.getClientType() === ClientType.Cli) {
+      return true;
+    }
+
+    const vaultTimeout = await firstValueFrom(
+      this.stateProvider
+        .getUserState$(VAULT_TIMEOUT, userId)
+        .pipe(filter((timeout) => timeout != null)),
+    );
+
+    return vaultTimeout == VaultTimeoutStringType.Never;
   }
 }

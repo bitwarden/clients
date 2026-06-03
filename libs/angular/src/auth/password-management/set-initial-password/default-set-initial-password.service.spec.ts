@@ -64,7 +64,6 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
-  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordTdeUserWithPermissionCredentials,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
@@ -129,7 +128,9 @@ describe("DefaultSetInitialPasswordService", () => {
   });
 
   /**
-   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
+   *
+   * When you remove this, check also if there are any imports/properties
    * in the test setup above that are now un-used and can also be removed.
    */
   describe("setInitialPassword(...)", () => {
@@ -159,7 +160,6 @@ describe("DefaultSetInitialPasswordService", () => {
       credentials = {
         newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
-        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         orgSsoIdentifier: "orgSsoIdentifier",
@@ -253,7 +253,6 @@ describe("DefaultSetInitialPasswordService", () => {
       [
         "newMasterKey",
         "newServerMasterKeyHash",
-        "newLocalMasterKeyHash",
         "newPasswordHint",
         "kdfConfig",
         "orgSsoIdentifier",
@@ -449,10 +448,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -684,10 +679,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -840,7 +831,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
       it(`should throw if the userId was not passed in`, async () => {
         // Arrange
-        userId = null;
+        userId = null as unknown as UserId;
 
         // Act
         const promise = sut.setInitialPasswordTdeOffboarding(credentials, userId);
@@ -900,120 +891,6 @@ describe("DefaultSetInitialPasswordService", () => {
         ForceSetPasswordReason.None,
         userId,
       );
-    });
-  });
-
-  /**
-   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
-   * in the test setup above that are now un-used and can also be removed.
-   */
-  describe("setInitialPasswordTdeOffboardingOld(...)", () => {
-    // Mock function parameters
-    let credentials: SetInitialPasswordTdeOffboardingCredentialsOld;
-
-    beforeEach(() => {
-      // Mock function parameters
-      credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
-        newPasswordHint: "newPasswordHint",
-      };
-    });
-
-    function setupTdeOffboardingMocks() {
-      keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
-    }
-
-    it("should successfully set an initial password for the TDE offboarding user", async () => {
-      // Arrange
-      setupTdeOffboardingMocks();
-
-      const request = new UpdateTdeOffboardingPasswordRequest();
-      request.key = masterKeyEncryptedUserKey[1].encryptedString;
-      request.newMasterPasswordHash = credentials.newServerMasterKeyHash;
-      request.masterPasswordHint = credentials.newPasswordHint;
-
-      // Act
-      await sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
-
-      // Assert
-      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledTimes(1);
-      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledWith(
-        request,
-      );
-    });
-
-    describe("given the initial password has been successfully set", () => {
-      it("should clear the ForceSetPasswordReason by setting it to None", async () => {
-        // Arrange
-        setupTdeOffboardingMocks();
-
-        // Act
-        await sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
-
-        // Assert
-        expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledTimes(1);
-        expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
-          ForceSetPasswordReason.None,
-          userId,
-        );
-      });
-    });
-
-    describe("general error handling", () => {
-      ["newMasterKey", "newServerMasterKeyHash", "newPasswordHint"].forEach((key) => {
-        it(`should throw if ${key} is not provided on the SetInitialPasswordTdeOffboardingCredentials object`, async () => {
-          // Arrange
-          const invalidCredentials: SetInitialPasswordTdeOffboardingCredentialsOld = {
-            ...credentials,
-            [key]: null,
-          };
-
-          // Act
-          const promise = sut.setInitialPasswordTdeOffboardingOld(invalidCredentials, userId);
-
-          // Assert
-          await expect(promise).rejects.toThrow(`${key} not found. Could not set password.`);
-        });
-      });
-
-      it(`should throw if the userId was not passed in`, async () => {
-        // Arrange
-        userId = null;
-
-        // Act
-        const promise = sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
-
-        // Assert
-        await expect(promise).rejects.toThrow("userId not found. Could not set password.");
-      });
-
-      it(`should throw if the userKey was not found`, async () => {
-        // Arrange
-        keyService.userKey$.mockReturnValue(of(null));
-
-        // Act
-        const promise = sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
-
-        // Assert
-        await expect(promise).rejects.toThrow("userKey not found. Could not set password.");
-      });
-
-      it(`should throw if a newMasterKeyEncryptedUserKey was not returned`, async () => {
-        // Arrange
-        masterKeyEncryptedUserKey[1].encryptedString = "" as EncryptedString;
-
-        setupTdeOffboardingMocks();
-
-        // Act
-        const promise = sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
-
-        // Assert
-        await expect(promise).rejects.toThrow(
-          "newMasterKeyEncryptedUserKey not found. Could not set password.",
-        );
-      });
     });
   });
 
@@ -1355,7 +1232,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
       it("should throw if userId is not given", async () => {
         // Arrange
-        userId = null;
+        userId = null as unknown as UserId;
 
         // Act
         const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
@@ -1482,12 +1359,14 @@ describe("DefaultSetInitialPasswordService", () => {
           enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
           enrollmentRequest.masterPasswordHash =
             authenticationData.masterPasswordAuthenticationHash;
-          enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+          enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString!;
         });
 
         it("should throw if organization keys are not found", async () => {
           // Arrange
-          organizationApiService.getKeys.mockResolvedValue(null);
+          organizationApiService.getKeys.mockResolvedValue(
+            null as unknown as OrganizationKeysResponse,
+          );
 
           // Act
           const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
@@ -1500,7 +1379,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
         it("should throw if orgPublicKeyEncryptedUserKey is not found", async () => {
           // Arrange
-          encryptService.encapsulateKeyUnsigned.mockResolvedValue(null);
+          encryptService.encapsulateKeyUnsigned.mockResolvedValue(null as unknown as EncString);
 
           // Act
           const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
@@ -1513,7 +1392,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
         it("should throw if orgPublicKeyEncryptedUserKey.encryptedString is not found", async () => {
           // Arrange
-          orgPublicKeyEncryptedUserKey.encryptedString = null;
+          orgPublicKeyEncryptedUserKey.encryptedString = null as unknown as any;
 
           // Act
           const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);

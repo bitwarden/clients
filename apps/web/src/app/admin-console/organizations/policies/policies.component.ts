@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
+import {
+  combineLatest,
+  lastValueFrom,
+  Observable,
+  of,
+  switchMap,
+  first,
+  map,
+  shareReplay,
+} from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -11,24 +20,29 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import {
+  DialogRef,
+  DialogService,
+  ItemModule,
+  SectionHeaderComponent,
+} from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
-import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
-import { PolicyListService } from "./policy-list.service";
+import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, PolicyOrderPipe],
+  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -38,6 +52,8 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
+  private readonly drawerRef = signal<DialogRef<any> | undefined>(undefined);
+
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -86,6 +102,37 @@ export class PoliciesComponent {
       }),
     );
 
+  protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
+    switchMap((organization) =>
+      combineLatest(
+        this.policyListService.sections.map((section) =>
+          this.visiblePoliciesInSection$(section, organization),
+        ),
+      ),
+    ),
+    map((sections) => sections.filter((s) => s.policies.length > 0)),
+  );
+
+  private visiblePoliciesInSection$(
+    section: PolicySection,
+    organization: Organization,
+  ): Observable<PolicySection> {
+    if (section.policies.length === 0) {
+      return of({ ...section, policies: [] });
+    }
+
+    return combineLatest(
+      section.policies.map((p) =>
+        p.display$(organization, this.configService).pipe(map((visible) => (visible ? p : null))),
+      ),
+    ).pipe(
+      map((results) => ({
+        ...section,
+        policies: results.filter((p): p is BasePolicyEditDefinition => p !== null),
+      })),
+    );
+  }
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly organizationService: OrganizationService,
@@ -98,25 +145,22 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
+    this.destroyRef.onDestroy(() => void this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message
   private handleLaunchEvent() {
-    combineLatest([
-      this.route.queryParams.pipe(first()),
-      this.policies$,
-      this.organizationId$,
-      this.orgPolicies$,
-    ])
+    combineLatest([this.route.queryParams.pipe(first()), this.orgPolicies$, this.organization$])
       .pipe(
-        map(([qParams, policies, organizationId, orgPolicies]) => {
+        map(([qParams, orgPolicies, organization]) => {
           if (qParams.policyId != null) {
             const policyIdFromEvents: string = qParams.policyId;
+            const policies = this.policyListService.getPolicies();
             for (const orgPolicy of orgPolicies) {
               if (orgPolicy.id === policyIdFromEvents) {
-                for (let i = 0; i < policies.length; i++) {
-                  if (policies[i].type === orgPolicy.type) {
-                    this.edit(policies[i], organizationId);
+                for (const policy of policies) {
+                  if (policy.type === orgPolicy.type) {
+                    void this.edit(policy, organization);
                     break;
                   }
                 }
@@ -130,14 +174,49 @@ export class PoliciesComponent {
       .subscribe();
   }
 
-  edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
+  async edit(policy: BasePolicyEditDefinition, organization: Organization) {
+    const useDrawer = await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers);
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    dialogComponent.open(this.dialogService, {
-      data: {
-        policy: policy,
-        organizationId: organizationId,
-      },
-    });
+
+    if (useDrawer && dialogComponent.openDrawer) {
+      const triggerEl =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+      // openDrawer is async and returns undefined if a currently-open drawer's
+      // closePredicate prevented it from closing — only update the ref when it opened.
+      const ref = await dialogComponent.openDrawer(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+      if (ref !== undefined) {
+        this.drawerRef.set(ref);
+        await lastValueFrom(ref.closed);
+        if (triggerEl?.isConnected) {
+          triggerEl.focus();
+        }
+      }
+    } else {
+      dialogComponent.open(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+    }
+  }
+
+  /**
+   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
+   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.drawerRef()) {
+      return true;
+    }
+    const result = await this.drawerRef()!.close();
+    return result.closed;
   }
 }

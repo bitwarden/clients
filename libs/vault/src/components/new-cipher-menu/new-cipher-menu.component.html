@@ -1,4 +1,20 @@
-<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
+@if (useNewItemDialog() && (canCreateCipher() || canCreateCollection() || canCreateFolder())) {
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    (click)="handleButtonClick()"
+    id="newItemButton"
+    [appA11yTitle]="getButtonLabel() | i18n"
+    [bitPopoverAnchorFor]="coachmarkPopover()"
+    [popoverOpen]="coachmarkPopoverOpen()"
+    [position]="coachmarkPosition()"
+    [spotlight]="!!coachmarkPopover()"
+    startIcon="bwi-plus"
+  >
+    {{ getButtonLabel() | i18n }}
+  </button>
+} @else if (canCreateCipher() || canCreateCollection() || canCreateFolder()) {
   <div>
     <button
       bitButton
@@ -13,8 +29,8 @@
       [position]="coachmarkPosition()"
       [spotlight]="!!coachmarkPopover()"
       [closeOnBackdropClick]="false"
+      startIcon="bwi-plus"
     >
-      <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
       {{ getButtonLabel() | i18n }}
     </button>
     <bit-menu #addOptions aria-labelledby="newItemDropdown">
@@ -24,20 +40,21 @@
           {{ item.labelKey | i18n }}
         </button>
       }
-      <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
-      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
-        <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-        {{ "folder" | i18n }}
-      </button>
-      <button
-        *ngIf="canCreateCollection()"
-        type="button"
-        bitMenuItem
-        (click)="collectionAdded.emit()"
-      >
-        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-        {{ "collection" | i18n }}
-      </button>
+      @if (canCreateCipher()) {
+        <bit-menu-divider></bit-menu-divider>
+      }
+      @if (canCreateFolder()) {
+        <button type="button" bitMenuItem (click)="folderAdded.emit()">
+          <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+          {{ "folder" | i18n }}
+        </button>
+      }
+      @if (canCreateCollection()) {
+        <button type="button" bitMenuItem (click)="collectionAdded.emit()">
+          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+          {{ "collection" | i18n }}
+        </button>
+      }
     </bit-menu>
   </div>
-</ng-container>
+}

@@ -21,6 +21,7 @@ import { DialogService } from "@bitwarden/components";
 import {
   BasePolicyEditComponent,
   BasePolicyEditDefinition,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -30,6 +31,8 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   name = "sessionTimeoutPolicyTitle";
   description = "sessionTimeoutPolicyDescription";
   type = PolicyType.MaximumVaultTimeout;
+  category = PolicyCategory.Authentication;
+  priority = 70;
   component = SessionTimeoutPolicyComponent;
 }
 
@@ -163,7 +166,7 @@ export class SessionTimeoutPolicyComponent
   }
 
   private get policyData(): MaximumSessionTimeoutPolicyData | null {
-    return this.policyResponse?.data ?? null;
+    return this.policyResponse()?.data ?? null;
   }
 
   private async confirmTypeChange(newType: SessionTimeoutType): Promise<boolean> {

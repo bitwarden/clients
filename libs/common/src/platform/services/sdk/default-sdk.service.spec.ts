@@ -99,7 +99,7 @@ describe("DefaultSdkService", () => {
         });
         kdfConfigService.getKdfConfig$
           .calledWith(userId)
-          .mockReturnValue(of(new PBKDF2KdfConfig()));
+          .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
         keyService.userKey$
           .calledWith(userId)
           .mockReturnValue(of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey));
@@ -289,5 +289,10 @@ function createMockClient(): MockProxy<PasswordManagerClient> {
     free: mock(),
     [Symbol.dispose]: jest.fn(),
   });
+  client.km_state_bridge.mockReturnValue({
+    register_bridge_impl: jest.fn(),
+    free: mock(),
+    [Symbol.dispose]: jest.fn(),
+  } as any);
   return client;
 }

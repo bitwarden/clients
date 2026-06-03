@@ -1,13 +1,14 @@
 import { Observable } from "rxjs";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import {
   MemberRegistryEntryData,
   AccessReportSettingsData,
   ApplicationHealthData,
-  AccessReportSummaryData,
+  AccessReportSummaryView,
 } from "../../models";
 
 /**
@@ -28,6 +29,21 @@ export interface EncryptedReportData {
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
   encryptedReportData: EncString;
+  encryptedSummaryData: EncString;
+  encryptedApplicationData: EncString;
+  contentEncryptionKey: EncString;
+}
+
+/**
+ * The result of encrypting an AccessReport for file-based storage.
+ * Report data is encrypted as an {@link EncArrayBuffer} suitable for direct file upload.
+ * Summary and application data remain as {@link EncString} and are stored on the server.
+ * Returned by {@link AccessReportEncryptionService.encryptReportFile$}.
+ */
+export interface FileEncryptedDataWithKey {
+  organizationId: OrganizationId;
+  encryptedReportData: EncArrayBuffer;
+  encryptedFileName: EncString;
   encryptedSummaryData: EncString;
   encryptedApplicationData: EncString;
   contentEncryptionKey: EncString;
@@ -56,7 +72,7 @@ export interface AccessReportPayload {
  */
 export interface DecryptedAccessReportData {
   reportData: AccessReportPayload;
-  summaryData: AccessReportSummaryData;
+  summaryData: AccessReportSummaryView;
   applicationData: AccessReportSettingsData[];
   hadLegacyBlobs?: boolean;
 }
@@ -110,5 +126,39 @@ export abstract class AccessReportEncryptionService {
     context: { organizationId: OrganizationId; userId: UserId },
     encryptedSummary: EncString,
     wrappedKey: EncString,
-  ): Observable<AccessReportSummaryData>;
+  ): Observable<AccessReportSummaryView>;
+
+  /**
+   * Encrypts an AccessReport payload for file-based storage, producing an {@link EncArrayBuffer}
+   * for the report data and {@link EncString} values for the remaining payloads.
+   *
+   * @param context - The organization and user identifiers for key lookup.
+   * @param data - The decrypted report, summary, and application data to encrypt.
+   * @param wrappedKey - An existing wrapped content key to reuse; omit to generate a new key.
+   * @returns Observable emitting the encrypted payloads, encrypted filename, and wrapped content key.
+   */
+  abstract encryptReportFile$(
+    context: { organizationId: OrganizationId; userId: UserId },
+    data: DecryptedAccessReportData,
+    wrappedKey?: EncString,
+  ): Observable<FileEncryptedDataWithKey>;
+
+  /**
+   * Decrypts a file-encrypted AccessReport, where the report blob is an {@link EncArrayBuffer}
+   * and the summary and application blobs are {@link EncString} values.
+   *
+   * @param context - The organization and user identifiers for key lookup.
+   * @param encryptedReportData - The encrypted report file bytes.
+   * @param encryptedSummaryData - The encrypted summary blob.
+   * @param encryptedApplicationData - The encrypted application blob.
+   * @param wrappedKey - The wrapped content key stored alongside the report.
+   * @returns Observable emitting the decrypted report, summary, and application data.
+   */
+  abstract decryptReportFile$(
+    context: { organizationId: OrganizationId; userId: UserId },
+    encryptedReportData: EncArrayBuffer,
+    encryptedSummaryData: EncString,
+    encryptedApplicationData: EncString,
+    wrappedKey: EncString,
+  ): Observable<DecryptedAccessReportData>;
 }

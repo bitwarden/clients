@@ -1,5 +1,5 @@
 import {
-  BitwardenClient,
+  PasswordManagerClient,
   PassphraseGeneratorRequest,
   PasswordGeneratorRequest,
 } from "@bitwarden/sdk-internal";
@@ -20,11 +20,13 @@ export class SdkPasswordRandomizer
     CredentialGenerator<PasswordGenerationOptions>
 {
   /** Instantiates the password randomizer
-   *  @param client access to SDK client to call upon password/passphrase generation
+   *  @param client lazy factory that resolves a fresh SDK client per call. Invoked on each
+   *  `generate()` so that re-emissions from `SdkService.client$` (e.g. environment changes) are
+   *  picked up instead of capturing a stale client; see {@link GeneratorDependencyProvider.sdk}.
    *  @param currentTime gets the current datetime in epoch time
    */
   constructor(
-    private client: BitwardenClient,
+    private client: () => Promise<PasswordManagerClient>,
     private currentTime: () => number,
   ) {}
 
@@ -40,8 +42,10 @@ export class SdkPasswordRandomizer
     request: GenerateRequest,
     settings: PasswordGenerationOptions | PassphraseGenerationOptions,
   ) {
+    const client = await this.client();
+
     if (isPasswordGenerationOptions(settings)) {
-      const password = await this.client.generator().password(convertPasswordRequest(settings));
+      const password = await client.generator().password(convertPasswordRequest(settings));
 
       return new GeneratedCredential(
         password,
@@ -51,9 +55,7 @@ export class SdkPasswordRandomizer
         request.website,
       );
     } else if (isPassphraseGenerationOptions(settings)) {
-      const passphrase = await this.client
-        .generator()
-        .passphrase(convertPassphraseRequest(settings));
+      const passphrase = await client.generator().passphrase(convertPassphraseRequest(settings));
 
       return new GeneratedCredential(
         passphrase,
@@ -75,7 +77,7 @@ function convertPasswordRequest(settings: PasswordGenerationOptions): PasswordGe
     numbers: settings.number!,
     special: settings.special!,
     length: settings.length!,
-    avoidAmbiguous: settings.ambiguous!,
+    avoidAmbiguous: !settings.ambiguous!,
     minLowercase: settings.minLowercase!,
     minUppercase: settings.minUppercase!,
     minNumber: settings.minNumber!,

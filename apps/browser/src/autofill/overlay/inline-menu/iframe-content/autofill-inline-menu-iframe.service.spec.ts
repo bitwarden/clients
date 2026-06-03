@@ -646,6 +646,22 @@ describe("AutofillInlineMenuIframeService", () => {
         });
       });
 
+      it("immediately closes the inline menu without animation when showAnimations is false", () => {
+        autofillInlineMenuIframeService["showAnimations"] = false;
+        autofillInlineMenuIframeService["port"] = portSpy;
+
+        sendPortMessage(portSpy, { command: "triggerDelayedAutofillInlineMenuClosure" });
+
+        expect(portSpy.disconnect).toHaveBeenCalled();
+        expect(autofillInlineMenuIframeService["port"]).toBeNull();
+        expect(autofillInlineMenuIframeService["iframe"].style.transition).toBe(
+          "opacity 125ms ease-out 0s",
+        );
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+          forceCloseInlineMenu: true,
+        });
+      });
+
       it("triggers a fade in of the inline menu", () => {
         jest.useFakeTimers();
         jest.spyOn(globalThis, "clearTimeout");
@@ -657,6 +673,16 @@ describe("AutofillInlineMenuIframeService", () => {
 
         jest.advanceTimersByTime(10);
         expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("1");
+      });
+
+      it("shows the inline menu immediately without animation when showAnimations is false", () => {
+        autofillInlineMenuIframeService["showAnimations"] = false;
+
+        sendPortMessage(portSpy, { command: "fadeInAutofillInlineMenuIframe" });
+
+        expect(autofillInlineMenuIframeService["iframe"].style.display).toBe("block");
+        expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("1");
+        expect(autofillInlineMenuIframeService["iframe"].style.transition).toBe("none");
       });
 
       it("triggers an aria alert when the password in regenerated", () => {

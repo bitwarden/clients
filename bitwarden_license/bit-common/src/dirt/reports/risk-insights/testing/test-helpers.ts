@@ -14,7 +14,6 @@
  * - Leverage existing utilities from @bitwarden/common/spec when appropriate
  */
 
-import { GetUniqueString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -37,6 +36,22 @@ import {
   OrganizationUserView,
 } from "../../../access-intelligence/services/abstractions/member-cipher-mapping.service";
 
+/**
+ * Generates a unique string with an optional prefix.
+ *
+ * Note: This is a local copy of `GetUniqueString` from `@bitwarden/common/spec` to avoid
+ * pulling in that module, which imports Node's `os` module and breaks Storybook's webpack build.
+ * Once that dependency is removed upstream, this can be replaced with the shared utility.
+ */
+function getUniqueString(prefix = "") {
+  const guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+  return prefix + "_" + guid;
+}
+
 // ==================== Member Helpers ====================
 
 /**
@@ -52,7 +67,7 @@ import {
  * const randomMember = createMember(); // Auto-generated unique values
  */
 export function createMember(id?: string, name?: string, email?: string): OrganizationUserView {
-  const uniqueId = id ?? GetUniqueString("member");
+  const uniqueId = id ?? getUniqueString("member");
   return {
     id: uniqueId,
     name: name ?? `User-${uniqueId}`,
@@ -105,7 +120,7 @@ export function createCipher(
   collectionIds: string[] = [],
 ): CipherView {
   const cipher = new CipherView();
-  cipher.id = id ?? GetUniqueString("cipher");
+  cipher.id = id ?? getUniqueString("cipher");
   cipher.type = CipherType.Login;
   cipher.collectionIds = collectionIds;
 
@@ -142,7 +157,7 @@ export function createCipherHealth(
   },
 ): CipherHealthView {
   return new CipherHealthView({
-    cipherId: GetUniqueString("cipher"),
+    cipherId: getUniqueString("cipher"),
     hasWeakPassword: options?.hasWeakPassword ?? isAtRisk,
     hasReusedPassword: options?.hasReusedPassword ?? false,
     hasExposedPassword: options?.hasExposedPassword ?? false,
@@ -265,6 +280,10 @@ export function createRiskInsightsSummary(
     totalAtRiskMemberCount: number;
     totalCriticalMemberCount: number;
     totalCriticalAtRiskMemberCount: number;
+    totalPasswordCount: number;
+    totalAtRiskPasswordCount: number;
+    totalCriticalPasswordCount: number;
+    totalCriticalAtRiskPasswordCount: number;
   }>,
 ): AccessReportSummaryView {
   const summary = new AccessReportSummaryView();
@@ -276,6 +295,10 @@ export function createRiskInsightsSummary(
   summary.totalAtRiskMemberCount = counts?.totalAtRiskMemberCount ?? 0;
   summary.totalCriticalMemberCount = counts?.totalCriticalMemberCount ?? 0;
   summary.totalCriticalAtRiskMemberCount = counts?.totalCriticalAtRiskMemberCount ?? 0;
+  summary.totalPasswordCount = counts?.totalPasswordCount ?? 0;
+  summary.totalAtRiskPasswordCount = counts?.totalAtRiskPasswordCount ?? 0;
+  summary.totalCriticalPasswordCount = counts?.totalCriticalPasswordCount ?? 0;
+  summary.totalCriticalAtRiskPasswordCount = counts?.totalCriticalAtRiskPasswordCount ?? 0;
   return summary;
 }
 

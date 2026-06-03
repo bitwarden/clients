@@ -2,7 +2,14 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent, getAllByRole, getByRole, fireEvent, getAllByLabelText } from "storybook/test";
+import {
+  userEvent,
+  getAllByRole,
+  getByRole,
+  queryByRole,
+  fireEvent,
+  getAllByLabelText,
+} from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -16,7 +23,10 @@ import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-s
 import { KitchenSinkAppComponent } from "./components/kitchen-sink-app.component";
 import { KitchenSinkEmptyComponent } from "./components/kitchen-sink-empty.component";
 import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
-import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
+import {
+  KitchenSinkDialogWithAutofocusComponent,
+  KitchenSinkMainComponent,
+} from "./components/kitchen-sink-main.component";
 import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkVaultComponent } from "./components/kitchen-sink-vault.component";
@@ -31,6 +41,7 @@ export default {
       imports: [
         KitchenSinkSharedModule,
         KitchenSinkAppComponent,
+        KitchenSinkDialogWithAutofocusComponent,
         KitchenSinkEmptyComponent,
         KitchenSinkFormComponent,
         KitchenSinkMainComponent,
@@ -74,6 +85,11 @@ export default {
               no: "No",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              moreBreadcrumbs: "More breadcrumbs",
+              breadcrumbs: "Breadcrumbs",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
+              more: "More",
             });
           },
         },
@@ -187,8 +203,18 @@ export const EmptyTab: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
-    const emptyTab = getByRole(canvas, "link", { name: "Empty" });
-    await userEvent.click(emptyTab);
+    await new Promise((resolve) => setTimeout(resolve, 200)); // wait for ResizeObserver to settle
+
+    const emptyTab = queryByRole(canvas, "link", { name: "Empty" });
+    if (emptyTab) {
+      await userEvent.click(emptyTab);
+    } else {
+      // Empty tab is in the overflow "More" menu at this viewport width
+      const moreButton = getByRole(canvas, "button", { name: "More" });
+      await userEvent.click(moreButton);
+      const emptyMenuItem = getByRole(canvas.ownerDocument.body, "menuitem", { name: "Empty" });
+      await userEvent.click(emptyMenuItem);
+    }
   },
 };
 

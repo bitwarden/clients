@@ -1,3 +1,4 @@
+@import "../../../../../../../../libs/components/src/theme.css";
 @import "../../../../shared/styles/webfonts";
 @import "../../../../shared/styles/variables";
 @import "../../../../../../../../libs/angular/src/scss/icons";
@@ -9,6 +10,7 @@ html,
 body {
   overflow: hidden;
   pointer-events: none;
+  font-family: var(--font-sans) !important;
 }
 
 html {
@@ -607,5 +609,14 @@ body * {
         color: themed("passwordNumberColor") !important;
       }
     }
+  }
+}
+
+.no-animations {
+  /* Exclude SVG animations; designed handling required */
+  .inline-menu-list-button-container,
+  .inline-menu-list-heading--bordered,
+  .inline-menu-list-actions-item {
+    transition: none !important;
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -23,7 +23,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
@@ -59,6 +58,8 @@ export class ChangePasswordComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
+  passwordChanged = output<void>();
+
   activeAccount: Account | null = null;
   email?: string;
   userId?: UserId;
@@ -80,7 +81,6 @@ export class ChangePasswordComponent implements OnInit {
     private messagingService: MessagingService,
     private policyService: PolicyService,
     private toastService: ToastService,
-    private syncService: SyncService,
     private dialogService: DialogService,
     private logService: LogService,
     private logoutService: LogoutService,
@@ -157,29 +157,11 @@ export class ChangePasswordComponent implements OnInit {
           throw new Error("activeAccount not found");
         }
 
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          await this.changePasswordService.changePasswordAndRotateUserKey(
-            passwordInputResult,
-            this.activeAccount,
-          );
-          return; // EARLY RETURN for flagged logic
-        }
-
-        if (
-          passwordInputResult.currentPassword == null ||
-          passwordInputResult.newPasswordHint == null
-        ) {
-          throw new Error("currentPassword or newPasswordHint not found");
-        }
-
-        await this.syncService.fullSync(true);
-
-        await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
-          passwordInputResult.currentPassword,
-          passwordInputResult.newPassword,
+        await this.changePasswordService.changePasswordAndRotateUserKey(
+          passwordInputResult,
           this.activeAccount,
-          passwordInputResult.newPasswordHint,
         );
+        this.passwordChanged.emit();
       } else {
         if (!this.userId) {
           throw new Error("userId not found");
@@ -203,17 +185,15 @@ export class ChangePasswordComponent implements OnInit {
           message: this.i18nService.t("masterPasswordChanged"),
         });
 
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-          await this.logoutService.logout(this.userId);
+        this.passwordChanged.emit();
 
-          const shouldNavigateToRoot = this.changePasswordService.shouldNavigateToRoot();
-          if (shouldNavigateToRoot) {
-            // navigate to root so redirect guard can properly route next active user (account switching) or null user to correct page
-            await this.router.navigate(["/"]);
-          }
-        } else {
-          this.messagingService.send("logout");
+        // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
+        await this.logoutService.logout(this.userId);
+
+        const shouldNavigateToRoot = this.changePasswordService.shouldNavigateToRoot();
+        if (shouldNavigateToRoot) {
+          // navigate to root so redirect guard can properly route next active user (account switching) or null user to correct page
+          await this.router.navigate(["/"]);
         }
 
         // Close the popout if we are in a browser extension popout.

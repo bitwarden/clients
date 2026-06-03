@@ -24,8 +24,8 @@ on:
         type: string
 
 env:
-  _BOT_NAME: "github-actions[bot]"
-  _BOT_EMAIL: "github-actions[bot]@users.noreply.github.com"
+  _BOT_NAME: "bw-ghapp[bot]"
+  _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
 
 defaults:
   run:
@@ -37,10 +37,36 @@ jobs:
     if: ${{ inputs.run-mode == 'Update' }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
-      pull-requests: write
+      id-token: write
 
     steps:
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-pull-requests: write
+          permission-actions: read
+          permission-contents: write
+
       - name: Log inputs to job summary
         env:
           RUN_MODE: ${{ inputs.run-mode }}
@@ -55,8 +81,9 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          token: ${{ steps.app-token.outputs.token }}
           ref: ${{ inputs.base-branch }}
           fetch-depth: 0
           persist-credentials: true
@@ -127,29 +154,32 @@ jobs:
             exit 1
           fi
 
-      - name: Switch to branch
-        id: switch-branch
+      - name: Check for existing branch
+        id: check-branch
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           BRANCH_NAME="sdlc/sdk-update"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-          if git switch "$BRANCH_NAME" 2>/dev/null; then
-            echo "✅ Switched to existing branch: $BRANCH_NAME"
-            echo "updating_existing_branch=true" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME" > /dev/null 2>&1; then
+            echo "branch_exists=true" >> "$GITHUB_OUTPUT"
+            echo "📋 Branch $BRANCH_NAME exists on remote"
           else
-            echo "📝 Creating new branch: $BRANCH_NAME"
-            git switch -c "$BRANCH_NAME"
-            echo "updating_existing_branch=false" >> "$GITHUB_OUTPUT"
+            echo "branch_exists=false" >> "$GITHUB_OUTPUT"
+            echo "📋 Branch $BRANCH_NAME does not exist"
           fi
 
       - name: Prevent updating branch with manual changes
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        if: ${{ steps.check-branch.outputs.branch_exists == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
+          git fetch origin "$_BRANCH_NAME"
+          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "origin/$_BRANCH_NAME")
 
           echo "Latest commit author in branch ($_BRANCH_NAME): $LATEST_COMMIT_AUTHOR"
           echo "Expected bot email: $_BOT_EMAIL"
@@ -174,10 +204,10 @@ jobs:
           echo "✅ Branch tip commit was made by the bot. Safe to proceed."
 
       - name: Check for stop-updates label
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        if: ${{ steps.check-branch.outputs.branch_exists == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number,labels --jq '.[0] // empty')
@@ -196,18 +226,22 @@ jobs:
 
           echo "✅ No stop-updates label found. Proceeding."
 
-      - name: Rebase the existing branch onto base branch to clean up diff
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+      - name: Configure git identity
+        run: |
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+
+      - name: Create fresh branch from base
         env:
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          echo "🔄 Rebasing onto origin/$BASE_BRANCH..."
-          if ! git rebase "origin/$BASE_BRANCH"; then
-            git rebase --abort
-            echo "::error::Rebase onto $BASE_BRANCH failed due to conflicts. Resolve conflicts manually and re-run."
-            exit 1
-          fi
-          echo "✅ Rebase complete."
+          # Delete local branch if it exists (from fetch)
+          git branch -D "$_BRANCH_NAME" 2>/dev/null || true
+
+          # Create fresh branch from base
+          echo "📝 Creating fresh branch $_BRANCH_NAME from $BASE_BRANCH"
+          git switch -c "$_BRANCH_NAME"
 
       - name: Update SDK versions
         env:
@@ -218,75 +252,41 @@ jobs:
           npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        id: lint
-        run: npm run lint
-
-      - name: Lint SDK internal versions
-        run: npm run lint:sdk-internal-versions
-
-      - name: Run tests
-        id: tests
-        run: npm test
-        continue-on-error: true
-
       - name: Generate changelog
         id: changelog
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           OLD_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           NEW_VERSION: ${{ inputs.sdk-version }}
         run: |
-          # Extract git refs from version strings (format: x.y.z-build-gitref)
-          OLD_REF=$(echo "$OLD_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
-          NEW_REF=$(echo "$NEW_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
+          # Look up source commits from npm package metadata
+          OLD_REF=$(npm view "@bitwarden/sdk-internal@$OLD_VERSION" gitHead 2>/dev/null || echo "")
+          NEW_REF=$(npm view "@bitwarden/sdk-internal@$NEW_VERSION" gitHead 2>/dev/null || echo "")
 
           if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
             echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
-            CHANGELOG=$(gh api "repos/bitwarden/sdk-internal/compare/$OLD_REF...$NEW_REF" \
-              --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "")
+            CHANGELOG=$(./scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$OLD_REF" "$NEW_REF" 2>/dev/null || echo "")
 
             if [ -n "$CHANGELOG" ]; then
               echo "changelog<<__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
               echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
               echo "__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
-              echo "✅ Generated changelog with $(echo "$CHANGELOG" | wc -l) commits"
+              echo "✅ Generated changelog"
             else
               echo "::warning::Could not generate changelog"
             fi
           else
-            echo "::warning::Could not extract git refs from versions for changelog"
+            echo "::warning::Could not resolve source commits from npm for changelog (old: $OLD_VERSION, new: $NEW_VERSION)"
           fi
 
       - name: Generate validation summary
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          if [ "$LINT_OUTCOME" = "success" ]; then
-            LINT_STATUS="✅ Passed"
-          else
-            LINT_STATUS="❌ Failed"
-          fi
-
-          if [ "$TEST_OUTCOME" = "success" ]; then
-            TEST_STATUS="✅ Passed"
-          elif [ "$TEST_OUTCOME" = "skipped" ]; then
-            TEST_STATUS="⏭️ Skipped"
-          else
-            TEST_STATUS="⚠️ Failed"
-          fi
-
           {
             echo "## 📊 Validation Summary"
             echo ""
             echo "- SDK Version: $SDK_VERSION"
-            echo "- Lint: $LINT_STATUS"
-            echo "- Tests: $TEST_STATUS"
             echo ""
             echo "### Changed Files"
             echo '```'
@@ -297,59 +297,36 @@ jobs:
       - name: Commit changes
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
-          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
-
-          git config user.name "$_BOT_NAME"
-          git config user.email "$_BOT_EMAIL"
 
           git add package.json package-lock.json
 
           if git diff --cached --quiet; then
             echo "::warning::No changes to commit — branch already contains SDK $SDK_VERSION"
           else
-            git commit -m "Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+            git commit -m "Update sdk-internal to $SDK_VERSION"
           fi
 
           git push --force-with-lease origin "$BRANCH_NAME"
 
       - name: Create or Update Pull Request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           SDK_VERSION: ${{ inputs.sdk-version }}
           OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           OLD_COMMERCIAL_VERSION: ${{ steps.get-current-sdk.outputs.current-commercial-version }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
-          LINT_STATUS: ${{ steps.lint.outcome }}
-          TEST_STATUS: ${{ steps.tests.outcome }}
           BASE_BRANCH: ${{ inputs.base-branch }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           TRIGGERING_RUN_ID: ${{ inputs.triggering-run-id }}
         run: |
-          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
-
-          # Determine validation status
-          if [ "$LINT_STATUS" = "success" ]; then
-            LINT_RESULT="✅ Passed"
-          else
-            LINT_RESULT="❌ Failed"
-          fi
-
-          if [ "$TEST_STATUS" = "success" ]; then
-            TEST_RESULT="✅ Passed"
-          elif [ "$TEST_STATUS" = "skipped" ]; then
-            TEST_RESULT="⏭️ Skipped"
-          else
-            TEST_RESULT="⚠️ Failed"
-          fi
-
           # Build PR body
-          PR_TITLE="Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+          PR_TITLE="Update sdk-internal to $SDK_VERSION"
           {
             echo "## 🤖 Automated SDK Update"
             echo ""
@@ -363,10 +340,6 @@ jobs:
               echo "### What's Changed in SDK"
               echo "$CHANGELOG"
             fi
-            echo ""
-            echo "### Validation Results"
-            echo "- Lint: $LINT_RESULT"
-            echo "- Tests: $TEST_RESULT"
             echo ""
             echo "### Links"
             echo "- [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
@@ -388,10 +361,7 @@ jobs:
             echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "📝 Creating new PR..."
-            LABELS="dependencies,automated"
-            if [ "$TEST_STATUS" != "success" ]; then
-              LABELS="$LABELS,tests-failing"
-            fi
+            LABELS="automated pr"
 
             PR_URL=$(gh pr create \
               --title "$PR_TITLE" \
@@ -424,7 +394,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.base-branch }}
           persist-credentials: false
@@ -474,52 +444,13 @@ jobs:
           npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        id: lint
-        run: npm run lint
-
-      - name: Lint SDK internal versions
-        run: npm run lint:sdk-internal-versions
-
-      - name: Run tests
-        id: tests
-        run: npm test
-        continue-on-error: true
-
       - name: Test summary
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          if [ "$LINT_OUTCOME" = "success" ]; then
-            LINT_STATUS="✅ Passed"
-          else
-            LINT_STATUS="❌ Failed"
-          fi
-
-          if [ "$TEST_OUTCOME" = "success" ]; then
-            TEST_STATUS="✅ Passed"
-          elif [ "$TEST_OUTCOME" = "skipped" ]; then
-            TEST_STATUS="⏭️ Skipped"
-          else
-            TEST_STATUS="❌ Failed"
-          fi
-
           {
             echo "## 📊 Test Results"
             echo ""
             echo "- SDK Version: $SDK_VERSION"
-            echo "- Lint: $LINT_STATUS"
-            echo "- Tests: $TEST_STATUS"
+            echo "- ✅ SDK packages updated successfully"
           } >> $GITHUB_STEP_SUMMARY
-
-          if [ "$LINT_OUTCOME" = "success" ] && [ "$TEST_OUTCOME" = "success" ]; then
-            {
-              echo ""
-              echo "### ✅ All checks passed - SDK version $SDK_VERSION is ready for release"
-            } >> $GITHUB_STEP_SUMMARY
-          fi

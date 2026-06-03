@@ -23,7 +23,7 @@
     <ng-template #userDisplay let-user>
       <div class="tw-flex tw-items-center">
         <div class="tw-mr-6">
-          <bit-avatar [text]="user | userName" [id]="user.id" size="small"></bit-avatar>
+          <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
         </div>
         <ng-container *ngIf="user.name; else emailOnly">
           <div class="tw-truncate" [title]="user.name + ' ' + user.email">

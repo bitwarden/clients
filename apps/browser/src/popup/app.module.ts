@@ -1,7 +1,7 @@
 import { A11yModule } from "@angular/cdk/a11y";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { LayoutModule } from "@angular/cdk/layout";
-import { OverlayModule } from "@angular/cdk/overlay";
+import { OverlayModule, OVERLAY_DEFAULT_CONFIG } from "@angular/cdk/overlay";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CurrencyPipe, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
@@ -27,6 +27,7 @@ import { AccountSecurityComponent } from "../auth/popup/settings/account-securit
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
+import { PopupFocusWrapDirective } from "../platform/popup/components/popup-focus-wrap.directive";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
@@ -69,6 +70,7 @@ import "../platform/popup/locales";
     ButtonModule,
     NotificationsSettingsComponent,
     PopOutComponent,
+    PopupFocusWrapDirective,
     PopupPageComponent,
     PopupTabNavigationComponent,
     PopupFooterComponent,
@@ -82,7 +84,11 @@ import "../platform/popup/locales";
   ],
   declarations: [AppComponent, TabsV2Component],
   exports: [CalloutModule],
-  providers: [CurrencyPipe, DatePipe],
+  providers: [
+    CurrencyPipe,
+    DatePipe,
+    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -7,19 +7,17 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { fromEvent, map, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ClientType } from "@bitwarden/client-type";
 import {
   CollectionView,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
-  BadgeModule,
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   LinkComponent,
   TypographyModule,
@@ -36,11 +34,11 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     CommonModule,
     JslibModule,
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     OrgIconDirective,
     FormFieldModule,
     LinkComponent,
-    BadgeModule,
   ],
 })
 export class ItemDetailsV2Component {
@@ -91,16 +89,7 @@ export class ItemDetailsV2Component {
     }
   });
 
-  protected readonly showArchiveBadge = computed(() => {
-    return (
-      this.cipher().isArchived && this.platformUtilsService.getClientType() === ClientType.Desktop
-    );
-  });
-
-  constructor(
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   toggleShowMore() {
     this.showAllDetails.update((value) => !value);

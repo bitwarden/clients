@@ -28,6 +28,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -81,6 +82,7 @@ export type NewApplicationsDialogResultType =
   imports: [
     ButtonModule,
     DialogModule,
+    IconModule,
     TypographyModule,
     I18nPipe,
     AssignTasksViewComponent,
@@ -269,7 +271,22 @@ export class NewApplicationsDialogComponent {
 
     // Save the application review dates and critical markings
     try {
-      await firstValueFrom(this.dataService.saveApplicationReviewStatus(updatedApplications));
+      const response = await firstValueFrom(
+        this.dataService.saveApplicationReviewStatus(updatedApplications),
+      );
+
+      if (response.error) {
+        this.logService.error(
+          "[NewApplicationsDialog] Failed to save application review status",
+          response.error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorSavingReviewStatus"),
+          message: this.i18nService.t("pleaseTryAgain"),
+        });
+        return;
+      }
 
       this.toastService.showToast({
         variant: "success",
@@ -299,8 +316,8 @@ export class NewApplicationsDialogComponent {
     }
   }
 
-  // Saves the application review and assigns tasks for unassigned at-risk ciphers
-  protected async handleAssignTasks() {
+  // Saves the application review and sends notifications for unassigned at-risk ciphers
+  protected async handleSendNotifications() {
     if (this.saving()) {
       return; // Prevent double-click
     }
@@ -347,7 +364,7 @@ export class NewApplicationsDialogComponent {
    * Closes the dialog when the "Cancel" button is selected
    */
   handleCancel() {
-    this.dialogRef.close(NewApplicationsDialogResultType.Close);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Close);
   }
 
   /**
@@ -356,7 +373,7 @@ export class NewApplicationsDialogComponent {
    */
   protected readonly handleAssigningCompleted = () => {
     // Tasks were successfully assigned - close dialog
-    this.dialogRef.close(NewApplicationsDialogResultType.Complete);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Complete);
   };
 
   /**

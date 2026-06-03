@@ -45,7 +45,7 @@ export class FileDownloadBuilder {
     } else if (fileNameLower.endsWith(".gif")) {
       return "image/gif";
     }
-    return null;
+    return "application/octet-stream";
   }
 
   constructor(private readonly _request: FileDownloadRequest) {}

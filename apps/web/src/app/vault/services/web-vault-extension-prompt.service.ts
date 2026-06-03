@@ -33,14 +33,6 @@ export class WebVaultExtensionPromptService {
    * Conditionally prompts the user to install the web extension
    */
   async conditionallyPromptUserForExtension(userId: UserId) {
-    const featureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt,
-    );
-
-    if (!featureFlagEnabled) {
-      return false;
-    }
-
     // Extension check takes time, trigger it early
     const hasExtensionInstalled = firstValueFrom(
       this.webBrowserInteractionService.extensionInstalled$,
@@ -93,8 +85,14 @@ export class WebVaultExtensionPromptService {
     );
 
     const now = new Date();
-    const accountAgeMs = now.getTime() - creationDate.getTime();
-    const accountAgeDays = accountAgeMs / (1000 * 60 * 60 * 24);
+    // Use UTC midnight boundaries to avoid DST skewing the day count.
+    const nowUtcDay = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const creationUtcDay = Date.UTC(
+      creationDate.getFullYear(),
+      creationDate.getMonth(),
+      creationDate.getDate(),
+    );
+    const accountAgeDays = (nowUtcDay - creationUtcDay) / (1000 * 60 * 60 * 24);
 
     const minAgeDays = minAccountAgeDays ?? 0;
     const maxAgeDays = 30;

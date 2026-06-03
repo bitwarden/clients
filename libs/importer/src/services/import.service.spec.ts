@@ -1,4 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -10,13 +11,14 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
-import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
+import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -279,25 +281,121 @@ describe("ImportService", () => {
       expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
       expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
+
+    it("If importTarget is of type DefaultUserCollection throw an error if trying to import cipher with multiple collections", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.collectionRelationships.push([0, 0], [0, 1]);
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      const setImportTargetMethod = importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      await expect(setImportTargetMethod).rejects.toThrow();
+    });
+
+    it("If importTarget is of type DefaultUserCollection and import has folders, preserve them", async () => {
+      importResult.folders.push(mockFolder1);
+      importResult.folders.push(mockFolder2);
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: mockFolder1.id }));
+      importResult.ciphers.push(createCipher({ name: "cipher2", folderId: mockFolder2.id }));
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+
+      expect(importResult.folders.length).toEqual(2);
+      expect(importResult.folders[0].name).toEqual(mockFolder1.name);
+      expect(importResult.folders[1].name).toEqual(mockFolder2.name);
+      expect(importResult.folderRelationships.length).toEqual(2);
+      expect(importResult.folderRelationships[0]).toEqual([0, 0]);
+      expect(importResult.folderRelationships[1]).toEqual([1, 1]);
+      expect(importResult.collectionRelationships.length).toEqual(2);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+    });
+
+    it("If importTarget is of type DefaultUserCollection and import has no folders, convert collections to folders", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(
+        createCipher({ name: "cipher1", collectionIds: [mockCollection1.id] }),
+      );
+      importResult.ciphers.push(
+        createCipher({ name: "cipher2", collectionIds: [mockCollection2.id] }),
+      );
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+
+      expect(importResult.collections.length).toEqual(1);
+      expect(importResult.collectionRelationships.length).toEqual(2);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+      expect(importResult.folders.length).toEqual(2);
+      expect(importResult.folders[0].name).toEqual(mockCollection1.name);
+      expect(importResult.folders[1].name).toEqual(mockCollection2.name);
+    });
   });
-});
 
-describe("FolderWithIdRequest", () => {
-  function makeFolder(id: string): Folder {
-    const folder = new Folder();
-    folder.id = id;
-    return folder;
-  }
+  describe("handleIndividualImport", () => {
+    it("sends folder requests without an id when folder has no id", async () => {
+      const importResult = new ImportResult();
+      const folderView = new FolderView();
+      folderView.name = "Test Folder";
+      importResult.folders.push(folderView);
 
-  it("preserves a real folder id", () => {
-    const guid = "f1a2b3c4-d5e6-7890-abcd-ef1234567890";
-    const request = new FolderWithIdRequest(makeFolder(guid));
-    expect(request.id).toBe(guid);
-  });
+      const encryptedFolder = new Folder();
+      encryptedFolder.id = "";
+      encryptedFolder.name = new EncString("2.encryptedName");
+      folderService.encrypt.mockResolvedValue(encryptedFolder);
 
-  it("sends null when folder id is empty string (new import folder)", () => {
-    const request = new FolderWithIdRequest(makeFolder(""));
-    expect(request.id).toBeNull();
+      cipherService.encryptMany.mockResolvedValue([]);
+      keyService.userKey$.mockReturnValue(of(null));
+
+      const userId = "test-user-id" as UserId;
+      await importService["handleIndividualImport"](importResult, userId);
+
+      const request = importApiService.postImportCiphers.mock.calls[0][0];
+      expect(request.folders).toHaveLength(1);
+      expect(request.folders[0]).toBeInstanceOf(FolderWithOptionalIdRequest);
+      expect(request.folders[0].name).toBe("2.encryptedName");
+      expect(request.folders[0].id).toBeUndefined();
+    });
+
+    it("sends folder requests with an id when folder has an id", async () => {
+      const importResult = new ImportResult();
+      const folderView = new FolderView();
+      folderView.name = "Test Folder";
+      importResult.folders.push(folderView);
+
+      const encryptedFolder = new Folder();
+      encryptedFolder.id = "folder-id-123";
+      encryptedFolder.name = new EncString("2.encryptedName");
+      folderService.encrypt.mockResolvedValue(encryptedFolder);
+
+      cipherService.encryptMany.mockResolvedValue([]);
+      keyService.userKey$.mockReturnValue(of(null));
+
+      const userId = "test-user-id" as UserId;
+      await importService["handleIndividualImport"](importResult, userId);
+
+      const request = importApiService.postImportCiphers.mock.calls[0][0];
+      expect(request.folders).toHaveLength(1);
+      expect(request.folders[0]).toBeInstanceOf(FolderWithOptionalIdRequest);
+      expect(request.folders[0].name).toBe("2.encryptedName");
+      expect(request.folders[0].id).toBe("folder-id-123");
+    });
   });
 });
 

@@ -2,8 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -28,12 +28,14 @@ describe("WebVaultExtensionPromptService", () => {
   });
   const getUser = jest.fn().mockReturnValue({ state$: mockStateSubject.asObservable() });
 
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    getFeatureFlag.mockResolvedValue(false);
     extensionInstalled$.next(false);
     mockStateSubject.next(false);
     activeAccountSubject.next({ id: mockUserId, creationDate: mockAccountCreationDate });
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -60,6 +62,7 @@ describe("WebVaultExtensionPromptService", () => {
           provide: ConfigService,
           useValue: {
             getFeatureFlag,
+            serverSettings$: serverSettings$.asObservable(),
           },
         },
         {
@@ -75,19 +78,7 @@ describe("WebVaultExtensionPromptService", () => {
   });
 
   describe("conditionallyPromptUserForExtension", () => {
-    it("returns false when feature flag is disabled", async () => {
-      getFeatureFlag.mockResolvedValueOnce(false);
-
-      const result = await service.conditionallyPromptUserForExtension(mockUserId);
-
-      expect(result).toBe(false);
-      expect(getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt,
-      );
-    });
-
     it("returns false when dialog has been dismissed", async () => {
-      getFeatureFlag.mockResolvedValueOnce(true);
       mockStateSubject.next(true);
       extensionInstalled$.next(false);
 
@@ -97,9 +88,7 @@ describe("WebVaultExtensionPromptService", () => {
     });
 
     it("returns false when profile is not within thresholds (too old)", async () => {
-      getFeatureFlag
-        .mockResolvedValueOnce(true) // Main feature flag
-        .mockResolvedValueOnce(0); // Min age days
+      getFeatureFlag.mockResolvedValueOnce(0); // Min age days
       mockStateSubject.next(false);
       extensionInstalled$.next(false);
       const oldAccountDate = new Date("2025-12-01"); // More than 30 days old
@@ -111,9 +100,7 @@ describe("WebVaultExtensionPromptService", () => {
     });
 
     it("returns false when profile is not within thresholds (too young)", async () => {
-      getFeatureFlag
-        .mockResolvedValueOnce(true) // Main feature flag
-        .mockResolvedValueOnce(10); // Min age days = 10
+      getFeatureFlag.mockResolvedValueOnce(10); // Min age days = 10
       mockStateSubject.next(false);
       extensionInstalled$.next(false);
       const youngAccountDate = new Date(); // Today
@@ -126,9 +113,7 @@ describe("WebVaultExtensionPromptService", () => {
     });
 
     it("returns false when extension is installed", async () => {
-      getFeatureFlag
-        .mockResolvedValueOnce(true) // Main feature flag
-        .mockResolvedValueOnce(0); // Min age days
+      getFeatureFlag.mockResolvedValueOnce(0); // Min age days
       mockStateSubject.next(false);
       extensionInstalled$.next(true);
 
@@ -138,9 +123,7 @@ describe("WebVaultExtensionPromptService", () => {
     });
 
     it("returns true and opens dialog when all conditions are met", async () => {
-      getFeatureFlag
-        .mockResolvedValueOnce(true) // Main feature flag
-        .mockResolvedValueOnce(0); // Min age days
+      getFeatureFlag.mockResolvedValueOnce(0); // Min age days
       mockStateSubject.next(false);
       extensionInstalled$.next(false);
 
@@ -225,6 +208,7 @@ describe("WebVaultExtensionPromptService", () => {
 
       const exactDate = new Date();
       exactDate.setDate(exactDate.getDate() - 30); // Exactly 30 days old
+      exactDate.setHours(0, 0, 0, 0); // Set to start of day to avoid edge case with time
       activeAccountSubject.next({ id: mockUserId, creationDate: exactDate });
 
       const result = await service["profileIsWithinThresholds"]();

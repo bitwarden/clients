@@ -3,17 +3,19 @@ import { Observable, catchError, forkJoin, from, map, switchMap, take } from "rx
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportSummaryData } from "../../../models";
+import { AccessReportSummaryView } from "../../../models";
 import {
   AccessReportEncryptionService,
   DecryptedAccessReportData,
   EncryptedDataWithKey,
   EncryptedReportData,
+  FileEncryptedDataWithKey,
 } from "../../abstractions/access-report-encryption.service";
 
 import { ApplicationVersioningService } from "./versioning/application-versioning.service";
@@ -193,7 +195,7 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
     context: { organizationId: OrganizationId; userId: UserId },
     encryptedSummary: EncString,
     wrappedKey: EncString,
-  ): Observable<AccessReportSummaryData> {
+  ): Observable<AccessReportSummaryView> {
     this.logService.info("[DefaultAccessReportEncryptionService] Decrypting summary");
     const { userId, organizationId } = context;
 
@@ -224,6 +226,181 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
         );
       }),
     );
+  }
+
+  encryptReportFile$(
+    context: { organizationId: OrganizationId; userId: UserId },
+    data: DecryptedAccessReportData,
+    wrappedKey?: EncString,
+  ): Observable<FileEncryptedDataWithKey> {
+    this.logService.info("[DefaultAccessReportEncryptionService] Encrypting report for file");
+    const { userId, organizationId } = context;
+
+    return this.keyService.orgKeys$(userId).pipe(
+      take(1),
+      map((keys) => (keys ? keys[organizationId] : null)),
+      switchMap((orgKey) => {
+        if (!orgKey) {
+          this.logService.warning(
+            "[DefaultAccessReportEncryptionService] Attempted to encrypt without org key",
+          );
+          throw new Error("Organization key not found");
+        }
+
+        const contentKey$ = (
+          wrappedKey
+            ? from(this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey))
+            : from(this.keyGeneratorService.createKey(512))
+        ).pipe(
+          catchError((error: unknown) => {
+            this.logService.error(
+              "[DefaultAccessReportEncryptionService] Failed to get encryption key",
+              error,
+            );
+            throw new Error("Failed to get encryption key");
+          }),
+        );
+
+        return contentKey$.pipe(
+          switchMap((contentEncryptionKey) => {
+            const { reportData, summaryData, applicationData } = data;
+            const serializedReport = this.reportVersioningService.serialize(reportData);
+
+            return forkJoin({
+              encryptedReportData: from(
+                this.encryptService.encryptFileData(
+                  new TextEncoder().encode(serializedReport),
+                  contentEncryptionKey,
+                ),
+              ),
+              encryptedFileName: from(
+                this.encryptService.encryptString("report-data.json", contentEncryptionKey),
+              ),
+              encryptedSummaryData: from(
+                this.encryptService.encryptString(
+                  this.summaryVersioningService.serialize(summaryData),
+                  contentEncryptionKey,
+                ),
+              ),
+              encryptedApplicationData: from(
+                this.encryptService.encryptString(
+                  this.applicationVersioningService.serialize(applicationData),
+                  contentEncryptionKey,
+                ),
+              ),
+              wrappedEncryptionKey: from(
+                this.encryptService.wrapSymmetricKey(contentEncryptionKey, orgKey),
+              ),
+            });
+          }),
+          map(
+            ({
+              encryptedReportData,
+              encryptedFileName,
+              encryptedSummaryData,
+              encryptedApplicationData,
+              wrappedEncryptionKey,
+            }) => {
+              if (
+                !encryptedFileName.encryptedString ||
+                !encryptedSummaryData.encryptedString ||
+                !encryptedApplicationData.encryptedString ||
+                !wrappedEncryptionKey.encryptedString
+              ) {
+                this.logService.error(
+                  "[DefaultAccessReportEncryptionService] Encryption failed, encrypted strings are null",
+                );
+                throw new Error("Encryption failed, encrypted strings are null");
+              }
+
+              return {
+                organizationId,
+                encryptedReportData,
+                encryptedFileName,
+                encryptedSummaryData,
+                encryptedApplicationData,
+                contentEncryptionKey: wrappedEncryptionKey,
+              } satisfies FileEncryptedDataWithKey;
+            },
+          ),
+        );
+      }),
+    );
+  }
+
+  decryptReportFile$(
+    context: { organizationId: OrganizationId; userId: UserId },
+    encryptedReportData: EncArrayBuffer,
+    encryptedSummaryData: EncString,
+    encryptedApplicationData: EncString,
+    wrappedKey: EncString,
+  ): Observable<DecryptedAccessReportData> {
+    this.logService.info("[DefaultAccessReportEncryptionService] Decrypting report file");
+    const { userId, organizationId } = context;
+
+    return this.keyService.orgKeys$(userId).pipe(
+      take(1),
+      map((keys) => (keys ? keys[organizationId] : null)),
+      switchMap((orgKey) => {
+        if (!orgKey) {
+          this.logService.warning(
+            "[DefaultAccessReportEncryptionService] Attempted to decrypt without org key",
+          );
+          throw new Error("Organization key not found");
+        }
+
+        return from(this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey)).pipe(
+          switchMap((contentEncryptionKey) => {
+            if (!contentEncryptionKey) {
+              this.logService.error(
+                "[DefaultAccessReportEncryptionService] Encryption key not found",
+              );
+              throw new Error("Encryption key not found");
+            }
+
+            return forkJoin({
+              report: from(this._decryptFileBlob(encryptedReportData, contentEncryptionKey)),
+              summary: from(
+                this._decryptBlob(encryptedSummaryData, contentEncryptionKey, "summary"),
+              ),
+              application: from(
+                this._decryptBlob(encryptedApplicationData, contentEncryptionKey, "application"),
+              ),
+            }).pipe(
+              map(({ report, summary, application }) => {
+                const reportResult = this.reportVersioningService.process(report);
+                const summaryResult = this.summaryVersioningService.process(summary);
+                const applicationResult = this.applicationVersioningService.process(application);
+
+                return {
+                  reportData: reportResult.data,
+                  summaryData: summaryResult.data,
+                  applicationData: applicationResult.data,
+                };
+              }),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
+  private async _decryptFileBlob(
+    encryptedData: EncArrayBuffer,
+    key: SymmetricCryptoKey,
+  ): Promise<unknown> {
+    try {
+      const decryptedBytes = await this.encryptService.decryptFileData(encryptedData, key);
+      return JSON.parse(new TextDecoder().decode(decryptedBytes));
+    } catch (error: unknown) {
+      this.logService.error(
+        "[DefaultAccessReportEncryptionService] Failed to decrypt report file blob",
+        error,
+      );
+      throw new Error(
+        "Report data decryption failed. This may indicate data corruption or tampering.",
+      );
+    }
   }
 
   private async _decryptBlob(

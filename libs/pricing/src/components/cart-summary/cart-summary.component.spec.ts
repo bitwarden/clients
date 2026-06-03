@@ -413,7 +413,7 @@ describe("CartSummaryComponent", () => {
   });
 
   describe("Discount Display", () => {
-    it("should not display discount section when no discount is present", () => {
+    it("should not display discount section when no discounts are present", () => {
       // Arrange / Act
       const discountSection = fixture.debugElement.query(
         By.css('[data-testid="discount-section"]'),
@@ -427,10 +427,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 20,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithDiscount);
       fixture.detectChanges();
@@ -452,10 +454,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.AmountOff,
-          value: 50.0,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.AmountOff,
+            value: 50.0,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithDiscount);
       fixture.detectChanges();
@@ -476,10 +480,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 20,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithDiscount);
       fixture.detectChanges();
@@ -493,6 +499,95 @@ describe("CartSummaryComponent", () => {
       // Act / Assert
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should display multiple discounts as separate line items", () => {
+      // Arrange
+      const cartWithMultipleDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+          {
+            type: DiscountTypes.AmountOff,
+            value: 10.0,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithMultipleDiscounts);
+      fixture.detectChanges();
+
+      const discountSections = fixture.debugElement.queryAll(
+        By.css('[data-testid="discount-section"]'),
+      );
+
+      // Act / Assert
+      expect(discountSections.length).toBe(2);
+      // First discount: 20% of 372 = 74.4
+      expect(
+        discountSections[0].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$74.40");
+      // Second discount: $10.00 off (flat amount, unaffected by cascading)
+      expect(
+        discountSections[1].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$10.00");
+    });
+
+    it("should compute total consistent with displayed rounded line items when chained discounts produce fractional cents", () => {
+      // Reproduces: 1x $47.88 seat with 20% off → $10 flat → 5% off, tax $2.15
+      // Raw math: 47.88 - 9.576 - 10 - 1.4152 + 2.15 = 29.0388 → $29.04 (wrong)
+      // Rounded: 47.88 - 9.58 - 10 - 1.42 + 2.15 = 29.03 (correct)
+      const cart: Cart = {
+        passwordManager: {
+          seats: { quantity: 1, translationKey: "members", cost: 47.88 },
+        },
+        cadence: "annually",
+        estimatedTax: 2.15,
+        discounts: [
+          { type: DiscountTypes.PercentOff, value: 20 },
+          { type: DiscountTypes.AmountOff, value: 10 },
+          { type: DiscountTypes.PercentOff, value: 5 },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cart);
+      fixture.detectChanges();
+
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      expect(bottomTotal.nativeElement.textContent).toContain("$29.03");
+    });
+
+    it("should apply cascading subtotal when multiple percent-off discounts are stacked", () => {
+      // Arrange
+      const cartWithStackedPercents: Cart = {
+        ...mockCart,
+        discounts: [
+          { type: DiscountTypes.PercentOff, value: 10 },
+          { type: DiscountTypes.PercentOff, value: 10 },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithStackedPercents);
+      fixture.detectChanges();
+
+      const discountSections = fixture.debugElement.queryAll(
+        By.css('[data-testid="discount-section"]'),
+      );
+
+      // Act / Assert
+      expect(discountSections.length).toBe(2);
+      // Subtotal = 372; first 10% → 37.2 off, running subtotal = 334.8
+      expect(
+        discountSections[0].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$37.20");
+      // Second 10% applied to 334.8 → 33.48 off (not 37.2)
+      expect(
+        discountSections[1].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$33.48");
     });
   });
 
@@ -634,10 +729,12 @@ describe("CartSummaryComponent", () => {
             },
           },
         },
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 10,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithBothDiscounts);
       fixture.detectChanges();
@@ -675,6 +772,55 @@ describe("CartSummaryComponent", () => {
 
       // Assert
       expect(discountRow).toBeFalsy();
+    });
+  });
+
+  describe("Discount Badge Visibility", () => {
+    it("should not render discount badges by default", () => {
+      // Arrange
+      const cartWithDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.detectChanges();
+
+      // Act
+      const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
+
+      // Assert
+      expect(badges.length).toBe(0);
+    });
+
+    it("should render discount badges when showDiscountBadges is true", () => {
+      // Arrange
+      const cartWithDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+          {
+            type: DiscountTypes.AmountOff,
+            value: 10,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.componentRef.setInput("showDiscountBadges", true);
+      fixture.detectChanges();
+
+      // Act
+      const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
+
+      // Assert
+      expect(badges.length).toBe(2);
     });
   });
 
@@ -736,10 +882,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithBoth: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 10,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
         credit: {
           translationKey: "accountCredit",
           value: 30.0,
@@ -764,6 +912,60 @@ describe("CartSummaryComponent", () => {
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
+  });
+});
+
+describe("CartSummaryComponent - Non-Latin locale (double-translation regression)", () => {
+  let fixture: ComponentFixture<CartSummaryComponent>;
+
+  const annualCart: Cart = {
+    passwordManager: {
+      seats: { quantity: 1, translationKey: "members", cost: 10 },
+    },
+    cadence: "annually",
+    estimatedTax: 0,
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CartSummaryComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              // Simulate zh_CN: keys differ from their translations
+              const map: Record<string, string> = {
+                year: "年",
+                month: "月",
+                total: "总计",
+                members: "成员",
+                estimatedTax: "预估税",
+                expandPurchaseDetails: "展开购买详情",
+                collapsePurchaseDetails: "收起购买详情",
+              };
+              return map[key] ?? "";
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CartSummaryComponent);
+    fixture.componentRef.setInput("cart", annualCart);
+    fixture.detectChanges();
+  });
+
+  it("renders the localized term once (no double-translation) in the header span", () => {
+    const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+    const termSpan = allSpans.find((s) => s.nativeElement.textContent.includes("/"));
+    expect(termSpan).toBeTruthy();
+    expect(termSpan!.nativeElement.textContent.trim()).toBe("/ 年");
+  });
+
+  it("renders the localized term once (no double-translation) in the final-total section", () => {
+    const finalTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+    expect(finalTotal.nativeElement.textContent).toMatch(/\/\s*年/);
   });
 });
 

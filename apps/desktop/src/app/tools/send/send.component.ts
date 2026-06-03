@@ -2,12 +2,8 @@
 // @ts-strict-ignore
 import { Component, DestroyRef, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
+import { combineLatest, lastValueFrom, map } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,16 +22,26 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
+  SendPolicyService,
+  SendFormService,
+  SendFormModule,
+  SendFormConfig,
 } from "@bitwarden/send-ui";
 
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
-  imports: [ButtonModule, SendListComponent, NewSendDropdownV2Component, DesktopHeaderComponent],
+  imports: [
+    ButtonModule,
+    SendListComponent,
+    NewSendDropdownV2Component,
+    DesktopHeaderComponent,
+    SendFormModule,
+  ],
   providers: [
     DefaultSendFormConfigService,
     {
@@ -48,8 +54,7 @@ import { DesktopHeaderComponent } from "../../layout/header";
 export class SendComponent {
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
+  private sendPolicyService = inject(SendPolicyService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
@@ -57,6 +62,7 @@ export class SendComponent {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
+  private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
@@ -71,15 +77,9 @@ export class SendComponent {
     initialValue: "",
   });
 
-  protected readonly disableSend = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
-    ),
-    { initialValue: false },
-  );
+  protected readonly disableSend = toSignal(this.sendPolicyService.disableSend$, {
+    initialValue: false,
+  });
 
   protected readonly listState = toSignal(
     combineLatest([
@@ -101,30 +101,40 @@ export class SendComponent {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.activeDrawerRef?.close();
+      void this.activeDrawerRef?.close();
     });
   }
 
   protected async addSend(type: SendType): Promise<void> {
     const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
-
-    this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig,
-    });
-
-    await lastValueFrom(this.activeDrawerRef.closed);
-    this.activeDrawerRef = null;
+    await this.openSendDialog(formConfig);
   }
 
   protected async selectSend(sendId: string): Promise<void> {
     const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
+    await this.openSendDialog(formConfig);
+  }
 
-    this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+  private async openSendDialog(formConfig: SendFormConfig) {
+    const activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
       formConfig,
+      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
     });
 
-    await lastValueFrom(this.activeDrawerRef.closed);
-    this.activeDrawerRef = null;
+    // If we were unable to open the dialog (because the previous drawer failed to close, for example) exit immediately
+    if (!activeDrawerRef) {
+      return;
+    } else {
+      this.activeDrawerRef = activeDrawerRef;
+    }
+
+    const result = await lastValueFrom(this.activeDrawerRef.closed);
+    // If we updated a Send, open the drawer back up with the updated Send now set as the original
+    if (result?.result === SendItemDialogResult.Updated && result?.send) {
+      await this.selectSend(result.send.id);
+    } else {
+      this.activeDrawerRef = null;
+    }
   }
 
   protected async onEditSend(send: SendView): Promise<void> {
@@ -187,5 +197,13 @@ export class SendComponent {
       title: null,
       message: this.i18nService.t("deletedSend"),
     });
+  }
+
+  async saveUnsavedSendEdits() {
+    if (this.activeDrawerRef) {
+      const closeResult = await this.activeDrawerRef.close();
+      return closeResult.closed;
+    }
+    return true;
   }
 }

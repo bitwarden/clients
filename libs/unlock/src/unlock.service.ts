@@ -1,4 +1,7 @@
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
+
+import { KeyConnectorUnlockData } from "./default-unlock.service";
 
 /**
  * Service for unlocking a user's account with various methods.
@@ -31,4 +34,37 @@ export abstract class UnlockService {
    * @throws If biometric authentication fails
    */
   abstract unlockWithBiometrics(userId: UserId): Promise<void>;
+
+  /**
+   * Unlocks the user's account using a key connector.
+   *
+   * @param keyConnectorUnlockData - The data required to unlock with the key connector, including the URL and wrapped user key
+   * @throws If the SDK is not available
+   * @throws If key connector authentication fails
+   */
+  abstract unlockWithKeyConnector(
+    userId: UserId,
+    keyConnectorUnlockData: KeyConnectorUnlockData,
+  ): Promise<void>;
+
+  /**
+   * Unlocks the user's account with a decrypted user key
+   * Note: Where possible use other unlock methods.
+   *
+   * @param userId - The user's id
+   * @param userKey - The decrypted user key to unlock with
+   * @throws If the SDK is not available
+   * @throws If decryption fails or the key is invalid
+   */
+  abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
+
+  /**
+   * Registers an action to be run when a user is unlocked through this service.
+   *
+   * @param action Callback invoked after a successful unlock with the user id and the
+   *   freshly-decrypted user key.
+   */
+  abstract registerOnUnlockAction(
+    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+  ): void;
 }

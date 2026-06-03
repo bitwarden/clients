@@ -9,6 +9,7 @@ import { LogService } from "@bitwarden/logging";
 import {
   AccessReport,
   AccessReportSettingsView,
+  AccessReportSummaryView,
   AccessReportView,
 } from "../../../../access-intelligence/models";
 import {
@@ -68,7 +69,7 @@ describe("DefaultReportPersistenceService", () => {
         creationDate: new Date(),
       });
 
-      // Mock RiskInsights.fromView() to return domain model with encrypted data
+      // Mock AccessReport.fromView$() to return domain model with encrypted data
       const mockDomain = new AccessReport();
       mockDomain.organizationId = organizationId;
       mockDomain.reports = makeEncString("encrypted-reports");
@@ -77,7 +78,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.contentEncryptionKey = makeEncString("encryption-key");
       mockDomain.creationDate = new Date();
 
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(mockDomain));
 
       const saveResponse = new SaveRiskInsightsReportResponse({ id: reportId });
       mockApiService.saveRiskInsightsReport$.mockReturnValue(of(saveResponse));
@@ -86,7 +87,7 @@ describe("DefaultReportPersistenceService", () => {
 
       expect(result.id).toBe(reportId);
       expect(result.contentEncryptionKey).toBeDefined();
-      expect(AccessReport.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
+      expect(AccessReport.fromView$).toHaveBeenCalledWith(view, mockEncryptionService, {
         organizationId,
         userId,
       });
@@ -116,7 +117,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.organizationId = organizationId;
       mockDomain.contentEncryptionKey = undefined;
 
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(mockDomain));
 
       await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
         "Report encryption key not found",
@@ -137,7 +138,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.applications = makeEncString("apps");
       mockDomain.creationDate = new Date();
 
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(mockDomain));
 
       mockApiService.saveRiskInsightsReport$.mockReturnValue(
         throwError(() => new Error("API error")),
@@ -185,14 +186,14 @@ describe("DefaultReportPersistenceService", () => {
       });
       jest.spyOn(view, "toMetrics").mockReturnValue(mockMetrics);
 
-      // Mock RiskInsights.fromView() to return domain model
+      // Mock AccessReport.fromView$() to return domain model
       const mockDomain = new AccessReport();
       mockDomain.reports = makeEncString("encrypted-reports");
       mockDomain.summary = makeEncString("encrypted-summary");
       mockDomain.applications = makeEncString("encrypted-apps");
       mockDomain.contentEncryptionKey = makeEncString("key");
 
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(mockDomain));
 
       // Using {} as any for mock response (acceptable per testing standards for mock objects)
       mockApiService.updateRiskInsightsApplicationData$.mockReturnValue(of({} as any));
@@ -200,7 +201,7 @@ describe("DefaultReportPersistenceService", () => {
 
       await firstValueFrom(service.saveApplicationMetadata$(view));
 
-      expect(AccessReport.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
+      expect(AccessReport.fromView$).toHaveBeenCalledWith(view, mockEncryptionService, {
         organizationId,
         userId,
       });
@@ -252,7 +253,7 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       jest
-        .spyOn(AccessReport, "fromView")
+        .spyOn(AccessReport, "fromView$")
         .mockReturnValue(throwError(() => new Error("Encryption failed")));
 
       await expect(firstValueFrom(service.saveApplicationMetadata$(view))).rejects.toThrow(
@@ -272,7 +273,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.applications = makeEncString("encrypted-apps");
       mockDomain.contentEncryptionKey = makeEncString("key");
 
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(mockDomain));
 
       mockApiService.updateRiskInsightsApplicationData$.mockReturnValue(
         throwError(() => new Error("Update failed")),
@@ -313,7 +314,7 @@ describe("DefaultReportPersistenceService", () => {
             "member-1": { id: "member-1", userName: "John Doe", email: "john@example.com" },
           },
         },
-        summaryData: {
+        summaryData: AccessReportSummaryView.fromJSON({
           totalMemberCount: 10,
           totalAtRiskMemberCount: 3,
           totalApplicationCount: 5,
@@ -322,7 +323,11 @@ describe("DefaultReportPersistenceService", () => {
           totalCriticalAtRiskMemberCount: 1,
           totalCriticalApplicationCount: 1,
           totalCriticalAtRiskApplicationCount: 1,
-        },
+          totalPasswordCount: 0,
+          totalAtRiskPasswordCount: 0,
+          totalCriticalPasswordCount: 0,
+          totalCriticalAtRiskPasswordCount: 0,
+        }),
         applicationData: [
           {
             applicationName: "github.com",
@@ -335,7 +340,7 @@ describe("DefaultReportPersistenceService", () => {
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
       mockEncryptionService.decryptReport$.mockReturnValue(of(decryptedData));
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result!.report).toBeInstanceOf(AccessReportView);
       expect(result!.report.id).toBe(reportId);
@@ -353,7 +358,7 @@ describe("DefaultReportPersistenceService", () => {
     it("should return null if no report exists", async () => {
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(null));
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result).toBeNull();
       expect(mockEncryptionService.decryptReport$).not.toHaveBeenCalled();
@@ -372,7 +377,7 @@ describe("DefaultReportPersistenceService", () => {
 
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Report encryption key not found",
       );
     });
@@ -380,7 +385,7 @@ describe("DefaultReportPersistenceService", () => {
     it("should throw error if user ID not found", async () => {
       mockAccountService.activeAccount$ = of(null as any);
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Null or undefined account",
       );
     });
@@ -401,7 +406,7 @@ describe("DefaultReportPersistenceService", () => {
         throwError(() => new Error("Decryption failed")),
       );
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Decryption failed",
       );
     });
@@ -435,7 +440,7 @@ describe("DefaultReportPersistenceService", () => {
             m2: { id: "m2", userName: "Bob", email: "bob@example.com" },
           },
         },
-        summaryData: {
+        summaryData: AccessReportSummaryView.fromJSON({
           totalMemberCount: 20,
           totalAtRiskMemberCount: 5,
           totalApplicationCount: 10,
@@ -444,7 +449,11 @@ describe("DefaultReportPersistenceService", () => {
           totalCriticalAtRiskMemberCount: 2,
           totalCriticalApplicationCount: 2,
           totalCriticalAtRiskApplicationCount: 1,
-        },
+          totalPasswordCount: 0,
+          totalAtRiskPasswordCount: 0,
+          totalCriticalPasswordCount: 0,
+          totalCriticalAtRiskPasswordCount: 0,
+        }),
         applicationData: [
           {
             applicationName: "gitlab.com",
@@ -457,7 +466,7 @@ describe("DefaultReportPersistenceService", () => {
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
       mockEncryptionService.decryptReport$.mockReturnValue(of(decryptedData));
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result!.report.reports[0].applicationName).toBe("gitlab.com");
       expect(result!.report.reports[0].passwordCount).toBe(3);

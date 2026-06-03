@@ -20,7 +20,6 @@ let nextId = 0;
 })
 export class ToggleGroupComponent<TValue = unknown> {
   private readonly id = nextId++;
-
   readonly name = `bit-toggle-group-${this.id}`;
 
   /**

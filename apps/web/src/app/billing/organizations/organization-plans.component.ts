@@ -11,7 +11,7 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, merge, Subject, takeUntil } from "rxjs";
+import { catchError, firstValueFrom, merge, of, Subject, takeUntil } from "rxjs";
 import { debounceTime, filter, map, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -19,10 +19,10 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import {
   getOrganizationById,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
@@ -34,9 +34,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -49,13 +51,14 @@ import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Cart, CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -65,6 +68,7 @@ import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/b
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
+import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
 
 interface OnSuccessArgs {
@@ -123,6 +127,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
    */
   readonly initialPlan = input<PlanType>(PlanType.Free);
 
+  /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
+  readonly trialLength = input<number | undefined>(undefined);
+
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -171,7 +178,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.selectedPlan()?.isAnnual ? "year" : "month",
   );
 
-  readonly freeTrial = computed(() => this.selectedPlan()?.trialPeriodDays != null);
+  readonly freeTrial = computed(
+    () => (this.trialLength() ?? this.selectedPlan()?.trialPeriodDays ?? 0) > 0,
+  );
 
   readonly planOffersSecretsManager = computed(() => this.selectedSecretsManagerPlan() != null);
 
@@ -243,6 +252,26 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.selectablePlans().some((plan) => plan.type === PlanType.TeamsStarter),
   );
 
+  private readonly eligibleDiscounts$ = this.subscriptionDiscountService
+    .getEligibleDiscountsForTier$(DiscountTierType.Families)
+    .pipe(catchError(() => of([])));
+
+  readonly eligibleDiscounts = toSignal(this.eligibleDiscounts$, { initialValue: [] });
+
+  readonly cartDiscounts = computed<Discount[] | undefined>(() =>
+    !this.acceptingSponsorship() && this.formValues().productTier === ProductTierType.Families
+      ? this.eligibleDiscounts()
+          .map((discount) => this.subscriptionDiscountService.mapToCartDiscount(discount))
+          .filter((discount) => !!discount)
+      : undefined,
+  );
+
+  private readonly eligibleCouponIds = computed<string[]>(() =>
+    !this.acceptingSponsorship() && this.formValues().productTier === ProductTierType.Families
+      ? this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId)
+      : [],
+  );
+
   protected readonly showTaxIdField = computed<boolean>(() => {
     switch (this.formValues().productTier) {
       case ProductTierType.Free:
@@ -266,7 +295,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   protected singleOrgPolicyAppliesToActiveUser = false;
   protected isInTrialFlow = false;
 
-  protected get discount(): number {
+  /**
+   * Sponsorship discount applied when a user is accepting a Families plan sponsorship.
+   * This is unrelated to the eligible discount system introduced via {@link SubscriptionDiscountService},
+   * which handles coupon-based discounts fetched from the billing API.
+   */
+  protected get familiesSponsorshipDiscount(): number {
     if (!this.acceptingSponsorship()) {
       return 0;
     }
@@ -378,11 +412,15 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       };
 
       // Add discount if accepting sponsorship
-      if (this.acceptingSponsorship() && this.discount > 0) {
-        cart.discount = {
-          type: DiscountTypes.AmountOff,
-          value: this.discount,
-        };
+      if (this.acceptingSponsorship() && this.familiesSponsorshipDiscount > 0) {
+        cart.discounts = [
+          {
+            type: DiscountTypes.AmountOff,
+            value: this.familiesSponsorshipDiscount,
+          },
+        ];
+      } else {
+        cart.discounts = this.cartDiscounts();
       }
 
       // Add additional storage if applicable
@@ -489,6 +527,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private premiumOrgUpgradeService: PremiumOrgUpgradeService,
+    private subscriptionDiscountService: SubscriptionDiscountService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -504,7 +543,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       await this.loadPlanData();
     }
 
-    this._familyPlan = await this.determineFamilyPlan();
+    this._familyPlan = PlanType.FamiliesAnnually;
 
     const currentPlan = this.currentPlan();
     if (currentPlan) {
@@ -525,9 +564,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {
@@ -546,6 +583,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.formGroup.valueChanges,
       this.billingFormGroup.valueChanges,
       this.secretsManagerForm.valueChanges,
+      this.eligibleDiscounts$,
     )
       .pipe(
         debounceTime(1000),
@@ -623,76 +661,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     return plan.PasswordManager.seatPrice * Math.abs(seats || 0);
   }
-
-  secretsManagerSeatTotal(plan: PlanResponse, seats: number): number {
-    if (!plan.SecretsManager.hasAdditionalSeatsOption) {
-      return 0;
-    }
-
-    return plan.SecretsManager.seatPrice * Math.abs(seats || 0);
-  }
-
-  additionalServiceAccountTotal(plan: PlanResponse): number {
-    if (!plan.SecretsManager.hasAdditionalServiceAccountOption) {
-      return 0;
-    }
-
-    return (
-      plan.SecretsManager.additionalPricePerServiceAccount *
-      Math.abs(this.secretsManagerForm.value.additionalServiceAccounts || 0)
-    );
-  }
-
-  get passwordManagerSubtotal() {
-    const plan = this.selectedPlan();
-    if (!plan) {
-      return 0;
-    }
-    const basePriceAfterDiscount = this.acceptingSponsorship()
-      ? Math.max(plan.PasswordManager.basePrice - this.discount, 0)
-      : plan.PasswordManager.basePrice;
-    let subTotal = basePriceAfterDiscount;
-    if (
-      plan.PasswordManager.hasAdditionalSeatsOption &&
-      this.formGroup.controls.additionalSeats.value
-    ) {
-      subTotal += this.passwordManagerSeatTotal(plan, this.formGroup.value.additionalSeats ?? 0);
-    }
-    if (
-      plan.PasswordManager.hasPremiumAccessOption &&
-      this.formGroup.controls.premiumAccessAddon.value
-    ) {
-      subTotal += plan.PasswordManager.premiumAccessOptionPrice;
-    }
-    if (
-      plan.PasswordManager.hasAdditionalStorageOption &&
-      this.formGroup.controls.additionalStorage.value
-    ) {
-      subTotal += this.additionalStorageTotal(plan);
-    }
-    return subTotal;
-  }
-
-  get secretsManagerSubtotal() {
-    const plan = this.selectedSecretsManagerPlan();
-    const formValues = this.secretsManagerForm.value;
-
-    if (!this.planOffersSecretsManager() || !formValues.enabled || !plan) {
-      return 0;
-    }
-
-    return (
-      plan.SecretsManager.basePrice +
-      this.secretsManagerSeatTotal(plan, formValues.userSeats ?? 0) +
-      this.additionalServiceAccountTotal(plan)
-    );
-  }
-
   get paymentDesc() {
     if (this.acceptingSponsorship()) {
       return this.i18nService.t("paymentSponsored");
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
-      return this.i18nService.t("paymentChargedWithTrial");
+      return this.i18nService.t(
+        "paymentChargedWithTrialSpecificLength",
+        this.trialLength() ?? this.selectedPlan()?.trialPeriodDays ?? DEFAULT_TRIAL_LENGTH_DAYS,
+      );
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval()));
     }
@@ -813,6 +789,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return;
       }
     }
+
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
       if (this.createOrganization()) {
@@ -865,6 +842,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.messagingService.send("organizationCreated", { organizationId });
     } catch (error: unknown) {
       if (error instanceof Error && error.message === "Payment method validation failed") {
+        return;
+      }
+      if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+        });
+        return;
+      }
+      if (this.subscriptionDiscountService.isDiscountExpiredError(error)) {
+        this.subscriptionDiscountService.refresh();
+        this.toastService.showToast({
+          variant: "warning",
+          message: this.i18nService.t("discountExpiredOnPurchase"),
+        });
         return;
       }
       throw error;
@@ -974,6 +966,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
             sponsoredForTaxPreview,
           ),
           billingAddress,
+          this.eligibleCouponIds(),
         );
 
       this.estimatedTax.set(taxAmounts.tax);
@@ -1037,16 +1030,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     orgKey: SymmetricCryptoKey;
     activeUserId: UserId;
   }): Promise<string> {
-    const request = new OrganizationCreateRequest();
-    request.key = encryptionData.key;
-    request.collectionName = encryptionData.collectionCt;
+    const request = new OrganizationCreateRequest(
+      encryptionData.key,
+      new OrganizationKeysRequest(
+        encryptionData.orgKeys[0],
+        encryptionData.orgKeys[1].encryptedString as string,
+      ),
+      encryptionData.collectionCt,
+    );
     request.name = this.formGroup.controls.name.value ?? "";
     request.billingEmail = this.formGroup.controls.billingEmail.value ?? "";
     request.initiationPath = "New organization creation in-product";
-    request.keys = new OrganizationKeysRequest(
-      encryptionData.orgKeys[0],
-      encryptionData.orgKeys[1].encryptedString as string,
-    );
 
     if (this.selectedPlan()!.type === PlanType.Free) {
       request.planType = PlanType.Free;
@@ -1083,6 +1077,15 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     // Secrets Manager
     this.buildSecretsManagerRequest(request);
+
+    if (this.eligibleCouponIds().length > 0) {
+      request.coupons = this.eligibleCouponIds();
+    }
+
+    const trialLength = this.trialLength();
+    if (trialLength !== undefined) {
+      request.trialLength = trialLength;
+    }
 
     if (this.hasProvider()) {
       const providerRequest = new ProviderOrganizationCreateRequest(
@@ -1184,13 +1187,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private planIsEnabled(plan: PlanResponse) {
     return !plan.disabled && !plan.legacyYear;
-  }
-
-  private async determineFamilyPlan(): Promise<PlanType> {
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    return milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025;
   }
 
   /**
@@ -1333,6 +1329,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const tier = this.premiumOrgUpgradeService.SubscriptionTierIdFromProductTier(
       this.formGroup.controls.productTier.value!,
     );
+
+    const paymentMethod = await this.enterPaymentMethodComponent()?.tokenize();
+    if (!paymentMethod) {
+      throw new Error("Payment method validation failed");
+    }
+
+    await this.subscriberBillingClient.updatePaymentMethod(
+      { type: "account", data: account },
+      paymentMethod,
+      {
+        country: this.billingFormGroup.value.billingAddress?.country ?? "",
+        postalCode: this.billingFormGroup.value.billingAddress?.postalCode ?? "",
+      },
+    );
+
     return await this.premiumOrgUpgradeService.upgradeToOrganization(
       account!,
       organizationName,

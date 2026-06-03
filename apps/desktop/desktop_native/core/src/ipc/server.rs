@@ -3,7 +3,7 @@
 use std::{
     collections::HashMap,
     error::Error,
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::{Arc, Mutex},
 };
 
@@ -49,8 +49,8 @@ type ClientSenders = Arc<Mutex<HashMap<u32, mpsc::Sender<String>>>>;
 
 /// IPC server that listens for client connections.
 pub struct Server {
-    /// Path to the IPC socket.
-    pub path: PathBuf,
+    /// The paths that the server is listening on
+    pub paths: Vec<PathBuf>,
     cancel_token: CancellationToken,
     server_to_clients_send: broadcast::Sender<String>,
     client_senders: ClientSenders,
@@ -66,26 +66,9 @@ impl Server {
     /// - `client_to_server_send`: This [`mpsc::Sender<Message>`] will receive all the [`Message`]'s
     ///   that the clients send to this server.
     pub fn start(
-        path: &Path,
+        paths: Vec<PathBuf>,
         client_to_server_send: mpsc::Sender<Message>,
     ) -> Result<Self, Box<dyn Error>> {
-        // If the unix socket file already exists, we get an error when trying to bind to it. So we
-        // remove it first. Any processes that were using the old socket should remain
-        // connected to it but any new connections will use the new socket.
-        if !cfg!(windows) {
-            let _ = std::fs::remove_file(path);
-        }
-
-        #[cfg(unix)]
-        let listener = UnixListener::bind(path)?;
-
-        #[cfg(not(unix))]
-        let listener = {
-            let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
-            let opts = ListenerOptions::new().name(name);
-            opts.create_tokio()?
-        };
-
         // This broadcast channel is used for sending messages to all connected clients, and so the
         // sender will be stored in the server while the receiver will be cloned and passed
         // to each client handler.
@@ -98,31 +81,68 @@ impl Server {
 
         let client_senders: ClientSenders = Arc::new(Mutex::new(HashMap::new()));
 
-        // Create the server and start listening for incoming connections
-        // in a separate task to avoid blocking the current task
+        for path in paths.iter() {
+            // If the unix socket file already exists, we get an error when trying to bind to it. So
+            // we remove it first. Any processes that were using the old socket should
+            // remain connected to it but any new connections will use the new socket.
+            if !cfg!(windows) && path.exists() {
+                info!("Removing existing IPC socket at: {}", path.display());
+                std::fs::remove_file(path)?;
+            }
+
+            let client_to_server_send = client_to_server_send.clone();
+            let server_to_clients_recv = server_to_clients_recv.resubscribe();
+            let cancel_token = cancel_token.clone();
+            let client_senders = client_senders.clone();
+
+            // Unix uses tokio's UnixListener so we can read peer credentials and identify the
+            // connecting application. Other platforms fall back to interprocess local sockets.
+            #[cfg(unix)]
+            {
+                let listener = match UnixListener::bind(path) {
+                    Ok(listener) => listener,
+                    Err(e) => {
+                        info!(
+                            "Failed to create IPC listener for path {}: {e}",
+                            path.display()
+                        );
+                        continue;
+                    }
+                };
+                tokio::spawn(listen_incoming_unix(
+                    listener,
+                    client_to_server_send,
+                    server_to_clients_recv,
+                    cancel_token,
+                    client_senders,
+                ));
+            }
+
+            #[cfg(not(unix))]
+            {
+                let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
+                let opts = ListenerOptions::new().name(name);
+                let Ok(listener) = opts.create_tokio() else {
+                    info!("Failed to create IPC listener for path: {}", path.display());
+                    continue;
+                };
+                tokio::spawn(listen_incoming_non_unix(
+                    listener,
+                    client_to_server_send,
+                    server_to_clients_recv,
+                    cancel_token,
+                    client_senders,
+                ));
+            }
+        }
+
+        // Create the server. The connection listeners were already spawned above, one per path.
         let server = Server {
-            path: path.to_owned(),
+            paths,
             cancel_token: cancel_token.clone(),
             server_to_clients_send,
-            client_senders: client_senders.clone(),
+            client_senders,
         };
-        #[cfg(unix)]
-        tokio::spawn(listen_incoming_unix(
-            listener,
-            client_to_server_send,
-            server_to_clients_recv,
-            cancel_token,
-            client_senders,
-        ));
-        #[cfg(not(unix))]
-        tokio::spawn(listen_incoming_non_unix(
-            listener,
-            client_to_server_send,
-            server_to_clients_recv,
-            cancel_token,
-            client_senders,
-        ));
-
         Ok(server)
     }
 

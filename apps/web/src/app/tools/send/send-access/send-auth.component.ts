@@ -16,16 +16,12 @@ import {
   SendOtp,
   SendTokenService,
 } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
@@ -65,11 +61,9 @@ export class SendAuthComponent implements OnInit {
 
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
-    private sendApiService: SendApiService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private formBuilder: FormBuilder,
-    private configService: ConfigService,
     private sendTokenService: SendTokenService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
@@ -83,12 +77,7 @@ export class SendAuthComponent implements OnInit {
     this.unavailable.set(false);
     this.error.set(false);
     try {
-      const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-      if (sendEmailOtp) {
-        await this.attemptV2Access();
-      } else {
-        await this.attemptV1Access();
-      }
+      await this.attemptAccess();
     } finally {
       this.loading.set(false);
     }
@@ -100,85 +89,28 @@ export class SendAuthComponent implements OnInit {
     this.updatePageTitle();
   }
 
-  private async attemptV1Access() {
-    try {
-      const accessRequest = new SendAccessRequest();
-      if (this.sendAuthType() === AuthType.Password) {
-        const password = this.sendAccessForm.value.password;
-        if (password == null) {
-          return;
-        }
-        accessRequest.password = await this.getPasswordHashB64(password, this.key());
-      }
-      const sendResponse = await this.sendApiService.postSendAccess(this.id(), accessRequest);
-      this.accessGranted.emit({ request: accessRequest, response: sendResponse });
-    } catch (e) {
-      if (e instanceof ErrorResponse) {
-        if (e.statusCode === 401) {
-          if (this.sendAuthType() === AuthType.Password) {
-            // Password was already required, so this is an invalid password error
-            const passwordControl = this.sendAccessForm.get("password");
-            if (passwordControl) {
-              passwordControl.setErrors({
-                invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
-              });
-              passwordControl.markAsTouched();
-            }
-          }
-          // Set auth type to Password (either first time or refresh)
-          this.sendAuthType.set(AuthType.Password);
-        } else if (e.statusCode === 400 && this.sendAuthType() === AuthType.Password) {
-          // Server returns 400 for SendAccessResult.PasswordInvalid
-          const passwordControl = this.sendAccessForm.get("password");
-          if (passwordControl) {
-            passwordControl.setErrors({
-              invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
-            });
-            passwordControl.markAsTouched();
-          }
-        } else if (e.statusCode === 404) {
-          this.unavailable.set(true);
-        } else {
-          this.error.set(true);
-          this.toastService.showToast({
-            variant: "error",
-            title: this.i18nService.t("errorOccurred"),
-            message: e.message,
-          });
-        }
-      } else {
-        this.error.set(true);
-      }
+  private async attemptAccess(): Promise<void> {
+    const authType = this.sendAuthType();
+
+    if (authType === AuthType.None) {
+      await this.getTokenWithRetry(null);
+      return;
+    }
+
+    if (authType === AuthType.Email) {
+      await this.handleEmailOtpAuth();
+    } else if (authType === AuthType.Password) {
+      await this.handlePasswordAuth();
     }
   }
 
-  private async attemptV2Access(): Promise<void> {
-    let sendAccessCreds: SendAccessDomainCredentials | null = null;
-    if (this.sendAuthType() === AuthType.Email) {
-      const email = this.sendAccessForm.value.email;
-      if (email == null) {
-        return;
-      }
-      if (!this.enterOtp()) {
-        sendAccessCreds = { kind: "email", email };
-      } else {
-        const otp = this.sendAccessForm.value.otp as SendOtp;
-        if (otp == null) {
-          return;
-        }
-        sendAccessCreds = { kind: "email_otp", email, otp };
-      }
-    } else if (this.sendAuthType() === AuthType.Password) {
-      const password = this.sendAccessForm.value.password;
-      if (password == null) {
-        return;
-      }
-      const passwordHashB64 = await this.getPasswordHashB64(password, this.key());
-      sendAccessCreds = { kind: "password", passwordHashB64 };
-    }
+  private async getTokenWithRetry(
+    sendAccessCreds: SendAccessDomainCredentials | null,
+  ): Promise<void> {
     const response = !sendAccessCreds
       ? await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(this.id()))
       : await firstValueFrom(this.sendTokenService.getSendAccessToken$(this.id(), sendAccessCreds));
+
     if (response instanceof SendAccessToken) {
       this.expiredAuthAttempts = 0;
       this.accessGranted.emit({ accessToken: response });
@@ -187,22 +119,30 @@ export class SendAuthComponent implements OnInit {
         return;
       }
       this.expiredAuthAttempts++;
-      await this.attemptV2Access();
+      await this.getTokenWithRetry(sendAccessCreds);
     } else if (response.kind === "expected_server") {
       this.expiredAuthAttempts = 0;
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
         this.updatePageTitle();
       } else if (emailAndOtpRequired(response.error)) {
-        this.enterOtp.set(true);
-        if (this.otpSubmitted) {
+        if (sendAccessCreds && sendAccessCreds.kind === "email" && this.enterOtp()) {
           this.toastService.showToast({
-            variant: "error",
-            title: this.i18nService.t("errorOccurred"),
-            message: this.i18nService.t("invalidEmailOrVerificationCode"),
+            variant: "success",
+            title: undefined,
+            message: this.i18nService.t("codeResent"),
           });
+        } else {
+          if (this.otpSubmitted) {
+            this.toastService.showToast({
+              variant: "error",
+              title: undefined,
+              message: this.i18nService.t("invalidVerificationCode"),
+            });
+          }
+          this.otpSubmitted = true;
         }
-        this.otpSubmitted = true;
+        this.enterOtp.set(true);
         this.updatePageTitle();
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
@@ -231,6 +171,55 @@ export class SendAuthComponent implements OnInit {
         message: response.error,
       });
     }
+  }
+
+  private async handleEmailOtpAuth(): Promise<void> {
+    const email = this.sendAccessForm.value.email;
+    if (email == null) {
+      return;
+    }
+
+    let sendAccessCreds: SendAccessDomainCredentials;
+    if (!this.enterOtp()) {
+      sendAccessCreds = { kind: "email", email };
+    } else {
+      const otp = this.sendAccessForm.value.otp as SendOtp;
+      if (otp == null || otp.trim() === "") {
+        this.toastService.showToast({
+          variant: "error",
+          title: undefined,
+          message: this.i18nService.t("invalidVerificationCode"),
+        });
+        return;
+      }
+      sendAccessCreds = { kind: "email_otp", email, otp };
+    }
+
+    await this.getTokenWithRetry(sendAccessCreds);
+  }
+
+  private async handlePasswordAuth(): Promise<void> {
+    const password = this.sendAccessForm.value.password;
+    if (password == null) {
+      return;
+    }
+    const passwordHashB64 = await this.getPasswordHashB64(password, this.key());
+    const sendAccessCreds: SendAccessDomainCredentials = { kind: "password", passwordHashB64 };
+
+    await this.getTokenWithRetry(sendAccessCreds);
+  }
+
+  async onResendCode() {
+    this.unavailable.set(false);
+    this.error.set(false);
+
+    const email = this.sendAccessForm.value.email;
+    if (email == null) {
+      return;
+    }
+
+    const sendAccessCreds: SendAccessDomainCredentials = { kind: "email", email };
+    await this.getTokenWithRetry(sendAccessCreds);
   }
 
   private async getPasswordHashB64(password: string, key: string) {

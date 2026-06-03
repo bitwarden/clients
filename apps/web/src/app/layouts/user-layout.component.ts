@@ -10,12 +10,11 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { PopoverModule, SvgModule } from "@bitwarden/components";
+import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -42,14 +41,13 @@ import { WebLayoutModule } from "./web-layout.module";
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((isDisabled) => !isDisabled),
+  protected readonly sendEnabled$: Observable<boolean> = this.sendPolicyService.disableSend$.pipe(
+    map((disableSend) => !disableSend),
   );
   protected subscriptionRoute$: Observable<string | null>;
 
   protected readonly coachmarkService = inject(CoachmarkService);
+  protected readonly sideNavService = inject(SideNavService);
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
@@ -68,15 +66,13 @@ export class UserLayoutComponent implements OnInit {
     private syncService: SyncService,
     private accountService: AccountService,
     private policyService: PolicyService,
-    private configService: ConfigService,
+    private sendPolicyService: SendPolicyService,
     private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          canAccessEmergencyAccess(userId, this.configService, this.policyService),
-        ),
+        switchMap((userId) => canAccessEmergencyAccess(userId, this.policyService)),
       ),
     );
 

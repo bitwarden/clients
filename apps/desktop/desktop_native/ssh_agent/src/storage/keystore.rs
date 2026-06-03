@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use anyhow::Result;
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
-use crate::crypto::{PublicKey, QueryableKeyData, SSHKeyData};
+use crate::crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData};
 #[cfg(test)]
 use crate::storage::keydata::MockQueryableKeyData;
 
@@ -33,17 +33,22 @@ pub trait KeyStore: Send + Sync {
     /// * `Err(_)` if an error occurred during retrieval
     fn get(&self, public_key: &PublicKey) -> Result<Option<Self::KeyData>>;
 
+    /// Retrieves the [`PrivateKey`] associated with the given [`PublicKey`].
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Some(PrivateKey))` if the key was found
+    /// * `Ok(None)` if no key with the given public key exists
+    /// * `Err(_)` if an error occurred during retrieval
+    fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>>;
+
     /// # Returns
     ///
     /// A vector of tuples containing each key's public key and human-readable name.
     fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
 
-    /// Signs data using the private key associated with the given [`PublicKey`].
-    ///
-    /// # Returns
-    ///
-    /// The signature bytes.
-    fn sign_data(&self, public_key: &PublicKey, data: &[u8]) -> Result<Vec<u8>>;
+    /// Atomically replaces all keys in the keystore.
+    fn replace(&self, keys: Vec<Self::KeyData>) -> Result<()>;
 
     /// Clears the keystore of all keys.
     fn clear(&self);
@@ -60,6 +65,7 @@ pub struct InMemoryEncryptedKeyStore {
 
 impl InMemoryEncryptedKeyStore {
     /// Create a new [`InMemoryEncryptedKeyStore`]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::new())),
@@ -110,8 +116,29 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .collect::<Result<Vec<_>, _>>()
     }
 
-    fn sign_data(&self, _public_key: &PublicKey, _data: &[u8]) -> Result<Vec<u8>> {
-        todo!();
+    fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>> {
+        Ok(self.get(public_key)?.map(|kd| kd.private_key().clone()))
+    }
+
+    fn replace(&self, new_keys: Vec<SSHKeyData>) -> Result<()> {
+        let entries = new_keys
+            .into_iter()
+            .map(|k| {
+                let pub_key = k.public_key().clone();
+                let bytes: Vec<u8> = k.try_into()?;
+                Ok((pub_key, bytes))
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        {
+            let mut store = self.secure_memory.lock().expect("Mutex is not poisoned");
+
+            store.clear();
+            for (pub_key, bytes) in entries {
+                store.put(pub_key, bytes.as_slice());
+            }
+        }
+        Ok(())
     }
 
     fn clear(&self) {
@@ -250,6 +277,61 @@ mod tests {
         assert_eq!(retrieved.cipher_id(), &expected_cipher_id);
         assert_eq!(retrieved.public_key(), &public_key);
         assert_eq!(retrieved.private_key(), &private_key);
+    }
+
+    #[test]
+    fn test_replace_on_empty_store_inserts_keys() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key1 = create_test_keydata_ed25519("key1", "cipher-1");
+        let key2 = create_test_keydata_rsa("key2", "cipher-2");
+
+        ks.replace(vec![key1, key2]).unwrap();
+
+        let result = ks.get_all_public_keys_and_names().unwrap();
+        assert_eq!(result.len(), 2);
+        let names: Vec<String> = result.iter().map(|(_, n)| n.clone()).collect();
+        assert!(names.contains(&"key1".to_string()));
+        assert!(names.contains(&"key2".to_string()));
+    }
+
+    #[test]
+    fn test_replace_removes_previous_keys() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let old_key = create_test_keydata_ed25519("old-key", "cipher-old");
+        ks.insert(old_key).unwrap();
+
+        let new_key = create_test_keydata_rsa("new-key", "cipher-new");
+        ks.replace(vec![new_key]).unwrap();
+
+        let result = ks.get_all_public_keys_and_names().unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].1, "new-key");
+    }
+
+    #[test]
+    fn test_replace_second_call_overwrites_first() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key1 = create_test_keydata_ed25519("key1", "cipher-1");
+        let key2 = create_test_keydata_rsa("key2", "cipher-2");
+
+        ks.replace(vec![key1]).unwrap();
+        ks.replace(vec![key2]).unwrap();
+
+        let result = ks.get_all_public_keys_and_names().unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].1, "key2");
+    }
+
+    #[test]
+    fn test_replace_with_empty_vec_clears_store() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key = create_test_keydata_ed25519("key", "cipher");
+        ks.insert(key).unwrap();
+
+        ks.replace(vec![]).unwrap();
+
+        let result = ks.get_all_public_keys_and_names().unwrap();
+        assert_eq!(result.len(), 0);
     }
 
     #[test]

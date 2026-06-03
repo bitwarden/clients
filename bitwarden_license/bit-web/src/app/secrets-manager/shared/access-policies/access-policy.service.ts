@@ -412,15 +412,21 @@ export class AccessPolicyService {
   ): Promise<ServiceAccountAccessPolicyView[]> {
     return await Promise.all(
       responses.map(async (response) => {
+        let serviceAccountName = null;
+        if (response.serviceAccountName) {
+          try {
+            serviceAccountName = await this.encryptService.decryptString(
+              new EncString(response.serviceAccountName),
+              orgKey,
+            );
+          } catch {
+            serviceAccountName = DECRYPT_ERROR;
+          }
+        }
         return {
           ...this.createBaseAccessPolicyView(response),
           serviceAccountId: response.serviceAccountId,
-          serviceAccountName: response.serviceAccountName
-            ? await this.encryptService.decryptString(
-                new EncString(response.serviceAccountName),
-                orgKey,
-              )
-            : null,
+          serviceAccountName,
         };
       }),
     );

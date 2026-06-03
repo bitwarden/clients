@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { LogService } from "@bitwarden/logging";
 
 import { BrowserApi } from "./browser-api";
+import { ExtensionInstallType } from "./extension-install-type";
 
 type ChromeSettingsGet = chrome.types.ChromeSetting<boolean>["get"];
 
@@ -28,6 +29,88 @@ describe("BrowserApi", () => {
       const result = BrowserApi.isManifestVersion(2);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("getInstallType", () => {
+    let originalIsWebExtensionsApi: boolean;
+    let originalIsChromeApi: boolean;
+
+    beforeEach(() => {
+      originalIsWebExtensionsApi = BrowserApi.isWebExtensionsApi;
+      originalIsChromeApi = BrowserApi.isChromeApi;
+    });
+
+    afterEach(() => {
+      BrowserApi.isWebExtensionsApi = originalIsWebExtensionsApi;
+      BrowserApi.isChromeApi = originalIsChromeApi;
+      delete (global.chrome as any).management;
+      delete (global as any).browser;
+    });
+
+    it.each([
+      ["admin", ExtensionInstallType.Admin],
+      ["development", ExtensionInstallType.Development],
+      ["normal", ExtensionInstallType.Normal],
+      ["sideload", ExtensionInstallType.Sideload],
+      ["other", ExtensionInstallType.Other],
+    ])("returns %s when chrome.management.getSelf reports it", async (raw, expected) => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({ installType: raw }),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(expected);
+    });
+
+    it("prefers browser.management.getSelf when isWebExtensionsApi is true", async () => {
+      BrowserApi.isWebExtensionsApi = true;
+      const browserGetSelf = jest.fn().mockResolvedValue({ installType: "admin" });
+      const chromeGetSelf = jest.fn().mockResolvedValue({ installType: "normal" });
+      (global as any).browser = { management: { getSelf: browserGetSelf } };
+      (global.chrome as any).management = { getSelf: chromeGetSelf };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Admin);
+      expect(browserGetSelf).toHaveBeenCalled();
+      expect(chromeGetSelf).not.toHaveBeenCalled();
+    });
+
+    it("returns Unknown when management.getSelf rejects", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockRejectedValue(new Error("not available")),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when the result has no installType", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({}),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when chrome.management is absent", async () => {
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when neither chrome nor browser is available", async () => {
+      BrowserApi.isWebExtensionsApi = false;
+      BrowserApi.isChromeApi = false;
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
     });
   });
 
@@ -320,9 +403,10 @@ describe("BrowserApi", () => {
   });
 
   describe("isPopupOpen", () => {
-    describe("when chrome.runtime.getContexts is available", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
       beforeEach(() => {
         (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
       });
 
       afterEach(() => {
@@ -352,9 +436,9 @@ describe("BrowserApi", () => {
       });
     });
 
-    describe("when chrome.runtime.getContexts is not available (MV2/Safari)", () => {
+    describe("when MV2, falls back to getExtensionViews", () => {
       beforeEach(() => {
-        delete (chrome.runtime as any).getContexts;
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
       });
 
       it("returns true if the popup is open", async () => {
@@ -368,13 +452,30 @@ describe("BrowserApi", () => {
 
         expect(await BrowserApi.isPopupOpen()).toBe(false);
       });
+
+      it("ignores getContexts even when available (Firefox MV2 background page bug)", async () => {
+        // Firefox 128+ exposes getContexts in MV2, but classifies the persistent
+        // background page as contextType "POPUP". Without the MV3 guard, this would
+        // cause isPopupOpen() to always return true and prevent vault timeout.
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/background.html" },
+          ]);
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+
+        delete (chrome.runtime as any).getContexts;
+      });
     });
   });
 
   describe("isAnyViewFocused", () => {
-    describe("when chrome.runtime.getContexts is available", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
       beforeEach(() => {
         (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
       });
 
       afterEach(() => {
@@ -434,8 +535,25 @@ describe("BrowserApi", () => {
       });
     });
 
-    describe("when chrome.runtime.getContexts is not available (MV2/Safari)", () => {
+    describe("when MV2, falls back to getExtensionViews", () => {
       beforeEach(() => {
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("ignores getContexts even when available (Firefox MV2 background page bug)", async () => {
+        // Firefox 128+ exposes getContexts in MV2, but classifies the persistent
+        // background page as contextType "POPUP". Without the MV3 guard, this would
+        // cause isAnyViewFocused() to permanently return true and block vault timeout.
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/background.html" },
+          ]);
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+
         delete (chrome.runtime as any).getContexts;
       });
 
@@ -975,4 +1093,70 @@ describe("BrowserApi", () => {
       );
     },
   );
+
+  describe("isSidePanelApiSupported", () => {
+    it("returns true when chrome.sidePanel is defined", () => {
+      (chrome as any).sidePanel = {};
+
+      expect(BrowserApi.isSidePanelApiSupported).toBe(true);
+
+      delete (chrome as any).sidePanel;
+    });
+
+    it("returns false when chrome.sidePanel is undefined", () => {
+      const original = (chrome as any).sidePanel;
+      delete (chrome as any).sidePanel;
+
+      expect(BrowserApi.isSidePanelApiSupported).toBe(false);
+
+      if (original !== undefined) {
+        (chrome as any).sidePanel = original;
+      }
+    });
+  });
+
+  describe("openSidePanel", () => {
+    it("calls chrome.sidePanel.open with the provided tabId when the API is supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const openSpy = jest.fn().mockResolvedValue(undefined);
+      (chrome as any).sidePanel = { open: openSpy };
+
+      await BrowserApi.openSidePanel({ tabId: 42 });
+
+      expect(openSpy).toHaveBeenCalledWith({ tabId: 42 });
+    });
+
+    it("returns without calling chrome.sidePanel.open when the API is not supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+      const openSpy = jest.fn();
+      (chrome as any).sidePanel = { open: openSpy };
+
+      await BrowserApi.openSidePanel({ tabId: 42 });
+
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setSidePanelOptions", () => {
+    it("calls chrome.sidePanel.setOptions with the provided options when the API is supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const setOptionsSpy = jest.fn().mockResolvedValue(undefined);
+      (chrome as any).sidePanel = { setOptions: setOptionsSpy };
+      const options = { path: "sidepanel.html", enabled: true, tabId: 1 };
+
+      await BrowserApi.setSidePanelOptions(options);
+
+      expect(setOptionsSpy).toHaveBeenCalledWith(options);
+    });
+
+    it("returns without calling chrome.sidePanel.setOptions when the API is not supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+      const setOptionsSpy = jest.fn();
+      (chrome as any).sidePanel = { setOptions: setOptionsSpy };
+
+      await BrowserApi.setSidePanelOptions({ path: "sidepanel.html" });
+
+      expect(setOptionsSpy).not.toHaveBeenCalled();
+    });
+  });
 });
