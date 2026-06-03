@@ -1,3 +1,4 @@
+import { _isNumberValue } from "@angular/cdk/coercion";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -26,7 +27,7 @@ import { ScrollLayoutDirective } from "../../layout";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
 import { SkeletonTextComponent } from "../../skeleton";
-import { sortRows } from "../table-data-source";
+import { SortDirection, SortFn } from "../table-data-source";
 
 import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
@@ -36,6 +37,71 @@ import { TableModel } from "./table-model";
 
 /** Grid track width for the internal selection (checkbox) column. */
 const SELECTION_COLUMN_WIDTH = "40px";
+
+/** Reads a column's value for default sorting, coercing numeric strings to numbers. */
+function sortAccessor<T>(row: T, column: string): string | number {
+  const value = (row as Record<string, unknown>)[column];
+  if (_isNumberValue(value)) {
+    const num = Number(value);
+    return num < Number.MAX_SAFE_INTEGER ? num : (value as string);
+  }
+  return value as string | number;
+}
+
+/**
+ * Returns a sorted copy of `data` by `column`/`direction`, using `fn` when the
+ * column supplies one. The default comparison (number/string coercion, null
+ * handling) is ported from Angular Material's `MatTableDataSource` (MIT,
+ * Copyright (c) 2024 Google LLC). v1's `TableDataSource` carries its own copy;
+ * the two are intentionally kept separate since v1 is on its way out.
+ */
+function sortRows<T>(
+  data: readonly T[],
+  column: string,
+  direction: SortDirection,
+  fn: SortFn | undefined,
+): T[] {
+  const dirMod = direction === "asc" ? 1 : -1;
+  return [...data].sort((a, b) => {
+    if (fn) {
+      return fn(a, b, direction) * dirMod;
+    }
+
+    let valueA = sortAccessor(a, column);
+    let valueB = sortAccessor(b, column);
+
+    // Coerce mismatched types to strings so they order consistently.
+    const typeA = typeof valueA;
+    const typeB = typeof valueB;
+    if (typeA !== typeB) {
+      if (typeA === "number") {
+        valueA += "";
+      }
+      if (typeB === "number") {
+        valueB += "";
+      }
+    }
+
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return valueA.localeCompare(valueB) * dirMod;
+    }
+
+    // Existing values sort before missing ones; equal/both-missing stay put.
+    let result = 0;
+    if (valueA != null && valueB != null) {
+      if (valueA > valueB) {
+        result = 1;
+      } else if (valueA < valueB) {
+        result = -1;
+      }
+    } else if (valueA != null) {
+      result = 1;
+    } else if (valueB != null) {
+      result = -1;
+    }
+    return result * dirMod;
+  });
+}
 
 @Component({
   selector: "bit-table-v2",
@@ -179,7 +245,7 @@ export class BitTableV2Component<T = unknown>
       return filtered;
     }
     const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-    return sortRows(filtered, { ...sort, fn: sort.fn ?? col?.sortFn() });
+    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
   });
 
   /** Index array for the skeleton rows shown while loading. */
