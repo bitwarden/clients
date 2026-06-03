@@ -1292,6 +1292,64 @@ describe("Cipher DTO", () => {
       expect(cipherData.data).toEqual(blobPayload);
       expect(finalSdkCipher.data).toEqual(blobPayload);
     });
+
+    it("does not construct per-type domain field when CipherData omits it (blob cipher)", () => {
+      const cipherData = new CipherData();
+      cipherData.id = "id";
+      cipherData.type = CipherType.Login;
+      cipherData.name = "EncryptedString";
+      cipherData.creationDate = "2022-01-01T12:00:00.000Z";
+      cipherData.revisionDate = "2022-01-31T12:00:00.000Z";
+      cipherData.data = blobPayload;
+      // login intentionally omitted — blob carries the per-type content
+
+      const cipher = new Cipher(cipherData);
+
+      expect(cipher.login).toBeUndefined();
+    });
+
+    it("does not construct per-type data field when CipherResponse omits it (blob cipher)", () => {
+      const response = {
+        id: "id",
+        type: CipherType.Login,
+        name: "EncryptedString",
+        creationDate: "2022-01-01T12:00:00.000Z",
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        data: blobPayload,
+        // login intentionally omitted
+      } as unknown as import("../../models/response/cipher.response").CipherResponse;
+
+      const cipherData = new CipherData(response);
+
+      expect(cipherData.login).toBeUndefined();
+      expect(cipherData.data).toEqual(blobPayload);
+    });
+
+    it("still populates attachments for a blob cipher", () => {
+      const cipherData = new CipherData();
+      cipherData.id = "id";
+      cipherData.type = CipherType.Login;
+      cipherData.name = "EncryptedString";
+      cipherData.creationDate = "2022-01-01T12:00:00.000Z";
+      cipherData.revisionDate = "2022-01-31T12:00:00.000Z";
+      cipherData.data = blobPayload;
+      cipherData.attachments = [
+        {
+          id: "a1",
+          url: "url",
+          size: "1100",
+          sizeName: "1.1 KB",
+          fileName: "file",
+          key: "EncKey",
+        },
+      ];
+
+      const cipher = new Cipher(cipherData);
+
+      expect(cipher.login).toBeUndefined();
+      expect(cipher.attachments).toHaveLength(1);
+      expect(cipher.attachments?.[0].id).toEqual("a1");
+    });
   });
 });
 

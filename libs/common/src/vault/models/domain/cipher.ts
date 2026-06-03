@@ -101,28 +101,28 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     switch (this.type) {
       case CipherType.Login:
-        this.login = new Login(obj.login);
+        this.login = obj.login && new Login(obj.login);
         break;
       case CipherType.SecureNote:
-        this.secureNote = new SecureNote(obj.secureNote);
+        this.secureNote = obj.secureNote && new SecureNote(obj.secureNote);
         break;
       case CipherType.Card:
-        this.card = new Card(obj.card);
+        this.card = obj.card && new Card(obj.card);
         break;
       case CipherType.Identity:
-        this.identity = new Identity(obj.identity);
+        this.identity = obj.identity && new Identity(obj.identity);
         break;
       case CipherType.SshKey:
-        this.sshKey = new SshKey(obj.sshKey);
+        this.sshKey = obj.sshKey && new SshKey(obj.sshKey);
         break;
       case CipherType.BankAccount:
-        this.bankAccount = new BankAccount(obj.bankAccount);
+        this.bankAccount = obj.bankAccount && new BankAccount(obj.bankAccount);
         break;
       case CipherType.DriversLicense:
-        this.driversLicense = new DriversLicense(obj.driversLicense);
+        this.driversLicense = obj.driversLicense && new DriversLicense(obj.driversLicense);
         break;
       case CipherType.Passport:
-        this.passport = new Passport(obj.passport);
+        this.passport = obj.passport && new Passport(obj.passport);
         break;
       default:
         break;

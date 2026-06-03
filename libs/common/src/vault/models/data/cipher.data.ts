@@ -77,28 +77,29 @@ export class CipherData {
 
     switch (this.type) {
       case CipherType.Login:
-        this.login = new LoginData(response.login);
+        this.login = response.login && new LoginData(response.login);
         break;
       case CipherType.SecureNote:
-        this.secureNote = new SecureNoteData(response.secureNote);
+        this.secureNote = response.secureNote && new SecureNoteData(response.secureNote);
         break;
       case CipherType.Card:
-        this.card = new CardData(response.card);
+        this.card = response.card && new CardData(response.card);
         break;
       case CipherType.Identity:
-        this.identity = new IdentityData(response.identity);
+        this.identity = response.identity && new IdentityData(response.identity);
         break;
       case CipherType.SshKey:
-        this.sshKey = new SshKeyData(response.sshKey);
+        this.sshKey = response.sshKey && new SshKeyData(response.sshKey);
         break;
       case CipherType.BankAccount:
-        this.bankAccount = new BankAccountData(response.bankAccount);
+        this.bankAccount = response.bankAccount && new BankAccountData(response.bankAccount);
         break;
       case CipherType.DriversLicense:
-        this.driversLicense = new DriversLicenseData(response.driversLicense);
+        this.driversLicense =
+          response.driversLicense && new DriversLicenseData(response.driversLicense);
         break;
       case CipherType.Passport:
-        this.passport = new PassportData(response.passport);
+        this.passport = response.passport && new PassportData(response.passport);
         break;
       default:
         break;

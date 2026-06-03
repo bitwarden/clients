@@ -62,6 +62,9 @@ export class CipherRequest {
 
     switch (this.type) {
       case CipherType.Login:
+        if (cipher.login == null) {
+          break;
+        }
         this.login = new LoginApi();
         this.login.uris =
           cipher.login.uris?.map((u) => {
@@ -107,10 +110,16 @@ export class CipherRequest {
         }
         break;
       case CipherType.SecureNote:
+        if (cipher.secureNote == null) {
+          break;
+        }
         this.secureNote = new SecureNoteApi();
         this.secureNote.type = cipher.secureNote.type;
         break;
       case CipherType.SshKey:
+        if (cipher.sshKey == null) {
+          break;
+        }
         this.sshKey = new SshKeyApi();
         this.sshKey.privateKey =
           cipher.sshKey.privateKey != null ? cipher.sshKey.privateKey.encryptedString : null;
@@ -122,6 +131,9 @@ export class CipherRequest {
             : null;
         break;
       case CipherType.Card:
+        if (cipher.card == null) {
+          break;
+        }
         this.card = new CardApi();
         this.card.cardholderName =
           cipher.card.cardholderName != null ? cipher.card.cardholderName.encryptedString : null;
@@ -134,6 +146,9 @@ export class CipherRequest {
         this.card.code = cipher.card.code != null ? cipher.card.code.encryptedString : null;
         break;
       case CipherType.Identity:
+        if (cipher.identity == null) {
+          break;
+        }
         this.identity = new IdentityApi();
         this.identity.title =
           cipher.identity.title != null ? cipher.identity.title.encryptedString : null;
@@ -177,6 +192,9 @@ export class CipherRequest {
             : null;
         break;
       case CipherType.BankAccount:
+        if (cipher.bankAccount == null) {
+          break;
+        }
         this.bankAccount = new BankAccountApi();
         this.bankAccount.bankName =
           cipher.bankAccount.bankName != null ? cipher.bankAccount.bankName.encryptedString : null;
@@ -214,6 +232,9 @@ export class CipherRequest {
             : null;
         break;
       case CipherType.DriversLicense:
+        if (cipher.driversLicense == null) {
+          break;
+        }
         this.driversLicense = new DriversLicenseApi();
         this.driversLicense.firstName =
           cipher.driversLicense.firstName != null
@@ -261,6 +282,9 @@ export class CipherRequest {
             : null;
         break;
       case CipherType.Passport:
+        if (cipher.passport == null) {
+          break;
+        }
         this.passport = new PassportApi();
         this.passport.surname =
           cipher.passport.surname != null ? cipher.passport.surname.encryptedString : null;
