@@ -257,6 +257,111 @@ describe("DefaultOrganizationInviteService", () => {
       expect(stored).toBeNull();
       expect(authService.logOut).not.toHaveBeenCalled();
     });
+
+    describe("acceptAndInitOrganization encryption guards", () => {
+      const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
+      let invite: OrganizationInvite;
+
+      beforeEach(() => {
+        invite = createOrgInvite({ initOrganization: true });
+        keyService.makeOrgKey.mockResolvedValue([
+          { encryptedString: "string" } as EncString,
+          mockOrgKey,
+        ]);
+        keyService.makeKeyPair.mockResolvedValue([
+          "orgPublicKey",
+          { encryptedString: "string" } as EncString,
+        ]);
+        encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      });
+
+      it("throws when the encrypted org key has a null encryptedString", async () => {
+        keyService.makeOrgKey.mockResolvedValue([
+          { encryptedString: null } as unknown as EncString,
+          mockOrgKey,
+        ]);
+
+        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
+          "Failed to encrypt organization init data.",
+        );
+        expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      });
+
+      it("throws when the encrypted org private key has a null encryptedString", async () => {
+        keyService.makeKeyPair.mockResolvedValue([
+          "orgPublicKey",
+          { encryptedString: null } as unknown as EncString,
+        ]);
+
+        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
+          "Failed to encrypt organization init data.",
+        );
+        expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      });
+
+      it("throws when the encrypted default collection has a null encryptedString", async () => {
+        encryptService.encryptString.mockResolvedValue({
+          encryptedString: null,
+        } as unknown as EncString);
+
+        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
+          "Failed to encrypt organization init data.",
+        );
+        expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("reset password enrollment errors", () => {
+      let invite: OrganizationInvite;
+
+      beforeEach(async () => {
+        invite = createOrgInvite();
+        // Pre-store the invite so the MP policy check is bypassed and we reach the accept path.
+        await sut.setOrganizationInvitation(invite);
+        policyApiService.getPoliciesByToken.mockResolvedValue([
+          { type: PolicyType.MasterPassword, enabled: true } as Policy,
+        ]);
+        policyService.getResetPasswordPolicyOptions.mockReturnValue([
+          { autoEnrollEnabled: true } as ResetPasswordPolicyOptions,
+          true,
+        ]);
+        organizationApiService.getKeys.mockResolvedValue(
+          new OrganizationKeysResponse({ privateKey: "privateKey", publicKey: "publicKey" }),
+        );
+        keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue({
+          encryptedString: "encryptedString",
+        } as EncString);
+      });
+
+      it("throws when organization keys cannot be fetched", async () => {
+        organizationApiService.getKeys.mockResolvedValue(null as any);
+
+        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow();
+        expect(i18nService.t).toHaveBeenCalledWith("resetPasswordOrgKeysError");
+        expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      });
+
+      it("throws when the user key is null", async () => {
+        keyService.userKey$.mockReturnValue(new BehaviorSubject(null as any));
+
+        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
+          "User key is required to enroll in password reset.",
+        );
+        expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      });
+
+      it("throws when the encapsulated user key has a null encryptedString", async () => {
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue({
+          encryptedString: null,
+        } as unknown as EncString);
+
+        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
+          "Failed to encrypt user key for password reset enrollment.",
+        );
+        expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe("getInvitePolicies", () => {
@@ -317,6 +422,27 @@ describe("DefaultOrganizationInviteService", () => {
 
       await sut.getInvitePolicies(invite);
       await sut.clearOrganizationInvitation();
+      await sut.getInvitePolicies(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("scopes the cache by invite token so distinct invites each hit the API", async () => {
+      const inviteA = createOrgInvite({ token: "tokenA" });
+      const inviteB = createOrgInvite({ token: "tokenB" });
+      policyApiService.getPoliciesByToken.mockResolvedValue([]);
+
+      await sut.getInvitePolicies(inviteA);
+      await sut.getInvitePolicies(inviteB);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not cache when the API returns null so subsequent calls retry", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
+
+      await sut.getInvitePolicies(invite);
       await sut.getInvitePolicies(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);

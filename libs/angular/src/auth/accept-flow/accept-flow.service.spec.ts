@@ -164,5 +164,46 @@ describe("AcceptFlowService", () => {
       expect(toastService.showToast).not.toHaveBeenCalled();
       expect(router.navigate).not.toHaveBeenCalled();
     });
+
+    it("calls authedHandler when the user is Locked", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Locked,
+      );
+      const config = buildConfig();
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(config.authedHandler).toHaveBeenCalledWith({
+        organizationId: "org-id",
+        token: "tok",
+      });
+      expect(config.unauthedHandler).not.toHaveBeenCalled();
+    });
+
+    it("treats non-Error throws from authedHandler as a null apiError", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Unlocked,
+      );
+      const config = buildConfig({
+        authedHandler: jest.fn().mockRejectedValue("plain string error"),
+      });
+
+      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+
+      expect(i18nService.t).toHaveBeenCalledWith("inviteAcceptFailed");
+      expect(i18nService.t).not.toHaveBeenCalledWith("inviteAcceptFailedShort", expect.anything());
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+
+    it("treats null queryParams as a missing-param error", async () => {
+      const config = buildConfig();
+
+      await sut.run(null as any, config);
+
+      expect(toastService.showToast).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      expect(config.authedHandler).not.toHaveBeenCalled();
+      expect(config.unauthedHandler).not.toHaveBeenCalled();
+    });
   });
 });
