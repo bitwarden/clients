@@ -3,10 +3,7 @@ use itertools::Itertools;
 use tracing::debug;
 use windows::Win32::{
     Foundation::{GetLastError, SetLastError, HWND, WIN32_ERROR},
-    UI::{
-        Input::KeyboardAndMouse::INPUT,
-        WindowsAndMessaging::{SetForegroundWindow, SwitchToThisWindow},
-    },
+    UI::{Input::KeyboardAndMouse::INPUT, WindowsAndMessaging::SetForegroundWindow},
 };
 
 mod type_input;
@@ -66,7 +63,6 @@ pub fn focus_window(hwnd: Vec<u8>, settle: bool) -> Result<()> {
 
     unsafe {
         let _ = SetForegroundWindow(hwnd);
-        SwitchToThisWindow(hwnd, true);
     }
 
     if settle {
