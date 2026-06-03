@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
 
-import { SharedModule } from "../../../../shared";
+import { CalloutComponent, CheckboxModule, FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BasePolicyEditComponent } from "../base-policy-edit.component";
 
 @Component({
@@ -14,7 +17,7 @@ import { BasePolicyEditComponent } from "../base-policy-edit.component";
       <bit-label>{{ "turnOn" | i18n }}</bit-label>
     </bit-form-control>
   `,
-  imports: [SharedModule],
+  imports: [ReactiveFormsModule, CalloutComponent, CheckboxModule, FormFieldModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SimpleTogglePolicyComponent extends BasePolicyEditComponent {}
