@@ -175,8 +175,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
 
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
-
   /**
    * Returns the list of copyable fields based on cipher type.
    * Used to render copy menu items dynamically.
