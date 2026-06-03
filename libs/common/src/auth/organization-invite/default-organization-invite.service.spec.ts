@@ -188,6 +188,25 @@ describe("DefaultOrganizationInviteService", () => {
       expect(stored).toBeNull();
     });
 
+    it("fetches policies once when accepting an invite with non-MP policies and no stored invite", async () => {
+      // Regression: the email-mismatch guard in masterPasswordPolicyCheckRequired
+      // ran clearOrganizationInvitation when storedInvite was null, wiping the
+      // freshly-populated policyCache and forcing resetPasswordEnrollRequired to
+      // re-fetch the same policies during the same accept() call.
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        { type: PolicyType.SingleOrg, enabled: true } as Policy,
+      ]);
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        false,
+      ]);
+
+      await sut.validateAndAcceptInvite(invite, activeUserId);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
+    });
+
     it("accepts the invitation request when the org has a master password policy, but the user has already passed it and autoenroll is not enabled", async () => {
       const invite = createOrgInvite();
       // Pre-store the invite to indicate the user has already passed the MP policy check.

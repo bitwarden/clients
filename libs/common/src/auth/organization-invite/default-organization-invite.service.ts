@@ -229,7 +229,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     );
 
     let storedInvite = await this.getOrganizationInvite();
-    if (storedInvite?.email !== invite.email) {
+    if (storedInvite != null && storedInvite.email !== invite.email) {
       // clear stored invites if the email doesn't match
       await this.clearOrganizationInvitation();
       storedInvite = null;
