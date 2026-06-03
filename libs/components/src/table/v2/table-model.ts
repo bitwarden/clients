@@ -1,11 +1,9 @@
 import { computed, Signal, signal, WritableSignal } from "@angular/core";
 
-import { Sort } from "../table-data-source";
-
 import { ColumnName, ColumnRefs, createColumnRefs } from "./column";
 import { FilterDefinition, FiltersModel } from "./filters-model";
 import { SearchModel } from "./search-model";
-import { SortModel } from "./sort-model";
+import { SortModel, SortState } from "./sort-model";
 import { TableSelectionModel } from "./table-selection-model";
 
 export type TableModelConfig<T, S extends string, F extends string = string> = {
@@ -14,7 +12,7 @@ export type TableModelConfig<T, S extends string, F extends string = string> = {
   /** Loading state. When `true`, the table shows skeleton rows. e.g. a resource's `isLoading`. */
   loading?: Signal<boolean>;
   /** Initial sort. Header clicks update it; read or set {@link TableModel.sort} (a {@link SortModel}) programmatically. */
-  sort?: Sort;
+  sort?: SortState<ColumnName<T, S>>;
   /**
    * The columns to display, in order. A column is shown iff it appears here, at
    * the position it appears. Reorder or hide at runtime via
@@ -59,7 +57,7 @@ export class TableModel<T, S extends string = never, F extends string = string> 
   readonly loading: Signal<boolean>;
 
   /** Active sort state and transitions — read `sort.current`, call `sort.toggle`. */
-  readonly sort: SortModel;
+  readonly sort: SortModel<ColumnName<T, S>>;
 
   /**
    * Typed column references for `*bitCellDef` — `table.columns.email` is a
@@ -93,7 +91,7 @@ export class TableModel<T, S extends string = never, F extends string = string> 
   constructor(config: TableModelConfig<T, S, F>) {
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
-    this.sort = new SortModel(config.sort);
+    this.sort = new SortModel<ColumnName<T, S>>(config.sort);
     this.columns = createColumnRefs<T, S>();
     this.displayedColumns = signal(config.displayedColumns);
     this.search = new SearchModel<T>(config.search);

@@ -33,6 +33,7 @@ import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { SortModel } from "./sort-model";
 import { TableModel } from "./table-model";
 
 /** Grid track width for the internal selection (checkbox) column. */
@@ -278,7 +279,7 @@ export class BitTableV2Component<T = unknown>
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
     const name = defaultCol?.name();
     if (name) {
-      this.table().sort.applyInitial(name, defaultCol!.defaultSort() ?? "asc");
+      this.sortModel().applyInitial(name, defaultCol!.defaultSort() ?? "asc");
     }
   }
 
@@ -308,6 +309,17 @@ export class BitTableV2Component<T = unknown>
     if (!name) {
       return;
     }
-    this.table().sort.toggle(name, col.defaultSort() ?? "asc");
+    this.sortModel().toggle(name, col.defaultSort() ?? "asc");
+  }
+
+  /**
+   * The model's sort model viewed with plain `string` columns. A column key
+   * resolved from a projected `<bit-column>` is type-erased to `string` (see
+   * {@link BitCellDefDirective}), so internal toggles bypass the typed
+   * `SortModel<ColumnName<T, S>>` surface — which exists for typed imperative
+   * use off `TableModel` by consumers.
+   */
+  private sortModel(): SortModel<string> {
+    return this.table().sort as unknown as SortModel<string>;
   }
 }
