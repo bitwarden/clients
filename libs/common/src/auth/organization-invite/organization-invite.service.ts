@@ -2,6 +2,11 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { UserId } from "@bitwarden/user-core";
 
+/**
+ * Owns the in-flight organization invite: persisted across login/register/MP-policy
+ * detours, then consumed when the user accepts (or stashed and reloaded if an MP
+ * policy check redirects them through re-auth first).
+ */
 export abstract class OrganizationInviteService {
   /**
    * Returns the currently stored organization invite

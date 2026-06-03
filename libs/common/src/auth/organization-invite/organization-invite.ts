@@ -22,6 +22,12 @@ export interface OrganizationInviteUrlParams {
   orgSsoIdentifier?: string;
 }
 
+/**
+ * Domain object representing one organization invite. Hydrated either from the
+ * server's emailed-link query string ({@link fromUrlParams}) or from persisted
+ * state ({@link fromJSON}). Required fields are enforced by the constructor; both
+ * factories return null when their input is missing or malformed.
+ */
 export class OrganizationInvite {
   email: string;
   initOrganization: boolean;
