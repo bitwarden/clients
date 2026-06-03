@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
@@ -21,7 +21,6 @@ export class AcceptOrganizationComponent implements OnInit {
   loading = true;
 
   private readonly failedMessage = "inviteAcceptFailed";
-  private readonly requiredParameters = ["organizationId", "organizationUserId", "token"];
 
   constructor(
     private router: Router,
@@ -35,24 +34,17 @@ export class AcceptOrganizationComponent implements OnInit {
 
   async ngOnInit() {
     const qParams = await firstValueFrom(this.route.queryParams);
-    await this.acceptFlowService.run(qParams, {
-      requiredParameters: this.requiredParameters,
+    await this.acceptFlowService.run<OrganizationInvite>(qParams, {
       failedMessage: this.failedMessage,
-      authedHandler: (p) => this.authedHandler(p),
-      unauthedHandler: (p) => this.unauthedHandler(p),
+      parse: (p) => OrganizationInvite.fromUrlParams(p ?? {}),
+      authedHandler: (invite) => this.authedHandler(invite),
+      unauthedHandler: (invite) => this.unauthedHandler(invite),
       getErrorMessage: (apiError) => this.getErrorMessage(apiError),
     });
     this.loading = false;
   }
 
-  private async authedHandler(qParams: Params): Promise<void> {
-    const invite = OrganizationInvite.fromUrlParams(qParams);
-    if (invite === null) {
-      // AcceptFlowService handles thrown errors in authedHandler, but for clarity and
-      // consistency with unauthedHandler we handle invalid-invite redirect inline here.
-      return await this.handleInvalidInvite();
-    }
-
+  private async authedHandler(invite: OrganizationInvite): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const success = await this.organizationInviteService.validateAndAcceptInvite(
       invite,
@@ -74,14 +66,7 @@ export class AcceptOrganizationComponent implements OnInit {
     await this.router.navigate(["/"]);
   }
 
-  private async unauthedHandler(qParams: Params): Promise<void> {
-    const invite = OrganizationInvite.fromUrlParams(qParams);
-    if (invite === null) {
-      // AcceptFlowService does not handle errors thrown from unauthedHandler, so we must
-      // handle the invalid-invite redirect inline here.
-      return await this.handleInvalidInvite();
-    }
-
+  private async unauthedHandler(invite: OrganizationInvite): Promise<void> {
     await this.organizationInviteService.setOrganizationInvitation(invite);
     await this.navigateInviteAcceptance(invite);
   }
@@ -132,16 +117,6 @@ export class AcceptOrganizationComponent implements OnInit {
         email: invite.email,
       },
     });
-    return;
-  }
-
-  private async handleInvalidInvite(): Promise<void> {
-    this.toastService.showToast({
-      message: this.i18nService.t(this.failedMessage),
-      variant: "error",
-      timeout: 10000,
-    });
-    await this.router.navigate(["/"]);
     return;
   }
 }

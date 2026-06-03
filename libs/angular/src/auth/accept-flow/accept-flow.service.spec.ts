@@ -9,6 +9,8 @@ import { ToastService } from "@bitwarden/components";
 
 import { AcceptFlowConfig, AcceptFlowService } from "./accept-flow.service";
 
+type TestInvite = { id: string; token: string };
+
 describe("AcceptFlowService", () => {
   let sut: AcceptFlowService;
   let authService: MockProxy<AuthService>;
@@ -16,7 +18,8 @@ describe("AcceptFlowService", () => {
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
 
-  const requiredParameters = ["organizationId", "token"];
+  const validParams = { id: "org-id", token: "tok" };
+  const parsedInvite: TestInvite = { id: "org-id", token: "tok" };
 
   beforeEach(() => {
     authService = mock<AuthService>();
@@ -32,10 +35,15 @@ describe("AcceptFlowService", () => {
     i18nService.t.mockImplementation((key: string) => key);
   });
 
-  function buildConfig(overrides: Partial<AcceptFlowConfig> = {}): AcceptFlowConfig {
+  function buildConfig(
+    overrides: Partial<AcceptFlowConfig<TestInvite>> = {},
+  ): AcceptFlowConfig<TestInvite> {
     return {
-      requiredParameters,
       failedMessage: "inviteAcceptFailed",
+      parse: (p) =>
+        p != null && typeof p.id === "string" && typeof p.token === "string"
+          ? { id: p.id, token: p.token }
+          : null,
       authedHandler: jest.fn(),
       unauthedHandler: jest.fn(),
       ...overrides,
@@ -43,10 +51,10 @@ describe("AcceptFlowService", () => {
   }
 
   describe("run", () => {
-    it("shows the failed-message toast and redirects to / when a required param is missing", async () => {
+    it("shows the failed-message toast and redirects to / when parse returns null", async () => {
       const config = buildConfig();
 
-      await sut.run({ organizationId: "org-id" /* token missing */ }, config);
+      await sut.run({ id: "org-id" /* token missing */ }, config);
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         message: "inviteAcceptFailed",
@@ -58,39 +66,36 @@ describe("AcceptFlowService", () => {
       expect(config.unauthedHandler).not.toHaveBeenCalled();
     });
 
-    it("shows the failed-message toast when a required param is empty string", async () => {
+    it("calls unauthedHandler with the parsed invite when the user is logged out", async () => {
       const config = buildConfig();
 
-      await sut.run({ organizationId: "org-id", token: "" }, config);
+      await sut.run(validParams, config);
 
-      expect(toastService.showToast).toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(["/"]);
-    });
-
-    it("calls unauthedHandler when the user is logged out", async () => {
-      const config = buildConfig();
-
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
-
-      expect(config.unauthedHandler).toHaveBeenCalledWith({
-        organizationId: "org-id",
-        token: "tok",
-      });
+      expect(config.unauthedHandler).toHaveBeenCalledWith(parsedInvite);
       expect(config.authedHandler).not.toHaveBeenCalled();
     });
 
-    it("calls authedHandler when the user has any non-LoggedOut status", async () => {
+    it("calls authedHandler with the parsed invite when the user has any non-LoggedOut status", async () => {
       authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
         AuthenticationStatus.Unlocked,
       );
       const config = buildConfig();
 
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+      await sut.run(validParams, config);
 
-      expect(config.authedHandler).toHaveBeenCalledWith({
-        organizationId: "org-id",
-        token: "tok",
-      });
+      expect(config.authedHandler).toHaveBeenCalledWith(parsedInvite);
+      expect(config.unauthedHandler).not.toHaveBeenCalled();
+    });
+
+    it("calls authedHandler when the user is Locked", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Locked,
+      );
+      const config = buildConfig();
+
+      await sut.run(validParams, config);
+
+      expect(config.authedHandler).toHaveBeenCalledWith(parsedInvite);
       expect(config.unauthedHandler).not.toHaveBeenCalled();
     });
 
@@ -102,9 +107,21 @@ describe("AcceptFlowService", () => {
         authedHandler: jest.fn().mockRejectedValue(new Error("API exploded")),
       });
 
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+      await sut.run(validParams, config);
 
       expect(i18nService.t).toHaveBeenCalledWith("inviteAcceptFailedShort", "API exploded");
+      expect(toastService.showToast).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+
+    it("handles errors thrown by unauthedHandler with the default short message", async () => {
+      const config = buildConfig({
+        unauthedHandler: jest.fn().mockRejectedValue(new Error("boom")),
+      });
+
+      await sut.run(validParams, config);
+
+      expect(i18nService.t).toHaveBeenCalledWith("inviteAcceptFailedShort", "boom");
       expect(toastService.showToast).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(["/"]);
     });
@@ -118,7 +135,7 @@ describe("AcceptFlowService", () => {
         authedHandler: jest.fn().mockRejectedValue(new Error("API exploded")),
       });
 
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+      await sut.run(validParams, config);
 
       expect(i18nService.t).toHaveBeenCalledWith("customShort", "API exploded");
     });
@@ -133,7 +150,7 @@ describe("AcceptFlowService", () => {
         getErrorMessage,
       });
 
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+      await sut.run(validParams, config);
 
       expect(getErrorMessage).toHaveBeenCalledWith("Expired token.");
       expect(toastService.showToast).toHaveBeenCalledWith({
@@ -143,41 +160,13 @@ describe("AcceptFlowService", () => {
       });
     });
 
-    it("uses config.getErrorMessage with null when missing-param triggers the error path", async () => {
+    it("uses config.getErrorMessage with null when parse returns null", async () => {
       const getErrorMessage = jest.fn().mockReturnValue("custom-message");
       const config = buildConfig({ getErrorMessage });
 
-      await sut.run({ organizationId: "org-id" /* missing token */ }, config);
+      await sut.run({ id: "org-id" /* missing token */ }, config);
 
       expect(getErrorMessage).toHaveBeenCalledWith(null);
-    });
-
-    it("does not call handleError when unauthedHandler throws (only authedHandler is wrapped)", async () => {
-      const config = buildConfig({
-        unauthedHandler: jest.fn().mockRejectedValue(new Error("boom")),
-      });
-
-      await expect(sut.run({ organizationId: "org-id", token: "tok" }, config)).rejects.toThrow(
-        "boom",
-      );
-
-      expect(toastService.showToast).not.toHaveBeenCalled();
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-
-    it("calls authedHandler when the user is Locked", async () => {
-      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
-        AuthenticationStatus.Locked,
-      );
-      const config = buildConfig();
-
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
-
-      expect(config.authedHandler).toHaveBeenCalledWith({
-        organizationId: "org-id",
-        token: "tok",
-      });
-      expect(config.unauthedHandler).not.toHaveBeenCalled();
     });
 
     it("treats non-Error throws from authedHandler as a null apiError", async () => {
@@ -188,14 +177,14 @@ describe("AcceptFlowService", () => {
         authedHandler: jest.fn().mockRejectedValue("plain string error"),
       });
 
-      await sut.run({ organizationId: "org-id", token: "tok" }, config);
+      await sut.run(validParams, config);
 
       expect(i18nService.t).toHaveBeenCalledWith("inviteAcceptFailed");
       expect(i18nService.t).not.toHaveBeenCalledWith("inviteAcceptFailedShort", expect.anything());
       expect(router.navigate).toHaveBeenCalledWith(["/"]);
     });
 
-    it("treats null queryParams as a missing-param error", async () => {
+    it("treats null queryParams as an invalid-link error", async () => {
       const config = buildConfig();
 
       await sut.run(null as any, config);

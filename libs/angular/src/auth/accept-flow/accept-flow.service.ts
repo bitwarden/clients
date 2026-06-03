@@ -7,12 +7,19 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
-export interface AcceptFlowConfig {
-  requiredParameters: string[];
+export interface AcceptFlowConfig<TInvite> {
+  /** Toast i18n key used when no API error message is available (invalid link, non-Error throw). */
   failedMessage: string;
+  /** Toast i18n key used when a handler throws an Error; the message is interpolated as the placeholder. */
   failedShortMessage?: string;
-  authedHandler: (params: Params) => Promise<void>;
-  unauthedHandler: (params: Params) => Promise<void>;
+  /**
+   * Parses raw query params into the typed shape the flow needs. Return null to signal an invalid
+   * link - the service then short-circuits to the failed-toast + redirect path before dispatching.
+   */
+  parse: (params: Params | null) => TInvite | null;
+  authedHandler: (invite: TInvite) => Promise<void>;
+  unauthedHandler: (invite: TInvite) => Promise<void>;
+  /** Override default error-message resolution. Receives the API error message, or null for invalid-link. */
   getErrorMessage?: (apiError: string | null) => string;
 }
 
@@ -25,31 +32,29 @@ export class AcceptFlowService {
     private toastService: ToastService,
   ) {}
 
-  async run(queryParams: Params, config: AcceptFlowConfig): Promise<void> {
-    const missingParam = config.requiredParameters.some(
-      (p) => queryParams?.[p] == null || queryParams[p] === "",
-    );
-
-    if (missingParam) {
+  async run<TInvite>(queryParams: Params, config: AcceptFlowConfig<TInvite>): Promise<void> {
+    const invite = config.parse(queryParams);
+    if (invite == null) {
       await this.handleError(null, config);
       return;
     }
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
+    const handler =
+      status !== AuthenticationStatus.LoggedOut ? config.authedHandler : config.unauthedHandler;
 
-    if (status !== AuthenticationStatus.LoggedOut) {
-      try {
-        await config.authedHandler(queryParams);
-      } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : null;
-        await this.handleError(message, config);
-      }
-    } else {
-      await config.unauthedHandler(queryParams);
+    try {
+      await handler(invite);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : null;
+      await this.handleError(message, config);
     }
   }
 
-  private async handleError(apiError: string | null, config: AcceptFlowConfig): Promise<void> {
+  private async handleError<TInvite>(
+    apiError: string | null,
+    config: AcceptFlowConfig<TInvite>,
+  ): Promise<void> {
     const message = config.getErrorMessage
       ? config.getErrorMessage(apiError)
       : this.defaultErrorMessage(apiError, config);
@@ -58,7 +63,10 @@ export class AcceptFlowService {
     await this.router.navigate(["/"]);
   }
 
-  private defaultErrorMessage(apiError: string | null, config: AcceptFlowConfig): string {
+  private defaultErrorMessage<TInvite>(
+    apiError: string | null,
+    config: AcceptFlowConfig<TInvite>,
+  ): string {
     const shortKey = config.failedShortMessage ?? "inviteAcceptFailedShort";
     return apiError != null
       ? this.i18nService.t(shortKey, apiError)
