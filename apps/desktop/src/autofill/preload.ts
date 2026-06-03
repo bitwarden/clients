@@ -194,7 +194,7 @@ export default {
         _event,
         data: {
           windowTitle: string;
-          windowHandle: Buffer;
+          windowHandle: number[];
         },
       ) => {
         const { windowTitle, windowHandle } = data;

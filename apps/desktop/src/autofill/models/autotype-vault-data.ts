@@ -5,5 +5,5 @@
 export interface AutotypeVaultData {
   username: string;
   password: string;
-  windowHandle?: Buffer;
+  windowHandle?: number[];
 }

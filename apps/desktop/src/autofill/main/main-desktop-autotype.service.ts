@@ -104,7 +104,7 @@ export class MainDesktopAutotypeService {
         const windowTitle = autotype.getForegroundWindowTitle();
         const windowHandle = autotype.getForegroundWindowHandle();
 
-        const { response } = await dialog.showMessageBox(this.windowMain.win, {
+        const { response } = await dialog.showMessageBox({
           type: "question",
           buttons: ["Yes", "No"],
           defaultId: 0,
