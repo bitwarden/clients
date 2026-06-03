@@ -86,6 +86,7 @@ import {
   specialCharacterToKeyMap,
 } from "../utils";
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
+import { getSubFrameUrlVariations } from "../utils/url-variations";
 
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
@@ -1109,6 +1110,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * dispatches `applyTargetedFields` so the iframe's own content script can build
    * its AutofillFields and report back with the correct sub-frame `frameId`.
    *
+   * Frame matching uses the URL variation set to tolerate normalization
+   * differences (trailing slashes, missing components, etc.) between the
+   * iframe's reported `src` and the URL `webNavigation` reports. Ambiguous
+   * matches (multiple frames matching the same variation) are dropped to
+   * avoid routing to the wrong frame; this mirrors the sub-frame offset
+   * resolution policy. Send failures (e.g. sandboxed iframes that refuse
+   * messages) are logged and otherwise ignored — the destination frame's
+   * content script self-gates on sandbox restrictions.
+   *
    * @param tab - The tab the message originated from
    * @param message - The message containing `iframeSrc` and `iframeTargetedFields`
    */
@@ -1126,15 +1136,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const targetFrame = frames.find((f) => f.url === iframeSrc);
-    if (!targetFrame) {
+    const variations = getSubFrameUrlVariations(iframeSrc);
+    const candidates = variations
+      ? frames.filter((f) => variations.has(f.url))
+      : frames.filter((f) => f.url === iframeSrc);
+
+    if (candidates.length === 0) {
+      this.logService.debug(
+        `[OverlayBackground] No frame matched iframeSrc for targeted field routing: ${iframeSrc}`,
+      );
+      return;
+    }
+
+    if (candidates.length > 1) {
+      this.logService.debug(
+        `[OverlayBackground] Ambiguous frame match for targeted field routing: ${iframeSrc}`,
+      );
       return;
     }
 
     await BrowserApi.tabSendMessage(
       tab,
       { command: "applyTargetedFields", iframeTargetedFields },
-      { frameId: targetFrame.frameId },
+      { frameId: candidates[0].frameId },
+    ).catch((error) =>
+      this.logService.debug(
+        `[OverlayBackground] Failed to send applyTargetedFields to frame: ${(error as Error)?.message ?? error}`,
+      ),
     );
   }
 
