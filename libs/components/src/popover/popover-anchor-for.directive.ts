@@ -20,6 +20,11 @@ import { PositionIdentifier, defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
+/** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
+export abstract class PopoverElementProvider {
+  abstract readonly popoverAnchorElementRef: ElementRef<HTMLElement>;
+}
+
 /**
  * Directive that anchors a popover to any element with programmatic open/close control.
  * Use `[(popoverOpen)]` for two-way binding to control visibility from the host component.
@@ -39,7 +44,7 @@ import { SpotlightService } from "./spotlight.service";
  * <div [bitPopoverAnchorFor]="myPopover"
  *      [(popoverOpen)]="isOpen"
  *      [spotlight]="true"
- *      [spotlightPadding]="12">
+ * >
  *   Anchor element
  * </div>
  * ```
@@ -66,10 +71,14 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
 
-  /** Padding around the spotlight cutout in pixels */
-  readonly spotlightPadding = input<number>(0);
+  private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
+    host: true,
+    optional: true,
+  });
+  private readonly elementRef = this.popoverElementProvider
+    ? this.popoverElementProvider.popoverAnchorElementRef
+    : inject<ElementRef<HTMLElement>>(ElementRef);
 
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly overlay = inject(Overlay);
 
@@ -146,7 +155,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+      this.spotlightService.showSpotlight(this.elementRef.nativeElement);
     }
 
     this.popoverOpen.set(true);

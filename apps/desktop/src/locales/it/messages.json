@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Dettagli bancari"
   },
+  "typePassport": {
+    "message": "Passaporto"
+  },
+  "passportDetails": {
+    "message": "Dettagli passaporto"
+  },
+  "passportAdded": {
+    "message": "Passaporto aggiunto"
+  },
+  "typePassportSubtitle": {
+    "message": "Documento di viaggio"
+  },
   "folderSubtitle": {
     "message": "Organizza i tuoi elementi"
   },
   "collectionSubtitle": {
     "message": "Organizza gli elementi condivisi"
+  },
+  "typeDriversLicense": {
+    "message": "Patente"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Carta d'identità o patente"
   },
   "chooseItemToAdd": {
     "message": "Scegli un elemento da aggiungere"
@@ -144,7 +162,7 @@
     "message": "Visualizza account bancario",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Visualizza patente",
     "description": "Header for view license item type"
   },
@@ -208,7 +226,7 @@
     "message": "Modifica account bancario",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Modifica patente",
     "description": "Header for edit license item type"
   },
@@ -272,20 +290,20 @@
   "sendTypeTextToShare": {
     "message": "Testo da condividere"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nuovo Send (testo)",
+  "newItemHeaderTextSendV2": {
+    "message": "Nuovo testo",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nuovo Send (file)",
+  "newItemHeaderFileSendV2": {
+    "message": "Nuovo file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Modifica Send testuale",
+  "editItemHeaderTextSendV2": {
+    "message": "Modifica testo",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Modifica Send con file",
+  "editItemHeaderFileSendV2": {
+    "message": "Modifica file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Numero passaporto"
+  },
+  "sex": {
+    "message": "Genere"
+  },
+  "copySex": {
+    "message": "Copia genere"
+  },
+  "birthPlace": {
+    "message": "Luogo di nascita"
+  },
+  "copyBirthPlace": {
+    "message": "Copia luogo di nascita"
+  },
+  "nationality": {
+    "message": "Nazionalità"
+  },
+  "copyNationality": {
+    "message": "Copia nazionalità"
+  },
+  "copyIssuingCountry": {
+    "message": "Copia il paese di emissione"
+  },
+  "passportType": {
+    "message": "Tipo di passaporto"
+  },
+  "copyPassportType": {
+    "message": "Copia tipo di passaporto"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copia numero di identificazione nazionale"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Numero identificativo nazionale"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copia autorità di rilascio / ufficio"
   },
   "licenseNumber": {
     "message": "Numero patente"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Non ci sono elementi da mostrare."
   },
+  "noValueEntered": {
+    "message": "Nessun valore inserito",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Invia un codice di verifica alla tua email"
   },
@@ -1755,6 +1813,10 @@
     "message": "Copia numero",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copia nome",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Copia email"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Seleziona tutto"
+  },
+  "selected": {
+    "message": "Selezionato"
+  },
+  "bulkActionsBar": {
+    "message": "Azioni massive"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ elementi selezionati. Le azioni di massa sono ora disponibili nella parte inferiore dello schermo. Premi $SHORTCUTBINDING$ per attivare o disattivare il focus sulla barra.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selezione azzerata"
+  },
+  "additionalActions": {
+    "message": "Altre azioni"
   },
   "zoomIn": {
     "message": "Ingrandisci"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "L'eliminazione del tuo account è permanente. Non può essere annullata."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Sei il proprietario di almeno un'organizzazione. L'eliminazione del tuo account cancellerà anche tutte le organizzazioni di cui sei l'unico proprietario."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Non puoi eliminare il tuo account mentre sei il proprietario di un'organizzazione. Trasferisci prima la proprietà o elimina l'organizzazione."
+  },
   "cannotDeleteAccount": {
     "message": "Impossibile eliminare account"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Purtroppo l'integrazione del browser non è supportata nella versione del Microsoft Store per ora."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Purtroppo l'integrazione del browser non è supportata nella versione Linux per ora."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Richiedi verifica per l'integrazione del browser"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Aggiungi un altro livello di sicurezza richiedendo la conferma della frase impronta quando colleghi il desktop e il browser. Questo richiede l'azione dell'utente e la verifica ogni volta che si crea una connessione."
-  },
   "enableHardwareAcceleration": {
     "message": "Usa accelerazione hardware"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Approva"
-  },
-  "verifyBrowserTitle": {
-    "message": "Verifica connessione browser"
-  },
-  "verifyBrowserDesc": {
-    "message": "Assicurati che l'impronta digitale mostrata sia identica all'impronta digitale mostrata nell'estensione del browser."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ vuole connettersi a Bitwarden",
@@ -2780,7 +2858,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "In attesa di interazione con la chiave di sicurezza..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Nascondi il mio indirizzo email dai destinatari."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3103,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Esportando cassaforte individuale"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi. Solo le informazioni sugli elementi della cassaforte saranno esportate e non includeranno gli allegati.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$, inclusi gli allegati, saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Esportando cassaforte dell'organizzazione"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Solo la cassaforte dell'organizzazione associata a $ORGANIZATION$ sarà esportata. Elementi nelle casseforti individuali o in altre organizzazioni non saranno inclusi.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Solo gli elementi della tua cassaforte personale saranno esportati."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Solo gli elementi della cassaforte relativa a $ORGANIZATION$ saranno esportati. Gli elementi nelle casseforti personali non saranno esportati.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +4073,18 @@
   "exportError": {
     "message": "Si è verificato un errore durante l'esportazione dei dati della cassaforte"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "Un allegato danneggiato è stato saltato durante l'esportazione. Tutti gli altri dati della cassaforte, inclusi gli allegati validi, sono stati esportati correttamente."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ allegati danneggiati sono stati saltati durante l'esportazione. Tutti gli altri dati della cassaforte, inclusi gli allegati validi, sono stati esportati correttamente.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Verifica in due passaggi annullata"
   },
@@ -4122,6 +4197,22 @@
   },
   "troubleshooting": {
     "message": "Risoluzione problemi"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Scarica rapporto diagnostico"
+  },
+  "experiencingAnIssue": {
+    "message": "Hai un problema con l'applicazione Bitwarden per desktop?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Scarica e condividi il rapporto diagnostico con"
+  },
+  "bitwardenSupport": {
+    "message": "Supporto di Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Disattiva l'accelerazione hardware e riavvia"
@@ -4655,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Scorciatoia non valida"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Ulteriori segmenti",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4805,6 +4900,9 @@
   "sessionTimeoutHeader": {
     "message": "Timeout della sessione"
   },
+  "browserAccessDenied": {
+    "message": "Percorso non valido o accesso negato"
+  },
   "resizeSideNavigation": {
     "message": "Ridimensiona la navigazione laterale"
   },
@@ -4848,6 +4946,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Imposta un metodo di sblocco per modificare l'azione al timeout"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ non è installato. Installa $BROWSER$ prima di importare le sue password.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Seleziona la tua cartella dati $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Luogo previsto:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Concedi l'autorizzazione"
   },
   "upgrade": {
     "message": "Aggiorna"
@@ -4988,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
   },
+  "more": {
+    "message": "Altro"
+  },
+  "enterMonth": {
+    "message": "Inserisci il mese."
+  },
+  "enterDay": {
+    "message": "Inserisci il giorno."
+  },
+  "enterYear": {
+    "message": "Inserisci l'anno."
+  },
+  "invalidDay": {
+    "message": "Inserisci un giorno valido."
+  },
+  "invalidYear": {
+    "message": "Inserisci un anno valido."
+  },
+  "searchDriversLicense": {
+    "message": "Cerca patenti"
+  },
   "bankAccount": {
     "message": "Conto bancario"
   },
@@ -5028,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Cerca conto bancario"
   },
+  "searchPassport": {
+    "message": "Cerca passaporti"
+  },
   "copyAccountNumber": {
     "message": "Copia numero conto"
   },
@@ -5039,6 +5185,30 @@
   },
   "copyIban": {
     "message": "Copia IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
+  "copyFirstName": {
+    "message": "Copia nome"
+  },
+  "copyMiddleName": {
+    "message": "Copia secondo nome"
+  },
+  "copyLastName": {
+    "message": "Copia cognome"
+  },
+  "copyLicenseNumber": {
+    "message": "Copia numero patente"
+  },
+  "copyPassportNumber": {
+    "message": "Copia numero passaporto"
   },
   "bankAccountTypeChecking": {
     "message": "Verifica in corso"
@@ -5084,6 +5254,22 @@
     "message": "Il salvataggio delle modifiche a Send è fallito",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "Visualizza testo"
+  },
+  "viewFileSendHeader": {
+    "message": "Visualizza file"
+  },
+  "sendCreated": {
+    "message": "Send creato",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "L'input deve essere numerico"
+  },
+  "integerInputError": {
+    "message": "L'input deve essere un numero intero"
+  },
   "hideEmailPolicyInEffect": {
     "message": "La tua organizzazione richiede la visibilità delle email. Deseleziona \"Nascondi la tua email dagli spettatori\" per salvare."
   },
@@ -5100,5 +5286,50 @@
   "progressBar": {
     "message": "Barra di avanzamento",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Non puoi importare dentro 'I miei oggetti' elementi che fanno parte di più raccolte"
+  },
+  "driversLicenseDetails": {
+    "message": "Dettagli della patente"
+  },
+  "dateOfBirth": {
+    "message": "Data di nascita"
+  },
+  "birthMonth": {
+    "message": "Mese di nascita"
+  },
+  "birthDay": {
+    "message": "Data di nascita"
+  },
+  "birthYear": {
+    "message": "Anno di nascita"
+  },
+  "issuingCountry": {
+    "message": "Paese di emissione"
+  },
+  "issuingState": {
+    "message": "Stato / provincia di emissione"
+  },
+  "issueDate": {
+    "message": "Data di emissione"
+  },
+  "issueMonth": {
+    "message": "Mese di emissione"
+  },
+  "issueDay": {
+    "message": "Giorno di emissione"
+  },
+  "issueYear": {
+    "message": "Anno di emissione"
+  },
+  "expirationDay": {
+    "message": "Data di scadenza"
+  },
+  "issuingAuthority": {
+    "message": "Autorità emittente"
+  },
+  "licenseClass": {
+    "message": "Classe di licenza"
   }
 }

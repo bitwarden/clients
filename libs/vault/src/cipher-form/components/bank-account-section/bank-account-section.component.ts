@@ -7,7 +7,7 @@ import {
   OnInit,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { AbstractControl, FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BankAccountType } from "@bitwarden/common/vault/enums/bank-account-type";
@@ -89,6 +89,8 @@ export class BankAccountSectionComponent implements OnInit {
       { label: this.i18nService.t("bankAccountTypeOther"), value: BankAccountType.Other },
     ];
 
+    this.setupNumericFilter(this.bankAccountForm.controls.pin);
+
     this.cipherFormContainer.registerChildForm("bankAccountDetails", this.bankAccountForm);
     this.bankAccountForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       const data = new BankAccountView();
@@ -130,6 +132,18 @@ export class BankAccountSectionComponent implements OnInit {
           this.bankAccountForm.enable();
         }
       });
+  }
+
+  private setupNumericFilter(ctrl: AbstractControl): void {
+    ctrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value: string) => {
+      if (!value) {
+        return;
+      }
+      const filtered = value.replace(/\D/g, "");
+      if (filtered !== value) {
+        ctrl.setValue(filtered, { emitEvent: false });
+      }
+    });
   }
 
   private setInitialValues(bankAccountView: BankAccountView) {
