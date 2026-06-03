@@ -351,22 +351,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.inSingleActionPopout && this.fillOnSuccessfulSave) {
-      const senderTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
-      await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
-      if (senderTab) {
-        await BrowserApi.sendMessage("showLoginSavedNotification", {
-          cipherId: cipher.id,
-          itemName: cipher.name,
-          senderTabId: senderTab.id,
-        });
-      }
-      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
-      return;
-    }
-
     if (this.inSingleActionPopout) {
-      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      if (this.fillOnSuccessfulSave) {
+        await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
+      }
+      await this.showLoginSavedNotification(cipher);
+      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
       return;
     }
 
@@ -385,6 +375,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
       await this.popupRouterCacheService.setHistory([]);
     }
     await BrowserApi.sendMessage("addEditCipherSubmitted");
+  }
+
+  private async showLoginSavedNotification(cipher: CipherView): Promise<void> {
+    const senderTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+    if (!senderTab) {
+      return;
+    }
+
+    await BrowserApi.sendMessage("showLoginSavedNotification", {
+      cipherId: cipher.id,
+      itemName: cipher.name,
+      senderTabId: senderTab.id,
+    });
   }
 
   submitAndFill = async () => {

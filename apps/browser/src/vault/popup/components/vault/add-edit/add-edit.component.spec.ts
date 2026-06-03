@@ -52,6 +52,7 @@ describe("AddEditComponent", () => {
   let fixture: ComponentFixture<AddEditComponent>;
   let addEditCipherInfo$: BehaviorSubject<AddEditCipherInfo | null>;
   let cipherServiceMock: MockProxy<CipherService>;
+  let vaultPopupAutofillService: MockProxy<VaultPopupAutofillService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
   const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
@@ -80,6 +81,10 @@ describe("AddEditComponent", () => {
     cipherServiceMock = mock<CipherService>({
       addEditCipherInfo$: jest.fn().mockReturnValue(addEditCipherInfo$),
     });
+    vaultPopupAutofillService = {
+      currentAutofillTab$: of({ id: 1 } as chrome.tabs.Tab),
+      doAutofill: jest.fn().mockResolvedValue(undefined),
+    } as unknown as MockProxy<VaultPopupAutofillService>;
 
     await TestBed.configureTestingModule({
       imports: [AddEditComponent],
@@ -131,7 +136,7 @@ describe("AddEditComponent", () => {
         },
         {
           provide: VaultPopupAutofillService,
-          useValue: mock<VaultPopupAutofillService>(),
+          useValue: vaultPopupAutofillService,
         },
       ],
     })
@@ -337,9 +342,15 @@ describe("AddEditComponent", () => {
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true);
       jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
+      const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
 
-      await component.onCipherSaved({ id: "123-456-789" } as CipherView);
+      await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
 
+      expect(sendMessageSpy).toHaveBeenCalledWith("showLoginSavedNotification", {
+        cipherId: "123-456-789",
+        itemName: "Test Cipher",
+        senderTabId: 1,
+      });
       expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalled();
       expect(navigate).not.toHaveBeenCalled();
     });
