@@ -4,7 +4,7 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
-export class KdfRequest {
+export class ChangeKdfRequest {
   constructor(
     readonly masterPasswordHash: MasterPasswordAuthenticationHash,
     readonly authenticationData: MasterPasswordAuthenticationData,

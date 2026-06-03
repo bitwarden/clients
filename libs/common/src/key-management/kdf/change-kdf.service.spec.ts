@@ -5,7 +5,7 @@ import { of } from "rxjs";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../spec";
-import { KdfRequest } from "../../models/request/kdf.request";
+import { ChangeKdfRequest } from "../../models/request/change-kdf.request";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { EncString } from "../crypto/models/enc-string";
@@ -152,7 +152,7 @@ describe("ChangeKdfService", () => {
 
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
-      const expectedRequest = new KdfRequest(
+      const expectedRequest = new ChangeKdfRequest(
         mockOldHash,
         {
           salt: mockSalt,

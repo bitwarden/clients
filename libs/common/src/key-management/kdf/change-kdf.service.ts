@@ -4,7 +4,7 @@ import { firstValueFrom, map } from "rxjs";
 import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { assertNonNullish } from "../../auth/utils";
-import { KdfRequest } from "../../models/request/kdf.request";
+import { ChangeKdfRequest } from "../../models/request/change-kdf.request";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { EncString } from "../crypto/models/enc-string";
@@ -58,7 +58,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       updateKdfResult.oldMasterPasswordAuthenticationData,
     );
 
-    const request = new KdfRequest(
+    const request = new ChangeKdfRequest(
       oldAuthenticationData.masterPasswordAuthenticationHash,
       authenticationData,
       unlockData,
