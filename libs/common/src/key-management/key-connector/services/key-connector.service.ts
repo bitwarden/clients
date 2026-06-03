@@ -138,14 +138,16 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       try {
         await firstValueFrom(
           this.sdkService.userClient$(userId).pipe(
-            map((sdk) => {
+            map(async (sdk) => {
               if (!sdk) {
                 throw new Error("SDK not available");
               }
 
               using ref = sdk.take();
 
-              return ref.value.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
+              return await ref.value
+                .user_crypto_management()
+                .migrate_to_key_connector(keyConnectorUrl);
             }),
           ),
         );
@@ -245,14 +247,14 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   ) {
     const result = await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
-        map((sdk) => {
+        map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
 
           using ref = sdk.take();
 
-          return ref.value
+          return await ref.value
             .auth()
             .registration()
             .post_keys_for_key_connector_registration(keyConnectorUrl, ssoOrganizationIdentifier);
