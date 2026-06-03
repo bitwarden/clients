@@ -1,7 +1,8 @@
 import { ApiService } from "../../abstractions/api.service";
-import { ChangeKdfRequest } from "../../models/request/change-kdf.request";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
+import { ChangeKdfRequest } from "./models/change-kdf.request";
+
 
 /**
  * @internal

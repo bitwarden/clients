@@ -5,7 +5,6 @@ import { of } from "rxjs";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../spec";
-import { ChangeKdfRequest } from "../../models/request/change-kdf.request";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { EncString } from "../crypto/models/enc-string";
@@ -19,6 +18,7 @@ import {
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 import { DefaultChangeKdfService } from "./change-kdf.service";
+import { ChangeKdfRequest } from "./models/change-kdf.request";
 
 describe("ChangeKdfService", () => {
   const changeKdfApiService = mock<ChangeKdfApiService>();
