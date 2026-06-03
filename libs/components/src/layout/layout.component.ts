@@ -271,6 +271,13 @@ export class LayoutComponent {
    */
   readonly rounded = input(false, { transform: booleanAttribute });
 
+  /**
+   * Drop the default padding on the main content area. Use when the content owns
+   * its own layout and padding — e.g. a {@link PageComponent} (`bit-page`), which
+   * provides a fixed header/footer and a padded, scrolling body.
+   */
+  readonly disablePadding = input(false, { transform: booleanAttribute });
+
   protected focusMainContent() {
     this.mainContent().nativeElement.focus();
   }

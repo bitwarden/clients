@@ -13,12 +13,13 @@ import { ButtonModule } from "../../button";
 import { ChipActionComponent } from "../../chips";
 import { countries } from "../../form/countries";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
-import { LayoutComponent } from "../../layout";
+import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
 import { MenuModule } from "../../menu";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
+import { TypographyModule } from "../../typography";
 import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
@@ -79,7 +80,7 @@ class DemoStatusColumnComponent {
   ],
   template: `
     <bit-layout>
-      <bit-table-v2 [table]="table" [virtualRowHeight]="64">
+      <bit-table-v2 [table]="table" [virtualRowHeight]="64" maxHeight="400px">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
           <button
@@ -154,6 +155,8 @@ export default {
         BulkAdditionalActionComponent,
         IconTileComponent,
         LayoutComponent,
+        PageComponent,
+        TypographyModule,
         SearchModule,
         RouterTestingModule,
       ],
@@ -382,7 +385,7 @@ export const Scrollable: Story = {
     },
     template: `
       <bit-layout>
-        <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackBy">
+        <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackBy" maxHeight="400px">
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Id</bit-header-cell>
             <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -401,6 +404,42 @@ export const Scrollable: Story = {
   }),
 };
 
+/**
+ * `fill` makes the table grow to its container's height and scroll internally,
+ * instead of sizing to content. Dropped into a `bit-page` body — a bounded,
+ * full-height region — the table fills the main content area with the header
+ * pinned. Compare with `Scrollable`, which caps the height via `maxHeight`.
+ */
+export const FillPage: Story = {
+  render: () => ({
+    props: {
+      table: largeTable,
+      trackBy: (_: number, item: DemoRow) => item.id,
+    },
+    template: `
+      <bit-layout disablePadding>
+        <bit-page>
+          <h1 slot="header" bitTypography="h1" class="tw-mb-4">Members</h1>
+          <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackBy" fill>
+            <bit-column sortable defaultSort="asc">
+              <bit-header-cell>Id</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+            </bit-column>
+            <bit-column sortable>
+              <bit-header-cell>Name</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+            </bit-column>
+            <bit-column>
+              <bit-header-cell>Other</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+            </bit-column>
+          </bit-table-v2>
+        </bit-page>
+      </bit-layout>
+    `,
+  }),
+};
+
 const filterTable = new TableModel<Country>({
   data: signal(countries.slice(0, 100)),
   displayedColumns: ["name", "value"],
@@ -412,7 +451,7 @@ export const Filterable: Story = {
     props: { table: filterTable },
     template: `
       <bit-layout>
-        <bit-table-v2 [table]="table" [virtualRowHeight]="64">
+        <bit-table-v2 [table]="table" [virtualRowHeight]="64" maxHeight="400px">
           <bit-table-toolbar>
             <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
           </bit-table-toolbar>

@@ -52,7 +52,7 @@
 
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
-<div [ngClass]="containerClass">
+<div [ngClass]="containerClass()">
   <!--
     Toolbar: a `<bit-table-toolbar>` projected inside the chrome, above the
     header row, holding search / filter / action controls and the applied-
@@ -61,36 +61,70 @@
   -->
   <ng-content select="bit-table-toolbar"></ng-content>
 
-  <div role="table">
-    @if (isVirtualized() && hasColumns() && !loading()) {
-      <cdk-virtual-scroll-viewport
-        bitScrollLayout
-        [itemSize]="virtualRowHeight()!"
-        [ngStyle]="{ paddingBottom: headerHeight() + 'px' }"
-      >
-        <bit-header-row>
-          <ng-container *ngTemplateOutlet="headerCells"></ng-container>
-        </bit-header-row>
-        <bit-row *cdkVirtualFor="let r of rows(); trackBy: trackBy(); templateCacheSize: 0">
-          <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
-        </bit-row>
-      </cdk-virtual-scroll-viewport>
-    } @else if (hasColumns()) {
+  <div
+    role="table"
+    [class.tw-flex]="fill()"
+    [class.tw-min-h-0]="fill()"
+    [class.tw-flex-1]="fill()"
+    [class.tw-flex-col]="fill()"
+  >
+    @if (hasColumns()) {
+      <!--
+        The header sits above the scroll region (not inside it), so it stays
+        pinned while the body scrolls. Keeping it out of the virtual-scroll
+        viewport also avoids CDK's transformed/absolutely-positioned row content.
+      -->
       <bit-header-row>
         <ng-container *ngTemplateOutlet="headerCells"></ng-container>
       </bit-header-row>
+
       @if (loading()) {
         @for (i of skeletonRows(); track i) {
           <bit-row>
             <ng-container *ngTemplateOutlet="loadingCells"></ng-container>
           </bit-row>
         }
-      } @else {
-        @for (r of rows(); track r) {
-          <bit-row>
+      } @else if (isEmpty()) {
+        <!--
+          Empty state: no rows render (no data, or all filtered out). Projects
+          `[slot=empty]`; falls back to a default `<bit-no-items>`.
+        -->
+        <ng-content select="[slot=empty]">
+          <bit-no-items>
+            <span slot="title">{{ "nothingToShow" | i18n }}</span>
+          </bit-no-items>
+        </ng-content>
+      } @else if (isVirtualized()) {
+        <!--
+          Virtualized body: only the rows live in the viewport. CDK positions
+          rows absolutely (no in-flow height), so the viewport needs a bounded
+          height: an explicit `viewportHeight` (capped at `maxHeight`), or
+          `flex-1` to fill the host in `fill` mode.
+        -->
+        <cdk-virtual-scroll-viewport
+          [itemSize]="virtualRowHeight()!"
+          [style.height]="fill() ? null : viewportHeight()"
+          [class.tw-flex-1]="fill()"
+          [class.tw-min-h-0]="fill()"
+        >
+          <bit-row *cdkVirtualFor="let r of rows(); trackBy: trackBy(); templateCacheSize: 0">
             <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
           </bit-row>
-        }
+        </cdk-virtual-scroll-viewport>
+      } @else {
+        <!-- Non-virtualized body: scrolls within `maxHeight`, or fills the host in `fill` mode. -->
+        <div
+          class="tw-overflow-auto"
+          [style.max-height]="fill() ? null : maxHeight()"
+          [class.tw-flex-1]="fill()"
+          [class.tw-min-h-0]="fill()"
+        >
+          @for (r of rows(); track r) {
+            <bit-row>
+              <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
+            </bit-row>
+          }
+        </div>
       }
     } @else {
       <!--
@@ -100,19 +134,6 @@
       -->
       <ng-content select="bit-header-row"></ng-content>
       <ng-content select="bit-row"></ng-content>
-    }
-
-    <!--
-      Empty state: shown below the header in column-def mode when no rows
-      render (no data, or all filtered out). Projects `[slot=empty]`; falls back
-      to a default `<bit-no-items>` when the consumer doesn't provide one.
-    -->
-    @if (isEmpty()) {
-      <ng-content select="[slot=empty]">
-        <bit-no-items>
-          <span slot="title">{{ "nothingToShow" | i18n }}</span>
-        </bit-no-items>
-      </ng-content>
     }
   </div>
 </div>

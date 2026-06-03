@@ -5,7 +5,6 @@ import { BadgeComponent } from "../../../badge";
 import { BadgeGroupComponent } from "../../../badge-group";
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
-import { SectionComponent } from "../../../section";
 import {
   BitCellComponent,
   BitCellDefDirective,
@@ -28,53 +27,54 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     BadgeGroupComponent,
     DialogModule,
     IconButtonModule,
-    SectionComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitCellDefDirective,
     BitHeaderCellComponent,
     BitCellComponent,
   ],
-  template: `<bit-section>
-    <bit-table-v2 [table]="table" [virtualRowHeight]="64">
-      <bit-column sortable defaultSort="asc">
-        <bit-header-cell>Id</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
-      </bit-column>
-      <bit-column sortable>
-        <bit-header-cell>Name</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
-      </bit-column>
-      <bit-column sortable>
-        <bit-header-cell>Updated</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.updatedAt; let row">
-          {{ row.updatedAt | date: "mediumDate" }}
-        </bit-cell>
-      </bit-column>
-      <bit-column sortable [sortFn]="sortByTags">
-        <bit-header-cell>Tags</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.tags; let row" [truncate]="false">
-          <bit-badge-group>
-            @for (tag of row.tags; track tag) {
-              <span bitBadge variant="subtle">{{ tag }}</span>
-            }
-          </bit-badge-group>
-        </bit-cell>
-      </bit-column>
-      <bit-column width="64px">
-        <bit-header-cell></bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.actions; let row">
-          <button
-            slot="end"
-            bitIconButton="bwi-ellipsis-v"
-            type="button"
-            label="Options"
-            (click)="openDefaultDialog()"
-          ></button>
-        </bit-cell>
-      </bit-column>
-    </bit-table-v2>
-  </bit-section>`,
+  // Fill the page body so the table grows to the available height and scrolls.
+  host: {
+    class: "tw-flex tw-min-h-0 tw-flex-1 tw-flex-col",
+  },
+  template: `<bit-table-v2 [table]="table" [virtualRowHeight]="64" fill>
+    <bit-column sortable defaultSort="asc">
+      <bit-header-cell>Id</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+    </bit-column>
+    <bit-column sortable>
+      <bit-header-cell>Name</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+    </bit-column>
+    <bit-column sortable>
+      <bit-header-cell>Updated</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.updatedAt; let row">
+        {{ row.updatedAt | date: "mediumDate" }}
+      </bit-cell>
+    </bit-column>
+    <bit-column sortable [sortFn]="sortByTags">
+      <bit-header-cell>Tags</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.tags; let row" [truncate]="false">
+        <bit-badge-group>
+          @for (tag of row.tags; track tag) {
+            <span bitBadge variant="subtle">{{ tag }}</span>
+          }
+        </bit-badge-group>
+      </bit-cell>
+    </bit-column>
+    <bit-column width="64px">
+      <bit-header-cell></bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.actions; let row">
+        <button
+          slot="end"
+          bitIconButton="bwi-ellipsis-v"
+          type="button"
+          label="Options"
+          (click)="openDefaultDialog()"
+        ></button>
+      </bit-cell>
+    </bit-column>
+  </bit-table-v2>`,
 })
 export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly dialogService = inject(DialogService);

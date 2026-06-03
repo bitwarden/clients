@@ -1,0 +1,18 @@
+<!--
+  Header/footer carry the page's horizontal padding (and top/bottom). `bit-header`
+  bleeds out of this `px-8 pt-6` with negative margins to go full-bleed, then
+  re-pads — so this padding is also the contract it relies on.
+-->
+<div class="tw-px-8 tw-pt-6">
+  <ng-content select="[slot=header]"></ng-content>
+</div>
+<!--
+  The body's padding lives on the scrolling element itself, so content is padded
+  but the scrollbar sits at the true edge.
+-->
+<main class="tw-flex tw-min-h-0 tw-flex-1 tw-flex-col tw-overflow-y-auto tw-px-8 tw-pt-3 tw-pb-8">
+  <ng-content></ng-content>
+</main>
+<div class="tw-px-8 tw-pb-6">
+  <ng-content select="[slot=footer]"></ng-content>
+</div>

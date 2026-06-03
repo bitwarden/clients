@@ -444,13 +444,39 @@ model's selection via DI; its clear button also clears the selection. No explici
 Outside a table, the bar's explicit API (`[selectedCount]`, `(clear)`) still works — see
 [Bulk Actions Bar](?path=/docs/component-library-bulk-actions-bar--docs).
 
+## Scrolling and the sticky header
+
+By default the table grows to fit its rows and scrolls with the page. To bound it instead — so the
+body scrolls and the header row stays pinned — give it a height in one of two ways:
+
+- **`[maxHeight]`** (any CSS length) — the table is as tall as its content, up to this cap, then
+  scrolls.
+- **`fill`** — the table grows to fill its container's height. Use it inside a bounded, full-height
+  region such as the body of a [`bit-page`](?path=/docs/component-library-layout-page--docs), which
+  is the idiomatic way to make a table fill the main content area:
+
+```html
+<bit-page>
+  <h1 slot="header" bitTypography="h1">Members</h1>
+  <bit-table-v2 [table]="table" fill>…columns…</bit-table-v2>
+</bit-page>
+```
+
+`bit-page` owns the page's layout — a fixed header/footer and a fill body that scrolls — so the
+table stays out of the layout business; it just fills the box it's given. Reach for `maxHeight` when
+the table is one bounded block among others (a dialog, a card); reach for `fill` + `bit-page` when
+the table is the page.
+
 ## Virtual scrolling
 
 For large datasets, set `[virtualRowHeight]` (the height per row, in px). The table renders inside a
-`cdk-virtual-scroll-viewport`; only the visible rows are stamped:
+`cdk-virtual-scroll-viewport`; only the visible rows are stamped. Virtualization scrolls the table
+itself, so it needs a bounded height — **`[maxHeight]` or `fill`**:
 
 ```html
-<bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackById">…columns…</bit-table-v2>
+<bit-table-v2 [table]="table" [virtualRowHeight]="64" maxHeight="400px" [trackBy]="trackById">
+  …columns…
+</bit-table-v2>
 ```
 
 `[virtualRowHeight]` lays rows out with a fixed grid — virtual scrolling needs predictable row

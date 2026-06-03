@@ -7,12 +7,10 @@ import {
 import { CommonModule } from "@angular/common";
 import {
   AfterContentInit,
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  ElementRef,
   TrackByFunction,
+  booleanAttribute,
   computed,
   forwardRef,
   inject,
@@ -23,7 +21,6 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ScrollLayoutDirective } from "../../layout";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
 import { SkeletonTextComponent } from "../../skeleton";
@@ -112,7 +109,6 @@ function sortRows<T>(
     CdkVirtualScrollViewport,
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
-    ScrollLayoutDirective,
     BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
@@ -122,10 +118,16 @@ function sortRows<T>(
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: SEARCH_CONSUMER, useExisting: forwardRef(() => BitTableV2Component) }],
+  host: {
+    // In `fill` mode the host becomes a flex column that fills its parent's
+    // height, so the table can hand a bounded height down to its scroll region.
+    "[class.tw-flex]": "fill()",
+    "[class.tw-flex-col]": "fill()",
+    "[class.tw-flex-1]": "fill()",
+    "[class.tw-min-h-0]": "fill()",
+  },
 })
-export class BitTableV2Component<T = unknown>
-  implements AfterContentInit, AfterViewInit, SearchConsumer
-{
+export class BitTableV2Component<T = unknown> implements AfterContentInit, SearchConsumer {
   /**
    * The single construct that configures the table — data, columns, search,
    * filters, and optional selection — see {@link TableModel}. Also the source of
@@ -138,9 +140,26 @@ export class BitTableV2Component<T = unknown>
    * Fixed row height in pixels for virtual scrolling. Setting it turns the
    * table into a virtual scroll viewport — virtual scrolling needs predictable
    * row geometry, so give columns explicit widths. Omit it for a non-virtualized
-   * table.
+   * table. Needs a bounded height to scroll — either {@link maxHeight} or
+   * {@link fill}.
    */
   readonly virtualRowHeight = input<number>();
+
+  /**
+   * Max height of the table's scroll area, as any CSS length (e.g. `"400px"`,
+   * `"60vh"`). When set, the body scrolls within this bound and the header row
+   * stays pinned to the top; omit it to let the table grow to its content and
+   * scroll with the page. See also {@link fill} to instead fill a parent's height.
+   */
+  readonly maxHeight = input<string>();
+
+  /**
+   * Grow to fill the host's height and scroll the body within it, instead of
+   * sizing to content. Use inside a bounded flex container — e.g. the body of a
+   * `bit-page` — which supplies the height to fill. An alternative to
+   * {@link maxHeight} for bounding a virtualized table.
+   */
+  readonly fill = input(false, { transform: booleanAttribute });
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
@@ -227,8 +246,8 @@ export class BitTableV2Component<T = unknown>
 
   protected readonly isVirtualized = computed(() => this.virtualRowHeight() !== undefined);
 
-  /** Outer container chrome: border, rounded corners, subtle shadow. */
-  protected readonly containerClass = [
+  /** Outer container chrome: border, rounded corners, subtle shadow. Becomes a fill flex column in {@link fill} mode. */
+  protected readonly containerClass = computed(() => [
     "tw-bg-bg-primary",
     "tw-border",
     "tw-border-solid",
@@ -236,7 +255,8 @@ export class BitTableV2Component<T = unknown>
     "tw-rounded-xl",
     "tw-overflow-clip",
     "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
-  ];
+    ...(this.fill() ? ["tw-flex", "tw-min-h-0", "tw-flex-1", "tw-flex-col"] : []),
+  ]);
 
   /** Rendered rows: the model's `filtered` sorted by {@link sort} using the column's `sortFn` or default. */
   protected readonly rows = computed(() => {
@@ -257,11 +277,23 @@ export class BitTableV2Component<T = unknown>
     () => this.hasColumns() && !this.loading() && this.rows().length === 0,
   );
 
-  /** Height of the thead element (px); used to pad the virtual scroll viewport. */
-  protected readonly headerHeight = signal(0);
+  /**
+   * Pixel height for the virtual-scroll viewport: the rows' natural height
+   * (`count * virtualRowHeight`) capped at {@link maxHeight}, so the table
+   * shrinks to fit a few rows but scrolls once it would exceed the bound. The
+   * viewport needs an explicit height because CDK positions rows absolutely, so
+   * they contribute no in-flow height of their own.
+   */
+  protected readonly viewportHeight = computed<string | undefined>(() => {
+    const rowHeight = this.virtualRowHeight();
+    if (rowHeight === undefined) {
+      return undefined;
+    }
+    const contentHeight = `${this.rows().length * rowHeight}px`;
+    const max = this.maxHeight();
+    return max ? `min(${max}, ${contentHeight})` : contentHeight;
+  });
 
-  private readonly el = inject(ElementRef);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly logService = inject(LogService, { optional: true });
 
   ngAfterContentInit(): void {
@@ -276,27 +308,17 @@ export class BitTableV2Component<T = unknown>
       }
       return;
     }
+    if (this.isVirtualized() && !this.maxHeight() && !this.fill()) {
+      this.logService?.warning(
+        "bit-table-v2: virtualization (`virtualRowHeight`) needs a bounded height — set `maxHeight` " +
+          "or `fill` (inside a bounded container). Without one the viewport collapses and no rows render.",
+      );
+    }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
     const name = defaultCol?.name();
     if (name) {
       this.sortModel().applyInitial(name, defaultCol!.defaultSort() ?? "asc");
     }
-  }
-
-  ngAfterViewInit(): void {
-    if (!this.isVirtualized()) {
-      return;
-    }
-    const headerRow = this.el.nativeElement.querySelector('[role="row"]');
-    if (!headerRow) {
-      return;
-    }
-    const observer = new ResizeObserver((entries) => {
-      // signal.set triggers CD on dependents directly — no NgZone.run needed
-      this.headerHeight.set(entries[0].contentRect.height);
-    });
-    observer.observe(headerRow);
-    this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
   /**
