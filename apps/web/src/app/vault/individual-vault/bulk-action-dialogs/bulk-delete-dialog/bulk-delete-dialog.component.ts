@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -79,6 +80,7 @@ export class BulkDeleteDialogComponent {
     private collectionService: CollectionService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private syncService: SyncService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
@@ -160,7 +162,13 @@ export class BulkDeleteDialogComponent {
     }
   }
 
-  private async deleteCollections(): Promise<any> {
+  private async deleteCollections(): Promise<void> {
+    // Deleting collections will alter the underlying ciphers, perform a full sync
+    // to ensure the vault has the most up to date cipher data.
+    const fullSync = async () => {
+      await this.syncService.fullSync(true);
+    };
+
     // From org vault
     if (this.organization) {
       if (this.collections.some((c) => !c.canDelete(this.organization))) {
@@ -171,10 +179,12 @@ export class BulkDeleteDialogComponent {
         });
         return;
       }
-      return await this.apiService.deleteManyCollections(
+      await this.apiService.deleteManyCollections(
         this.organization.id,
         this.collections.map((c) => c.id),
       );
+      await fullSync();
+      return;
       // From individual vault, so there can be multiple organizations
     } else if (this.organizations && this.collections) {
       const deletePromises: Promise<any>[] = [];
@@ -193,7 +203,9 @@ export class BulkDeleteDialogComponent {
           this.apiService.deleteManyCollections(organization.id, orgCollectionIds),
         );
       }
-      return await Promise.all(deletePromises);
+      await Promise.all(deletePromises);
+      await fullSync();
+      return;
     }
   }
 
