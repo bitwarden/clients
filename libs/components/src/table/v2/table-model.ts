@@ -1,10 +1,11 @@
-import { computed, Signal, signal, WritableSignal } from "@angular/core";
+import { computed, Signal, signal } from "@angular/core";
 
 import { Sort } from "../table-data-source";
 
 import { ColumnModel, ColumnName } from "./column-model";
 import { FilterDefinition, FiltersModel } from "./filters-model";
 import { SearchModel } from "./search-model";
+import { SortModel } from "./sort-model";
 import { TableSelectionModel } from "./table-selection-model";
 
 export type TableModelConfig<T, S extends string> = {
@@ -12,7 +13,7 @@ export type TableModelConfig<T, S extends string> = {
   data?: Signal<T[]>;
   /** Loading state. When `true`, the table shows skeleton rows. e.g. a resource's `isLoading`. */
   loading?: Signal<boolean>;
-  /** Initial sort. Header clicks update it; read or set {@link TableModel.sort} programmatically. */
+  /** Initial sort. Header clicks update it; read or set {@link TableModel.sort} (a {@link SortModel}) programmatically. */
   sort?: Sort;
   /**
    * The columns to display, in order. A column is shown iff it appears here, at
@@ -33,9 +34,9 @@ export type TableModelConfig<T, S extends string> = {
  * `[table]`. A thin facade composing the focused pieces — {@link data},
  * {@link columns}, {@link search}, {@link filters}, and optional
  * {@link selection} — so a table is built and bound once instead of wiring
- * several inputs. They stay reachable for typed refs and runtime ops; the table
- * component reads them and owns the runtime engine (filtering, sorting) and its
- * reactive glue.
+ * several inputs. The model owns filtering ({@link filtered}) and sort state
+ * ({@link sort}); the table component renders them, applying each column's sort
+ * comparator and the registry/grid layout.
  *
  * @example
  * ```ts
@@ -57,13 +58,8 @@ export class TableModel<T, S extends string = never> {
   /** Whether the table is loading. When `true`, the table shows skeleton rows. */
   readonly loading: Signal<boolean>;
 
-  /**
-   * Active sort (`{ column, direction }`). Two-way: header clicks update it, and
-   * you can read or set it programmatically (e.g. to persist/restore). The
-   * comparator comes from the sorted column's `sortFn`, so this stays
-   * serializable.
-   */
-  readonly sort: WritableSignal<Sort>;
+  /** Active sort state and transitions — read `sort.current`, call `sort.toggle`. */
+  readonly sort: SortModel;
 
   /** Column identity, typed references, and display order. */
   readonly columns: ColumnModel<T, S>;
@@ -86,7 +82,7 @@ export class TableModel<T, S extends string = never> {
   constructor(config: TableModelConfig<T, S>) {
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
-    this.sort = signal<Sort>(config.sort ?? { direction: "asc" });
+    this.sort = new SortModel(config.sort);
     this.columns = new ColumnModel<T, S>(config.displayedColumns);
     this.search = new SearchModel<T>(config.search);
     this.filters = new FiltersModel<T>(config.filters ?? []);

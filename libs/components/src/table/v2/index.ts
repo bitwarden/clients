@@ -8,6 +8,7 @@ export { BitRowComponent } from "./bit-row.component";
 export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 export { ColumnModel, type ColumnRef, type ColumnName } from "./column-model";
 export { SearchModel } from "./search-model";
+export { SortModel } from "./sort-model";
 export { FiltersModel, type FilterDefinition, type AppliedFilter } from "./filters-model";
 export { TableModel, type TableModelConfig } from "./table-model";
 export { TableSelectionModel } from "./table-selection-model";

@@ -330,9 +330,9 @@ sortByName = (a: User, b: User) => a.name.localeCompare(b.name);
 </bit-column>
 ```
 
-Sort state lives on the model as `table.sort` (`{ column, direction }`) — read it, or set it
-programmatically (e.g. to persist/restore). The comparator comes from the column's `sortFn`, so the
-state stays serializable.
+Sort state lives on the model as `table.sort.current` (`{ column, direction }`) — read it, or set it
+programmatically (e.g. to persist/restore); `table.sort.toggle(column)` cycles it. The comparator
+comes from the column's `sortFn`, so the state stays serializable.
 
 ## Filtering
 

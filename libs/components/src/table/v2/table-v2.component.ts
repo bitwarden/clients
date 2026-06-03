@@ -149,7 +149,7 @@ export class BitTableV2Component<T = unknown>
   readonly loadingRows = input(3);
 
   /** The model's active sort (`{ column, direction }`). Read by header cells. */
-  readonly sort = computed(() => this.table().sort());
+  readonly sort = computed(() => this.table().sort.current());
 
   /** The model's selection model, if configured. Read by `bit-bulk-actions-bar` via DI. */
   readonly selection = computed(() => this.table().selection);
@@ -241,7 +241,7 @@ export class BitTableV2Component<T = unknown>
   /** Rendered rows: the model's `filtered` sorted by {@link sort} using the column's `sortFn` or default. */
   protected readonly rows = computed(() => {
     const filtered = this.table().filtered();
-    const sort = this.table().sort();
+    const sort = this.table().sort.current();
     if (!sort.column) {
       return filtered;
     }
@@ -264,7 +264,11 @@ export class BitTableV2Component<T = unknown>
   private readonly destroyRef = inject(DestroyRef);
 
   ngAfterContentInit(): void {
-    this.applyInitialSort();
+    const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
+    const name = defaultCol?.name();
+    if (name) {
+      this.table().sort.applyInitial(name, defaultCol!.defaultSort() ?? "asc");
+    }
   }
 
   ngAfterViewInit(): void {
@@ -284,29 +288,15 @@ export class BitTableV2Component<T = unknown>
   }
 
   /**
-   * Cycles the model's sort for the column. Called by the bit-cell header
-   * component when its sort button is clicked.
+   * Translates a header sort click into a `sort.toggle` call on the model,
+   * supplying the column's name and default direction. Called by
+   * `bit-header-cell` when its sort button is clicked.
    */
   toggleSort(col: BitColumnComponent): void {
-    const colName = col.name();
-    if (!colName) {
+    const name = col.name();
+    if (!name) {
       return;
     }
-    const current = this.table().sort();
-    const active = current.column === colName;
-    const defaultDir = col.defaultSort() === "desc" ? "desc" : "asc";
-    const direction = active ? (current.direction === "asc" ? "desc" : "asc") : defaultDir;
-    this.table().sort.set({ column: colName, direction });
-  }
-
-  private applyInitialSort(): void {
-    if (this.table().sort().column) {
-      return;
-    }
-    const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
-    const name = defaultCol?.name();
-    if (name) {
-      this.table().sort.set({ column: name, direction: defaultCol!.defaultSort() ?? "asc" });
-    }
+    this.table().sort.toggle(name, col.defaultSort() ?? "asc");
   }
 }
