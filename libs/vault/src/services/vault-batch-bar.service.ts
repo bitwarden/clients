@@ -434,51 +434,59 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    if (org != null) {
-      const editAccessCiphers: string[] = [];
-      const unassignedCiphers: string[] = [];
+    try {
+      if (org != null) {
+        const editAccessCiphers: string[] = [];
+        const unassignedCiphers: string[] = [];
 
-      if (org.canEditAllCiphers) {
-        ciphers.forEach((c) => editAccessCiphers.push(uuidAsString(c.id as unknown as CipherId)));
+        if (org.canEditAllCiphers) {
+          ciphers.forEach((c) => editAccessCiphers.push(uuidAsString(c.id as unknown as CipherId)));
+        } else {
+          ciphers.forEach((c) => {
+            if (CipherViewLikeUtils.isUnassigned(c)) {
+              unassignedCiphers.push(uuidAsString(c.id as unknown as CipherId));
+            } else if (c.edit) {
+              editAccessCiphers.push(uuidAsString(c.id as unknown as CipherId));
+            }
+          });
+        }
+
+        if (unassignedCiphers.length === 0 && editAccessCiphers.length === 0) {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("nothingSelected"),
+          });
+          return;
+        }
+
+        await this.cipherService.restoreManyWithServer(
+          [...unassignedCiphers, ...editAccessCiphers],
+          userId,
+          org.id,
+        );
       } else {
-        ciphers.forEach((c) => {
-          if (CipherViewLikeUtils.isUnassigned(c)) {
-            unassignedCiphers.push(uuidAsString(c.id as unknown as CipherId));
-          } else if (c.edit) {
-            editAccessCiphers.push(uuidAsString(c.id as unknown as CipherId));
-          }
-        });
+        const selectedCipherIds = ciphers.map((c) => uuidAsString(c.id as unknown as CipherId));
+        if (selectedCipherIds.length === 0) {
+          this.toastService.showToast({
+            variant: "error",
+            message: this.i18nService.t("nothingSelected"),
+          });
+          return;
+        }
+        await this.cipherService.restoreManyWithServer(selectedCipherIds, userId);
       }
 
-      if (unassignedCiphers.length === 0 && editAccessCiphers.length === 0) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("nothingSelected"),
-        });
-        return;
-      }
-
-      await this.cipherService.restoreManyWithServer(
-        [...unassignedCiphers, ...editAccessCiphers],
-        userId,
-        org.id,
-      );
-    } else {
-      const selectedCipherIds = ciphers.map((c) => uuidAsString(c.id as unknown as CipherId));
-      if (selectedCipherIds.length === 0) {
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("nothingSelected"),
-        });
-        return;
-      }
-      await this.cipherService.restoreManyWithServer(selectedCipherIds, userId);
+      this.toastService.showToast({ variant: "success", message: toastMessage });
+      this.selection.clear();
+      this._completed$.next();
+    } catch (e) {
+      this.logService.error("Error restoring ciphers", e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
-
-    this.toastService.showToast({ variant: "success", message: toastMessage });
-    this.selection.clear();
-    this._completed$.next();
   }
 
   /**

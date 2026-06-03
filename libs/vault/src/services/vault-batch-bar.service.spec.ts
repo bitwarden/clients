@@ -730,6 +730,18 @@ describe("VaultBatchBarService", () => {
       expect(completedSpy).toHaveBeenCalled();
     });
 
+    it("shows error toast and does NOT clear selection on failure", async () => {
+      mockCipherService.restoreManyWithServer.mockRejectedValue(new Error("fail"));
+      service.selection.select(makeCipherItem());
+
+      await service.bulkRestore();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      expect(service.selectedCount()).toBeGreaterThan(0);
+    });
+
     it("shows error toast when org vault has empty cipher arrays", async () => {
       const org = makeOrg({ canEditAllCiphers: false });
       service.setConfig(makeConfig({ organization: org }));
