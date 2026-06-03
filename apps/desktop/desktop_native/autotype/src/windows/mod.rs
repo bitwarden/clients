@@ -55,9 +55,12 @@ pub fn get_foreground_window_handle() -> Result<Vec<u8>> {
 pub fn focus_window(hwnd: Vec<u8>, settle: bool) -> Result<()> {
     use anyhow::anyhow;
 
-    let bytes: [u8; 8] = hwnd
-        .try_into()
-        .map_err(|_| anyhow!("Invalid HWND: expected 8 bytes"))?;
+    let bytes: [u8; std::mem::size_of::<usize>()] = hwnd.try_into().map_err(|_| {
+        anyhow!(
+            "Invalid HWND: expected {} bytes",
+            std::mem::size_of::<usize>()
+        )
+    })?;
     let ptr = usize::from_ne_bytes(bytes);
     let hwnd = HWND(ptr as *mut core::ffi::c_void);
 
