@@ -10,7 +10,7 @@ import { Directive, TemplateRef, inject } from "@angular/core";
  * ```html
  * <bit-column>
  *   <bit-header-cell>Name</bit-header-cell>
- *   <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
+ *   <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
  *   <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-3/4" /></bit-cell>
  * </bit-column>
  * ```

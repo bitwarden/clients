@@ -39,21 +39,21 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     <bit-table-v2 [table]="table" [virtualRowHeight]="64">
       <bit-column sortable defaultSort="asc">
         <bit-header-cell>Id</bit-header-cell>
-        <bit-cell *bitCellDef="table.ref.id; let row">{{ row.id }}</bit-cell>
+        <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
       </bit-column>
       <bit-column sortable>
         <bit-header-cell>Name</bit-header-cell>
-        <bit-cell *bitCellDef="table.ref.name; let row">{{ row.name }}</bit-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
       <bit-column sortable>
         <bit-header-cell>Updated</bit-header-cell>
-        <bit-cell *bitCellDef="table.ref.updatedAt; let row">
+        <bit-cell *bitCellDef="table.columns.updatedAt; let row">
           {{ row.updatedAt | date: "mediumDate" }}
         </bit-cell>
       </bit-column>
       <bit-column sortable [sortFn]="sortByTags">
         <bit-header-cell>Tags</bit-header-cell>
-        <bit-cell *bitCellDef="table.ref.tags; let row" [truncate]="false">
+        <bit-cell *bitCellDef="table.columns.tags; let row" [truncate]="false">
           <bit-badge-group>
             @for (tag of row.tags; track tag) {
               <span bitBadge variant="subtle">{{ tag }}</span>
@@ -63,7 +63,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
       </bit-column>
       <bit-column width="64px">
         <bit-header-cell></bit-header-cell>
-        <bit-cell *bitCellDef="table.ref.actions; let row">
+        <bit-cell *bitCellDef="table.columns.actions; let row">
           <button
             slot="end"
             bitIconButton="bwi-ellipsis-v"

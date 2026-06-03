@@ -62,7 +62,7 @@ export class BitTableV2Component<T = unknown>
   /**
    * The single construct that configures the table — data, columns, search,
    * filters, and optional selection — see {@link TableModel}. Also the source of
-   * the typed `table.ref.*` references bound to `*bitCellDef`. Defaults to an
+   * the typed `table.columns.*` references bound to `*bitCellDef`. Defaults to an
    * empty model, so manual-mode tables need not bind it.
    */
   readonly table = input(new TableModel<T>({ displayedColumns: [] }));

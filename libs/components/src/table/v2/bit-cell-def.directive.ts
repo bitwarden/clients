@@ -1,11 +1,11 @@
 import { Directive, TemplateRef, computed, inject, input } from "@angular/core";
 
-import { ColumnRef } from "./column-model";
+import { ColumnRef } from "./column";
 
 /**
  * Structural directive that captures the per-row cell template for a column.
- * The input is a typed {@link ColumnRef} (typically `dataSource.columns.foo` or
- * `dataSource.synthetic('actions')`) — the brand carries the row type `T`, so
+ * The input is a typed {@link ColumnRef} (e.g. `table.columns.foo`) — the brand
+ * carries the row type `T`, so
  * `let-row` is narrowed to `T` via {@link ngTemplateContextGuard}. The context's
  * `$implicit` is the whole row, so rich cells can read sibling fields and action
  * cells can read the row id.

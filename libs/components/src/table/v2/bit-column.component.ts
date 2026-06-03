@@ -93,7 +93,7 @@ export class BitColumnComponent {
       if (this.name() == null) {
         logService?.warning(
           "bit-table-v2: a `<bit-column>` is missing a `*bitCellDef` and has no column key, " +
-            'so it will not render. Add `*bitCellDef="table.ref.<field>"`.',
+            'so it will not render. Add `*bitCellDef="table.columns.<field>"`.',
         );
       }
     });

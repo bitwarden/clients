@@ -1,8 +1,8 @@
-import { computed, Signal, signal } from "@angular/core";
+import { computed, Signal, signal, WritableSignal } from "@angular/core";
 
 import { Sort } from "../table-data-source";
 
-import { ColumnModel, ColumnName } from "./column-model";
+import { ColumnName, ColumnRefs, createColumnRefs } from "./column";
 import { FilterDefinition, FiltersModel } from "./filters-model";
 import { SearchModel } from "./search-model";
 import { SortModel } from "./sort-model";
@@ -46,7 +46,7 @@ export type TableModelConfig<T, S extends string, F extends string = string> = {
  *   search: (r, t) => r.name.toLowerCase().includes(t.toLowerCase()),
  *   selection: { multiple: true },
  * });
- * table.ref.name;            // typed column ref
+ * table.columns.name;        // typed column ref
  * table.filters.apply("...");
  * table.selection?.toggle(row);
  * ```
@@ -61,8 +61,19 @@ export class TableModel<T, S extends string = never, F extends string = string> 
   /** Active sort state and transitions — read `sort.current`, call `sort.toggle`. */
   readonly sort: SortModel;
 
-  /** Column identity, typed references, and display order. */
-  readonly columns: ColumnModel<T, S>;
+  /**
+   * Typed column references for `*bitCellDef` — `table.columns.email` is a
+   * branded `ColumnRef`. Only declared columns are valid keys, so a typo or a
+   * non-column name fails to compile.
+   */
+  readonly columns: ColumnRefs<T, S>;
+
+  /**
+   * The columns to display, in order. A column is shown iff it appears here, at
+   * the position it appears; set a new array to reorder or hide. Names with no
+   * matching `<bit-column>` are ignored.
+   */
+  readonly displayedColumns: WritableSignal<readonly ColumnName<T, S>[]>;
 
   /** Free-text search state and matcher. */
   readonly search: SearchModel<T>;
@@ -83,7 +94,8 @@ export class TableModel<T, S extends string = never, F extends string = string> 
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
     this.sort = new SortModel(config.sort);
-    this.columns = new ColumnModel<T, S>(config.displayedColumns);
+    this.columns = createColumnRefs<T, S>();
+    this.displayedColumns = signal(config.displayedColumns);
     this.search = new SearchModel<T>(config.search);
     this.filters = new FiltersModel<T, F>(config.filters ?? []);
     this.filtered = computed(() =>
@@ -97,18 +109,5 @@ export class TableModel<T, S extends string = never, F extends string = string> 
         rows: this.filtered,
       });
     }
-  }
-
-  /** Typed column references — shorthand for {@link columns}`.ref`. */
-  get ref() {
-    return this.columns.ref;
-  }
-
-  /**
-   * The columns shown, in order. Set a new array to reorder or hide. Shorthand
-   * for {@link columns}`.displayedColumns`.
-   */
-  get displayedColumns() {
-    return this.columns.displayedColumns;
   }
 }
