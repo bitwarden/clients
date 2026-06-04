@@ -307,100 +307,89 @@ mod tests {
         public_key.verify(TEST_DATA, &sig).unwrap();
     }
 
+    fn ecdsa_keypair(curve: EcdsaCurve) -> EcdsaKeypair {
+        EcdsaKeypair::random(&mut OsRng, curve).unwrap()
+    }
+
+    fn ecdsa_private_key_from_ssh_key(curve: EcdsaCurve) -> PrivateKey {
+        let ssh_key = ssh_key::PrivateKey::new(
+            ssh_key::private::KeypairData::Ecdsa(ecdsa_keypair(curve)),
+            "",
+        )
+        .unwrap();
+        PrivateKey::try_from(ssh_key).unwrap()
+    }
+
     #[test]
     fn test_privatekey_from_ecdsa_p256() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
-        let ssh_key =
-            ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ecdsa(keypair), "").unwrap();
-
-        let private_key = PrivateKey::try_from(ssh_key).unwrap();
-        assert!(matches!(private_key, PrivateKey::Ecdsa(_)));
+        assert!(matches!(
+            ecdsa_private_key_from_ssh_key(EcdsaCurve::NistP256),
+            PrivateKey::Ecdsa(_)
+        ));
     }
 
     #[test]
     fn test_privatekey_from_ecdsa_p384() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP384).unwrap();
-        let ssh_key =
-            ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ecdsa(keypair), "").unwrap();
-
-        let private_key = PrivateKey::try_from(ssh_key).unwrap();
-        assert!(matches!(private_key, PrivateKey::Ecdsa(_)));
+        assert!(matches!(
+            ecdsa_private_key_from_ssh_key(EcdsaCurve::NistP384),
+            PrivateKey::Ecdsa(_)
+        ));
     }
 
     #[test]
     fn test_privatekey_from_ecdsa_p521() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP521).unwrap();
-        let ssh_key =
-            ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ecdsa(keypair), "").unwrap();
-
-        let private_key = PrivateKey::try_from(ssh_key).unwrap();
-        assert!(matches!(private_key, PrivateKey::Ecdsa(_)));
+        assert!(matches!(
+            ecdsa_private_key_from_ssh_key(EcdsaCurve::NistP521),
+            PrivateKey::Ecdsa(_)
+        ));
     }
 
     #[test]
     fn test_signing_key_from_ecdsa_always_succeeds() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
-        let private_key = PrivateKey::Ecdsa(keypair);
-
+        let private_key = PrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP256));
         assert!(SignablePrivateKey::try_from((private_key, None)).is_ok());
     }
 
     #[test]
     fn test_signing_key_sign_ecdsa_p256_algorithm() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
-        let signing_key = SignablePrivateKey::Ecdsa(keypair);
-
-        let sig = signing_key.sign(TEST_DATA);
-
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP256)).sign(TEST_DATA);
         assert_eq!(
             sig.algorithm(),
             ssh_key::Algorithm::Ecdsa {
-                curve: EcdsaCurve::NistP256,
+                curve: EcdsaCurve::NistP256
             }
         );
     }
 
     #[test]
     fn test_signing_key_sign_ecdsa_p384_algorithm() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP384).unwrap();
-        let signing_key = SignablePrivateKey::Ecdsa(keypair);
-
-        let sig = signing_key.sign(TEST_DATA);
-
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP384)).sign(TEST_DATA);
         assert_eq!(
             sig.algorithm(),
             ssh_key::Algorithm::Ecdsa {
-                curve: EcdsaCurve::NistP384,
+                curve: EcdsaCurve::NistP384
             }
         );
     }
 
     #[test]
     fn test_signing_key_sign_ecdsa_p521_algorithm() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP521).unwrap();
-        let signing_key = SignablePrivateKey::Ecdsa(keypair);
-
-        let sig = signing_key.sign(TEST_DATA);
-
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP521)).sign(TEST_DATA);
         assert_eq!(
             sig.algorithm(),
             ssh_key::Algorithm::Ecdsa {
-                curve: EcdsaCurve::NistP521,
+                curve: EcdsaCurve::NistP521
             }
         );
     }
 
     #[test]
     fn test_signing_key_sign_ecdsa_p256_produces_valid_signature() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
-        let signing_key = SignablePrivateKey::Ecdsa(keypair);
-
-        let sig = signing_key.sign(TEST_DATA);
-
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP256)).sign(TEST_DATA);
         assert_eq!(
             sig.algorithm(),
             ssh_key::Algorithm::Ecdsa {
-                curve: EcdsaCurve::NistP256,
+                curve: EcdsaCurve::NistP256
             }
         );
         assert!(!sig.as_bytes().is_empty());
