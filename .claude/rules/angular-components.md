@@ -6,7 +6,7 @@ paths:
 
 # Angular Component Patterns
 
-Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/code-style/web/). Universal rules (Tailwind `tw-` prefix, no enums) live in [CLAUDE.md](../CLAUDE.md) and [angular-architecture.md](./angular-architecture.md).
+Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/code-style/web/). TypeScript-wide rules (enum-likes, observable services) live in [typescript.md](./typescript.md); the Tailwind `tw-` prefix rule lives in [CLAUDE.md](../CLAUDE.md).
 
 ## Component Configuration
 
@@ -28,7 +28,7 @@ Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/
 
 ## Dependency Injection
 
-Use `inject()` — not constructor injection. (Constructor injection stays only in code shared with non-Angular clients; that code lives in services, see [angular-architecture.md](./angular-architecture.md).)
+Use `inject()` — not constructor injection. (Constructor injection stays only in code shared with non-Angular clients; that code lives in services, see [typescript.md](./typescript.md).)
 
 ```typescript
 private folderService = inject(FolderService);

@@ -38,7 +38,8 @@ dependency rules defined in `eslint.config.mjs`, `nx.json`, and other configurat
 
 After modifying code, run:
 
-- `npm run lint:fix` — applies ESLint + Prettier
+- `npm run lint:fix` — applies ESLint fixes
+- `npm run prettier` — formats with Prettier
 - `npm run test:types` — type-checks the workspace
 - `npm test` — runs Jest. Scope with `npm test -- <path-or-pattern>` when changes are localized.
 

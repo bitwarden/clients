@@ -54,8 +54,8 @@ Example: `/libs/common/src/vault/enums/cipher-type.ts`
 Provide helpers alongside the type:
 
 - `isCipherType(value)` — type guard
-- `asCipherType(value)` — safe conversion (returns the value or `undefined`)
-- `nameOfCipherType(value)` — retrieves the member name
+- `toCipherType(value)` — safe conversion (returns the value or `undefined`)
+- `toCipherTypeName(value)` — retrieves the member name
 
 ## Observable Data Services (ADR-0003)
 
