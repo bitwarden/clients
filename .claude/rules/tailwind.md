@@ -2,6 +2,7 @@
 paths:
   - "**/*.html"
   - "**/*.component.ts"
+  - "**/*.directive.ts"
 ---
 
 # Tailwind
