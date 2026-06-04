@@ -163,8 +163,11 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   /** True when bulk add-to-folder is allowed. */
   readonly canAddToFolder = computed(() => {
+    const selected = this.selected();
     return (
-      this.showBulkAddToFolder() && this.selected().filter((item) => item.collection).length === 0
+      this.showBulkAddToFolder() &&
+      selected.length !== 0 &&
+      selected.filter((item) => item.collection).length === 0
     );
   });
 

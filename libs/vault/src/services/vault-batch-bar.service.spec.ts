@@ -205,6 +205,10 @@ describe("VaultBatchBarService", () => {
   });
 
   describe("canAddToFolder", () => {
+    it("returns false when nothing selected", () => {
+      expect(service.canAddToFolder()).toBe(false);
+    });
+
     it("returns true when not in trash and no collections selected", () => {
       service.selection.select(makeCipherItem());
 
