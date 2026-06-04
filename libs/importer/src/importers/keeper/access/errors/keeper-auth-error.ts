@@ -2,6 +2,7 @@ export const KeeperAuthErrorCode = Object.freeze({
   Cancelled: 1,
   MfaFailed: 2,
   UnsupportedTwoFactorMethod: 3,
+  SocketError: 4,
 } as const);
 export type KeeperAuthErrorCode = (typeof KeeperAuthErrorCode)[keyof typeof KeeperAuthErrorCode];
 

@@ -14313,6 +14313,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "importingYourAccount": {
     "message": "Importing your account..."
   },

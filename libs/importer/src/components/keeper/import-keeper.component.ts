@@ -225,6 +225,8 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
           return "multifactorAuthenticationFailed";
         case KeeperAuthErrorCode.UnsupportedTwoFactorMethod:
           return "keeperUnsupported2faMethod";
+        case KeeperAuthErrorCode.SocketError:
+          return "keeperConnectionError";
       }
     }
     return "errorOccurred";

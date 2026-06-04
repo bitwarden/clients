@@ -1,5 +1,6 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 
+import { KeeperAuthError, KeeperAuthErrorCode } from "../errors";
 import { ApiRequestSchema, ApiRequestPayloadSchema } from "../generated/api-request_pb";
 import { WssClientResponseSchema, WssConnectionRequestSchema } from "../generated/push_pb";
 import {
@@ -59,12 +60,18 @@ export async function connectPushSocket(
 
     let connected = false;
     let closed = false;
+    let socketError: KeeperAuthError | null = null;
 
     ws.onopen = () => {
       connected = true;
       resolve({
         waitForMessage(): Promise<PushMessage> {
           return new Promise((msgResolve, msgReject) => {
+            if (socketError) {
+              msgReject(socketError);
+              return;
+            }
+
             if (closed) {
               msgReject(new Error("Socket is closed"));
               return;
@@ -94,9 +101,12 @@ export async function connectPushSocket(
     };
 
     ws.onmessage = async (event: MessageEvent) => {
+      const byteLength = (event.data as ArrayBuffer)?.byteLength ?? 0;
+      let stage = "decrypt";
       try {
         const messageData = new Uint8Array(event.data as ArrayBuffer);
         const decryptedData = await decryptAesV2(messageData, transmissionKey);
+        stage = "decode";
         const response = fromBinary(WssClientResponseSchema, decryptedData);
 
         let parsedMessage: Record<string, unknown> = {};
@@ -119,8 +129,20 @@ export async function connectPushSocket(
         } else {
           messageQueue.push(pushMessage);
         }
-      } catch {
-        // Error processing message
+      } catch (error) {
+        // An undecryptable or malformed push can't be recovered, and we can't
+        // tell which step of the login it belonged to. Fail the socket so the
+        // waiting consumer rejects and the import aborts with a clear error.
+        // Only structural metadata is captured here, never the frame contents.
+        socketError = new KeeperAuthError(
+          KeeperAuthErrorCode.SocketError,
+          `Failed to process push message at ${stage} stage ` +
+            `(bytes=${byteLength}, cause=${error instanceof Error ? error.name : "unknown"})`,
+        );
+        for (const listener of pendingListeners) {
+          listener.reject(socketError);
+        }
+        pendingListeners.length = 0;
       }
     };
 
