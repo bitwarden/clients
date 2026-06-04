@@ -7,6 +7,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -48,6 +49,7 @@ describe("ExposedPasswordsReportComponent", () => {
   let auditService: MockProxy<AuditService>;
   let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
+  let logServiceMock: MockProxy<LogService>;
   let adminConsoleCipherFormConfigServiceMock: MockProxy<AdminConsoleCipherFormConfigService>;
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
@@ -55,6 +57,7 @@ describe("ExposedPasswordsReportComponent", () => {
   beforeEach(async () => {
     let cipherFormConfigServiceMock: MockProxy<CipherFormConfigService>;
     syncServiceMock = mock<SyncService>();
+    logServiceMock = mock<LogService>();
     auditService = mock<AuditService>();
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
@@ -106,6 +109,10 @@ describe("ExposedPasswordsReportComponent", () => {
           provide: AdminConsoleCipherFormConfigService,
           useValue: adminConsoleCipherFormConfigServiceMock,
         },
+        {
+          provide: LogService,
+          useValue: logServiceMock,
+        },
       ],
       schemas: [],
     }).compileComponents();
@@ -139,5 +146,34 @@ describe("ExposedPasswordsReportComponent", () => {
 
   it("should call fullSync method of syncService", () => {
     expect(syncServiceMock.fullSync).toHaveBeenCalledWith(false);
+  });
+
+  it("should log an error without the password value when passwordLeaked throws", async () => {
+    const auditError = new Error("audit failed");
+    jest.spyOn(auditService, "passwordLeaked").mockRejectedValue(auditError);
+    jest.spyOn(component as any, "getAllCiphers").mockReturnValue(Promise.resolve<any>(cipherData));
+
+    await component.setCiphers();
+
+    expect(logServiceMock.error).toHaveBeenCalled();
+    // The error object must be passed through, but no password value may be logged.
+    const allLoggedArgs = logServiceMock.error.mock.calls
+      .concat(logServiceMock.info.mock.calls)
+      .flat()
+      .map((arg) => (arg instanceof Error ? arg.message : JSON.stringify(arg)))
+      .join(" ");
+    expect(allLoggedArgs).not.toContain("123");
+  });
+
+  it("should log a completion info message including the exposed count", async () => {
+    jest.spyOn(auditService, "passwordLeaked").mockResolvedValue(1234);
+    jest.spyOn(component as any, "getAllCiphers").mockReturnValue(Promise.resolve<any>(cipherData));
+
+    await component.setCiphers();
+
+    const completionLogged = logServiceMock.info.mock.calls
+      .flat()
+      .some((arg) => typeof arg === "string" && /Found \d+ exposed passwords/.test(arg));
+    expect(completionLogged).toBe(true);
   });
 });

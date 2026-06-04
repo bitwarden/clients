@@ -7,6 +7,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -102,6 +103,10 @@ describe("UnsecuredWebsitesReportComponent", () => {
         {
           provide: AdminConsoleCipherFormConfigService,
           useValue: adminConsoleCipherFormConfigService,
+        },
+        {
+          provide: LogService,
+          useValue: mock<LogService>(),
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

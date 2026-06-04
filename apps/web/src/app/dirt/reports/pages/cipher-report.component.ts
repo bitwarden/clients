@@ -14,6 +14,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -65,6 +66,7 @@ export abstract class CipherReportComponent implements OnDestroy {
     private syncService: SyncService,
     private cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected logService: LogService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -79,6 +81,10 @@ export abstract class CipherReportComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  protected get reportScope(): string {
+    return this.organization ? "Enterprise" : "Individual";
   }
 
   getName(filterId: string | number) {
@@ -132,22 +138,44 @@ export abstract class CipherReportComponent implements OnDestroy {
 
   async load() {
     this.loading = true;
-    await this.syncService.fullSync(false);
-    // when a user fixes an item in a report we want to persist the filter they had
-    // if they fix the last item of that filter we will go back to the "All" filter
-    if (this.currentFilterStatus) {
-      if (this.ciphers.length > 2) {
-        this.filterOrgStatus$.next(this.currentFilterStatus);
-        await this.filterOrgToggle(this.currentFilterStatus);
-      } else {
-        this.filterOrgStatus$.next(0);
-        await this.filterOrgToggle(0);
+    try {
+      try {
+        this.logService.info(`[CipherReport] [${this.reportScope}] Starting full sync`);
+        await this.syncService.fullSync(false);
+        this.logService.info(`[CipherReport] [${this.reportScope}] Full sync complete`);
+      } catch (e) {
+        this.logService.error(`[CipherReport] [${this.reportScope}] Full sync failed`, e);
+        // Re-throw so the failure is not silently swallowed and continues to surface as before.
+        throw e;
       }
-    } else {
-      await this.setCiphers();
+
+      // when a user fixes an item in a report we want to persist the filter they had
+      // if they fix the last item of that filter we will go back to the "All" filter
+      if (this.currentFilterStatus) {
+        if (this.ciphers.length > 2) {
+          this.filterOrgStatus$.next(this.currentFilterStatus);
+          await this.filterOrgToggle(this.currentFilterStatus);
+        } else {
+          this.filterOrgStatus$.next(0);
+          await this.filterOrgToggle(0);
+        }
+      } else {
+        // setCiphers() is polymorphic — each report overrides it without calling super, so the
+        // base-level entry/error logging must wrap the call site here to actually run.
+        try {
+          this.logService.info(`[CipherReport] [${this.reportScope}] Setting ciphers`);
+          await this.setCiphers();
+        } catch (e) {
+          this.logService.error(`[CipherReport] [${this.reportScope}] Failed to set ciphers`, e);
+          throw e;
+        }
+      }
+      // Only mark the report as loaded on the success path. On failure we let the error propagate
+      // with hasLoaded still false, so the template does not render a misleading "success" state.
+      this.hasLoaded = true;
+    } finally {
+      this.loading = false;
     }
-    this.loading = false;
-    this.hasLoaded = true;
   }
   async selectCipher(cipher: CipherView) {
     if (!(await this.repromptCipher(cipher))) {

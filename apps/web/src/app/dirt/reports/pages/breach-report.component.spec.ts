@@ -8,6 +8,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AsyncActionsModule, ButtonModule, FormFieldModule } from "@bitwarden/components";
@@ -52,6 +53,7 @@ describe("BreachReportComponent", () => {
   let fixture: ComponentFixture<BreachReportComponent>;
   let auditService: MockProxy<AuditService>;
   let accountService: MockProxy<AccountService>;
+  let logService: MockProxy<LogService>;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
     ...mockAccountInfoWith({
@@ -63,6 +65,7 @@ describe("BreachReportComponent", () => {
   beforeEach(async () => {
     auditService = mock<AuditService>();
     accountService = mock<AccountService>();
+    logService = mock<LogService>();
     accountService.activeAccount$ = activeAccountSubject;
 
     await TestBed.configureTestingModule({
@@ -80,6 +83,10 @@ describe("BreachReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: LogService,
+          useValue: logService,
         },
       ],
       schemas: [],
@@ -134,6 +141,10 @@ describe("BreachReportComponent", () => {
     await component.submit();
 
     expect(component.error).toBe(true);
+    expect(logService.error).toHaveBeenCalledWith(
+      expect.stringContaining("[BreachReport]"),
+      expect.any(Error),
+    );
   });
 
   it("should set loading to false after submit", async () => {

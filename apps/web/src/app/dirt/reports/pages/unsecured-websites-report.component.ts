@@ -4,6 +4,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -40,6 +41,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
     protected collectionService: CollectionService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    logService: LogService,
   ) {
     super(
       cipherService,
@@ -51,6 +53,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
@@ -60,11 +63,18 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
 
   async setCiphers() {
     const allCiphers = await this.getAllCiphers();
+    this.logService.info(
+      `[UnsecuredWebsitesReport] [${this.reportScope}] Analyzing ${allCiphers.length} ciphers`,
+    );
     this.filterStatus = [0];
 
     const unsecuredCiphers = allCiphers.filter((c) => {
       return this.cipherContainsUnsecured(c);
     });
+
+    this.logService.info(
+      `[UnsecuredWebsitesReport] [${this.reportScope}] Found ${unsecuredCiphers.length} unsecured websites`,
+    );
 
     this.filterCiphersByOrg(unsecuredCiphers);
   }

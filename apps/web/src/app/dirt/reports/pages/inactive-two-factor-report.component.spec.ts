@@ -26,6 +26,7 @@ describe("InactiveTwoFactorReportComponent", () => {
   let fixture: ComponentFixture<InactiveTwoFactorReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
+  let logServiceMock: MockProxy<LogService>;
   let adminConsoleCipherFormConfigServiceMock: MockProxy<AdminConsoleCipherFormConfigService>;
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
@@ -35,6 +36,7 @@ describe("InactiveTwoFactorReportComponent", () => {
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
+    logServiceMock = mock<LogService>();
 
     await TestBed.configureTestingModule({
       declarations: [InactiveTwoFactorReportComponent],
@@ -58,7 +60,7 @@ describe("InactiveTwoFactorReportComponent", () => {
         },
         {
           provide: LogService,
-          useValue: mock<LogService>(),
+          useValue: logServiceMock,
         },
         {
           provide: PasswordRepromptService,
@@ -115,6 +117,57 @@ describe("InactiveTwoFactorReportComponent", () => {
     expect(component.ciphers[0].edit).toEqual(true);
     expect(component.ciphers[1].id).toEqual(expectedIdTwo);
     expect(component.ciphers[1].edit).toEqual(true);
+  });
+
+  it("should log the inactive two-factor result count on setCiphers", async () => {
+    component.services.set(
+      "101domain.com",
+      "https://help.101domain.com/account-management/account-security/enabling-disabling-two-factor-verification",
+    );
+    component.services.set(
+      "123formbuilder.com",
+      "https://www.123formbuilder.com/docs/multi-factor-authentication-login",
+    );
+
+    jest.spyOn(component as any, "getAllCiphers").mockReturnValue(Promise.resolve<any>(cipherData));
+    await component.setCiphers();
+
+    expect(logServiceMock.info).toHaveBeenCalledWith(
+      expect.stringContaining("Found 2 inactive two-factor ciphers"),
+    );
+  });
+
+  it("should log an error when load2fa fails during setCiphers", async () => {
+    // No services pre-populated, so load2fa() runs and its fetch rejects.
+    const originalFetch = global.fetch;
+    global.fetch = jest.fn().mockRejectedValue(new Error("network down"));
+
+    try {
+      await component.setCiphers();
+    } finally {
+      global.fetch = originalFetch;
+    }
+
+    expect(logServiceMock.error).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to load 2FA directory"),
+      expect.any(Error),
+    );
+  });
+
+  it("should log a completion count even when the 2FA directory fails to load", async () => {
+    // No services pre-populated, so load2fa() runs and its fetch rejects, leaving services empty.
+    const originalFetch = global.fetch;
+    global.fetch = jest.fn().mockRejectedValue(new Error("network down"));
+
+    try {
+      await component.setCiphers();
+    } finally {
+      global.fetch = originalFetch;
+    }
+
+    expect(logServiceMock.info).toHaveBeenCalledWith(
+      expect.stringContaining("Found 0 inactive two-factor ciphers"),
+    );
   });
 
   it("should call fullSync method of syncService", () => {
