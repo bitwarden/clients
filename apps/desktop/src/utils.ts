@@ -35,6 +35,13 @@ export function isSnapStore() {
   return isLinux() && process.env.SNAP_USER_DATA != null;
 }
 
+export function isGnome() {
+  if (!isLinux()) {
+    return false;
+  }
+  return process.env.XDG_CURRENT_DESKTOP?.toLowerCase().includes("gnome") ?? false;
+}
+
 export function isMac() {
   return process.platform === "darwin";
 }
