@@ -366,6 +366,21 @@ describe("DomQueryService", () => {
       expect(domQueryService.checkForNewShadowRoots([])).toBe(false);
     });
 
+    // Characterizes the known gap (no full-document fallback); flip when fixed.
+    it("finds an in-place attachShadow root only via the candidate batch, not absent the host", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const host = document.createElement("div");
+      document.body.appendChild(host);
+      const root = host.attachShadow({ mode: "open" });
+      root.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+      const unrelated = document.createElement("span");
+      document.body.appendChild(unrelated);
+
+      expect(domQueryService.checkForNewShadowRoots([unrelated])).toBe(false);
+      expect(domQueryService.checkForNewShadowRoots([host])).toBe(true);
+    });
+
     it("returns true via narrow-scan and does not flip pageContainsShadowDom when latch was already true", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const host = document.createElement("custom-element");
