@@ -8,7 +8,6 @@ import {
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  AttachmentUpgrade,
   CipherListView,
   CreateAttachmentRequest,
   CreatedAttachment,
@@ -261,21 +260,17 @@ export abstract class CipherSdkService {
   ): Promise<string>;
 
   /**
-   * Prepare a legacy (key-less) attachment for upgrade to the cipher-key-encryption format.
-   * The SDK downloads the legacy bytes, re-encrypts them with a fresh attachment key, opens
-   * a new attachment slot on the server, and updates the local repository. The caller is
-   * responsible for pushing {@link AttachmentUpgrade.encryptedContents} to
-   * {@link AttachmentUpgrade.uploadUrl} and then deleting the legacy attachment.
+   * Upgrades a legacy attachment to the new attachment system via the SDK.
    *
    * @param cipherId The cipher that owns the legacy attachment
    * @param attachmentId The legacy attachment to upgrade
    * @param userId The user ID to use for SDK client
    */
-  abstract prepareAttachmentUpgrade(
+  abstract upgradeAttachment(
     cipherId: CipherId,
     attachmentId: string,
     userId: UserId,
-  ): Promise<AttachmentUpgrade>;
+  ): Promise<void>;
 
   /**
    * Lists and decrypts all ciphers from state using the SDK.

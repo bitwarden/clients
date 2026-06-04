@@ -1251,7 +1251,7 @@ describe("Cipher Service", () => {
       expect(apiSpy).not.toHaveBeenCalled();
     });
 
-    it("routes each legacy attachment through prepareAttachmentUpgrade when flag is enabled", async () => {
+    it("routes each legacy attachment through upgradeAttachment when flag is enabled", async () => {
       sdkAttachmentOpsFeatureFlag$.next(true);
 
       const view = new CipherView(new Cipher(cipherData));
@@ -1261,43 +1261,23 @@ describe("Cipher Service", () => {
       legacyAttachment.key = null;
       view.attachments = [legacyAttachment];
 
-      const validEncBytes = new Uint8Array(50);
-      validEncBytes[0] = 2;
-      cipherSdkService.prepareAttachmentUpgrade.mockResolvedValue({
-        attachmentId: "newatt",
-        uploadUrl: "https://example.com/upload",
-        fileUploadType: "Direct",
-        encryptedFileName: "2.encryptedFileName",
-        encryptedContents: validEncBytes,
-      } as any);
-      cipherFileUploadService.uploadPrepared.mockResolvedValue(undefined);
+      cipherSdkService.upgradeAttachment.mockResolvedValue(undefined);
 
       const refreshedCipher = new Cipher(cipherData);
       jest.spyOn(cipherService, "get").mockResolvedValue(refreshedCipher);
-      jest
-        .spyOn(cipherService, "deleteAttachmentWithServer")
-        .mockResolvedValue(refreshedCipher.toCipherData());
       jest.spyOn(cipherService, "decrypt").mockResolvedValue(view);
 
       const apiSpy = jest.spyOn(apiService, "getAttachmentData");
 
       await cipherService.upgradeOldCipherAttachments(view, userId);
 
-      expect(cipherSdkService.prepareAttachmentUpgrade).toHaveBeenCalledWith(
+      expect(cipherSdkService.upgradeAttachment).toHaveBeenCalledWith(
         view.id,
         "legacy-attachment-id",
         userId,
       );
-      expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
-        view.id,
-        "newatt",
-        "https://example.com/upload",
-        FileUploadType.Direct,
-        expect.any(EncString),
-        expect.anything(),
-        userId,
-        false,
-      );
+      // The SDK now owns the re-upload and the legacy delete; the client does not upload.
+      expect(cipherFileUploadService.uploadPrepared).not.toHaveBeenCalled();
       expect(apiSpy).not.toHaveBeenCalled();
     });
   });

@@ -12,7 +12,6 @@ import {
 } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  AttachmentUpgrade,
   CipherListView,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
@@ -463,22 +462,15 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
-  async prepareAttachmentUpgrade(
-    cipherId: CipherId,
-    attachmentId: string,
-    userId: UserId,
-  ): Promise<AttachmentUpgrade> {
-    return await firstValueFrom(
+  async upgradeAttachment(cipherId: CipherId, attachmentId: string, userId: UserId): Promise<void> {
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value
-            .vault()
-            .attachments()
-            .prepare_attachment_upgrade(asUuid(cipherId), attachmentId);
+          await ref.value.vault().attachments().upgrade_attachment(asUuid(cipherId), attachmentId);
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to prepare attachment upgrade: ${error}`);
+          this.logService.error(`Failed to upgrade attachment: ${error}`);
           throw error;
         }),
       ),

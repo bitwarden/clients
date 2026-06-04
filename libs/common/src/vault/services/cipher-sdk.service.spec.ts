@@ -74,7 +74,7 @@ describe("DefaultCipherSdkService", () => {
       create_attachment: jest.fn(),
       delete_attachment: jest.fn(),
       get_attachment_download_url: jest.fn(),
-      prepare_attachment_upgrade: jest.fn(),
+      upgrade_attachment: jest.fn(),
       renew_file_upload_url: jest.fn(),
       admin: jest.fn().mockReturnValue(mockAttachmentsAdminSdk),
     };
@@ -1083,43 +1083,31 @@ describe("DefaultCipherSdkService", () => {
     });
   });
 
-  describe("prepareAttachmentUpgrade()", () => {
+  describe("upgradeAttachment()", () => {
     const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
     const testAttachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
-    const upgrade = {
-      attachmentId: "newatt9999999999999999999999999",
-      uploadUrl: "https://example.com/upload",
-      fileUploadType: "Direct" as const,
-      encryptedFileName: "2.encryptedFileName",
-      encryptedContents: new Uint8Array([1, 2, 3, 4, 5]),
-    };
 
-    it("delegates to SDK attachments.prepare_attachment_upgrade and returns its result", async () => {
-      mockAttachmentsSdk.prepare_attachment_upgrade.mockResolvedValue(upgrade);
+    it("delegates to SDK attachments.upgrade_attachment", async () => {
+      mockAttachmentsSdk.upgrade_attachment.mockResolvedValue(undefined);
 
-      const result = await cipherSdkService.prepareAttachmentUpgrade(
-        testCipherId,
-        testAttachmentId,
-        userId,
-      );
+      await cipherSdkService.upgradeAttachment(testCipherId, testAttachmentId, userId);
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.attachments).toHaveBeenCalled();
-      expect(mockAttachmentsSdk.prepare_attachment_upgrade).toHaveBeenCalledWith(
+      expect(mockAttachmentsSdk.upgrade_attachment).toHaveBeenCalledWith(
         testCipherId,
         testAttachmentId,
       );
-      expect(result).toBe(upgrade);
     });
 
     it("throws and logs when the SDK throws", async () => {
-      mockAttachmentsSdk.prepare_attachment_upgrade.mockRejectedValue(new Error("SDK error"));
+      mockAttachmentsSdk.upgrade_attachment.mockRejectedValue(new Error("SDK error"));
 
       await expect(
-        cipherSdkService.prepareAttachmentUpgrade(testCipherId, testAttachmentId, userId),
+        cipherSdkService.upgradeAttachment(testCipherId, testAttachmentId, userId),
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to prepare attachment upgrade"),
+        expect.stringContaining("Failed to upgrade attachment"),
       );
     });
   });

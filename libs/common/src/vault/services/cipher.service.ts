@@ -2022,24 +2022,7 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<Cipher> {
     await this.clearCache(userId);
 
-    const upgrade = await this.cipherSdkService.prepareAttachmentUpgrade(
-      cipherId as CipherId,
-      attachmentId,
-      userId,
-    );
-
-    await this.cipherFileUploadService.uploadPrepared(
-      cipherId,
-      upgrade.attachmentId,
-      upgrade.uploadUrl,
-      upgrade.fileUploadType === "Direct" ? FileUploadType.Direct : FileUploadType.Azure,
-      new EncString(upgrade.encryptedFileName),
-      new EncArrayBuffer(new Uint8Array(upgrade.encryptedContents)),
-      userId,
-      false,
-    );
-
-    await this.deleteAttachmentWithServer(cipherId, attachmentId, userId);
+    await this.cipherSdkService.upgradeAttachment(cipherId as CipherId, attachmentId, userId);
 
     return await this.get(cipherId, userId);
   }
