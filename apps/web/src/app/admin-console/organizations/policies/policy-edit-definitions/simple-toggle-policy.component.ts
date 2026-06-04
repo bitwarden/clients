@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
-import { CalloutComponent, CheckboxModule, FormFieldModule } from "@bitwarden/components";
+import { CalloutComponent, FormFieldModule, SwitchComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -12,12 +12,11 @@ import { BasePolicyEditComponent } from "../base-policy-edit.component";
     @if (policy()?.warningKey) {
       <bit-callout type="warning">{{ policy()!.warningKey! | i18n }}</bit-callout>
     }
-    <bit-form-control>
-      <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+    <bit-switch [formControl]="enabled">
       <bit-label>{{ "turnOn" | i18n }}</bit-label>
-    </bit-form-control>
+    </bit-switch>
   `,
-  imports: [ReactiveFormsModule, CalloutComponent, CheckboxModule, FormFieldModule, I18nPipe],
+  imports: [ReactiveFormsModule, CalloutComponent, FormFieldModule, SwitchComponent, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SimpleTogglePolicyComponent extends BasePolicyEditComponent {}

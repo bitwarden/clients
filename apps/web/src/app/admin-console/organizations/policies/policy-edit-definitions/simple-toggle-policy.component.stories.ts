@@ -68,6 +68,21 @@ type StoryArgs = {
   showWarning: boolean;
 };
 
+function renderStory(args: StoryArgs) {
+  return {
+    props: {
+      policy: args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy(),
+      policyResponse: makePolicyStatusResponse(args.enabled),
+    },
+    template: `
+      <app-simple-toggle-policy-edit
+        [policy]="policy"
+        [policyResponse]="policyResponse"
+      ></app-simple-toggle-policy-edit>
+    `,
+  };
+}
+
 export default {
   title: "Admin Console/Organizations/Policies/Simple Toggle Policy",
   component: SimpleTogglePolicyComponent,
@@ -103,18 +118,7 @@ export default {
 type Story = StoryObj<StoryArgs>;
 
 export const PolicyOff: Story = {
-  render: (args) => ({
-    props: {
-      policy: args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy(),
-      policyResponse: makePolicyStatusResponse(args.enabled),
-    },
-    template: `
-      <app-simple-toggle-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></app-simple-toggle-policy-edit>
-    `,
-  }),
+  render: renderStory,
 };
 
 /**
@@ -125,18 +129,7 @@ export const PolicyOn: Story = {
     enabled: true,
     showWarning: false,
   },
-  render: (args) => ({
-    props: {
-      policy: args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy(),
-      policyResponse: makePolicyStatusResponse(args.enabled),
-    },
-    template: `
-      <app-simple-toggle-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></app-simple-toggle-policy-edit>
-    `,
-  }),
+  render: renderStory,
 };
 
 /**
@@ -147,18 +140,7 @@ export const PolicyOffWithWarning: Story = {
     enabled: false,
     showWarning: true,
   },
-  render: (args) => ({
-    props: {
-      policy: args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy(),
-      policyResponse: makePolicyStatusResponse(args.enabled),
-    },
-    template: `
-      <app-simple-toggle-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></app-simple-toggle-policy-edit>
-    `,
-  }),
+  render: renderStory,
 };
 
 /**
@@ -169,16 +151,5 @@ export const PolicyOnWithWarning: Story = {
     enabled: true,
     showWarning: true,
   },
-  render: (args) => ({
-    props: {
-      policy: args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy(),
-      policyResponse: makePolicyStatusResponse(args.enabled),
-    },
-    template: `
-      <app-simple-toggle-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></app-simple-toggle-policy-edit>
-    `,
-  }),
+  render: renderStory,
 };
