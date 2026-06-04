@@ -31,6 +31,10 @@ import { UserId } from "@bitwarden/user-core";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
   private organizationInvitationState: GlobalState<OrganizationInvite | null>;
+  // In-memory dedup of policy lookups across one invite ceremony. The same invite
+  // can be checked from login, registration, and accept in a single session;
+  // keyed by invite token, cleared whenever the stored invite is set or cleared
+  // so a transition can't leak stale entries.
   private policyCache = new Map<string, Policy[]>();
 
   constructor(
