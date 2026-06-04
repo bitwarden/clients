@@ -88,6 +88,14 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
       const ecdsaEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHecdsa);
       if (!ecdsaEnabled) {
         this.logService.error("ECDSA SSH key import blocked: SSHecdsa feature flag is not enabled");
+
+        const variant = "UnsupportedKeyType";
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(variant)),
+        });
+
         return null;
       }
     }

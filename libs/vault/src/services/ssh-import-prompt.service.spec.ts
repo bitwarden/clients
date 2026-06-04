@@ -133,7 +133,10 @@ describe("SshImportPromptService", () => {
       expect(await sshImportPromptService.importSshKeyFromClipboard()).toBeNull();
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SSHecdsa);
       expect(logService.error).toHaveBeenCalled();
-      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      expect(i18nService.t).toHaveBeenCalledWith("sshKeyTypeUnsupported");
     });
 
     it("allows ECDSA key import when SSHecdsa flag is enabled", async () => {
@@ -144,6 +147,10 @@ describe("SshImportPromptService", () => {
       expect(await sshImportPromptService.importSshKeyFromClipboard()).not.toBeNull();
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SSHecdsa);
       expect(logService.error).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(i18nService.t).not.toHaveBeenCalledWith("sshKeyTypeUnsupported");
     });
 
     it("does not check SSHecdsa flag for non-ECDSA keys", async () => {
