@@ -59,6 +59,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
+  private lastDetachedPurgeAt = -Infinity;
+  private readonly detachedPurgeThrottleMs = 1000;
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
@@ -94,6 +96,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   // Gate-branch-architecture meters (main's queue-swap path): adaptive backoff + 256-cap overflow.
   private readonly monitorBackoff = createMeter("mutationBackoff", "burst", "adaptiveMs");
   private readonly monitorCandidateOverflow = createMeter("shadowCandidateOverflow");
+  private readonly monitorScheduleSkipped = createMeter("scheduleSkipped");
 
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -1350,6 +1353,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
+    // Runs on every wake (throttled), so detached nodes are reclaimed even on pages
+    // whose batches never contribute work and so never schedule a drain.
+    this.purgeDetachedNodesIfDue();
+
     const hasMutationsInShadowRoot = measure("shadowMutationCheck", () =>
       this.domQueryService.checkMutationsInShadowRoots(mutations),
     );
@@ -1383,7 +1390,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const shouldSchedule =
+    // Schedule a drain only when the queue was idle AND this batch contributed work.
+    // Cosmetic batches on hyperactive pages contribute nothing once the childList gate
+    // rejects them; scheduling a no-op drain is pure idle-callback + allocation tax.
+    const queueWasIdle =
       this.pendingAttributeMutations.size === 0 &&
       this.pendingTopLayerTargets.size === 0 &&
       !this.pendingChildListUpdate;
@@ -1425,8 +1435,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    if (shouldSchedule) {
+    const queueHasWork =
+      this.pendingAttributeMutations.size > 0 ||
+      this.pendingTopLayerTargets.size > 0 ||
+      this.pendingChildListUpdate;
+
+    if (queueWasIdle && queueHasWork) {
       requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
+    } else if (queueWasIdle) {
+      this.monitorScheduleSkipped();
     }
   };
 
@@ -1468,8 +1485,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    this.purgeDetachedFieldMetadata();
-    this.domQueryService.purgeDetachedShadowRoots();
+    this.purgeDetachedNodesIfDue();
 
     if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
       return;
@@ -1527,6 +1543,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         field,
       );
     }
+  }
+
+  // At most one detached-node sweep per throttle window, whatever the caller. The
+  // -Infinity start makes the first call always run.
+  private purgeDetachedNodesIfDue(): void {
+    const now = performance.now();
+    if (now - this.lastDetachedPurgeAt < this.detachedPurgeThrottleMs) {
+      return;
+    }
+    this.lastDetachedPurgeAt = now;
+    this.purgeDetachedFieldMetadata();
+    this.domQueryService.purgeDetachedShadowRoots();
   }
 
   private purgeDetachedFieldMetadata(): void {

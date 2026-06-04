@@ -10,6 +10,7 @@ import {
   FormFieldElement,
   FormElementWithAttribute,
 } from "../types";
+import * as autofillUtils from "../utils";
 
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -22,6 +23,8 @@ jest.mock("../utils", () => {
   return {
     ...utils,
     debounce: jest.fn((fn) => fn),
+    // Call-through spy so scheduling tests can assert on it without changing behavior.
+    requestIdleCallbackPolyfill: jest.fn((cb, opts) => utils.requestIdleCallbackPolyfill(cb, opts)),
   };
 });
 
@@ -3513,6 +3516,47 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["handleMutationObserverMutation"]([relevant]);
 
       expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(true);
+    });
+
+    it("does not schedule a drain for a cosmetic-only batch (no idle-callback tax)", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(idle).not.toHaveBeenCalled();
+    });
+
+    it("schedules a drain when the batch contributes a relevant field", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const input = Object.assign(document.createElement("input"), { type: "text" });
+      const relevant = childListMutationFor(input);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([relevant]);
+
+      expect(idle).toHaveBeenCalledWith(
+        collectAutofillContentService["processMutations"],
+        expect.objectContaining({ timeout: 500 }),
+      );
+    });
+
+    it("still purges detached nodes on a cosmetic wake that schedules no drain", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const fieldPurge = jest.spyOn(
+        collectAutofillContentService as any,
+        "purgeDetachedFieldMetadata",
+      );
+      const shadowPurge = jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(idle).not.toHaveBeenCalled();
+      expect(fieldPurge).toHaveBeenCalled();
+      expect(shadowPurge).toHaveBeenCalled();
     });
   });
 
