@@ -34,7 +34,7 @@ const WINDOW_KEY = new KeyDefinition<WindowState | null>(DESKTOP_SETTINGS_DISK, 
   deserializer: (s) => s,
 });
 
-const CLOSE_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "closeToTray", {
+const RUN_IN_BACKGROUND_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "runInBackground", {
   deserializer: (b) => b,
 });
 
@@ -93,7 +93,7 @@ export class DesktopSettingsService {
 
   private readonly windowState = this.stateProvider.getGlobal(WINDOW_KEY);
 
-  private readonly runInBackground = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
+  private readonly runInBackground = this.stateProvider.getGlobal(RUN_IN_BACKGROUND_KEY);
   /**
    * The application setting for whether or not Bitwarden should keep running in the background.
    *
@@ -101,9 +101,6 @@ export class DesktopSettingsService {
    * application to the tray (keeping background features such as the SSH agent and
    * biometric unlock available) instead of quitting. When disabled, no tray is shown
    * and closing the window quits the application.
-   *
-   * Note: the persisted key remains `closeToTray` for backwards compatibility with
-   * existing user preferences.
    */
   runInBackground$ = this.runInBackground.state$.pipe(map((v) => v ?? !isDev()));
 

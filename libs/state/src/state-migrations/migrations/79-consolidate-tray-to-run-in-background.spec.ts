@@ -14,7 +14,7 @@ describe("ConsolidateTrayToRunInBackground", () => {
       });
 
       expect(output).toEqual({
-        global_desktopSettings_closeToTray: true,
+        global_desktopSettings_runInBackground: true,
       });
     });
 
@@ -25,7 +25,7 @@ describe("ConsolidateTrayToRunInBackground", () => {
       });
 
       expect(output).toEqual({
-        global_desktopSettings_closeToTray: true,
+        global_desktopSettings_runInBackground: true,
       });
     });
 
@@ -36,7 +36,7 @@ describe("ConsolidateTrayToRunInBackground", () => {
       });
 
       expect(output).toEqual({
-        global_desktopSettings_closeToTray: false,
+        global_desktopSettings_runInBackground: false,
       });
     });
 
@@ -49,11 +49,11 @@ describe("ConsolidateTrayToRunInBackground", () => {
       });
 
       expect(output).toEqual({
-        global_desktopSettings_closeToTray: true,
+        global_desktopSettings_runInBackground: true,
       });
     });
 
-    it("does not write closeToTray when neither legacy setting was present", async () => {
+    it("does not write runInBackground when neither legacy setting was present", async () => {
       const output = await runMigrator(sut, {
         global_desktopSettings_minimizeToTray: true,
       });

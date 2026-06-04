@@ -7,6 +7,10 @@ const CLOSE_TO_TRAY_KEY: KeyDefinitionLike = {
   key: "closeToTray",
   stateDefinition: DESKTOP_SETTINGS_STATE,
 };
+const RUN_IN_BACKGROUND_KEY: KeyDefinitionLike = {
+  key: "runInBackground",
+  stateDefinition: DESKTOP_SETTINGS_STATE,
+};
 const TRAY_ENABLED_KEY: KeyDefinitionLike = {
   key: "trayEnabled",
   stateDefinition: DESKTOP_SETTINGS_STATE,
@@ -22,9 +26,9 @@ const ALWAYS_SHOW_DOCK_KEY: KeyDefinitionLike = {
 
 /**
  * Consolidates the legacy `trayEnabled`, `minimizeToTray`, and `closeToTray` desktop settings
- * into a single "run in the background" setting, which reuses the `closeToTray` key.
- * `runInBackground = closeToTray || trayEnabled`. The now-unused `trayEnabled`, `minimizeToTray`,
- * and `alwaysShowDock` keys are removed.
+ * into a single "run in the background" setting, stored under the new `runInBackground` key.
+ * `runInBackground = closeToTray || trayEnabled`. The now-unused `closeToTray`, `trayEnabled`,
+ * `minimizeToTray`, and `alwaysShowDock` keys are removed.
  */
 export class ConsolidateTrayToRunInBackground extends Migrator<78, 79> {
   async migrate(helper: MigrationHelper): Promise<void> {
@@ -34,10 +38,13 @@ export class ConsolidateTrayToRunInBackground extends Migrator<78, 79> {
     // Only write a consolidated value when at least one legacy value existed, so users who
     // never customized these keep falling through to the `!isDev()` default in the service.
     if (closeToTray != null || trayEnabled != null) {
-      await helper.setToGlobal(CLOSE_TO_TRAY_KEY, Boolean(closeToTray) || Boolean(trayEnabled));
+      await helper.setToGlobal(RUN_IN_BACKGROUND_KEY, Boolean(closeToTray) || Boolean(trayEnabled));
     }
 
     // Remove orphaned keys (guarded so absent keys aren't touched).
+    if (closeToTray != null) {
+      await helper.removeFromGlobal(CLOSE_TO_TRAY_KEY);
+    }
     if (trayEnabled != null) {
       await helper.removeFromGlobal(TRAY_ENABLED_KEY);
     }
