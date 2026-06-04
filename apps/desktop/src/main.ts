@@ -231,6 +231,7 @@ export class Main {
       this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
+      () => this.trayMain.restoreFromTray(),
     );
 
     this.biometricsService = new MainBiometricsService(
@@ -371,10 +372,12 @@ export class Main {
           },
         ]);
 
-        // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
+        // Autostart starts to tray. Any auto-start mechanism must provide this flag.
+        // Only hide to tray when running in the background is enabled; otherwise there
+        // would be a hidden window with no tray icon to bring it back.
         const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
-        if (isAutostart) {
-          await this.trayMain.hideToTray();
+        if (isAutostart && (await firstValueFrom(this.desktopSettingsService.closeToTray$))) {
+          this.trayMain.hideToTray();
         }
 
         this.powerMonitorMain.init();
