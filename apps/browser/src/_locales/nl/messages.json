@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Paspoortnummer kopiëren"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationaal identificatienummer kopiëren"
+  },
   "copyFirstName": {
     "message": "Copy first name"
   },
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "Merk"
   },
+  "birthDay": {
+    "message": "Geboortedag"
+  },
+  "birthMonth": {
+    "message": "Geboortemaand"
+  },
+  "birthYear": {
+    "message": "Geboortejaar"
+  },
+  "expirationDay": {
+    "message": "Vervaldatum"
+  },
   "expirationMonth": {
     "message": "Vervalmaand"
   },
   "expirationYear": {
     "message": "Vervaljaar"
+  },
+  "issueDay": {
+    "message": "Uitgiftedag"
+  },
+  "issueMonth": {
+    "message": "Uitgavemaand"
+  },
+  "issueYear": {
+    "message": "Uitgiftejaar"
   },
   "monthly": {
     "message": "maand"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "Paspoortnummer"
   },
+  "dateOfBirth": {
+    "message": "Geboortedatum"
+  },
+  "sex": {
+    "message": "Geslacht"
+  },
+  "copySex": {
+    "message": "Geslacht kopiëren"
+  },
+  "birthPlace": {
+    "message": "Geboorteplaats"
+  },
+  "copyBirthPlace": {
+    "message": "Geboorteplaats kopiëren"
+  },
+  "nationality": {
+    "message": "Nationaliteit"
+  },
+  "copyNationality": {
+    "message": "Nationaliteit kopiëren"
+  },
+  "issuingCountry": {
+    "message": "Land van uitgifte"
+  },
+  "copyIssuingCountry": {
+    "message": "Land van uitgifte kopiëren"
+  },
+  "passportType": {
+    "message": "Soort paspoort"
+  },
+  "copyPassportType": {
+    "message": "Soort paspoort kopiëren"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationaal identificatienummer"
+  },
+  "issuingAuthority": {
+    "message": "Instantie van uitgifte"
+  },
+  "copyIssuingAuthority": {
+    "message": "Autoriteit/kantoor van uitgifte kopiëren"
+  },
+  "issueDate": {
+    "message": "Uitgiftedatum"
+  },
   "licenseNumber": {
     "message": "Rijbewijsnummer"
   },
@@ -2190,6 +2259,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdetails"
   },
+  "typePassport": {
+    "message": "Paspoort"
+  },
+  "passportDetails": {
+    "message": "Paspoortgegevens"
+  },
+  "passportAdded": {
+    "message": "Paspoort toegevoegd"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisdocument"
+  },
   "typeDriversLicense": {
     "message": "License"
   },
@@ -2199,41 +2280,8 @@
   "driversLicenseDetails": {
     "message": "Rijbewijsdetails"
   },
-  "dateOfBirth": {
-    "message": "Geboortedatum"
-  },
-  "birthMonth": {
-    "message": "Geboortemaand"
-  },
-  "birthDay": {
-    "message": "Geboortedag"
-  },
-  "birthYear": {
-    "message": "Geboortejaar"
-  },
-  "issuingCountry": {
-    "message": "Land van uitgifte"
-  },
   "issuingState": {
     "message": "Provincie van uitgifte"
-  },
-  "issuingAuthority": {
-    "message": "Instantie van uitgifte"
-  },
-  "issueDate": {
-    "message": "Uitgiftedatum"
-  },
-  "issueMonth": {
-    "message": "Uitgavemaand"
-  },
-  "issueDay": {
-    "message": "Uitgiftedag"
-  },
-  "issueYear": {
-    "message": "Uitgiftejaar"
-  },
-  "expirationDay": {
-    "message": "Vervaldatum"
   },
   "licenseClass": {
     "message": "Rijbewijsklasse"
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "Wissen",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Geselecteerd"
+  },
+  "bulkActionsBar": {
+    "message": "Bulkacties"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) geselecteerd. De bulkactiebalk is nu beschikbaar onderaan het scherm. Druk op $SHORTCUTBINDING$ om de focus naar de bulkactiebalk te verleggen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selectie gewist"
+  },
+  "additionalActions": {
+    "message": "Aanvullende acties"
   },
   "checkPassword": {
     "message": "Controleer of wachtwoord is gelekt."
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Kan biometrische authenticatie niet voltooien, gebruik een hoofdwachtwoord of log uit. Neem contact op met de ondersteuning van Bitwarden als dit blijft aanhouden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Toestemming niet verleend"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Zonder toestemming om te communiceren met de Bitwarden Desktop-applicatie, kunnen we biometrisch inloggen in de browserextensie niet leveren. Probeer het opnieuw."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Fout bij toestemmingsaanvraag"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Deze actie kan niet worden uitgevoerd in de zijbalk, probeer de actie opnieuw in de pop-up of pop-out."
   },
   "personalOwnershipSubmitError": {
     "message": "Wegens bedrijfsbeleid mag je geen wachtwoorden opslaan in je persoonlijke kluis. Verander het eigenaarschap naar een organisatie en kies uit een van de beschikbare collecties."
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Geen waarde ingevoerd",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Geen waarden om te kopiëren"
   },
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "Volgende"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Bankrekening doorzoeken"
   },
+  "searchPassport": {
+    "message": "Paspoorten zoeken"
+  },
   "copyAccountNumber": {
     "message": "Rekeningnummer kopiëren"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "IBAN kopiëren"
+  },
+  "copyNameOnAccount": {
+    "message": "Naam op rekening kopiëren"
+  },
+  "copyBranchNumber": {
+    "message": "Vestigingsnummer kopiëren"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT-code kopiëren"
   },
   "bankAccountTypeChecking": {
     "message": "Controleren"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "Downloaden mislukt."
+  },
+  "more": {
+    "message": "Meer"
   },
   "maxAccessCount": {
     "message": "Maximum toegangsaantal",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
   }
 }

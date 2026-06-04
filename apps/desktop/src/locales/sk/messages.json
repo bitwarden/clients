@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankové údaje"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Podrobnosti o pase"
+  },
+  "passportAdded": {
+    "message": "Pas bol pridaný"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovný doklad"
+  },
   "folderSubtitle": {
     "message": "Usporiadajte si položky"
   },
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "Zobraziť bankový účet",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "Zobraziť vodičský preukaz",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "Zobraziť vodičský preukaz",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Číslo pasu"
+  },
+  "sex": {
+    "message": "Pohlavie"
+  },
+  "copySex": {
+    "message": "Kopírovať pohlavie"
+  },
+  "birthPlace": {
+    "message": "Miesto narodenia"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovať miesto narodenia"
+  },
+  "nationality": {
+    "message": "Národnosť"
+  },
+  "copyNationality": {
+    "message": "Kopírovať národnosť"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovať vydávajúcu krajinu"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovať typ pasu"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovať rodné číslo"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovať  vydávajúci orgán/úrad"
   },
   "licenseNumber": {
     "message": "Číslo vodičského preukazu"
@@ -1181,6 +1225,10 @@
   "noItemsInList": {
     "message": "Neexistujú žiadne položky na zobrazenie."
   },
+  "noValueEntered": {
+    "message": "Hodnota nie je zadaná",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Poslať overovací kód na váš e-mail"
   },
@@ -1908,6 +1956,31 @@
   "selectAll": {
     "message": "Vybrať Všetko"
   },
+  "selected": {
+    "message": "Vybrané"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné operácie"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Vybrané položky: $COUNT$. Panel hromadných operácií je teraz k dispozícii v spodnej časti obrazovky. Stlačte $SHORTCUTBINDING$, aby ste presunuli fokus na panel hromadných operácií.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výber bol zrušený"
+  },
+  "additionalActions": {
+    "message": "Ďalšie akcie"
+  },
   "zoomIn": {
     "message": "Priblížiť"
   },
@@ -2229,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Odstránenie účtu je trvalé. Operáciu nie je možné vrátiť späť."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Ste vlastníkom aspoň jednej organizácie. Vymazaním vášho účtu sa odstránia aj všetky organizácie, ktorých ste jediným vlastníkom."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Svoj účet nemôžete odstrániť, pokiaľ ste vlastníkom organizácie. Najprv preneste vlastníctvo alebo odstráňte organizáciu."
+  },
   "cannotDeleteAccount": {
     "message": "Účet nie je možné odstrániť"
   },
@@ -2538,9 +2617,6 @@
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Bohužiaľ, integrácia v prehliadači zatiaľ nie je podporovaná, ak je aplikácia nainštalovaná cez Microsoft Store."
-  },
-  "browserIntegrationLinuxDesc": {
-    "message": "Bohužiaľ, integrácia prehliadača nie je v súčasnosti podporovaná vo verzii pre Linux."
   },
   "enableHardwareAcceleration": {
     "message": "Použiť hardvérové zrýchlenie"
@@ -4670,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Neplatná klávesová skratka"
   },
+  "breadcrumbs": {
+    "message": "Omrvinková navigácia",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5030,6 +5110,9 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "more": {
+    "message": "Viac"
+  },
   "enterMonth": {
     "message": "Zadajte mesiac."
   },
@@ -5088,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Vyhľadať bankový účet"
   },
+  "searchPassport": {
+    "message": "Vyhľadať pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovať číslo účtu"
   },
@@ -5100,6 +5186,15 @@
   "copyIban": {
     "message": "Kopírovať IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Kopírovať meno na účte"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovať číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovať SWIFT kód"
+  },
   "copyFirstName": {
     "message": "Kopírovať krstné meno"
   },
@@ -5111,6 +5206,9 @@
   },
   "copyLicenseNumber": {
     "message": "Kopírovať číslo vodičského preukazu"
+  },
+  "copyPassportNumber": {
+    "message": "Kopírovať číslo pasu"
   },
   "bankAccountTypeChecking": {
     "message": "Bežný účet"
@@ -5188,6 +5286,9 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
   },
   "driversLicenseDetails": {
     "message": "Podrobnosti o vodičskom preukaze"
