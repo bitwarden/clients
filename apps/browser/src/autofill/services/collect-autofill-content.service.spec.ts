@@ -3015,15 +3015,14 @@ describe("CollectAutofillContentService", () => {
         expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
       });
 
-      it("trips the overflow flag at the cap and releases element refs", () => {
+      it("trips the overflow flag at the cap and keeps the capped set for incremental scan", () => {
         const cap = collectAutofillContentService["pendingMutationAddedElementsCap"];
         const widgets = Array.from({ length: cap + 50 }, () => document.createElement("my-widget"));
 
         collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation(widgets)]);
 
         expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(true);
-        // Overflow path clears the Set immediately so refs don't linger until the debounce fires.
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
+        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(cap);
       });
 
       it("is a no-op once overflow has been tripped (later batches are ignored)", () => {

@@ -12,8 +12,7 @@ import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-
 
 type ScanVerdict =
   | { branch: "shortCircuit"; foundNewRoot: false }
-  | { branch: "narrow"; foundNewRoot: boolean }
-  | { branch: "fullScan"; foundNewRoot: boolean };
+  | { branch: "narrow"; foundNewRoot: boolean };
 
 export class DomQueryService implements DomQueryServiceInterface {
   /** One-way ratchet; reset only by `resetObservedShadowRoots()`. */
@@ -130,13 +129,12 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   private classifyShadowRootScan = (addedElements?: Element[]): ScanVerdict => {
     const hasAddedElements = !!addedElements && addedElements.length > 0;
-    // Batch present: scan even with latch false (shadow DOM may attach post-init).
-    if (!this.pageContainsShadowDom && !hasAddedElements) {
+    // No added elements ⇒ nothing to discover; never escalate to a full-document walk
+    // (re-pierces known roots, O(document)). A batch is scanned even with latch false.
+    if (!hasAddedElements) {
       return { branch: "shortCircuit", foundNewRoot: false };
     }
-    return hasAddedElements
-      ? this.findNewShadowRootInBatch(addedElements!)
-      : this.findNewShadowRootInDocument();
+    return this.findNewShadowRootInBatch(addedElements!);
   };
 
   private findNewShadowRootInBatch = (elements: Element[]): ScanVerdict => {
@@ -169,19 +167,6 @@ export class DomQueryService implements DomQueryServiceInterface {
       }
     }
     return roots;
-  };
-
-  private findNewShadowRootInDocument = (): ScanVerdict => {
-    let roots: ShadowRoot[];
-    try {
-      roots = this.recursivelyQueryShadowRoots(globalThis.document.body);
-    } catch {
-      roots = this.queryShadowRoots(globalThis.document.body);
-    }
-    return {
-      branch: "fullScan",
-      foundNewRoot: roots.some((r) => !this.knownShadowRoots.has(r)),
-    };
   };
 
   private markShadowDomPresent = (): void => {
