@@ -137,7 +137,7 @@ describe("DefaultCipherSdkService", () => {
         expect.objectContaining({
           name: cipherView.name,
           organizationId: expect.anything(),
-          archivedDate: null,
+          archivedDate: undefined,
         }),
       );
       expect(result).toBeInstanceOf(CipherView);
