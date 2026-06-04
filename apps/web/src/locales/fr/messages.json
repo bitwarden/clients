@@ -69,7 +69,7 @@
     "message": "Mots de passe à risque"
   },
   "noEditPermissions": {
-    "message": "Vous n'avez pas l'autorisation de modifier cet élément"
+    "message": "Vous n'avez pas l'autorisation d'éditer cet élément"
   },
   "reviewAccessIntelligence": {
     "message": "Examinez les rapports de sécurité pour trouver et corriger les risques liés aux identifiants avant de les escalader."
@@ -213,6 +213,33 @@
   },
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Faites un tour rapide avec Intelligence d'Accès et voyez exactement comment transformer les données de votre organisation en actions."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Toute la sécurité de votre organisation, en une seule vue"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Intelligence d'Accès vous permet de voir à un seul endroit, toutes les applications, mots de passe et membres qui sont en danger."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Vous définissez les priorités, nous mettons les risques en évidence."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Vous notez quelles applications sont les plus critiques, et Intelligence d'Accès identifie automatiquement les mots de passe à risque qui nécessitent une attention prioritaire."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Suivez les améliorations dans votre équipe"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Les membres sont automatiquement informés des mots de passe à risque dans leur extension Bitwarden. Aucune chasse requise."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Importez vos données de l'organisation pour commencer"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Une fois qu'il a les données du coffre, Intelligence d'Accès aura tout ce dont il a besoin pour rapporter l'état de santé de votre organisation."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Tour de bienvenue à Intelligence d'Accès"
   },
   "startTour": {
     "message": "Commencer le tour"
@@ -708,7 +735,7 @@
     "message": "Type de passeport"
   },
   "nationalIdentificationNumber": {
-    "message": "Numéro d'identification national"
+    "message": "Numéro d'assurance sociale"
   },
   "licenseNumber": {
     "message": "Numéro de permis"
@@ -1376,7 +1403,7 @@
     "message": "Copier le numéro de passeport"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copier le numéro d'identification national"
+    "message": "Copier le numéro d'assurance sociale"
   },
   "copyPassportType": {
     "message": "Copier le type de passeport"
@@ -1502,6 +1529,28 @@
   },
   "unselectAll": {
     "message": "Tout désélectionner"
+  },
+  "bulkActionsBar": {
+    "message": "Actions en bloc"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ élément(s) sélectionné(s). La barre d'actions en bloc est maintenant disponible en bas de l'écran. Appuyez sur $SHORTCUTBINDING$ pour activer/désactiver la mise au point sur la barre d'action en bloc.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Sélection effacée"
+  },
+  "additionalActions": {
+    "message": "Actions supplémentaires"
   },
   "launch": {
     "message": "Ouvrir"
@@ -2612,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "La suppression de votre compte est définitive. Cette action ne peut pas être annulée."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Vous êtes le propriétaire d'au moins une organisation. La suppression de votre compte supprimera également toutes les organisations dont vous êtes le seul propriétaire."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Vous ne pouvez pas supprimer votre compte alors que vous êtes le propriétaire d'une organisation. Transférez d'abord la propriété ou supprimez l'organisation."
+  },
+  "cannotDeleteAccount": {
+    "message": "Impossible de supprimer le compte"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Cette action ne peut pas être complétée car votre compte appartient à une organisation. Contactez l'administrateur de votre organisation pour plus de détails."
+  },
   "accountDeleted": {
     "message": "Compte supprimé"
   },
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Votre mode de paiement sera facturé pour tous les abonnements impayés."
   },
-  "paymentChargedWithTrial": {
-    "message": "Votre offre comprend un essai gratuit de 7 jours. Votre mode de paiement ne sera pas facturé avant la fin de la période d'essai. Vous pouvez annuler à tout moment."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Votre abonnement bient avec un essai gratuit de $TRIAL_LENGTH$ jour(s). Votre mode de paiement ne sera pas débité avant la fin de la période d'essai. Vous pouvez annuler à tout moment.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Informations de paiement"
@@ -4369,6 +4436,30 @@
     "message": "Fichier de Send créé avec le mot de passe",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Modifier le Send de texte",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Send de fichier modifié",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Send de texte supprimé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Send de fichier supprimé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Send de texte supprimé accédé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Send de fichier accédé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "L'élément $ID$ a été déplacé vers une organisation.",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "IBAN affiché pour de l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "IBAN copié pour de l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Code SWIFT affiché pour l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Code SWIFT copié pour l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Numéro d'assurance sociale consulté pour l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Numéro d'assurance sociale copié pour l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Élément $ID$ saisi automatiquement.",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Si vous fermez cette vue, vos modifications non enregistrées seront annulées."
   },
-  "discardEdits": {
-    "message": "Annuler les modifications"
-  },
   "keepEditing": {
     "message": "Continuer à modifier"
-  },
-  "backToEditing": {
-    "message": "Retour à l’édition"
   },
   "editedPolicyId": {
     "message": "Politique $ID$ modifiée.",
@@ -5651,6 +5790,24 @@
   },
   "regenerateInviteLink": {
     "message": "Regénérer le lien d'invitation"
+  },
+  "invalidateInviteLink": {
+    "message": "Invalider le lien d'invitation"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Si vous supprimez tous les domaines, ce lien d'invitation ne fonctionnera plus pour personne."
+  },
+  "invalidateLink": {
+    "message": "Invalider le lien"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Lien d'invitation invalidé"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Vous devez entrer au moins 1 domaine"
+  },
+  "deactivateLink": {
+    "message": "Désactiver le lien"
   },
   "inviteByLinkDesc": {
     "message": "Invitez des membres à rejoindre votre organisation avec un lien. Si aucun rôle n'a encore été spécifié, ils seront ajoutés en tant qu'utilisateur par défaut."
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "Action requise : Il vous manque un ID de Taxes dans les détails du paiement. Si un ID de Taxes n'est pas ajouté, vos factures peuvent inclure des taxes supplémentaires."
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Plus de fil d'Ariane",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "Copier l'IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copier le nom sur le compte"
+  },
+  "copyBranchNumber": {
+    "message": "Copier le numéro de succursale/institution"
+  },
+  "copySwiftCode": {
+    "message": "Copier le code SWIFT"
+  },
   "bankAccountTypeChecking": {
     "message": "Compte courant"
   },
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Votre compte bancaire doit être vérifié avant de pouvoir être utilisé pour cette mise à niveau. Veuillez vérifier votre compte bancaire ou choisir un autre mode de paiement."
   },
+  "discardEdits": {
+    "message": "Annuler les modifications"
+  },
   "discardEditsMessage": {
     "message": "Si vous fermez cette vue, vos modifications non enregistrées seront annulées"
+  },
+  "backToEditing": {
+    "message": "Retour à l’édition"
   },
   "sendHasUnsavedEdits": {
     "message": "L'envoi a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
