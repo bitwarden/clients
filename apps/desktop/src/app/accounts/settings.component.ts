@@ -283,7 +283,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
-      runInBackground: await firstValueFrom(this.desktopSettingsService.closeToTray$),
+      runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,

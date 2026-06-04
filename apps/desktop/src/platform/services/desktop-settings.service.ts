@@ -93,7 +93,7 @@ export class DesktopSettingsService {
 
   private readonly windowState = this.stateProvider.getGlobal(WINDOW_KEY);
 
-  private readonly closeToTrayState = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
+  private readonly runInBackground = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
   /**
    * The application setting for whether or not Bitwarden should keep running in the background.
    *
@@ -105,7 +105,7 @@ export class DesktopSettingsService {
    * Note: the persisted key remains `closeToTray` for backwards compatibility with
    * existing user preferences.
    */
-  closeToTray$ = this.closeToTrayState.state$.pipe(map((v) => v ?? !isDev()));
+  runInBackground$ = this.runInBackground.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly openAtLoginState = this.stateProvider.getGlobal(OPEN_AT_LOGIN_KEY);
   /**
@@ -192,8 +192,8 @@ export class DesktopSettingsService {
    * @param value `true` if the application should show the tray and hide to it when the window
    * is closed, `false` if closing the window should quit the application.
    */
-  async setCloseToTray(value: boolean) {
-    await this.closeToTrayState.update(() => value);
+  async setRunInBackground(value: boolean) {
+    await this.runInBackground.update(() => value);
   }
 
   /**

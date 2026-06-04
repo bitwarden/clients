@@ -76,7 +76,7 @@ export class TrayMain {
 
     // The tray icon is shown only while "keep running in the background" is enabled.
     // React to the setting so toggling it shows/removes the tray without a restart.
-    this.desktopSettingsService.closeToTray$.subscribe((runInBackground) => {
+    this.desktopSettingsService.runInBackground$.subscribe((runInBackground) => {
       if (runInBackground) {
         this.showTray();
       } else {
@@ -95,7 +95,7 @@ export class TrayMain {
         return;
       }
 
-      if (await firstValueFrom(this.desktopSettingsService.closeToTray$)) {
+      if (await firstValueFrom(this.desktopSettingsService.runInBackground$)) {
         // Keep running in the background: closing the window hides it to the tray.
         e.preventDefault();
         this.hideToTray();

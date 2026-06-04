@@ -376,7 +376,7 @@ export class Main {
         // Only hide to tray when running in the background is enabled; otherwise there
         // would be a hidden window with no tray icon to bring it back.
         const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
-        if (isAutostart && (await firstValueFrom(this.desktopSettingsService.closeToTray$))) {
+        if (isAutostart && (await firstValueFrom(this.desktopSettingsService.runInBackground$))) {
           this.trayMain.hideToTray();
         }
 
