@@ -33,8 +33,8 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
-  BadgeModule,
   BitIconButtonComponent,
+  ChipActionComponent,
   ButtonModule,
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -129,7 +129,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
-    BadgeModule,
+    ChipActionComponent,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
@@ -572,6 +572,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (this.params.mode === "view" || this.cipher == null || this.formConfig.mode === "clone") {
       await this.dialogRef.close(this._cipherModified ? VaultItemDialogResult.Saved : undefined);
       return;
+    }
+
+    // Refresh from local state so attachments modified during edit aren't stale in view mode.
+    const activeUserId = await firstValueFrom(this.userId$);
+    const latestCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+    if (latestCipher != null) {
+      this.cipher = await this.cipherService.decrypt(latestCipher, activeUserId);
     }
 
     // We're in Form mode, and we have a cipher, switch back to View mode.

@@ -197,6 +197,31 @@ describe("VaultOnboardingComponent", () => {
 
       expect(saveCompletedTasksSpy).toHaveBeenCalled();
     });
+
+    it("should set showOnboarding to false when extension is detected and all other tasks are complete", async () => {
+      jest
+        .spyOn((component as any).vaultOnboardingService, "setVaultOnboardingTasks")
+        .mockReturnValue(Promise.resolve());
+
+      (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
+        .fn()
+        .mockImplementation(() => {
+          return of({
+            createAccount: true,
+            importData: true,
+            installExtension: false,
+          });
+        });
+
+      (component as any).showOnboarding = true;
+      (component as any).onboardingTasks$ = (
+        component as any
+      ).vaultOnboardingService.vaultOnboardingState$();
+
+      await component.getMessages({ data: { command: VaultMessages.HasBwInstalled } });
+
+      expect((component as any).showOnboarding).toBe(false);
+    });
   });
 
   describe("emitToAddCipher", () => {

@@ -168,6 +168,10 @@ export class DefaultSendFormService implements SendFormService {
       );
       const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
       if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
+        // Reset the form's touched state so sendFormHasEdits() returns
+        // false after the user discards. Without this, the browser's beforeunload
+        // (in send.component.ts) would still fire when the user tries
+        this._sendForm.markAsUntouched();
         return true;
       } else {
         return false;
