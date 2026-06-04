@@ -174,12 +174,18 @@ export class ServiceAccountService {
     serviceAccountView.revisionDate = serviceAccountResponse.revisionDate;
 
     if (serviceAccountResponse.name) {
-      const name = await this.decryptField(
-        new EncString(serviceAccountResponse.name),
-        organizationKey,
-      );
-      serviceAccountView.name = name.value;
-      serviceAccountView.decryptionError = name.error;
+      try {
+        const name = await this.decryptField(
+          new EncString(serviceAccountResponse.name),
+          organizationKey,
+        );
+        serviceAccountView.name = name.value;
+        serviceAccountView.decryptionError = name.error;
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        serviceAccountView.name = DECRYPT_ERROR;
+        serviceAccountView.decryptionError = true;
+      }
     } else {
       serviceAccountView.name = null;
     }
@@ -199,9 +205,15 @@ export class ServiceAccountService {
     view.accessToSecrets = response.accessToSecrets;
 
     if (response.name) {
-      const name = await this.decryptField(new EncString(response.name), organizationKey);
-      view.name = name.value;
-      view.decryptionError = name.error;
+      try {
+        const name = await this.decryptField(new EncString(response.name), organizationKey);
+        view.name = name.value;
+        view.decryptionError = name.error;
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        view.name = DECRYPT_ERROR;
+        view.decryptionError = true;
+      }
     } else {
       view.name = null;
     }
