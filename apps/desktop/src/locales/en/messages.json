@@ -1681,10 +1681,10 @@
     "message": "Keep Bitwarden running in the background"
   },
   "runInBackgroundDesc": {
-    "message": "When you close the window, Bitwarden keeps running and stays accessible from the tray. Required for unlock with biometrics and the SSH agent."
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
   "runInBackgroundDescMac": {
-    "message": "When you close the window, Bitwarden keeps running and stays accessible from the menu bar. Required for unlock with Touch ID and the SSH agent."
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Start automatically on login"
