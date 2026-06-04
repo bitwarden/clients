@@ -66,7 +66,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingShadowDomCheck = false;
   private pendingMutationAddedElements: Set<Element> = new Set();
   private pendingMutationAddedElementsOverflowed = false;
-  // Caps the batch handed to suppressDescendantsInBatch; overflow → full-document scan fallback.
+  // Caps the batch handed to suppressDescendantsInBatch; on cap the kept set is scanned incrementally.
   private readonly pendingMutationAddedElementsCap = 256;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
@@ -1594,10 +1594,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.pendingMutationAddedElements.add(node);
         if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
           this.pendingMutationAddedElementsOverflowed = true;
-          // Overflow → next shadow check escalates to a full-document scan.
           this.monitorCandidateOverflow();
-          // Release element refs immediately; we won't process them this window.
-          this.pendingMutationAddedElements.clear();
+          // Keep the capped set so the debounced check scans it incrementally, not a re-walk.
           return;
         }
       }
