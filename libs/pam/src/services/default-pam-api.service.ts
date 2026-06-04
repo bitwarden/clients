@@ -2,21 +2,25 @@ import { Observable, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { CipherAccessState, PamApiService } from "../abstractions/pam-api.service";
-import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
+import { AccessPreCheckResponse } from "../abstractions/responses/access-pre-check.response";
+import { AccessRequestEnvelopeResponse } from "../abstractions/responses/access-request-envelope.response";
 import { AccessRequestResponse } from "../abstractions/responses/access-request.response";
+import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
 import { BulkRevokeResult } from "../abstractions/responses/bulk-revoke.result";
 import { OrganizationGovernanceSummaryResponse } from "../abstractions/responses/governance-summary.response";
 import { InboxAccessRequestResponse } from "../abstractions/responses/inbox-access-request.response";
 import { InboxBadgeCountResponse } from "../abstractions/responses/inbox-badge-count.response";
 import { LeaseResponse } from "../abstractions/responses/lease.response";
 
+import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { AccessRuleRequest } from "./requests/access-rule.request";
+import { CreateLeaseRequest } from "./requests/create-lease.request";
 import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
-import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -39,6 +43,27 @@ export class DefaultPamApiService implements PamApiService {
     // anything, so "no leasing state" is the correct passive answer and keeps
     // the banner inert wherever PAM is wired but not yet backed by a server.
     return of({ lease: {} });
+  }
+
+  async getLeasePreCheck(cipherId: string): Promise<AccessPreCheckResponse> {
+    return new AccessPreCheckResponse(
+      await this.send("GET", `/ciphers/${cipherId}/lease/pre-check`, null, true),
+    );
+  }
+
+  async requestLease(
+    cipherId: string,
+    body: CreateLeaseRequest,
+  ): Promise<AccessRequestEnvelopeResponse> {
+    return new AccessRequestEnvelopeResponse(
+      await this.send("POST", `/ciphers/${cipherId}/lease`, body, true),
+    );
+  }
+
+  async getLeasedCipher(cipherId: string): Promise<CipherResponse> {
+    return new CipherResponse(
+      await this.send("GET", `/ciphers/${cipherId}/lease/cipher`, null, true),
+    );
   }
 
   listInboxRequests(): Promise<InboxAccessRequestResponse[]> {

@@ -3,7 +3,9 @@ import {
   CipherLeaseBannerComponent,
   DefaultPamApiService,
   LeaseEventService,
+  LeasedCipherFetcher,
   PamApiService,
+  RequestAccessTrigger,
 } from "@bitwarden/pam";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CIPHER_VIEW_BANNER } from "@bitwarden/vault";
@@ -15,6 +17,7 @@ import { PamCipherOpenGate } from "./cipher-open-gate.service";
 import { MockLeaseEventService } from "./mock/mock-lease-event.service";
 import { MockPamApiService } from "./mock/mock-pam-api.service";
 import { PamMockConfig } from "./mock/pam-mock-config";
+import { WebRequestAccessTrigger } from "./request-access-trigger/web-request-access-trigger.service";
 
 /**
  * PAM-owned root-level providers. Consumed by `core.module.ts` so the web shell
@@ -45,6 +48,16 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherLeaseBannerComponent,
+    }),
+    safeProvider({
+      provide: RequestAccessTrigger,
+      useClass: WebRequestAccessTrigger,
+      deps: [],
+    }),
+    safeProvider({
+      provide: LeasedCipherFetcher,
+      useFactory: (pamApiService: PamApiService) => new LeasedCipherFetcher(pamApiService),
+      deps: [PamApiService],
     }),
   ];
 }

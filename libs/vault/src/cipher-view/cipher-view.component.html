@@ -1,6 +1,11 @@
 @if (!!cipher()) {
   @if (bannerComponent) {
-    <ng-container *ngComponentOutlet="bannerComponent; inputs: { cipherId: cipher().id }" />
+    <ng-container
+      *ngComponentOutlet="
+        bannerComponent;
+        inputs: { cipherId: cipher().id, partialData: cipher().partialData }
+      "
+    />
   }
 
   @if (cardIsExpired()) {

@@ -7,10 +7,24 @@ export {
   parseConditions,
 } from "./abstractions/access-rule";
 export { CipherAccessState, PamApiService } from "./abstractions/pam-api.service";
+export { RequestAccessTrigger, RequestAccessOutcome } from "./abstractions/request-access-trigger";
+export {
+  AccessApprovalOutcome,
+  AccessPreCheckResponse,
+} from "./abstractions/responses/access-pre-check.response";
+export { AccessRequestEnvelopeResponse } from "./abstractions/responses/access-request-envelope.response";
 export {
   AccessRequestResponse,
   AccessRequestStatus,
 } from "./abstractions/responses/access-request.response";
+export {
+  LeaseLifecycleStatus,
+  LeaseModelResponse,
+} from "./abstractions/responses/lease-model.response";
+export {
+  LeaseRequestLifecycleStatus,
+  LeaseRequestModelResponse,
+} from "./abstractions/responses/lease-request-model.response";
 export { LeaseResponse, LeaseStatus } from "./abstractions/responses/lease.response";
 export { AccessRuleResponse } from "./abstractions/responses/access-rule.response";
 export { BulkRevokeResult } from "./abstractions/responses/bulk-revoke.result";
@@ -25,6 +39,8 @@ export { LeaseEventService } from "./abstractions/lease-event.service";
 
 export { DefaultPamApiService } from "./services/default-pam-api.service";
 export { DefaultLeaseEventService } from "./services/default-lease-event.service";
+export { LeasedCipherFetcher } from "./services/leased-cipher-fetcher.service";
+export { CreateLeaseRequest } from "./services/requests/create-lease.request";
 export { LeaseDecision, LeaseDecisionRequest } from "./services/requests/lease-decision.request";
 export { LeaseExtensionRequest } from "./services/requests/lease-extension.request";
 export { AccessRequestPatchRequest } from "./services/requests/access-request-patch.request";

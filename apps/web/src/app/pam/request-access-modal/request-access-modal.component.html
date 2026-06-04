@@ -1,0 +1,123 @@
+<bit-dialog dialogSize="default">
+  <span bitDialogTitle>{{ "requestAccessModalTitle" | i18n }}</span>
+
+  <ng-container bitDialogContent>
+    <p bitTypography="body2" class="tw-mb-4 tw-text-muted">
+      @if (data.outcome === "automatic") {
+        {{ "requestAccessModalAutomaticDescription" | i18n }}
+      } @else {
+        {{ "requestAccessModalHumanDescription" | i18n }}
+      }
+    </p>
+
+    @if (data.outcome === "automatic") {
+      <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
+        <bit-form-field>
+          <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+          <select bitInput formControlName="durationMinutes" data-testid="request-access-duration">
+            @for (opt of durationOptions; track opt.minutes) {
+              <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
+            }
+          </select>
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="reason"
+            [placeholder]="'accessRequestDetailModalReasonPlaceholder' | i18n"
+            data-testid="request-access-reason"
+          />
+          <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      </form>
+    } @else {
+      <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
+        <bit-form-field>
+          <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="date"
+            formControlName="customDate"
+            data-testid="request-access-date"
+          />
+        </bit-form-field>
+
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="time"
+              formControlName="customStart"
+              data-testid="request-access-start"
+            />
+          </bit-form-field>
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="time"
+              formControlName="customEnd"
+              data-testid="request-access-end"
+            />
+          </bit-form-field>
+        </div>
+
+        @if (customWindowEndBeforeStart) {
+          <p bitTypography="helper" class="tw-text-danger" data-testid="window-end-before-start">
+            {{ "requestAccessModalEndBeforeStart" | i18n }}
+          </p>
+        } @else if (customWindowExceedsMax) {
+          <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
+            {{ "requestAccessModalWindowExceedsMax" | i18n }}
+          </p>
+        }
+
+        <bit-form-field>
+          <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="reason"
+            [placeholder]="'accessRequestDetailModalReasonPlaceholder' | i18n"
+            data-testid="request-access-reason"
+          />
+          <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      </form>
+    }
+
+    @if (serverError(); as err) {
+      <p bitTypography="helper" class="tw-mt-3 tw-text-danger" data-testid="server-error">
+        {{ err }}
+      </p>
+    }
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="form.invalid || submitting()"
+      [loading]="submitting()"
+      (click)="submit()"
+      data-testid="request-access-submit"
+    >
+      {{ "requestAccessModalSubmit" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [disabled]="submitting()"
+      (click)="dismiss()"
+      data-testid="request-access-dismiss"
+    >
+      {{ "requestAccessModalDismiss" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
