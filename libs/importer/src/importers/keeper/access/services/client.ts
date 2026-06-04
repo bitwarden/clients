@@ -45,11 +45,19 @@ import {
   SyncDownResponseSchema,
 } from "../generated/sync-down_pb";
 import {
+  ChannelUid,
   ClientOptions,
+  ContinuationToken,
   DeviceCredentials,
+  DeviceToken,
+  KeeperKey,
+  KeeperSalt,
   LoginResult,
+  LoginToken,
+  MessageSessionUid,
   MessageType,
   PushMessage,
+  SessionToken,
   SocketListener,
 } from "../models";
 import { Cancel, Resend, TryAnother, Ui } from "../ui";
@@ -79,7 +87,7 @@ export class Client {
   private serverKeyId: number = 7;
   private readonly locale: string = "en_US";
   private password: string | null = null;
-  private ssoTransmissionKey: Uint8Array | null = null;
+  private ssoTransmissionKey: KeeperKey | null = null;
 
   constructor(options: ClientOptions) {
     this.server = options.region;
@@ -89,7 +97,7 @@ export class Client {
   async login(username: string): Promise<LoginResult> {
     const { deviceToken, devicePrivateKey } = await this.registerDevice();
 
-    const messageSessionUid = getRandomBytes(16);
+    const messageSessionUid = getRandomBytes(16) as MessageSessionUid;
     const transmissionKey = generateEncryptionKey();
     let socket: SocketListener | null = null;
 
@@ -179,9 +187,9 @@ export class Client {
     }
   }
 
-  async syncDown(sessionToken: Uint8Array): Promise<SyncDownResponse[]> {
+  async syncDown(sessionToken: SessionToken): Promise<SyncDownResponse[]> {
     const pages: SyncDownResponse[] = [];
-    let token: Uint8Array = new Uint8Array();
+    let token = new Uint8Array() as ContinuationToken;
 
     while (true) {
       const page = await this.syncDownRequest(sessionToken, token);
@@ -191,7 +199,7 @@ export class Client {
         break;
       }
 
-      token = page.continuationToken;
+      token = page.continuationToken as ContinuationToken;
     }
 
     return pages;
@@ -214,7 +222,7 @@ export class Client {
     );
     const device = fromBinary(DeviceSchema, response);
 
-    const deviceToken = new Uint8Array(device.encryptedDeviceToken);
+    const deviceToken = new Uint8Array(device.encryptedDeviceToken) as DeviceToken;
 
     return {
       deviceToken,
@@ -223,7 +231,7 @@ export class Client {
   }
 
   private async registerDeviceInRegion(
-    deviceToken: Uint8Array,
+    deviceToken: DeviceToken,
     devicePrivateKey: CryptoKey,
   ): Promise<void> {
     const publicKeyBytes = await this.getPublicKeyFromPrivate(devicePrivateKey);
@@ -281,7 +289,7 @@ export class Client {
       throw new Error("No login token received from server");
     }
 
-    const salt = new Uint8Array(response.salt[0].salt);
+    const salt = new Uint8Array(response.salt[0].salt) as KeeperSalt;
     const iterations = response.salt[0].iterations || 100000;
 
     let previousPasswordRejected = false;
@@ -298,7 +306,7 @@ export class Client {
 
       const authHash = await deriveV1KeyHash(this.password, salt, iterations);
       try {
-        return await this.validateAuthHash(authHash, response.encryptedLoginToken);
+        return await this.validateAuthHash(authHash, response.encryptedLoginToken as LoginToken);
       } catch {
         previousPasswordRejected = true;
       }
@@ -307,8 +315,8 @@ export class Client {
 
   private async handleCloudSso(
     response: LoginResponse,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
   ): Promise<LoginResponse> {
     if (!response.url) {
       throw new Error("Cloud SSO redirect without URL");
@@ -329,7 +337,7 @@ export class Client {
     }
 
     return await this.resumeLoginAfterSso(
-      ssoResponse.encryptedLoginToken,
+      ssoResponse.encryptedLoginToken as LoginToken,
       deviceToken,
       messageSessionUid,
     );
@@ -337,7 +345,7 @@ export class Client {
 
   private async buildCloudSsoUrl(
     ssoBaseUrl: string,
-    messageSessionUid: Uint8Array,
+    messageSessionUid: MessageSessionUid,
   ): Promise<string> {
     const ssoRequest = create(SsoCloudRequestSchema, {
       messageSessionUid,
@@ -385,9 +393,9 @@ export class Client {
   }
 
   private async resumeLoginAfterSso(
-    encryptedLoginToken: Uint8Array,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    encryptedLoginToken: LoginToken,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
   ): Promise<LoginResponse> {
     const request = create(StartLoginRequestSchema, {
       encryptedLoginToken,
@@ -417,12 +425,15 @@ export class Client {
       throw new Error("No data key received from server");
     }
 
-    const sessionToken = new Uint8Array(response.encryptedSessionToken);
+    const sessionToken = new Uint8Array(response.encryptedSessionToken) as SessionToken;
 
-    let dataKey: Uint8Array;
+    let dataKey: KeeperKey;
     switch (response.encryptedDataKeyType) {
       case EncryptedDataKeyType.BY_DEVICE_PUBLIC_KEY:
-        dataKey = await decryptEc(new Uint8Array(response.encryptedDataKey), devicePrivateKey);
+        dataKey = (await decryptEc(
+          new Uint8Array(response.encryptedDataKey),
+          devicePrivateKey,
+        )) as KeeperKey;
         break;
       case EncryptedDataKeyType.BY_PASSWORD:
         if (!this.password) {
@@ -445,13 +456,13 @@ export class Client {
 
   private async handleDeviceApproval(
     username: string,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
     response: LoginResponse,
     socket: SocketListener,
     channels: DeviceApprovalChannel[],
   ): Promise<LoginResponse> {
-    const currentLoginToken = response.encryptedLoginToken;
+    const currentLoginToken = response.encryptedLoginToken as LoginToken;
 
     // Register a single socket listener for the whole approval flow. If the user
     // picks "Try another method" and we loop back, we reuse this same promise so
@@ -477,7 +488,7 @@ export class Client {
 
         let previousCodeRejected = false;
         let tryAnother = false;
-        let updatedToken: Uint8Array | undefined;
+        let updatedToken: LoginToken | undefined;
         while (updatedToken === undefined) {
           socketMessagePromise ??= socket.waitForMessage();
           const result = await Promise.race([
@@ -505,12 +516,12 @@ export class Client {
 
             if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
               // Server already validated the code from the watch; reuse the new token.
-              updatedToken = base64UrlDecode(encryptedLoginToken);
+              updatedToken = base64UrlDecode(encryptedLoginToken) as LoginToken;
             } else if (mt === MessageType.DNA && passcode) {
               updatedToken = await this.validate2FA(
                 currentLoginToken,
                 passcode,
-                new Uint8Array(),
+                new Uint8Array() as ChannelUid,
                 TwoFactorValueType.TWO_FA_CODE_NONE,
               );
             } else {
@@ -524,7 +535,7 @@ export class Client {
               updatedToken = await this.validate2FA(
                 currentLoginToken,
                 result,
-                new Uint8Array(),
+                new Uint8Array() as ChannelUid,
                 TwoFactorValueType.TWO_FA_CODE_NONE,
               );
             } catch {
@@ -552,7 +563,7 @@ export class Client {
           break;
         case DeviceApprovalChannel.KeeperPush:
           await this.send2FAPush(
-            response.encryptedLoginToken,
+            response.encryptedLoginToken as LoginToken,
             TwoFactorPushType.TWO_FA_PUSH_KEEPER,
           );
           break;
@@ -631,8 +642,8 @@ export class Client {
 
   private async requestDeviceVerification(
     username: string,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
     resend: boolean = false,
   ): Promise<void> {
     const request = create(DeviceVerificationRequestSchema, {
@@ -652,8 +663,8 @@ export class Client {
 
   private async requestDeviceAdminApproval(
     username: string,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
   ): Promise<void> {
     const request = create(DeviceVerificationRequestSchema, {
       username,
@@ -691,7 +702,7 @@ export class Client {
   }
 
   private async send2FAPush(
-    encryptedLoginToken: Uint8Array,
+    encryptedLoginToken: LoginToken,
     pushType?: TwoFactorPushType,
   ): Promise<void> {
     const request = create(TwoFactorSendPushRequestSchema, {
@@ -750,12 +761,12 @@ export class Client {
 
   private async handle2FA(
     _username: string,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
     response: LoginResponse,
     socket: SocketListener,
   ): Promise<LoginResponse> {
-    let currentLoginToken = response.encryptedLoginToken;
+    let currentLoginToken = response.encryptedLoginToken as LoginToken;
 
     const methods = response.channels
       .map((x) => this.twoFactorMethodToUi.get(x.channelType)!)
@@ -794,7 +805,7 @@ export class Client {
             this.validate2FA(
               currentLoginToken,
               code,
-              channel.channelUid,
+              channel.channelUid as ChannelUid,
               TwoFactorValueType.TWO_FA_CODE_TOTP,
             ),
           );
@@ -816,7 +827,7 @@ export class Client {
               this.validate2FA(
                 currentLoginToken,
                 code,
-                channel.channelUid,
+                channel.channelUid as ChannelUid,
                 TwoFactorValueType.TWO_FA_CODE_SMS,
               ),
             sendSms,
@@ -848,7 +859,7 @@ export class Client {
               currentLoginToken = await this.validate2FA(
                 currentLoginToken,
                 passcode,
-                channel.channelUid,
+                channel.channelUid as ChannelUid,
                 TwoFactorValueType.TWO_FA_CODE_DNA,
               );
             } else {
@@ -902,7 +913,7 @@ export class Client {
                 const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
 
                 if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
-                  currentLoginToken = base64UrlDecode(encryptedLoginToken);
+                  currentLoginToken = base64UrlDecode(encryptedLoginToken) as LoginToken;
                 } else {
                   throw new KeeperAuthError(
                     KeeperAuthErrorCode.MfaFailed,
@@ -925,7 +936,7 @@ export class Client {
                 this.validate2FA(
                   currentLoginToken,
                   code,
-                  channel.channelUid,
+                  channel.channelUid as ChannelUid,
                   TwoFactorValueType.TWO_FA_CODE_DUO,
                 ),
               );
@@ -949,7 +960,7 @@ export class Client {
                   this.validate2FA(
                     currentLoginToken,
                     code,
-                    channel.channelUid,
+                    channel.channelUid as ChannelUid,
                     TwoFactorValueType.TWO_FA_CODE_DUO,
                   ),
                 sendSms,
@@ -1019,9 +1030,9 @@ export class Client {
    */
   private async submitTwoFactorCodeWithRetry(
     method: TwoFactorMethod,
-    validate: (code: string) => Promise<Uint8Array>,
+    validate: (code: string) => Promise<LoginToken>,
     onResend?: () => Promise<void>,
-  ): Promise<Uint8Array | typeof TryAnother> {
+  ): Promise<LoginToken | typeof TryAnother> {
     let previousCodeRejected = false;
     while (true) {
       const code = await this.getTwoFactorCodeFromUi(method, {
@@ -1047,11 +1058,11 @@ export class Client {
   }
 
   private async validate2FA(
-    encryptedLoginToken: Uint8Array,
+    encryptedLoginToken: LoginToken,
     code: string,
-    channelUid: Uint8Array,
+    channelUid: ChannelUid,
     valueType: TwoFactorValueType,
-  ): Promise<Uint8Array> {
+  ): Promise<LoginToken> {
     const request = create(TwoFactorValidateRequestSchema, {
       encryptedLoginToken,
       value: code,
@@ -1075,13 +1086,13 @@ export class Client {
       throw new Error("2FA validation failed: no encrypted login token returned");
     }
 
-    return new Uint8Array(validateResponse.encryptedLoginToken);
+    return new Uint8Array(validateResponse.encryptedLoginToken) as LoginToken;
   }
 
   private async resumeLogin(
-    encryptedLoginToken: Uint8Array,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    encryptedLoginToken: LoginToken,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
   ): Promise<LoginResponse> {
     const request = create(StartLoginRequestSchema, {
       encryptedLoginToken,
@@ -1101,8 +1112,8 @@ export class Client {
 
   private async startLogin(
     username: string,
-    deviceToken: Uint8Array,
-    messageSessionUid: Uint8Array,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
   ): Promise<LoginResponse> {
     const request = create(StartLoginRequestSchema, {
       username,
@@ -1122,7 +1133,7 @@ export class Client {
 
   private async validateAuthHash(
     authHash: Uint8Array,
-    encryptedLoginToken: Uint8Array,
+    encryptedLoginToken: LoginToken,
   ): Promise<LoginResponse> {
     const request = create(ValidateAuthHashRequestSchema, {
       authResponse: authHash,
@@ -1138,8 +1149,8 @@ export class Client {
   }
 
   private async syncDownRequest(
-    sessionToken: Uint8Array,
-    continuationToken?: Uint8Array,
+    sessionToken: SessionToken,
+    continuationToken?: ContinuationToken,
   ): Promise<SyncDownResponse> {
     const request = create(SyncDownRequestSchema, {
       dataVersion: 0,
@@ -1171,7 +1182,7 @@ export class Client {
     endpoint: string,
     request: MessageShape<D>,
     requestSchema: D,
-    sessionToken: Uint8Array,
+    sessionToken: SessionToken,
   ): Promise<Uint8Array> {
     const payload = create(ApiRequestPayloadSchema, {
       payload: toBinary(requestSchema, request),

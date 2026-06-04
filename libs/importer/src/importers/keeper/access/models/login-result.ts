@@ -1,4 +1,7 @@
+import { KeeperKey } from "./crypto-types";
+import { SessionToken } from "./token-types";
+
 export interface LoginResult {
-  sessionToken: Uint8Array;
-  dataKey: Uint8Array;
+  sessionToken: SessionToken;
+  dataKey: KeeperKey;
 }
