@@ -375,16 +375,18 @@ function concatUint8Arrays(...arrays: Uint8Array[]): Uint8Array {
   return result;
 }
 
+// Constant-time equality: always compares every byte (no early return on the first mismatch) so
+// the running time does not depend on where the inputs first differ. The length check is not
+// timing-sensitive here — the inputs are fixed-size blocks.
 function uint8ArrayEquals(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) {
     return false;
   }
+  let diff = 0;
   for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
+    diff |= a[i] ^ b[i];
   }
-  return true;
+  return diff === 0;
 }
 
 function uint8ArrayToByteString(data: Uint8Array): string {
