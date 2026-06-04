@@ -1,16 +1,15 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map, Observable, startWith } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import {
-  AccessRuleRequest,
-  AccessRuleResponse,
   BulkRevokeResult,
   CipherAccessState,
+  DefaultPamApiService,
   GatedCipherFetchResult,
   InboxBadgeCountResponse,
   InboxAccessRequestResponse,
@@ -21,13 +20,14 @@ import {
   LeaseResponse,
   LeaseRevokeRequest,
   OrganizationGovernanceSummaryResponse,
-  PamApiService,
 } from "@bitwarden/pam";
 
 import { PamMockBuilders, PamMockStore } from "./pam-mock-store";
 
 /**
- * DEMO ONLY — implements `PamApiService` against {@link PamMockStore}.
+ * DEMO ONLY — extends `DefaultPamApiService` and overrides the lease/request
+ * surface with a {@link PamMockStore}-backed implementation. Access-rule CRUD
+ * and any other method not overridden here falls through to the real server.
  *
  * Stateful in-memory: a click on a gated cipher creates a pending request whose
  * auto-decision (approve / deny, deterministic per request id) fires once the
@@ -35,7 +35,7 @@ import { PamMockBuilders, PamMockStore } from "./pam-mock-store";
  * lease exists until the requester redeems it via {@link startLease}.
  */
 @Injectable({ providedIn: "root" })
-export class MockPamApiService extends PamApiService {
+export class MockPamApiService extends DefaultPamApiService {
   /**
    * Cached one-shot promise for the inbox seed. Cleared on failure so a
    * subsequent call retries (e.g. after the vault unlocks). Sharing the
@@ -48,8 +48,9 @@ export class MockPamApiService extends PamApiService {
     private readonly store: PamMockStore,
     private readonly cipherService: CipherService,
     private readonly accountService: AccountService,
+    apiService: ApiService,
   ) {
-    super();
+    super(apiService);
   }
 
   /**
@@ -84,8 +85,7 @@ export class MockPamApiService extends PamApiService {
       );
       // An approved-but-unredeemed ticket → the banner offers "Start access".
       const approvedTicket = requests.find(
-        (r) =>
-          r.cipherId === cipherId && r.status === "approved" && r.extensionOfLeaseId == null,
+        (r) => r.cipherId === cipherId && r.status === "approved" && r.extensionOfLeaseId == null,
       );
       return {
         lease: {
@@ -472,80 +472,6 @@ export class MockPamApiService extends PamApiService {
     return existing;
   }
 
-  async listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>> {
-    const data = [...this.store.accessRules.values()]
-      .filter((r) => r.organizationId === organizationId)
-      .sort((a, b) => a.name.localeCompare(b.name));
-    return new ListResponse({ Data: data }, AccessRuleResponse);
-  }
-  async getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse> {
-    const rule = this.store.accessRules.get(id);
-    if (!rule || rule.organizationId !== organizationId) {
-      throw new Error(`Mock PAM: access rule ${id} not found`);
-    }
-    return rule;
-  }
-  async createAccessRule(
-    organizationId: string,
-    request: AccessRuleRequest,
-  ): Promise<AccessRuleResponse> {
-    const now = new Date();
-    const editor = await this.currentEditor();
-    const rule = new AccessRuleResponse({
-      Id: this.store.mintId("access-rule"),
-      OrganizationId: organizationId,
-      Name: request.name,
-      Description: request.description,
-      Conditions: request.conditions,
-      Collections: request.collections,
-      DefaultLeaseDurationSeconds: request.defaultLeaseDurationSeconds,
-      MaxLeaseDurationSeconds: request.maxLeaseDurationSeconds,
-      SingleActiveLease: request.singleActiveLease,
-      Enabled: request.enabled,
-      CreationDate: now.toISOString(),
-      RevisionDate: now.toISOString(),
-      LastEditedByUserId: editor.id,
-      LastEditedByName: editor.name,
-    });
-    this.store.accessRules.set(rule.id, rule);
-    return rule;
-  }
-  async updateAccessRule(
-    organizationId: string,
-    id: string,
-    request: AccessRuleRequest,
-  ): Promise<AccessRuleResponse> {
-    const existing = this.store.accessRules.get(id);
-    if (!existing || existing.organizationId !== organizationId) {
-      throw new Error(`Mock PAM: access rule ${id} not found`);
-    }
-    const editor = await this.currentEditor();
-    const updated = new AccessRuleResponse({
-      Id: id,
-      OrganizationId: organizationId,
-      Name: request.name,
-      Description: request.description,
-      Conditions: request.conditions,
-      Collections: request.collections,
-      DefaultLeaseDurationSeconds: request.defaultLeaseDurationSeconds,
-      MaxLeaseDurationSeconds: request.maxLeaseDurationSeconds,
-      SingleActiveLease: request.singleActiveLease,
-      Enabled: request.enabled,
-      CreationDate: existing.creationDate,
-      RevisionDate: new Date().toISOString(),
-      LastEditedByUserId: editor.id,
-      LastEditedByName: editor.name,
-    });
-    this.store.accessRules.set(id, updated);
-    return updated;
-  }
-  async deleteAccessRule(organizationId: string, id: string): Promise<void> {
-    const existing = this.store.accessRules.get(id);
-    if (existing && existing.organizationId === organizationId) {
-      this.store.accessRules.delete(id);
-    }
-  }
-
   private requireRequest(id: string, fallbackInbox = false): AccessRequestResponse {
     const request = this.store.requests.get(id);
     if (request) {
@@ -566,13 +492,5 @@ export class MockPamApiService extends PamApiService {
       throw new Error(`Mock PAM: lease ${id} not found`);
     }
     return lease;
-  }
-
-  private async currentEditor(): Promise<{ id: string; name: string }> {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    return {
-      id: account?.id ?? "demo-user",
-      name: account?.name || account?.email || "Demo user",
-    };
   }
 }

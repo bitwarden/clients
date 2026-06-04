@@ -34,6 +34,7 @@ export { AccessRuleRequest } from "./services/requests/access-rule.request";
 export { CipherLeaseBannerComponent } from "./components/cipher-lease-banner/cipher-lease-banner.component";
 
 export { GatedState } from "./helpers/gated-state";
+export { CollectionMembershipForLeasing, deriveGatedState } from "./helpers/derive-gated-state";
 export { AccessRequestForApproval, UserForApproval, canApprove } from "./helpers/can-approve";
 export {
   ConditionSummary,
@@ -41,3 +42,9 @@ export {
   summarizeConditions,
 } from "./helpers/format-access-rule";
 export { formatRemaining } from "./helpers/format-remaining";
+
+export {
+  LeaseRequestResponse,
+  LeaseRequestStatus,
+} from "./abstractions/responses/lease-request.response";
+export { LeaseRequestPatchRequest } from "./services/requests/lease-request-patch.request";
