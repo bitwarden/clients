@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -10,8 +9,9 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer-core";
+import { ImportServiceAbstraction, ImportType, KdbxCredentials } from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
@@ -23,6 +23,7 @@ export class ImportCommand {
     private organizationService: OrganizationService,
     private syncService: SyncService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
@@ -52,11 +53,16 @@ export class ImportCommand {
     if (options.formats || false) {
       return await this.list();
     } else {
-      return await this.import(format, filepath, organizationId);
+      return await this.import(format, filepath, organizationId, options);
     }
   }
 
-  private async import(format: ImportType, filepath: string, organizationId: string) {
+  private async import(
+    format: ImportType,
+    filepath: string,
+    organizationId: string,
+    options: OptionValues,
+  ) {
     if (format == null) {
       return Response.badRequest("`format` was not provided.");
     }
@@ -70,13 +76,19 @@ export class ImportCommand {
     const { JSDOM } = await import("jsdom");
     global.DOMParser = new JSDOM().window.DOMParser;
 
-    const promptForPassword_callback = async () => {
-      return await this.promptPassword();
-    };
+    const promptForPassword_callback = () => this.resolveImportPassword(options);
+
+    // KDBX files may optionally be protected using a key-file in addition to a password
+    const promptForKdbxCredentials_callback = async (): Promise<KdbxCredentials> => ({
+      password: await this.resolveImportPassword(options),
+      keyFile: options.keyfile ? await CliUtils.readBinaryFile(options.keyfile) : null,
+    });
+
     const importer = await this.importService.getImporter(
       format,
       promptForPassword_callback,
       organizationId,
+      promptForKdbxCredentials_callback,
     );
     if (importer === null) {
       return Response.badRequest("Proper importer type required.");
@@ -88,6 +100,8 @@ export class ImportCommand {
         contents = await CliUtils.extractZipContent(filepath, "export.data");
       } else if (format === "protonpass" && filepath.endsWith(".zip")) {
         contents = await CliUtils.extractZipContent(filepath, "Proton Pass/data.json");
+      } else if (format === "keepasskdbx") {
+        contents = await CliUtils.readFileAsBase64(filepath);
       } else {
         contents = await CliUtils.readFile(filepath);
       }
@@ -124,14 +138,20 @@ export class ImportCommand {
     return Response.success(res);
   }
 
-  private async promptPassword() {
-    const answer: inquirer.Answers = await inquirer.createPromptModule({
-      output: process.stderr,
-    })({
-      type: "password",
-      name: "password",
-      message: "Import file password:",
-    });
-    return answer.password;
+  private async resolveImportPassword(options: OptionValues): Promise<string> {
+    const password = await CliUtils.getPassword(
+      null,
+      { passwordFile: options.passwordfile, passwordEnv: options.passwordenv },
+      this.logService,
+      "Import file password:",
+    );
+    if (password instanceof Response) {
+      // BW_NOINTERACTION with no password source. Throwing surfaces as a badRequest via the
+      // import() catch block (and aborts the importer's credentials callback).
+      throw new Error(
+        "Import file password is required. Provide --passwordfile or --passwordenv, or run interactively.",
+      );
+    }
+    return password;
   }
 }

@@ -3,6 +3,7 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
+import { KdbxCredentials } from "../importers";
 import { Importer } from "../importers/importer";
 import { ImportOption, ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
@@ -23,5 +24,6 @@ export abstract class ImportServiceAbstraction {
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
     organizationId: string,
+    promptForKdbxCredentials_callback?: () => Promise<KdbxCredentials>,
   ) => Importer;
 }

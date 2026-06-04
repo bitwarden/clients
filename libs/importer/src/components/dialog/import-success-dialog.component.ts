@@ -2,21 +2,23 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   DialogRef,
   DIALOG_DATA,
   ButtonModule,
+  CalloutModule,
   DialogModule,
   TableDataSource,
   TableModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ImportResult } from "../../models";
 
 export interface ImportSuccessDialogData {
   importResult: ImportResult;
+  showDeleteFileReminder?: boolean;
   returnUrl?: string;
   returnLabel?: string;
 }
@@ -31,13 +33,17 @@ export interface ResultList {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./import-success-dialog.component.html",
-  imports: [CommonModule, JslibModule, DialogModule, TableModule, ButtonModule],
+  imports: [CommonModule, I18nPipe, DialogModule, TableModule, ButtonModule, CalloutModule],
 })
 export class ImportSuccessDialogComponent implements OnInit {
   protected dataSource = new TableDataSource<ResultList>();
 
   protected get hasReturnDestination(): boolean {
     return !!this.data.returnUrl && !!this.data.returnLabel;
+  }
+
+  protected get showDeleteFileReminder(): boolean {
+    return this.data.showDeleteFileReminder ?? false;
   }
 
   constructor(

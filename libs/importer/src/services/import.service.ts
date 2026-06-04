@@ -55,6 +55,7 @@ import {
   GnomeJsonImporter,
   KasperskyTxtImporter,
   KeePass2XmlImporter,
+  KeePassKdbxImporter,
   KeePassXCsvImporter,
   KeeperCsvImporter,
   KeeperJsonImporter,
@@ -95,6 +96,7 @@ import {
   ZohoVaultCsvImporter,
   PasswordXPCsvImporter,
   PasswordDepot17XmlImporter,
+  KdbxCredentials,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -208,12 +210,17 @@ export class ImportService implements ImportServiceAbstraction {
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
     organizationId: OrganizationId = null,
+    promptForKdbxCredentials_callback?: () => Promise<KdbxCredentials>,
   ): Importer {
     if (promptForPassword_callback == null) {
       return null;
     }
 
-    const importer = this.getImporterInstance(format, promptForPassword_callback);
+    const importer = this.getImporterInstance(
+      format,
+      promptForPassword_callback,
+      promptForKdbxCredentials_callback,
+    );
     if (importer == null) {
       return null;
     }
@@ -224,6 +231,7 @@ export class ImportService implements ImportServiceAbstraction {
   private getImporterInstance(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
+    promptForKdbxCredentials_callback?: () => Promise<KdbxCredentials>,
   ) {
     if (format == null) {
       return null;
@@ -258,6 +266,11 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "keepasskdbx":
+        if (promptForKdbxCredentials_callback == null) {
+          return null;
+        }
+        return new KeePassKdbxImporter(this.i18nService, promptForKdbxCredentials_callback);
       case "arccsv":
         return new ArcCsvImporter();
       case "edgecsv":

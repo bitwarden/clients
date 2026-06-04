@@ -457,6 +457,7 @@ module.exports.buildConfig = function buildConfig(params) {
         fs: false,
         process: false,
         path: require.resolve("path-browserify"),
+        crypto: false,
       },
       alias: params.importAliases,
     },

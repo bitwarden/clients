@@ -299,6 +299,7 @@ module.exports.buildConfig = function buildConfig(params) {
       fallback: {
         path: require.resolve("path-browserify"),
         fs: false,
+        crypto: false,
       },
     },
     plugins: [

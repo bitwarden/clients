@@ -142,6 +142,10 @@
           Using the KeePass 2 desktop application, navigate to "File" &rarr; "Export" and select the
           "KeePass XML (2.x)" option.
         </ng-container>
+        <ng-container *ngIf="format === 'keepasskdbx'">
+          Select your KeePass database (.kdbx) file &mdash; the same file you open in KeePass. You
+          will be prompted for its master password, and its key file if the database uses one.
+        </ng-container>
         <ng-container *ngIf="format === 'upmcsv'">
           Using the Universal Password Manager desktop application, navigate to "Database" &rarr;
           "Export" and save the CSV file.
@@ -478,6 +482,7 @@
             type="file"
             id="import_input_file"
             formControlName="file"
+            [attr.accept]="isKdbxFormat ? '.kdbx' : null"
             (change)="setSelectedFile($event)"
             hidden
             class="tw-hidden"

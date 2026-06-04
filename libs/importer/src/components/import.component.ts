@@ -32,7 +32,6 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -70,7 +69,9 @@ import {
   ToastService,
   LinkModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { KdbxCredentials } from "../importers";
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportType } from "../models";
 import {
@@ -85,6 +86,7 @@ import {
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
   ImportSuccessDialogData,
+  KdbxCredentialsPromptComponent,
 } from "./dialog";
 import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
@@ -96,7 +98,7 @@ import { ImportLastPassComponent } from "./lastpass";
   templateUrl: "import.component.html",
   imports: [
     CommonModule,
-    JslibModule,
+    I18nPipe,
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
@@ -496,10 +498,15 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return await this.getFilePassword();
     };
 
+    const promptForKdbxCredentials_callback = async () => {
+      return await this.getKdbxCredentials();
+    };
+
     const importer = this.importService.getImporter(
       this.format,
       promptForPassword_callback,
       this.organizationId,
+      promptForKdbxCredentials_callback,
     );
 
     if (importer === null) {
@@ -538,6 +545,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
         data: {
           importResult: result,
+          showDeleteFileReminder: this.isKdbxFormat,
           ...returnDestination,
         },
       });
@@ -552,6 +560,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       this.logService.error(e);
     }
+  }
+
+  get isKdbxFormat(): boolean {
+    return this.format === "keepasskdbx";
   }
 
   getFormatInstructionTitle() {
@@ -602,6 +614,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getFileContents(file: File): Promise<string> {
+    if (this.isKdbxFormat) {
+      // KDBX is binary its string representation is base64-encoded
+      return this.getFileAsBase64(file);
+    }
     if (this.format === "1password1pux" && file.name.endsWith(".1pux")) {
       return this.extractZipContent(file, "export.data");
     }
@@ -638,6 +654,19 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  private getFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onload = (evt) => {
+        resolve(Utils.fromBufferToB64((evt.target as any).result));
+      };
+      reader.onerror = () => {
+        reject();
+      };
+    });
+  }
+
   private extractZipContent(zipFile: File, contentFilePath: string): Promise<string> {
     return new JSZip()
       .loadAsync(zipFile)
@@ -656,6 +685,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async getFilePassword(): Promise<string> {
     const dialog = this.dialogService.open<string>(FilePasswordPromptComponent, {
+      ariaModal: true,
+    });
+
+    return await lastValueFrom(dialog.closed);
+  }
+
+  async getKdbxCredentials(): Promise<KdbxCredentials> {
+    const dialog = this.dialogService.open<KdbxCredentials>(KdbxCredentialsPromptComponent, {
       ariaModal: true,
     });
 
