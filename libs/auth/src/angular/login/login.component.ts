@@ -239,6 +239,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
+          case "windowHidden":
+            this.onWindowHidden();
+            break;
           case "windowIsFocused":
             if (this.deferFocus === null) {
               this.deferFocus = !message.windowIsFocused;
@@ -675,6 +678,10 @@ export class LoginComponent implements OnInit, OnDestroy {
           : "masterPassword",
       )
       ?.focus();
+  }
+
+  private onWindowHidden() {
+    this.deferFocus = true;
   }
 
   /**
