@@ -401,21 +401,16 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** Restore the selected ciphers from trash. Handles both org and personal vault paths. */
   async bulkRestore(): Promise<void> {
     const ciphers = this.selectedCiphers();
-    const org = this.config().organization;
+    const { isOrgVault, organization: org } = this.config();
 
-    if (org != null) {
-      if (
-        !org.permissions.editAnyCollection &&
-        ciphers.some((c) => !c.edit && !org.allowAdminAccessToAllCollectionItems)
-      ) {
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("missingPermissions"),
-        });
-        return;
-      }
-    } else {
-      if (ciphers.some((c) => !c.edit)) {
+    if (ciphers.length > 0) {
+      const canRestoreAll = await firstValueFrom(
+        combineLatest(
+          ciphers.map((c) => this.cipherAuthorizationService.canRestoreCipher$(c, isOrgVault)),
+        ).pipe(map((results) => results.every((r) => r))),
+      );
+
+      if (!canRestoreAll) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t("missingPermissions"),
@@ -495,6 +490,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
    * Performs a permanent delete when the current filter is the trash view.
    */
   async bulkDelete(): Promise<void> {
+    const { isOrgVault, organization: org } = this.config();
     const selected = this.selection.selected;
     const ciphers = selected
       .filter((i) => i.collection === undefined && i.cipher !== undefined)
@@ -517,7 +513,6 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const permanent = this.showBulkTrashOptions();
 
-    const org = this.config().organization;
     const orgIds = collections.map((c) => c.organizationId);
     const organizations = this.allOrganizations().filter((o) => orgIds.includes(o.id));
 
@@ -527,8 +522,14 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         const collectionOrg = organizations.find((o) => o.id === c.organizationId);
         return c.canDelete(collectionOrg);
       });
+
     const canDeleteCiphers =
-      ciphers.length === 0 || ciphers.every((c) => c.edit) || (org?.canEditAllCiphers ?? false);
+      ciphers.length === 0 ||
+      (await firstValueFrom(
+        combineLatest(
+          ciphers.map((c) => this.cipherAuthorizationService.canDeleteCipher$(c, isOrgVault)),
+        ).pipe(map((results) => results.every((r) => r))),
+      ));
 
     if (!canDeleteCollections || !canDeleteCiphers) {
       this.toastService.showToast({

@@ -657,10 +657,13 @@ describe("VaultBatchBarService", () => {
   });
 
   describe("bulkRestore()", () => {
-    it("shows error toast when org cipher lacks edit permission", async () => {
-      const org = makeOrg({ permissions: { editAnyCollection: false } as any });
-      service.setConfig(makeConfig({ organization: org }));
-      service.selection.select(makeCipherItem({ edit: false, organizationId: orgId }));
+    beforeEach(() => {
+      mockCipherAuthorizationService.canRestoreCipher$.mockReturnValue(of(true));
+    });
+
+    it("shows error toast when canRestoreCipher$ returns false", async () => {
+      mockCipherAuthorizationService.canRestoreCipher$.mockReturnValue(of(false));
+      service.selection.select(makeCipherItem());
 
       await service.bulkRestore();
 
@@ -670,15 +673,27 @@ describe("VaultBatchBarService", () => {
       expect(mockCipherService.restoreManyWithServer).not.toHaveBeenCalled();
     });
 
-    it("shows error toast when personal cipher lacks edit permission", async () => {
+    it("proceeds to restore when canRestoreCipher$ returns true regardless of cipher edit permission", async () => {
       service.selection.select(makeCipherItem({ edit: false }));
 
       await service.bulkRestore();
 
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
+      expect(mockToastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "missingPermissions" }),
       );
-      expect(mockCipherService.restoreManyWithServer).not.toHaveBeenCalled();
+      expect(mockCipherService.restoreManyWithServer).toHaveBeenCalled();
+    });
+
+    it("passes isOrgVault to canRestoreCipher$", async () => {
+      service.setConfig(makeConfig({ isOrgVault: true, organization: makeOrg() }));
+      service.selection.select(makeCipherItem({ organizationId: orgId }));
+
+      await service.bulkRestore();
+
+      expect(mockCipherAuthorizationService.canRestoreCipher$).toHaveBeenCalledWith(
+        expect.anything(),
+        true,
+      );
     });
 
     it("does nothing when reprompt is denied", async () => {
@@ -756,6 +771,10 @@ describe("VaultBatchBarService", () => {
   });
 
   describe("bulkDelete()", () => {
+    beforeEach(() => {
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(true));
+    });
+
     it("shows error toast when nothing is selected", async () => {
       await service.bulkDelete();
 
@@ -773,8 +792,9 @@ describe("VaultBatchBarService", () => {
       expect(mockBulkDeleteDialogOpen).not.toHaveBeenCalled();
     });
 
-    it("shows error toast when cipher lacks edit permission and no canEditAllCiphers", async () => {
-      service.selection.select(makeCipherItem({ edit: false }));
+    it("shows error toast when canDeleteCipher$ returns false", async () => {
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(false));
+      service.selection.select(makeCipherItem());
 
       await service.bulkDelete();
 
@@ -782,6 +802,31 @@ describe("VaultBatchBarService", () => {
         expect.objectContaining({ variant: "error" }),
       );
       expect(mockBulkDeleteDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("proceeds to delete when canDeleteCipher$ returns true regardless of cipher edit permission", async () => {
+      service.selection.select(makeCipherItem({ edit: false }));
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalled();
+      expect(mockToastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "missingPermissions" }),
+      );
+    });
+
+    it("passes isOrgVault to canDeleteCipher$", async () => {
+      service.setConfig(makeConfig({ isOrgVault: true, organization: makeOrg() }));
+      service.selection.select(makeCipherItem({ organizationId: orgId }));
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockCipherAuthorizationService.canDeleteCipher$).toHaveBeenCalledWith(
+        expect.anything(),
+        true,
+      );
     });
 
     it("shows error toast when collection cannot be deleted", async () => {
