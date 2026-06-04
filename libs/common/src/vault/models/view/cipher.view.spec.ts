@@ -411,7 +411,7 @@ describe("CipherView", () => {
         username: "testuser",
         password: "testpass",
       });
-      expect(result.archivedDate).toBeNull();
+      expect(result.archivedDate).toBeUndefined();
     });
 
     it("handles undefined organizationId and folderId", () => {
