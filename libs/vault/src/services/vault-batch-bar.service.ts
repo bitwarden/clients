@@ -268,7 +268,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     { initialValue: true },
   );
 
-  /** True when the selected ciphers can be assigned to collections.*/
+  /**
+   * True when the selected ciphers can be assigned to collections.
+   */
   readonly canAssignToCollections = computed(() => {
     const config = this.config();
     const allOrganizations = this.allOrganizations();
@@ -276,16 +278,23 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     const selectedCiphers = selected.filter((i) => i.cipher).map((i) => i.cipher as C);
     const anyArchived = selectedCiphers.some((c) => CipherViewLikeUtils.isArchived(c));
 
+    // Archived ciphers cannot be reassigned; block the action entirely if any are present.
     const bulkAssignAllowed = config.hasCiphers && !anyArchived;
 
     if (!bulkAssignAllowed) {
       return false;
     }
 
-    if (config.isOrgVault) {
+    // Org-vault admins can assign any cipher to a collection without further checks, `isOrgVault` should
+    // only be true when the user is within the Admin Console.
+    if (config.isOrgVault && selected.length !== 0) {
       return true;
     }
 
+    // Baseline checks:
+    // - Cannot assign ciphers when viewing the trash
+    // - An org membership is required
+    // - At least one cipher must be selected
     if (this.showBulkTrashOptions() || allOrganizations.length === 0 || selected.length === 0) {
       return false;
     }
@@ -296,10 +305,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     );
     const hasEditableCollections = config.allCollections.some((c) => !c.readOnly);
 
+    // Assigning ciphers from multiple orgs at once cannot be done.
     if (uniqueOrgIds.size > 1) {
       return false;
     }
 
+    // Personal (non-org) ciphers: allow if there is at least one editable collection to target.
     if (uniqueOrgIds.size === 0 && hasEditableCollections) {
       return hasPersonalItems;
     }
