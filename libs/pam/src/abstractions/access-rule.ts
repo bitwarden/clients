@@ -9,9 +9,7 @@ export type ConditionKind = (typeof ConditionKind)[keyof typeof ConditionKind];
  *  - `collection_managers`: any manager on the gated collection can approve.
  *  - `specific`: only the listed users can approve.
  */
-export type Approvers =
-  | { mode: "collection_managers" }
-  | { mode: "specific"; userIds: string[] };
+export type Approvers = { mode: "collection_managers" } | { mode: "specific"; userIds: string[] };
 
 /**
  * A single access check on a lease request. An access rule is a flat list of
@@ -50,9 +48,7 @@ export function parseCondition(json: unknown): Condition {
   switch (kind) {
     case ConditionKind.HumanApproval: {
       const approvers = parseApprovers(get(obj, "approvers"));
-      return approvers
-        ? { kind: "human_approval", approvers }
-        : { kind: "human_approval" };
+      return approvers ? { kind: "human_approval", approvers } : { kind: "human_approval" };
     }
     case ConditionKind.IpAllowlist:
       return { kind: "ip_allowlist", cidrs: get(obj, "cidrs") as string[] };
@@ -70,3 +66,11 @@ export function parseConditions(json: unknown): Condition[] {
   }
   return json.map(parseCondition);
 }
+
+// Server-side AccessRule shape: a single tree, not a flat conditions list.
+// The UI still works in terms of `Condition[]`; AccessRuleRequest derives the
+// tree from those conditions before sending.
+export type AccessRule =
+  | { kind: "human_approval" }
+  | { kind: "ip_allowlist"; cidrs: string[] }
+  | { kind: "all_of"; rules: AccessRule[] };
