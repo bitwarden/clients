@@ -49,8 +49,7 @@ impl PeerInfo {
 /// inside the Mac App Store sandbox).
 #[cfg(target_os = "macos")]
 fn peer_info_from_libproc(pid: u32) -> Result<PeerInfo, String> {
-    let pid_i32 =
-        i32::try_from(pid).map_err(|_| format!("peer pid {pid} exceeds i32 range"))?;
+    let pid_i32 = i32::try_from(pid).map_err(|_| format!("peer pid {pid} exceeds i32 range"))?;
     let path = libproc::proc_pid::pidpath(pid_i32)
         .map_err(|e| format!("proc_pidpath({pid_i32}) failed: {e}"))?;
     let process_name = basename_or_path(&path);

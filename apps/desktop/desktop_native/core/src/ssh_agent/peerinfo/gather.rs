@@ -32,8 +32,8 @@ pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
 /// inside the Mac App Store sandbox).
 #[cfg(target_os = "macos")]
 fn peer_info_from_libproc(peer_pid: u32) -> Result<PeerInfo, String> {
-    let pid_i32 = i32::try_from(peer_pid)
-        .map_err(|_| format!("peer pid {peer_pid} exceeds i32 range"))?;
+    let pid_i32 =
+        i32::try_from(peer_pid).map_err(|_| format!("peer pid {peer_pid} exceeds i32 range"))?;
     let path = libproc::proc_pid::pidpath(pid_i32)
         .map_err(|e| format!("proc_pidpath({pid_i32}) failed: {e}"))?;
     let process_name = basename_or_path(&path);
@@ -81,8 +81,8 @@ mod tests {
 
     #[test]
     fn get_peer_info_resolves_self_to_non_empty_name() {
-        let info = get_peer_info(std::process::id())
-            .expect("self pid should resolve to a PeerInfo");
+        let info =
+            get_peer_info(std::process::id()).expect("self pid should resolve to a PeerInfo");
         assert!(!info.process_name().is_empty());
     }
 
