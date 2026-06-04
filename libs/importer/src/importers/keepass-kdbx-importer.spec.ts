@@ -196,4 +196,79 @@ describe("KeePass KDBX Importer", () => {
     expect(result.errorMessage).toBe("importCanceled");
     expect(result.ciphers.length).toBe(0);
   });
+
+  describe("KeePass 2.x native TOTP (TimeOtp-*)", () => {
+    async function importEntryWith(build: (entry: kdbxweb.KdbxEntry) => void) {
+      const data = await createDatabase("password", null, (db, root) => {
+        const entry = db.createEntry(root);
+        entry.fields.set("Title", "Entry with OTP");
+        build(entry);
+      });
+      return importerFor({ password: "password", keyFile: null }).parse(data);
+    }
+
+    it("maps a Base32 secret to a bare totp and not a custom field", async () => {
+      const result = await importEntryWith((entry) => {
+        entry.fields.set(
+          "TimeOtp-Secret-Base32",
+          kdbxweb.ProtectedValue.fromString("JBSWY3DPEHPK3PXP"),
+        );
+      });
+
+      const cipher = result.ciphers[0];
+      expect(cipher.login.totp).toBe("JBSWY3DPEHPK3PXP");
+      expect(cipher.fields.some((f) => f.name.startsWith("TimeOtp"))).toBe(false);
+    });
+
+    it("builds an otpauth URI for non-default period, length, and algorithm", async () => {
+      const result = await importEntryWith((entry) => {
+        entry.fields.set("TimeOtp-Secret-Base32", "JBSWY3DPEHPK3PXP");
+        entry.fields.set("TimeOtp-Period", "60");
+        entry.fields.set("TimeOtp-Length", "8");
+        entry.fields.set("TimeOtp-Algorithm", "HMAC-SHA-256");
+      });
+
+      const url = new URL(result.ciphers[0].login.totp);
+      expect(url.protocol).toBe("otpauth:");
+      expect(url.searchParams.get("secret")).toBe("JBSWY3DPEHPK3PXP");
+      expect(url.searchParams.get("period")).toBe("60");
+      expect(url.searchParams.get("digits")).toBe("8");
+      expect(url.searchParams.get("algorithm")).toBe("SHA256");
+    });
+
+    it("keeps a bare secret when settings are explicitly default", async () => {
+      const result = await importEntryWith((entry) => {
+        entry.fields.set("TimeOtp-Secret-Base32", "JBSWY3DPEHPK3PXP");
+        entry.fields.set("TimeOtp-Period", "30");
+        entry.fields.set("TimeOtp-Length", "6");
+      });
+
+      expect(result.ciphers[0].login.totp).toBe("JBSWY3DPEHPK3PXP");
+    });
+
+    // "Hello" encodes to the Base32 secret "JBSWY3DP".
+    it("decodes a Base64 secret to Base32", async () => {
+      const result = await importEntryWith((entry) => {
+        entry.fields.set("TimeOtp-Secret-Base64", "SGVsbG8=");
+      });
+
+      expect(result.ciphers[0].login.totp).toBe("JBSWY3DP");
+    });
+
+    it("decodes a Hex secret to Base32", async () => {
+      const result = await importEntryWith((entry) => {
+        entry.fields.set("TimeOtp-Secret-Hex", "48656c6c6f");
+      });
+
+      expect(result.ciphers[0].login.totp).toBe("JBSWY3DP");
+    });
+
+    it("encodes a UTF-8 secret to Base32", async () => {
+      const result = await importEntryWith((entry) => {
+        entry.fields.set("TimeOtp-Secret", "Hello");
+      });
+
+      expect(result.ciphers[0].login.totp).toBe("JBSWY3DP");
+    });
+  });
 });
