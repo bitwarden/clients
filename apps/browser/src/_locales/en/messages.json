@@ -1339,6 +1339,9 @@
     "message": "Additional options"
   },
   "enableFillAssist": {
+    "message": "Use fill assist"
+  },
+  "turnOnFillAssist": {
     "message": "Turn on fill assist"
   },
   "enableFillAssistDescription": {
