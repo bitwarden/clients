@@ -4,14 +4,13 @@ export interface ImportOption {
 }
 
 export const featuredImportOptions = [
-  // TODO: Remove this from here! Just to make testing easier for now.
-  { id: "keeper", name: "Keeper" },
   { id: "bitwardenjson", name: "Bitwarden (json)" },
   { id: "bitwardencsv", name: "Bitwarden (csv)" },
   { id: "chromecsv", name: "Chrome" },
   { id: "dashlanecsv", name: "Dashlane (csv)" },
   { id: "firefoxcsv", name: "Firefox (csv)" },
   { id: "keepass2xml", name: "KeePass 2 (xml)" },
+  { id: "keeper", name: "Keeper" },
   { id: "lastpasscsv", name: "LastPass" },
   { id: "safaricsv", name: "Safari and macOS (csv)" },
   { id: "1password1pux", name: "1Password (1pux/json)" },

@@ -16,10 +16,6 @@ non-obvious changes outside that directory.
    websocket and a bunch of listeners that the popup would tear down whenever you click away.
    This applies to all import formats, not just Keeper.
 
-3. **`keeper` is pinned to the top of `featuredImportOptions` for testing.** Done purely to make
-   it easy to find during development. The team should move it to whatever position fits the
-   normal priority order before merge.
-
 ### Device approval
 
 - [x] Email link click

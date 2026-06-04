@@ -1,7 +1,7 @@
 <!--
- TODO: Remove this comment after review. It's a bit messy how this component integrates into the import component.
-       The main reason for this is to reuse the UI elements (file selector and textarea) that are already in the import component.
-       Other otherwise we would have to duplicate those elements here. Is there a better solution?
+  Keeper import options rendered inside the parent import component's form. Shows the method
+  selector, and in "direct" mode the email and region fields. The csv and json methods render no
+  inputs here so they reuse the parent's file selector and textarea instead of duplicating them.
 -->
 
 <div [formGroup]="formGroup">
