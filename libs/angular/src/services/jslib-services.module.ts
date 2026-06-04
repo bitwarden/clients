@@ -310,8 +310,10 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -936,9 +938,19 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SendApiServiceAbstraction,
+    provide: SendApiService,
     useClass: SendApiService,
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+  }),
+  safeProvider({
+    provide: SendSdkApiService,
+    useClass: SendSdkApiService,
+    deps: [SdkService, SendApiService, InternalSendService, AccountServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: SendApiServiceAbstraction,
+    useClass: SendApiServiceSelector,
+    deps: [ConfigService, SendApiService, SendSdkApiService],
   }),
   safeProvider({
     provide: KeyApiService,
