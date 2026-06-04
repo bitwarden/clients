@@ -131,7 +131,7 @@ export class MessagingMain {
   private addOpenAtLogin() {
     if (process.platform === "linux") {
       if (isFlatpak()) {
-        autostart.setAutostart(true, [AUTOSTART_FLAG]).catch((e) => {});
+        autostart.setAutostart(true, ["bitwarden.sh", AUTOSTART_FLAG, "%U"]).catch((e) => {});
       } else if (isSnapStore()) {
         this.updateSnapAutostartExec();
       } else {
