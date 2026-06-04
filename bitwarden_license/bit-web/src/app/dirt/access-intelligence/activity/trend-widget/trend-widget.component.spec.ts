@@ -12,7 +12,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { ExportHelper } from "@bitwarden/vault-export-core";
 
 import { ChartExportService } from "../../../shared/chart-export.service";
-import { LineChartComponent } from "../../../shared/line-chart.component";
+import { ChartConfig, LineChartComponent } from "../../../shared/line-chart.component";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
 import {
@@ -20,6 +20,11 @@ import {
   TrendWidgetData,
   TrendWidgetViewType,
 } from "./trend-widget.component";
+
+function getChartConfig(fixture: ComponentFixture<TrendWidgetComponent>): ChartConfig {
+  const lineChart = fixture.debugElement.query(By.directive(LineChartComponent));
+  return (lineChart.componentInstance as LineChartComponent).configuration();
+}
 
 describe("TrendWidgetComponent", () => {
   let component: TrendWidgetComponent;
@@ -257,6 +262,183 @@ describe("TrendWidgetComponent", () => {
 
       expect(component.selectedView()).toBe(TrendWidgetViewType.Passwords);
       expect(viewChangedSpy).toHaveBeenCalledWith(TrendWidgetViewType.Passwords);
+    });
+  });
+
+  describe("lineChartConfiguration for AllTime", () => {
+    function mkData(
+      dataPoints: { timestamp: string; atRisk: number; total: number }[],
+    ): TrendWidgetData {
+      return {
+        timeframe: TimePeriod.AllTime,
+        dataView: TrendWidgetViewType.Applications,
+        dataPoints,
+      };
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2026-04-30T12:00:00Z"));
+      fixture.componentRef.setInput("loading", false);
+      fixture.componentRef.setInput("error", null);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("pads a multi-day narrow range with one day on each side", () => {
+      fixture.componentRef.setInput(
+        "data",
+        mkData([
+          { timestamp: "2026-04-29T12:00:00Z", atRisk: 1, total: 2 },
+          { timestamp: "2026-04-30T12:00:00Z", atRisk: 2, total: 3 },
+        ]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      const apr29 = new Date("2026-04-29T12:00:00Z");
+      const apr30 = new Date("2026-04-30T12:00:00Z");
+      const expectedXMin = new Date(apr29.getFullYear(), apr29.getMonth(), apr29.getDate() - 1);
+      const expectedXMax = new Date(apr30.getFullYear(), apr30.getMonth(), apr30.getDate() + 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
+    });
+
+    it("pads a single-day dataset by ±1 day", () => {
+      const today = new Date("2026-04-30T12:00:00Z");
+
+      fixture.componentRef.setInput(
+        "data",
+        mkData([{ timestamp: today.toISOString(), atRisk: 1, total: 2 }]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      const expectedXMin = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+      const expectedXMax = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
+    });
+
+    it("uses month-aligned bounds and month unit for All-time spans of 3 to 12 months", () => {
+      const oldest = new Date("2025-10-30T12:00:00Z");
+      const newest = new Date("2026-04-30T12:00:00Z");
+
+      fixture.componentRef.setInput(
+        "data",
+        mkData([
+          { timestamp: oldest.toISOString(), atRisk: 1, total: 2 },
+          { timestamp: newest.toISOString(), atRisk: 5, total: 6 },
+        ]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      const expectedXMin = new Date(oldest.getFullYear(), oldest.getMonth(), 1);
+      const expectedXMax = new Date(newest.getFullYear(), newest.getMonth() + 1, 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
+      expect(config.timeUnit).toBe("month");
+      expect(config.timeDisplayFormat).toBe("MMM yyyy");
+    });
+
+    it("uses year-aligned bounds and year unit for All-time spans over 12 months", () => {
+      const oldest = new Date("2024-04-30T12:00:00Z");
+      const newest = new Date("2026-04-30T12:00:00Z");
+
+      fixture.componentRef.setInput(
+        "data",
+        mkData([
+          { timestamp: oldest.toISOString(), atRisk: 1, total: 2 },
+          { timestamp: newest.toISOString(), atRisk: 5, total: 6 },
+        ]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      const expectedXMin = new Date(oldest.getFullYear(), 0, 1);
+      const expectedXMax = new Date(newest.getFullYear() + 1, 0, 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
+      expect(config.timeUnit).toBe("year");
+      expect(config.timeDisplayFormat).toBe("yyyy");
+    });
+
+    it("uses day unit and day-aligned bounds for non-AllTime Past Month", () => {
+      const today = new Date("2026-04-30T12:00:00Z");
+      fixture.componentRef.setInput(
+        "data",
+        mkData([{ timestamp: today.toISOString(), atRisk: 1, total: 2 }]),
+      );
+      component.selectedTimespan.set(TimePeriod.PastMonth);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      const expectedXMin = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+      const expectedXMax = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
+      expect(config.timeUnit).toBe("day");
+      expect(config.timeDisplayFormat).toBe("MMM d");
+    });
+
+    it.each([
+      [TimePeriod.Past3Months, 3],
+      [TimePeriod.Past6Months, 6],
+      [TimePeriod.PastYear, 12],
+    ])(
+      "uses month unit and month-aligned bounds for %s",
+      (timespan: TimePeriod, monthsBack: number) => {
+        const today = new Date("2026-04-30T12:00:00Z");
+        fixture.componentRef.setInput(
+          "data",
+          mkData([{ timestamp: today.toISOString(), atRisk: 1, total: 2 }]),
+        );
+        component.selectedTimespan.set(timespan);
+        fixture.detectChanges();
+
+        const config = getChartConfig(fixture);
+        const xMin = config.xMin as Date;
+        const xMax = config.xMax as Date;
+
+        const expectedXMin = new Date(today.getFullYear(), today.getMonth() - monthsBack, 1);
+        const expectedXMax = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        expect(xMin.getTime()).toBe(expectedXMin.getTime());
+        expect(xMax.getTime()).toBe(expectedXMax.getTime());
+        expect(config.timeUnit).toBe("month");
+        expect(config.timeDisplayFormat).toBe("MMM yyyy");
+      },
+    );
+
+    it("falls through to the default range for AllTime with no data points", () => {
+      fixture.componentRef.setInput("data", mkData([]));
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      expect(config.xMin).toBeUndefined();
+      expect(config.xMax).toBeInstanceOf(Date);
+      expect(config.timeUnit).toBe("day");
     });
   });
 
