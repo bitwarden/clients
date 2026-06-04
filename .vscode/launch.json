@@ -31,7 +31,7 @@
       "type": "lldb",
       "request": "attach",
       "program": "${workspaceFolder}/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron",
-      "name": "Desktop: Main desktop-native rust debugger (attach)",
+      "name": "Desktop: Main desktop-native rust debugger (attach)"
     },
     {
       "type": "node",
@@ -68,7 +68,11 @@
   "compounds": [
     {
       "name": "Desktop: Attach Debugger (main + renderer)",
-      "configurations": ["Desktop: Main (attach)", "Desktop: Renderer (attach)", "Desktop: Main desktop-native rust debugger (attach)"]
+      "configurations": [
+        "Desktop: Main (attach)",
+        "Desktop: Renderer (attach)",
+        "Desktop: Main desktop-native rust debugger (attach)"
+      ]
     }
   ]
 }
