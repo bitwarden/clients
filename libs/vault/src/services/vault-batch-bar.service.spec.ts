@@ -157,6 +157,7 @@ describe("VaultBatchBarService", () => {
       expect(service.canAssignToCollections()).toBe(false);
 
       service.setConfig(makeConfig({ hasCiphers: true, isOrgVault: true }));
+      service.selection.select(makeCipherItem());
       expect(service.canAssignToCollections()).toBe(true);
     });
   });
@@ -429,8 +430,9 @@ describe("VaultBatchBarService", () => {
       expect(service.canAssignToCollections()).toBe(false);
     });
 
-    it("returns true for org vault when hasCiphers is true", () => {
+    it("returns true for org vault when hasCiphers is true and ciphers are selected", () => {
       service.setConfig(makeConfig({ hasCiphers: true, isOrgVault: true }));
+      service.selection.select(makeCipherItem());
 
       expect(service.canAssignToCollections()).toBe(true);
     });
