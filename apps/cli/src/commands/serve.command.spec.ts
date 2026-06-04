@@ -85,6 +85,36 @@ describe("buildOriginProtectionMiddleware", () => {
       expect(next).toHaveBeenCalled();
     });
   });
+
+  describe("when allowedHosts is null (--hostname all)", () => {
+    const hostAllowlistDisabled = buildOriginProtectionMiddleware({
+      protectOrigin: true,
+      allowedHosts: null,
+      logService,
+    });
+
+    it("allows request with arbitrary Host and no Origin (Layer 1 disabled)", async () => {
+      const ctx = mock<Context>({ headers: { host: "192.168.1.5:8087", origin: undefined } });
+      const next = jest.fn<Promise<void>, []>().mockResolvedValue(undefined);
+
+      await hostAllowlistDisabled(ctx, next as unknown as Next);
+
+      expect(next).toHaveBeenCalled();
+      expect(ctx.status).not.toBe(403);
+    });
+
+    it("still blocks disallowed Origin (Layer 2 remains active)", async () => {
+      const ctx = mock<Context>({
+        headers: { host: "192.168.1.5:8087", origin: "https://evil.example" },
+      });
+      const next = jest.fn<Promise<void>, []>();
+
+      await hostAllowlistDisabled(ctx, next as unknown as Next);
+
+      expect(ctx.status).toBe(403);
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe("buildServeAllowedHosts", () => {
@@ -92,5 +122,37 @@ describe("buildServeAllowedHosts", () => {
     const hosts = buildServeAllowedHosts("BWApi.MyDomain.COM", 80);
     expect(hosts.has("bwapi.mydomain.com:80")).toBe(true);
     expect(hosts.has("BWApi.MyDomain.COM:80")).toBe(false);
+    // Port 80 is the http default; bare-host form must also be present
+    expect(hosts.has("bwapi.mydomain.com")).toBe(true);
+  });
+
+  it("adds bare-host entries when port is 80 (http default)", () => {
+    const hosts = buildServeAllowedHosts("bwapi.example", 80);
+    expect(hosts.has("bwapi.example:80")).toBe(true);
+    expect(hosts.has("bwapi.example")).toBe(true);
+    expect(hosts.has("localhost")).toBe(true);
+    expect(hosts.has("127.0.0.1")).toBe(true);
+    expect(hosts.has("[::1]")).toBe(true);
+  });
+
+  it("adds bare-host entries when port is 443 (https default)", () => {
+    const hosts = buildServeAllowedHosts("bwapi.example", 443);
+    expect(hosts.has("bwapi.example:443")).toBe(true);
+    expect(hosts.has("bwapi.example")).toBe(true);
+    expect(hosts.has("localhost")).toBe(true);
+    expect(hosts.has("127.0.0.1")).toBe(true);
+    expect(hosts.has("[::1]")).toBe(true);
+  });
+
+  it("does NOT add bare-host entries for non-default ports", () => {
+    const hosts = buildServeAllowedHosts("bwapi.example", 8087);
+    expect(hosts.has("bwapi.example:8087")).toBe(true);
+    expect(hosts.has("localhost:8087")).toBe(true);
+    expect(hosts.has("127.0.0.1:8087")).toBe(true);
+    expect(hosts.has("[::1]:8087")).toBe(true);
+    expect(hosts.has("bwapi.example")).toBe(false);
+    expect(hosts.has("localhost")).toBe(false);
+    expect(hosts.has("127.0.0.1")).toBe(false);
+    expect(hosts.has("[::1]")).toBe(false);
   });
 });

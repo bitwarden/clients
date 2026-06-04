@@ -15,11 +15,16 @@ import { OssServeConfigurator } from "../oss-serve-configurator";
 import { ServiceContainer } from "../service-container/service-container";
 
 export function buildServeAllowedHosts(hostname: string, port: number): Set<string> {
-  return new Set(
-    [`localhost:${port}`, `127.0.0.1:${port}`, `[::1]:${port}`, `${hostname}:${port}`].map(
-      (entry) => entry.toLowerCase(),
-    ),
-  );
+  const entries = [
+    `localhost:${port}`,
+    `127.0.0.1:${port}`,
+    `[::1]:${port}`,
+    `${hostname}:${port}`,
+  ];
+  if (port === 80 || port === 443) {
+    entries.push("localhost", "127.0.0.1", "[::1]", hostname);
+  }
+  return new Set(entries.map((entry) => entry.toLowerCase()));
 }
 
 function rejectIfHostNotAllowed(
@@ -50,13 +55,16 @@ function rejectIfOriginPresent(ctx: Context, logService: LogService): boolean {
 
 export function buildOriginProtectionMiddleware(opts: {
   protectOrigin: boolean;
-  allowedHosts: ReadonlySet<string>;
+  allowedHosts: ReadonlySet<string> | null;
   logService: LogService;
 }): (ctx: Context, next: Next) => Promise<void> {
   return async (ctx, next) => {
     if (opts.protectOrigin) {
       // Guards are independent; order does not affect correctness.
-      if (rejectIfHostNotAllowed(ctx, opts.allowedHosts, opts.logService)) {
+      if (
+        opts.allowedHosts !== null &&
+        rejectIfHostNotAllowed(ctx, opts.allowedHosts, opts.logService)
+      ) {
         return;
       }
       if (rejectIfOriginPresent(ctx, opts.logService)) {
@@ -83,11 +91,9 @@ export class ServeCommand {
       }`,
     );
 
-    // Allowlist of Host header values that identify legitimate same-origin
-    // requests to the loopback interface. Any other Host value indicates a
-    // DNS-rebinding attack (the browser has rebound an attacker-controlled
-    // name to 127.0.0.1/::1 and is sending the attacker's hostname in Host).
-    const ALLOWED_HOSTS = buildServeAllowedHosts(hostname, port);
+    // `--hostname all` binds every interface, so a LAN client may legitimately
+    // reach the server via any local IP.
+    const ALLOWED_HOSTS = hostname === "all" ? null : buildServeAllowedHosts(hostname, port);
 
     const server = new koa();
     const router = new Router();
