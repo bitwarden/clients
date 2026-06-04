@@ -4,7 +4,6 @@ import {
   PasswordManagerClient,
   SendAddRequest,
   SendAuthType,
-  SendClient,
   SendEditRequest,
   SendId as SdkSendId,
   SendView as SdkSendView,
@@ -33,20 +32,6 @@ import { SendType } from "../types/send-type";
 import { SendApiService } from "./send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
 import { InternalSendService } from "./send.service.abstraction";
-
-/**
- * Augments SendClient with methods that exist in the WASM binary but are not yet present
- * in the generated TypeScript types. Remove this type and all casts to it once the SDK
- * .d.ts is updated.
- */
-type ExtendedSendClient = SendClient & {
-  delete(id: SdkSendId): Promise<void>;
-  remove_password(id: SdkSendId): Promise<void>;
-  access_send_v1(id: string, password?: string): Promise<unknown>;
-  access_send(token: string): Promise<unknown>;
-  get_file_download_data_v1(sendId: string, fileId: string, password?: string): Promise<unknown>;
-  get_file_download_data(token: string, fileId: string): Promise<unknown>;
-};
 
 /**
  * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
@@ -124,7 +109,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          return await (ref.value.sends() as ExtendedSendClient).delete(asUuid<SdkSendId>(id));
+          return await ref.value.sends().delete(asUuid<SdkSendId>(id));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to delete send: ${error}`);
@@ -146,9 +131,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          return await (ref.value.sends() as ExtendedSendClient).remove_password(
-            asUuid<SdkSendId>(id),
-          );
+          return await ref.value.sends().remove_password(asUuid<SdkSendId>(id));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to remove send auth: ${error}`);
@@ -172,16 +155,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // to the legacy service.
   async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await (sdk.sends() as ExtendedSendClient).access_send_v1(
-      id,
-      request.password ?? undefined,
-    );
+    const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
     return new SendAccessResponse(view);
   }
 
   async postSendAccessV2(accessToken: SendAccessToken): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await (sdk.sends() as ExtendedSendClient).access_send(accessToken.token);
+    const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
   }
 
@@ -214,7 +194,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          return await (ref.value.sends() as ExtendedSendClient).delete(asUuid<SdkSendId>(id));
+          return await ref.value.sends().delete(asUuid<SdkSendId>(id));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to delete send: ${error}`);
@@ -231,11 +211,9 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     request: SendAccessRequest,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await (sdk.sends() as ExtendedSendClient).get_file_download_data_v1(
-      send.id,
-      send.file.id,
-      request.password ?? undefined,
-    );
+    const data = await sdk
+      .sends()
+      .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
     return new SendFileDownloadDataResponse(data);
   }
 
@@ -246,10 +224,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     accessToken: SendAccessToken,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await (sdk.sends() as ExtendedSendClient).get_file_download_data(
-      accessToken.token,
-      send.file.id,
-    );
+    const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
     return new SendFileDownloadDataResponse(data);
   }
 
