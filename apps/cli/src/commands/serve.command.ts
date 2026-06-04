@@ -83,7 +83,7 @@ export class ServeCommand {
 
   async run(options: OptionValues) {
     const protectOrigin = !options.disableOriginProtection;
-    const port = options.port || 8087;
+    const port = Number(options.port) || 8087;
     const hostname = options.hostname || "localhost";
     this.serviceContainer.logService.info(
       `Starting server on ${hostname}:${port} with ${
