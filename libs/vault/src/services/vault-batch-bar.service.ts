@@ -287,7 +287,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     // Org-vault admins can assign any cipher to a collection without further checks, `isOrgVault` should
     // only be true when the user is within the Admin Console.
-    if (config.isOrgVault) {
+    if (config.isOrgVault && selected.length !== 0) {
       return true;
     }
 
