@@ -1,4 +1,5 @@
 import {
+  AUTOFILL_ATTRIBUTES,
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
@@ -9,6 +10,12 @@ import { stopwatch } from "../content/performance";
 import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
+
+// Fix B: shadow sub-observers mirror the top-level observer's attributeFilter, so
+// attribute churn inside shadow roots (style/transform/aria-* at frame rate) no
+// longer floods the callback. Same attr set the light-DOM observer uses — coverage
+// inside shadow roots matches light DOM, not narrower.
+const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 
 type ScanVerdict =
   | { branch: "shortCircuit"; foundNewRoot: false }
@@ -361,6 +368,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       if (mutationObserver) {
         mutationObserver.observe(shadowRoot, {
           attributes: true,
+          attributeFilter: SHADOW_OBSERVER_ATTRIBUTE_FILTER,
           childList: true,
           subtree: true,
         });
@@ -584,6 +592,7 @@ export class DomQueryService implements DomQueryServiceInterface {
           if (mutationObserver) {
             mutationObserver.observe(nodeShadowRoot, {
               attributes: true,
+              attributeFilter: SHADOW_OBSERVER_ATTRIBUTE_FILTER,
               childList: true,
               subtree: true,
             });
