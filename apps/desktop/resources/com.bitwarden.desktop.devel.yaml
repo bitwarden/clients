@@ -53,6 +53,7 @@ modules:
       - cp com.bitwarden.desktop.desktop ${FLATPAK_DEST}/share/applications/
       - install bitwarden.sh /app/bin/bitwarden.sh
       - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh %U" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
+      - for s in 16 32 64 128 256 512; do install -Dm644 icons/${s}x${s}.png ${FLATPAK_DEST}/share/icons/hicolor/${s}x${s}/apps/com.bitwarden.desktop.png; done
     sources:
       - type: dir
         only-arches: [x86_64]
@@ -62,6 +63,9 @@ modules:
         path: ../dist/linux-arm64-unpacked
       - type: file
         path: ./com.bitwarden.desktop.desktop
+      - type: dir
+        path: ./icons
+        dest: icons
       - type: script
         dest-filename: bitwarden.sh
         commands:
