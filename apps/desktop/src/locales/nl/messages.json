@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Bankdetails"
   },
+  "typePassport": {
+    "message": "Paspoort"
+  },
+  "passportDetails": {
+    "message": "Paspoortgegevens"
+  },
+  "passportAdded": {
+    "message": "Paspoort toegevoegd"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisdocument"
+  },
   "folderSubtitle": {
     "message": "Organiseer je items"
   },
   "collectionSubtitle": {
     "message": "Gedeelde items organiseren"
+  },
+  "typeDriversLicense": {
+    "message": "Rijbewijs"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Rijbewijs of ID"
   },
   "chooseItemToAdd": {
     "message": "Kies item om toe te voegen"
@@ -144,7 +162,7 @@
     "message": "Bankrekening weergeven",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Rijbewijs weergeven",
     "description": "Header for view license item type"
   },
@@ -208,7 +226,7 @@
     "message": "Bankrekening bewerken",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Rijbewijs bewerken",
     "description": "Header for edit license item type"
   },
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Paspoortnummer"
+  },
+  "sex": {
+    "message": "Geslacht"
+  },
+  "copySex": {
+    "message": "Geslacht kopiëren"
+  },
+  "birthPlace": {
+    "message": "Geboorteplaats"
+  },
+  "copyBirthPlace": {
+    "message": "Geboorteplaats kopiëren"
+  },
+  "nationality": {
+    "message": "Nationaliteit"
+  },
+  "copyNationality": {
+    "message": "Nationaliteit kopiëren"
+  },
+  "copyIssuingCountry": {
+    "message": "Land van uitgifte kopiëren"
+  },
+  "passportType": {
+    "message": "Soort paspoort"
+  },
+  "copyPassportType": {
+    "message": "Soort paspoort kopiëren"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationaal identificatienummer kopiëren"
+  },
+  "nationalIdentificationNumber": {
+    "message": ""
+  },
+  "copyIssuingAuthority": {
+    "message": "Autoriteit/kantoor van uitgifte kopiëren"
   },
   "licenseNumber": {
     "message": "Rijbewijsnummer"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
   },
+  "noValueEntered": {
+    "message": "Geen waarde ingevoerd",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Stuur verificatiecode naar je e-mail"
   },
@@ -1755,6 +1813,10 @@
     "message": "Nummer kopiëren",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Naam kopiëren",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "E-mail kopiëren"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Alles selecteren"
+  },
+  "selected": {
+    "message": "Geselecteerd"
+  },
+  "bulkActionsBar": {
+    "message": "Bulkacties"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) geselecteerd. De bulkactiebalk is nu beschikbaar onderaan het scherm. Druk op $SHORTCUTBINDING$ om de focus naar de bulkactiebalk te verleggen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selectie gewist"
+  },
+  "additionalActions": {
+    "message": "Aanvullende acties"
   },
   "zoomIn": {
     "message": "Inzoomen"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Het verwijderen van je account is definitief. Je kunt dit niet ongedaan maken."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Je bent de eigenaar van ten minste één organisatie. Het verwijderen van je account verwijdert ook elke organisatie waarvan jij de enige eigenaar bent."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Je kunt je account niet verwijderen terwijl je de eigenaar van een organisatie bent. Je kunt het eigendom overdragen of eerst de organisatie verwijderen."
+  },
   "cannotDeleteAccount": {
     "message": "Kan account niet verwijderen"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Helaas wordt browserintegratie momenteel niet ondersteund in de Windows Store-versie."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Helaas wordt browserintegratie in de linux versie momenteel niet ondersteund."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Vereis verificatie voor browserintegratie"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Schakel een extra beveiligingsniveau in door een vingerafdrukzin te vereisen bij het verbinden van je desktop en browser. Wanneer ingeschakeld moet je iedere verbinding verifiëren."
-  },
   "enableHardwareAcceleration": {
     "message": "Gebruik hardware acceleratie"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Goedkeuren"
-  },
-  "verifyBrowserTitle": {
-    "message": "Browserverbinding verifiëren"
-  },
-  "verifyBrowserDesc": {
-    "message": "Verzeker je ervan dat de getoonde vingerafdruk hetzelfde is als de vingerafdruk in de browserextensie."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ wil verbinding maken met Bitwarden",
@@ -4120,6 +4198,22 @@
   "troubleshooting": {
     "message": "Probleemoplossing"
   },
+  "downloadDiagnosticReport": {
+    "message": "Diagnostisch rapport downloaden"
+  },
+  "experiencingAnIssue": {
+    "message": "Ervaar je een probleem?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download het diagnostische rapport en deel het met"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden-ondersteuning",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Downloaden"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Hardwareversnelling uitschakelen en herstarten"
   },
@@ -4652,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Ongeldige sneltoets"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5012,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
   },
+  "more": {
+    "message": "Meer"
+  },
+  "enterMonth": {
+    "message": "Voer maand in."
+  },
+  "enterDay": {
+    "message": "Voer dag in."
+  },
+  "enterYear": {
+    "message": "Voer jaar in."
+  },
+  "invalidDay": {
+    "message": "Voer een geldige dag in."
+  },
+  "invalidYear": {
+    "message": "Voer een geldig jaar in."
+  },
+  "searchDriversLicense": {
+    "message": "Rijbewijzen zoeken"
+  },
   "bankAccount": {
     "message": "Bankrekening"
   },
@@ -5052,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Bankrekening doorzoeken"
   },
+  "searchPassport": {
+    "message": "Paspoorten zoeken"
+  },
   "copyAccountNumber": {
     "message": "Rekeningnummer kopiëren"
   },
@@ -5063,6 +5185,30 @@
   },
   "copyIban": {
     "message": "IBAN kopiëren"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
+  "copyFirstName": {
+    "message": "Voornaam kopiëren"
+  },
+  "copyMiddleName": {
+    "message": "Tussenvoegsel kopiëren"
+  },
+  "copyLastName": {
+    "message": "Achternaam kopiëren"
+  },
+  "copyLicenseNumber": {
+    "message": "Kenteken kopiëren"
+  },
+  "copyPassportNumber": {
+    "message": "Paspoortnummer kopiëren"
   },
   "bankAccountTypeChecking": {
     "message": "Controleren"
@@ -5140,5 +5286,50 @@
   "progressBar": {
     "message": "Voortgangsbalk",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
+  },
+  "driversLicenseDetails": {
+    "message": "Rijbewijsdetails"
+  },
+  "dateOfBirth": {
+    "message": "Geboortedatum"
+  },
+  "birthMonth": {
+    "message": "Geboortemaand"
+  },
+  "birthDay": {
+    "message": "Geboortedag"
+  },
+  "birthYear": {
+    "message": "Geboortejaar"
+  },
+  "issuingCountry": {
+    "message": "Land van uitgifte"
+  },
+  "issuingState": {
+    "message": "Provincie van uitgifte"
+  },
+  "issueDate": {
+    "message": "Uitgiftedatum"
+  },
+  "issueMonth": {
+    "message": "Uitgavemaand"
+  },
+  "issueDay": {
+    "message": "Uitgiftedag"
+  },
+  "issueYear": {
+    "message": "Uitgiftejaar"
+  },
+  "expirationDay": {
+    "message": "Vervaldatum"
+  },
+  "issuingAuthority": {
+    "message": "Instantie van uitgifte"
+  },
+  "licenseClass": {
+    "message": "Rijbewijsklasse"
   }
 }

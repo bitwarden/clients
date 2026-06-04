@@ -231,7 +231,7 @@ export const getButtonColorStyles = ({
   const baseDisabledStyles = [
     "aria-disabled:!tw-text-fg-disabled",
     "hover:!tw-text-fg-disabled",
-    "aria-disabled:tw-cursor-not-allowed",
+    "aria-disabled:tw-cursor-default",
     "hover:tw-no-underline",
   ];
 

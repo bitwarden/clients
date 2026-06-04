@@ -62,6 +62,9 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
+/**
+ * @deprecated - In process of being migrated to `settings-dialog.component.ts`. Ensure both are updated.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -623,19 +626,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.dialogService.openSimpleDialog({
           title: { key: "browserIntegrationUnsupportedTitle" },
           content: { key: "browserIntegrationWindowsStoreDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
-
-      if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationLinuxDesc" },
           acceptButtonText: { key: "ok" },
           cancelButtonText: null,
           type: "warning",

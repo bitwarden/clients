@@ -1,3 +1,4 @@
+import { OVERLAY_DEFAULT_CONFIG } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
 
 import { AuthModule } from "./auth";
@@ -30,5 +31,6 @@ import "./shared/locales";
     AccessComponent,
   ],
   bootstrap: [],
+  providers: [{ provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } }],
 })
 export class OssModule {}

@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
+  },
   "folderSubtitle": {
     "message": "Организуйте свои элементы"
   },
   "collectionSubtitle": {
     "message": "Организуйте общие элементы"
+  },
+  "typeDriversLicense": {
+    "message": "Водительское удостоверение"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Водительское удостоверение или ID"
   },
   "chooseItemToAdd": {
     "message": "Выберите элемент для добавления"
@@ -144,8 +162,8 @@
     "message": "Просмотреть банковский счет",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Просмотреть лицензию",
+  "viewItemHeaderLicense": {
+    "message": "Просмотреть водительское удостоверение",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -177,7 +195,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Новая лицензия",
+    "message": "Новое водительское удостоверение",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -208,8 +226,8 @@
     "message": "Изменить банковский счет",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Изменить лицензию",
+  "editItemHeaderLicense": {
+    "message": "Изменить водительское удостоверение",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -373,8 +391,44 @@
   "passportNumber": {
     "message": "Номер паспорта"
   },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
+  },
   "licenseNumber": {
-    "message": "ИНН"
+    "message": "Номер водительского удостоверения"
   },
   "email": {
     "message": "Email"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Нет элементов для отображения."
   },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Отправить код подтверждения на ваш email"
   },
@@ -1755,6 +1813,10 @@
     "message": "Скопировать номер",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Скопировать имя",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Скопировать email"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Выбрать все"
+  },
+  "selected": {
+    "message": "Выбрано"
+  },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
   },
   "zoomIn": {
     "message": "Увеличить"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Удаление вашей учетной записи необратимо. Его нельзя отменить."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Вы являетесь владельцем как минимум одной организации. Удаление вашего аккаунта приведет к удалению всех организаций, единственным владельцем которых вы являетесь."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Вы не можете удалить свой аккаунт, пока являетесь владельцем организации. Сначала передайте права владения или удалите организацию."
+  },
   "cannotDeleteAccount": {
     "message": "Невозможно удалить аккаунт"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "К сожалению, интеграция с браузером на текущий момент не поддерживается в версии для linux."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Требовать верификацию для интеграции с браузером"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Добавьте дополнительный уровень безопасности, требуя подтверждения отпечатка фразы при установлении связи между компьютером и браузером. Это потребует действий пользователя и подтверждения при каждом создании соединения."
-  },
   "enableHardwareAcceleration": {
     "message": "Использовать аппаратное ускорение"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Принять"
-  },
-  "verifyBrowserTitle": {
-    "message": "Верификация соединения с браузером"
-  },
-  "verifyBrowserDesc": {
-    "message": "Пожалуйста, убедитесь, что отображаемый отпечаток идентичен отпечатку, отображаемому в расширении браузера."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ хочет подключиться к Bitwarden",
@@ -4120,6 +4198,22 @@
   "troubleshooting": {
     "message": "Устранение проблем"
   },
+  "downloadDiagnosticReport": {
+    "message": "Скачать диагностический отчет"
+  },
+  "experiencingAnIssue": {
+    "message": "Испытываете проблемы?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Скачайте, а затем поделитесь диагностическим отчетом с"
+  },
+  "bitwardenSupport": {
+    "message": "поддержкой Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Скачать"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Отключить аппаратное ускорение и перезапустить"
   },
@@ -4652,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Недопустимое сочетание клавиш"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5012,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "more": {
+    "message": "Еще"
+  },
+  "enterMonth": {
+    "message": "Введите месяц."
+  },
+  "enterDay": {
+    "message": "Введите день."
+  },
+  "enterYear": {
+    "message": "Введите год."
+  },
+  "invalidDay": {
+    "message": "Введите правильный день."
+  },
+  "invalidYear": {
+    "message": "Введите правильный год."
+  },
+  "searchDriversLicense": {
+    "message": "Поиск водительских удостоверений"
+  },
   "bankAccount": {
     "message": "Банковский счет"
   },
@@ -5052,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -5063,6 +5185,30 @@
   },
   "copyIban": {
     "message": "Скопировать IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
+  },
+  "copyFirstName": {
+    "message": "Скопировать имя"
+  },
+  "copyMiddleName": {
+    "message": "Скопировать отчество"
+  },
+  "copyLastName": {
+    "message": "Скопировать фамилию"
+  },
+  "copyLicenseNumber": {
+    "message": "Скопировать номер водительского удостоверения"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -5140,5 +5286,50 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
+  },
+  "driversLicenseDetails": {
+    "message": "Детали водительского удостоверения"
+  },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "issuingState": {
+    "message": "Республика / область выдачи"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "licenseClass": {
+    "message": "Категории водительского удостоверения"
   }
 }

@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "Kopírovať číslo pasu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovať rodné číslo"
+  },
+  "copyFirstName": {
+    "message": "Kopírovať krstné meno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovať stredné meno"
+  },
+  "copyLastName": {
+    "message": "Kopírovať priezvisko"
+  },
   "copyLicenseNumber": {
     "message": "Kopírovať číslo licencie"
   },
@@ -707,6 +719,22 @@
   },
   "rateExtension": {
     "message": "Ohodnotiť rozšírenie"
+  },
+  "troubleshooting": {
+    "message": "Riešenie problémov"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte nejaký problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stiahnite si diagnostickú správu, a potom ju zdieľajte s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwardenu",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stiahnuť"
   },
   "browserNotSupportClipboard": {
     "message": "Váš webový prehliadač nepodporuje automatické kopírovanie do schránky. Kopírujte manuálne."
@@ -1976,11 +2004,32 @@
   "brand": {
     "message": "Značka"
   },
+  "birthDay": {
+    "message": "Deň narodenia"
+  },
+  "birthMonth": {
+    "message": "Mesiac narodenia"
+  },
+  "birthYear": {
+    "message": "Rok narodenia"
+  },
+  "expirationDay": {
+    "message": "Deň exspirácie"
+  },
   "expirationMonth": {
     "message": "Mesiac exspirácie"
   },
   "expirationYear": {
     "message": "Rok exspirácie"
+  },
+  "issueDay": {
+    "message": "Deň vydania"
+  },
+  "issueMonth": {
+    "message": "Mesiac vydania"
+  },
+  "issueYear": {
+    "message": "Rok vydania"
   },
   "monthly": {
     "message": "mesačne"
@@ -2075,6 +2124,51 @@
   "passportNumber": {
     "message": "Číslo pasu"
   },
+  "dateOfBirth": {
+    "message": "Dátum narodenia"
+  },
+  "sex": {
+    "message": "Pohlavie"
+  },
+  "copySex": {
+    "message": "Kopírovať pohlavie"
+  },
+  "birthPlace": {
+    "message": "Miesto narodenia"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovať miesto narodenia"
+  },
+  "nationality": {
+    "message": "Národnosť"
+  },
+  "copyNationality": {
+    "message": "Kopírovať národnosť"
+  },
+  "issuingCountry": {
+    "message": "Vydávajúca krajina"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovať vydávajúcu krajinu"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovať typ pasu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "issuingAuthority": {
+    "message": "Vydávajúci orgán"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovať  vydávajúci orgán/úrad"
+  },
+  "issueDate": {
+    "message": "Dátum vydania"
+  },
   "licenseNumber": {
     "message": "Licenčné číslo"
   },
@@ -2165,6 +2259,33 @@
   "typeBankAccountSubtitle": {
     "message": "Bankové údaje"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Podrobnosti o pase"
+  },
+  "passportAdded": {
+    "message": "Pas bol pridaný"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovný doklad"
+  },
+  "typeDriversLicense": {
+    "message": "Vodičský preukaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Vodičský preukaz alebo občiansky preukaz"
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti o vodičskom preukaze"
+  },
+  "issuingState": {
+    "message": "Vydávajúci štát/provincia"
+  },
+  "licenseClass": {
+    "message": "Skupina vodičského preukazu"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -2229,8 +2350,8 @@
     "message": "Upraviť bankový účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
+  "editItemHeaderLicense": {
+    "message": "Upraviť vodičský preukaz",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,7 +2390,7 @@
     "message": "Zobraziť bankový účet",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Zobraziť vodičský preukaz",
     "description": "Header for view license item type"
   },
@@ -2334,6 +2455,31 @@
   "clear": {
     "message": "Vyčistiť",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Vybrané"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné operácie"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Vybrané položky: $COUNT$. Panel hromadných operácií je teraz k dispozícii v spodnej časti obrazovky. Stlačte $SHORTCUTBINDING$, aby ste presunuli fokus na panel hromadných operácií.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výber bol zrušený"
+  },
+  "additionalActions": {
+    "message": "Ďalšie akcie"
   },
   "checkPassword": {
     "message": "Overiť či došlo k úniku hesla."
@@ -2824,18 +2970,6 @@
   "biometricsFailedDesc": {
     "message": "Biometria nebola dokončená. Zvážte použitie hlavného hesla, alebo sa odhláste. Ak tento problém pretrváva, kontaktujte podporu Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Povolenie nebolo udelené"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez oprávnenia komunikovať s aplikáciou Bitwarden Desktop nemôžeme poskytnúť biometriu v rozšírení prehliadača. Skúste to znova."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Chyba žiadosti o povolenie"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Túto akciu nie je možné vykonať na bočnom paneli. Skúste to znova vo vyskakovacom alebo samostatnom okne."
-  },
   "personalOwnershipSubmitError": {
     "message": "Z dôvodu podnikovej politiky máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok."
   },
@@ -3216,7 +3350,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Skopírujte a zdieľajte tento odkaz na Send. Send bude dostupný každému, kto má odkaz, počas nasledujúcich $TIME$.",
+    "message": "Skopírujte a zdieľajte tento odkaz na Send. Send bude dostupný každému, kto má odkaz, počas nasledujúceho obdobia: $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -4988,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Hodnota nie je zadaná",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Nie je čo kopírovať"
   },
@@ -6087,6 +6225,10 @@
   "next": {
     "message": "Ďalej"
   },
+  "breadcrumbs": {
+    "message": "Omrvinková navigácia",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6350,6 +6492,24 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "enterMonth": {
+    "message": "Zadajte mesiac."
+  },
+  "enterDay": {
+    "message": "Zadajte deň."
+  },
+  "enterYear": {
+    "message": "Zadajte rok."
+  },
+  "invalidDay": {
+    "message": "Zadajte platný deň."
+  },
+  "invalidYear": {
+    "message": "Zadajte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Vyhľadať vodičské preukazy"
+  },
   "bankName": {
     "message": "Názov banky"
   },
@@ -6387,6 +6547,9 @@
   "searchBankAccount": {
     "message": "Vyhľadať bankový účet"
   },
+  "searchPassport": {
+    "message": "Vyhľadať pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovať číslo účtu"
   },
@@ -6399,14 +6562,23 @@
   "copyIban": {
     "message": "Kopírovať IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Kopírovať meno na účte"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovať číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovať SWIFT kód"
+  },
   "bankAccountTypeChecking": {
-    "message": "Kontroluje sa"
+    "message": "Bežný účet"
   },
   "bankAccountTypeSavings": {
-    "message": "Ukladá sa"
+    "message": "Sporiaci účet"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Depozitný certifikát"
+    "message": "Termínovaný účet"
   },
   "bankAccountTypeLineOfCredit": {
     "message": "Úverový rámec"
@@ -6420,14 +6592,11 @@
   "bankAccountTypeOther": {
     "message": "Ostatné"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Bankové údaje uchovávajte na bezpečnom mieste"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Uložte si údaje o bankovom účte, aby ste k nim mali jednoduchý a bezpečný prístup na všetkých svojich zariadeniach."
-  },
   "downloadFailed": {
     "message": "Sťahovanie zlyhalo."
+  },
+  "more": {
+    "message": "Viac"
   },
   "maxAccessCount": {
     "message": "Maximálny počet prístupov",
@@ -6472,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
   }
 }

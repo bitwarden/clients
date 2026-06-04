@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Kritické rizikové aplikace"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Zranitelné kritické aplikace"
+  },
   "allCriticalApps": {
     "message": "Všechny kritické aplikace"
   },
@@ -54,7 +57,7 @@
     "message": "Těmto filtrům neodpovídají žádné aplikace"
   },
   "passwordRisk": {
-    "message": "Rizikové heslo"
+    "message": "Zranitelné heslo"
   },
   "passwords": {
     "message": "Hesla"
@@ -63,7 +66,7 @@
     "message": "Ohrožení v průběhu času"
   },
   "passwordsAtRisk": {
-    "message": "Ohrožená hesla"
+    "message": "Zranitelná hesla"
   },
   "noEditPermissions": {
     "message": "Nemáte oprávnění upravit tuto položku"
@@ -97,15 +100,6 @@
   },
   "cannotRestoreAccessError": {
     "message": "Nelze obnovit přístup organizace"
-  },
-  "allApplicationsWithCount": {
-    "message": "Všechny aplikace ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "createNewLoginItem": {
     "message": "Vytvořit novou položku přihlášení"
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Kritické aplikace ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "označených kritických aplikací"
   },
@@ -222,6 +207,42 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Vaše data jsou v pořádku. Pojďme je dát do práce."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Projděte si krátkou prezentaci služby Access Intelligence a zjistěte, jak můžete data vaší organizace proměnit v konkrétní kroky."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Celé zabezpečení Vaší organizace, v jednom zobrazení"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence Vám poskytne jediné místo pro zobrazení každé aplikace, hesla a člena, který je v ohrožení."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Vy určujete priority. My odhalujeme rizika."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Vy určíte, které aplikace jsou nejdůležitější, a Access Intelligence automaticky identifikuje ohrožená hesla, kterým je třeba věnovat pozornost jako první."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Sledujte pokroky v rámci celého týmu"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Členové jsou automaticky upozorněni na ohrožená hesla v rozšíření Bitwarden. Není třeba nic dohledávat."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Pro spuštění nahrajte data své organizace"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Jakmile bude mít Access Intelligence k dispozici data z trezoru, bude mít vše potřebné k tomu, aby vypracoval zprávu o stavu hesel ve Vaší organizaci."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Úvodní prohlídka služby Access Intelligence"
+  },
+  "startTour": {
+    "message": "Zahájit prohlídku"
   },
   "noDataInOrgTitle": {
     "message": "Nebyla nalezena žádná data"
@@ -355,8 +376,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Tito členové mají přístup k zranitelným položkám pro kritické aplikace."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Členové se zranitelnými hesly"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ členů se zranitelnými hesly pro $CRITICALAPPCOUNT$ kritických aplikací",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Členům Vaší organizace bude přiřazen úkol ke změně zranitelných hesel. Obdrží oznámení v rámci jejich rozšíření prohlížeče Bitwarden."
@@ -385,6 +419,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "z $TOTAL$ celkem",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +715,27 @@
   },
   "passportNumber": {
     "message": "Číslo cestovního pasu"
+  },
+  "sex": {
+    "message": "Pohlaví"
+  },
+  "copySex": {
+    "message": "Kopírovat pohlaví"
+  },
+  "birthPlace": {
+    "message": "Místo narození"
+  },
+  "nationality": {
+    "message": "Národnost"
+  },
+  "copyNationality": {
+    "message": "Kopírovat národnost"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
   },
   "licenseNumber": {
     "message": "Číslo dokladu totožnosti"
@@ -997,6 +1061,12 @@
   "typeSshKey": {
     "message": "SSH klíč"
   },
+  "typeDriversLicense": {
+    "message": "Řidičský průkaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Řidičský nebo občanský průkaz"
+  },
   "typeLoginSubtitle": {
     "message": "Webová stránka nebo aplikace"
   },
@@ -1014,6 +1084,18 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Údaje o bance"
+  },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Údaje o pasu"
+  },
+  "passportAdded": {
+    "message": "Pas byl přidán"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovní dokumenty"
   },
   "folderSubtitle": {
     "message": "Uspořádat položky"
@@ -1166,9 +1248,9 @@
     "message": "Upravit bankovní účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Upravit řidičský průkaz",
-    "description": "Header for edit driver's license item type"
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Upravit pas",
@@ -1206,9 +1288,9 @@
     "message": "Zobrazit bankovní účet",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Zobrazit řidičský průkaz",
-    "description": "Header for view driver's license item type"
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Zobrazit pas",
@@ -1302,6 +1384,9 @@
   "copyAddress": {
     "message": "Kopírovat adresu"
   },
+  "copyBirthPlace": {
+    "message": "Kopírovat místo narození"
+  },
   "copyPhone": {
     "message": "Kopírovat telefon"
   },
@@ -1317,8 +1402,23 @@
   "copyPassportNumber": {
     "message": "Kopírovat číslo pasu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovat rodné číslo"
+  },
+  "copyPassportType": {
+    "message": "Kopírovat typ pasu"
+  },
+  "copyFirstName": {
+    "message": "Kopírovat křestní jméno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovat prostřední jméno"
+  },
+  "copyLastName": {
+    "message": "Kopírovat příjmení"
+  },
   "copyLicenseNumber": {
-    "message": "Kopírovat číslo dokladu totožnosti"
+    "message": "Kopírovat číslo řidičského průkazu"
   },
   "copyPrivateKey": {
     "message": "Kopírovat soukromý klíč"
@@ -1328,6 +1428,12 @@
   },
   "copyFingerprint": {
     "message": "Kopírovat otisk prstu"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovat vydávající orgán/úřad"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovat zemi vydávající doklad"
   },
   "copyName": {
     "message": "Kopírovat název"
@@ -1368,6 +1474,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Nebyla zadána žádná hodnota",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Žádné hodnoty ke zkopírování"
@@ -1419,6 +1529,28 @@
   },
   "unselectAll": {
     "message": "Odznačit vše"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné akce"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Bylo vybráno $COUNT$ položek. Panel hromadných akcí je nyní k dispozici v dolní části obrazovky. Stiskněte $SHORTCUTBINDING$ pro přepnutí zaměření na hromadnou akci.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výběr byl vymazán"
+  },
+  "additionalActions": {
+    "message": "Další akce"
   },
   "launch": {
     "message": "Spustit"
@@ -2529,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "Smazání účtu je trvalé. Tuto akci nelze vrátit zpět."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Jste vlastníkem alespoň jedné organizace. Smazáním účtu smažete také všechny organizace, kterých jste výhradním vlastníkem."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Nemůžete smazat svůj účet, pokud jste vlastníkem organizace. Nejprve smažte organizaci nebo převeďte vlastnictví organizace."
+  },
+  "cannotDeleteAccount": {
+    "message": "Nelze smazat účet"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Tuto akci nelze dokončit, protože Váš účet vlastní organizace. Další informace získáte od správce organizace."
+  },
   "accountDeleted": {
     "message": "Účet byl smazán"
   },
@@ -3463,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Za nezaplacené předplatné bude naúčtována částka z Vaší platební metody."
   },
-  "paymentChargedWithTrial": {
-    "message": "Vybraný plán obsahuje bezplatnou 7denní zkušební dobu. Částka z Vašeho účtu nebude stržena, dokud tato zkušební doba neuplyne. Předplatné můžete kdykoli zrušit."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Vybraný plán obsahuje bezplatnou $TRIAL_LENGTH$denní zkušební dobu. Částka z Vašeho účtu nebude stržena, dokud tato zkušební doba neuplyne. Předplatné můžete kdykoli zrušit.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Informace o platbě"
@@ -3891,12 +4041,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Po 7 dnech bude bezplatná zkušební doba překlopena do placeného předplatného $PLAN$.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Vaše zkušební verze $PLAN$ $TRIAL_LENGTH$ bude po $TRIAL_LENGTH$ dnech překlopena do placeného předplatného.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4259,6 +4413,53 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Vytvořen textový Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Vytvořen textový Send s ověřením e-mailem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Vytvořen textový Send s heslem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Vytvořen souborový Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Vytvořen souborový Send s ověřením e-mailem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Vytvořen souborový Send s heslem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedTextSend": {
+    "message": "Upravený text v Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Upravený soubor v Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Smazaný text ze Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Smazaný soubor ze Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Otevřen text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Otevřen soubor Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Položka $ID$ byla přesunuta do organizace.",
     "placeholders": {
@@ -4400,6 +4601,96 @@
       }
     }
   },
+  "copiedPassportNumberItemId": {
+    "message": "Zkopírováno číslo pasu pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Zobrazené číslo pasu pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Bylo zobrazeno číslo licence pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Bylo zkopírováno číslo licence pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedIbanItemId": {
+    "message": "Byl zobrazen IBAN pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Byl zkopírován IBAN pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Byl zobrazen SWIFT pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Byl zkopírován SWIFT pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Bylo zobrazeno národní identifikační číslo pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Bylo zkopírováno národní identifikační číslo pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Automaticky byla vyplněna položka $ID$.",
     "placeholders": {
@@ -4445,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny."
   },
-  "discardEdits": {
-    "message": "Zahodit úpravy"
-  },
   "keepEditing": {
     "message": "Pokračovat v úpravách"
-  },
-  "backToEditing": {
-    "message": "Zpět k úpravám"
   },
   "editedPolicyId": {
     "message": "Byla upravena zásada $ID$.",
@@ -4529,8 +4814,8 @@
   "revokedEmailError": {
     "message": "1 nebo více e-mailů patří odvolaným členům. Pro opětovné pozvání obnovte jejich přístup."
   },
-  "revocationReasonUnknown": {
-    "message": "Neznámý důvod"
+  "revocationReasonNotLogged": {
+    "message": "Nebyl logován žádný důvod"
   },
   "revocationReasonManual": {
     "message": "Zrušeno administrátorem"
@@ -4540,6 +4825,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Nesoulad s jednotnými pravidly organizace"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Odmítnutý převod položky do organizace"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Zrušený přístup organizace pro $ID$ za nedodržení dvoufaktorových zásad.",
@@ -4615,9 +4903,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Převod do vlastnictví organizace byl přijat."
-  },
-  "userDeclinedTransfer": {
-    "message": "Zrušeno z důvodu odmítnutí převodu do vlastnictví organizace."
   },
   "invitedUserId": {
     "message": "Byl pozván uživatel $ID$.",
@@ -5486,6 +5771,44 @@
   "domainsEdited": {
     "message": "Domény byly upraveny"
   },
+  "inviteLink": {
+    "message": "Zvací odkaz"
+  },
+  "lastGenerated": {
+    "message": "Naposledy vygenerováno: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Zvací odkaz byl zkopírován"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Zvací odkaz byl znovu vygenerován"
+  },
+  "regenerateInviteLink": {
+    "message": "Znovu vygenerovat zvací odkaz"
+  },
+  "invalidateInviteLink": {
+    "message": "Zrušit zvací odkaz"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Pokud odeberete všechny domény, tento odkaz již nebude fungovat pro nikoho."
+  },
+  "invalidateLink": {
+    "message": "Zrušit odkaz"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Zvací odkaz byl zrušen"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Musíte zadat alespoň 1 doménu"
+  },
+  "deactivateLink": {
+    "message": "Deaktivovat odkaz"
+  },
   "inviteByLinkDesc": {
     "message": "Pozvěte členy do Vaší organizace s odkazem. Pokud ještě nebyla zadána žádná role, budou přidáni jako výchozí uživatel."
   },
@@ -6194,6 +6517,19 @@
   },
   "downloadAttachments": {
     "message": "Stáhnout přílohy"
+  },
+  "troubleshooting": {
+    "message": "Řešení problémů"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Máte problém? Stáhněte si a pak sdílejte diagnostický report s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwarden",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stáhnout"
   },
   "sendAccessPasswordTitle": {
     "message": "Zadejte heslo pro zobrazení tohoto Send",
@@ -8584,6 +8920,21 @@
   "inputRequired": {
     "message": "Je vyžadován vstup."
   },
+  "enterMonth": {
+    "message": "Zadejte měsíc."
+  },
+  "enterDay": {
+    "message": "Zadejte den."
+  },
+  "enterYear": {
+    "message": "Zadejte rok."
+  },
+  "invalidDay": {
+    "message": "Zadejte platný den."
+  },
+  "invalidYear": {
+    "message": "Zadejte platný rok."
+  },
   "inputEmail": {
     "message": "Vstup není e-mailová adresa."
   },
@@ -9382,6 +9733,9 @@
   },
   "inviteMember": {
     "message": "Pozvat uživatele"
+  },
+  "inviteMembers": {
+    "message": "Pozvat členy"
   },
   "addSponsorship": {
     "message": "Přidat sponzorství"
@@ -10715,6 +11069,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Odeslat oznámení pro změnu hesla"
+  },
+  "sendNotifications": {
+    "message": "Poslat oznámení"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
@@ -12754,12 +13111,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Vaše 7denní zkušební verze $PLAN$ začíná dnes. Přidejte platební metodu nyní, abyste mohli pokračovat v používání těchto funkcí po skončení zkušební verze: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Vaše $TRIAL_LENGTH$denní zkušební verze $PLAN$ začíná dnes. Přidejte platební metodu nyní, abyste mohli pokračovat v používání těchto funkcí po skončení zkušební verze: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -12783,6 +13144,10 @@
   },
   "missingTaxIdWarning": {
     "message": "Požadovaná akce: V platebních údajích chybí DIČ. Pokud DIČ není uvedeno, mohou být Vaše faktury zatíženy dodatečnou daní."
+  },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "Více...",
@@ -13580,6 +13945,9 @@
   "searchBankAccount": {
     "message": "Hledat bankovní účet"
   },
+  "searchPassport": {
+    "message": "Hledat pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovat číslo účtu"
   },
@@ -13591,6 +13959,15 @@
   },
   "copyIban": {
     "message": "Kopírovat IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Kopírovat jméno na účtu"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovat číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovat SWIFT kód"
   },
   "bankAccountTypeChecking": {
     "message": "Kontrolování"
@@ -13683,11 +14060,20 @@
       }
     }
   },
+  "more": {
+    "message": "Více"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Váš bankovní účet musí být pro ověření tohoto upgradu ověřen. Ověřte svůj bankovní účet nebo vyberte jiný způsob platby."
   },
+  "discardEdits": {
+    "message": "Zahodit úpravy"
+  },
   "discardEditsMessage": {
     "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
+  },
+  "backToEditing": {
+    "message": "Zpět k úpravám"
   },
   "sendHasUnsavedEdits": {
     "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
@@ -13728,6 +14114,21 @@
   "skipLink": {
     "message": "Přeskočit odkaz"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Měnit šifrovací klíč účtu"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Změna šifrovacího klíče Vašeho účtu generuje nový šifrovací klíč, který se používá k přešifrování všech trezorů dat. Pokud byl Váš účet kompromitován, měli byste zvážit změnu svého šifrovacího klíče."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Vygeneruje nový klíč a znovu zašifruje všechna data trezoru. Pokud se domníváte, že Váš účet mohl být kompromitován, doporučujeme Vám to provést."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Budete odhlášeni a vyzváni k opětovnému ověření. Aby nedošlo k poškození dat, nezavírejte prohlížeč dokud nebude proces dokončen."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Změněný šifrovací klíč účtu"
+  },
   "callout": {
     "message": "Popisek",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13735,6 +14136,54 @@
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
+  },
+  "searchDriversLicense": {
+    "message": "Hledat řidičské průkazy"
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti řidičského průkazu"
+  },
+  "dateOfBirth": {
+    "message": "Datum narození"
+  },
+  "birthMonth": {
+    "message": "Měsíc narození"
+  },
+  "birthDay": {
+    "message": "Den narození"
+  },
+  "birthYear": {
+    "message": "Rok narození"
+  },
+  "issuingCountry": {
+    "message": "Země vydání průkazu"
+  },
+  "issuingState": {
+    "message": "Vydávající stát/Provincie"
+  },
+  "issueDate": {
+    "message": "Datum vystavení"
+  },
+  "issueMonth": {
+    "message": "Měsíc vystavení"
+  },
+  "issueDay": {
+    "message": "Den vystavení"
+  },
+  "issueYear": {
+    "message": "Rok vystavení"
+  },
+  "expirationDay": {
+    "message": "Den vypršení platnosti"
+  },
+  "issuingAuthority": {
+    "message": "Vydávající orgán"
+  },
+  "licenseClass": {
+    "message": "Skupina řidičského průkazu"
   },
   "copy": {
     "message": "Kopírovat"

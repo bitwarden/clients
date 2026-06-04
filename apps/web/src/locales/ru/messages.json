@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Критичные приложения, подверженные риску"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Критичные приложения, подверженные риску"
+  },
   "allCriticalApps": {
     "message": "Все критичные приложения"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Невозможно восстановить доступ к организации"
   },
-  "allApplicationsWithCount": {
-    "message": "Все приложения ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Создать новый логин"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Критичные приложения ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "критичные приложения помечены"
   },
@@ -222,6 +207,42 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Ваши данные получены. Приступим к работе."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Ознакомьтесь с кратким обзором Access Intelligence и узнайте, как использовать данные вашей организации."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Безопасность всей вашей организации в одном представлении "
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence позволяет вам в одном месте просматривать все приложения, пароли и пользователей, которые подвергаются риску."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Вы расставляете приоритеты. Мы выявляем риски."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Вы отмечаете, какие приложения наиболее критичны, и Access Intelligence автоматически определяет пароли, подверженные риску, которые требуют внимания в первую очередь."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Отслеживайте улучшения в вашей команде"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Пользователи автоматически получают уведомления о паролях, подверженных риску, в расширении Bitwarden. Никаких дополнительных действий не требуется."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Импортируйте данные вашей организации, чтобы приступить к работе"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Как только Access Intelligence получит данные из хранилища, у него будет все необходимое для составления отчета о состоянии паролей в вашей организации."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Вводный тур по Access Intelligence"
+  },
+  "startTour": {
+    "message": "Начать знакомство"
   },
   "noDataInOrgTitle": {
     "message": "Данные не найдены"
@@ -355,8 +376,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Эти пользователи имеют доступ к уязвимым элементам критичных приложений."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Пользователи, пароли которых подверженны риску"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ пользователей с уязвимыми паролями для критичных приложений $CRITICALAPPCOUNT$",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Сотрудникам вашей организации будет поручено изменить уязвимые пароли. Они получат уведомление в своем расширении Bitwarden для браузера."
@@ -385,6 +419,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "всего $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -673,8 +716,29 @@
   "passportNumber": {
     "message": "Номер паспорта"
   },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
+  },
   "licenseNumber": {
-    "message": "ИНН"
+    "message": "Номер водительского удостоверения"
   },
   "email": {
     "message": "Email"
@@ -997,6 +1061,12 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeDriversLicense": {
+    "message": "Водительское удостоверение"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Водительское удостоверение или ID"
+  },
   "typeLoginSubtitle": {
     "message": "Веб-сайт или приложение"
   },
@@ -1014,6 +1084,18 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
+  },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
   },
   "folderSubtitle": {
     "message": "Организуйте свои элементы"
@@ -1127,7 +1209,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Новая лицензия",
+    "message": "Новое водительское удостоверение",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -1166,9 +1248,9 @@
     "message": "Изменить банковский счет",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Изменить данные водительского удостоверения",
-    "description": "Header for edit driver's license item type"
+  "editItemHeaderLicense": {
+    "message": "Изменить водительское удостоверение",
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Изменить паспорт",
@@ -1206,9 +1288,9 @@
     "message": "Просмотреть банковский счет",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Просмотреть данные водительского удостоверения",
-    "description": "Header for view driver's license item type"
+  "viewItemHeaderLicense": {
+    "message": "Просмотреть водительское удостоверение",
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Просмотреть паспорт",
@@ -1302,6 +1384,9 @@
   "copyAddress": {
     "message": "Скопировать адрес"
   },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
   "copyPhone": {
     "message": "Скопировать телефон"
   },
@@ -1317,8 +1402,23 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
+  },
+  "copyFirstName": {
+    "message": "Скопировать имя"
+  },
+  "copyMiddleName": {
+    "message": "Скопировать отчество"
+  },
+  "copyLastName": {
+    "message": "Скопировать фамилию"
+  },
   "copyLicenseNumber": {
-    "message": "Скопировать номер лицензии"
+    "message": "Скопировать номер водительского удостоверения"
   },
   "copyPrivateKey": {
     "message": "Скопировать приватный ключ"
@@ -1328,6 +1428,12 @@
   },
   "copyFingerprint": {
     "message": "Скопировать отпечаток"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
   },
   "copyName": {
     "message": "Скопировать имя"
@@ -1368,6 +1474,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Нет значений для копирования"
@@ -1419,6 +1529,28 @@
   },
   "unselectAll": {
     "message": "Отменить выбор"
+  },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
   },
   "launch": {
     "message": "Перейти"
@@ -2529,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "Удаление вашей учетной записи необратимо. Его нельзя отменить."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Вы являетесь владельцем как минимум одной организации. Удаление вашего аккаунта приведет к удалению всех организаций, единственным владельцем которых вы являетесь."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Вы не можете удалить свой аккаунт, пока являетесь владельцем организации. Сначала передайте права владения или удалите организацию."
+  },
+  "cannotDeleteAccount": {
+    "message": "Невозможно удалить аккаунт"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Это действие не может быть выполнено, поскольку ваша учетная запись принадлежит организации. Обратитесь к администратору организации за дополнительными сведениями."
+  },
   "accountDeleted": {
     "message": "Аккаунт удален"
   },
@@ -3463,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "За любые неоплаченные подписки будет взиматься плата с вашего способа оплаты."
   },
-  "paymentChargedWithTrial": {
-    "message": "Ваш план включает семидневную бесплатную пробную версию. Ваш метод оплаты не будет использован до окончания пробной версии. Оплата будет выполняться каждый $INTERVAL$. Вы можете отказаться в любое время."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Ваш план включает $TRIAL_LENGTH$-дневную бесплатную пробную версию. Ваш метод оплаты не будет использован до окончания пробной версии. Вы можете отказаться в любое время.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Платежная информация"
@@ -3891,12 +4041,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Ваша 7-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через 7 дней.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Ваша $TRIAL_LENGTH$-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через $TRIAL_LENGTH$ дней.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4259,6 +4413,53 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Созданная текстовая Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Созданная текстовая Send с email-верификацией",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Созданная текстовая Send с паролем",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Созданная файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Созданная файловая Send с email-верификацией",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Созданная файловая Send с паролем",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedTextSend": {
+    "message": "Изменена текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Изменена файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Удалена текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Удалена файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Доступ к текстовой Send получен",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Доступ к файловой Send получен",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Элемент $ID$ перемещен в организацию.",
     "placeholders": {
@@ -4400,6 +4601,96 @@
       }
     }
   },
+  "copiedPassportNumberItemId": {
+    "message": "Скопирован номер паспорта для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Просмотрен номер паспорта для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Просмотрен номер лицензии для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Скопирован номер лицензии для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedIbanItemId": {
+    "message": "Просмотрен IBAN элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Скопирован IBAN элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Просмотрен код SWIFT элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Скопирован код SWIFT элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Просмотрен национальный идентификационный номер элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Скопирован национальный идентификационный номер элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Автоматически заполнен элемент $ID$.",
     "placeholders": {
@@ -4445,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
   },
-  "discardEdits": {
-    "message": "Отменить изменения"
-  },
   "keepEditing": {
     "message": "Продолжить редактирование"
-  },
-  "backToEditing": {
-    "message": "Вернуться к редактированию"
   },
   "editedPolicyId": {
     "message": "Отредактирована политика $ID$.",
@@ -4529,8 +4814,8 @@
   "revokedEmailError": {
     "message": "Один или несколько адресов email принадлежат пользователям, чьи аккаунтам были заблокированы. Восстановите их доступ, чтобы снова их пригласить.."
   },
-  "revocationReasonUnknown": {
-    "message": "Причина неизвестна."
+  "revocationReasonNotLogged": {
+    "message": "Причина не указана"
   },
   "revocationReasonManual": {
     "message": "Отменено администратором"
@@ -4540,6 +4825,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Не соответствует политике организации"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Отказ в передаче элемента организации"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Доступ организации с идентификатором $ID$ был отозван в связи с несоблюдением политики организации в отношении двухэтапной аутентификации.",
@@ -4615,9 +4903,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Принятая передача в собственность организации."
-  },
-  "userDeclinedTransfer": {
-    "message": "Отозван в связи с отказом в передаче в собственность организации."
   },
   "invitedUserId": {
     "message": "Приглашен пользователь $ID$.",
@@ -5486,6 +5771,44 @@
   "domainsEdited": {
     "message": "Домены изменены"
   },
+  "inviteLink": {
+    "message": "Пригласительная ссылка"
+  },
+  "lastGenerated": {
+    "message": "Сгенерирована: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Пригласительная ссылка скопирована"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Пригласительная ссылка сгенерирована повторно"
+  },
+  "regenerateInviteLink": {
+    "message": "Сгенерировать пригласительную ссылку повторно"
+  },
+  "invalidateInviteLink": {
+    "message": "Аннулировать ссылку на приглашение"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Если вы удалите все домены, эта ссылка-приглашение больше работать не будет."
+  },
+  "invalidateLink": {
+    "message": "Аннулировать ссылку"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Ссылка на приглашение недействительна"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Необходимо ввести хотя бы 1 домен."
+  },
+  "deactivateLink": {
+    "message": "Деактивировать ссылку"
+  },
   "inviteByLinkDesc": {
     "message": "Пригласите участников в вашу организацию с помощью ссылки. Если ни одна из ролей не указана, они будут добавлены в качестве пользователей по умолчанию."
   },
@@ -6194,6 +6517,19 @@
   },
   "downloadAttachments": {
     "message": "Скачать вложения"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Возникли проблемы? Скачайте отчет о диагностике и отправьте его"
+  },
+  "bitwardenSupport": {
+    "message": "поддержке Bitwarden",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Скачать"
   },
   "sendAccessPasswordTitle": {
     "message": "Введите пароль для просмотра этой Send",
@@ -8584,6 +8920,21 @@
   "inputRequired": {
     "message": "Необходимо ввести данные."
   },
+  "enterMonth": {
+    "message": "Введите месяц."
+  },
+  "enterDay": {
+    "message": "Введите день."
+  },
+  "enterYear": {
+    "message": "Введите год."
+  },
+  "invalidDay": {
+    "message": "Введите правильный день."
+  },
+  "invalidYear": {
+    "message": "Введите правильный год."
+  },
   "inputEmail": {
     "message": "Введенные данные не являются адресом email."
   },
@@ -9382,6 +9733,9 @@
   },
   "inviteMember": {
     "message": "Пригласить участника"
+  },
+  "inviteMembers": {
+    "message": "Пригласить участников"
   },
   "addSponsorship": {
     "message": "Добавить спонсорство"
@@ -10715,6 +11069,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Отправляйте уведомления о смене паролей"
+  },
+  "sendNotifications": {
+    "message": "Отправлять уведомления"
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -12754,12 +13111,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Ваша 7-дневная пробная версия $PLAN$ начинается сегодня. Укажите способ оплаты прямо сейчас, чтобы продолжить пользоваться этими функциями после окончания пробной версии: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Ваша $TRIAL_LENGTH$-дневная пробная версия $PLAN$ начинается сегодня. Укажите способ оплаты прямо сейчас, чтобы продолжить пользоваться этими функциями после окончания пробной версии: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -12783,6 +13144,10 @@
   },
   "missingTaxIdWarning": {
     "message": "Необходимые действия: В платежных реквизитах не указан идентификационный номер налогоплательщика. Если идентификационный номер налогоплательщика не указан, в ваших счетах могут быть указаны дополнительные налоги."
+  },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
@@ -13580,6 +13945,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -13591,6 +13959,15 @@
   },
   "copyIban": {
     "message": "Скопировать IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -13683,11 +14060,20 @@
       }
     }
   },
+  "more": {
+    "message": "Еще"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Прежде чем использовать этот способ оплаты, необходимо подтвердить ваш банковский счет. Пожалуйста, подтвердите его, либо выберите другой способ оплаты."
   },
+  "discardEdits": {
+    "message": "Отменить изменения"
+  },
   "discardEditsMessage": {
     "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
+  },
+  "backToEditing": {
+    "message": "Вернуться к редактированию"
   },
   "sendHasUnsavedEdits": {
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
@@ -13728,6 +14114,21 @@
   "skipLink": {
     "message": "Пропустить ссылку"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Сменить ключ шифрования аккаунта"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "При смене ключа шифрования вашего аккаунта генерируется новый ключ, который используется для повторного шифрования всех данных хранилища. Вам следует рассмотреть возможность смены ключа шифрования, если ваш аккаунт был взломан."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Сгенерируйте новый ключ и повторно зашифруйте все данные хранилища. Это рекомендуется сделать, если вы подозреваете, что ваш аккаунт мог быть взломан."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Вам будет предложено пройти повторную аутентификацию. Чтобы избежать повреждения данных, не закрывайте браузер до завершения процесса."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Изменен ключ шифрования аккаунте"
+  },
   "callout": {
     "message": "Инфопанель",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13735,6 +14136,54 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
+  },
+  "searchDriversLicense": {
+    "message": "Поиск водительских удостоверений"
+  },
+  "driversLicenseDetails": {
+    "message": "Детали водительского удостоверения"
+  },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "issuingState": {
+    "message": "Республика / область выдачи"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "licenseClass": {
+    "message": "Категории водительского удостоверения"
   },
   "copy": {
     "message": "Скопировать"

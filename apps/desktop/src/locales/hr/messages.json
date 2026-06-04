@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Podaci o banci"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organiziraj svoje stavke"
   },
   "collectionSubtitle": {
     "message": "Organiziraj dijeljene stavke"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Osobna iskaznica"
   },
   "chooseItemToAdd": {
     "message": "Odaberi stavku za dodavanje"
@@ -144,8 +162,8 @@
     "message": "Pogledaj broj bankovnog računa",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Pogledaj vozačku dozvolu",
+  "viewItemHeaderLicense": {
+    "message": "Pogledaj osobnu iskaznicu",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -177,7 +195,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Nova vozačka dozvola",
+    "message": "Nova osobna iskaznica",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -208,8 +226,8 @@
     "message": "Uredi podatke o bankovnom računu",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Uredi vozačku",
+  "editItemHeaderLicense": {
+    "message": "Uredi osobnu iskaznicu",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -373,8 +391,44 @@
   "passportNumber": {
     "message": "Broj putovnice"
   },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
   "licenseNumber": {
-    "message": "Broj licence"
+    "message": "Broj osobne iskaznice"
   },
   "email": {
     "message": "E-pošta"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Slanje verifikacijskog kôda e-poštom"
   },
@@ -1755,6 +1813,10 @@
     "message": "Kopiraj broj",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Kopiraj ime",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Kopiraj e-poštu"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Odaberi sve"
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "zoomIn": {
     "message": "Povećaj"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Brisanje računa je TRAJNO i NEPOVRATNO i naknadno ga nije moguće vratiti."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "Nije moguće izbrisati račun"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija s preglednikom trenutno nije podržana u Windows Store verziji aplikacije."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Nažalost, integracija preglednika trenutno nije podržana u Linux verziji aplikacije."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Traži verifikaciju za integraciju s preglednikom"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Uključi dodatni sloj sigurnosti tražeći verifikaciju jedinstvenom frazom prilikom povezivanja radne površine i preglednika. Kada je ovo uključeno, potrebno je verificirati prilikom svakog novog povezivanja."
-  },
   "enableHardwareAcceleration": {
     "message": "Koristi hardversko ubrzanje"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Odobri"
-  },
-  "verifyBrowserTitle": {
-    "message": "Verificiraj vezu s preglednikom"
-  },
-  "verifyBrowserDesc": {
-    "message": "Provjeri da je prikazana jedinstvena fraza identična onoj prikazanoj u proširenju preglednika."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ se želi spojiti s Bitwardenom",
@@ -4120,6 +4198,22 @@
   "troubleshooting": {
     "message": "Rješavanje problema"
   },
+  "downloadDiagnosticReport": {
+    "message": "Preuzmi dijagnostičko izvješće"
+  },
+  "experiencingAnIssue": {
+    "message": "Imaš problem?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Preuzmi dijagnostičko izvješće i podijeli ga s"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden podrškom",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Preuzmi"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Isključi hardversko ubrzanje i ponovno pokreni"
   },
@@ -4652,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Nevažeći prečac"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5012,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Nije uspjela provjera korisnika."
   },
+  "more": {
+    "message": "More"
+  },
+  "enterMonth": {
+    "message": "Unesi mjesec."
+  },
+  "enterDay": {
+    "message": "Unesi dan."
+  },
+  "enterYear": {
+    "message": "Unesi godinu."
+  },
+  "invalidDay": {
+    "message": "Unesi ispravan dan."
+  },
+  "invalidYear": {
+    "message": "Unesi ispravnu godinu."
+  },
+  "searchDriversLicense": {
+    "message": "Pretraži osobne iskaznice"
+  },
   "bankAccount": {
     "message": "Bankovni račun"
   },
@@ -5052,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Pretraži bankovne račune"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Kopiraj broj računa"
   },
@@ -5064,6 +5186,30 @@
   "copyIban": {
     "message": "Kopiraj IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
+  "copyFirstName": {
+    "message": "Kopiraj ime"
+  },
+  "copyMiddleName": {
+    "message": "Kopiraj srednje ime"
+  },
+  "copyLastName": {
+    "message": "Kopiraj prezime"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopiraj broj osobne iskaznice"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
+  },
   "bankAccountTypeChecking": {
     "message": "Tekući račun"
   },
@@ -5071,25 +5217,25 @@
     "message": "Štedni račun"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "Potvrda o depozitu"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "Kreditna linija"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "Investicijski/brokerski"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "Tržište novca"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "Ostalo"
   },
   "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
+    "message": "Signuno pohrani svoje bankovne detalje"
   },
   "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
+    "message": "Spremi podatke o svom bankovnom računu za jednostavan i siguran pruistup na svim svojim uređajima."
   },
   "discardEdits": {
     "message": "Odbaci promjene"
@@ -5109,23 +5255,23 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Pogledaj tekst"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Pogledaj datoteku"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send stvoren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "Unos mora biti numerički"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "Unos mora biti cijeli broj"
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "Tvoja organizacija zahtijeva vidljivost e-pošte. Odznači „Sakrij moju adresu e-pošte od primatelja”."
   },
   "sideNavigation": {
     "message": "Bočna navigacija"
@@ -5140,5 +5286,50 @@
   "progressBar": {
     "message": "Traka napretka",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "driversLicenseDetails": {
+    "message": "Detalji osobne iskaznice"
+  },
+  "dateOfBirth": {
+    "message": "Datum rođenja"
+  },
+  "birthMonth": {
+    "message": "mjesec"
+  },
+  "birthDay": {
+    "message": "dan"
+  },
+  "birthYear": {
+    "message": "godina"
+  },
+  "issuingCountry": {
+    "message": "Država izdavanja"
+  },
+  "issuingState": {
+    "message": "Pokrajina izdavatelj"
+  },
+  "issueDate": {
+    "message": "Datum izdavanja"
+  },
+  "issueMonth": {
+    "message": "mjesec"
+  },
+  "issueDay": {
+    "message": "dan"
+  },
+  "issueYear": {
+    "message": "godina"
+  },
+  "expirationDay": {
+    "message": "Datum isteka"
+  },
+  "issuingAuthority": {
+    "message": "Izdao"
+  },
+  "licenseClass": {
+    "message": "Vrsta dozvole"
   }
 }

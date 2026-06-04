@@ -93,6 +93,7 @@ describe("ViewComponent", () => {
     permissions: {},
     card: {},
     bankAccount: {},
+    passport: {},
     driversLicense: {},
   } as unknown as CipherView;
 
@@ -308,6 +309,13 @@ describe("ViewComponent", () => {
       flush(); // Resolve all promises
 
       expect(component.headerText).toEqual("viewItemHeaderNote");
+
+      // Set header text for a passport
+      mockCipher.type = CipherType.Passport;
+      params$.next({ cipherId: mockCipher.id });
+      flush(); // Resolve all promises
+
+      expect(component.headerText).toEqual("viewItemHeaderPassport");
     }));
 
     it("sends viewed event", fakeAsync(() => {
@@ -701,7 +709,7 @@ describe("ViewComponent", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("button[bit-chip-action]");
       expect(badge).toBeTruthy();
     }));
 
@@ -718,7 +726,7 @@ describe("ViewComponent", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("button[bit-chip-action]");
       expect(badge).toBeFalsy();
     });
   });
