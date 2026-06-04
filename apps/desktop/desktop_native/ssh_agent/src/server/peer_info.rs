@@ -1,7 +1,7 @@
 //! Peer process information for SSH agent connections
 
 use sysinfo::{Pid, System};
-use tracing::{debug, warn};
+use tracing::warn;
 
 /// Information about the connecting peer process
 #[derive(Debug, Clone)]
@@ -19,7 +19,7 @@ impl PeerInfo {
         #[cfg(target_os = "macos")]
         match peer_info_from_libproc(pid) {
             Ok(info) => return Some(info),
-            Err(e) => debug!(
+            Err(e) => tracing::debug!(
                 "libproc peer-info resolution failed for pid {pid}: {e}; falling back to sysinfo"
             ),
         }

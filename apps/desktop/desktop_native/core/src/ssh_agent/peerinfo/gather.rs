@@ -1,5 +1,5 @@
 use sysinfo::{Pid, System};
-use tracing::{debug, warn};
+use tracing::warn;
 
 use super::models::PeerInfo;
 
@@ -11,7 +11,7 @@ pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
     #[cfg(target_os = "macos")]
     match peer_info_from_libproc(peer_pid) {
         Ok(info) => return Ok(info),
-        Err(e) => debug!(
+        Err(e) => tracing::debug!(
             "libproc peer-info resolution failed for pid {peer_pid}: {e}; falling back to sysinfo"
         ),
     }
