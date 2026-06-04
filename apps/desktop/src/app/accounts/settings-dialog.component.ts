@@ -531,7 +531,7 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   protected async saveRunInBackground() {
-    await this.desktopSettingsService.setCloseToTray(this.form.value.runInBackground);
+    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
   protected async saveLocale() {

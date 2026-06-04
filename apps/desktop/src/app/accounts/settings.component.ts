@@ -513,7 +513,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveRunInBackground() {
-    await this.desktopSettingsService.setCloseToTray(this.form.value.runInBackground);
+    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
   async saveLocale() {
