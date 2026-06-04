@@ -103,6 +103,32 @@ export class KeyRotationDialogService {
   }
 
   /**
+   * Rotates the user's account encryption keys for TDE users.
+   * If rotation is successful the user will be logged out, on error the user will remain logged in.
+   * @param userId The ID of the user.
+   * @return True if the key rotation was successful and the dialog should be closed, false if the dialog should remain open.
+   */
+  async rotateKeysForTDE(userId: UserId): Promise<boolean> {
+    // TDE keys are rotated as a part of standard key rotation.
+    // The call only needs to indicate we're using TDE with no additional metadata required.
+    const success = await this.userKeyRotationService.rotateUserKey("Tde", "Skip", userId);
+
+    if (success) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("accountEncryptionKeyRotated"),
+        timeout: 15000,
+      });
+
+      await this.logoutService.logout(userId);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Checks if the user has any legacy cipher attachments.
    * Legacy cipher attachments are attachments that were encrypted directly by the user's userKey instead of a content encryption key specific to the attachment.
    * Organization attachments are out of scope here as the user key rotation is only concerned with the user's userKey.
