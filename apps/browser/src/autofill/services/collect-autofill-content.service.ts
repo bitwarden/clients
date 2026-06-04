@@ -1,6 +1,7 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
+import { createMeter, measure, stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -76,6 +77,24 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
+
+  private readonly monitorMapSizes = createMeter("mapSizes", "fields", "byOpid", "forms", "heap");
+  // Larger ring than default: fires per MO callback; churn-heavy pages can outrun 256 slots before flush.
+  private readonly monitorMutationBatch = createMeter(
+    { name: "mutationBatch", bits: 10 },
+    "records",
+    "inShadow",
+  );
+  private readonly monitorRequireUpdateLocation = createMeter("requireUpdateLocation");
+  private readonly monitorRequireUpdateShadow = createMeter("requireUpdateShadow");
+  private readonly monitorRequireUpdateNewShadowRoot = createMeter("requireUpdateNewShadowRoot");
+  private readonly monitorProcessMutations = createMeter("processMutations");
+  private readonly monitorUpdateCachedVisibility = createMeter("updateCachedVisibility");
+  private readonly monitorSetupOverlayOnField = createMeter("setupOverlayOnField");
+  // Gate-branch-architecture meters (main's queue-swap path): adaptive backoff + 256-cap overflow.
+  private readonly monitorBackoff = createMeter("mutationBackoff", "burst", "adaptiveMs");
+  private readonly monitorCandidateOverflow = createMeter("shadowCandidateOverflow");
+
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -105,6 +124,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+
+    this.handleMutationObserverMutation = stopwatch(
+      "handleMutationObserverMutation",
+      this.handleMutationObserverMutation,
+    );
+    this.handleNewShadowRoots = stopwatch("handleNewShadowRoots", this.handleNewShadowRoots);
+    this.queryAutofillFormAndFieldElements = stopwatch(
+      "queryAutofillFormAndFieldElements",
+      this.queryAutofillFormAndFieldElements,
+    );
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -448,6 +477,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
+    this.monitorUpdateCachedVisibility();
     this.autofillFieldElements.forEach(async (autofillField, element) => {
       const previouslyViewable = autofillField.viewable;
       autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
@@ -1320,9 +1350,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
-    const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
+    const hasMutationsInShadowRoot = measure("shadowMutationCheck", () =>
+      this.domQueryService.checkMutationsInShadowRoots(mutations),
+    );
+
+    this.monitorMutationBatch(mutations.length, hasMutationsInShadowRoot);
 
     if (hasMutationsInShadowRoot) {
+      this.monitorRequireUpdateShadow();
       this.debouncedRequirePageDetailsUpdate();
     }
 
@@ -1398,6 +1433,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleWindowLocationMutation() {
+    this.monitorRequireUpdateLocation();
     this.currentLocationHref = globalThis.location.href;
 
     this.domRecentlyMutated = true;
@@ -1419,6 +1455,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private processMutations = () => {
+    this.monitorProcessMutations();
     // Swap first so reentrant mutations during processing land in fresh structures
     // and drain on the next cycle, mirroring the queue-swap the previous design relied on.
     const drainingAttributeMutations = this.pendingAttributeMutations;
@@ -1454,6 +1491,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
+        this.monitorMapSizes(
+          this.autofillFieldElements.size,
+          this.autofillFieldsByOpid.size,
+          this._autofillFormElements.size,
+          (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory
+            ?.usedJSHeapSize ?? 0,
+        );
       },
       { timeout: 500 },
     );
@@ -1530,6 +1574,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
     if (hasNewShadowRoots) {
+      this.monitorRequireUpdateNewShadowRoot();
       this.debouncedRequirePageDetailsUpdate();
     }
   };
@@ -1549,6 +1594,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.pendingMutationAddedElements.add(node);
         if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
           this.pendingMutationAddedElementsOverflowed = true;
+          // Overflow → next shadow check escalates to a full-document scan.
+          this.monitorCandidateOverflow();
           // Release element refs immediately; we won't process them this window.
           this.pendingMutationAddedElements.clear();
           return;
@@ -1644,6 +1691,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
       adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
     }
+
+    // Rising burst with adaptiveMs pinned at max = perpetually-hot page.
+    this.monitorBackoff(this.mutationBurstCount, adaptiveTimeout);
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
@@ -1860,6 +1910,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
   ) {
+    this.monitorSetupOverlayOnField();
     if (!this.autofillOverlayContentService) {
       return;
     }
