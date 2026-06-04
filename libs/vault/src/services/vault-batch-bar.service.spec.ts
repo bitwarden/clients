@@ -203,11 +203,11 @@ describe("VaultBatchBarService", () => {
     });
   });
 
-  describe("canMove", () => {
+  describe("canAddToFolder", () => {
     it("returns true when not in trash and no collections selected", () => {
       service.selection.select(makeCipherItem());
 
-      expect(service.canMove()).toBe(true);
+      expect(service.canAddToFolder()).toBe(true);
     });
 
     it("returns false when filter type is trash", () => {
@@ -215,13 +215,20 @@ describe("VaultBatchBarService", () => {
 
       service.selection.select(makeCipherItem());
 
-      expect(service.canMove()).toBe(false);
+      expect(service.canAddToFolder()).toBe(false);
     });
 
     it("returns false when a collection is in the selection", () => {
       service.selection.select(makeCollectionItem());
 
-      expect(service.canMove()).toBe(false);
+      expect(service.canAddToFolder()).toBe(false);
+    });
+
+    it("returns false when in org vault", () => {
+      service.setConfig(makeConfig({ isOrgVault: true }));
+      service.selection.select(makeCipherItem());
+
+      expect(service.canAddToFolder()).toBe(false);
     });
   });
 
@@ -428,7 +435,7 @@ describe("VaultBatchBarService", () => {
       expect(service.canAssignToCollections()).toBe(true);
     });
 
-    it("returns false when in trash view (showBulkMove is false)", () => {
+    it("returns false when in trash view", () => {
       filterSubject.next({ type: "trash" });
       service.setConfig(makeConfig({ hasCiphers: true }));
       organizationsSubject.next([makeOrg()]);

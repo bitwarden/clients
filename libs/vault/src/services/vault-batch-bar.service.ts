@@ -110,7 +110,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     { initialValue: false },
   );
 
-  private readonly showBulkMove = computed(() => !this.showBulkTrashOptions());
+  private readonly showBulkAddToFolder = computed(
+    () => !this.showBulkTrashOptions() && !this.config().isOrgVault,
+  );
 
   private readonly allOrganizations = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -159,9 +161,11 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       .map((i) => i.collection as CollectionView),
   );
 
-  /** True when bulk move-to-folder is allowed. */
-  readonly canMove = computed(() => {
-    return this.showBulkMove() && this.selected().filter((item) => item.collection).length === 0;
+  /** True when bulk add-to-folder is allowed. */
+  readonly canAddToFolder = computed(() => {
+    return (
+      this.showBulkAddToFolder() && this.selected().filter((item) => item.collection).length === 0
+    );
   });
 
   /** True when all selected ciphers can be archived. */
@@ -282,7 +286,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return true;
     }
 
-    if (!this.showBulkMove() || allOrganizations.length === 0 || selected.length === 0) {
+    if (this.showBulkTrashOptions() || allOrganizations.length === 0 || selected.length === 0) {
       return false;
     }
 
