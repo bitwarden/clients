@@ -6,7 +6,7 @@ function toCharacterSet(characters: string) {
   return Object.freeze(set as CharacterSet);
 }
 
-const SpecialCharacters = toCharacterSet("!@#$%^&*");
+const SpecialCharacters = toCharacterSet("!@#$%&*");
 
 /** Sets of Ascii characters used for password generation */
 export const Ascii = Object.freeze({
