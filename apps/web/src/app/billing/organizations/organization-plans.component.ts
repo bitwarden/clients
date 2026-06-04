@@ -58,6 +58,7 @@ import {
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -126,6 +127,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
    */
   readonly initialPlan = input<PlanType>(PlanType.Free);
 
+  /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
+  readonly trialLength = input<number | undefined>(undefined);
+
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -174,7 +178,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.selectedPlan()?.isAnnual ? "year" : "month",
   );
 
-  readonly freeTrial = computed(() => this.selectedPlan()?.trialPeriodDays != null);
+  readonly freeTrial = computed(
+    () => (this.trialLength() ?? this.selectedPlan()?.trialPeriodDays ?? 0) > 0,
+  );
 
   readonly planOffersSecretsManager = computed(() => this.selectedSecretsManagerPlan() != null);
 
@@ -659,7 +665,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.acceptingSponsorship()) {
       return this.i18nService.t("paymentSponsored");
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
-      return this.i18nService.t("paymentChargedWithTrial");
+      return this.i18nService.t(
+        "paymentChargedWithTrialSpecificLength",
+        this.trialLength() ?? this.selectedPlan()?.trialPeriodDays ?? DEFAULT_TRIAL_LENGTH_DAYS,
+      );
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval()));
     }
@@ -1071,6 +1080,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     if (this.eligibleCouponIds().length > 0) {
       request.coupons = this.eligibleCouponIds();
+    }
+
+    const trialLength = this.trialLength();
+    if (trialLength !== undefined) {
+      request.trialLength = trialLength;
     }
 
     if (this.hasProvider()) {

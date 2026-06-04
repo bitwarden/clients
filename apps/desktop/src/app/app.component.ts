@@ -76,6 +76,7 @@ import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
+import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
@@ -94,13 +95,18 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
     <ng-template #loginApproval></ng-template>
-    <app-header *ngIf="showHeader$ | async"></app-header>
+    @if (showHeader$ | async) {
+      <div class="header"></div>
+    }
 
     <div id="container">
-      <div class="loading" *ngIf="loading">
-        <bit-spinner></bit-spinner>
-      </div>
-      <router-outlet *ngIf="!loading"></router-outlet>
+      @if (loading) {
+        <div class="loading">
+          <bit-spinner />
+        </div>
+      } @else {
+        <router-outlet />
+      }
     </div>
 
     <bit-toast-container></bit-toast-container>
@@ -281,9 +287,14 @@ export class AppComponent implements OnInit, OnDestroy {
               await this.configService.ensureConfigFetched();
             }
             break;
-          case "openSettings":
-            await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+          case "openSettings": {
+            if (await this.configService.getFeatureFlag(FeatureFlag.DesktopSettingsDialog)) {
+              SettingsDialogComponent.open(this.dialogService);
+            } else {
+              await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+            }
             break;
+          }
           case "openTroubleshootingDialog":
             TroubleshootingDialogComponent.open(this.dialogService);
             break;
@@ -438,6 +449,9 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "newSecureNote":
             this.routeToVault("add", CipherType.SecureNote);
+            break;
+          case "newSshKey":
+            this.routeToVault("add", CipherType.SshKey);
             break;
           default:
             break;

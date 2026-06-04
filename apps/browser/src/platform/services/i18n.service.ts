@@ -101,12 +101,15 @@ export default class I18nService extends BaseI18nService {
       }
 
       if (placeholders.length) {
-        return chrome.i18n.getMessage(id, placeholders);
+        return chrome.i18n.getMessage(
+          id,
+          placeholders.map((placeholder) => placeholder.toString()),
+        );
       } else {
         return chrome.i18n.getMessage(id);
       }
     }
 
-    return super.translate(id, p1, p2, p3);
+    return super.translate(id, p1?.toString(), p2?.toString(), p3?.toString());
   }
 }
