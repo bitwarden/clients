@@ -35,7 +35,7 @@ describe("WebLoginDecryptionOptionsService", () => {
       await service.handleCreateUserSuccess();
 
       expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalled();
-      expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalled();
     });
   });
 });

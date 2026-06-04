@@ -88,7 +88,7 @@ export class WebSetInitialPasswordService
      * as clear the org invite itself that was originally set in state by the AcceptOrganizationComponent.
      */
     await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvite();
   }
 
   override async initializePasswordJitPasswordUserV2Encryption(
@@ -99,6 +99,6 @@ export class WebSetInitialPasswordService
 
     // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
     await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvite();
   }
 }

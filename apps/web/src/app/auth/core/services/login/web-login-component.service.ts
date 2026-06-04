@@ -82,7 +82,7 @@ export class WebLoginComponentService
      */
     if (orgInvite.email !== email.toLowerCase()) {
       await this.routerService.getAndClearLoginRedirectUrl();
-      await this.organizationInviteService.clearOrganizationInvitation();
+      await this.organizationInviteService.clearOrganizationInvite();
 
       this.logService.error(
         `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${orgInvite.email}, Received: ${email}`,

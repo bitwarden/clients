@@ -30,7 +30,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
-  private organizationInvitationState: GlobalState<OrganizationInvite | null>;
+  private organizationInviteState: GlobalState<OrganizationInvite | null>;
   // In-memory dedup of policy lookups across one invite ceremony. The same invite
   // can be checked from login, registration, and accept in a single session;
   // keyed by invite token, cleared whenever the stored invite is set or cleared
@@ -50,25 +50,25 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
   ) {
-    this.organizationInvitationState = this.globalStateProvider.get(ORGANIZATION_INVITE);
+    this.organizationInviteState = this.globalStateProvider.get(ORGANIZATION_INVITE);
   }
 
   async getOrganizationInvite(): Promise<OrganizationInvite | null> {
-    return await firstValueFrom(this.organizationInvitationState.state$);
+    return await firstValueFrom(this.organizationInviteState.state$);
   }
 
-  async setOrganizationInvitation(invite: OrganizationInvite): Promise<void> {
-    await this.organizationInvitationState.update(() => invite);
+  async setOrganizationInvite(invite: OrganizationInvite): Promise<void> {
+    await this.organizationInviteState.update(() => invite);
     this.policyCache.clear();
   }
 
-  async clearOrganizationInvitation(): Promise<void> {
-    await this.organizationInvitationState.update(() => null);
+  async clearOrganizationInvite(): Promise<void> {
+    await this.organizationInviteState.update(() => null);
     this.policyCache.clear();
   }
 
   /**
-   * Validates and accepts the organization invitation if possible.
+   * Validates and accepts the organization invite if possible.
    * Note: Users might need to pass a MP policy check before accepting an invite to an existing organization. If the user
    * has not passed this check, they will be logged out and the invite will be stored for later use.
    * @param invite an organization invite
@@ -84,7 +84,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
     // Accepting an org invite from existing org
     if (await this.masterPasswordPolicyCheckRequired(invite)) {
-      await this.setOrganizationInvitation(invite);
+      await this.setOrganizationInvite(invite);
       this.authService.logOut(() => {
         /* Do nothing */
       });
@@ -131,7 +131,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       ),
     );
     await this.apiService.refreshIdentityToken();
-    await this.clearOrganizationInvitation();
+    await this.clearOrganizationInvite();
   }
 
   private async prepareAcceptAndInitRequest(
@@ -171,7 +171,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     );
 
     await this.apiService.refreshIdentityToken();
-    await this.clearOrganizationInvitation();
+    await this.clearOrganizationInvite();
   }
 
   private async prepareAcceptRequest(
@@ -235,7 +235,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     let storedInvite = await this.getOrganizationInvite();
     if (storedInvite != null && storedInvite.email !== invite.email) {
       // clear stored invites if the email doesn't match
-      await this.clearOrganizationInvitation();
+      await this.clearOrganizationInvite();
       storedInvite = null;
     }
     // if we don't have an org invite stored, we know the user hasn't been redirected yet to check the MP policy

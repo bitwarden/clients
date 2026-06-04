@@ -15,14 +15,14 @@ export abstract class OrganizationInviteService {
 
   /**
    * Stores a new organization invite. Pass a non-null OrganizationInvite; callers that
-   * want to remove the stored invite should use {@link clearOrganizationInvitation}.
+   * want to remove the stored invite should use {@link clearOrganizationInvite}.
    */
-  abstract setOrganizationInvitation(invite: OrganizationInvite): Promise<void>;
+  abstract setOrganizationInvite(invite: OrganizationInvite): Promise<void>;
 
   /**
    * Clears the currently stored organization invite
    */
-  abstract clearOrganizationInvitation(): Promise<void>;
+  abstract clearOrganizationInvite(): Promise<void>;
 
   /**
    * Accepts the invite for the active user, or stashes it and logs out if the user must
@@ -36,7 +36,7 @@ export abstract class OrganizationInviteService {
    * Fetches all enabled policies for the inviting organization, authenticated via the invite token
    * (no user session required). Callers filter by `PolicyType` for their needs (e.g. `MasterPassword`,
    * `ResetPassword`). Results are cached on the service instance keyed by invite token; the cache
-   * is cleared on `setOrganizationInvitation` and `clearOrganizationInvitation` so state transitions
+   * is cleared on `setOrganizationInvite` and `clearOrganizationInvite` so state transitions
    * never leave stale entries behind.
    * @returns all enabled policies for the org, or undefined on fetch error.
    */

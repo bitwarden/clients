@@ -67,7 +67,7 @@ export class AcceptOrganizationComponent implements OnInit {
   }
 
   private async unauthedHandler(invite: OrganizationInvite): Promise<void> {
-    await this.organizationInviteService.setOrganizationInvitation(invite);
+    await this.organizationInviteService.setOrganizationInvite(invite);
     await this.navigateInviteAcceptance(invite);
   }
 

@@ -136,7 +136,7 @@ export class ChangePasswordComponent implements OnInit {
     });
 
     if (confirmed) {
-      await this.organizationInviteService.clearOrganizationInvitation();
+      await this.organizationInviteService.clearOrganizationInvite();
 
       if (this.changePasswordService.clearDeeplinkState) {
         await this.changePasswordService.clearDeeplinkState();

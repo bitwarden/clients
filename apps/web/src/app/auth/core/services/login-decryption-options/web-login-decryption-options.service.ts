@@ -27,7 +27,7 @@ export class WebLoginDecryptionOptionsService
       // accepted while being enrolled in admin recovery. So we need to clear
       // the redirect and stored org invite.
       await this.routerService.getAndClearLoginRedirectUrl();
-      await this.organizationInviteService.clearOrganizationInvitation();
+      await this.organizationInviteService.clearOrganizationInvite();
     } catch (error) {
       throw new Error(error);
     }

@@ -156,7 +156,7 @@ describe("WebLoginComponentService", () => {
 
         // Assert
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
-        expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
       });
 
       it("should log an error and return undefined", async () => {

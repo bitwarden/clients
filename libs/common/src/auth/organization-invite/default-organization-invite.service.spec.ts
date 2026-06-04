@@ -79,29 +79,29 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("returns the stored invite", async () => {
       const invite = createOrgInvite();
-      await sut.setOrganizationInvitation(invite);
+      await sut.setOrganizationInvite(invite);
 
       const result = await sut.getOrganizationInvite();
       expect(result).toEqual(invite);
     });
   });
 
-  describe("setOrganizationInvitation", () => {
+  describe("setOrganizationInvite", () => {
     it("stores the provided invite", async () => {
       const invite = createOrgInvite();
-      await sut.setOrganizationInvitation(invite);
+      await sut.setOrganizationInvite(invite);
 
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(invite);
     });
   });
 
-  describe("clearOrganizationInvitation", () => {
+  describe("clearOrganizationInvite", () => {
     it("clears any stored invite", async () => {
       const invite = createOrgInvite();
-      await sut.setOrganizationInvitation(invite);
+      await sut.setOrganizationInvite(invite);
 
-      await sut.clearOrganizationInvitation();
+      await sut.clearOrganizationInvite();
 
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
@@ -157,7 +157,7 @@ describe("DefaultOrganizationInviteService", () => {
     it("clears the stored invite when a master password policy check is required but the stored invite doesn't match the provided one", async () => {
       const storedInvite = createOrgInvite({ email: "wrongemail@example.com" });
       const providedInvite = createOrgInvite();
-      await sut.setOrganizationInvitation(storedInvite);
+      await sut.setOrganizationInvite(storedInvite);
       policyApiService.getPoliciesByToken.mockResolvedValue([
         {
           type: PolicyType.MasterPassword,
@@ -173,7 +173,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(stored).toEqual(providedInvite);
     });
 
-    it("accepts the invitation request when the organization doesn't have a master password policy", async () => {
+    it("accepts the invite when the organization doesn't have a master password policy", async () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
 
@@ -190,7 +190,7 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("fetches policies once when accepting an invite with non-MP policies and no stored invite", async () => {
       // Regression: the email-mismatch guard in masterPasswordPolicyCheckRequired
-      // ran clearOrganizationInvitation when storedInvite was null, wiping the
+      // ran clearOrganizationInvite when storedInvite was null, wiping the
       // freshly-populated policyCache and forcing resetPasswordEnrollRequired to
       // re-fetch the same policies during the same accept() call.
       const invite = createOrgInvite();
@@ -207,10 +207,10 @@ describe("DefaultOrganizationInviteService", () => {
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
 
-    it("accepts the invitation request when the org has a master password policy, but the user has already passed it and autoenroll is not enabled", async () => {
+    it("accepts the invite when the org has a master password policy, but the user has already passed it and autoenroll is not enabled", async () => {
       const invite = createOrgInvite();
       // Pre-store the invite to indicate the user has already passed the MP policy check.
-      await sut.setOrganizationInvitation(invite);
+      await sut.setOrganizationInvite(invite);
       policyApiService.getPoliciesByToken.mockResolvedValue([
         {
           type: PolicyType.MasterPassword,
@@ -235,10 +235,10 @@ describe("DefaultOrganizationInviteService", () => {
       expect(authService.logOut).not.toHaveBeenCalled();
     });
 
-    it("accepts the invitation request and enrolls when autoenroll is enabled", async () => {
+    it("accepts the invite and enrolls when autoenroll is enabled", async () => {
       const invite = createOrgInvite();
       // Pre-store the invite to indicate the user has already passed the MP policy check.
-      await sut.setOrganizationInvitation(invite);
+      await sut.setOrganizationInvite(invite);
       policyApiService.getPoliciesByToken.mockResolvedValue([
         {
           type: PolicyType.MasterPassword,
@@ -336,7 +336,7 @@ describe("DefaultOrganizationInviteService", () => {
       beforeEach(async () => {
         invite = createOrgInvite();
         // Pre-store the invite so the MP policy check is bypassed and we reach the accept path.
-        await sut.setOrganizationInvitation(invite);
+        await sut.setOrganizationInvite(invite);
         policyApiService.getPoliciesByToken.mockResolvedValue([
           { type: PolicyType.MasterPassword, enabled: true } as Policy,
         ]);
@@ -422,25 +422,25 @@ describe("DefaultOrganizationInviteService", () => {
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
 
-    it("clears the cache on setOrganizationInvitation so the next fetch goes to the API", async () => {
+    it("clears the cache on setOrganizationInvite so the next fetch goes to the API", async () => {
       const invite = createOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
       await sut.getInvitePolicies(invite);
-      await sut.setOrganizationInvitation(invite);
+      await sut.setOrganizationInvite(invite);
       await sut.getInvitePolicies(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
 
-    it("clears the cache on clearOrganizationInvitation so the next fetch goes to the API", async () => {
+    it("clears the cache on clearOrganizationInvite so the next fetch goes to the API", async () => {
       const invite = createOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
       await sut.getInvitePolicies(invite);
-      await sut.clearOrganizationInvitation();
+      await sut.clearOrganizationInvite();
       await sut.getInvitePolicies(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
