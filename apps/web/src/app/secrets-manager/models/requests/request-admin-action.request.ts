@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-export class RequestSMAccessRequest {
+export class RequestAdminActionRequest {
   OrganizationId: OrganizationId;
   EmailContent: string;
+  EmailTemplateName: string;
 }

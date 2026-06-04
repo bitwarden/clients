@@ -83,7 +83,7 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
-import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
+import { RequestAdminActionComponent } from "./secrets-manager/secrets-manager-landing/request-admin-action.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
@@ -669,8 +669,8 @@ const routes: Routes = [
         data: { titleId: "moreProductsFromBitwarden" },
       },
       {
-        path: "request-sm-access",
-        component: RequestSMAccessComponent,
+        path: "send-request-admin-action-email",
+        component: RequestAdminActionComponent,
         data: { titleId: "requestAccessToSecretsManager" },
       },
       {

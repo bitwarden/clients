@@ -13008,6 +13008,15 @@
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
   },
+  "requestSubscriptionUpgrade": {
+    "message": "Request subscription upgrade"
+  },
+    "paidOrganizationIsRequiredToAccessEventLogs": {
+    "message": "Event logs are only available to paid organizations, please request an upgraded subscription from your organization's admin"
+  },
+  "requestPaidOrgAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI’d like to request that our organization upgrade to a paid Bitwarden Secrets Manager organization plan. In addition to the advanced capabilities included with the paid tier, one key feature I believe would greatly enhance our security posture is access to Event Logs.\n\nEvent Logs provide critical visibility into who accessed what and when—supporting stronger audit trails, accountability, and proactive security measures. Upgrading will ensure we’re equipped with the tools we need to monitor access to our secrets and maintain compliance with internal and external requirements.\n\nThanks!"
+  },
   "revokeActiveSponsorshipConfirmation": {
     "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
     "placeholders": {

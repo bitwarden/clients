@@ -43,7 +43,21 @@
         </li>
       </ul>
     </bit-container>
-    <button type="button" bitButton buttonType="primary" [routerLink]="tryItNowUrl">
+    <button
+      *ngIf="requiresAdminPermission"
+      bitButton
+      buttonType="primary"
+      (click)="onRequestAccessClick()"
+    >
+      Send a request
+    </button>
+    <button
+      *ngIf="!requiresAdminPermission"
+      type="button"
+      bitButton
+      buttonType="primary"
+      [routerLink]="tryItNowUrl"
+    >
       {{ "tryItNow" | i18n }}
     </button>
     <a bitLink linkType="primary" [href]="learnMoreUrl" target="_blank" class="tw-m-5">

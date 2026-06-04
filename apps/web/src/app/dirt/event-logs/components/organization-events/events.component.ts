@@ -90,9 +90,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       logService,
       fileDownloadService,
       toastService,
-      activeRoute,
-      accountService,
-      organizationService,
     );
   }
 

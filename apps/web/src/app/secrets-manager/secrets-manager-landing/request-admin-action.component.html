@@ -1,0 +1,39 @@
+<form [formGroup]="requestAccessForm" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>{{ approvalMessageKey() | i18n }}</span>
+    <div bitDialogContent>
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+        <div class="tw-col-span-12">
+          <bit-form-field>
+            <bit-label>{{ addNoteKey() | i18n }}</bit-label>
+            <textarea
+              rows="20"
+              id="request_access_textarea"
+              bitInput
+              formControlName="requestAccessEmailContents"
+            ></textarea>
+          </bit-form-field>
+          <bit-form-field>
+            <bit-label>{{ "organization" | i18n }}</bit-label>
+            <bit-select formControlName="selectedOrganization">
+              <bit-option
+                *ngFor="let org of organizations()"
+                [value]="org"
+                [label]="org.name"
+                required
+              ></bit-option>
+            </bit-select>
+          </bit-form-field>
+          <div class="tw-flex tw-gap-x-4 tw-mt-4">
+            <button bitButton bitFormButton type="submit" buttonType="primary">
+              {{ sendRequestKey() | i18n }}
+            </button>
+            <button type="button" bitButton buttonType="secondary" [routerLink]="'/sm-landing'">
+              {{ "cancel" | i18n }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </bit-dialog>
+</form>

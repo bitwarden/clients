@@ -7,9 +7,10 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { NoItemsModule, SearchModule } from "@bitwarden/components";
+import { NoItemsModule, SearchModule, DialogService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
+import { RequestAdminActionComponent } from "../../secrets-manager/secrets-manager-landing/request-admin-action.component";
 import { SharedModule } from "../../shared/shared.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -25,10 +26,12 @@ export class SMLandingComponent implements OnInit {
   imageSrc: string = "../images/sm.webp";
   showSecretsManagerInformation: boolean = true;
   showGiveMembersAccessInstructions: boolean = false;
+  requiresAdminPermission: boolean = false;
 
   constructor(
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -73,10 +76,11 @@ export class SMLandingComponent implements OnInit {
     }
     // 1b and 2b 2c, they must be lower than an Owner, and they need access, or want their org to have access to SM.
     else {
-      this.tryItNowUrl = "/request-sm-access";
+      this.requiresAdminPermission = true;
     }
   }
 
+  //TODO: the header needs to be shorter and we need a subheader explaining in more detail
   private showHowToEnableSMForMembers(orgId: string) {
     this.showGiveMembersAccessInstructions = true;
     this.showSecretsManagerInformation = false;
@@ -84,5 +88,9 @@ export class SMLandingComponent implements OnInit {
       "https://bitwarden.com/help/secrets-manager-quick-start/#give-members-access";
     this.imageSrc = "../images/sm-give-access.png";
     this.tryItNowUrl = `/organizations/${orgId}/members`;
+  }
+
+  protected onRequestAccessClick(): void {
+    this.dialogService.open(RequestAdminActionComponent, {});
   }
 }
