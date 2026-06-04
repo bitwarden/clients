@@ -1109,6 +1109,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       cipher.type,
     );
 
+    if (typeof verdict === "object" && verdict.kind === "openWith") {
+      // PAM gate handed us a transient leased Cipher fetched fresh from the
+      // server. Substitute it into the form config so the dialog renders full
+      // data; the local CipherService cache stays partial.
+      cipherFormConfig.originalCipher = verdict.cipher;
+    }
+
     await this.openVaultItemDialog(
       "view",
       cipherFormConfig,

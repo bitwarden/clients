@@ -1,11 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Inject, OnInit, inject, signal } from "@angular/core";
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-} from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -23,6 +18,13 @@ import {
 } from "@bitwarden/components";
 import { AccessRequestPatchRequest, AccessRequestResponse, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import {
+  LEASE_DURATION_PRESETS,
+  endAfterStartValidator,
+  toDateString,
+  toTimeString,
+} from "../lease-window-form/lease-window.utils";
 
 export type AccessRequestDetailModalData = {
   /** The server-issued pending lease request (from the 202 response). */
@@ -78,14 +80,7 @@ export class AccessRequestDetailModalComponent implements OnInit {
    */
   protected readonly isApprovedTicket = signal(false);
 
-  protected readonly durationOptions: { minutes: number; labelKey: string }[] = [
-    { minutes: 15, labelKey: "accessRequestDetailModalDuration15m" },
-    { minutes: 30, labelKey: "accessRequestDetailModalDuration30m" },
-    { minutes: 60, labelKey: "accessRequestDetailModalDuration1h" },
-    { minutes: 240, labelKey: "accessRequestDetailModalDuration4h" },
-    { minutes: 480, labelKey: "accessRequestDetailModalDuration8h" },
-    { minutes: 1440, labelKey: "accessRequestDetailModalDuration1d" },
-  ];
+  protected readonly durationOptions = LEASE_DURATION_PRESETS;
 
   protected readonly form = this.fb.group(
     {
@@ -129,9 +124,10 @@ export class AccessRequestDetailModalComponent implements OnInit {
       // Clamp end to 23:59 on the same calendar date so the cross-field validator
       // doesn't flag a midnight-crossing default on first paint. (Multi-day windows
       // are tracked as a separate UX defect on the validator.)
-      const sameDay = end.getFullYear() === now.getFullYear()
-        && end.getMonth() === now.getMonth()
-        && end.getDate() === now.getDate();
+      const sameDay =
+        end.getFullYear() === now.getFullYear() &&
+        end.getMonth() === now.getMonth() &&
+        end.getDate() === now.getDate();
       const endTime = sameDay ? toTimeString(end) : "23:59";
       this.form.patchValue({
         customDate: toDateString(now),
@@ -228,31 +224,4 @@ export class AccessRequestDetailModalComponent implements OnInit {
       { data } satisfies DialogConfig<AccessRequestDetailModalData>,
     );
   }
-}
-
-function endAfterStartValidator(control: AbstractControl): ValidationErrors | null {
-  const { customDate, customStart, customEnd } = control.value as {
-    customDate?: string;
-    customStart?: string;
-    customEnd?: string;
-  };
-  if (!customDate || !customStart || !customEnd) {
-    return null;
-  }
-  const start = new Date(`${customDate}T${customStart}`).getTime();
-  const end = new Date(`${customDate}T${customEnd}`).getTime();
-  return end > start ? null : { customWindow: "endBeforeStart" };
-}
-
-/** Returns `YYYY-MM-DD` for a Date (local time). */
-function toDateString(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-/** Returns `HH:mm` for a Date (local time). */
-function toTimeString(date: Date): string {
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }

@@ -1,12 +1,15 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { Condition } from "../abstractions/access-rule";
+import { LeaseLifecycleStatus } from "../abstractions/responses/lease-model.response";
+import { LeaseRequestLifecycleStatus } from "../abstractions/responses/lease-request-model.response";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
+import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { AccessRuleRequest } from "./requests/access-rule.request";
+import { CreateLeaseRequest } from "./requests/create-lease.request";
 import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
-import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
 
 describe("DefaultPamApiService", () => {
@@ -21,6 +24,149 @@ describe("DefaultPamApiService", () => {
   describe("fetchGatedCipher", () => {
     it("rejects with a clear error pointing at PM-37264", async () => {
       await expect(service.fetchGatedCipher("cipher-1")).rejects.toThrow("PM-37264");
+    });
+  });
+
+  describe("getLeasePreCheck", () => {
+    it("GETs /ciphers/{id}/lease/pre-check and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        Object: "accessPreCheck",
+        CipherId: "cipher-1",
+        Outcome: "human",
+      });
+
+      const result = await service.getLeasePreCheck("cipher-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/ciphers/cipher-1/lease/pre-check",
+        null,
+        true,
+        true,
+      );
+      expect(result.cipherId).toBe("cipher-1");
+      expect(result.outcome).toBe("human");
+    });
+  });
+
+  describe("requestLease", () => {
+    it("POSTs /ciphers/{id}/lease with a duration body on the automatic path", async () => {
+      apiService.send.mockResolvedValue({
+        Object: "accessRequest",
+        Outcome: "automatic",
+        Lease: {
+          Object: "lease",
+          Id: "lease-1",
+          CipherId: "cipher-1",
+          CollectionId: "col-1",
+          OrganizationId: "org-1",
+          Status: LeaseLifecycleStatus.Active,
+          NotBefore: "2026-06-04T12:00:00Z",
+          NotAfter: "2026-06-04T13:00:00Z",
+        },
+        Request: null,
+      });
+      const body = new CreateLeaseRequest({ durationSeconds: 3600, reason: "incident" });
+
+      const result = await service.requestLease("cipher-1", body);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/ciphers/cipher-1/lease",
+        body,
+        true,
+        true,
+      );
+      expect(result.outcome).toBe("automatic");
+      expect(result.lease).not.toBeNull();
+      expect(result.lease?.id).toBe("lease-1");
+      expect(result.lease?.status).toBe(LeaseLifecycleStatus.Active);
+      expect(result.lease?.notAfter).toBe("2026-06-04T13:00:00Z");
+      expect(result.request).toBeNull();
+    });
+
+    it("POSTs /ciphers/{id}/lease with a window body on the human path", async () => {
+      apiService.send.mockResolvedValue({
+        Object: "accessRequest",
+        Outcome: "human",
+        Lease: null,
+        Request: {
+          Object: "leaseRequest",
+          Id: "req-1",
+          CipherId: "cipher-1",
+          CollectionId: "col-1",
+          OrganizationId: "org-1",
+          Status: LeaseRequestLifecycleStatus.Pending,
+          NotBefore: "2026-06-05T09:00:00Z",
+          NotAfter: "2026-06-05T17:00:00Z",
+          Reason: "Investigating prod incident #4821",
+          CreationDate: "2026-06-04T12:00:00Z",
+        },
+      });
+      const body = new CreateLeaseRequest({
+        start: new Date("2026-06-05T09:00:00Z"),
+        end: new Date("2026-06-05T17:00:00Z"),
+        reason: "Investigating prod incident #4821",
+      });
+
+      const result = await service.requestLease("cipher-1", body);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/ciphers/cipher-1/lease",
+        body,
+        true,
+        true,
+      );
+      expect(result.outcome).toBe("human");
+      expect(result.lease).toBeNull();
+      expect(result.request).not.toBeNull();
+      expect(result.request?.id).toBe("req-1");
+      expect(result.request?.status).toBe(LeaseRequestLifecycleStatus.Pending);
+      expect(result.request?.reason).toBe("Investigating prod incident #4821");
+      expect(result.request?.creationDate).toBe("2026-06-04T12:00:00Z");
+    });
+  });
+
+  describe("getLeasedCipher", () => {
+    it("GETs /ciphers/{id}/lease/cipher and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "cipher-1",
+        Name: "name-cipher",
+        Type: 1,
+      });
+
+      const result = await service.getLeasedCipher("cipher-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/ciphers/cipher-1/lease/cipher",
+        null,
+        true,
+        true,
+      );
+      expect(result.id).toBe("cipher-1");
+    });
+  });
+
+  describe("CreateLeaseRequest", () => {
+    it("serializes dates to UTC ISO 8601", () => {
+      const req = new CreateLeaseRequest({
+        start: new Date("2026-06-05T09:00:00Z"),
+        end: new Date("2026-06-05T17:00:00Z"),
+        reason: "test",
+      });
+      expect(req.start).toBe("2026-06-05T09:00:00.000Z");
+      expect(req.end).toBe("2026-06-05T17:00:00.000Z");
+      expect(req.durationSeconds).toBeUndefined();
+    });
+
+    it("leaves optional fields undefined when not provided", () => {
+      const req = new CreateLeaseRequest({ durationSeconds: 3600 });
+      expect(req.durationSeconds).toBe(3600);
+      expect(req.start).toBeUndefined();
+      expect(req.end).toBeUndefined();
+      expect(req.reason).toBeUndefined();
     });
   });
 

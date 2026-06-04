@@ -1,16 +1,20 @@
 import { Observable } from "rxjs";
 
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
+import { AccessRequestPatchRequest } from "../services/requests/access-request-patch.request";
 import { AccessRuleRequest } from "../services/requests/access-rule.request";
+import { CreateLeaseRequest } from "../services/requests/create-lease.request";
 import { LeaseDecisionRequest } from "../services/requests/lease-decision.request";
 import { LeaseExtensionRequest } from "../services/requests/lease-extension.request";
-import { AccessRequestPatchRequest } from "../services/requests/access-request-patch.request";
 import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
 
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
-import { AccessRuleResponse } from "./responses/access-rule.response";
+import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
+import { AccessRequestEnvelopeResponse } from "./responses/access-request-envelope.response";
 import { AccessRequestResponse } from "./responses/access-request.response";
+import { AccessRuleResponse } from "./responses/access-rule.response";
 import { BulkRevokeResult } from "./responses/bulk-revoke.result";
 import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
 import { InboxAccessRequestResponse } from "./responses/inbox-access-request.response";
@@ -36,6 +40,30 @@ export type CipherAccessState = {
 export abstract class PamApiService {
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
   abstract getCipherAccessState$(cipherId: string, userId: string): Observable<CipherAccessState>;
+  /**
+   * Side-effect-free check that resolves which approval workflow (`automatic`
+   * or `human`) applies for the caller on this cipher. Returns 404 when the
+   * cipher isn't visible to the caller or the PAM feature flag is off.
+   */
+  abstract getLeasePreCheck(cipherId: string): Promise<AccessPreCheckResponse>;
+  /**
+   * Creates an active lease (automatic) or a pending lease request (human),
+   * depending on the server's re-evaluated approval requirement and the body
+   * shape. The server rejects (400) if the body doesn't match the resolved
+   * outcome — see the lease-request frontend handover for the error catalog.
+   */
+  abstract requestLease(
+    cipherId: string,
+    body: CreateLeaseRequest,
+  ): Promise<AccessRequestEnvelopeResponse>;
+  /**
+   * Returns the cipher with its complete (encrypted) data — only when the
+   * caller currently holds an active lease covering it. 404 if no active lease
+   * (or the cipher isn't visible, or the PAM flag is off). The response is
+   * NOT persisted into the local cipher cache: callers should treat it as
+   * transient and re-fetch on every view.
+   */
+  abstract getLeasedCipher(cipherId: string): Promise<CipherResponse>;
   abstract patchAccessRequest(
     id: string,
     request: AccessRequestPatchRequest,

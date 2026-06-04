@@ -14504,6 +14504,63 @@
   "accessRequestDetailModalCustomWindowEndBeforeStart": {
     "message": "End time must be after start time"
   },
+  "requestAccessModalTitle": {
+    "message": "Request access"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Pick a duration. You'll get immediate access for that long."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Pick a window and tell the approver why you need access. They'll review and decide."
+  },
+  "requestAccessModalDuration": {
+    "message": "Duration"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Reason"
+  },
+  "requestAccessModalReasonHint": {
+    "message": "Approvers will see this reason when reviewing your request."
+  },
+  "requestAccessModalDate": {
+    "message": "Date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndBeforeStart": {
+    "message": "End time must be after start time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed 24 hours."
+  },
+  "requestAccessModalSubmit": {
+    "message": "Request access"
+  },
+  "requestAccessModalDismiss": {
+    "message": "Cancel"
+  },
+  "requestAccessModalLeaseCreatedSuccess": {
+    "message": "Access granted."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Request submitted — awaiting approval."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access."
+  },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
   },
@@ -14958,6 +15015,12 @@
   },
   "pamPendingBannerTitle": {
     "message": "Your access request is awaiting approval"
+  },
+  "pamRequestAccessBannerTitle": {
+    "message": "This item requires a lease. Request access to view it."
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
   },
   "pendingStateCancelRequest": {
     "message": "Cancel request"
