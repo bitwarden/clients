@@ -11,13 +11,12 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconComponent, TooltipDirective } from "@bitwarden/components";
 import { GatedState, formatRemaining } from "@bitwarden/pam";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   selector: "app-cipher-lease-badge",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconComponent, TooltipDirective, I18nPipe],
+  imports: [IconComponent, TooltipDirective],
   templateUrl: "./cipher-lease-badge.component.html",
 })
 export class CipherLeaseBadgeComponent {
