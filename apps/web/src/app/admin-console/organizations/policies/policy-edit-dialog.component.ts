@@ -66,6 +66,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
   protected readonly enabled = false;
+  protected readonly policyEnabled = signal(false);
   private readonly _saveDisabled = signal(false);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
@@ -195,6 +196,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     const policyResponse = await this.load();
+    this.policyEnabled.set(policyResponse.enabled);
     this.loading.set(false);
 
     const policyFormRef = this.policyFormRef();
@@ -207,7 +209,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       const flagOn = await this.configService.getFeatureFlag(
         this.data.policy.flaggedComponent.flag,
       );
-      if (flagOn) {componentClass = this.data.policy.flaggedComponent.component;}
+      if (flagOn) {
+        componentClass = this.data.policy.flaggedComponent.component;
+      }
     }
     const componentRef = policyFormRef.createComponent(componentClass);
     componentRef.setInput("policy", this.data.policy);

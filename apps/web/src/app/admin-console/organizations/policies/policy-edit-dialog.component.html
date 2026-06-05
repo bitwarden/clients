@@ -3,9 +3,18 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="'editPolicy' | i18n"
-  [subtitle]="policy.name | i18n"
+  [title]="dialogRef.isDrawer ? (policy.name | i18n) : ('editPolicy' | i18n)"
+  [subtitle]="dialogRef.isDrawer ? '' : (policy.name | i18n)"
 >
+  @if (dialogRef.isDrawer) {
+    <ng-container bitDialogHeaderEnd>
+      @if (policyEnabled()) {
+        <span bitBadge variant="success">{{ "on" | i18n }}</span>
+      } @else {
+        <span bitBadge variant="secondary">{{ "off" | i18n }}</span>
+      }
+    </ng-container>
+  }
   <ng-container bitDialogContent>
     @if (loading()) {
       <div>
@@ -28,8 +37,10 @@
     <button bitButton buttonType="primary" [disabled]="saveDisabled()" bitFormButton type="submit">
       {{ "save" | i18n }}
     </button>
-    <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-      {{ "cancel" | i18n }}
-    </button>
+    @if (!dialogRef.isDrawer) {
+      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    }
   </ng-container>
 </form>
