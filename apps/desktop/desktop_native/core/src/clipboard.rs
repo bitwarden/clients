@@ -12,6 +12,28 @@ pub fn read() -> Result<String> {
     Ok(clipboard.get_text()?)
 }
 
+/// Read the clipboard, using the XDG Desktop Portal on GNOME.
+///
+/// On GNOME/Wayland `arboard` cannot reliably read the clipboard (GNOME does not implement the
+/// `wlr-data-control` protocol), so on GNOME we read through the [`portal`] (RemoteDesktop +
+/// Clipboard). On every other Linux desktop this is just [`read`].
+#[cfg(target_os = "linux")]
+pub async fn read_async() -> Result<String> {
+    if portal::should_use_portal() {
+        return portal::read_clipboard().await;
+    }
+
+    read()
+}
+
+/// Read the clipboard. Mirror of the Linux [`read_async`] for platforms without a portal path, so
+/// callers can use a single async entry point.
+#[cfg(not(target_os = "linux"))]
+#[allow(clippy::unused_async)]
+pub async fn read_async() -> Result<String> {
+    read()
+}
+
 pub fn write(text: &str, password: bool) -> Result<()> {
     let mut clipboard = Clipboard::new()?;
 

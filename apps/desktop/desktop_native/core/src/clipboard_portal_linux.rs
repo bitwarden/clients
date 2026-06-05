@@ -15,7 +15,7 @@
 //! persist the returned `restore_token` to disk, so the consent dialog is shown only once and the
 //! session is silently restored on subsequent runs.
 
-use std::io::Write;
+use std::io::{Read, Write};
 
 use anyhow::{anyhow, Result};
 use ashpd::desktop::{
@@ -69,28 +69,7 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
 
     let remote_desktop = RemoteDesktop::new().await?;
     let clipboard = Clipboard::new().await?;
-
-    // Try to restore a previously saved session so the consent dialog is shown only once. A
-    // persisted token can become invalid (revoked, stale from an older implementation, or
-    // rejected by the portal), so on failure we discard it and start a fresh session.
-    let (session, response) = match load_session_token() {
-        Some(token) => match establish_session(&remote_desktop, &clipboard, Some(&token)).await {
-            Ok(established) => established,
-            Err(err) => {
-                error!(error = %err, "[ASHPD] Restoring clipboard session failed; retrying without saved token");
-                let _ = clear_session_token();
-                establish_session(&remote_desktop, &clipboard, None).await?
-            }
-        },
-        None => establish_session(&remote_desktop, &clipboard, None).await?,
-    };
-
-    // Persist the restore token so future runs skip the consent dialog. Never log the value.
-    if let Some(token) = response.restore_token() {
-        if let Err(err) = save_session_token(token) {
-            error!(error = %err, "[ASHPD] Failed to persist remote desktop restore token");
-        }
-    }
+    let (session, response) = open_session(&remote_desktop, &clipboard).await?;
 
     // Serve the selection, then always close the session so we do not leave the RemoteDesktop
     // grant (input injection + clipboard) open on the portal.
@@ -101,6 +80,66 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
     }
 
     result
+}
+
+/// Read the clipboard text via the Clipboard portal over a RemoteDesktop session.
+///
+/// Establishes (or restores) the same clipboard-enabled RemoteDesktop session used by
+/// [`write_clipboard`], reads the current selection as [`MIME_TEXT`], and closes the session.
+///
+/// ```no_run
+/// # async fn demo() -> anyhow::Result<()> {
+/// use desktop_core::clipboard::portal;
+/// if portal::should_use_portal() {
+///     let text = portal::read_clipboard().await?;
+///     println!("{text}");
+/// }
+/// # Ok(())
+/// # }
+/// ```
+pub async fn read_clipboard() -> Result<String> {
+    let remote_desktop = RemoteDesktop::new().await?;
+    let clipboard = Clipboard::new().await?;
+    let (session, response) = open_session(&remote_desktop, &clipboard).await?;
+
+    let result = read_selection(&clipboard, &session, &response).await;
+
+    if let Err(err) = session.close().await {
+        error!(error = %err, "[ASHPD] Failed to close clipboard portal session");
+    }
+
+    result
+}
+
+/// Open a clipboard-enabled RemoteDesktop session, restoring a saved token when possible and
+/// persisting the (possibly new) restore token. The consent dialog shows only on first use.
+async fn open_session(
+    remote_desktop: &RemoteDesktop,
+    clipboard: &Clipboard,
+) -> Result<(Session<RemoteDesktop>, SelectedDevices)> {
+    // Try to restore a previously saved session so the consent dialog is shown only once. A
+    // persisted token can become invalid (revoked, stale from an older implementation, or
+    // rejected by the portal), so on failure we discard it and start a fresh session.
+    let (session, response) = match load_session_token() {
+        Some(token) => match establish_session(remote_desktop, clipboard, Some(&token)).await {
+            Ok(established) => established,
+            Err(err) => {
+                error!(error = %err, "[ASHPD] Restoring clipboard session failed; retrying without saved token");
+                let _ = clear_session_token();
+                establish_session(remote_desktop, clipboard, None).await?
+            }
+        },
+        None => establish_session(remote_desktop, clipboard, None).await?,
+    };
+
+    // Persist the restore token so future runs skip the consent dialog. Never log the value.
+    if let Some(token) = response.restore_token() {
+        if let Err(err) = save_session_token(token) {
+            error!(error = %err, "[ASHPD] Failed to persist remote desktop restore token");
+        }
+    }
+
+    Ok((session, response))
 }
 
 /// Advertise the clipboard selection and serve the first matching transfer request.
@@ -159,6 +198,30 @@ async fn serve_selection(
     }
 
     Err(anyhow!("clipboard selection transfer stream ended"))
+}
+
+/// Read the current clipboard selection as [`MIME_TEXT`].
+///
+/// The portal returns a file descriptor that the selection owner writes the data to; we read it
+/// to EOF and decode it as UTF-8.
+async fn read_selection(
+    clipboard: &Clipboard,
+    session: &Session<RemoteDesktop>,
+    response: &SelectedDevices,
+) -> Result<String> {
+    if !response.is_clipboard_enabled() {
+        return Err(anyhow!(
+            "remote desktop session did not grant clipboard access"
+        ));
+    }
+
+    let fd = clipboard.selection_read(session, MIME_TEXT).await?;
+    let std_fd: std::os::fd::OwnedFd = fd.into();
+    let mut file = std::fs::File::from(std_fd);
+
+    let mut text = String::new();
+    file.read_to_string(&mut text)?;
+    Ok(text)
 }
 
 /// Create a RemoteDesktop session with clipboard access enabled and start it.
@@ -268,5 +331,14 @@ mod tests {
     #[ignore]
     async fn manual_write_clipboard() {
         write_clipboard("Hello world!", false).await.unwrap();
+    }
+
+    // Requires a live GNOME Wayland portal session; seed the clipboard first (e.g. `wl-copy`),
+    // then run manually with `--ignored --nocapture` to see the value.
+    #[tokio::test]
+    #[ignore]
+    async fn manual_read_clipboard() {
+        let text = read_clipboard().await.unwrap();
+        println!("read clipboard: {text:?}");
     }
 }
