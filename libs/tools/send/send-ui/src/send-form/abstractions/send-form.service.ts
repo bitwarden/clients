@@ -58,7 +58,8 @@ export abstract class SendFormService {
   abstract initializeSendForm(sendFormConfig: SendFormConfig): Promise<void>;
 
   /**
-   * Submits the Send form
+   * Submits the Send form. This will return `undefined` if the Send form had errors preventing
+   * its submission, and throw any errors it receives from encryption, decryption, or the API call
    */
   abstract submitSendForm(): Promise<SendView>;
 
