@@ -9,11 +9,6 @@ import { BasePolicyEditComponent } from "../base-policy-edit.component";
 @Component({
   selector: "app-simple-toggle-policy-edit",
   template: `
-    @if (policy()?.prerequisiteKey) {
-      <bit-callout type="info" [title]="'prerequisite' | i18n">{{
-        policy()!.prerequisiteKey! | i18n
-      }}</bit-callout>
-    }
     @if (policy()?.warningKey) {
       <bit-callout type="warning">{{ policy()!.warningKey! | i18n }}</bit-callout>
     }

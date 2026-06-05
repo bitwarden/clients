@@ -27,6 +27,11 @@
       </div>
     }
     <div [hidden]="loading()">
+      @if (dialogRef.isDrawer && policy.prerequisiteKey) {
+        <bit-callout type="info" [title]="'prerequisite' | i18n">
+          {{ policy.prerequisiteKey | i18n }}
+        </bit-callout>
+      }
       @if (policy.showDescription) {
         <p bitTypography="body1">
           {{
