@@ -343,13 +343,41 @@ export class Fido2ClientService<
       // Spec reference: https://www.w3.org/TR/webauthn-3/#sctn-discover-from-external-source step 20.
       // The spec says the client should determine if "no authenticator will become available" by
       // examining transports. Since Bitwarden is an internal-only authenticator, if all
-      // allowCredentials entries specify only non-internal transports, we cannot satisfy the
-      // request. We throw FallbackRequestedError (instead of the spec's NotAllowedError) to let
-      // the browser's native WebAuthn handler contact the hardware authenticator.
+      // allowCredentials entries specify only non-internal transports we generally cannot satisfy
+      // the request, and we throw FallbackRequestedError (instead of the spec's NotAllowedError)
+      // so the browser's native WebAuthn handler can contact the hardware authenticator.
+      //
+      // However, an RP may echo the original `transports` recorded at registration time for a
+      // credential that has since been synced into the Bitwarden vault (for example a passkey
+      // originally registered via cross-device hybrid flow and now backed up in the vault as an
+      // internal credential). Falling back unconditionally in that case routes the request to the
+      // browser's native picker, which on Chrome 146+ may surface a different attached provider
+      // (e.g. 1Password, iCloud Keychain) even though Bitwarden holds the credential. See
+      // https://github.com/bitwarden/clients/issues/20973.
+      //
+      // To preserve the original intent (PM-33781) without breaking vault-resident passkeys, we
+      // consult the vault first and only fall back when none of the requested credential ids are
+      // present.
+      const vaultCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
+      const requestedIds = new Set(params.allowedCredentials.map((c) => c.id));
+      const vaultHasMatch = vaultCredentials.some((vc) => {
+        try {
+          return requestedIds.has(Fido2Utils.arrayToString(guidToRawFormat(vc.credentialId)));
+        } catch {
+          return false;
+        }
+      });
+
+      if (!vaultHasMatch) {
+        this.logService?.info(
+          `[Fido2Client] All allowCredentials entries specify non-internal transports only and none match the vault — falling back to browser.`,
+        );
+        throw new FallbackRequestedError();
+      }
+
       this.logService?.info(
-        `[Fido2Client] All allowCredentials entries specify non-internal transports only — falling back to browser.`,
+        `[Fido2Client] All allowCredentials entries specify non-internal transports only but at least one matches a vault credential — proceeding with Bitwarden.`,
       );
-      throw new FallbackRequestedError();
     }
 
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });

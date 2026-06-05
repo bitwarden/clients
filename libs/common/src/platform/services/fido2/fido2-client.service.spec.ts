@@ -6,6 +6,7 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
 import { Utils } from "../../../platform/misc/utils";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
+import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
   ActiveRequest,
@@ -618,7 +619,7 @@ describe("FidoAuthenticatorService", () => {
     });
 
     describe("fallback for hardware/roaming keys", () => {
-      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only", async () => {
+      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only and none are in the vault", async () => {
         const params = createParams({
           allowedCredentials: [
             { id: "credId1", transports: ["usb"] },
@@ -626,6 +627,41 @@ describe("FidoAuthenticatorService", () => {
           ],
           fallbackSupported: true,
         });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([]);
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.silentCredentialDiscovery).toHaveBeenCalledWith(RpId);
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("does not fall back when at least one non-internal allowCredential matches a vault credential", async () => {
+        const credentialId = Utils.newGuid();
+        const allowedId = Fido2Utils.arrayToString(guidToRawFormat(credentialId));
+        const params = createParams({
+          allowedCredentials: [{ id: allowedId, transports: ["hybrid"] }],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([
+          { credentialId } as Fido2CredentialView,
+        ]);
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.silentCredentialDiscovery).toHaveBeenCalledWith(RpId);
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
+      it("falls back when allowCredentials are non-internal and the vault holds different credentials", async () => {
+        const params = createParams({
+          allowedCredentials: [{ id: "requestedCredId", transports: ["hybrid"] }],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([
+          { credentialId: Utils.newGuid() } as Fido2CredentialView,
+        ]);
 
         await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
           fallbackRequested: true,
@@ -642,6 +678,7 @@ describe("FidoAuthenticatorService", () => {
 
         await client.assertCredential(params, windowReference);
 
+        expect(authenticator.silentCredentialDiscovery).not.toHaveBeenCalled();
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
 
@@ -654,6 +691,7 @@ describe("FidoAuthenticatorService", () => {
 
         await client.assertCredential(params, windowReference);
 
+        expect(authenticator.silentCredentialDiscovery).not.toHaveBeenCalled();
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
     });
