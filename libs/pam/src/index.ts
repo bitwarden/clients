@@ -33,7 +33,6 @@ export {
   OrganizationGovernanceSummaryResponse,
 } from "./abstractions/responses/governance-summary.response";
 export { InboxAccessRequestResponse } from "./abstractions/responses/inbox-access-request.response";
-export { InboxBadgeCountResponse } from "./abstractions/responses/inbox-badge-count.response";
 export { LeaseEvent, LeaseEventKind } from "./abstractions/lease-event";
 export { LeaseEventService } from "./abstractions/lease-event.service";
 

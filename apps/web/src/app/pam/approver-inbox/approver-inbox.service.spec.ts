@@ -1,6 +1,11 @@
 import { TestBed } from "@angular/core/testing";
-import { firstValueFrom } from "rxjs";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { KeyService } from "@bitwarden/key-management";
 import { InboxAccessRequestResponse, LeaseDecisionRequest, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxService, sortInbox } from "./approver-inbox.service";
@@ -11,17 +16,20 @@ function makeRow(
     submittedAt: string;
     collectionName: string;
     requesterUserId: string;
+    organizationId: string;
+    cipherName: string;
   }> = {},
 ): InboxAccessRequestResponse {
   return new InboxAccessRequestResponse({
     Id: overrides.id ?? "req-1",
     CipherId: "cipher-1",
     CollectionId: "col-1",
+    OrganizationId: overrides.organizationId ?? "org-1",
     RequesterUserId: overrides.requesterUserId ?? "user-2",
     Status: "pending",
     RequestedTtlSeconds: 3600,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",
-    CipherName: "Prod DB",
+    CipherName: overrides.cipherName ?? "2.encrypted-cipher-name",
     CollectionName: overrides.collectionName ?? "Production",
     RequesterName: "Bob",
     RequesterEmail: "bob@example.com",
@@ -55,6 +63,7 @@ describe("ApproverInboxService", () => {
   let pamApiService: jest.Mocked<
     Pick<PamApiService, "listInboxRequests" | "listInboxHistory" | "decideAccessRequest">
   >;
+  let encryptService: jest.Mocked<Pick<EncryptService, "decryptString">>;
   let service: ApproverInboxService;
 
   beforeEach(() => {
@@ -66,8 +75,26 @@ describe("ApproverInboxService", () => {
       Pick<PamApiService, "listInboxRequests" | "listInboxHistory" | "decideAccessRequest">
     >;
 
+    encryptService = {
+      decryptString: jest.fn().mockResolvedValue("decrypted-name"),
+    } as jest.Mocked<Pick<EncryptService, "decryptString">>;
+
+    const accountService = mock<AccountService>();
+    (accountService as unknown as { activeAccount$: BehaviorSubject<unknown> }).activeAccount$ =
+      new BehaviorSubject({ id: "user-current", email: "me@example.com" });
+
+    const keyService = mock<KeyService>();
+    keyService.orgKeys$.mockReturnValue(of({ "org-1": "fake-org-key" } as never));
+
     TestBed.configureTestingModule({
-      providers: [ApproverInboxService, { provide: PamApiService, useValue: pamApiService }],
+      providers: [
+        ApproverInboxService,
+        { provide: PamApiService, useValue: pamApiService },
+        { provide: AccountService, useValue: accountService },
+        { provide: KeyService, useValue: keyService },
+        { provide: EncryptService, useValue: encryptService },
+        { provide: LogService, useValue: mock<LogService>() },
+      ],
     });
 
     service = TestBed.inject(ApproverInboxService);
@@ -86,6 +113,33 @@ describe("ApproverInboxService", () => {
       expect(rows.map((r) => r.id)).toEqual(["older", "newer"]);
     });
 
+    it("decrypts cipher and collection names with the row's org key", async () => {
+      pamApiService.listInboxRequests.mockResolvedValue([
+        makeRow({ id: "a", cipherName: "2.cipher-blob" }),
+      ]);
+
+      await service.load();
+
+      // One call per field (cipherName, collectionName).
+      expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
+      const rows = await firstValueFrom(service.requests$);
+      expect(rows[0].cipherName).toBe("decrypted-name");
+      expect(rows[0].collectionName).toBe("decrypted-name");
+    });
+
+    it("falls back to a placeholder when decryption fails", async () => {
+      pamApiService.listInboxRequests.mockResolvedValue([
+        makeRow({ id: "a", cipherName: "2.cipher-blob" }),
+      ]);
+      encryptService.decryptString.mockRejectedValue(new Error("boom"));
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.requests$);
+      expect(rows[0].cipherName).toBe("[error: cannot decrypt]");
+      expect(rows[0].collectionName).toBe("[error: cannot decrypt]");
+    });
+
     it("captures load errors and rethrows", async () => {
       pamApiService.listInboxRequests.mockRejectedValue(new Error("nope"));
 
@@ -102,7 +156,10 @@ describe("ApproverInboxService", () => {
       pamApiService.decideAccessRequest.mockResolvedValue({} as never);
       await service.load();
 
-      await service.decideAccessRequest("target", new LeaseDecisionRequest({ decision: "approve" }));
+      await service.decideAccessRequest(
+        "target",
+        new LeaseDecisionRequest({ decision: "approve" }),
+      );
 
       expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);
       const rows = await firstValueFrom(service.requests$);
@@ -128,7 +185,10 @@ describe("ApproverInboxService", () => {
       pamApiService.decideAccessRequest.mockResolvedValue({} as never);
       await service.load();
 
-      await service.decideAccessRequest("missing", new LeaseDecisionRequest({ decision: "approve" }));
+      await service.decideAccessRequest(
+        "missing",
+        new LeaseDecisionRequest({ decision: "approve" }),
+      );
 
       expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);
     });

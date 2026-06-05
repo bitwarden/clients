@@ -67,7 +67,6 @@ function fakeApi(rows: InboxAccessRequestResponse[]): PamApiService {
     revokeLease: () => Promise.resolve(),
     listInboxRequests: () => Promise.resolve(rows),
     listInboxHistory: () => Promise.resolve([]),
-    getInboxBadgeCount: () => Promise.reject(new Error("not used")),
   } as unknown as PamApiService;
 }
 

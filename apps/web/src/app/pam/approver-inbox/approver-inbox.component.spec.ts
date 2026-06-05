@@ -5,9 +5,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { InboxAccessRequestResponse, AccessRequestResponse, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
@@ -64,11 +66,19 @@ describe("ApproverInboxComponent", () => {
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
 
+    const keyService = mock<KeyService>();
+    keyService.orgKeys$.mockReturnValue(new BehaviorSubject({}) as never);
+
+    const encryptService = mock<EncryptService>();
+    encryptService.decryptString.mockResolvedValue("decrypted");
+
     await TestBed.configureTestingModule({
       imports: [ApproverInboxComponent, RouterTestingModule],
       providers: [
         { provide: PamApiService, useValue: pamApiService },
         { provide: AccountService, useValue: accountService },
+        { provide: KeyService, useValue: keyService },
+        { provide: EncryptService, useValue: encryptService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: mock<LogService>() },

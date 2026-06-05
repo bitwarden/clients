@@ -11,7 +11,6 @@ import {
   CipherAccessState,
   DefaultPamApiService,
   GatedCipherFetchResult,
-  InboxBadgeCountResponse,
   InboxAccessRequestResponse,
   LeaseDecisionRequest,
   LeaseExtensionRequest,
@@ -438,14 +437,6 @@ export class MockPamApiService extends DefaultPamApiService {
         const bTime = b.resolvedAt ?? b.submittedAt;
         return bTime.localeCompare(aTime);
       });
-  }
-
-  async getInboxBadgeCount(): Promise<InboxBadgeCountResponse> {
-    await this.ensureInboxSeeded();
-    const count = Array.from(this.store.inboxRequests.values()).filter(
-      (r) => r.status === "pending",
-    ).length;
-    return new InboxBadgeCountResponse({ Count: count });
   }
 
   private applyDecision(requestId: string, request: LeaseDecisionRequest): AccessRequestResponse {

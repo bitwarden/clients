@@ -55,15 +55,25 @@ type FlatHistoryRow = {
 };
 
 function historyStatusClassFor(bucket: BucketKey, status: string): string {
-  if (bucket === "active") return "tw-text-success-700";
-  if (bucket === "future") return "tw-text-primary-600";
-  if (status === "denied") return "tw-text-danger-700";
+  if (bucket === "active") {
+    return "tw-text-success-700";
+  }
+  if (bucket === "future") {
+    return "tw-text-primary-600";
+  }
+  if (status === "denied") {
+    return "tw-text-danger-700";
+  }
   return "tw-text-muted";
 }
 
 function historyStatusLabelFor(bucket: BucketKey, status: string): string {
-  if (bucket === "active") return "pamInboxHistoryGroupActive";
-  if (bucket === "future") return "pamInboxHistoryGroupFuture";
+  if (bucket === "active") {
+    return "pamInboxHistoryGroupActive";
+  }
+  if (bucket === "future") {
+    return "pamInboxHistoryGroupFuture";
+  }
   switch (status) {
     case "approved":
       return "pamInboxHistoryStatusApproved";

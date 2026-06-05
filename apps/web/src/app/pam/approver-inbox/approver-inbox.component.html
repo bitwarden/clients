@@ -99,7 +99,9 @@
                 }
               </td>
               <td bitCell>
-                <span class="tw-text-sm" [class]="row.statusClass">{{ row.statusLabel | i18n }}</span>
+                <span class="tw-text-sm" [class]="row.statusClass">{{
+                  row.statusLabel | i18n
+                }}</span>
                 @if (row.relTime) {
                   <span class="tw-text-xs tw-text-muted">
                     &nbsp;·&nbsp;{{ row.relTime.key | i18n: row.relTime.value }}

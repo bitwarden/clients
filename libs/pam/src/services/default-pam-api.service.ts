@@ -13,7 +13,6 @@ import { AccessRuleResponse } from "../abstractions/responses/access-rule.respon
 import { BulkRevokeResult } from "../abstractions/responses/bulk-revoke.result";
 import { OrganizationGovernanceSummaryResponse } from "../abstractions/responses/governance-summary.response";
 import { InboxAccessRequestResponse } from "../abstractions/responses/inbox-access-request.response";
-import { InboxBadgeCountResponse } from "../abstractions/responses/inbox-badge-count.response";
 import { LeaseResponse } from "../abstractions/responses/lease.response";
 
 import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
@@ -66,16 +65,14 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
-  listInboxRequests(): Promise<InboxAccessRequestResponse[]> {
-    return Promise.reject(new Error("listInboxRequests is not implemented yet"));
+  async listInboxRequests(): Promise<InboxAccessRequestResponse[]> {
+    const r = await this.send("GET", "/leasing/inbox/requests", null, true);
+    return new ListResponse(r, InboxAccessRequestResponse).data;
   }
 
-  listInboxHistory(): Promise<InboxAccessRequestResponse[]> {
-    return Promise.reject(new Error("listInboxHistory is not implemented yet"));
-  }
-
-  getInboxBadgeCount(): Promise<InboxBadgeCountResponse> {
-    return Promise.reject(new Error("getInboxBadgeCount is not implemented yet"));
+  async listInboxHistory(): Promise<InboxAccessRequestResponse[]> {
+    const r = await this.send("GET", "/leasing/inbox/history", null, true);
+    return new ListResponse(r, InboxAccessRequestResponse).data;
   }
 
   listMyRequests(): Promise<AccessRequestResponse[]> {

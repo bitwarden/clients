@@ -1,6 +1,16 @@
 import { Injectable, inject } from "@angular/core";
-import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
+import { BehaviorSubject, Observable, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  DECRYPT_ERROR,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 import {
   InboxAccessRequestResponse,
   LeaseDecisionRequest,
@@ -13,13 +23,17 @@ import {
  * inbox sort (oldest first, then collection name), and manages optimistic
  * removal + rollback on decision submission.
  *
- * The service holds only display metadata returned by the inbox endpoint
- * (cipher name, collection name, requester name + email). No decrypted
- * Vault Data passes through it.
+ * Cipher names arrive encrypted on the wire (see {@link InboxAccessRequestResponse})
+ * and are decrypted in-place with the owning org's key before rows reach
+ * subscribers. No other Vault Data passes through this service.
  */
 @Injectable()
 export class ApproverInboxService {
   private readonly pamApiService = inject(PamApiService);
+  private readonly accountService = inject(AccountService);
+  private readonly keyService = inject(KeyService);
+  private readonly encryptService = inject(EncryptService);
+  private readonly logService = inject(LogService);
 
   private readonly _requests$ = new BehaviorSubject<InboxAccessRequestResponse[]>([]);
   private readonly _history$ = new BehaviorSubject<InboxAccessRequestResponse[]>([]);
@@ -35,7 +49,7 @@ export class ApproverInboxService {
     distinctUntilChanged(),
   );
 
-  /** Fetch the inbox and history, replacing local state. */
+  /** Fetch the inbox and history, decrypt cipher names, replace local state. */
   async load(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -43,6 +57,11 @@ export class ApproverInboxService {
       const [rows, history] = await Promise.all([
         this.pamApiService.listInboxRequests(),
         this.pamApiService.listInboxHistory(),
+      ]);
+      const orgKeys = await this.snapshotOrgKeys();
+      await Promise.all([
+        this.decryptDisplayNames(rows, orgKeys),
+        this.decryptDisplayNames(history, orgKeys),
       ]);
       this._requests$.next(sortInbox(rows));
       this._history$.next(history);
@@ -73,8 +92,8 @@ export class ApproverInboxService {
     this._requests$.next(next);
     try {
       const resolved = await this.pamApiService.decideAccessRequest(requestId, request);
-      // Mutate a copy of the inbox row with the server-returned decision fields
-      // and prepend it to history so the approver sees it immediately.
+      // Decision response only populates status/resolvedAt/resolverComment;
+      // keep the already-decrypted display fields from the existing row.
       row.status = resolved.status;
       row.resolvedAt = resolved.resolvedAt;
       row.resolverComment = resolved.resolverComment;
@@ -89,12 +108,14 @@ export class ApproverInboxService {
 
   /**
    * Revoke an active lease and move it to the past bucket in history
-   * by flipping its status to "revoked" optimistically.
+   * by setting requestedNotAfter to the epoch optimistically.
+   *
+   * The decision-response payload doesn't carry a lease-status field, so
+   * revocation is not reflected in any status enum we receive — flipping
+   * the window is the only way to drop the row out of "Active" in the UI.
    */
   async revokeLease(leaseId: string): Promise<void> {
     await this.pamApiService.revokeLease(leaseId, new LeaseRevokeRequest({}));
-    // Set requestedNotAfter to epoch so groupHistory() unconditionally
-    // places the row in the Past bucket regardless of when renderedAt was snapped.
     const epoch = new Date(0).toISOString();
     const updated = this._history$.value.map((item) => {
       if (item.leaseId === leaseId) {
@@ -103,6 +124,50 @@ export class ApproverInboxService {
       return item;
     });
     this._history$.next(updated);
+  }
+
+  private async snapshotOrgKeys(): Promise<Record<OrganizationId, OrgKey>> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account?.id) {
+      return {} as Record<OrganizationId, OrgKey>;
+    }
+    const keys = await firstValueFrom(this.keyService.orgKeys$(account.id as UserId));
+    return keys ?? ({} as Record<OrganizationId, OrgKey>);
+  }
+
+  private async decryptDisplayNames(
+    rows: InboxAccessRequestResponse[],
+    orgKeys: Record<OrganizationId, OrgKey>,
+  ): Promise<void> {
+    await Promise.all(
+      rows.map(async (row) => {
+        const orgKey = row.organizationId ? orgKeys[row.organizationId as OrganizationId] : null;
+        if (!orgKey) {
+          return;
+        }
+        await Promise.all([
+          this.decryptField(row, "cipherName", orgKey),
+          this.decryptField(row, "collectionName", orgKey),
+        ]);
+      }),
+    );
+  }
+
+  private async decryptField(
+    row: InboxAccessRequestResponse,
+    field: "cipherName" | "collectionName",
+    orgKey: OrgKey,
+  ): Promise<void> {
+    const value = row[field];
+    if (!value) {
+      return;
+    }
+    try {
+      row[field] = await this.encryptService.decryptString(new EncString(value), orgKey);
+    } catch (e) {
+      this.logService.error(`Failed to decrypt approver-inbox ${field}`, e);
+      row[field] = DECRYPT_ERROR;
+    }
   }
 }
 
