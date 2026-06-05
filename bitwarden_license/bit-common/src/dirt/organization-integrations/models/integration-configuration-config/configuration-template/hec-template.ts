@@ -54,6 +54,9 @@ export class HecTemplate implements OrgIntegrationTemplate {
           group: {
             name: "#GroupName#",
           },
+          organization: {
+            name: "#OrganizationName#",
+          },
         },
       },
     };
