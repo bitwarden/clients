@@ -6337,11 +6337,17 @@
   "requireSsoPolicyDesc": {
     "message": "Require members to log in with the Enterprise single sign-on method."
   },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "Prerequisite"
   },
   "requireSsoPolicyReq": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "Single organization policy not set up."

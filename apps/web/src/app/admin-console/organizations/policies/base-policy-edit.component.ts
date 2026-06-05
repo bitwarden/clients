@@ -48,9 +48,15 @@ export abstract class BasePolicyEditDefinition {
   abstract name: string;
   /**
    * i18n string for the policy description.
-   * This is shown in the list of policies.
+   * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
+
+  /**
+   * Optional i18n key for an updated description shown in the drawer edit dialog (flag-on path).
+   * Falls back to {@link description} when not set.
+   */
+  descriptionV2?: string;
   /**
    * The PolicyType enum that this policy represents.
    */
@@ -81,6 +87,12 @@ export abstract class BasePolicyEditDefinition {
    * have more complex requirements that you will implement in your template instead.
    **/
   showDescription: boolean = true;
+
+  /**
+   * Optional i18n key for a prerequisite info callout rendered above the enable/disable toggle.
+   * Used by {@link SimpleTogglePolicyComponent} when a policy requires another policy to be enabled first.
+   */
+  prerequisiteKey?: string;
 
   /**
    * Optional i18n key for a warning callout rendered above the enable/disable toggle.

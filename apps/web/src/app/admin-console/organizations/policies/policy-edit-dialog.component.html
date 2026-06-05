@@ -28,7 +28,12 @@
     }
     <div [hidden]="loading()">
       @if (policy.showDescription) {
-        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        <p bitTypography="body1">
+          {{
+            (dialogRef.isDrawer && policy.descriptionV2 ? policy.descriptionV2 : policy.description)
+              | i18n
+          }}
+        </p>
       }
       <ng-template #policyForm></ng-template>
     </div>

@@ -11,7 +11,8 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   name = "twoStepLoginPolicyTitle";
-  description = "twoStepLoginPolicyDescV2";
+  description = "twoStepLoginPolicyDesc";
+  descriptionV2 = "twoStepLoginPolicyDescV2";
   type = PolicyType.TwoFactorAuthentication;
   category = PolicyCategory.Authentication;
   priority = 40;
