@@ -2904,6 +2904,9 @@
   "restrictedItemTypePolicyDesc": {
     "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
   },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically removed."
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },
