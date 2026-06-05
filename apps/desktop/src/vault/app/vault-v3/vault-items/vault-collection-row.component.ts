@@ -29,7 +29,7 @@ import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden
   ],
 })
 export class VaultCollectionRowComponent {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
   protected DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   protected readonly disabled = input<boolean>();

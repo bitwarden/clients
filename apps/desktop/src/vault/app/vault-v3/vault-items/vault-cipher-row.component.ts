@@ -55,7 +55,7 @@ interface CopyFieldConfig {
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
   protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
