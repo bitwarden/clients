@@ -11,6 +11,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -86,6 +87,13 @@ export abstract class BasePolicyEditDefinition {
    * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
    */
   warningKey?: string;
+
+  /**
+   * Optional alternative component to use when a feature flag is enabled.
+   * When set, the {@link PolicyEditDialogComponent} checks the flag at dialog open time
+   * and uses this component instead of {@link component} when the flag is on.
+   */
+  flaggedComponent?: { flag: FeatureFlag; component: Constructor<BasePolicyEditComponent> };
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.

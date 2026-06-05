@@ -6065,6 +6065,9 @@
   "twoStepLoginPolicyDesc": {
     "message": "Require members to set up two-step login."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. All members – except admins – who don't have two-step login set up for their account will have their access to the organization revoked."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Organization members who are not owners or admins and do not have two-step login setup for their account will be removed from the organization and will receive an email notifying them about the change."
   },
@@ -9043,6 +9046,9 @@
   },
   "turnOn": {
     "message": "Turn on"
+  },
+  "enablePolicy": {
+    "message": "Enable policy"
   },
   "on": {
     "message": "On"

@@ -202,7 +202,14 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    let componentClass = this.data.policy.component;
+    if (this.data.policy.flaggedComponent) {
+      const flagOn = await this.configService.getFeatureFlag(
+        this.data.policy.flaggedComponent.flag,
+      );
+      if (flagOn) {componentClass = this.data.policy.flaggedComponent.component;}
+    }
+    const componentRef = policyFormRef.createComponent(componentClass);
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
     const component = componentRef.instance;

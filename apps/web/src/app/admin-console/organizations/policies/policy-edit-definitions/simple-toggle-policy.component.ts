@@ -13,7 +13,7 @@ import { BasePolicyEditComponent } from "../base-policy-edit.component";
       <bit-callout type="warning">{{ policy()!.warningKey! | i18n }}</bit-callout>
     }
     <bit-switch [formControl]="enabled">
-      <bit-label>{{ "turnOn" | i18n }}</bit-label>
+      <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
     </bit-switch>
   `,
   imports: [ReactiveFormsModule, CalloutComponent, FormFieldModule, SwitchComponent, I18nPipe],
