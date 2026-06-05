@@ -11,6 +11,7 @@ import {
   inject,
   input,
 } from "@angular/core";
+import { outputToObservable } from "@angular/core/rxjs-interop";
 import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
@@ -132,11 +133,12 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.setupClosingActions(isContextMenu);
     this.setupMenuCloseListener();
 
-    if (menu.keyManager) {
-      menu.keyManager.setFirstItemActive();
+    const menuKeyManager = menu.keyManager();
+    if (menuKeyManager) {
+      menuKeyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
-        .subscribe((event: KeyboardEvent) => this.menu().keyManager?.onKeydown(event));
+        .subscribe((event: KeyboardEvent) => menuKeyManager.onKeydown(event));
     }
   }
 
@@ -181,7 +183,7 @@ export class MenuTriggerForDirective implements OnDestroy {
         return keys.includes(event.key);
       }),
     );
-    const menuClosed = this.menu().closed;
+    const menuClosed = outputToObservable(this.menu().closed);
     const detachments = this.overlayRef.detachments();
 
     const closeEvents = isContextMenu

@@ -182,24 +182,22 @@
                     <button
                       type="button"
                       bitMenuItem
+                      variant="danger"
                       (click)="isProcessing ? null : bulkRemove(organization)"
                     >
-                      <span class="tw-text-danger">
-                        <i aria-hidden="true" class="bwi bwi-fw bwi-close"></i>
-                        {{ "remove" | i18n }}
-                      </span>
+                      <bit-icon name="bwi-close" slot="start" />
+                      {{ "remove" | i18n }}
                     </button>
                   }
                   @if (bulkActions.showBulkDeleteUsers) {
                     <button
                       type="button"
                       bitMenuItem
+                      variant="danger"
                       (click)="isProcessing ? null : bulkDelete(organization)"
                     >
-                      <span class="tw-text-danger">
-                        <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
-                        {{ "delete" | i18n }}
-                      </span>
+                      <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                      {{ "delete" | i18n }}
                     </button>
                   }
                 </bit-menu>
@@ -495,22 +493,21 @@
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         (click)="isProcessing ? null : remove(u, organization)"
                       >
-                        <span class="tw-text-danger">
-                          <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
-                        </span>
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
                       </button>
                     } @else {
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         (click)="isProcessing ? null : deleteUser(u, organization)"
                       >
-                        <span class="tw-text-danger">
-                          <i class="bwi bwi-trash" aria-hidden="true"></i>
-                          {{ "delete" | i18n }}
-                        </span>
+                        <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                        {{ "delete" | i18n }}
                       </button>
                     }
                   }

@@ -31,6 +31,7 @@ import {
   TypographyModule,
   CardComponent,
   ButtonComponent,
+  IconModule,
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
@@ -66,6 +67,7 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../services/vault-popup-after-deleti
     OrgIconDirective,
     CardComponent,
     ButtonComponent,
+    IconModule,
   ],
 })
 export class ArchiveComponent {

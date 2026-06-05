@@ -124,11 +124,9 @@
       </ng-container>
     }
     @if (canDeleteCollection) {
-      <button type="button" bitMenuItem (click)="deleteCollection()">
-        <span class="tw-text-danger">
-          <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-          {{ "delete" | i18n }}
-        </span>
+      <button type="button" variant="danger" bitMenuItem (click)="deleteCollection()">
+        <bit-icon fixedWidth name="bwi-trash" slot="start" />
+        {{ "delete" | i18n }}
       </button>
     }
   </bit-menu>

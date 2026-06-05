@@ -70,11 +70,14 @@
       </td>
 
       <bit-menu #tokenMenu>
-        <button type="button" bitMenuItem (click)="revokeAccessTokensEvent.emit([token])">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
-            {{ "revokeAccessToken" | i18n }}
-          </span>
+        <button
+          type="button"
+          bitMenuItem
+          variant="danger"
+          (click)="revokeAccessTokensEvent.emit([token])"
+        >
+          <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
+          {{ "revokeAccessToken" | i18n }}
         </button>
       </bit-menu>
     </tr>
@@ -82,10 +85,8 @@
 </bit-table>
 
 <bit-menu #tableMenu>
-  <button type="button" bitMenuItem (click)="revokeSelected()">
-    <span class="tw-text-danger">
-      <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
-      {{ "revokeAccessTokens" | i18n }}
-    </span>
+  <button type="button" bitMenuItem variant="danger" (click)="revokeSelected()">
+    <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
+    {{ "revokeAccessTokens" | i18n }}
   </button>
 </bit-menu>

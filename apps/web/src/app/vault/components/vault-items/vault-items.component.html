@@ -119,11 +119,9 @@
               </button>
             }
             @if (canDeleteSelected$ | async) {
-              <button type="button" bitMenuItem (click)="bulkDelete()">
-                <span class="tw-text-danger">
-                  <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-                  {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
-                </span>
+              <button type="button" variant="danger" bitMenuItem (click)="bulkDelete()">
+                <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
               </button>
             }
           </bit-menu>
