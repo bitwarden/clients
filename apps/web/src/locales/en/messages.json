@@ -7826,6 +7826,9 @@
   "disablePersonalVaultExportDescription": {
     "message": "Do not allow members to export data from their individual vault."
   },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
+  },
   "vaultExportDisabled": {
     "message": "Vault export removed"
   },

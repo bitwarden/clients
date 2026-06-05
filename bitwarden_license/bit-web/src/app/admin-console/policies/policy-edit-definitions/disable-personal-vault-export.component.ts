@@ -1,27 +1,33 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
   PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   name = "disableExport";
   description = "disablePersonalVaultExportDescription";
+  descriptionV2 = "disablePersonalVaultExportDescriptionV2";
   type = PolicyType.DisablePersonalVaultExport;
   category = PolicyCategory.DataControl;
   priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
+  flaggedComponent = {
+    flag: FeatureFlag.PolicyDrawers,
+    component: SimpleTogglePolicyComponent,
+  };
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "disable-personal-vault-export-policy-edit",
   templateUrl: "disable-personal-vault-export.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DisablePersonalVaultExportPolicyComponent extends BasePolicyEditComponent {}
