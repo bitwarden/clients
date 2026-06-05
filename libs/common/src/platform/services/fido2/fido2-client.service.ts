@@ -342,32 +342,16 @@ export class Fido2ClientService<
       )
     ) {
       // Spec reference: https://www.w3.org/TR/webauthn-3/#sctn-discover-from-external-source step 20.
-      // The spec says the client should determine if "no authenticator will become available" by
-      // examining transports. Since Bitwarden is an internal-only authenticator, if all
-      // allowCredentials entries specify only non-internal transports we generally cannot satisfy
-      // the request, and we throw FallbackRequestedError (instead of the spec's NotAllowedError)
-      // so the browser's native WebAuthn handler can contact the hardware authenticator.
-      //
-      // However, an RP may echo the original `transports` recorded at registration time for a
-      // credential that has since been synced into the Bitwarden vault (for example a passkey
-      // originally registered via cross-device hybrid flow and now backed up in the vault as an
-      // internal credential). Falling back unconditionally in that case routes the request to the
-      // browser's native picker, which on Chrome 146+ may surface a different attached provider
-      // (e.g. 1Password, iCloud Keychain) even though Bitwarden holds the credential. See
-      // https://github.com/bitwarden/clients/issues/20973.
-      //
-      // To preserve the original intent (PM-33781) without breaking vault-resident passkeys, we
-      // consult the vault first and only fall back when none of the requested credential ids are
-      // present. Vault credential ids may be stored in either UUID or "b64.<base64url>" form, so
-      // we normalize via `parseCredentialId` rather than assuming UUID format.
+      // Bitwarden is an internal-only authenticator, so a request that allows only non-internal
+      // transports normally cannot be satisfied and we fall back to the browser. RPs may however
+      // echo the transports recorded at registration time even for credentials that are now
+      // synced into the vault, so we consult the vault first and only fall back when no requested
+      // credential id is present.
       let vaultCredentials: { credentialId: string }[];
       try {
         vaultCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
       } catch (error) {
-        // Treat discovery failures (e.g. transient sync / decryption / no active account) as
-        // "no vault match" so the original PM-33781 fallback fires. Surfacing the raw error here
-        // would convert what was previously a deterministic FallbackRequestedError into an
-        // unhandled exception in the calling page-script.
+        // Treat discovery failures as "no vault match" so the fallback still fires deterministically.
         this.logService?.warning(
           `[Fido2Client] silentCredentialDiscovery failed during transport-only fallback check; falling back to browser. ${error}`,
         );
