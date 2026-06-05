@@ -7,7 +7,7 @@
   [subtitle]="dialogRef.isDrawer ? '' : (policy.name | i18n)"
 >
   @if (dialogRef.isDrawer) {
-    <span bitBadge [variant]="policyEnabled() ? 'success' : 'secondary'" bitDialogTitleSuffix>{{
+    <span bitBadge [variant]="policyEnabled() ? 'success' : 'secondary'" bitDialogHeaderEnd>{{
       (policyEnabled() ? "on" : "off") | i18n
     }}</span>
   }
