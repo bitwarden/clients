@@ -214,6 +214,33 @@
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Направете кратко запознаване със системата за Анализ на достъпа и разберете как точно да накарате данните на организацията си да заработят за Вас."
   },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Всичко за сигурността на организацията Ви, на едно място"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Анализът на достъпа е централизирано място, където можете да видите всяко приложение, парола и член, който е в риск."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Вие задавате приоритетите. Ние открояваме рисковете."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Вие отбелязвате кои приложения са най-важни, а Анализът на достъпа автоматично ще определи кои пароли са в риск и имат нужда от навременни действия."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Следете подобренията в целия си екип"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Членовете получават автоматични известия за паролите в риск чрез добавката на Битуорден. Няма нужда да ги гоните."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Внесете данните на организацията си, за да започнете"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Щом получи достъп до данните в трезора, Анализът на достъпа ще има всичко необходимо, за да оцени състоянието на паролите в организацията."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Обиколка и представяне на Анализа на достъпа"
+  },
   "startTour": {
     "message": "Начало на обиколката"
   },
@@ -1503,6 +1530,28 @@
   "unselectAll": {
     "message": "Без избиране"
   },
+  "bulkActionsBar": {
+    "message": "Групови действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Избрани елементи $COUNT$. Лентата за групови действия е достъпна в дъното на екрана. Натиснете $SHORTCUTBINDING$, за да превключите фокуса към нея.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Изборът е изчистен"
+  },
+  "additionalActions": {
+    "message": "Допълнителни действия"
+  },
   "launch": {
     "message": "Пускане"
   },
@@ -2612,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "Изтриването на абонамента е окончателно и необратимо."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Вие сте собственик на поне една организация. Ако изтриете акаунта си, ще изтриете и всички организации, на които сте единствен собственик."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Не можете да изтриете акаунта си, докато сте собственик на организация. Първо прехвърлете собствеността или изтрийте организацията."
+  },
+  "cannotDeleteAccount": {
+    "message": "Акаунтът не може да бъде изтрит"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Това действие не може да бъде завършено, тъй като акаунтът Ви се управлява от организация. Свържете се с администратора на организацията си за повече подробности."
+  },
   "accountDeleted": {
     "message": "Абонаментът е изтрит"
   },
@@ -3546,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Сумата за всички неплатени абонаменти ще бъде изискана от Вашия метод за плащане."
   },
-  "paymentChargedWithTrial": {
-    "message": "Планът ви идва с пробен период от 7 дена. Плащането няма се изиска преди това, след което ще се повтаря всеки $INTERVAL$. Може да се откажете по всяко време."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Вашият план има $TRIAL_LENGTH$-дневен пробен период. Към настроения метод за разплащане няма да постъпи задължение, докато не приключи пробният период. Можете да се откажете по всяко време.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Информация за плащането"
@@ -4369,6 +4436,30 @@
     "message": "Създадено файлово изпращане с парола",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "editedTextSend": {
+    "message": "Редактирано текстово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Редактирано файлово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Изтрито текстово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Изтрито файлово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Достъпено текстово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Достъпено файлово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Записът $ID$ беше преместен в организация.",
     "placeholders": {
@@ -4546,6 +4637,60 @@
       }
     }
   },
+  "viewedIbanItemId": {
+    "message": "IBAN на запис $ID$ е прегледан.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "IBAN на запис $ID$ е копиран.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Кодът SWIFT на запис  $ID$ е прегледан.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Кодът SWIFT на запис  $ID$ е копиран.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Националният идентификационен номер на запис $ID$ е прегледан.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Националният идентификационен номер на запис $ID$ е копиран.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Запис № $ID$ е ползван за автоматично дописване.",
     "placeholders": {
@@ -4591,14 +4736,8 @@
   "discardEditsConfirmation": {
     "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани."
   },
-  "discardEdits": {
-    "message": "Отхвърляне на промените"
-  },
   "keepEditing": {
     "message": "Продължаване на редактирането"
-  },
-  "backToEditing": {
-    "message": "Назад към редактирането"
   },
   "editedPolicyId": {
     "message": "Редактирана политика № $ID$.",
@@ -5651,6 +5790,24 @@
   },
   "regenerateInviteLink": {
     "message": "Създаване на връзката за покана наново"
+  },
+  "invalidateInviteLink": {
+    "message": "Унищожаване на връзката за покана"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Ако премахнете всички домейни, връзката за покана вече няма да работи за никого."
+  },
+  "invalidateLink": {
+    "message": "Връзка за покана"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Връзката за покана е унищожена"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Трябва да има поне 1 домейн"
+  },
+  "deactivateLink": {
+    "message": "Деактивиране на връзката"
   },
   "inviteByLinkDesc": {
     "message": "Поканете членове в организацията си чрез връзка. Ако все още не е определена роля, те ще бъдат добавени като обикновени потребители."
@@ -12988,6 +13145,10 @@
   "missingTaxIdWarning": {
     "message": "Нужно е действие: в данните за разплащането липсва данъчен идентификатор. Ако такъв не бъде добавен, фактурите може да включват допълнителен данък."
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -13799,6 +13960,15 @@
   "copyIban": {
     "message": "Копиране на IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Копиране на името на титуляра"
+  },
+  "copyBranchNumber": {
+    "message": "Копиране на номера на клона"
+  },
+  "copySwiftCode": {
+    "message": "Копиране на кода SWIFT"
+  },
   "bankAccountTypeChecking": {
     "message": "Разплащателна"
   },
@@ -13896,8 +14066,14 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Банковата Ви сметка трябва да бъде потвърдена, преди да може да се използва за това надграждане. Моля, потвърдете банковата си сметка или изберете друг начин за разплащане."
   },
+  "discardEdits": {
+    "message": "Отхвърляне на промените"
+  },
   "discardEditsMessage": {
     "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани"
+  },
+  "backToEditing": {
+    "message": "Назад към редактирането"
   },
   "sendHasUnsavedEdits": {
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",

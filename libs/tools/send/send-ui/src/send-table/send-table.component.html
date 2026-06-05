@@ -113,11 +113,9 @@
                 {{ "removePassword" | i18n }}
               </button>
             }
-            <button type="button" bitMenuItem (click)="onDelete(s)">
-              <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-                {{ "delete" | i18n }}
-              </span>
+            <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">
+              <bit-icon fixedWidth name="bwi-trash" slot="start"></bit-icon>
+              {{ "delete" | i18n }}
             </button>
           </bit-menu>
         </td>
