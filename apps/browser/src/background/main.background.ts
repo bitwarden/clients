@@ -1430,6 +1430,7 @@ export default class MainBackground {
       this.accountService,
       this.logService,
       this.authService,
+      this.stateProvider,
     );
 
     // Background

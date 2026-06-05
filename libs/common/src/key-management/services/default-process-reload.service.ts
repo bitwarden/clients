@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, timeout } from "rxjs";
+import { firstValueFrom, map, Observable, timeout } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,12 +15,21 @@ import {
 } from "../../key-management/vault-timeout";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
+import {
+  DISABLE_PROCESS_RELOAD,
+  ProcessReloadServiceAbstraction,
+} from "../abstractions/process-reload.service";
 import { PinServiceAbstraction } from "../pin/pin.service.abstraction";
 
 export class DefaultProcessReloadService implements ProcessReloadServiceAbstraction {
   private reloadInterval: any = null;
+  private readonly disableProcessReloadState = this.stateProvider.getGlobal(DISABLE_PROCESS_RELOAD);
+
+  disableProcessReload$: Observable<boolean> = this.disableProcessReloadState.state$.pipe(
+    map((disabled) => disabled ?? false),
+  );
 
   constructor(
     private pinService: PinServiceAbstraction,
@@ -31,9 +40,23 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     private accountService: AccountService,
     private logService: LogService,
     private authService: AuthService,
+    private stateProvider: StateProvider,
   ) {}
 
+  async setDisableProcessReload(disabled: boolean): Promise<void> {
+    await this.disableProcessReloadState.update(() => disabled, {
+      shouldUpdate: (current) => current !== disabled,
+    });
+  }
+
   async startProcessReload(): Promise<void> {
+    if (await firstValueFrom(this.disableProcessReload$)) {
+      this.logService.info(
+        "[Process Reload Service] Process reload disabled by dev setting, skipping",
+      );
+      return;
+    }
+
     const accounts = await firstValueFrom(this.accountService.accounts$);
     if (accounts != null) {
       const keys = Object.keys(accounts);
