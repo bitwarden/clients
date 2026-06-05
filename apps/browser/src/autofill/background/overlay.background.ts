@@ -364,6 +364,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     merge(this.startInlineMenuFadeIn$.pipe(debounceTime(150)), this.cancelInlineMenuFadeIn$)
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
+
+    // Dump targeting rules' cached page details when Fill Assist setting is changed
+    this.domainSettingsService.enableFillAssist$
+      .pipe(
+        // ignore initial empty state
+        skip(1),
+        filter((enabled) => !enabled),
+      )
+      .subscribe(() => this.clearCachedTargetedPageDetails());
   }
 
   /**
@@ -384,6 +393,30 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.clearGeneratedPassword$.next();
     this.focusedFieldData = null;
+  }
+
+  /**
+   * Removes cached page-detail entries that were produced by the
+   * targeting-rules path.
+   */
+  private clearCachedTargetedPageDetails() {
+    for (const tabIdKey of Object.keys(this.pageDetailsForTab)) {
+      const tabId = Number(tabIdKey);
+      const frameMap = this.pageDetailsForTab[tabId];
+      if (!frameMap) {
+        continue;
+      }
+      for (const [frameId, entry] of frameMap) {
+        // `targeted` fields are mutually-exclusive from heuristically-gathered fields
+        // and should not appear in the same pageDetails
+        if (entry.details?.fields?.some((field) => field.targeted === true)) {
+          frameMap.delete(frameId);
+        }
+      }
+      if (frameMap.size === 0) {
+        delete this.pageDetailsForTab[tabId];
+      }
+    }
   }
 
   /**
