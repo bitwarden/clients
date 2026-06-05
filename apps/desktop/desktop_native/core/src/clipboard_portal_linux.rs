@@ -6,7 +6,7 @@
 //! [`Clipboard`](ashpd::desktop::clipboard::Clipboard) portal. The Clipboard portal does not
 //! own a session of its own; it attaches to an existing portal session. Currently,
 //! we use a [`RemoteDesktop`](ashpd::desktop::remote_desktop::RemoteDesktop) session.
-//! 
+//!
 //! Starting a `RemoteDesktop` session normally prompts the user for consent. We request a
 //! persistent session ([`PersistMode::ExplicitlyRevoked`](ashpd::desktop::PersistMode)) and
 //! persist the returned `restore_token` to disk, so the consent dialog is shown only once and the
