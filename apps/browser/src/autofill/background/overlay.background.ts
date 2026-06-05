@@ -365,14 +365,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
 
-    // Dump targeting rules' cached page details when Fill Assist setting is changed
+    // Dump targeting rules' cached page details when Fill Assist setting is changed,
+    // and signal content scripts to drop their own targeting-rules caches so the
+    // next page-details collection re-evaluates which strategy to use (targeted vs
+    // heuristic).
     this.domainSettingsService.enableFillAssist$
       .pipe(
         // ignore initial empty state
         skip(1),
         filter((enabled) => !enabled),
       )
-      .subscribe(() => this.clearCachedTargetedPageDetails());
+      .subscribe(() => {
+        this.clearCachedTargetedPageDetails();
+        void this.broadcastTargetingRulesCacheInvalidation();
+      });
   }
 
   /**
@@ -416,6 +422,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       if (frameMap.size === 0) {
         delete this.pageDetailsForTab[tabId];
       }
+    }
+  }
+
+  /**
+   * Notifies all tab content scripts to drop any per-frame targeting-rules
+   * cache so the next page-details collection re-evaluates the gate. Tabs
+   * without a content script (e.g. chrome:// pages) will silently no-op.
+   */
+  private async broadcastTargetingRulesCacheInvalidation(): Promise<void> {
+    const tabs = await BrowserApi.tabsQuery({});
+    for (const tab of tabs) {
+      void BrowserApi.tabSendMessage(tab, { command: "clearTargetingRulesCache" });
     }
   }
 

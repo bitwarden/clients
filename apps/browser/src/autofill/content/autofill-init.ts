@@ -30,6 +30,7 @@ class AutofillInit implements AutofillInitInterface {
     collectAutofillTriage: () => this.collectPageDetailsForContextMenu(),
     fillForm: ({ message }) => this.fillForm(message),
     applyTargetedFields: ({ message }) => this.applyTargetedFields(message),
+    clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
   };
 
   /**
@@ -178,6 +179,18 @@ class AutofillInit implements AutofillInitInterface {
     return this.collectAutofillContentService.applyExternalTargetedFields(
       message.iframeTargetedFields ?? [],
     );
+  }
+
+  /**
+   * Drops `pageDetails` built via Targeting Rules and init data collection
+   * with updated strategy.
+   *
+   * `sender: "autofillInit"` updates the cached page details without triggering
+   * an autofill (unlike `"autofiller"` or autofill-command senders).
+   */
+  private handleClearTargetingRulesCache(): void {
+    this.collectAutofillContentService.clearCachedTargetingRules();
+    void this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" });
   }
 
   /**

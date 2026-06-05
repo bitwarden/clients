@@ -492,6 +492,43 @@ describe("OverlayBackground", () => {
       expect(pageDetailsForTabSpy[targetedTabId]).toBeDefined();
       expect(pageDetailsForTabSpy[targetedTabId].size).toBe(1);
     });
+
+    it("broadcasts a targeting-rules cache invalidation message to every tab", async () => {
+      const tabs = [
+        createChromeTabMock({ id: 11 }),
+        createChromeTabMock({ id: 12 }),
+        createChromeTabMock({ id: 13 }),
+      ];
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue(tabs);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      for (const tab of tabs) {
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(tab, {
+          command: "clearTargetingRulesCache",
+        });
+      }
+    });
+
+    it("does not broadcast when the setting transitions to true", async () => {
+      const tabsQuerySpy = jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 11 })]);
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+      tabsQuerySpy.mockClear();
+      tabsSendMessageSpy.mockClear();
+
+      await domainSettingsService.setEnableFillAssist(true);
+      await flushPromises();
+
+      expect(tabsQuerySpy).not.toHaveBeenCalled();
+      expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command: "clearTargetingRulesCache" }),
+      );
+    });
   });
 
   describe("re-positioning the inline menu within sub frames", () => {

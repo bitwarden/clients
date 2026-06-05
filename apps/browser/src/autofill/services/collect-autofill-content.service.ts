@@ -414,6 +414,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Resets the cached targeting-rules. Invoked when the background signals
+   * that the user disabled fill assist mid-session.
+   */
+  clearCachedTargetingRules(): void {
+    this.pageTargetingRules = undefined;
+  }
+
+  /**
    * Builds a minimal AutofillField for a targeted element, setting the
    * fieldQualifier and targeted flag so the fill pipeline can identify it.
    */

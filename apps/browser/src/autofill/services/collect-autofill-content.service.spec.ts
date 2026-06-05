@@ -2984,6 +2984,18 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("clearCachedTargetingRules", () => {
+    it("resets the cached targeting rules", () => {
+      collectAutofillContentService["pageTargetingRules"] = [
+        { category: "accountLogin", fields: { username: ["input#email"] } } as any,
+      ];
+
+      collectAutofillContentService.clearCachedTargetingRules();
+
+      expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+    });
+  });
+
   describe("applyAttributeMutation", () => {
     it("returns early if the target element is detached from the document", () => {
       const formElement = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
