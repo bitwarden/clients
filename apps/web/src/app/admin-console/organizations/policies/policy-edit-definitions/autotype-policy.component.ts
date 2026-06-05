@@ -1,30 +1,41 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
+import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
+
 export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinition {
   name = "desktopAutotypePolicy";
+  nameV2 = "desktopAutotypePolicyTitleV2";
   description = "desktopAutotypePolicyDesc";
+  descriptionV2 = "desktopAutotypePolicyDescV2";
   type = PolicyType.AutotypeDefaultSetting;
   category = PolicyCategory.VaultManagement;
   priority = 70;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
+  flaggedComponent = {
+    flag: FeatureFlag.PolicyDrawers,
+    component: SimpleTogglePolicyComponent,
+  };
 
   display$(organization: Organization, configService: ConfigService) {
     return configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype);
   }
 }
+
 @Component({
   selector: "autotype-policy-edit",
   templateUrl: "autotype-policy.component.html",
-  imports: [SharedModule],
+  imports: [ReactiveFormsModule, FormFieldModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopAutotypeDefaultSettingPolicyComponent extends BasePolicyEditComponent {}
