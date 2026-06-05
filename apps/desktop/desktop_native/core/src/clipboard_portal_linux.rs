@@ -1,19 +1,27 @@
-//! Alternative clipboard-set path for GNOME under Flatpak, using XDG Desktop Portals.
+//! Alternative clipboard-set path for GNOME, using XDG Desktop Portals.
 //!
-//! On GNOME/Wayland inside a Flatpak sandbox the direct `arboard` data-control path can be
-//! unreliable, so this module offers the clipboard contents through the
+//! On GNOME/Wayland the direct `arboard` data-control path is unreliable (GNOME does not
+//! implement the `wlr-data-control` protocol), so this module offers the clipboard contents
+//! through the
 //! [`Clipboard`](ashpd::desktop::clipboard::Clipboard) portal. The Clipboard portal does not
-//! own a session of its own; it attaches to an existing portal session. We start an
-//! [`InputCapture`](ashpd::desktop::input_capture::InputCapture) session (which implements
-//! [`IsClipboardSession`](ashpd::desktop::clipboard::IsClipboardSession)) and persist its
-//! session handle to disk as the saved token.
+//! own a session of its own; it attaches to an existing portal session. The only session type
+//! `xdg-desktop-portal` accepts for clipboard operations is
+//! [`RemoteDesktop`](ashpd::desktop::remote_desktop::RemoteDesktop) (which implements
+//! [`IsClipboardSession`](ashpd::desktop::clipboard::IsClipboardSession)); other session types
+//! are rejected with `AccessDenied: Invalid session type`.
+//!
+//! Starting a `RemoteDesktop` session normally prompts the user for consent. We request a
+//! persistent session ([`PersistMode::ExplicitlyRevoked`](ashpd::desktop::PersistMode)) and
+//! persist the returned `restore_token` to disk, so the consent dialog is shown only once and the
+//! session is silently restored on subsequent runs.
 
 use std::io::Write;
 
 use anyhow::{anyhow, Result};
 use ashpd::desktop::{
     clipboard::{Clipboard, RequestClipboardOptions, SetSelectionOptions},
-    input_capture::{Capabilities, CreateSessionOptions, InputCapture},
+    remote_desktop::{DeviceType, RemoteDesktop, SelectDevicesOptions, SelectedDevices},
+    PersistMode, Session,
 };
 use futures::StreamExt;
 use tracing::{error, info};
@@ -21,25 +29,24 @@ use tracing::{error, info};
 /// MIME type advertised and served for the clipboard selection.
 const MIME_TEXT: &str = "text/plain;charset=utf-8";
 
-/// File name (under the config dir) used to persist the InputCapture session token.
+/// File name (under the config dir) used to persist the RemoteDesktop session restore token.
 const TOKEN_FILE: &str = "clipboard_input_capture_token";
 
-/// Whether the portal-based clipboard path should be used instead of `arboard`.
+/// Whether the portal-based clipboard fallback should be used when the direct `arboard` write
+/// fails.
 ///
-/// True only when running inside a Flatpak sandbox on a GNOME desktop. Mirrors the Flatpak
-/// detection used elsewhere in the crate (see `ssh_agent::unix`) and reads
+/// True on a GNOME desktop, where `arboard` cannot reliably set the clipboard on Wayland. Reads
 /// `XDG_CURRENT_DESKTOP` for the desktop environment.
 pub fn should_use_portal() -> bool {
-    let is_flatpak = std::env::var("container").as_deref() == Ok("flatpak");
-    let is_gnome = std::env::var("XDG_CURRENT_DESKTOP")
+    std::env::var("XDG_CURRENT_DESKTOP")
         .map(|desktop| desktop.to_ascii_uppercase().contains("GNOME"))
-        .unwrap_or(false);
-    is_flatpak && is_gnome
+        .unwrap_or(false)
 }
 
-/// Set the clipboard to `text` via the Clipboard portal over an InputCapture session.
+/// Set the clipboard to `text` via the Clipboard portal over a RemoteDesktop session.
 ///
-/// Starts an InputCapture session, persists its handle as the saved token, claims the
+/// Starts a RemoteDesktop session (restoring a saved `restore_token` when available so the
+/// consent dialog is shown only once), enables clipboard access before starting, claims the
 /// clipboard selection, and serves the data when a consumer requests it. The portal model is
 /// offer-based: ownership of the selection lasts only while the session is alive, so the
 /// caller must keep the returned future running until the paste has been served.
@@ -60,35 +67,67 @@ pub fn should_use_portal() -> bool {
 pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
     let _ = password;
 
-    let input_capture = InputCapture::new().await?;
-    let (session, _capabilities) = input_capture
-        .create_session(
-            None,
-            CreateSessionOptions::default()
-                .set_capabilities(Capabilities::Keyboard | Capabilities::Pointer),
-        )
-        .await?;
+    let remote_desktop = RemoteDesktop::new().await?;
+    let clipboard = Clipboard::new().await?;
 
-    // Persist the session handle as the saved token. `Session` exposes its object-path handle
-    // publicly only through its `Debug` representation, so we capture that. Never log the
-    // value itself.
-    if let Err(err) = save_session_token(&format!("{session:?}")) {
-        error!(error = %err, "[ASHPD] Failed to persist input capture session token");
+    // Try to restore a previously saved session so the consent dialog is shown only once. A
+    // persisted token can become invalid (revoked, stale from an older implementation, or
+    // rejected by the portal), so on failure we discard it and start a fresh session.
+    let (session, response) = match load_session_token() {
+        Some(token) => match establish_session(&remote_desktop, &clipboard, Some(&token)).await {
+            Ok(established) => established,
+            Err(err) => {
+                error!(error = %err, "[ASHPD] Restoring clipboard session failed; retrying without saved token");
+                let _ = clear_session_token();
+                establish_session(&remote_desktop, &clipboard, None).await?
+            }
+        },
+        None => establish_session(&remote_desktop, &clipboard, None).await?,
+    };
+
+    // Persist the restore token so future runs skip the consent dialog. Never log the value.
+    if let Some(token) = response.restore_token() {
+        if let Err(err) = save_session_token(token) {
+            error!(error = %err, "[ASHPD] Failed to persist remote desktop restore token");
+        }
     }
 
-    let clipboard = Clipboard::new().await?;
-    clipboard
-        .request(&session, RequestClipboardOptions::default())
-        .await?;
+    // Serve the selection, then always close the session so we do not leave the RemoteDesktop
+    // grant (input injection + clipboard) open on the portal.
+    let result = serve_selection(&clipboard, &session, &response, text).await;
+
+    if let Err(err) = session.close().await {
+        error!(error = %err, "[ASHPD] Failed to close clipboard portal session");
+    }
+
+    result
+}
+
+/// Advertise the clipboard selection and serve the first matching transfer request.
+///
+/// The portal model is offer-based: the selection is only available while the session is alive,
+/// so this returns as soon as a consumer has read the data (or the transfer stream ends).
+async fn serve_selection(
+    clipboard: &Clipboard,
+    session: &Session<RemoteDesktop>,
+    response: &SelectedDevices,
+    text: &str,
+) -> Result<()> {
+    if !response.is_clipboard_enabled() {
+        return Err(anyhow!(
+            "remote desktop session did not grant clipboard access"
+        ));
+    }
 
     // Subscribe before advertising the selection so the transfer request is not missed.
-    let mut transfers = clipboard
-        .receive_selection_transfer::<InputCapture>()
+    let transfers = clipboard
+        .receive_selection_transfer::<RemoteDesktop>()
         .await?;
+    futures::pin_mut!(transfers);
 
     clipboard
         .set_selection(
-            &session,
+            session,
             SetSelectionOptions::default().set_mime_types(&[MIME_TEXT]),
         )
         .await?;
@@ -98,12 +137,12 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
     while let Some((_session, mime_type, serial)) = transfers.next().await {
         if mime_type != MIME_TEXT {
             clipboard
-                .selection_write_done(&session, serial, false)
+                .selection_write_done(session, serial, false)
                 .await?;
             continue;
         }
 
-        let fd = clipboard.selection_write(&session, serial).await?;
+        let fd = clipboard.selection_write(session, serial).await?;
         let std_fd: std::os::fd::OwnedFd = fd.into();
         let mut file = std::fs::File::from(std_fd);
         let mut write_result = file.write_all(text.as_bytes());
@@ -113,7 +152,7 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
         drop(file);
 
         clipboard
-            .selection_write_done(&session, serial, write_result.is_ok())
+            .selection_write_done(session, serial, write_result.is_ok())
             .await?;
         write_result?;
         return Ok(());
@@ -122,15 +161,95 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
     Err(anyhow!("clipboard selection transfer stream ended"))
 }
 
+/// Create a RemoteDesktop session with clipboard access enabled and start it.
+///
+/// Requests keyboard/pointer devices (required for a RemoteDesktop session) with a persistent
+/// `restore_token`, enables clipboard access before starting (the portal requires this ordering),
+/// and starts the session — which shows the consent dialog unless `restore_token` restores a
+/// previously approved one.
+async fn establish_session(
+    remote_desktop: &RemoteDesktop,
+    clipboard: &Clipboard,
+    restore_token: Option<&str>,
+) -> Result<(Session<RemoteDesktop>, SelectedDevices)> {
+    let session = remote_desktop.create_session(Default::default()).await?;
+
+    // If any step after creating the session fails, close the session before returning the error
+    // so we do not leak it on the portal.
+    match start_clipboard_session(remote_desktop, clipboard, &session, restore_token).await {
+        Ok(response) => Ok((session, response)),
+        Err(err) => {
+            if let Err(close_err) = session.close().await {
+                error!(error = %close_err, "[ASHPD] Failed to close clipboard portal session after setup failure");
+            }
+            Err(err)
+        }
+    }
+}
+
+/// Configure and start an already-created RemoteDesktop session for clipboard use.
+async fn start_clipboard_session(
+    remote_desktop: &RemoteDesktop,
+    clipboard: &Clipboard,
+    session: &Session<RemoteDesktop>,
+    restore_token: Option<&str>,
+) -> Result<SelectedDevices> {
+    remote_desktop
+        .select_devices(
+            session,
+            SelectDevicesOptions::default()
+                .set_devices(DeviceType::Keyboard | DeviceType::Pointer)
+                .set_persist_mode(PersistMode::ExplicitlyRevoked)
+                .set_restore_token(restore_token),
+        )
+        .await?;
+
+    // Clipboard access must be requested before the session is started.
+    clipboard
+        .request(session, RequestClipboardOptions::default())
+        .await?;
+
+    let response = remote_desktop
+        .start(session, None, Default::default())
+        .await?
+        .response()?;
+
+    Ok(response)
+}
+
 /// Persist the session token to a plain file under the config dir.
 fn save_session_token(token: &str) -> Result<()> {
-    let mut path =
-        dirs::config_dir().ok_or_else(|| anyhow!("could not resolve config directory"))?;
-    path.push("Bitwarden");
+    let mut path = token_path()?;
     std::fs::create_dir_all(&path)?;
     path.push(TOKEN_FILE);
     std::fs::write(path, token)?;
     Ok(())
+}
+
+/// Load a previously saved session token, returning `None` if it is absent or unreadable.
+fn load_session_token() -> Option<String> {
+    let mut path = token_path().ok()?;
+    path.push(TOKEN_FILE);
+    std::fs::read_to_string(path).ok().filter(|t| !t.is_empty())
+}
+
+/// Remove a persisted session token, ignoring the case where it is already absent.
+fn clear_session_token() -> Result<()> {
+    let mut path = token_path()?;
+    path.push(TOKEN_FILE);
+    match std::fs::remove_file(path) {
+        Ok(()) => Ok(()),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err.into()),
+    }
+}
+
+/// Resolve the directory holding the persisted token file.
+fn token_path() -> Result<std::path::PathBuf> {
+    let mut path =
+        dirs::config_dir().ok_or_else(|| anyhow!("could not resolve config directory"))?;
+    path.push("Bitwarden");
+    Ok(path)
 }
 
 #[cfg(test)]

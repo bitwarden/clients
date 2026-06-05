@@ -1,7 +1,7 @@
 use anyhow::Result;
 use arboard::{Clipboard, Set};
 
-// Alternative portal-based clipboard path for GNOME under Flatpak.
+// Alternative portal-based clipboard path for GNOME.
 #[cfg(target_os = "linux")]
 #[path = "clipboard_portal_linux.rs"]
 pub mod portal;
@@ -19,6 +19,28 @@ pub fn write(text: &str, password: bool) -> Result<()> {
 
     set.text(text)?;
     Ok(())
+}
+
+/// Write to the clipboard, using the XDG Desktop Portal on GNOME.
+///
+/// On GNOME/Wayland `arboard` cannot reliably set the clipboard (GNOME does not implement the
+/// `wlr-data-control` protocol), so on GNOME we always offer the contents through the [`portal`]
+/// (RemoteDesktop + Clipboard). On every other Linux desktop this is just [`write`].
+#[cfg(target_os = "linux")]
+pub async fn write_async(text: &str, password: bool) -> Result<()> {
+    if portal::should_use_portal() {
+        return portal::write_clipboard(text, password).await;
+    }
+
+    write(text, password)
+}
+
+/// Write to the clipboard. Mirror of the Linux [`write_async`] for platforms without a portal
+/// fallback, so callers can use a single async entry point.
+#[cfg(not(target_os = "linux"))]
+#[allow(clippy::unused_async)]
+pub async fn write_async(text: &str, password: bool) -> Result<()> {
+    write(text, password)
 }
 
 // Exclude from windows clipboard history
