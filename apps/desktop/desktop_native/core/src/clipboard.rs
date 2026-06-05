@@ -4,7 +4,7 @@ use arboard::{Clipboard, Set};
 // Alternative portal-based clipboard path for GNOME.
 #[cfg(target_os = "linux")]
 #[path = "clipboard_portal_linux.rs"]
-pub(crate) mod portal;
+mod portal;
 
 pub(crate) fn read_internal() -> Result<String> {
     let mut clipboard = Clipboard::new()?;
