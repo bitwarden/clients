@@ -403,7 +403,9 @@ export class SshAgentService implements OnDestroy {
     hostFingerprint?: string,
   ): Promise<void> {
     const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
-    if (!key) {return;}
+    if (!key) {
+      return;
+    }
     const approved = this.authorizedKeys.get(cipherId) ?? new Set<string>();
     approved.add(key);
     this.authorizedKeys.set(cipherId, approved);
@@ -423,7 +425,9 @@ export class SshAgentService implements OnDestroy {
       case SshAgentPromptType.RememberUntilLock: {
         const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
         // key will only ever be undefined for forwarded requests in the v1, re-prompt.
-        if (!key) {return true;}
+        if (!key) {
+          return true;
+        }
         return !(this.authorizedKeys.get(cipherId)?.has(key) ?? false);
       }
     }
