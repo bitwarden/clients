@@ -3,9 +3,14 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="'editPolicy' | i18n"
-  [subtitle]="policy.name | i18n"
+  [title]="dialogRef.isDrawer ? (policy.name | i18n) : ('editPolicy' | i18n)"
+  [subtitle]="dialogRef.isDrawer ? '' : (policy.name | i18n)"
 >
+  @if (dialogRef.isDrawer) {
+    <span bitBadge [variant]="policyEnabled() ? 'success' : 'secondary'" bitDialogTitleSuffix>{{
+      (policyEnabled() ? "on" : "off") | i18n
+    }}</span>
+  }
   <ng-container bitDialogContent>
     @if (loading()) {
       <div>
@@ -18,8 +23,16 @@
       </div>
     }
     <div [hidden]="loading()">
+      @if (dialogRef.isDrawer && policy.prerequisiteKey) {
+        <bit-callout type="info">{{ policy.prerequisiteKey | i18n }}</bit-callout>
+      }
       @if (policy.showDescription) {
-        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        <p bitTypography="body1">
+          {{
+            (dialogRef.isDrawer && policy.descriptionV2 ? policy.descriptionV2 : policy.description)
+              | i18n
+          }}
+        </p>
       }
       <ng-template #policyForm></ng-template>
     </div>

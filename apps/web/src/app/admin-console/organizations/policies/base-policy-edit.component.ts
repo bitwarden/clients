@@ -11,6 +11,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -47,9 +48,16 @@ export abstract class BasePolicyEditDefinition {
   abstract name: string;
   /**
    * i18n string for the policy description.
-   * This is shown in the list of policies.
+   * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
+
+  /**
+   * Optional i18n key for an updated description shown in the drawer edit dialog (flag-on path).
+   * Falls back to {@link description} when not set.
+   */
+  descriptionV2?: string;
+
   /**
    * The PolicyType enum that this policy represents.
    */
@@ -82,10 +90,23 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
+   * Optional i18n key for a prerequisite info callout rendered above the enable/disable toggle.
+   * Used by {@link SimpleTogglePolicyComponent} when a policy requires another policy to be enabled first.
+   */
+  prerequisiteKey?: string;
+
+  /**
    * Optional i18n key for a warning callout rendered above the enable/disable toggle.
    * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
    */
   warningKey?: string;
+
+  /**
+   * Optional alternative component to use when a feature flag is enabled.
+   * When set, the {@link PolicyEditDialogComponent} checks the flag at dialog open time
+   * and uses this component instead of {@link component} when the flag is on.
+   */
+  flaggedComponent?: { flag: FeatureFlag; component: Constructor<BasePolicyEditComponent> };
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.

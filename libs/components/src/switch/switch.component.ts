@@ -8,6 +8,7 @@ import {
   input,
   model,
   AfterViewInit,
+  booleanAttribute,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
@@ -55,6 +56,11 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
    */
   protected readonly disabled = model(false);
   protected readonly disabledReasonText = input<string | null>(null);
+
+  /**
+   * When true, renders the toggle knob on the left and the label on the right.
+   */
+  readonly reversed = input(false, { transform: booleanAttribute });
 
   private readonly hintComponent = contentChild<BitHintDirective>(BitHintDirective);
 

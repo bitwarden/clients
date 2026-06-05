@@ -69,6 +69,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly _saveDisabled = signal(false);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
+  protected readonly policyEnabled = signal(false);
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -202,11 +203,17 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    const flagged = this.data.policy.flaggedComponent;
+    const useFlag =
+      flagged != null && (await this.configService.getFeatureFlag(flagged.flag)) === true;
+    const componentToLoad = useFlag ? flagged!.component : this.data.policy.component;
+
+    const componentRef = policyFormRef.createComponent(componentToLoad);
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
     const component = componentRef.instance;
     this.policyComponent.set(component);
+    this.policyEnabled.set(policyResponse.enabled);
 
     if (component.data) {
       component.data.statusChanges
