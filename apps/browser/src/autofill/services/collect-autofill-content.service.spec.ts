@@ -2972,6 +2972,16 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["_autofillFormElements"].size).toEqual(0);
       expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
     });
+
+    it("resets the cached targeting rules so the new URL re-fetches against the current gate state", () => {
+      collectAutofillContentService["pageTargetingRules"] = [
+        { category: "accountLogin", fields: { username: ["input#email"] } } as any,
+      ];
+
+      collectAutofillContentService["handleWindowLocationMutation"]();
+
+      expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+    });
   });
 
   describe("applyAttributeMutation", () => {

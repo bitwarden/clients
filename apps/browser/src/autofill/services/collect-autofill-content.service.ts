@@ -1408,6 +1408,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.noFieldsFound = false;
 
+    // Targeting rules are URL-scoped and gated by user/feature state at fetch
+    // time; the new URL must re-fetch to pick up rule and gate changes.
+    this.pageTargetingRules = undefined;
+
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
     this.autofillFieldsByOpid.clear();
