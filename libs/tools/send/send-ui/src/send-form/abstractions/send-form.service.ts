@@ -58,8 +58,7 @@ export abstract class SendFormService {
   abstract initializeSendForm(sendFormConfig: SendFormConfig): Promise<void>;
 
   /**
-   * Submits the Send form. Returns `undefined` if the form has an
-   * error or the service encounters a network error on submission
+   * Submits the Send form
    */
   abstract submitSendForm(): Promise<SendView>;
 

@@ -135,11 +135,6 @@ export class SendFormComponent implements AfterViewInit {
   submit = async () => {
     const sendView = await this.sendFormService.submitSendForm();
 
-    // Send form had errors or otherwise failed to submit
-    if (!sendView) {
-      return;
-    }
-
     if (this.config().mode === "add") {
       this.onSendCreated.emit(sendView);
       return;
