@@ -3,7 +3,7 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="dialogRef.isDrawer ? (policy.name | i18n) : ('editPolicy' | i18n)"
+  [title]="dialogRef.isDrawer ? (policy.nameV2 ?? policy.name | i18n) : ('editPolicy' | i18n)"
   [subtitle]="dialogRef.isDrawer ? '' : (policy.name | i18n)"
 >
   @if (dialogRef.isDrawer) {
@@ -24,7 +24,14 @@
     }
     <div [hidden]="loading()">
       @if (dialogRef.isDrawer && policy.prerequisiteKey) {
-        <bit-callout type="info">{{ policy.prerequisiteKey | i18n }}</bit-callout>
+        <bit-callout type="info">
+          {{ policy.prerequisiteKey | i18n }}
+          @if (policy.prerequisiteLinkHref && policy.prerequisiteLinkTextKey) {
+            <a bitLink [href]="policy.prerequisiteLinkHref" target="_blank" rel="noreferrer">
+              {{ policy.prerequisiteLinkTextKey | i18n }}
+            </a>
+          }
+        </bit-callout>
       }
       @if (policy.showDescription) {
         <p bitTypography="body1">

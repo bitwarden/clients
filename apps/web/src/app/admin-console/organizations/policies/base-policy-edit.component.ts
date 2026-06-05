@@ -59,6 +59,12 @@ export abstract class BasePolicyEditDefinition {
   descriptionV2?: string;
 
   /**
+   * Optional i18n key for a drawer-only policy title.
+   * Falls back to {@link name} when not set.
+   */
+  nameV2?: string;
+
+  /**
    * The PolicyType enum that this policy represents.
    */
   abstract type: PolicyType;
@@ -94,6 +100,18 @@ export abstract class BasePolicyEditDefinition {
    * Used by {@link SimpleTogglePolicyComponent} when a policy requires another policy to be enabled first.
    */
   prerequisiteKey?: string;
+
+  /**
+   * URL for an optional "learn more" link appended inside the prerequisite callout.
+   * Only rendered when {@link prerequisiteLinkTextKey} is also set.
+   */
+  prerequisiteLinkHref?: string;
+
+  /**
+   * i18n key for the text of the {@link prerequisiteLinkHref} link.
+   * Only rendered when {@link prerequisiteLinkHref} is also set.
+   */
+  prerequisiteLinkTextKey?: string;
 
   /**
    * Optional i18n key for a warning callout rendered above the enable/disable toggle.

@@ -13446,11 +13446,23 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Block account creation for claimed domains"
   },
+  "blockClaimedDomainAccountCreationTitleV2": {
+    "message": "Claimed domain restriction"
+  },
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Require members to use email addresses that match your claimed domain when creating their account and block them from using your claimed domain to create Bitwarden accounts outside your organization."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Before turning on this policy, you must claim a domain."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Learn more about claimed domains"
   },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
