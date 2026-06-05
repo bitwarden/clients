@@ -47,15 +47,6 @@ pub(crate) fn should_use_portal() -> bool {
 /// clipboard selection, and serves the data when a consumer requests it. The portal model is
 /// offer-based: ownership of the selection lasts only while the session is alive, so the
 /// caller must keep the returned future running until the paste has been served.
-///
-/// ```no_run
-/// # async fn demo() -> anyhow::Result<()> {
-/// use desktop_core::clipboard::portal;
-/// if portal::should_use_portal() {
-///     portal::write_clipboard("hello", false).await?;
-/// }
-/// # Ok(())
-/// # }
 /// ```
 pub(crate) async fn write_clipboard(text: &str, password: bool) -> Result<()> {
     let _ = password;
@@ -79,16 +70,6 @@ pub(crate) async fn write_clipboard(text: &str, password: bool) -> Result<()> {
 ///
 /// Establishes (or restores) the same clipboard-enabled RemoteDesktop session used by
 /// [`write_clipboard`], reads the current selection as [`MIME_TEXT`], and closes the session.
-///
-/// ```no_run
-/// # async fn demo() -> anyhow::Result<()> {
-/// use desktop_core::clipboard::portal;
-/// if portal::should_use_portal() {
-///     let text = portal::read_clipboard().await?;
-///     println!("{text}");
-/// }
-/// # Ok(())
-/// # }
 /// ```
 pub(crate) async fn read_clipboard() -> Result<String> {
     let remote_desktop = RemoteDesktop::new().await?;
