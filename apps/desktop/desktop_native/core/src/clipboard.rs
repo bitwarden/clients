@@ -1,6 +1,11 @@
 use anyhow::Result;
 use arboard::{Clipboard, Set};
 
+// Alternative portal-based clipboard path for GNOME under Flatpak.
+#[cfg(target_os = "linux")]
+#[path = "clipboard_portal_linux.rs"]
+pub mod portal;
+
 pub fn read() -> Result<String> {
     let mut clipboard = Clipboard::new()?;
 
