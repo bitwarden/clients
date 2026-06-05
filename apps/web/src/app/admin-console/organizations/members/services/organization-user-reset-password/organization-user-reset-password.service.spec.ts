@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -29,7 +27,13 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KdfConfig, KeyService } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  DEFAULT_KDF_CONFIG,
+  KdfConfig,
+  KdfType,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -296,14 +300,21 @@ describe("OrganizationUserResetPasswordService", () => {
     const email = "user@example.com";
     const orgUserId = "org-user-id";
     const orgId = "org-id" as OrganizationId;
+    const SERVER_SIDE_SALT = "server-side-salt" as MasterPasswordSalt;
 
     let kdfConfig: KdfConfig;
     let salt: MasterPasswordSalt;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
 
-    /** Sets up mocks needed when resetMasterPassword is true */
-    function setupPasswordResetMocks() {
+    /**
+     * Sets up mocks needed when resetMasterPassword is true.
+     *
+     * @param useServerSalt when true (default), the response includes a server-provided
+     *   `masterPasswordSalt`; when false, the response omits it so the email-fallback
+     *   path is exercised
+     */
+    function setupPasswordResetMocks(useServerSalt: boolean = true) {
       kdfConfig = DEFAULT_KDF_CONFIG;
 
       organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
@@ -313,6 +324,7 @@ describe("OrganizationUserResetPasswordService", () => {
           kdfIterations: kdfConfig.iterations,
           resetPasswordKey: "test-reset-password-key",
           encryptedPrivateKey: "test-encrypted-private-key",
+          ...(useServerSalt ? { masterPasswordSalt: SERVER_SIDE_SALT } : {}),
         }),
       );
 
@@ -326,8 +338,12 @@ describe("OrganizationUserResetPasswordService", () => {
       const mockDecryptedUserKey = new SymmetricCryptoKey(new Uint8Array(64).fill(3));
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockDecryptedUserKey);
 
-      salt = email as MasterPasswordSalt;
-      masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
+      if (useServerSalt) {
+        salt = SERVER_SIDE_SALT;
+      } else {
+        salt = email as MasterPasswordSalt;
+        masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
+      }
 
       authenticationData = {
         salt,
@@ -390,9 +406,106 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset master password only", () => {
+    describe("reset master password only — server omits salt → email fallback", () => {
       beforeEach(() => {
-        setupPasswordResetMocks();
+        setupPasswordResetMocks(/* useServerSalt */ false);
+      });
+
+      it("should call putOrganizationUserRecoverAccount with resetMasterPassword: true and resetTwoFactor: false", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({ resetMasterPassword: true, resetTwoFactor: false }),
+        );
+      });
+
+      it("should derive the salt from the email and pass it to the master password helpers", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(masterPasswordService.mock.emailToSalt).toHaveBeenCalledWith(email);
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, kdfConfig, salt);
+        expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          newMasterPassword,
+          kdfConfig,
+          salt,
+          expect.anything(),
+        );
+      });
+
+      it("should still complete the recover-account API call with the fallback-derived data", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+            key: unlockData.masterKeyWrappedUserKey,
+          }),
+        );
+      });
+
+      it("should throw if reset password details are null", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow();
+      });
+
+      it("should throw if org key is null", async () => {
+        keyService.orgKeys$.mockReturnValue(of(null));
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow();
+      });
+    });
+
+    describe("reset master password only — server provides salt", () => {
+      beforeEach(() => {
+        setupPasswordResetMocks(true);
       });
 
       it("should call putOrganizationUserRecoverAccount with password data and resetTwoFactor: false", async () => {
@@ -415,6 +528,28 @@ describe("OrganizationUserResetPasswordService", () => {
             key: unlockData.masterKeyWrappedUserKey,
           }),
         );
+      });
+
+      it("should pass the server-provided salt (not the email) to the master password helpers", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, kdfConfig, SERVER_SIDE_SALT);
+        expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          newMasterPassword,
+          kdfConfig,
+          SERVER_SIDE_SALT,
+          expect.anything(),
+        );
+        expect(masterPasswordService.mock.emailToSalt).not.toHaveBeenCalled();
       });
 
       it("should throw if reset password details are null", async () => {
@@ -488,6 +623,204 @@ describe("OrganizationUserResetPasswordService", () => {
         expect(
           organizationUserApiService.getOrganizationUserResetPasswordDetails,
         ).toHaveBeenCalledWith(orgId, orgUserId);
+      });
+    });
+
+    describe("validation when resetMasterPassword is true", () => {
+      it("should throw when newMasterPassword is undefined", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            email,
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("resetPasswordNewPasswordRequired");
+        expect(
+          organizationUserApiService.getOrganizationUserResetPasswordDetails,
+        ).not.toHaveBeenCalled();
+      });
+
+      it("should throw when newMasterPassword is whitespace", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword: "   ",
+            email,
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("resetPasswordNewPasswordRequired");
+      });
+
+      it("should throw when email is undefined", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("emailRequired");
+        expect(
+          organizationUserApiService.getOrganizationUserResetPasswordDetails,
+        ).not.toHaveBeenCalled();
+      });
+
+      it("should throw when email is whitespace", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email: "   ",
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("emailRequired");
+      });
+    });
+
+    describe("KDF config", () => {
+      beforeEach(() => {
+        const mockDecryptedOrgKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as OrgKey;
+        keyService.orgKeys$.mockReturnValue(
+          of({ [orgId]: mockDecryptedOrgKey } as Record<OrganizationId, OrgKey>),
+        );
+        encryptService.unwrapDecapsulationKey.mockResolvedValue(new Uint8Array(64).fill(2));
+        encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+          new SymmetricCryptoKey(new Uint8Array(64).fill(3)),
+        );
+
+        masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue({
+          salt: SERVER_SIDE_SALT,
+          kdf: DEFAULT_KDF_CONFIG,
+          masterPasswordAuthenticationHash:
+            "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+        });
+        masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue({
+          salt: SERVER_SIDE_SALT,
+          kdf: DEFAULT_KDF_CONFIG,
+          masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+        } as MasterPasswordUnlockData);
+      });
+
+      it("should construct an Argon2 KDF config when the response uses Argon2id", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: KdfType.Argon2id,
+            kdfIterations: 3,
+            kdfMemory: 64,
+            kdfParallelism: 4,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, expect.any(Argon2KdfConfig), SERVER_SIDE_SALT);
+        const passedConfig =
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData.mock.calls[0][1];
+        expect(passedConfig).toEqual(
+          expect.objectContaining({ iterations: 3, memory: 64, parallelism: 4 }),
+        );
+      });
+
+      it("should throw when Argon2id config is missing kdfMemory", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: KdfType.Argon2id,
+            kdfIterations: 3,
+            kdfParallelism: 4,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("Invalid KDF configuration");
+      });
+
+      it("should throw when Argon2id config is missing kdfParallelism", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: KdfType.Argon2id,
+            kdfIterations: 3,
+            kdfMemory: 64,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("Invalid KDF configuration");
+      });
+
+      it("should throw when KDF type is unsupported", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: 99 as unknown as KdfType,
+            kdfIterations: 100000,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("Unsupported KDF type");
       });
     });
   });
