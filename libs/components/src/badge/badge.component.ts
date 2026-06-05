@@ -8,6 +8,7 @@ import {
 } from "@angular/core";
 
 import { IconComponent } from "../icon";
+import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { BitwardenIcon } from "../shared/icon";
 
 /**
@@ -94,6 +95,11 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
 @Component({
   selector: "span[bitBadge], bit-badge",
   imports: [IconComponent],
+  // OverflowItemDirective is applied to every badge so wrappers like
+  // `bit-badge-group` can let `bitOverflowList` measure and hide them. None
+  // of its inputs/outputs are exposed — `pinned` is internal-only, set
+  // programmatically by the wrapper.
+  hostDirectives: [OverflowItemDirective],
   templateUrl: "badge.component.html",
   host: {
     "[class]": "classList()",
