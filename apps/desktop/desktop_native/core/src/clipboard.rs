@@ -4,9 +4,9 @@ use arboard::{Clipboard, Set};
 // Alternative portal-based clipboard path for GNOME.
 #[cfg(target_os = "linux")]
 #[path = "clipboard_portal_linux.rs"]
-pub mod portal;
+pub(crate) mod portal;
 
-pub fn read() -> Result<String> {
+pub(crate) fn read_internal() -> Result<String> {
     let mut clipboard = Clipboard::new()?;
 
     Ok(clipboard.get_text()?)
@@ -18,23 +18,23 @@ pub fn read() -> Result<String> {
 /// `wlr-data-control` protocol), so on GNOME we read through the [`portal`] (RemoteDesktop +
 /// Clipboard). On every other Linux desktop this is just [`read`].
 #[cfg(target_os = "linux")]
-pub async fn read_async() -> Result<String> {
+pub async fn read() -> Result<String> {
     if portal::should_use_portal() {
         return portal::read_clipboard().await;
     }
 
-    read()
+    read_internal()
 }
 
-/// Read the clipboard. Mirror of the Linux [`read_async`] for platforms without a portal path, so
+/// Read the clipboard. Mirror of the Linux [`read`] for platforms without a portal path, so
 /// callers can use a single async entry point.
 #[cfg(not(target_os = "linux"))]
 #[allow(clippy::unused_async)]
-pub async fn read_async() -> Result<String> {
-    read()
+pub async fn read() -> Result<String> {
+    read_internal()
 }
 
-pub fn write(text: &str, password: bool) -> Result<()> {
+pub(crate) fn write_internal(text: &str, password: bool) -> Result<()> {
     let mut clipboard = Clipboard::new()?;
 
     let set = clipboard_set(clipboard.set(), password);
@@ -47,22 +47,22 @@ pub fn write(text: &str, password: bool) -> Result<()> {
 ///
 /// On GNOME/Wayland `arboard` cannot reliably set the clipboard (GNOME does not implement the
 /// `wlr-data-control` protocol), so on GNOME we always offer the contents through the [`portal`]
-/// (RemoteDesktop + Clipboard). On every other Linux desktop this is just [`write`].
+/// (RemoteDesktop + Clipboard). On every other Linux desktop this is just [`write_internal`].
 #[cfg(target_os = "linux")]
-pub async fn write_async(text: &str, password: bool) -> Result<()> {
+pub async fn write(text: &str, password: bool) -> Result<()> {
     if portal::should_use_portal() {
         return portal::write_clipboard(text, password).await;
     }
 
-    write(text, password)
+    write_internal(text, password)
 }
 
-/// Write to the clipboard. Mirror of the Linux [`write_async`] for platforms without a portal
+/// Write to the clipboard. Mirror of the Linux [`write`] for platforms without a portal
 /// fallback, so callers can use a single async entry point.
 #[cfg(not(target_os = "linux"))]
 #[allow(clippy::unused_async)]
-pub async fn write_async(text: &str, password: bool) -> Result<()> {
-    write(text, password)
+pub async fn write(text: &str, password: bool) -> Result<()> {
+    write_internal(text, password)
 }
 
 // Exclude from windows clipboard history
@@ -109,7 +109,7 @@ mod tests {
     fn test_write_read() {
         let message = "Hello world!";
 
-        write(message, false).unwrap();
-        assert_eq!(message, read().unwrap());
+        write_internal(message, false).unwrap();
+        assert_eq!(message, read_internal().unwrap());
     }
 }

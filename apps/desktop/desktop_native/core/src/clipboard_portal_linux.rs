@@ -1,15 +1,12 @@
-//! Alternative clipboard-set path for GNOME, using XDG Desktop Portals.
+//! Alternative clipboard implementation for GNOME, using XDG Desktop Portals.
 //!
 //! On GNOME/Wayland the direct `arboard` data-control path is unreliable (GNOME does not
 //! implement the `wlr-data-control` protocol), so this module offers the clipboard contents
 //! through the
 //! [`Clipboard`](ashpd::desktop::clipboard::Clipboard) portal. The Clipboard portal does not
-//! own a session of its own; it attaches to an existing portal session. The only session type
-//! `xdg-desktop-portal` accepts for clipboard operations is
-//! [`RemoteDesktop`](ashpd::desktop::remote_desktop::RemoteDesktop) (which implements
-//! [`IsClipboardSession`](ashpd::desktop::clipboard::IsClipboardSession)); other session types
-//! are rejected with `AccessDenied: Invalid session type`.
-//!
+//! own a session of its own; it attaches to an existing portal session. Currently,
+//! we use a [`RemoteDesktop`](ashpd::desktop::remote_desktop::RemoteDesktop) session.
+//! 
 //! Starting a `RemoteDesktop` session normally prompts the user for consent. We request a
 //! persistent session ([`PersistMode::ExplicitlyRevoked`](ashpd::desktop::PersistMode)) and
 //! persist the returned `restore_token` to disk, so the consent dialog is shown only once and the
@@ -30,14 +27,14 @@ use tracing::{error, info};
 const MIME_TEXT: &str = "text/plain;charset=utf-8";
 
 /// File name (under the config dir) used to persist the RemoteDesktop session restore token.
-const TOKEN_FILE: &str = "clipboard_input_capture_token";
+const TOKEN_FILE: &str = "remote_desktop_portal_token";
 
 /// Whether the portal-based clipboard fallback should be used when the direct `arboard` write
 /// fails.
 ///
 /// True on a GNOME desktop, where `arboard` cannot reliably set the clipboard on Wayland. Reads
 /// `XDG_CURRENT_DESKTOP` for the desktop environment.
-pub fn should_use_portal() -> bool {
+pub(crate) fn should_use_portal() -> bool {
     std::env::var("XDG_CURRENT_DESKTOP")
         .map(|desktop| desktop.to_ascii_uppercase().contains("GNOME"))
         .unwrap_or(false)
@@ -51,10 +48,6 @@ pub fn should_use_portal() -> bool {
 /// offer-based: ownership of the selection lasts only while the session is alive, so the
 /// caller must keep the returned future running until the paste has been served.
 ///
-/// `password` is accepted for parity with the `arboard` path; the portal exposes no
-/// history-exclusion flag (that is a Windows/`arboard` concept), so it does not change the
-/// flow here.
-///
 /// ```no_run
 /// # async fn demo() -> anyhow::Result<()> {
 /// use desktop_core::clipboard::portal;
@@ -64,7 +57,7 @@ pub fn should_use_portal() -> bool {
 /// # Ok(())
 /// # }
 /// ```
-pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
+pub(crate) async fn write_clipboard(text: &str, password: bool) -> Result<()> {
     let _ = password;
 
     let remote_desktop = RemoteDesktop::new().await?;
@@ -97,7 +90,7 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
 /// # Ok(())
 /// # }
 /// ```
-pub async fn read_clipboard() -> Result<String> {
+pub(crate) async fn read_clipboard() -> Result<String> {
     let remote_desktop = RemoteDesktop::new().await?;
     let clipboard = Clipboard::new().await?;
     let (session, response) = open_session(&remote_desktop, &clipboard).await?;
@@ -132,7 +125,7 @@ async fn open_session(
         None => establish_session(remote_desktop, clipboard, None).await?,
     };
 
-    // Persist the restore token so future runs skip the consent dialog. Never log the value.
+    // Persist the restore token so future runs skip the consent dialog
     if let Some(token) = response.restore_token() {
         if let Err(err) = save_session_token(token) {
             error!(error = %err, "[ASHPD] Failed to persist remote desktop restore token");
@@ -142,10 +135,6 @@ async fn open_session(
     Ok((session, response))
 }
 
-/// Advertise the clipboard selection and serve the first matching transfer request.
-///
-/// The portal model is offer-based: the selection is only available while the session is alive,
-/// so this returns as soon as a consumer has read the data (or the transfer stream ends).
 async fn serve_selection(
     clipboard: &Clipboard,
     session: &Session<RemoteDesktop>,
