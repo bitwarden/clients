@@ -2,7 +2,7 @@ import {
   MasterPasswordAuthenticationData,
   MasterPasswordAuthenticationHash,
   MasterPasswordUnlockData,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+} from "../../master-password/types/master-password.types";
 
 export class ChangeKdfRequest {
   constructor(
