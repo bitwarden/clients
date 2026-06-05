@@ -27,6 +27,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
@@ -424,6 +425,18 @@ export default class AutofillService implements AutofillServiceInterface {
     return await firstValueFrom(this.domainSettingsService.resolvedDefaultUriMatchStrategy$);
   }
 
+  private async isFillAssistEnabled(): Promise<boolean> {
+    const fillAssistFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.FillAssistTargetingRules,
+    );
+
+    if (!fillAssistFeatureEnabled) {
+      return false;
+    }
+
+    return await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+  }
+
   /**
    * Autofill a given tab with a given login item
    * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
@@ -775,8 +788,18 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Check if page details contain targeted fields from targeting rules
     // This operation is mutually-exclusive from heuristic data-gathering
-    const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
-    if (hasTargetedFields) {
+    const pageHasTargetedFields = pageDetails.fields.some(({ targeted }) => targeted === true);
+
+    if (pageHasTargetedFields) {
+      const fillAssistEnabled = await this.isFillAssistEnabled();
+
+      // We could alternatively retrigger gathering page details with the
+      // heuristic strategy, but this code path is mostly defensive and not
+      // expected to be hit often, since the entrypoints for this workflow
+      // are also expected to be gated.
+      if (!fillAssistEnabled) {
+        return null;
+      }
       return this.generateTargetedFillScript(pageDetails, options);
     }
 

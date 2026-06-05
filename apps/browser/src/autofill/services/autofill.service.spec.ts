@@ -16,7 +16,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
-import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -1799,6 +1799,75 @@ describe("AutofillService", () => {
       );
 
       expect(value).toBeNull();
+    });
+
+    describe("when the page details contain targeted fields from targeting rules", () => {
+      let targetedPageDetail: AutofillPageDetails;
+      let generateTargetedFillScriptSpy: jest.SpyInstance;
+      let generateLoginFillScriptSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        const targetedField = createAutofillFieldMock({
+          opid: "targeted_field_0_username",
+          htmlID: "username",
+          fieldQualifier: "username",
+          targeted: true,
+        });
+        targetedPageDetail = createAutofillPageDetailsMock({ fields: [targetedField] });
+        generateTargetedFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateTargetedFillScript")
+          .mockReturnValue(new AutofillScript());
+        generateLoginFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateLoginFillScript")
+          .mockReturnValue(new AutofillScript());
+      });
+
+      it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.FillAssistTargetingRules)
+          .mockResolvedValue(true);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
+
+        expect(generateTargetedFillScriptSpy).toHaveBeenCalledWith(
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the feature flag is disabled", async () => {
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.FillAssistTargetingRules)
+          .mockResolvedValue(false);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the user setting is disabled", async () => {
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.FillAssistTargetingRules)
+          .mockResolvedValue(true);
+        await domainSettingsService.setEnableFillAssist(false);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
     });
   });
 
