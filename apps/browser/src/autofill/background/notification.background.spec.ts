@@ -89,7 +89,7 @@ describe("NotificationBackground", () => {
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
   const fido2Background = mock<Fido2Background>();
-  fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
+  fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValue(false);
   const changeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   const userId = "testId" as UserId;
@@ -1118,7 +1118,7 @@ describe("NotificationBackground", () => {
         expectSkippedCheckingNotification();
       });
 
-      it("skips checking if a notification should trigger if a fido2 credential request is in progress for the tab", async () => {
+      it("skips checking if a notification should trigger when a passkey picker is active for the tab", async () => {
         const formEntryData: ModifyLoginCipherFormData = {
           newPassword: "",
           password: "",
@@ -1127,7 +1127,7 @@ describe("NotificationBackground", () => {
         };
 
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        fido2Background.isCredentialRequestInProgress.mockReturnValueOnce(true);
+        fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValueOnce(true);
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 

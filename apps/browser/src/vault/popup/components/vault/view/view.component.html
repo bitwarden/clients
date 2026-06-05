@@ -2,9 +2,7 @@
   <popup-header slot="header" [pageTitle]="headerText" showBackButton>
     <ng-container slot="end">
       @if (cipher?.isArchived) {
-        <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
-          {{ "archived" | i18n }}
-        </span>
+        <button type="button" bit-chip-action [label]="'archived' | i18n"></button>
       }
       <app-pop-out />
     </ng-container>

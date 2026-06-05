@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "パスポート番号をコピー"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "国民識別番号をコピー"
+  },
   "copyFirstName": {
     "message": "名前をコピー"
   },
@@ -2001,11 +2004,32 @@
   "brand": {
     "message": "ブランド"
   },
+  "birthDay": {
+    "message": "誕生日"
+  },
+  "birthMonth": {
+    "message": "誕生月"
+  },
+  "birthYear": {
+    "message": "誕生年"
+  },
+  "expirationDay": {
+    "message": "有効期限日"
+  },
   "expirationMonth": {
     "message": "有効期限月"
   },
   "expirationYear": {
     "message": "有効期限年"
+  },
+  "issueDay": {
+    "message": "発行日"
+  },
+  "issueMonth": {
+    "message": "発行月"
+  },
+  "issueYear": {
+    "message": "発行年"
   },
   "monthly": {
     "message": "月"
@@ -2100,6 +2124,51 @@
   "passportNumber": {
     "message": "パスポート番号"
   },
+  "dateOfBirth": {
+    "message": "生年月日"
+  },
+  "sex": {
+    "message": "性別"
+  },
+  "copySex": {
+    "message": "性別をコピー"
+  },
+  "birthPlace": {
+    "message": "出生地"
+  },
+  "copyBirthPlace": {
+    "message": "出生地をコピー"
+  },
+  "nationality": {
+    "message": "国籍"
+  },
+  "copyNationality": {
+    "message": "国籍をコピー"
+  },
+  "issuingCountry": {
+    "message": "発行国"
+  },
+  "copyIssuingCountry": {
+    "message": "発行国をコピー"
+  },
+  "passportType": {
+    "message": "パスポートの種類"
+  },
+  "copyPassportType": {
+    "message": "パスポートの種類をコピー"
+  },
+  "nationalIdentificationNumber": {
+    "message": "国民識別番号"
+  },
+  "issuingAuthority": {
+    "message": "発行機関"
+  },
+  "copyIssuingAuthority": {
+    "message": "発行機関/事務所をコピー"
+  },
+  "issueDate": {
+    "message": "発行日"
+  },
   "licenseNumber": {
     "message": "免許証番号"
   },
@@ -2190,6 +2259,18 @@
   "typeBankAccountSubtitle": {
     "message": "銀行の詳細"
   },
+  "typePassport": {
+    "message": "パスポート"
+  },
+  "passportDetails": {
+    "message": "パスポートの詳細"
+  },
+  "passportAdded": {
+    "message": "パスポートを追加しました"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行文書"
+  },
   "typeDriversLicense": {
     "message": "免許証"
   },
@@ -2199,41 +2280,8 @@
   "driversLicenseDetails": {
     "message": "免許証の詳細"
   },
-  "dateOfBirth": {
-    "message": "生年月日"
-  },
-  "birthMonth": {
-    "message": "誕生月"
-  },
-  "birthDay": {
-    "message": "誕生日"
-  },
-  "birthYear": {
-    "message": "誕生年"
-  },
-  "issuingCountry": {
-    "message": "発行国"
-  },
   "issuingState": {
     "message": "発行都道府県"
-  },
-  "issuingAuthority": {
-    "message": "発行機関"
-  },
-  "issueDate": {
-    "message": "発行日"
-  },
-  "issueMonth": {
-    "message": "発行月"
-  },
-  "issueDay": {
-    "message": "発行日"
-  },
-  "issueYear": {
-    "message": "発行年"
-  },
-  "expirationDay": {
-    "message": "有効期限日"
   },
   "licenseClass": {
     "message": "免許種別"
@@ -2407,6 +2455,31 @@
   "clear": {
     "message": "消去する",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "選択中"
+  },
+  "bulkActionsBar": {
+    "message": "一括操作"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ 個のアイテムを選択しました。一括操作バーが画面下部に表示されています。$SHORTCUTBINDING$ を押すと、一括操作バーにフォーカスが切り替わります。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "選択を解除しました"
+  },
+  "additionalActions": {
+    "message": "追加のアクション"
   },
   "checkPassword": {
     "message": "パスワードが漏洩していないか確認する"
@@ -2896,18 +2969,6 @@
   },
   "biometricsFailedDesc": {
     "message": "生体認証を完了できません。マスターパスワードを使うかログアウトしてください。それでも直らない場合は、Bitwarden サポートまでお問い合わせください。"
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "権限が提供されていません"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bitwarden デスクトップアプリとの通信許可がなければ、ブラウザー拡張機能で生体認証を利用できません。もう一度やり直してください。"
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "権限リクエストエラー"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "この操作はサイドバーでは行えません。ポップアップまたはポップアウトでやり直してください。"
   },
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人の保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
@@ -5061,6 +5122,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "コピーする値がありません"
   },
@@ -6160,6 +6225,10 @@
   "next": {
     "message": "次へ"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6478,6 +6547,9 @@
   "searchBankAccount": {
     "message": "銀行口座を検索"
   },
+  "searchPassport": {
+    "message": "パスポートを検索"
+  },
   "copyAccountNumber": {
     "message": "口座番号をコピー"
   },
@@ -6489,6 +6561,15 @@
   },
   "copyIban": {
     "message": "IBAN をコピー"
+  },
+  "copyNameOnAccount": {
+    "message": "口座名義をコピー"
+  },
+  "copyBranchNumber": {
+    "message": "支店番号をコピー"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT コードをコピー"
   },
   "bankAccountTypeChecking": {
     "message": "当座"
@@ -6513,6 +6594,9 @@
   },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
+  },
+  "more": {
+    "message": "詳細"
   },
   "maxAccessCount": {
     "message": "最大アクセス数",
@@ -6557,5 +6641,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   }
 }
