@@ -45,7 +45,7 @@
           <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
         }
       </div>
-      <div class="tw-flex-1">
+      <div class="tw-flex-1" [attr.title]="item.listName">
         {{ item.listName }}
       </div>
     </div>
