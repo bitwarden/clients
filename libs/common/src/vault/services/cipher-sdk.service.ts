@@ -462,12 +462,21 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
-  async upgradeAttachment(cipherId: CipherId, attachmentId: string, userId: UserId): Promise<void> {
-    await firstValueFrom(
+  async upgradeAttachment(
+    cipherId: CipherId,
+    attachmentId: string,
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          await ref.value.vault().attachments().upgrade_attachment(asUuid(cipherId), attachmentId);
+          const sdkCiphersClient = ref.value.vault().ciphers();
+          const result = await ref.value
+            .vault()
+            .attachments()
+            .upgrade_attachment(asUuid(cipherId), attachmentId);
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to upgrade attachment: ${error}`);

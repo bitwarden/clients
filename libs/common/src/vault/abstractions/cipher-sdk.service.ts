@@ -270,7 +270,7 @@ export abstract class CipherSdkService {
     cipherId: CipherId,
     attachmentId: string,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<CipherView | undefined>;
 
   /**
    * Lists and decrypts all ciphers from state using the SDK.

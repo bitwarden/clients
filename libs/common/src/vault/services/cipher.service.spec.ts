@@ -1261,22 +1261,26 @@ describe("Cipher Service", () => {
       legacyAttachment.key = null;
       view.attachments = [legacyAttachment];
 
-      cipherSdkService.upgradeAttachment.mockResolvedValue(undefined);
+      // The SDK returns the decrypted, post-upgrade view.
+      const upgradedView = new CipherView(new Cipher(cipherData));
+      cipherSdkService.upgradeAttachment.mockResolvedValue(upgradedView);
 
-      const refreshedCipher = new Cipher(cipherData);
-      jest.spyOn(cipherService, "get").mockResolvedValue(refreshedCipher);
-      jest.spyOn(cipherService, "decrypt").mockResolvedValue(view);
+      jest.spyOn(cipherService, "get").mockResolvedValue(new Cipher(cipherData));
+      const decryptSpy = jest.spyOn(cipherService, "decrypt");
 
       const apiSpy = jest.spyOn(apiService, "getAttachmentData");
 
-      await cipherService.upgradeOldCipherAttachments(view, userId);
+      const result = await cipherService.upgradeOldCipherAttachments(view, userId);
 
       expect(cipherSdkService.upgradeAttachment).toHaveBeenCalledWith(
         view.id,
         "legacy-attachment-id",
         userId,
       );
-      // The SDK now owns the re-upload and the legacy delete; the client does not upload.
+      // Returns the SDK's view directly — no re-fetch/re-decrypt round-trip.
+      expect(result).toBe(upgradedView);
+      expect(decryptSpy).not.toHaveBeenCalled();
+      // The SDK owns the re-upload and the legacy delete; the client does not upload.
       expect(cipherFileUploadService.uploadPrepared).not.toHaveBeenCalled();
       expect(apiSpy).not.toHaveBeenCalled();
     });

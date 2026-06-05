@@ -1953,6 +1953,9 @@ export class CipherService implements CipherServiceAbstraction {
 
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
     let cipherDomain = await this.get(cipher.id, userId);
+    // The SDK path returns the decrypted, post-upgrade view directly; track the latest one so we
+    // can return it without an extra decrypt. The non-SDK path keeps threading `cipherDomain`.
+    let upgradedView: CipherView | undefined;
 
     for (const attachmentView of cipher.attachments) {
       if (
@@ -1964,7 +1967,7 @@ export class CipherService implements CipherServiceAbstraction {
 
       try {
         if (useSdk) {
-          cipherDomain = await this.upgradeOldAttachmentViaSdk(
+          upgradedView = await this.upgradeOldAttachmentViaSdk(
             cipher.id,
             attachmentView.id,
             userId,
@@ -2012,19 +2015,21 @@ export class CipherService implements CipherServiceAbstraction {
       }
     }
 
-    return await this.decrypt(cipherDomain, userId);
+    return upgradedView ?? (await this.decrypt(cipherDomain, userId));
   }
 
   private async upgradeOldAttachmentViaSdk(
     cipherId: string,
     attachmentId: string,
     userId: UserId,
-  ): Promise<Cipher> {
+  ): Promise<CipherView | undefined> {
     await this.clearCache(userId);
 
-    await this.cipherSdkService.upgradeAttachment(cipherId as CipherId, attachmentId, userId);
-
-    return await this.get(cipherId, userId);
+    return await this.cipherSdkService.upgradeAttachment(
+      cipherId as CipherId,
+      attachmentId,
+      userId,
+    );
   }
 
   private async getAttachmentDownloadUrl(
