@@ -320,14 +320,7 @@ mod tests {
     #[ignore]
     async fn manual_write_clipboard() {
         write_clipboard("Hello world!", false).await.unwrap();
-    }
-
-    // Requires a live GNOME Wayland portal session; seed the clipboard first (e.g. `wl-copy`),
-    // then run manually with `--ignored --nocapture` to see the value.
-    #[tokio::test]
-    #[ignore]
-    async fn manual_read_clipboard() {
         let text = read_clipboard().await.unwrap();
-        println!("read clipboard: {text:?}");
+        assert_eq!(text, "Hello world!");
     }
 }
