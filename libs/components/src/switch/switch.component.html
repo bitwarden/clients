@@ -5,10 +5,12 @@
 >
   <label
     [attr.for]="inputId"
-    class="tw-inline-flex tw-gap-2 tw-justify-between tw-group/switch-label"
+    class="tw-inline-flex tw-gap-2 tw-group/switch-label"
     [ngClass]="{
       'tw-cursor-default': disabled(),
       'tw-cursor-pointer': !disabled(),
+      'tw-justify-between': !reversed(),
+      'tw-flex-row-reverse tw-justify-end': reversed(),
     }"
   >
     <div>

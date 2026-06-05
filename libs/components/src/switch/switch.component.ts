@@ -1,5 +1,6 @@
 import { NgClass } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
   computed,
   contentChild,
@@ -55,6 +56,11 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
    */
   protected readonly disabled = model(false);
   protected readonly disabledReasonText = input<string | null>(null);
+
+  /**
+   * When true, the toggle appears before the label (left side) in a compact, non-spreading layout.
+   */
+  readonly reversed = input(false, { transform: booleanAttribute });
 
   private readonly hintComponent = contentChild<BitHintDirective>(BitHintDirective);
 
