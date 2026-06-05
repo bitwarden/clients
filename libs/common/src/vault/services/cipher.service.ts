@@ -1994,7 +1994,7 @@ export class CipherService implements CipherServiceAbstraction {
           );
 
           // 4. Re-upload with attachment key
-          cipherDomain = await this.saveAttachmentRawWithServer(
+          await this.saveAttachmentRawWithServer(
             cipherDomain,
             attachmentView.fileName,
             decryptedBuffer,
