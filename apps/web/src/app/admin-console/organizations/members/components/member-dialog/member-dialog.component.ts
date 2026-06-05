@@ -17,7 +17,6 @@ import {
 import {
   CollectionAdminService,
   OrganizationUserApiService,
-  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -61,7 +60,6 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
-import { MemberActionsService } from "../../services";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
@@ -210,7 +208,6 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
-    private memberActionsService: MemberActionsService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
@@ -524,7 +521,7 @@ export class MemberDialogComponent implements OnDestroy {
     if (this.isEditDialogParams(this.params)) {
       await this.handleEditUser(userView, this.params);
     } else {
-      await this.handleInviteUsers(userView, organization);
+      await this.handleInviteUsers(userView);
     }
   };
 
@@ -579,24 +576,10 @@ export class MemberDialogComponent implements OnDestroy {
     this.close(MemberDialogResult.Saved);
   }
 
-  private async handleInviteUsers(userView: OrganizationUserAdminView, organization: Organization) {
+  private async handleInviteUsers(userView: OrganizationUserAdminView) {
     const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
 
-    const request = new OrganizationUserInviteRequest({
-      emails,
-      type: userView.type,
-      groups: userView.groups,
-      permissions: userView.permissions,
-      collections: userView.collections,
-      accessSecretsManager: userView.accessSecretsManager,
-    });
-
-    const result = await this.memberActionsService.invite(organization.id, request);
-
-    if (result.success === false) {
-      this.toastService.showToast({ variant: "error", title: null, message: result.error });
-      return;
-    }
+    await this.userService.invite(emails, userView);
 
     this.toastService.showToast({
       variant: "success",

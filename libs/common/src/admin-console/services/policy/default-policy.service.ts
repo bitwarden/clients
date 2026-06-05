@@ -3,9 +3,12 @@ import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "r
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
 import { PolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
@@ -29,6 +32,13 @@ export class DefaultPolicyService implements PolicyService {
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private newPolicyService: InternalNewPolicyService,
+
+    // This callback is used to avoid a circular dependency error.
+    // PM-35986 addresses the root cause of the circular dependency.
+    // The callback can be removed after that is merged, or when
+    // the feature flag is removed, whichever is sooner.
+    private configService: () => ConfigService,
   ) {}
 
   private policyState(userId: UserId) {
@@ -48,13 +58,23 @@ export class DefaultPolicyService implements PolicyService {
       throw new Error("No userId provided");
     }
 
-    const allPolicies$ = this.policies$(userId);
-    const organizations$ = this.organizationService.organizations$(userId);
+    return this.configService()
+      .getFeatureFlag$(FeatureFlag.PoliciesInAcceptedState)
+      .pipe(
+        switchMap((useSdk) => {
+          if (useSdk) {
+            return this.newPolicyService.policiesByType$(policyType, userId);
+          }
 
-    return combineLatest([allPolicies$, organizations$]).pipe(
-      map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
-      map((policies) => policies.filter((p) => p.type === policyType)),
-    );
+          const allPolicies$ = this.policies$(userId);
+          const organizations$ = this.organizationService.organizations$(userId);
+
+          return combineLatest([allPolicies$, organizations$]).pipe(
+            map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
+            map((policies) => policies.filter((p) => p.type === policyType)),
+          );
+        }),
+      );
   }
 
   policyAppliesToUser$(policyType: PolicyType, userId: UserId) {
@@ -282,7 +302,7 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.PasswordGenerator:
         // password generation policy
         return false;
-      case PolicyType.FreeFamiliesSponsorshipPolicy:
+      case PolicyType.FreeFamiliesSponsorship:
         // free Bitwarden families policy
         return false;
       case PolicyType.RestrictedItemTypes:
@@ -291,7 +311,7 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.RemoveUnlockWithPin:
         // Remove Unlock with PIN policy
         return false;
-      case PolicyType.AutoConfirm:
+      case PolicyType.AutomaticUserConfirmation:
         return false;
       case PolicyType.MasterPassword:
         // MasterPassword policy applies to everyone, including admins and owners

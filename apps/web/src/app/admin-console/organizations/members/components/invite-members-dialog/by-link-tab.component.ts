@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -9,9 +9,11 @@ import {
   map,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
 } from "rxjs";
 
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,6 +27,7 @@ import {
   IconButtonModule,
   LinkComponent,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import {
   OrganizationInviteLink,
@@ -47,6 +50,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     IconButtonModule,
     ReactiveFormsModule,
     LinkComponent,
+    TooltipDirective,
   ],
 })
 export class ByLinkTabComponent {
@@ -56,6 +60,7 @@ export class ByLinkTabComponent {
 
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
+  private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
@@ -81,20 +86,46 @@ export class ByLinkTabComponent {
     ),
   );
 
-  readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLinkUrl$.pipe(
-    map((inviteLink) => inviteLink != undefined),
+  readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLink$.pipe(
+    map((inviteLink) => inviteLink != null),
   );
 
   readonly form = this.fb.group({
     domains: ["", Validators.required],
   });
 
+  readonly domainsEmpty = toSignal(
+    this.form.controls.domains.valueChanges.pipe(
+      map((v) => !v || v.trim().length === 0),
+      startWith(true),
+    ),
+    { initialValue: true },
+  );
+
+  private readonly prefillAttempted = signal(false);
+
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
+        this.prefillAttempted.set(true);
         this.form.controls.domains.setValue(inviteLink.allowedDomains.join(", "));
+      } else if (inviteLink == null && !this.form.dirty && !this.prefillAttempted()) {
+        this.prefillAttempted.set(true);
+        void this.prefillFromVerifiedDomains();
       }
     });
+  }
+
+  private async prefillFromVerifiedDomains(): Promise<void> {
+    const allDomains = await this.orgDomainApiService.getAllByOrgId(this.organizationId());
+    const verifiedDomainNames = allDomains
+      .filter((d) => d.verifiedDate != null)
+      .map((d) => d.domainName);
+
+    if (verifiedDomainNames.length > 0) {
+      this.form.controls.domains.setValue(verifiedDomainNames.join(", "));
+      this.form.controls.domains.markAsDirty();
+    }
   }
 
   readonly save = async () => {
@@ -114,12 +145,8 @@ export class ByLinkTabComponent {
       .map((domain) => domain.trim())
       .filter((domain) => domain.length > 0);
 
-    if (domains.length === 0) {
-      this.form.controls.domains.setErrors({ required: true });
-      return;
-    }
-
     const inviteLink = await firstValueFrom(this.inviteLink$);
+
     if (inviteLink) {
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains);
     } else {
@@ -155,6 +182,15 @@ export class ByLinkTabComponent {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("inviteLinkRegenerated"),
+    });
+  };
+
+  readonly deactivateLink = async () => {
+    const userId = await firstValueFrom(this.userId$);
+    await this.inviteLinkService.delete(userId, this.organizationId());
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("inviteLinkInvalidated"),
     });
   };
 }

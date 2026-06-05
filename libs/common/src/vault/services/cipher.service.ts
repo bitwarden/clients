@@ -674,6 +674,11 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      return this.getManyFromApiForOrganizationUsingSdk(organizationId);
+    }
+
     const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/assigned?organizationId=" + organizationId,
@@ -683,6 +688,30 @@ export class CipherService implements CipherServiceAbstraction {
     );
     const response = new ListResponse(r, CipherResponse);
     return this.decryptOrganizationCiphersResponse(response, organizationId);
+  }
+
+  private async getManyFromApiForOrganizationUsingSdk(
+    organizationId: string,
+  ): Promise<CipherView[]> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    try {
+      const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
+        organizationId,
+        userId,
+      );
+
+      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+
+      cipherViews.sort(this.getLocaleSortingFunction());
+
+      return cipherViews;
+    } catch {
+      return [];
+    }
   }
 
   private async decryptOrganizationCiphersResponse(
@@ -1242,6 +1271,19 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: CollectionId[],
     removeCollections: boolean = false,
   ): Promise<void> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      await this.cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        userId,
+        cipherIds,
+        collectionIds,
+        removeCollections,
+      );
+      return;
+    }
+
     const request = new CipherBulkUpdateCollectionsRequest(
       orgId,
       cipherIds,
@@ -1336,6 +1378,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
+      return;
+    }
+
     await this.apiService.putMoveCiphers(new CipherBulkMoveRequest(ids, folderId));
 
     let ciphers = await firstValueFrom(this.ciphers$(userId));
