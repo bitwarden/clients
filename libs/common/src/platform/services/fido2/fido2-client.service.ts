@@ -38,6 +38,7 @@ import { Utils } from "../../misc/utils";
 import { ScheduledTaskNames } from "../../scheduling/scheduled-task-name.enum";
 import { TaskSchedulerService } from "../../scheduling/task-scheduler.service";
 
+import { parseCredentialId } from "./credential-id-utils";
 import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";
 import { guidToRawFormat } from "./guid-utils";
@@ -357,15 +358,29 @@ export class Fido2ClientService<
       //
       // To preserve the original intent (PM-33781) without breaking vault-resident passkeys, we
       // consult the vault first and only fall back when none of the requested credential ids are
-      // present.
-      const vaultCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
+      // present. Vault credential ids may be stored in either UUID or "b64.<base64url>" form, so
+      // we normalize via `parseCredentialId` rather than assuming UUID format.
+      let vaultCredentials: { credentialId: string }[];
+      try {
+        vaultCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
+      } catch (error) {
+        // Treat discovery failures (e.g. transient sync / decryption / no active account) as
+        // "no vault match" so the original PM-33781 fallback fires. Surfacing the raw error here
+        // would convert what was previously a deterministic FallbackRequestedError into an
+        // unhandled exception in the calling page-script.
+        this.logService?.warning(
+          `[Fido2Client] silentCredentialDiscovery failed during transport-only fallback check; falling back to browser. ${error}`,
+        );
+        throw new FallbackRequestedError();
+      }
+
       const requestedIds = new Set(params.allowedCredentials.map((c) => c.id));
       const vaultHasMatch = vaultCredentials.some((vc) => {
-        try {
-          return requestedIds.has(Fido2Utils.arrayToString(guidToRawFormat(vc.credentialId)));
-        } catch {
+        const raw = parseCredentialId(vc.credentialId);
+        if (raw == null) {
           return false;
         }
+        return requestedIds.has(Fido2Utils.arrayToString(raw));
       });
 
       if (!vaultHasMatch) {

@@ -654,6 +654,24 @@ describe("FidoAuthenticatorService", () => {
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
 
+      it("matches vault credentials stored in b64.<base64url> form", async () => {
+        const rawBytes = randomBytes(16);
+        const allowedId = Fido2Utils.arrayToString(rawBytes);
+        const credentialId = "b64." + allowedId;
+        const params = createParams({
+          allowedCredentials: [{ id: allowedId, transports: ["usb"] }],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([
+          { credentialId } as Fido2CredentialView,
+        ]);
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
       it("falls back when allowCredentials are non-internal and the vault holds different credentials", async () => {
         const params = createParams({
           allowedCredentials: [{ id: "requestedCredId", transports: ["hybrid"] }],
@@ -662,6 +680,19 @@ describe("FidoAuthenticatorService", () => {
         authenticator.silentCredentialDiscovery.mockResolvedValue([
           { credentialId: Utils.newGuid() } as Fido2CredentialView,
         ]);
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("falls back when silentCredentialDiscovery throws", async () => {
+        const params = createParams({
+          allowedCredentials: [{ id: "requestedCredId", transports: ["hybrid"] }],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockRejectedValue(new Error("vault unavailable"));
 
         await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
           fallbackRequested: true,
