@@ -56,11 +56,9 @@
     ></button>
     <bit-menu #corruptedCipherOptions>
       @if (canDeleteCipher()) {
-        <button bitMenuItem (click)="deleteCipher()" type="button">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
-          </span>
+        <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
+          <bit-icon fixedWidth name="bwi-trash" slot="start" />
+          {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
         </button>
       }
     </bit-menu>
@@ -179,11 +177,9 @@
         </button>
       }
       @if (canDeleteCipher()) {
-        <button bitMenuItem (click)="deleteCipher()" type="button">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
-          </span>
+        <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
+          <bit-icon fixedWidth name="bwi-trash" slot="start" />
+          {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
         </button>
       }
     </bit-menu>
