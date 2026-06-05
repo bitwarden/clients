@@ -39,6 +39,8 @@ export class BankAccountViewComponent {
 
   readonly revealAccountNumber = signal(false);
   readonly revealPin = signal(false);
+  readonly revealSwiftCode = signal(false);
+  readonly revealIban = signal(false);
 
   readonly localizedAccountType = computed(() => {
     const accountTypeMap: Record<BankAccountType, string> = {
@@ -74,6 +76,30 @@ export class BankAccountViewComponent {
     if (visible) {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledBankAccountPinVisible,
+        this.cipher().id,
+        false,
+        this.cipher().organizationId,
+      );
+    }
+  }
+
+  async toggleSwiftCodeVisible(visible: boolean) {
+    this.revealSwiftCode.set(visible);
+    if (visible) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledSwiftCodeVisible,
+        this.cipher().id,
+        false,
+        this.cipher().organizationId,
+      );
+    }
+  }
+
+  async toggleIbanVisible(visible: boolean) {
+    this.revealIban.set(visible);
+    if (visible) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledIbanVisible,
         this.cipher().id,
         false,
         this.cipher().organizationId,

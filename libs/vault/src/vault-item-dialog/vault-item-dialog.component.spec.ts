@@ -449,6 +449,60 @@ describe("VaultItemDialogComponent", () => {
 
       expect(close).toHaveBeenCalledWith(VaultItemDialogResult.Saved);
     });
+
+    describe("from form mode", () => {
+      beforeEach(() => {
+        component.setTestCipher({ id: "cipher-id", collectionIds: [] } as any);
+        component.setTestParams({ mode: "form" });
+        component.setTestFormConfig({ mode: "edit" });
+        jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
+      });
+
+      it("refreshes the cipher from local state and switches to view mode", async () => {
+        const latestCipher = { id: "cipher-id" } as any;
+        const refreshedCipherView = { id: "cipher-id", attachments: [] } as any;
+        cipherServiceMock.get.mockResolvedValue(latestCipher);
+        cipherServiceMock.decrypt.mockResolvedValue(refreshedCipherView);
+
+        await component.cancel();
+
+        expect(cipherServiceMock.get).toHaveBeenCalledWith("cipher-id", "test-user-id");
+        expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(latestCipher, "test-user-id");
+        expect(component["cipher"]).toBe(refreshedCipherView);
+        expect((component as any).changeMode).toHaveBeenCalledWith("view");
+      });
+
+      it("leaves the existing cipher in place when local state has no cipher", async () => {
+        const originalCipher = component["cipher"];
+        cipherServiceMock.get.mockResolvedValue(null as any);
+
+        await component.cancel();
+
+        expect(cipherServiceMock.decrypt).not.toHaveBeenCalled();
+        expect(component["cipher"]).toBe(originalCipher);
+        expect((component as any).changeMode).toHaveBeenCalledWith("view");
+      });
+
+      it("does not refresh and closes the dialog when formConfig mode is clone", async () => {
+        component.setTestFormConfig({ mode: "clone" });
+
+        await component.cancel();
+
+        expect(cipherServiceMock.get).not.toHaveBeenCalled();
+        expect((component as any).changeMode).not.toHaveBeenCalled();
+        expect(close).toHaveBeenCalledWith(undefined);
+      });
+    });
+
+    it("does not refresh the cipher when in view mode", async () => {
+      component.setTestCipher({ id: "cipher-id" } as any);
+      component.setTestParams({ mode: "view" });
+
+      await component.cancel();
+
+      expect(cipherServiceMock.get).not.toHaveBeenCalled();
+      expect(close).toHaveBeenCalledWith(undefined);
+    });
   });
 
   describe("static open()", () => {

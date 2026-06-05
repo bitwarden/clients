@@ -244,3 +244,13 @@ export class MockDialogService {
   };
   openSimpleDialog = () => Promise.resolve(true);
 }
+
+/**
+ * Mock ConfigService for Storybook stories.
+ */
+export class MockConfigService {
+  getFeatureFlag$ = (flag: string) => {
+    action("ConfigService.getFeatureFlag$")(flag);
+    return of(true);
+  };
+}
