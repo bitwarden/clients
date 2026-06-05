@@ -49,10 +49,9 @@
             ></button>
 
             <bit-menu #headerMenu>
-              <button type="button" bitMenuItem (click)="deleteAllSelected()">
-                <span class="tw-text-danger"
-                  ><i aria-hidden="true" class="bwi bwi-trash"></i> {{ "delete" | i18n }}</span
-                >
+              <button type="button" bitMenuItem variant="danger" (click)="deleteAllSelected()">
+                <bit-icon name="bwi-trash" slot="start" />
+                {{ "delete" | i18n }}
               </button>
             </bit-menu>
           </th>
@@ -95,10 +94,9 @@
                 <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
                 {{ "collections" | i18n }}
               </button>
-              <button type="button" bitMenuItem (click)="delete(g)">
-                <span class="tw-text-danger"
-                  ><i aria-hidden="true" class="bwi bwi-trash"></i> {{ "delete" | i18n }}</span
-                >
+              <button type="button" bitMenuItem variant="danger" (click)="delete(g)">
+                <bit-icon name="bwi-trash" slot="start" />
+                {{ "delete" | i18n }}
               </button>
             </bit-menu>
           </td>

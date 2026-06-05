@@ -22,6 +22,7 @@ import {
   MenuModule,
   SearchModule,
   SimpleDialogOptions,
+  IconModule,
 } from "@bitwarden/components";
 import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
@@ -42,6 +43,7 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     SearchModule,
     JslibModule,
     NewCipherMenuComponent,
+    IconModule,
   ],
 })
 export class VaultHeaderComponent {
