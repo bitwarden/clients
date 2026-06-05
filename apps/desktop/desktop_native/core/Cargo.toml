@@ -48,7 +48,7 @@ typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-ashpd = { workspace = true, features = ["input_capture"] }
+ashpd = { workspace = true, features = ["background", "clipboard", "input_capture"] }
 homedir = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }
