@@ -82,6 +82,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return true;
     }
 
+    // TODO: figure out how this can be hit in any real application flows...
     // Accepting an org invite from existing org
     if (await this.masterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
