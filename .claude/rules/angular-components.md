@@ -6,7 +6,7 @@ paths:
 
 # Angular Component Patterns
 
-Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/code-style/web/). Angular patterns that span beyond components (DI, observable subscriptions) live in [angular.md](./angular.md); TypeScript-wide rules (enum-likes, file/class naming, imports) live in [typescript.md](./typescript.md); Tailwind rules live in [tailwind.md](./tailwind.md).
+Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/code-style/web/). Angular patterns that span beyond components (DI) live in [angular.md](./angular.md); TypeScript-wide rules (enum-likes, file/class naming) live in [typescript.md](./typescript.md); Tailwind rules live in [tailwind.md](./tailwind.md).
 
 ## Component Configuration
 

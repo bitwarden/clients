@@ -17,6 +17,7 @@
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
 - **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
+- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`). Missing prefix means the class is ignored and styling silently breaks. See [.claude/rules/tailwind.md](./rules/tailwind.md) for additional Tailwind rules.
 
 ## Mono-Repo Architecture
 

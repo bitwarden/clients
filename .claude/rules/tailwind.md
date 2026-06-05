@@ -7,11 +7,7 @@ paths:
 
 # Tailwind
 
-Distilled from [Web Code Style — Tailwind](https://contributing.bitwarden.com/contributing/code-style/web/tailwind).
-
-## `tw-` Prefix
-
-All Tailwind classes **must** use the `tw-` prefix (e.g. `tw-flex`, `tw-p-4`). The prefix is required by the Tailwind config — missing it means the class is ignored and styling silently breaks.
+Distilled from [Web Code Style — Tailwind](https://contributing.bitwarden.com/contributing/code-style/web/tailwind). The `tw-` prefix rule lives in the root [CLAUDE.md](../CLAUDE.md) so it loads on every session.
 
 ## No Arbitrary Values
 
