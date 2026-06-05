@@ -1,24 +1,25 @@
 /**
  * DEMO ONLY — toggle and constants for the PAM mock layer.
  *
- * On by default in this demo workspace. To opt out for a session, run:
- *   localStorage.setItem("pam-mock", "false")
+ * Off by default — the real backend serves these endpoints. To opt back into
+ * the mock for an offline demo, run:
+ *   localStorage.setItem("pam-mock", "true")
  * then reload.
  *
  * `FeatureFlag.Pam` is also defaulted to TRUE in this worktree (see
  * libs/common/src/enums/feature-flag.enum.ts) so the cipher-open interceptor
- * round-trips through the mock without any LaunchDarkly setup.
+ * round-trips without any LaunchDarkly setup.
  *
- * Note: gating is no longer decided here. Whether a cipher is gated comes from
+ * Note: gating is not decided here. Whether a cipher is gated comes from
  * the server via `partialData` on the cipher sync response; the mock layer
  * only fakes the lease/request/inbox transport for already-gated rows.
  */
 export const PamMockConfig = {
   isEnabled(): boolean {
     if (typeof localStorage === "undefined") {
-      return true;
+      return false;
     }
-    return localStorage.getItem("pam-mock") !== "false";
+    return localStorage.getItem("pam-mock") === "true";
   },
 
   /** ~20% of submitted requests auto-deny instead of auto-approve. */

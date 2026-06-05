@@ -18,7 +18,6 @@ import { AccessRuleResponse } from "./responses/access-rule.response";
 import { BulkRevokeResult } from "./responses/bulk-revoke.result";
 import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
 import { InboxAccessRequestResponse } from "./responses/inbox-access-request.response";
-import { InboxBadgeCountResponse } from "./responses/inbox-badge-count.response";
 import { LeaseResponse } from "./responses/lease.response";
 
 /**
@@ -85,7 +84,6 @@ export abstract class PamApiService {
 
   abstract listInboxRequests(): Promise<InboxAccessRequestResponse[]>;
   abstract listInboxHistory(): Promise<InboxAccessRequestResponse[]>;
-  abstract getInboxBadgeCount(): Promise<InboxBadgeCountResponse>;
   abstract listMyRequests(): Promise<AccessRequestResponse[]>;
   abstract listActiveLeases(): Promise<LeaseResponse[]>;
 
