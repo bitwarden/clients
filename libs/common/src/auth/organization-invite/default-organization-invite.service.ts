@@ -82,8 +82,15 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return true;
     }
 
-    // TODO: figure out how this can be hit in any real application flows...
-    // Accepting an org invite from existing org
+    // Reached when an already-authenticated user lands on /accept-organization
+    // without first passing through the unauthed flow that would have stashed
+    // the invite — e.g., copying the accept-invite link out of the email and
+    // pasting it into the URL bar of a session that's already signed in. In
+    // that case `unauthedHandler` never runs, so `authedHandler` calls into
+    // here with no stash present. If the org has an MP policy enabled, we
+    // stash the invite and log the user out so they re-enter through the
+    // normal flow, where login enforces the MP policy against their current
+    // master password.
     if (await this.masterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
       this.authService.logOut(() => {

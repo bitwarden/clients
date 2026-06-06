@@ -6,8 +6,7 @@ client only.
 
 If you only remember one thing: **organization invites can be accepted by two
 fundamentally different mechanisms**, and which one runs depends on the path
-the user takes after clicking the email link. Holding that fork in mind is the
-key to following everything else here.
+the user takes after clicking the email link.
 
 ---
 
@@ -25,17 +24,19 @@ Only one production caller exists:
 For SSO JIT-provisioned users (where the server creates a Bitwarden account on
 first SSO login), the **server** accepts the user into the org as a side
 effect of finishing account setup. The client never calls
-`validateAndAcceptInvite` for these users. Two variants:
+`validateAndAcceptInvite` for these users. Which acceptance path runs depends
+on the org's configured **member decryption option** — the mechanism users
+employ to decrypt their vaults after SSO authentication (configured under the
+org's SSO settings):
 
-- **Master-password SSO**: server's `SetInitialMasterPasswordCommand` accepts
-  the user when they submit their initial master password.
-- **TDE SSO**: server accepts the user during admin-recovery enrollment (the
-  org feature that lets admins recover user accounts via a shared key — TDE
-  users are enrolled automatically as part of first-device setup, and the
-  acceptance is bundled into that server call).
-
-The canonical explanation lives in the JSDoc on
-[`WebSetInitialPasswordService.setInitialPassword`](../core/services/password-management/set-initial-password/web-set-initial-password.service.ts).
+- **Master password member decryption option**: server's
+  `SetInitialMasterPasswordCommand` accepts the user when they submit their
+  initial master password.
+- **Trusted Device Encryption (TDE) member decryption option**: server
+  accepts the user during admin-recovery enrollment (the org feature that
+  lets admins recover user accounts via a shared key — TDE users are enrolled
+  automatically as part of first-device setup, and the acceptance is bundled
+  into that server call).
 
 ---
 
@@ -214,6 +215,38 @@ org keys, a default collection, and posts `OrganizationUserAcceptInitRequest`.
 No MP-policy check happens for init invites because the user is the org's
 first member.
 
+### Authed user pastes the accept-invite URL directly
+
+The expected entry is clicking the email link, which opens a new (unauthed)
+tab and runs `unauthedHandler` — that stashes the invite **before** routing
+to `/login`. But a user can also copy the accept-invite URL out of the email
+and paste it into a tab that's already signed in. In that case:
+
+1. `AcceptFlowService.run` reads `activeAccountStatus$` as authed and
+   dispatches straight to `authedHandler`.
+2. `authedHandler` calls `validateAndAcceptInvite` with **no stash present**
+   (because `unauthedHandler` never ran).
+3. If the inviting org has the MP policy enabled,
+   `masterPasswordPolicyCheckRequired` returns `true` (policy enabled +
+   no stored invite = user has not been redirected through the MP check
+   yet). The service then stashes the invite and calls
+   `authService.logOut` — see
+   [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.ts)
+   (the branch inside `validateAndAcceptInvite`).
+4. Logout returns the user to `/login`, where the existing-user flow runs
+   normally: the stash drives policy fetching, the MP is evaluated against
+   the org's policy, and a non-compliant password triggers the post-login
+   force-set-password redirect.
+5. After login, `deepLinkGuard` replays `/accept-organization` and
+   `authedHandler` runs again — this time the stash is present, so
+   `masterPasswordPolicyCheckRequired` returns `false` and `accept()` runs.
+
+The branch is unit-tested in
+[`default-organization-invite.service.spec.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.spec.ts)
+("logs out the user and stores the invite when a master password policy check
+is required"), but there is no end-to-end / component-level test exercising
+the paste-into-authed-session entry. Worth covering.
+
 ---
 
 ## State and dependencies
@@ -225,6 +258,21 @@ first member.
 [`organization-invite-state.ts`](../../../../../../../libs/common/src/auth/organization-invite/organization-invite-state.ts)).
 Disk persistence is what makes the stash survive the navigation away to
 `/login` / `/sso` / `/finish-signup` and the SSO IdP round-trip.
+
+**Scope**: it's a single nullable slot in `GlobalState` (typed
+`OrganizationInvite | null`) — **not** keyed by user, not a map of invites.
+That means:
+
+- The slot is shared across tabs **and across users on the same install**. If
+  userA clicks an invite and userB later signs in on the same browser, userA's
+  invite is still sitting in disk state until something clears it.
+- This is why the email-mismatch guards exist in
+  `masterPasswordPolicyCheckRequired` and
+  `WebLoginComponentService.getOrgPoliciesFromOrgInvite`: they compare the
+  submitted email against the stashed invite's email and clear the stash on
+  mismatch, because nothing else scopes the slot to a user.
+- Last write wins. Two invites clicked in quick succession before the first
+  finishes will overwrite each other — there's no queue.
 
 ### Deep-link replay mechanism
 
@@ -260,14 +308,3 @@ list per invite token on the service instance. The cache is cleared on
 `setOrganizationInvite` and `clearOrganizationInvite` so a state transition
 never leaks stale entries. See the field comment in
 [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.ts).
-
-### Public service surface
-
-[`OrganizationInviteService`](../../../../../../../libs/common/src/auth/organization-invite/organization-invite.service.ts)
-exposes:
-
-- `getOrganizationInvite()` — read the stash
-- `setOrganizationInvite(invite)` — write the stash (clears policy cache)
-- `clearOrganizationInvite()` — wipe the stash (clears policy cache)
-- `validateAndAcceptInvite(invite, userId)` — client-orchestrated accept
-- `getInvitePolicies(invite)` — fetch org policies via invite token (cached)
