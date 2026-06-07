@@ -3616,7 +3616,7 @@
     "message": "سيتم تصدير العناصر الموجودة في خزنتك الشخصية فقط."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "سيتم تصدير العناصر المرتبطة بخزنة $ORGANIZATION$\nفقط. لن يتم تصدير العناصر الموجودة في الخزنات الشخصية.",
+    "message": "سيتم تصدير العناصر المرتبطة بخزنة $ORGANIZATION$ فقط. لن يتم تصدير العناصر الموجودة في الخزنات الشخصية.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3625,7 +3625,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "سيتم تصدير خزنة المؤسسة المرتبطة بـ $ORGANIZATION$\nفقط.",
+    "message": "سيتم تصدير خزنة المؤسسة المرتبطة بـ $ORGANIZATION$ فقط.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3634,7 +3634,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "سيتم تصدير خزنة المؤسسة المرتبطة بـ $ORGANIZATION$\nفقط. لن يتم تضمين مجموعات عناصري.",
+    "message": "سيتم تصدير خزنة المؤسسة المرتبطة بـ $ORGANIZATION$ فقط. لن يتم تضمين مجموعات عناصري.",
     "placeholders": {
       "organization": {
         "content": "$1",
