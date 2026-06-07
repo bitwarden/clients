@@ -4747,7 +4747,7 @@
     "message": "Nederīgi īsinājumtaustiņi"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ceļvedis",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -5187,13 +5187,13 @@
     "message": "Copy IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Ievietot kontā esošo vārdu starpliktuvē"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Ievietot starpliktuvē zara numuru"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Ievietot starpliktuvē SWIFT kodu"
   },
   "copyFirstName": {
     "message": "Copy first name"

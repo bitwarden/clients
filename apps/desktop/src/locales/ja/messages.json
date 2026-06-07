@@ -36,7 +36,7 @@
     "message": "SSH キー"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "銀行口座"
   },
   "typeLoginSubtitle": {
     "message": "Website or app"
@@ -48,16 +48,16 @@
     "message": "Personal info"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "重要なテキスト"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "サーバーのログイントークン"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "銀行の詳細"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "パスポート"
   },
   "passportDetails": {
     "message": "Passport details"
@@ -66,22 +66,22 @@
     "message": "Passport added"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "旅行文書"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "アイテムを整理する"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "共有アイテムを整理する"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "免許証"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "運転免許証または ID"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "追加するアイテムを選択"
   },
   "chooseItemToAddDesc": {
     "message": "Select the item type you want to add to your vault."
@@ -96,7 +96,7 @@
     "message": "保管庫を検索"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "検索をリセット"
   },
   "addItem": {
     "message": "アイテムの追加"
@@ -124,7 +124,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "このアイテムを編集する権限がありません"
   },
   "welcomeBack": {
     "message": "ようこそ"
@@ -139,59 +139,59 @@
     "message": "アイテムの表示"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "ログインを表示",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "カードを表示",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "ID を表示",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "メモを表示",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "銀行口座を表示",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "免許証を表示",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "パスポートを表示",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "新規ログイン",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "新規カード",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "新しい識別子",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "新規メモ",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "新しい銀行口座",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
@@ -261,7 +261,7 @@
     "message": "Hide text by default"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "閲覧者にメールアドレスを見せないようにします。"
   },
   "limitSendViews": {
     "message": "Limit views"
@@ -5081,7 +5081,7 @@
     "message": "Anyone with a password set by you"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "表示できる人"
   },
   "specificPeople": {
     "message": "Specific people"
@@ -5271,7 +5271,7 @@
     "message": "Input must be a whole number"
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
   },
   "sideNavigation": {
     "message": "Side navigation"
