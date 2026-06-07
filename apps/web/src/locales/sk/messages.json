@@ -3608,7 +3608,7 @@
     "message": "Všetky nezaplatené predplatné budú účtované prostredníctvom vášho spôsobu platby."
   },
   "paymentChargedWithTrialSpecificLength": {
-    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "message": "Váš plán ponúka $TRIAL_LENGTH$-dňovú skúšobnú dobu zadarmo. Z vašej platobnej metódy nebude stiahnutý poplatok, kým sa neskončí skúšobná doba. Plán môžete kedykoľvek zrušiť.",
     "placeholders": {
       "trial_length": {
         "content": "$1",
@@ -4638,7 +4638,7 @@
     }
   },
   "viewedIbanItemId": {
-    "message": "Viewed IBAN for item $ID$.",
+    "message": "Zobrazený IBAN položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4647,7 +4647,7 @@
     }
   },
   "copiedIbanItemId": {
-    "message": "Copied IBAN for item $ID$.",
+    "message": "Kopírovaný IBAN položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4656,7 +4656,7 @@
     }
   },
   "viewedSwiftCodeItemId": {
-    "message": "Viewed SWIFT code for item $ID$.",
+    "message": "Zobrazený SWIFT kód položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4665,7 +4665,7 @@
     }
   },
   "copiedSwiftCodeItemId": {
-    "message": "Copied SWIFT code for item $ID$.",
+    "message": "Skopírovaný SWIFT kód položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4674,7 +4674,7 @@
     }
   },
   "viewedNationalIdentificationNumberItemId": {
-    "message": "Viewed national identification number for item $ID$.",
+    "message": "Zobrazené rodné číslo položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4683,7 +4683,7 @@
     }
   },
   "copiedNationalIdentificationNumberItemId": {
-    "message": "Copied national identification number for item $ID$.",
+    "message": "Skopírované rodné číslo položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Chyba pri tvorbe reportu, skúste znova."
   },
+  "reportLoadFailed": {
+    "message": "Pri načítavaní reportu došlo k chybe. Skúste obnoviť stránku alebo vytvoriť nový report."
+  },
   "riskInsightsRunReport": {
     "message": "Generovať report"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankový účet"
+  },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
   },
   "amountX": {
     "message": "Suma $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Odpoveď na obnovenie hesla je prázdna"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "Položky ktoré boli v Koši viac ako 30 dní budú automaticky vymazané."
@@ -13146,7 +13155,7 @@
     "message": "Požadovaná akcia: V platobných údajoch chýba daňové identifikačné číslo. Ak nepridáte daňové identifikačné číslo, vaše faktúry môžu zahŕňať dodatočnú daň."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Omrvinková navigácia",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -13961,13 +13970,13 @@
     "message": "Kopírovať IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Kopírovať meno na účte"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Kopírovať číslo pobočky"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Kopírovať SWIFT kód"
   },
   "bankAccountTypeChecking": {
     "message": "Bežný účet"
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Kontrolou reportov o zraniteľnostiach udržujte vysokú bezpečnosť položiek vo vašom trezore."
   },
-  "coachmarkStepIndicator": {
-    "message": "Krok $CURRENT$ z $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ z $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

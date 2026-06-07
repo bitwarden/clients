@@ -3608,7 +3608,7 @@
     "message": "O seu método de pagamento será cobrado por quaisquer subscrições não pagas."
   },
   "paymentChargedWithTrialSpecificLength": {
-    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "message": "O seu plano inclui um período experimental gratuito de $TRIAL_LENGTH$ dias. O seu método de pagamento não será cobrado até ao fim do período experimental. Pode cancelar a qualquer momento.",
     "placeholders": {
       "trial_length": {
         "content": "$1",
@@ -4638,7 +4638,7 @@
     }
   },
   "viewedIbanItemId": {
-    "message": "Viewed IBAN for item $ID$.",
+    "message": "Visualizou o IBAN do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4647,7 +4647,7 @@
     }
   },
   "copiedIbanItemId": {
-    "message": "Copied IBAN for item $ID$.",
+    "message": "Copiou o IBAN do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4656,7 +4656,7 @@
     }
   },
   "viewedSwiftCodeItemId": {
-    "message": "Viewed SWIFT code for item $ID$.",
+    "message": "Visualizou o código SWIFT do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4665,7 +4665,7 @@
     }
   },
   "copiedSwiftCodeItemId": {
-    "message": "Copied SWIFT code for item $ID$.",
+    "message": "Copiou o código SWIFT do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4674,7 +4674,7 @@
     }
   },
   "viewedNationalIdentificationNumberItemId": {
-    "message": "Viewed national identification number for item $ID$.",
+    "message": "Visualizou o número do cartão de cidadão do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4683,7 +4683,7 @@
     }
   },
   "copiedNationalIdentificationNumberItemId": {
-    "message": "Copied national identification number for item $ID$.",
+    "message": "Copiou o número do cartão de cidadão do item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Ocorreu um erro ao gerar o relatório. Tente novamente."
   },
+  "reportLoadFailed": {
+    "message": "Ocorreu um erro ao carregar o relatório. Tente atualizar a página ou gerar um novo relatório."
+  },
   "riskInsightsRunReport": {
     "message": "Executar relatório"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Conta bancária"
+  },
+  "bankAccountDetails": {
+    "message": "Detalhes da conta bancária"
   },
   "amountX": {
     "message": "Montante $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "A resposta aos detalhes da redefinição da palavra-passe é nula"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "É necessária uma nova palavra-passe"
   },
   "trashCleanupWarning": {
     "message": "Os itens que estiverem no lixo há mais de 30 dias serão automaticamente eliminados."
@@ -13146,7 +13155,7 @@
     "message": "Ação necessária: Está a faltar um NIF nos detalhes de pagamento. Se um número de identificação fiscal não for adicionado, as suas faturas podem incluir impostos adicionais."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Caminho de navegação",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -13961,13 +13970,13 @@
     "message": "Copiar IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Copiar nome do titular da conta"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Copiar número da agência"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Copiar código SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Conta à ordem"
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Mantenha a segurança dos itens do seu cofre elevada ao consultar relatórios para detetar vulnerabilidades."
   },
-  "coachmarkStepIndicator": {
-    "message": "Passo $CURRENT$ de $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ de $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

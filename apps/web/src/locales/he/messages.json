@@ -15,7 +15,7 @@
     "message": "יישומים הכרחיים בסיכון"
   },
   "criticalApplicationsAtRisk": {
-    "message": "Critical applications at risk"
+    "message": "יישומים קריטיים בסיכון"
   },
   "allCriticalApps": {
     "message": "כל היישומים ההכרחיים"
@@ -209,7 +209,7 @@
     }
   },
   "yourDataIsInLetsPutItToWork": {
-    "message": "Your data is in. Let's put it to work."
+    "message": "הנתונים שלכם נכנסו. בואו נשתמש בהם."
   },
   "takeAQuickTourOfAccessIntelligence": {
     "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "אירעה שגיאה ביצירת הדו\"ח. נא לנסות שוב."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "הרץ דוח"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "חשבון בנק"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "סכום $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "תגובת פרטי איפוס סיסמה היא ריקה"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "פריטים שהיו באשפה יותר מ־30 יום יימחקו באופן אוטומטי."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

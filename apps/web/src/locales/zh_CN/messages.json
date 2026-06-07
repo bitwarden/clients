@@ -78,7 +78,7 @@
     "message": "审查存在风险的登录"
   },
   "dataLastUpdated": {
-    "message": "数据上次更新：$DATE$",
+    "message": "数据最后更新于：$DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -215,28 +215,28 @@
     "message": "快速了解 Access Intelligence，准确掌握如何将您组织的数据转化为实际行动。"
   },
   "yourEntireOrgsSecurityInOneView": {
-    "message": "整个团队的安全状况，一览无余"
+    "message": "在一个界面中掌握整个组织的安全状况"
   },
   "accessIntelligenceGivesYouSinglePlace": {
-    "message": "通过Access Intelligence，在一个页面，即可查看所有存在风险的应用、密码和成员。"
+    "message": "通过 Access Intelligence，在一个界面，即可查看所有存在风险的 App、密码和成员。"
   },
   "youSetThePrioritiesWeSurfaceTheRisks": {
-    "message": "您确定优先级，我们负责提示风险。"
+    "message": "您确定优先级，我们负责发现风险"
   },
   "youMarkWhichAppsAreMostCritical": {
-    "message": "您只需标记最重要的应用，Access Intelligence就会自动帮您找出需要优先处理的风险密码。"
+    "message": "您只需标记最关键的 App，Access Intelligence 会自动识别需要优先处理的存在风险的密码。"
   },
   "trackImprovementsAcrossYourTeam": {
-    "message": "查看整个团队的安全提升"
+    "message": "跟踪整个团队的改进情况"
   },
   "membersAreAutomaticallyNotified": {
-    "message": "成员会在 Bitwarden 扩展程序中自动收到风险密码提醒，无需您逐个提醒。"
+    "message": "成员会在他们的 Bitwarden 扩展中自动收到风险密码通知，无需您逐个提醒。"
   },
   "importYourOrgDataToGetStarted": {
-    "message": "导入组织数据以开始使用"
+    "message": "导入您的组织数据以开始使用"
   },
   "onceItHasTheVaultData": {
-    "message": "获取密码库数据后，Access Intelligence 即可开始生成组织的密码健康状况报告。"
+    "message": "拥有密码库数据后，Access Intelligence 即可开始生成组织的密码健康状况报告。"
   },
   "accessIntelligenceWelcomeTour": {
     "message": "Access Intelligence 欢迎导览"
@@ -589,7 +589,7 @@
     "message": "私密备注"
   },
   "note": {
-    "message": "笔记"
+    "message": "备注"
   },
   "customFields": {
     "message": "自定义字段"
@@ -943,7 +943,7 @@
     "message": "切换可见性"
   },
   "toggleCollapse": {
-    "message": "切换折叠",
+    "message": "展开/折叠",
     "description": "Toggling an expand/collapse state."
   },
   "checkPassword": {
@@ -1249,7 +1249,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "编辑许可证",
+    "message": "编辑驾驶证",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1289,7 +1289,7 @@
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "查看许可证",
+    "message": "查看驾驶证",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -1755,10 +1755,10 @@
     "message": "使用通行密钥登录"
   },
   "useSingleSignOn": {
-    "message": "使用单点登录"
+    "message": "使用单点登录 (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的组织要求单点登录。"
+    "message": "您的组织要求单点登录 (SSO)。"
   },
   "welcomeBack": {
     "message": "欢迎回来"
@@ -3251,7 +3251,7 @@
     "message": "暴露的密码"
   },
   "exposedPasswordsReportDesc": {
-    "message": "在数据泄露事件中暴露的密码很容易成为攻击者的目标。更改这些密码以防止潜在的入侵。"
+    "message": "在数据泄露中暴露的密码很容易成为攻击者的目标。更改这些密码以防止潜在的入侵。"
   },
   "exposedPasswordsFound": {
     "message": "发现暴露的密码"
@@ -3421,7 +3421,7 @@
     "message": "付款类型"
   },
   "accountCredit": {
-    "message": "账户信用额度",
+    "message": "账户余额",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "accountBalance": {
@@ -3429,7 +3429,7 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "addCredit": {
-    "message": "添加信用额度",
+    "message": "添加余额",
     "description": "Add more credit to your account's balance."
   },
   "amount": {
@@ -3437,16 +3437,16 @@
     "description": "Dollar amount, or quantity."
   },
   "creditDelayed": {
-    "message": "付款处理完毕后，添加的信用额度将出现在您的账户上。某些付款方式会延迟，并且可能比其他方式需要更长的时间来处理。"
+    "message": "付款处理完毕后，添加的余额将出现在您的账户上。某些付款方式会延迟，并且可能比其他方式需要更长的时间来处理。"
   },
   "makeSureEnoughCredit": {
-    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您存档的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
+    "message": "请确保您的账户有足够的余额来用于此购买。如果您的账户余额不足，您存档的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加余额。"
   },
   "notEnoughAccountCredit": {
-    "message": "您没有足够的账户信用额度来用于此购买。您可以从「计费」页面向您的账户添加信用额度。"
+    "message": "您没有足够的账户余额来用于此购买。您可以从「计费」页面向您的账户添加余额。"
   },
   "creditAppliedDesc": {
-    "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
+    "message": "您账户的余额可用于进行购买。任何可用的余额将用于自动抵扣此账户产生的账单。"
   },
   "goPremium": {
     "message": "升级高级版",
@@ -3800,7 +3800,7 @@
     "message": "添加存储空间将会调整计费总金额，并立即通过您存档的付款方式扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "storageRemoveNote": {
-    "message": "移除存储空间将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
+    "message": "移除存储空间将会调整计费总金额，这笔调整费用将按比例作为余额抵扣您的下一笔账单费用。"
   },
   "adjustedStorage": {
     "message": "调整了 $AMOUNT$ GB 存储空间。",
@@ -3827,7 +3827,7 @@
     "message": "许可证文件"
   },
   "licenseFileDesc": {
-    "message": "您的许可证文件的文件名类似于 $FILE_NAME$",
+    "message": "您的许可证文件的名称类似于 $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4118,7 +4118,7 @@
     "message": "密码库管理"
   },
   "singleSignOn": {
-    "message": "单点登录"
+    "message": "单点登录 (SSO)"
   },
   "editPolicy": {
     "message": "编辑策略"
@@ -4220,7 +4220,7 @@
     "message": "在下面输入他们的电子邮箱地址，以邀请新用户加入您的组织。"
   },
   "inviteMultipleEmailDesc": {
-    "message": "使用逗号分隔输入最多 $COUNT$ 个电子邮箱。",
+    "message": "使用逗号分隔最多输入 $COUNT$ 个电子邮箱。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4229,7 +4229,7 @@
     }
   },
   "inviteMultipleEmailsWithSeatLimit": {
-    "message": "使用逗号分隔输入最多 $BATCHLIMIT$ 个电子邮箱。（还剩余 $REMAININGSEATS$ 个席位）",
+    "message": "使用逗号分隔最多输入 $BATCHLIMIT$ 个电子邮箱。（还剩余 $REMAININGSEATS$ 个席位）",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -4248,7 +4248,7 @@
     "message": "您还剩余 0 个邀请。"
   },
   "inviteMultipleEmailsNoSeatLimit": {
-    "message": "一次性输入最多 $BATCHLIMIT$ 个电子邮箱，使用逗号分隔。",
+    "message": "一次最多输入 $BATCHLIMIT$ 个电子邮箱，使用逗号分隔。",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -4620,7 +4620,7 @@
     }
   },
   "viewedLicenseNumberItemId": {
-    "message": "查看了项目 $ID$ 的许可证号码。",
+    "message": "查看了项目 $ID$ 的驾驶证号码。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4629,7 +4629,7 @@
     }
   },
   "copiedLicenseNumberItemId": {
-    "message": "复制了项目 $ID$ 的许可证号码。",
+    "message": "复制了项目 $ID$ 的驾驶证号码。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "生成报告时发生错误。请重试。"
   },
+  "reportLoadFailed": {
+    "message": "加载报告时发生错误。请尝试刷新此页面或尝试生成新的报告。"
+  },
   "riskInsightsRunReport": {
     "message": "运行报告"
   },
@@ -5396,7 +5399,7 @@
     "message": "删除组织"
   },
   "deletingOrganizationContentWarning": {
-    "message": "请输入主密码以确认删除 $ORGANIZATION$ 及关联的所有数据。$ORGANIZATION$ 中的密码库数据包含有：",
+    "message": "输入主密码以确认删除 $ORGANIZATION$ 及所有关联的数据。$ORGANIZATION$ 中的密码库数据包含：",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "银行账户"
+  },
+  "bankAccountDetails": {
+    "message": "银行账户详细信息"
   },
   "amountX": {
     "message": "金额 $COUNT$",
@@ -5570,7 +5576,7 @@
     "message": "无捆绑优惠的席位，请联系"
   },
   "subscriptionUserSeatsLimitedAutoscale": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用，直到达到您的 $MAX$ 席位限制。",
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用，直到达到您的 $MAX$ 个席位限制。",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -5579,7 +5585,7 @@
     }
   },
   "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
-    "message": "您最多可邀请 $COUNT$ 位成员，而无需额外付费。要升级您的方案并邀请更多成员，请联系客户支持。",
+    "message": "您最多可邀请 $COUNT$ 位成员，而无需额外付费。请联系客户支持升级您的方案以邀请更多成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5642,7 +5648,7 @@
     "message": "添加用户席位将会调整计费总金额，并立即通过您存档的付款方式扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "seatsRemoveNote": {
-    "message": "移除用户席位将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
+    "message": "移除用户席位将会调整计费总金额，这笔调整费用将按比例作为余额抵扣您的下一笔账单费用。"
   },
   "adjustedSeats": {
     "message": "调整了 $AMOUNT$ 个用户席位。",
@@ -5727,7 +5733,7 @@
     "message": "升级组织"
   },
   "upgradeOrganizationDesc": {
-    "message": "此功能不适用于免费组织。请切换到付费方案以解锁更多功能。"
+    "message": "此功能不适用于免费版组织。请切换到付费版方案以解锁更多功能。"
   },
   "createOrganizationStep1": {
     "message": "创建组织：第一步"
@@ -6234,7 +6240,7 @@
     "message": "组织标识符"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "使用您组织的单点登录门户登录。请输入您组织的 SSO 标识符以开始。"
+    "message": "使用您组织的单点登录 (SSO) 门户登录。请输入您组织的 SSO 标识符以开始。"
   },
   "singleSignOnEnterOrgIdentifier": {
     "message": "输入您组织的 SSO 标识符以开始"
@@ -6243,7 +6249,7 @@
     "message": "要使用您的 SSO 提供程序登录，请输入您组织的 SSO 标识符以开始。当您从新设备登录时，可能需要输入此 SSO 标识符。"
   },
   "enterpriseSingleSignOn": {
-    "message": "企业单点登录"
+    "message": "企业单点登录 (SSO)"
   },
   "ssoHandOff": {
     "message": "您现在可以关闭此标签页然后在扩展中继续。"
@@ -6323,10 +6329,10 @@
     "message": "不符合要求的成员将被置于已撤销状态，直到他们退出所有其他组织，管理员不受此约束。达到要求后，管理员可以恢复他们的成员资格。"
   },
   "requireSso": {
-    "message": "要求单点登录身份验证"
+    "message": "要求单点登录 (SSO) 身份验证"
   },
   "requireSsoPolicyDesc": {
-    "message": "要求成员使用企业单点登录方式登录。"
+    "message": "要求成员使用企业单点登录 (SSO) 方式登录。"
   },
   "prerequisite": {
     "message": "先决条件"
@@ -6365,10 +6371,10 @@
     "message": "要分享的文本"
   },
   "sendTypeFile": {
-    "message": "文件"
+    "message": "文件 Send"
   },
   "sendTypeText": {
-    "message": "文本"
+    "message": "文本 Send"
   },
   "createSend": {
     "message": "新增 Send",
@@ -7340,6 +7346,9 @@
   "resetPasswordDetailsError": {
     "message": "重置密码详细信息响应为空"
   },
+  "resetPasswordNewPasswordRequired": {
+    "message": "必须填写新的密码"
+  },
   "trashCleanupWarning": {
     "message": "回收站中超过 30 天的项目将被自动删除。"
   },
@@ -7353,7 +7362,7 @@
     "message": "确认主密码"
   },
   "passwordConfirmationDesc": {
-    "message": "此操作受到保护。若要继续，请重新输入您的主密码以验证您的身份。"
+    "message": "此操作受到保护。要继续，请重新输入主密码以验证您的身份。"
   },
   "reinviteSelected": {
     "message": "重新发送邀请"
@@ -7368,7 +7377,7 @@
     "message": "确定要移除以下用户吗？该过程可能需要几秒钟才能完成，并且不能中断或取消。"
   },
   "removeOrgUsersConfirmation": {
-    "message": "成员被移除后，他们将不再拥有组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
+    "message": "成员被移除后，他们将不再拥有组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
   },
   "revokeUsersWarning": {
     "message": "成员被撤销后，他们将不再拥有组织数据的访问权限。要快速恢复此成员的访问权限，请前往「已撤销」选项卡。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
@@ -7691,7 +7700,7 @@
     "message": "输入您的身份提供程序主机 URL。使用逗号分隔输入多个 URL。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织更新了您的解密选项。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织更新了您的解密选项。请设置一个主密码以访问您的密码库，。"
   },
   "sessionTimeoutPolicyTitle": {
     "message": "会话超时"
@@ -7926,7 +7935,7 @@
     "message": "绑定类型"
   },
   "idpSingleSignOnServiceUrl": {
-    "message": "单点登录服务 URL"
+    "message": "单点登录 (SSO) 服务 URL"
   },
   "idpSingleLogoutServiceUrl": {
     "message": "单点注销服务 URL"
@@ -7947,7 +7956,7 @@
     "message": "签署身份验证请求"
   },
   "ssoSettingsSaved": {
-    "message": "单点登录配置已保存"
+    "message": "单点登录 (SSO) 配置已保存"
   },
   "sponsoredFamilies": {
     "message": "免费 Bitwarden 家庭版"
@@ -7977,7 +7986,7 @@
     "message": "Bitwarden 家庭版方案包含"
   },
   "sponsoredFamiliesPremiumAccess": {
-    "message": "最多 6 个高级版访问权限的用户"
+    "message": "最多 6 位高级版访问权限的用户"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "为家庭成员提供共享集合"
@@ -8007,7 +8016,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "重新申领了免费方案"
+    "message": "收回了免费版方案"
   },
   "redeem": {
     "message": "兑换"
@@ -8152,7 +8161,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "要求单点登录身份验证策略",
+    "message": "要求单点登录 (SSO) 身份验证策略",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -8190,7 +8199,7 @@
     "message": "SSO 已停用"
   },
   "emailMustLoginWithSso": {
-    "message": "$EMAIL$ 必须使用单点登录",
+    "message": "$EMAIL$ 必须使用单点登录 (SSO)",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -8987,7 +8996,7 @@
     "message": "一个或多个电子邮箱无效"
   },
   "tooManyEmails": {
-    "message": "您一次只能提交最多 $COUNT$ 个电子邮箱",
+    "message": "您一次最多只能提交 $COUNT$ 个电子邮箱",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9137,7 +9146,7 @@
     "description": "Description for the Projects field."
   },
   "lastEdited": {
-    "message": "上次编辑",
+    "message": "最后编辑于",
     "description": "The label for the date and time when a item was last edited."
   },
   "editSecret": {
@@ -9756,7 +9765,7 @@
     "message": "切换产品"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费方案。",
+    "message": "免费版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -9774,7 +9783,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级您的方案。",
+    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。请升级您的方案以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -9783,7 +9792,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。要升级您的方案并邀请更多成员，请联系您的组织所有者。",
+    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级您的方案以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -9792,7 +9801,7 @@
     }
   },
   "freeOrgMaxCollectionReachedManageBilling": {
-    "message": "免费组织最多拥有 $COLLECTIONCOUNT$ 个集合。要添加更多集合，请升级到付费方案。",
+    "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个集合。请升级到付费版方案以添加更多集合。",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -10262,10 +10271,10 @@
     "message": "已暴露的主密码"
   },
   "exposedMasterPasswordDesc": {
-    "message": "密码在数据泄露中被发现。请使用一个唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
+    "message": "在数据泄露中发现密码。请使用唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
   },
   "weakAndExposedMasterPassword": {
-    "message": "主密码弱且曾经暴露"
+    "message": "弱且已暴露的主密码"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
@@ -10426,7 +10435,7 @@
     "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。"
   },
   "resetPasswordPolicyAutoEnrollCheckboxV2": {
-    "message": "在恢复账户中自动注册新成员"
+    "message": "为新成员自动注册账户恢复"
   },
   "resetMasterPassword": {
     "message": "重置主密码"
@@ -11749,7 +11758,7 @@
     "message": "通过监测报告弥补安全漏洞"
   },
   "upgradeOrganizationCloseSecurityGapsDesc": {
-    "message": "升级到付费方案以加强监测，从而提前发现安全漏洞。"
+    "message": "升级到付费版方案以加强监测，从而提前发现安全漏洞。"
   },
   "approveAllRequests": {
     "message": "批准所有请求"
@@ -12070,7 +12079,7 @@
     "message": "SSO 身份验证"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。要邀请更多成员，请升级到付费方案。",
+    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12079,7 +12088,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。要升级，请联系您的组织所有者。",
+    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12718,7 +12727,7 @@
     "message": "没有可列出的组织"
   },
   "yourProviderSubscriptionCredit": {
-    "message": "您的提供商订阅将获得此组织订阅剩余时间内的信用额度。"
+    "message": "您的提供商订阅将获得此组织订阅剩余时间内的余额。"
   },
   "doYouWantToAddThisOrg": {
     "message": "要将该组织添加到 $PROVIDER$ 吗？",
@@ -12796,7 +12805,7 @@
     "message": "查看事件"
   },
   "cannotCreateCollection": {
-    "message": "免费版组织最多拥有 2 个集合。要添加更多集合，请升级到付费版方案。"
+    "message": "免费版组织最多拥有 2 个集合。请升级到付费版方案以添加更多集合。"
   },
   "searchArchive": {
     "message": "搜索归档"
@@ -13015,7 +13024,7 @@
     }
   },
   "billingAddressRequiredToAddCredit": {
-    "message": "添加信用额度需要计费地址。",
+    "message": "添加余额需要计费地址。",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
@@ -13049,7 +13058,7 @@
     "message": "您的银行账户已验证。"
   },
   "availableCreditAppliedToInvoice": {
-    "message": "任何可用的信用额度将用于自动抵扣此账户的账单。"
+    "message": "任何可用的余额将用于自动抵扣此账户产生的账单。"
   },
   "mustBePositiveNumber": {
     "message": "必须是正数"
@@ -13146,7 +13155,7 @@
     "message": "需要采取操作：您的付款详细信息缺少税务 ID 号码。如果未添加税务 ID，您的账单可能会包含附加税。"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "面包屑导航",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -13686,7 +13695,7 @@
     "message": "上传您的高级版许可证文件"
   },
   "uploadLicenseFileDesc": {
-    "message": "您的许可证文件名将类似于：$FILE_NAME$",
+    "message": "您的许可证文件的名称类似于：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -13698,7 +13707,7 @@
     "message": "已经有一个订阅了吗？"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "打开您的 Bitwarden 云账户中的订阅页面并下载您的许可证文件。然后返回此界面并在下方上传该文件。"
+    "message": "打开您的 Bitwarden 云账户的订阅页面，下载您的许可证文件。然后返回此界面，在下方上传该文件。"
   },
   "viewAllPlans": {
     "message": "查看所有方案"
@@ -13814,7 +13823,7 @@
     "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
-    "message": "当您移除存储空间时，您将收到一笔按比例计算的账户信用额度，其将用于自动抵扣您的下一笔费用。"
+    "message": "当您移除存储空间时，您将收到一笔按比例计算的账户余额，其将用于自动抵扣您的下一笔费用。"
   },
   "ownerBadgeA11yDescription": {
     "message": "所有者，$OWNER$，显示 $OWNER$ 拥有的所有项目",
@@ -13882,7 +13891,7 @@
     }
   },
   "premiumSubscriptionCredit": {
-    "message": "高级版订阅信用额度"
+    "message": "高级版订阅余额"
   },
   "enterpriseMembership": {
     "message": "企业版成员资格"
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
   },
-  "coachmarkStepIndicator": {
-    "message": "步骤 $CURRENT$ / $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14141,7 +14150,7 @@
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
   },
   "searchDriversLicense": {
-    "message": "搜索许可证"
+    "message": "搜索驾驶证"
   },
   "driversLicenseDetails": {
     "message": "驾驶证详细信息"

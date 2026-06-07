@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Ocorreu um erro ao gerar o relatório. Tente novamente."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Gerar relatório"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Conta bancária"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "Valor $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "A resposta para os detalhes de reconfiguração de senha é nula"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "Itens que estão na lixeira por mais de 30 dias serão apagados automaticamente."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Mantenha a segurança dos itens do seu cofre acompanhando os relatórios de vulnerabilidades."
   },
-  "coachmarkStepIndicator": {
-    "message": "$CURRENT$ de $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

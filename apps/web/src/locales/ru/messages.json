@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "При создании отчета произошла ошибка. Попробуйте снова."
   },
+  "reportLoadFailed": {
+    "message": "При загрузке отчета произошла ошибка. Попробуйте обновить страницу или сгенерировать новый отчет."
+  },
   "riskInsightsRunReport": {
     "message": "Запустить отчет"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Банковский счет"
+  },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
   },
   "amountX": {
     "message": "Сумма $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Ответ на сброс пароля пустой"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Требуется новый пароль"
   },
   "trashCleanupWarning": {
     "message": "Элементы, которые находились в корзине более 30 дней, будут удалены автоматически."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
   },
-  "coachmarkStepIndicator": {
-    "message": "Шаг $CURRENT$ из $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ из $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Raporu çalıştır"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Banka hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Banka hesap bilgileri"
   },
   "amountX": {
     "message": "Tutar: $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Parola sıfırlama detayları yanıtı boş"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Yeni parola gerekli"
   },
   "trashCleanupWarning": {
     "message": "30 günden uzun süre çöp kutusunda duran kayıtlar otomatik olarak silinecektir."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Adım $CURRENT$/$TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$/$TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

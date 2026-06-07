@@ -3759,11 +3759,11 @@
     "message": "Ödənilmiş faktura yoxdur."
   },
   "paid": {
-    "message": "Ödənilib",
+    "message": "Ödənilmiş",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "unpaid": {
-    "message": "Ödənilməyib",
+    "message": "Ödənilməmiş",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "transactions": {
@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Hesabat hazırlanarkən bir xəta baş verdi. Yenidən sınayın."
   },
+  "reportLoadFailed": {
+    "message": "Hesabatı yükləyərkən xəta baş verdi. Səhifəni təzələməyə çalışın və ya yeni bir hesabat yaradın."
+  },
   "riskInsightsRunReport": {
     "message": "Hesabatı işə sal"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bank hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Bank hesabı məlumatları"
   },
   "amountX": {
     "message": "Məbləğ: $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "\"Parol təfsilatlarını sıfırla\" cavabı boşdur"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "Tullantı qutusunda 30 gündən çox qalan elementlər avtomatik silinəcək."
@@ -13275,7 +13284,7 @@
     "message": "Limitsiz paylaşım - kimin nəyi görəcəyini seçin"
   },
   "familiesUnlimitedCollections": {
-    "message": "Limitsiz ailə kolleksiyaları"
+    "message": "Limitsiz ailə kolleksiyası"
   },
   "familiesSharedStorage": {
     "message": "Vacib ailə məlumatları üçün paylaşılan anbar sahəsi"
@@ -13389,7 +13398,7 @@
     "message": "Yüksəltmə prosesiniz emal olunarkən xəta ilə üzləşdik. Lütfən yenidən sınayın."
   },
   "bitwardenFreeplanMessage": {
-    "message": "Bitwarden Ödənişsiz planınız var"
+    "message": "Bitwarden Ödənişsiz planını istifadə edirsiniz"
   },
   "upgradeCompleteSecurity": {
     "message": "Tam təhlükəsizlik üçün yüksəldin"
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zəiflik hesabatları vasitəsilə seyfinizdəki elementlərin təhlükəsizliyini gücləndirin."
   },
-  "coachmarkStepIndicator": {
-    "message": "Addım $CURRENT$/$TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$/$TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

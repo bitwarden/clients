@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Beim Erstellen des Berichts ist ein Fehler aufgetreten. Versuche es erneut."
   },
+  "reportLoadFailed": {
+    "message": "Beim Laden des Berichts ist ein Fehler aufgetreten. Versuch die Seite neu zu laden oder erstelle einen neuen Bericht."
+  },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankkonto"
+  },
+  "bankAccountDetails": {
+    "message": "Bankverbindung"
   },
   "amountX": {
     "message": "Betrag $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Die Rückmeldung der Passwort Details Zurücksetzung ist null"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Neues Passwort ist erforderlich"
   },
   "trashCleanupWarning": {
     "message": "Einträge, die länger als 30 Tage im Papierkorb waren, werden automatisch gelöscht."
@@ -13146,7 +13155,7 @@
     "message": "Maßnahme erforderlich: In den Zahlungsdetails fehlt eine Steueridentifikationsnummer. Wenn keine Steuernummer hinzugefügt wird, können deine Rechnungen zusätzliche Steuern enthalten."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Navigationspfade",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Sorge für die Sicherheit deiner Tresor-Einträge, indem du Berichte auf Schwachstellen überprüfst."
   },
-  "coachmarkStepIndicator": {
-    "message": "Schritt $CURRENT$ von $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ von $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
