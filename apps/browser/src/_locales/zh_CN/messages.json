@@ -32,10 +32,10 @@
     "message": "使用通行密钥解锁"
   },
   "useSingleSignOn": {
-    "message": "使用单点登录"
+    "message": "使用单点登录 (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的组织要求单点登录。"
+    "message": "您的组织要求单点登录 (SSO)。"
   },
   "welcomeBack": {
     "message": "欢迎回来"
@@ -47,7 +47,7 @@
     "message": "设置密码以完成账户的创建"
   },
   "enterpriseSingleSignOn": {
-    "message": "企业单点登录"
+    "message": "企业单点登录 (SSO)"
   },
   "cancel": {
     "message": "取消"
@@ -1826,7 +1826,19 @@
     "message": "确认自动填充"
   },
   "confirmAutofillDesc": {
-    "message": "此站点与您保存的登录信息不匹配。在填充您的登录凭据之前，请确保它是一个可信的站点。"
+    "message": "此站点与您保存的登录信息不匹配。填充您的登录凭据之前，请确保它是一个可信的站点。"
+  },
+  "loginNeverMatchTitle": {
+    "message": "登录不匹配"
+  },
+  "loginNeverMatchDesc": {
+    "message": "此站点与您保存的登录信息不匹配。自动填充之前，请确认您访问的是可信的站点。"
+  },
+  "uriMatchRule": {
+    "message": "URI 匹配规则"
+  },
+  "neverMatch": {
+    "message": "永不匹配"
   },
   "loginHasNoSiteSaved": {
     "message": "登录未保存任何站点"
@@ -2229,6 +2241,9 @@
   "bankAccount": {
     "message": "银行账户"
   },
+  "bankAccountDetails": {
+    "message": "银行账户详细信息"
+  },
   "typeNote": {
     "message": "笔记"
   },
@@ -2284,7 +2299,7 @@
     "message": "签发州 / 省"
   },
   "licenseClass": {
-    "message": "许可证等级"
+    "message": "驾驶证等级"
   },
   "newItemHeaderLogin": {
     "message": "新增登录",
@@ -2482,7 +2497,7 @@
     "message": "其他操作"
   },
   "checkPassword": {
-    "message": "检查密码是否已经被公开。"
+    "message": "检查密码是否已暴露。"
   },
   "passwordExposed": {
     "message": "此密码在数据泄露中已被暴露 $VALUE$ 次。请立即修改。",
@@ -3193,13 +3208,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
-    "message": "文本"
+    "message": "文本 Send"
   },
   "sendTypeTextToShare": {
     "message": "要分享的文本"
   },
   "sendTypeFile": {
-    "message": "文件"
+    "message": "文件 Send"
   },
   "allSends": {
     "message": "所有 Send",
@@ -3415,7 +3430,7 @@
     "message": "确认主密码"
   },
   "passwordConfirmationDesc": {
-    "message": "此操作受到保护。若要继续，请重新输入您的主密码以验证您的身份。"
+    "message": "此操作受到保护。要继续，请重新输入主密码以验证您的身份。"
   },
   "emailVerificationRequired": {
     "message": "需要验证电子邮箱"
@@ -3442,7 +3457,7 @@
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织禁用了受信任设备加密。请设置一个主密码以访问您的密码库。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -4014,10 +4029,10 @@
     "message": "已暴露的主密码"
   },
   "exposedMasterPasswordDesc": {
-    "message": "密码在数据泄露中被发现。请使用一个唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
+    "message": "在数据泄露中发现密码。请使用唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
   },
   "weakAndExposedMasterPassword": {
-    "message": "主密码弱且曾经暴露"
+    "message": "弱且已暴露的主密码"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
@@ -4421,7 +4436,7 @@
     "message": "子菜单"
   },
   "toggleCollapse": {
-    "message": "切换折叠",
+    "message": "展开/折叠",
     "description": "Toggling an expand/collapse state."
   },
   "aliasDomain": {
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "页面加载时自动填充设置为使用默认设置。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "无法自动填充"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "默认匹配被设置为「精确匹配」。当前网站与此项目保存的登录信息不完全匹配。"
   },
   "okay": {
     "message": "确定"
@@ -5266,7 +5275,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "上次编辑"
+    "message": "最后编辑于"
   },
   "ownerYou": {
     "message": "所有者：您"
@@ -6226,7 +6235,7 @@
     "message": "下一步"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "面包屑导航",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {

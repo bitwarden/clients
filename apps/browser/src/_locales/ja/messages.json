@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "このサイトは保存されたログイン情報と一致しません。ログイン情報を入力する前に、信頼できるサイトであることを確認してください。"
   },
+  "loginNeverMatchTitle": {
+    "message": "ログイン情報が一致しません"
+  },
+  "loginNeverMatchDesc": {
+    "message": "このサイトは保存されたログイン情報と一致しません。自動入力する前に信頼できるサイトにいることを確認してください。"
+  },
+  "uriMatchRule": {
+    "message": "URI 一致ルール"
+  },
+  "neverMatch": {
+    "message": "一致しない"
+  },
   "loginHasNoSiteSaved": {
     "message": "ログイン情報にサイトが保存されていません"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "銀行口座"
+  },
+  "bankAccountDetails": {
+    "message": "銀行口座の詳細"
   },
   "typeNote": {
     "message": "メモ"
@@ -4431,12 +4446,6 @@
     "message": "ページ読み込み時の自動入力はデフォルトの設定を使うよう設定しました。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "自動入力できません"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
-  },
   "okay": {
     "message": "OK"
   },
@@ -6226,7 +6235,7 @@
     "message": "次へ"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "パンくずリスト",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {

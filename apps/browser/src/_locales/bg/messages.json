@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
   },
+  "loginNeverMatchTitle": {
+    "message": "Данните за вписване не съвпадат"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Този уеб сайт не съвпада с онзи, който е запазен в елемента за вписване. Уверете се, че се намирате в доверен уеб сайт, преди да попълните автоматично."
+  },
+  "uriMatchRule": {
+    "message": "Правило за разпознаване на адреса"
+  },
+  "neverMatch": {
+    "message": "Никога да не се търсят съвпадения"
+  },
   "loginHasNoSiteSaved": {
     "message": "Елементът за вписване няма запазен уеб сайт"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Банкова сметка"
+  },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
   },
   "typeNote": {
     "message": "Бележка"
@@ -4431,12 +4446,6 @@
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Автоматичното попълване не може да бъде извършено"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По подразбиране е зададена настройката „Точно съвпадение“. Текущият уеб сайт не съвпада точно със запазените данни за вход в този запис."
-  },
   "okay": {
     "message": "Добре"
   },
@@ -6226,7 +6235,7 @@
     "message": "Следващо"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Пътечка",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {

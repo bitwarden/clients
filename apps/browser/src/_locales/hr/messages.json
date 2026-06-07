@@ -1823,10 +1823,22 @@
     "message": "Isključi auto-ispunu"
   },
   "confirmAutofill": {
-    "message": "Potvrdi auto-ispunu"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Ova stranica ne odgovara tvojim spremljenim podacima za prijavu. Prije nego što uneseš svoje podatke za prijavu, provjeri je li riječ o pouzdanoj stranici."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Prijava nema spremljenu web stranicu"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bankovni račun"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Bilješka"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-ispuna kod učitavanja stranice koristi zadane postavke.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Nije moguća auto-ispuna"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Zadano podudaranje postavljeno je na „Točno podudaranje”. Trenutna web-stranica ne podudara se točno sa spremljenim podacima ove stavke za prijavu."
   },
   "okay": {
     "message": "U redu"

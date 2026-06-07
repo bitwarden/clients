@@ -1823,10 +1823,22 @@
     "message": "ปิดการป้อนอัตโนมัติ"
   },
   "confirmAutofill": {
-    "message": "ยืนยันการป้อนอัตโนมัติ"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "เว็บไซต์นี้ไม่ตรงกับรายละเอียดการเข้าสู่ระบบที่คุณบันทึกไว้ ก่อนป้อนข้อมูล โปรดตรวจสอบให้แน่ใจว่าเป็นเว็บไซต์ที่เชื่อถือได้"
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "โน้ต"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "ตั้งค่าการป้อนอัตโนมัติเมื่อโหลดหน้าเว็บเป็นค่าเริ่มต้นแล้ว",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "ไม่สามารถป้อนอัตโนมัติได้"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "การจับคู่เริ่มต้นตั้งค่าไว้ที่ 'ตรงกันทุกตัวอักษร' เว็บไซต์ปัจจุบันไม่ตรงกับรายละเอียดข้อมูลเข้าสู่ระบบที่บันทึกไว้สำหรับรายการนี้อย่างถูกต้อง"
   },
   "okay": {
     "message": "ตกลง"

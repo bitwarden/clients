@@ -32,10 +32,10 @@
     "message": "Passkey менен ачуу"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Бирдиктүү кирүү ыкмасын колдонуу"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Сиздин уюмуңуз жалгыз кирүү ыкмасын талап кылат."
   },
   "welcomeBack": {
     "message": "Кайрадан кош келиңиз"
@@ -44,10 +44,10 @@
     "message": "Күчтүү купуясөз түзүү"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Купуя сөз киргизип эсеп түзүшүн бүтүрүңүз"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise single sign-on"
+    "message": "Корпоративдик бирдиктүү кирүү ыкмасы"
   },
   "cancel": {
     "message": "Жокко чыгаруу"
@@ -56,22 +56,22 @@
     "message": "Жабуу"
   },
   "submit": {
-    "message": "Submit"
+    "message": "Жөнөтүү"
   },
   "emailAddress": {
     "message": "Email дареги"
   },
   "masterPass": {
-    "message": "Master password"
+    "message": "Башкы купуя сөз"
   },
   "masterPassDesc": {
-    "message": "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it."
+    "message": "Башкы купуя сөз – бул сиздин сактагычыңыздын ачкычы. Ал абдан маанилүү, андыктан аны унутпоого аракет кылыңыз. Унутсаңыз да, башкы купуя сөздү калыбына келтирүүгө эч кандай жол жок."
   },
   "masterPassHintDesc": {
-    "message": "A master password hint can help you remember your password if you forget it."
+    "message": "Башкы купуя сөз кыйытмасы аны эстеп калууга жардам берет."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Купуя сөзүңүздү унутуп калсаңыз, анын кыйытмасы сиздин email'иңизге жөнөтүлөт. Эң көп дегенде $CURRENT$/$MAXIMUM$ белги.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -84,13 +84,13 @@
     }
   },
   "reTypeMasterPass": {
-    "message": "Re-type master password"
+    "message": "Башкы купуя сөздү кайрадан киргизиңиз"
   },
   "masterPassHint": {
-    "message": "Master password hint (optional)"
+    "message": "Башкы купуя сөзгө кыйытма (ыктыярдуу)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Купуя сөз күчүнүн баалоосу: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -102,7 +102,7 @@
     "message": "Уюмга кошулуу"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "$ORGANIZATIONNAME$ уюмуна кошулуу",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -111,10 +111,10 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Башкы купуя сөз түзгөн соң бул уюмга кошулуңуз."
   },
   "tab": {
-    "message": "Tab"
+    "message": "Кыстырма"
   },
   "vault": {
     "message": "Сактагыч"
@@ -126,28 +126,28 @@
     "message": "Бардык сактагычтар"
   },
   "tools": {
-    "message": "Tools"
+    "message": "Куралдар"
   },
   "settings": {
     "message": "Орнотуулар"
   },
   "currentTab": {
-    "message": "Current tab"
+    "message": "Азыркы кыстырма"
   },
   "copyPassword": {
     "message": "Купуясөздү көчүрүү"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Купуя сүйлөмдү көчүрүү"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Жазманы көчүрүү"
   },
   "copyUri": {
-    "message": "Copy URI"
+    "message": "URI көчүрүү"
   },
   "copyUsername": {
-    "message": "Copy username"
+    "message": "Колдонуучунун атын көчүрүү"
   },
   "copyNumber": {
     "message": "Номерди көчүрүү"
@@ -156,28 +156,28 @@
     "message": "Коопсуздук кодун көчүрүү"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Атын көчүрүү"
   },
   "copyCompany": {
     "message": "Компанияны көчүрүү"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Социалдык камсыздандыруу номерин көчүрүү"
   },
   "copyPassportNumber": {
     "message": "Паспорт номерин көчүрүү"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Улуттук идентификациялык номерин көчүрүү"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Атын көчүрүү"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Атасынын атын көчүрүү"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Тегини көчүрүү"
   },
   "copyLicenseNumber": {
     "message": "Лицензия номерин көчүрүү"
@@ -204,43 +204,43 @@
     "message": "Сайтты көчүрүү"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Жазмаларды көчүрүү"
   },
   "copy": {
     "message": "Көчүрүү",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Толтуруу",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Автотолтуруу"
   },
   "autoFillLogin": {
-    "message": "Autofill login"
+    "message": "Логинди автотолтуруу"
   },
   "autoFillCard": {
-    "message": "Autofill card"
+    "message": "Картаны автотолтуруу"
   },
   "autoFillIdentity": {
-    "message": "Autofill identity"
+    "message": "Жеке маалыматты автотолтуруу"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Текшерүү кодун толтуруу"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Текшерүү кодун толтуруу",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
-    "message": "Generate password (copied)"
+    "message": "Купуясөз жаратуу (көчүрүүсү менен)"
   },
   "copyElementIdentifier": {
-    "message": "Copy custom field name"
+    "message": "Өзүмдүк талаанын атын көчүрүү"
   },
   "noMatchingLogins": {
-    "message": "No matching logins"
+    "message": "Туура келген логин жок"
   },
   "noCards": {
     "message": "Карта жок"
@@ -249,7 +249,7 @@
     "message": "Жеке маалымат жок"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Логин кошуу"
   },
   "addCardMenu": {
     "message": "Карта кошуу"
@@ -258,34 +258,34 @@
     "message": "Жеке маалымат кошуу"
   },
   "unlockVaultMenu": {
-    "message": "Unlock your vault"
+    "message": "Сактагычты ачуу"
   },
   "loginToVaultMenu": {
-    "message": "Log in to your vault"
+    "message": "Сактагычка кирүү"
   },
   "autoFillInfo": {
-    "message": "There are no logins available to autofill for the current browser tab."
+    "message": "Браузердеги азыркы кыстырмада автотолтурууга жеткиликтүү логин жок."
   },
   "addLogin": {
-    "message": "Add a login"
+    "message": "Логин кошуу"
   },
   "addItem": {
     "message": "Add item"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Эсептин email'и"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Кыйытма талап кылуу"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Купуя сөзгө кыйытма талап кылуу"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
   "getMasterPasswordHint": {
-    "message": "Get master password hint"
+    "message": "Башкы купуя сөзгө кыйытма талап кылуу"
   },
   "continue": {
     "message": "Улантуу"
@@ -300,16 +300,16 @@
     "message": "Код жөнөтүлдү"
   },
   "verificationCode": {
-    "message": "Verification code"
+    "message": "Текшерүү коду"
   },
   "confirmIdentity": {
-    "message": "Confirm your identity to continue."
+    "message": "Улантуу үчүн өздүгүңүздү ырастаңыз."
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Башкы купуя сөздү өзгөртүү"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Веб-тиркемеде улантылсынбы?"
   },
   "continueToWebAppDesc": {
     "message": "Explore more features of your Bitwarden account on the web app."
@@ -330,15 +330,15 @@
     "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase",
+    "message": "Манжа изи сүйлөмү",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "Your account's fingerprint phrase",
+    "message": "Эсебиңиздин манжа изи сүйлөмү",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "Two-step login"
+    "message": "Эки жолку кирүү"
   },
   "logOut": {
     "message": "Чыгуу"
@@ -347,13 +347,13 @@
     "message": "Bitwarden жөнүндө"
   },
   "about": {
-    "message": "About"
+    "message": "Bitwarden жөнүндө"
   },
   "moreFromBitwarden": {
     "message": "Bitwarden'ден кененирээк"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "bitwarden.com'до улантылсынбы?"
   },
   "bitwardenForBusiness": {
     "message": "Бизнес үчүн Bitwarden"
@@ -377,7 +377,7 @@
     "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
   },
   "freeBitwardenFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "Үй-бүлө үчүн акысыз Bitwarden"
   },
   "freeBitwardenFamiliesPageDesc": {
     "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
@@ -392,16 +392,16 @@
     "message": "Жылдыруу"
   },
   "addFolder": {
-    "message": "Add folder"
+    "message": "Бүктөмө кошуу"
   },
   "name": {
-    "message": "Name"
+    "message": "Аты"
   },
   "editFolder": {
-    "message": "Edit folder"
+    "message": "Бүктөмөнү өзгөртүү"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Бүктөмөнү өзгөртүү: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -410,58 +410,58 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Жаңы бүктөмө"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Бүктөмөнүн аты"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "Эч бир бүктөмө кошулган жок"
   },
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Бул бүктөмөнү чын эле такыр жоюп салгыңыз келеби?"
   },
   "deleteFolder": {
-    "message": "Delete folder"
+    "message": "Бүктөмөнү жоюу"
   },
   "folders": {
-    "message": "Folders"
+    "message": "Бүктөмөлөр"
   },
   "noFolders": {
-    "message": "There are no folders to list."
+    "message": "Көрсөтүүгө бүктөмө жок."
   },
   "helpFeedback": {
     "message": "Жардам жана ой-пикир"
   },
   "helpCenter": {
-    "message": "Bitwarden Help center"
+    "message": "Bitwarden Жардам борбору"
   },
   "communityForums": {
-    "message": "Explore Bitwarden community forums"
+    "message": "Bitwarden жамаатынын форумдарын изилдеңиз"
   },
   "contactSupport": {
-    "message": "Contact Bitwarden support"
+    "message": "Bitwarden колдоо борбору менен байланышуу"
   },
   "sync": {
-    "message": "Sync"
+    "message": "Синхрондоштуруу"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Азыр синхрондоштуруу"
   },
   "lastSync": {
-    "message": "Last sync:"
+    "message": "Акыркы синхрондоштуруу:"
   },
   "passGen": {
-    "message": "Password generator"
+    "message": "Купуя сөз жараткыч"
   },
   "generator": {
-    "message": "Generator",
+    "message": "Жараткыч",
     "description": "Short for 'credential generator'."
   },
   "passGenInfo": {
@@ -474,22 +474,22 @@
     "message": "Тандоо"
   },
   "generatePassword": {
-    "message": "Generate password"
+    "message": "Купуя сөз жаратуу"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Купуя сүйлөм жаратуу"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Купуя сөз жаратылды"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Купуя сүйлөм жаратылды"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Колдонуучунун аты жаратылды"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Email жаратылды"
   },
   "regeneratePassword": {
     "message": "Regenerate password"
@@ -533,7 +533,7 @@
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
-    "message": "Number of words"
+    "message": "Сөз саны"
   },
   "wordSeparator": {
     "message": "Сөз ажыраткыч"
@@ -622,10 +622,10 @@
     "message": "Баарын көрсөтүү"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Жашыруу"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Логинди көрүү"
   },
   "noItemsInList": {
     "message": "There are no items to list."
@@ -664,13 +664,13 @@
     "message": "Private note"
   },
   "note": {
-    "message": "Note"
+    "message": "Жазма"
   },
   "editItem": {
     "message": "Edit item"
   },
   "folder": {
-    "message": "Folder"
+    "message": "Бүктөмө"
   },
   "deleteItem": {
     "message": "Delete item"
@@ -679,13 +679,13 @@
     "message": "View item"
   },
   "launch": {
-    "message": "Launch"
+    "message": "Өтүү"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Веб-сайтка өтүү"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "$ITEMNAME$ веб-сайтына өтүү",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -694,13 +694,13 @@
     }
   },
   "website": {
-    "message": "Website"
+    "message": "Веб-сайт"
   },
   "toggleVisibility": {
-    "message": "Toggle visibility"
+    "message": "Көрүнүүнү өчүрүп/күйгүзүү"
   },
   "manage": {
-    "message": "Manage"
+    "message": "Башкаруу"
   },
   "other": {
     "message": "Башка"
@@ -712,13 +712,13 @@
     "message": "Set up an unlock method in Settings"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Сессия мөөнөтүнүн өтүшү"
   },
   "otherOptions": {
     "message": "Башка орнотуулар"
   },
   "rateExtension": {
-    "message": "Rate the extension"
+    "message": "Кеңейтмени баалоо"
   },
   "troubleshooting": {
     "message": "Troubleshooting"
@@ -734,7 +734,7 @@
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Жүктөө"
   },
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
@@ -746,7 +746,7 @@
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Кирүүнү улантуу"
   },
   "yourVaultIsLocked": {
     "message": "Your vault is locked. Verify your identity to continue."
@@ -855,13 +855,13 @@
     "message": "Confirm master password"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "Башкы купуя сөз"
   },
   "masterPassImportant": {
     "message": "Your master password cannot be recovered if you forget it!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Башкы купуя сөзгө кыйытма"
   },
   "errorOccurred": {
     "message": "Ката кетти"
@@ -873,7 +873,7 @@
     "message": "Туура эмес email дареги."
   },
   "masterPasswordRequired": {
-    "message": "Master password is required."
+    "message": "Башкы купуя сөз талап кылынат."
   },
   "confirmMasterPasswordRequired": {
     "message": "Master password retype is required."
@@ -895,13 +895,13 @@
     "message": "Your new account has been created! You may now log in."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Сиздин жаңы эсебиңиз түзүлдү!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Сиз эсебиңизге кирдиңиз!"
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Сиз эсебиңизге ийгиликтүү кирдиңиз"
   },
   "youMayCloseThisWindow": {
     "message": "Бул терезени жаап салсаңыз болот"
@@ -1025,10 +1025,10 @@
     "message": "An unexpected error has occurred."
   },
   "nameRequired": {
-    "message": "Name is required."
+    "message": "Аты талап кылынат."
   },
   "addedFolder": {
-    "message": "Folder added"
+    "message": "Бүктөмө кошулду"
   },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
@@ -1037,16 +1037,16 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Веб-тиркемеде улантылсынбы?"
   },
   "editedFolder": {
-    "message": "Folder saved"
+    "message": "Бүктөмө сакталды"
   },
   "deleteFolderConfirmation": {
-    "message": "Are you sure you want to delete this folder?"
+    "message": "Бул бүктөмөнү чын эле жоюп салгыңыз келеби?"
   },
   "deletedFolder": {
-    "message": "Folder deleted"
+    "message": "Бүктөмө жоюлду"
   },
   "gettingStartedTutorial": {
     "message": "Getting started tutorial"
@@ -1055,13 +1055,13 @@
     "message": "Watch our getting started tutorial to learn how to get the most out of the browser extension."
   },
   "syncingComplete": {
-    "message": "Syncing complete"
+    "message": "Синхрондоштуруу аткарылды"
   },
   "syncingFailed": {
     "message": "Syncing failed"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Купуя сөз көчүрүлдү"
   },
   "uri": {
     "message": "URI"
@@ -1080,7 +1080,7 @@
     "message": "Жаңы URI"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "Домен кошуу",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -1090,10 +1090,10 @@
     "message": "Item saved"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Сакталган веб-сайт"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Сакталган веб-сайттар ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1120,13 +1120,13 @@
     "message": "Are you sure you want to overwrite the current username?"
   },
   "searchFolder": {
-    "message": "Search folder"
+    "message": "Бүктөмөдө издөө"
   },
   "searchCollection": {
-    "message": "Search collection"
+    "message": "Жыйнакта издөө"
   },
   "searchType": {
-    "message": "Search type"
+    "message": "Издөөнүн түрү"
   },
   "noneFolder": {
     "message": "No folder",
@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
   },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
+  },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Note"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Cannot autofill"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "Okay"

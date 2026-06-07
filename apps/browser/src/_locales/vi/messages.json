@@ -1823,10 +1823,22 @@
     "message": "Tắt tự động điền"
   },
   "confirmAutofill": {
-    "message": "Xác nhận tự động điền"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Trang web này không khớp với đăng nhập đã lưu của bạn. Trước khi bạn điền thông tin đăng nhập, hãy đảm bảo đây là trang web đáng tin cậy."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Ghi chú"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Không thể tự động điền"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Phép so khớp mặc định được đặt thành \"Khớp chính xác\". Trang web hiện tại không khớp chính xác với đăng nhập đã lưu cho mục này."
   },
   "okay": {
     "message": "Đồng ý"

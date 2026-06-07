@@ -1823,10 +1823,22 @@
     "message": "ஆட்டோஃபில்லை முடக்கு"
   },
   "confirmAutofill": {
-    "message": "தானியங்கு நிரப்புதலை உறுதிப்படுத்தவும்"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "இந்த தளம் உங்கள் சேமிக்கப்பட்ட உள்நுழைவு விவரங்களுடன் பொருந்தவில்லை. உங்கள் உள்நுழைவு சான்றுகளை நிரப்புவதற்கு முன், அது நம்பகமான தளம்தானா என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "குறிப்பு"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "பக்க ஏற்றத்தில் தானியங்கு நிரப்புதல் இயல்புநிலை அமைப்பைப் பயன்படுத்த அமைக்கப்பட்டுள்ளது.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "தானாக நிரப்ப முடியாது"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "இயல்புநிலை பொருத்தம் 'சரியான பொருத்தம்' என அமைக்கப்பட்டுள்ளது. தற்போதைய வலைத்தளம் இந்த உருப்படிக்கான சேமிக்கப்பட்ட உள்நுழைவு விவரங்களுடன் சரியாகப் பொருந்தவில்லை."
   },
   "okay": {
     "message": "சரி"

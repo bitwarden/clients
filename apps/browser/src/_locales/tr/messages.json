@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Hesap bilgilerinizi doldurmadan önce sitenin güvenilir olduğundan emin olun."
   },
+  "loginNeverMatchTitle": {
+    "message": "Hesap eşleşmiyor"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Otomatik doldurmadan önce güvenilir bir sitede olduğunuzu doğrulayın."
+  },
+  "uriMatchRule": {
+    "message": "URl eşleşme kuralı"
+  },
+  "neverMatch": {
+    "message": "Asla eşleştirme"
+  },
   "loginHasNoSiteSaved": {
     "message": "Bu hesaba kayıtlı site yok"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Banka hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Banka hesap bilgileri"
   },
   "typeNote": {
     "message": "Not"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Otomatik doldurulamıyor"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Varsayılan eşleştirme \"Tam eşleşme\" olarak ayarlı. Geçerli web sitesi, bu kayıt için kaydedilen hesap bilgileriyle tam olarak eşleşmiyor."
   },
   "okay": {
     "message": "Tamam"

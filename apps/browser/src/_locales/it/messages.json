@@ -1823,10 +1823,22 @@
     "message": "Disattiva il riempimento automatico"
   },
   "confirmAutofill": {
-    "message": "Conferma il riempimento automatico"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Questo sito non corrisponde ai tuoi dati di accesso salvati. Prima di compilare le credenziali di accesso, assicurati che si tratti di un sito affidabile."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Il login non ha nessun indirizzo salvato"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Conto bancario"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Nota"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Riempimento automatico al caricamento della pagina impostato con l'impostazione predefinita.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Impossibile usare il riempimento automatico"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "La corrispondenza predefinita è impostata su 'Corrispondenza esatta'. Il sito Web corrente non corrisponde esattamente ai dettagli di accesso salvati per questo elemento."
   },
   "okay": {
     "message": "OK"
