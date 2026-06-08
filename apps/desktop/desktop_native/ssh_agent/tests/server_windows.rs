@@ -8,8 +8,10 @@ use common::{
     agent_with_keys, always_approving_agent, always_denying_agent,
     framed_invalid_session_bind_extension, framed_request_identities,
     framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
-    parse_sign_response_algorithm, read_framed_response, test_ed25519_key, test_ed25519_key_blob,
-    test_rsa_key, test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
+    parse_sign_response_algorithm, read_framed_response, test_ecdsa_p256_key,
+    test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key,
+    test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_rsa_key,
+    test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -327,6 +329,90 @@ async fn test_sign_request_rsa_sha256_flag_produces_sha256_signature() {
         parse_sign_response_algorithm(&response),
         "rsa-sha2-256",
         "expected SHA-256 algorithm when flags=2"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_ecdsa_p256_produces_p256_signature() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ecdsa_p256_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &test_ecdsa_p256_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+    assert_eq!(
+        parse_sign_response_algorithm(&response),
+        "ecdsa-sha2-nistp256",
+        "expected P-256 algorithm in response"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_ecdsa_p384_produces_p384_signature() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ecdsa_p384_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &test_ecdsa_p384_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+    assert_eq!(
+        parse_sign_response_algorithm(&response),
+        "ecdsa-sha2-nistp384",
+        "expected P-384 algorithm in response"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_ecdsa_p521_produces_p521_signature() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ecdsa_p521_key()]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_sign_request(
+            &test_ecdsa_p521_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+    assert_eq!(
+        parse_sign_response_algorithm(&response),
+        "ecdsa-sha2-nistp521",
+        "expected P-521 algorithm in response"
     );
 
     agent.stop();

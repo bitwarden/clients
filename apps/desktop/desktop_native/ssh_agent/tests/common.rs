@@ -14,6 +14,43 @@ AAAEAgAQkLDKjON00XO+Y09BoIBuQsAXAx6HUhQoTEodVzig5iivf6TICxdizawaKSZS6G
 nGZV/aEAZ3ZMrsrA3g32AAAAEHRlc3RAZXhhbXBsZS5jb20BAgMEBQ==
 -----END OPENSSH PRIVATE KEY-----";
 
+// Unencrypted P-256 ECDSA test key for testing only
+const TEST_ECDSA_P256_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAaAAAABNlY2RzYS
+1zaGEyLW5pc3RwMjU2AAAACG5pc3RwMjU2AAAAQQTxTFl3YbkQx1hDBpxzYXjxtxbWALAX
+l0J/uTOH7xp26qd/ZGDhXRyA9rev8RSYWUOHCeXWM1UfBD+/O6Q//Bg1AAAAsMdG2sXHRt
+rFAAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPFMWXdhuRDHWEMG
+nHNhePG3FtYAsBeXQn+5M4fvGnbqp39kYOFdHID2t6/xFJhZQ4cJ5dYzVR8EP787pD/8GD
+UAAAAhAKXjTrT6GTWhZjcgIDXAqy+WfYZfcPn7qN2+KvztRxwhAAAAEHRlc3RAZXhhbXBs
+ZS5jb20BAgMEBQYH
+-----END OPENSSH PRIVATE KEY-----";
+
+// Unencrypted P-384 ECDSA test key for testing only
+const TEST_ECDSA_P384_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAiAAAABNlY2RzYS
+1zaGEyLW5pc3RwMzg0AAAACG5pc3RwMzg0AAAAYQT/SPsICrjmTLm23gbxFnlXVWHssN+u
+l/xsmWByfXe69mFpZ51JZBixP+D/3RIHY8BGJtI63WTGT5ufZrA3WoqQxanfz1uloieBuD
+mQaCa63p0BnXiN1LeEXIn2KV8pzfUAAADgFQsp3BULKdwAAAATZWNkc2Etc2hhMi1uaXN0
+cDM4NAAAAAhuaXN0cDM4NAAAAGEE/0j7CAq45ky5tt4G8RZ5V1Vh7LDfrpf8bJlgcn13uv
+ZhaWedSWQYsT/g/90SB2PARibSOt1kxk+bn2awN1qKkMWp389bpaIngbg5kGgmut6dAZ14
+jdS3hFyJ9ilfKc31AAAAMQCG/ISb7T9VU6GgQcX1Rgg7W8vTe8gOV7GC7eN+99fb0hkAHM
+PVZD+gsWkn/amWSqYAAAAQdGVzdEBleGFtcGxlLmNvbQECAwQFBgc=
+-----END OPENSSH PRIVATE KEY-----";
+
+// Unencrypted P-521 ECDSA test key for testing only
+const TEST_ECDSA_P521_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAArAAAABNlY2RzYS
+1zaGEyLW5pc3RwNTIxAAAACG5pc3RwNTIxAAAAhQQAryIPEoVINPnTwKClFZzKsQZL1zSN
+L2Ym0RCgCLynP3/HHWm83bGJZSduxxbaZWWqLsbkqZC5Vol5IvlaY7afJMIB4d7g8kx+VA
+GWTPdaIE212/5MzpLSeO+CZfmx0stYR2mJvlcAoJEAVdHHrluGQHbQOCr9m4y/TgCLrgMU
+DUaw5J0AAAEQuqcPQ7qnD0MAAAATZWNkc2Etc2hhMi1uaXN0cDUyMQAAAAhuaXN0cDUyMQ
+AAAIUEAK8iDxKFSDT508CgpRWcyrEGS9c0jS9mJtEQoAi8pz9/xx1pvN2xiWUnbscW2mVl
+qi7G5KmQuVaJeSL5WmO2nyTCAeHe4PJMflQBlkz3WiBNtdv+TM6S0njvgmX5sdLLWEdpib
+5XAKCRAFXRx65bhkB20Dgq/ZuMv04Ai64DFA1GsOSdAAAAQgE5o4px5ogVApLd4CId9HoD
+q0pHQsJZqdLrnH8xAUB24nkyl0y5VBN+vSiK0gXbkKl++pWdihdvcmOWLVxJrbpBvAAAAB
+B0ZXN0QGV4YW1wbGUuY29tAQI=
+-----END OPENSSH PRIVATE KEY-----";
+
 // Unencrypted 2048-bit RSA test key for testing only
 const TEST_RSA_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
@@ -98,6 +135,60 @@ pub fn test_rsa_key_blob() -> Vec<u8> {
         .public_key()
         .to_bytes()
         .expect("RSA public key encoding should succeed")
+}
+
+pub fn test_ecdsa_p256_key() -> SSHKeyData {
+    SSHKeyData::from_private_key_pem(
+        TEST_ECDSA_P256_PEM,
+        "Test ECDSA P-256 Key".to_string(),
+        "cipher-ecdsa-p256".to_string(),
+    )
+    .expect("test ECDSA P-256 PEM should be valid")
+}
+
+/// Returns the SSH wire-format public key blob for the test ECDSA P-256 key.
+pub fn test_ecdsa_p256_key_blob() -> Vec<u8> {
+    ssh_key::PrivateKey::from_openssh(TEST_ECDSA_P256_PEM)
+        .expect("test ECDSA P-256 PEM should be valid")
+        .public_key()
+        .to_bytes()
+        .expect("ECDSA P-256 public key encoding should succeed")
+}
+
+pub fn test_ecdsa_p384_key() -> SSHKeyData {
+    SSHKeyData::from_private_key_pem(
+        TEST_ECDSA_P384_PEM,
+        "Test ECDSA P-384 Key".to_string(),
+        "cipher-ecdsa-p384".to_string(),
+    )
+    .expect("test ECDSA P-384 PEM should be valid")
+}
+
+/// Returns the SSH wire-format public key blob for the test ECDSA P-384 key.
+pub fn test_ecdsa_p384_key_blob() -> Vec<u8> {
+    ssh_key::PrivateKey::from_openssh(TEST_ECDSA_P384_PEM)
+        .expect("test ECDSA P-384 PEM should be valid")
+        .public_key()
+        .to_bytes()
+        .expect("ECDSA P-384 public key encoding should succeed")
+}
+
+pub fn test_ecdsa_p521_key() -> SSHKeyData {
+    SSHKeyData::from_private_key_pem(
+        TEST_ECDSA_P521_PEM,
+        "Test ECDSA P-521 Key".to_string(),
+        "cipher-ecdsa-p521".to_string(),
+    )
+    .expect("test ECDSA P-521 PEM should be valid")
+}
+
+/// Returns the SSH wire-format public key blob for the test ECDSA P-521 key.
+pub fn test_ecdsa_p521_key_blob() -> Vec<u8> {
+    ssh_key::PrivateKey::from_openssh(TEST_ECDSA_P521_PEM)
+        .expect("test ECDSA P-521 PEM should be valid")
+        .public_key()
+        .to_bytes()
+        .expect("ECDSA P-521 public key encoding should succeed")
 }
 
 /// Returns a public key blob with an unsupported algorithm (DSA).

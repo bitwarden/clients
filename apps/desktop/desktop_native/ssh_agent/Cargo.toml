@@ -18,6 +18,9 @@ signature = "=2.2.0"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
     "ed25519",
+    "p256",
+    "p384",
+    "p521",
     "rsa",
     "rand_core",
 ] }

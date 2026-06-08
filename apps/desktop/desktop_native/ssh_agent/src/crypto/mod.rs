@@ -6,9 +6,8 @@
 //! # Supported signing algorithms
 //!
 //! - Ed25519
+//! - ECDSA
 //! - RSA
-//!
-//! ECDSA keys are not currently supported (PM-29894)
 
 use std::fmt;
 
@@ -16,7 +15,7 @@ use anyhow::anyhow;
 use rkyv::{Archive, Deserialize, Serialize};
 use signature::Signer as _;
 use ssh_key::{
-    private::{Ed25519Keypair, RsaKeypair},
+    private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair},
     Signature,
 };
 
@@ -27,6 +26,7 @@ pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 #[derive(Clone, PartialEq, Debug)]
 pub enum PrivateKey {
     Ed25519(Ed25519Keypair),
+    Ecdsa(EcdsaKeypair),
     Rsa(RsaKeypair),
 }
 
@@ -43,6 +43,7 @@ pub enum PrivateKey {
 /// <https://docs.rs/signature/2.2.0/signature/trait.Signer.html>
 pub enum SignablePrivateKey {
     Ed25519(Ed25519Keypair),
+    Ecdsa(EcdsaKeypair),
     Rsa(RsaKeypair, SignFlags),
 }
 
@@ -50,6 +51,7 @@ impl SignablePrivateKey {
     pub fn sign(&self, data: &[u8]) -> Signature {
         match self {
             Self::Ed25519(kp) => kp.sign(data),
+            Self::Ecdsa(kp) => kp.sign(data),
             Self::Rsa(kp, flag) => sign_rsa(kp, data, *flag),
         }
     }
@@ -69,6 +71,7 @@ impl TryFrom<(PrivateKey, Option<SignFlags>)> for SignablePrivateKey {
     fn try_from((key, flags): (PrivateKey, Option<SignFlags>)) -> Result<Self, Self::Error> {
         match key {
             PrivateKey::Ed25519(kp) => Ok(Self::Ed25519(kp)),
+            PrivateKey::Ecdsa(kp) => Ok(Self::Ecdsa(kp)),
             PrivateKey::Rsa(kp) => flags
                 .map(|flag| Self::Rsa(kp, flag))
                 .ok_or(UnsignableErrRsaRequiresFlags),
@@ -106,6 +109,12 @@ impl TryFrom<ssh_key::private::PrivateKey> for PrivateKey {
                 key.key_data()
                     .ed25519()
                     .ok_or(anyhow!("Failed to parse ed25519 key"))?
+                    .to_owned(),
+            )),
+            ssh_key::Algorithm::Ecdsa { .. } => Ok(Self::Ecdsa(
+                key.key_data()
+                    .ecdsa()
+                    .ok_or(anyhow!("Failed to parse ECDSA key"))?
                     .to_owned(),
             )),
             ssh_key::Algorithm::Rsa { hash: _ } => Ok(Self::Rsa(
@@ -159,9 +168,9 @@ impl fmt::Display for PublicKey {
 mod tests {
     use signature::Verifier as _;
     use ssh_key::{
-        private::{Ed25519Keypair, RsaKeypair},
+        private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair},
         rand_core::OsRng,
-        LineEnding,
+        EcdsaCurve, LineEnding,
     };
 
     use super::*;
@@ -175,6 +184,19 @@ mod tests {
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ed25519(ed25519_keypair), "")
                 .unwrap();
         ssh_key.to_openssh(LineEnding::LF).unwrap().to_string()
+    }
+
+    fn ecdsa_keypair(curve: EcdsaCurve) -> EcdsaKeypair {
+        EcdsaKeypair::random(&mut OsRng, curve).unwrap()
+    }
+
+    fn ecdsa_private_key_from_ssh_key(curve: EcdsaCurve) -> PrivateKey {
+        let ssh_key = ssh_key::PrivateKey::new(
+            ssh_key::private::KeypairData::Ecdsa(ecdsa_keypair(curve)),
+            "",
+        )
+        .unwrap();
+        PrivateKey::try_from(ssh_key).unwrap()
     }
 
     #[test]
@@ -296,5 +318,80 @@ mod tests {
         let sig = signing_key.sign(TEST_DATA);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
+    }
+
+    #[test]
+    fn test_privatekey_from_ecdsa_p256() {
+        assert!(matches!(
+            ecdsa_private_key_from_ssh_key(EcdsaCurve::NistP256),
+            PrivateKey::Ecdsa(_)
+        ));
+    }
+
+    #[test]
+    fn test_privatekey_from_ecdsa_p384() {
+        assert!(matches!(
+            ecdsa_private_key_from_ssh_key(EcdsaCurve::NistP384),
+            PrivateKey::Ecdsa(_)
+        ));
+    }
+
+    #[test]
+    fn test_privatekey_from_ecdsa_p521() {
+        assert!(matches!(
+            ecdsa_private_key_from_ssh_key(EcdsaCurve::NistP521),
+            PrivateKey::Ecdsa(_)
+        ));
+    }
+
+    #[test]
+    fn test_signing_key_from_ecdsa_always_succeeds() {
+        let private_key = PrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP256));
+        assert!(SignablePrivateKey::try_from((private_key, None)).is_ok());
+    }
+
+    #[test]
+    fn test_signing_key_sign_ecdsa_p256_algorithm() {
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP256)).sign(TEST_DATA);
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Ecdsa {
+                curve: EcdsaCurve::NistP256
+            }
+        );
+    }
+
+    #[test]
+    fn test_signing_key_sign_ecdsa_p384_algorithm() {
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP384)).sign(TEST_DATA);
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Ecdsa {
+                curve: EcdsaCurve::NistP384
+            }
+        );
+    }
+
+    #[test]
+    fn test_signing_key_sign_ecdsa_p521_algorithm() {
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP521)).sign(TEST_DATA);
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Ecdsa {
+                curve: EcdsaCurve::NistP521
+            }
+        );
+    }
+
+    #[test]
+    fn test_signing_key_sign_ecdsa_p256_produces_valid_signature() {
+        let sig = SignablePrivateKey::Ecdsa(ecdsa_keypair(EcdsaCurve::NistP256)).sign(TEST_DATA);
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Ecdsa {
+                curve: EcdsaCurve::NistP256
+            }
+        );
+        assert!(!sig.as_bytes().is_empty());
     }
 }
