@@ -11,6 +11,7 @@ import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/p
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -80,6 +81,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
     private nudgeService: NudgesService,
     private accountService: AccountService,
     private cipherArchiveService: CipherArchiveService,
+    private messagingService: MessagingService,
   ) {}
 
   async ngOnInit() {
@@ -104,6 +106,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
       const success = await this.syncService.fullSync(true);
       if (success) {
         await this.setLastSync();
+        this.messagingService.send("bgForceTargetingRulesUpdate");
         toastConfig = {
           variant: "success",
           title: "",

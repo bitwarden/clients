@@ -322,8 +322,10 @@ export default class RuntimeBackground {
           await this.main.updateOverlayCiphers();
 
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-          void this.main.targetingRulesDataService.forceUpdate();
         }
+        break;
+      case "bgForceTargetingRulesUpdate":
+        this.main.targetingRulesDataService.forceUpdate();
         break;
       case "openPopup":
         await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
