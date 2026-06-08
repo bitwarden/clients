@@ -63,6 +63,10 @@ export class DefaultLeaseEventService implements LeaseEventService {
     return this.leaseEvents$.pipe(filter((event) => event.requestId === requestId));
   }
 
+  allEvents$(): Observable<LeaseEvent> {
+    return this.leaseEvents$;
+  }
+
   private toLeaseEvent(notification: NotificationResponse): LeaseEvent | null {
     const payload = notification?.payload as RawLeasePushPayload | undefined;
     if (payload == null) {

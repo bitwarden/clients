@@ -28,13 +28,7 @@ export type KillSwitchDialogResult =
   templateUrl: "./kill-switch-dialog.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    DialogModule,
-    TypographyModule,
-    I18nPipe,
-  ],
+  imports: [CommonModule, ButtonModule, DialogModule, TypographyModule, I18nPipe],
 })
 export class KillSwitchDialogComponent {
   private readonly dialogRef = inject(DialogRef<KillSwitchDialogResult>);
@@ -57,14 +51,14 @@ export class KillSwitchDialogComponent {
   }
 
   protected cancel(): void {
-    this.dialogRef.close(KillSwitchDialogResult.Canceled);
+    void this.dialogRef.close(KillSwitchDialogResult.Canceled);
   }
 
   protected confirm(): void {
     if (!this.confirmMatches()) {
       return;
     }
-    this.dialogRef.close(KillSwitchDialogResult.Confirmed);
+    void this.dialogRef.close(KillSwitchDialogResult.Confirmed);
   }
 
   static open(

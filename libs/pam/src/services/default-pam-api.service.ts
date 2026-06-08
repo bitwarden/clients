@@ -1,16 +1,19 @@
-import { Observable, of } from "rxjs";
+import { merge, Observable, of, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
+import { LeaseEventService } from "../abstractions/lease-event.service";
 import { CipherAccessState, PamApiService } from "../abstractions/pam-api.service";
 import { AccessPreCheckResponse } from "../abstractions/responses/access-pre-check.response";
 import { AccessRequestEnvelopeResponse } from "../abstractions/responses/access-request-envelope.response";
 import { AccessRequestResponse } from "../abstractions/responses/access-request.response";
 import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
 import { BulkRevokeResult } from "../abstractions/responses/bulk-revoke.result";
+import { CipherLeaseStateResponse } from "../abstractions/responses/cipher-lease-state.response";
 import { OrganizationGovernanceSummaryResponse } from "../abstractions/responses/governance-summary.response";
 import { InboxAccessRequestResponse } from "../abstractions/responses/inbox-access-request.response";
 import { LeaseResponse } from "../abstractions/responses/lease.response";
@@ -25,7 +28,19 @@ import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export class DefaultPamApiService implements PamApiService {
-  constructor(private apiService: ApiService) {}
+  /**
+   * Pumped after every successful mutation so that any active
+   * `getCipherAccessState$` subscriber re-fetches its snapshot. Mirrors what
+   * the in-memory mock does via `store.events$` — the real push channel
+   * (`LeaseEventService`) only fires for backend-driven transitions, so
+   * locally-initiated mutations need their own refresh signal.
+   */
+  private readonly localRefresh$ = new Subject<void>();
+
+  constructor(
+    private apiService: ApiService,
+    private leaseEvents: LeaseEventService,
+  ) {}
 
   // TODO(PM-37264): implement the cipher-fetch transport. ApiService.send is
   // unsuitable here because it rejects every non-200 via ErrorResponse (dropping
@@ -36,12 +51,35 @@ export class DefaultPamApiService implements PamApiService {
     return Promise.reject(new Error("fetchGatedCipher is not implemented yet; see PM-37264"));
   }
 
-  getCipherAccessState$(_cipherId: string, _userId: string): Observable<CipherAccessState> {
-    // No server transport yet (PM-37264). Emit an empty snapshot rather than
-    // throwing: this read only decides whether the cipher-view banner shows
-    // anything, so "no leasing state" is the correct passive answer and keeps
-    // the banner inert wherever PAM is wired but not yet backed by a server.
-    return of({ lease: {} });
+  getCipherAccessState$(cipherId: string, _userId: string): Observable<CipherAccessState> {
+    // Re-fetch on (a) initial subscription, (b) any lease event from the push
+    // channel, and (c) any local mutation. Mirrors the mock's
+    // `store.events$.pipe(map(snapshot), startWith(snapshot))` semantics.
+    return merge(of(undefined), this.leaseEvents.allEvents$(), this.localRefresh$).pipe(
+      switchMap(() => this.fetchCipherAccessState(cipherId)),
+    );
+  }
+
+  private async fetchCipherAccessState(cipherId: string): Promise<CipherAccessState> {
+    try {
+      const raw = await this.send("GET", `/ciphers/${cipherId}/lease/state`, null, true);
+      const envelope = new CipherLeaseStateResponse(raw);
+      return {
+        lease: {
+          activeLease: envelope.activeLease ?? undefined,
+          pendingRequest: envelope.pendingRequest ?? undefined,
+          approvedTicket: envelope.approvedTicket ?? undefined,
+        },
+      };
+    } catch (e) {
+      // 404 = cipher not gated / PAM flag off (spec §2). The banner should
+      // render inert; treat as an empty snapshot rather than surfacing the
+      // error to the consumer.
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
+        return { lease: {} };
+      }
+      throw e;
+    }
   }
 
   async getLeasePreCheck(cipherId: string): Promise<AccessPreCheckResponse> {
@@ -75,12 +113,14 @@ export class DefaultPamApiService implements PamApiService {
     return new ListResponse(r, InboxAccessRequestResponse).data;
   }
 
-  listMyRequests(): Promise<AccessRequestResponse[]> {
-    return Promise.reject(new Error("listMyRequests is not implemented yet"));
+  async listMyRequests(): Promise<AccessRequestResponse[]> {
+    const r = await this.send("GET", "/leasing/requests/mine", null, true);
+    return new ListResponse(r, AccessRequestResponse).data;
   }
 
-  listActiveLeases(): Promise<LeaseResponse[]> {
-    return Promise.reject(new Error("listActiveLeases is not implemented yet"));
+  async listActiveLeases(): Promise<LeaseResponse[]> {
+    const r = await this.send("GET", "/leasing/leases/mine/active", null, true);
+    return new ListResponse(r, LeaseResponse).data;
   }
 
   getGovernanceSummary(_organizationId: string): Promise<OrganizationGovernanceSummaryResponse> {
@@ -103,38 +143,48 @@ export class DefaultPamApiService implements PamApiService {
     id: string,
     request: AccessRequestPatchRequest,
   ): Promise<AccessRequestResponse> {
-    return new AccessRequestResponse(
+    const response = new AccessRequestResponse(
       await this.send("PATCH", `/leasing/requests/${id}`, request, true),
     );
+    this.localRefresh$.next();
+    return response;
   }
 
   async cancelAccessRequest(id: string): Promise<void> {
     await this.send("DELETE", `/leasing/requests/${id}`, null, false);
+    this.localRefresh$.next();
   }
 
   async requestLeaseExtension(request: LeaseExtensionRequest): Promise<AccessRequestResponse> {
-    return new AccessRequestResponse(
+    const response = new AccessRequestResponse(
       await this.send("POST", "/leasing/requests/extension", request, true),
     );
+    this.localRefresh$.next();
+    return response;
   }
 
   async decideAccessRequest(
     id: string,
     request: LeaseDecisionRequest,
   ): Promise<AccessRequestResponse> {
-    return new AccessRequestResponse(
+    const response = new AccessRequestResponse(
       await this.send("POST", `/leasing/requests/${id}/decision`, request, true),
     );
+    this.localRefresh$.next();
+    return response;
   }
 
   async startLease(requestId: string): Promise<LeaseResponse> {
-    return new LeaseResponse(
+    const response = new LeaseResponse(
       await this.send("POST", `/leasing/requests/${requestId}/start`, null, true),
     );
+    this.localRefresh$.next();
+    return response;
   }
 
   async revokeLease(id: string, request: LeaseRevokeRequest): Promise<void> {
     await this.send("POST", `/leasing/leases/${id}/revoke`, request, false);
+    this.localRefresh$.next();
   }
 
   async listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>> {

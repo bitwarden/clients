@@ -1,6 +1,11 @@
+import { firstValueFrom, Subject } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
 import { Condition } from "../abstractions/access-rule";
+import { LeaseEvent } from "../abstractions/lease-event";
+import { LeaseEventService } from "../abstractions/lease-event.service";
 import { LeaseLifecycleStatus } from "../abstractions/responses/lease-model.response";
 import { LeaseRequestLifecycleStatus } from "../abstractions/responses/lease-request-model.response";
 
@@ -12,13 +17,21 @@ import { LeaseDecisionRequest } from "./requests/lease-decision.request";
 import { LeaseExtensionRequest } from "./requests/lease-extension.request";
 import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
 
+const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 describe("DefaultPamApiService", () => {
   let apiService: jest.Mocked<Pick<ApiService, "send">>;
+  let leaseEvents: Subject<LeaseEvent>;
   let service: DefaultPamApiService;
 
   beforeEach(() => {
     apiService = { send: jest.fn() } as jest.Mocked<Pick<ApiService, "send">>;
-    service = new DefaultPamApiService(apiService as unknown as ApiService);
+    leaseEvents = new Subject<LeaseEvent>();
+    const leaseEventService: LeaseEventService = {
+      events$: () => leaseEvents.asObservable(),
+      allEvents$: () => leaseEvents.asObservable(),
+    } as LeaseEventService;
+    service = new DefaultPamApiService(apiService as unknown as ApiService, leaseEventService);
   });
 
   describe("fetchGatedCipher", () => {
@@ -420,6 +433,156 @@ describe("DefaultPamApiService", () => {
         true,
         false,
       );
+    });
+  });
+
+  describe("getCipherAccessState$", () => {
+    it("GETs /ciphers/{id}/lease/state on initial subscription and emits the mapped snapshot", async () => {
+      apiService.send.mockResolvedValue({
+        CipherId: "cipher-1",
+        Lease: {
+          ActiveLease: {
+            Id: "lease-1",
+            RequestId: "req-1",
+            CipherId: "cipher-1",
+            CollectionId: "col-1",
+            GranteeUserId: "user-1",
+            NotBefore: "2026-06-04T12:00:00Z",
+            NotAfter: "2026-06-04T13:00:00Z",
+            Status: "active",
+          },
+          PendingRequest: null,
+          ApprovedTicket: null,
+        },
+      });
+
+      const state = await firstValueFrom(service.getCipherAccessState$("cipher-1", "user-1"));
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/ciphers/cipher-1/lease/state",
+        null,
+        true,
+        true,
+      );
+      expect(state.lease.activeLease?.id).toBe("lease-1");
+      expect(state.lease.activeLease?.notAfter).toBe("2026-06-04T13:00:00Z");
+      expect(state.lease.pendingRequest).toBeUndefined();
+      expect(state.lease.approvedTicket).toBeUndefined();
+    });
+
+    it("emits an empty snapshot when the endpoint rejects with 404", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 404));
+
+      const state = await firstValueFrom(service.getCipherAccessState$("cipher-1", "user-1"));
+
+      expect(state).toEqual({ lease: {} });
+    });
+
+    it("propagates non-404 errors to the consumer", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 500));
+
+      await expect(
+        firstValueFrom(service.getCipherAccessState$("cipher-1", "user-1")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+    });
+
+    it("re-fetches when the lease event channel emits", async () => {
+      apiService.send.mockResolvedValue({ CipherId: "cipher-1", Lease: {} });
+      const sink = jest.fn();
+
+      const sub = service.getCipherAccessState$("cipher-1", "user-1").subscribe(sink);
+      await flushMicrotasks();
+      expect(sink).toHaveBeenCalledTimes(1);
+      expect(apiService.send).toHaveBeenCalledTimes(1);
+
+      leaseEvents.next({ kind: "approved", requestId: "req-1" });
+      await flushMicrotasks();
+
+      expect(apiService.send).toHaveBeenCalledTimes(2);
+      expect(sink).toHaveBeenCalledTimes(2);
+      sub.unsubscribe();
+    });
+
+    it("re-fetches after a local mutation succeeds", async () => {
+      apiService.send.mockResolvedValue({ CipherId: "cipher-1", Lease: {} });
+      const sink = jest.fn();
+
+      const sub = service.getCipherAccessState$("cipher-1", "user-1").subscribe(sink);
+      await flushMicrotasks();
+      const fetchesAfterInitial = apiService.send.mock.calls.length;
+
+      await service.cancelAccessRequest("req-1");
+      await flushMicrotasks();
+
+      // One extra send for cancelAccessRequest itself + one extra refresh fetch.
+      expect(apiService.send.mock.calls.length).toBe(fetchesAfterInitial + 2);
+      sub.unsubscribe();
+    });
+  });
+
+  describe("listMyRequests", () => {
+    it("GETs /leasing/requests/mine and unwraps a ListResponse envelope", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "req-1",
+            CipherId: "cipher-1",
+            CollectionId: "col-1",
+            RequesterUserId: "user-1",
+            Status: "pending",
+            RequestedTtlSeconds: 3600,
+            SubmittedAt: "2026-06-04T12:00:00Z",
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listMyRequests();
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/requests/mine",
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("req-1");
+      expect(result[0].status).toBe("pending");
+    });
+  });
+
+  describe("listActiveLeases", () => {
+    it("GETs /leasing/leases/mine/active and unwraps a ListResponse envelope", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "lease-1",
+            RequestId: "req-1",
+            CipherId: "cipher-1",
+            CollectionId: "col-1",
+            GranteeUserId: "user-1",
+            NotBefore: "2026-06-04T12:00:00Z",
+            NotAfter: "2026-06-04T13:00:00Z",
+            Status: "active",
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listActiveLeases();
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/leases/mine/active",
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("lease-1");
+      expect(result[0].status).toBe("active");
     });
   });
 });

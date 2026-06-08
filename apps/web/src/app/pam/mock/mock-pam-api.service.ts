@@ -13,6 +13,7 @@ import {
   GatedCipherFetchResult,
   InboxAccessRequestResponse,
   LeaseDecisionRequest,
+  LeaseEventService,
   LeaseExtensionRequest,
   AccessRequestPatchRequest,
   AccessRequestResponse,
@@ -48,8 +49,9 @@ export class MockPamApiService extends DefaultPamApiService {
     private readonly cipherService: CipherService,
     private readonly accountService: AccountService,
     apiService: ApiService,
+    leaseEvents: LeaseEventService,
   ) {
-    super(apiService);
+    super(apiService, leaseEvents);
   }
 
   /**

@@ -7,8 +7,7 @@ const IPV4_CIDR_RE = new RegExp(
 
 // Permissive IPv6 CIDR regex — accepts any sequence of hex groups / colons followed by a
 // prefix length of 0–128.  Thoroughness is flagged as a TBD in PM-37273.
-const IPV6_CIDR_RE =
-  /^[0-9a-fA-F:]+(?::[0-9a-fA-F]*)?\/(12[0-8]|1[01]\d|[1-9]\d|\d)$/;
+const IPV6_CIDR_RE = /^[0-9a-fA-F:]+(?::[0-9a-fA-F]*)?\/(12[0-8]|1[01]\d|[1-9]\d|\d)$/;
 
 /** Returns `true` when `value` is a syntactically valid IPv4 or IPv6 CIDR range. */
 export function isValidCidr(value: string): boolean {

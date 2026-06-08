@@ -1,12 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, output } from "@angular/core";
 import {
   AbstractControl,
   FormArray,
