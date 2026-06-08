@@ -11,7 +11,6 @@ import { BadgeModule } from "../badge";
 import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
 import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
-import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 /**
  * Displays a collection of projected badges in a horizontal row that doesn't
@@ -30,7 +29,7 @@ import { TooltipDirective } from "../tooltip/tooltip.directive";
 @Component({
   selector: "bit-badge-group",
   templateUrl: "badge-group.component.html",
-  imports: [BadgeModule, OverflowListDirective, OverflowTriggerDirective, TooltipDirective],
+  imports: [BadgeModule, OverflowListDirective, OverflowTriggerDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeGroupComponent {

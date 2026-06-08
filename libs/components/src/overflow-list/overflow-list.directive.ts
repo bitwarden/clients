@@ -134,6 +134,12 @@ export class OverflowListDirective {
       const fontsReady = document.fonts?.ready ?? Promise.resolve();
       void fontsReady.then(() => {
         const items = this.items();
+        // Seed the container width synchronously so the first painted frame
+        // packs against the real width. The ResizeObserver below only delivers
+        // asynchronously; without this seed the initial pack runs at width 0
+        // (only the pinned item fits) and the row visibly expands once the
+        // observer reports the true width.
+        this.containerWidth.set(this.hostEl.clientWidth);
         this.itemWidths.set(
           items.map((item) =>
             Math.ceil(item.elementRef.nativeElement.getBoundingClientRect().width),

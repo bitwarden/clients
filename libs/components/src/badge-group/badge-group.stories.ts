@@ -57,7 +57,7 @@ export const Narrow: Story = {
   }),
 };
 
-export const Mixed: Story = {
+export const WithIcons: Story = {
   render: () => ({
     template: `
       <div style="width: 300px;">

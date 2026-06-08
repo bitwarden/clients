@@ -1,6 +1,13 @@
-<div bitOverflowList [items]="items()" [gap]="8" class="tw-flex [&>*]:tw-shrink-0">
+<div
+  bitOverflowList
+  [items]="items()"
+  [gap]="8"
+  #ovf="bitOverflowList"
+  [class.tw-invisible]="!ovf.ready()"
+  class="tw-flex [&>*]:tw-shrink-0"
+>
   <ng-content></ng-content>
-  <span bitBadge bitOverflowTrigger variant="subtle" [bitTooltip]="hiddenLabels()">
+  <span bitBadge bitOverflowTrigger variant="subtle" [title]="hiddenLabels()">
     +{{ overflow().length }}
   </span>
 </div>
