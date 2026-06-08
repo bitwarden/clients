@@ -34,7 +34,6 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
-import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -46,6 +45,7 @@ import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
+import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
@@ -352,10 +352,17 @@ export class Main {
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
+        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
-        await this.windowMain.init();
+
+        // Autostart should start to tray. However showing it then hiding it quickly triggers a bug in Kwin
+        // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
+        // autostart is enabled.
+        const showWindow = !isAutostart;
+        await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -372,7 +379,6 @@ export class Main {
         ]);
 
         // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
-        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
         if (isAutostart) {
           await this.trayMain.hideToTray();
         }

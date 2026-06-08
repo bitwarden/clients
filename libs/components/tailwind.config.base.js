@@ -95,8 +95,8 @@ module.exports = {
         white: "var(--color-bg-white)",
         dark: "var(--color-bg-dark)",
         contrast: "var(--color-bg-contrast)",
-        "contrast-strong": "var(--color-bg-contrast-strong)",
         "contrast-soft": "var(--color-bg-contrast-soft)",
+        "contrast-strong": "var(--color-bg-contrast-strong)",
         primary: "var(--color-bg-primary)",
         secondary: "var(--color-bg-secondary)",
         tertiary: "var(--color-bg-tertiary)",
@@ -171,6 +171,7 @@ module.exports = {
         body: "var(--color-fg-body)",
         "body-subtle": "var(--color-fg-body-subtle)",
         disabled: "var(--color-fg-disabled)",
+        inactive: "var(--color-fg-inactive)",
         "brand-soft": "var(--color-fg-brand-soft)",
         brand: "var(--color-fg-brand)",
         "brand-strong": "var(--color-fg-brand-strong)",
@@ -271,6 +272,7 @@ module.exports = {
       "fg-body": "var(--color-fg-body)",
       "fg-body-subtle": "var(--color-fg-body-subtle)",
       "fg-disabled": "var(--color-fg-disabled)",
+      "fg-inactive": "var(--color-fg-inactive)",
       "fg-brand-soft": "var(--color-fg-brand-soft)",
       "fg-brand": "var(--color-fg-brand)",
       "fg-brand-strong": "var(--color-fg-brand-strong)",
@@ -353,6 +355,7 @@ module.exports = {
         xxs: [".5rem", "150%"],
       },
       container: {
+        "@3xl": "769px",
         "@5xl": "1100px",
       },
       keyframes: {

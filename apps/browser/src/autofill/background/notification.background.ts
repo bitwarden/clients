@@ -149,6 +149,7 @@ export default class NotificationBackground {
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
+    showLoginSavedNotification: ({ message }) => this.handleShowLoginSavedNotification(message),
   };
 
   constructor(
@@ -247,7 +248,7 @@ export default class NotificationBackground {
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
-    const iconsServerUrl = env.getIconsUrl();
+    const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
 
     const getOrganizationType = (orgId?: string) =>
       organizations.find((org) => org.id === orgId)?.productTierType;
@@ -314,7 +315,7 @@ export default class NotificationBackground {
 
   convertToNotificationCipherData(
     view: CipherView,
-    iconsServerUrl: string,
+    iconsServerUrl: string | null,
     showFavicons: boolean,
     organizationType?: ProductTierType,
   ): NotificationCipherData {
@@ -581,6 +582,52 @@ export default class NotificationBackground {
   }
 
   /**
+   * Sends a "Login saved" confirmation notification bar directly to the given tab.
+   * Used after a cipher is saved via the inline menu "Save and fill" flow,
+   * where no notification bar is already open on the originating tab.
+   *
+   * @param cipherName - The name of the saved cipher, shown in the confirmation bar.
+   * @param cipherId - The ID of the saved cipher, used by the "View" action in the bar.
+   * @param tab - The tab to show the notification bar on.
+   */
+  async triggerLoginSavedNotification(
+    cipherName: string,
+    cipherId: string,
+    tab: chrome.tabs.Tab,
+  ): Promise<void> {
+    const theme = await firstValueFrom(this.themeStateService.selectedTheme$);
+    const showAnimations =
+      (await firstValueFrom(this.autofillService.enableNotificationAnimation$)) ?? true;
+
+    await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
+      type: "add",
+      typeData: {
+        isVaultLocked: false,
+        theme,
+        launchTimestamp: new Date().getTime(),
+        showAnimations,
+      },
+      params: {},
+      isConfirmation: true,
+      confirmationData: { cipherId, itemName: cipherName },
+    });
+  }
+
+  private async handleShowLoginSavedNotification(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<void> {
+    const { senderTabId, cipherId, itemName } = message;
+    if (!senderTabId) {
+      return;
+    }
+    const tab = await BrowserApi.getTab(senderTabId);
+    if (!tab) {
+      return;
+    }
+    await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
+  }
+
+  /**
    * Adds a login message to the notification queue, prompting the user to save
    * the login if it does not already exist in the vault. If the cipher exists
    * but the password has changed, the user will be prompted to update the password.
@@ -704,7 +751,10 @@ export default class NotificationBackground {
     }
 
     // If there is an active passkey prompt, exit early
-    if (tab.id !== undefined && this.fido2Background.isCredentialRequestInProgress(tab.id)) {
+    if (
+      tab.id !== undefined &&
+      this.fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tab.id)
+    ) {
       return false;
     }
 
@@ -1719,7 +1769,7 @@ export default class NotificationBackground {
   }
 
   /**
-   * Returns the first value found from the organization service organizations$ observable.
+   * Returns enabled organizations from `organizations$` for the notification bar vault selector.
    */
   private async getOrgData() {
     const activeUserId = await firstValueFrom(
@@ -1732,14 +1782,16 @@ export default class NotificationBackground {
       this.organizationService.organizations$(activeUserId),
     );
 
-    return organizations.map((org) => {
-      const { id, name, productTierType } = org;
-      return {
-        id,
-        name,
-        productTierType,
-      };
-    });
+    return organizations
+      .filter((org) => org.enabled)
+      .map((org) => {
+        const { id, name, productTierType } = org;
+        return {
+          id,
+          name,
+          productTierType,
+        };
+      });
   }
 
   /**

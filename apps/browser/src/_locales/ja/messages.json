@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "パスポート番号をコピー"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "国民識別番号をコピー"
+  },
+  "copyFirstName": {
+    "message": "名前をコピー"
+  },
+  "copyMiddleName": {
+    "message": "ミドルネームをコピー"
+  },
+  "copyLastName": {
+    "message": "姓をコピー"
+  },
   "copyLicenseNumber": {
     "message": "免許証番号をコピー"
   },
@@ -707,6 +719,22 @@
   },
   "rateExtension": {
     "message": "拡張機能の評価"
+  },
+  "troubleshooting": {
+    "message": "トラブルシューティング"
+  },
+  "experiencingAnIssue": {
+    "message": "問題が発生していますか？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "ダウンロードして診断レポートを共有してください。"
+  },
+  "bitwardenSupport": {
+    "message": "共有先：Bitwarden サポート",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "ダウンロード"
   },
   "browserNotSupportClipboard": {
     "message": "お使いのブラウザはクリップボードへのコピーに対応していません。手動でコピーしてください"
@@ -1800,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "このサイトは保存されたログイン情報と一致しません。ログイン情報を入力する前に、信頼できるサイトであることを確認してください。"
   },
+  "loginNeverMatchTitle": {
+    "message": "ログイン情報が一致しません"
+  },
+  "loginNeverMatchDesc": {
+    "message": "このサイトは保存されたログイン情報と一致しません。自動入力する前に信頼できるサイトにいることを確認してください。"
+  },
+  "uriMatchRule": {
+    "message": "URI 一致ルール"
+  },
+  "neverMatch": {
+    "message": "一致しない"
+  },
   "loginHasNoSiteSaved": {
     "message": "ログイン情報にサイトが保存されていません"
   },
@@ -1976,11 +2016,32 @@
   "brand": {
     "message": "ブランド"
   },
+  "birthDay": {
+    "message": "誕生日"
+  },
+  "birthMonth": {
+    "message": "誕生月"
+  },
+  "birthYear": {
+    "message": "誕生年"
+  },
+  "expirationDay": {
+    "message": "有効期限日"
+  },
   "expirationMonth": {
     "message": "有効期限月"
   },
   "expirationYear": {
     "message": "有効期限年"
+  },
+  "issueDay": {
+    "message": "発行日"
+  },
+  "issueMonth": {
+    "message": "発行月"
+  },
+  "issueYear": {
+    "message": "発行年"
   },
   "monthly": {
     "message": "月"
@@ -2075,6 +2136,51 @@
   "passportNumber": {
     "message": "パスポート番号"
   },
+  "dateOfBirth": {
+    "message": "生年月日"
+  },
+  "sex": {
+    "message": "性別"
+  },
+  "copySex": {
+    "message": "性別をコピー"
+  },
+  "birthPlace": {
+    "message": "出生地"
+  },
+  "copyBirthPlace": {
+    "message": "出生地をコピー"
+  },
+  "nationality": {
+    "message": "国籍"
+  },
+  "copyNationality": {
+    "message": "国籍をコピー"
+  },
+  "issuingCountry": {
+    "message": "発行国"
+  },
+  "copyIssuingCountry": {
+    "message": "発行国をコピー"
+  },
+  "passportType": {
+    "message": "パスポートの種類"
+  },
+  "copyPassportType": {
+    "message": "パスポートの種類をコピー"
+  },
+  "nationalIdentificationNumber": {
+    "message": "国民識別番号"
+  },
+  "issuingAuthority": {
+    "message": "発行機関"
+  },
+  "copyIssuingAuthority": {
+    "message": "発行機関/事務所をコピー"
+  },
+  "issueDate": {
+    "message": "発行日"
+  },
   "licenseNumber": {
     "message": "免許証番号"
   },
@@ -2132,8 +2238,17 @@
   "typeSshKey": {
     "message": "SSH 鍵"
   },
+  "bankAccount": {
+    "message": "銀行口座"
+  },
+  "bankAccountDetails": {
+    "message": "銀行口座の詳細"
+  },
   "typeNote": {
     "message": "メモ"
+  },
+  "typeBankAccount": {
+    "message": "銀行口座"
   },
   "typeLoginSubtitle": {
     "message": "ウェブサイトまたはアプリ"
@@ -2156,6 +2271,36 @@
   "collectionSubtitle": {
     "message": "共有アイテムを整理する"
   },
+  "typeBankAccountSubtitle": {
+    "message": "銀行の詳細"
+  },
+  "typePassport": {
+    "message": "パスポート"
+  },
+  "passportDetails": {
+    "message": "パスポートの詳細"
+  },
+  "passportAdded": {
+    "message": "パスポートを追加しました"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行文書"
+  },
+  "typeDriversLicense": {
+    "message": "免許証"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "運転免許証または ID"
+  },
+  "driversLicenseDetails": {
+    "message": "免許証の詳細"
+  },
+  "issuingState": {
+    "message": "発行都道府県"
+  },
+  "licenseClass": {
+    "message": "免許種別"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2176,12 +2321,24 @@
     "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "新しい Send テキスト",
+  "newItemHeaderBankAccount": {
+    "message": "新しい銀行口座",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "新しい免許証",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "新しいパスポート",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "新規テキスト",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "新しい Send ファイル",
+  "newItemHeaderFileSendV2": {
+    "message": "新規ファイル",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2361,24 @@
     "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send テキストを編集",
+  "editItemHeaderBankAccount": {
+    "message": "銀行口座を編集",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "免許証を編集",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "パスポートを編集",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "テキストを編集",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send ファイルを編集",
+  "editItemHeaderFileSendV2": {
+    "message": "ファイルを編集",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2400,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "銀行口座を表示",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "免許証を表示",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "パスポートを表示",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "追加するアイテムを選択"
@@ -2289,6 +2470,31 @@
   "clear": {
     "message": "消去する",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "選択中"
+  },
+  "bulkActionsBar": {
+    "message": "一括操作"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ 個のアイテムを選択しました。一括操作バーが画面下部に表示されています。$SHORTCUTBINDING$ を押すと、一括操作バーにフォーカスが切り替わります。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "選択を解除しました"
+  },
+  "additionalActions": {
+    "message": "追加のアクション"
   },
   "checkPassword": {
     "message": "パスワードが漏洩していないか確認する"
@@ -2778,18 +2984,6 @@
   },
   "biometricsFailedDesc": {
     "message": "生体認証を完了できません。マスターパスワードを使うかログアウトしてください。それでも直らない場合は、Bitwarden サポートまでお問い合わせください。"
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "権限が提供されていません"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bitwarden デスクトップアプリとの通信許可がなければ、ブラウザー拡張機能で生体認証を利用できません。もう一度やり直してください。"
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "権限リクエストエラー"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "この操作はサイドバーでは行えません。ポップアップまたはポップアウトでやり直してください。"
   },
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人の保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
@@ -3415,33 +3609,18 @@
   "exportingPersonalVaultTitle": {
     "message": "個人保管庫のエクスポート"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ に関連付けられた個人の保管庫アイテムのみがエクスポートされます。組織の保管庫アイテムは含まれません。 保管庫アイテム情報のみがエクスポートされ、関連する添付ファイルはエクスポートされません。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ に関連付けられた個人用保管庫のアイテムのみが、添付ファイルを含めてエクスポートされます。組織用保管庫のアイテムは含まれません。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "組織保管庫のエクスポート"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ に関連付けられた組織保管庫のみがエクスポートされます。個々の保管庫または他の組織にあるアイテムは含まれません。",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "個人の保管庫のアイテムのみがエクスポートされます。"
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "$ORGANIZATION$ の保管庫に関連付けられたアイテムのみがエクスポートされます。個人の保管庫内のアイテムはエクスポートされません。",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4267,12 +4446,6 @@
     "message": "ページ読み込み時の自動入力はデフォルトの設定を使うよう設定しました。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "自動入力できません"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
-  },
   "okay": {
     "message": "OK"
   },
@@ -4498,6 +4671,9 @@
   "chooseFile": {
     "message": "ファイルを選択"
   },
+  "chooseFileSentenceCase": {
+    "message": "ファイルを選択"
+  },
   "noFileChosen": {
     "message": "ファイルが選択されていません"
   },
@@ -4528,6 +4704,18 @@
   },
   "exportError": {
     "message": "保管庫データのエクスポート中にエラーが発生しました"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。"
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "パスキー"
@@ -4942,6 +5130,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "コピーする値がありません"
@@ -6042,6 +6234,10 @@
   "next": {
     "message": "次へ"
   },
+  "breadcrumbs": {
+    "message": "パンくずリスト",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6305,8 +6501,134 @@
   "userVerificationFailed": {
     "message": "ユーザー認証に失敗しました。"
   },
+  "enterMonth": {
+    "message": "月を入力してください。"
+  },
+  "enterDay": {
+    "message": "日を入力してください。"
+  },
+  "enterYear": {
+    "message": "年を入力してください。"
+  },
+  "invalidDay": {
+    "message": "正しい日を入力してください。"
+  },
+  "invalidYear": {
+    "message": "正しい年を入力してください。"
+  },
+  "searchDriversLicense": {
+    "message": "免許証を検索"
+  },
+  "bankName": {
+    "message": "銀行名"
+  },
+  "nameOnAccount": {
+    "message": "口座名義"
+  },
+  "bankAccountType": {
+    "message": "口座種別"
+  },
+  "bankAccountTypeCompany": {
+    "message": "ビジネス"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "個人"
+  },
+  "accountNumber": {
+    "message": "口座番号"
+  },
+  "bankRoutingNumber": {
+    "message": "ルーティングナンバー",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "支店/機関番号"
+  },
+  "swiftCode": {
+    "message": "SWIFT コード"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "銀行の連絡先"
+  },
+  "searchBankAccount": {
+    "message": "銀行口座を検索"
+  },
+  "searchPassport": {
+    "message": "パスポートを検索"
+  },
+  "copyAccountNumber": {
+    "message": "口座番号をコピー"
+  },
+  "copyRoutingNumber": {
+    "message": "ルーティングナンバーをコピー"
+  },
+  "copyPin": {
+    "message": "暗証番号をコピー"
+  },
+  "copyIban": {
+    "message": "IBAN をコピー"
+  },
+  "copyNameOnAccount": {
+    "message": "口座名義をコピー"
+  },
+  "copyBranchNumber": {
+    "message": "支店番号をコピー"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT コードをコピー"
+  },
+  "bankAccountTypeChecking": {
+    "message": "当座"
+  },
+  "bankAccountTypeSavings": {
+    "message": "普通"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "入金証明書"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "限度額"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "投資/証券取引"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "短期市場"
+  },
+  "bankAccountTypeOther": {
+    "message": "その他"
+  },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
+  },
+  "more": {
+    "message": "詳細"
+  },
+  "maxAccessCount": {
+    "message": "最大アクセス数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "受信者に自分のメールアドレスを表示しない"
+  },
+  "viewTextSendHeader": {
+    "message": "テキストを表示"
+  },
+  "viewFileSendHeader": {
+    "message": "ファイルを表示"
+  },
+  "sendCreated": {
+    "message": "Send を作成しました",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "数値を入力してください"
+  },
+  "integerInputError": {
+    "message": "整数を入力してください"
   },
   "sideNavigation": {
     "message": "サイドバーナビゲーション"
@@ -6321,5 +6643,15 @@
   "progressBar": {
     "message": "プログレスバー",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Send の編集を保存できませんでした",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   }
 }
