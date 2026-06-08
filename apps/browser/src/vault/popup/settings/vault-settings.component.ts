@@ -23,6 +23,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../../../autofill/services/targeting-rules-data.service";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -106,7 +107,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
       const success = await this.syncService.fullSync(true);
       if (success) {
         await this.setLastSync();
-        this.messagingService.send("bgForceTargetingRulesUpdate");
+        this.messagingService.send(FORCE_TARGETING_RULES_UPDATE_COMMAND);
         toastConfig = {
           variant: "success",
           title: "",
