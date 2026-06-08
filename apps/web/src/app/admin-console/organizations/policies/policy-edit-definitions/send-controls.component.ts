@@ -34,7 +34,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   private readonly formBuilder = inject(FormBuilder);
 
   readonly data = this.formBuilder.group({
-    disableSend: false,
     disableHideEmail: false,
   });
 

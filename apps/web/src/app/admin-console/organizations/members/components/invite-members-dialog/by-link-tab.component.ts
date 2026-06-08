@@ -103,6 +103,7 @@ export class ByLinkTabComponent {
   );
 
   private readonly prefillAttempted = signal(false);
+  protected readonly isFilledFromClaimedDomains = signal(false);
 
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
@@ -125,6 +126,7 @@ export class ByLinkTabComponent {
     if (verifiedDomainNames.length > 0) {
       this.form.controls.domains.setValue(verifiedDomainNames.join(", "));
       this.form.controls.domains.markAsDirty();
+      this.isFilledFromClaimedDomains.set(true);
     }
   }
 

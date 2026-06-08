@@ -20,7 +20,13 @@
       [formControl]="form.controls.domains"
       data-testid="allowedDomains"
     />
-    <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
+    <bit-hint>
+      @if (isFilledFromClaimedDomains()) {
+        {{ "domainsFilledFromClaimedDomains" | i18n }}
+      } @else {
+        {{ "allowedDomainsHint" | i18n }}
+      }
+    </bit-hint>
   </bit-form-field>
 
   <button
