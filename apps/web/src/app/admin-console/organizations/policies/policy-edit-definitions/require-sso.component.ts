@@ -15,15 +15,15 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSso";
   description = "requireSsoPolicyDesc";
-  descriptionV2 = "requireSsoPolicyDescV2";
   type = PolicyType.RequireSso;
   category = PolicyCategory.Authentication;
   priority = 30;
   component = RequireSsoPolicyComponent;
-  prerequisiteKey = "requireSsoPolicyReqV2";
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    description: "requireSsoPolicyDescV2",
+    prerequisiteKey: "requireSsoPolicyReqV2",
   };
 
   display$(organization: Organization, configService: ConfigService) {

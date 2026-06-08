@@ -15,14 +15,14 @@ import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-cons
 export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   name = "disableExport";
   description = "disablePersonalVaultExportDescription";
-  descriptionV2 = "disablePersonalVaultExportDescriptionV2";
   type = PolicyType.DisablePersonalVaultExport;
   category = PolicyCategory.DataControl;
   priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    description: "disablePersonalVaultExportDescriptionV2",
   };
 }
 

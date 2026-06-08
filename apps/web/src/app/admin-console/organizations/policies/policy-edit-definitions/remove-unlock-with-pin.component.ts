@@ -12,14 +12,14 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   name = "removeUnlockWithPinPolicyTitle";
   description = "removeUnlockWithPinPolicyDesc";
-  descriptionV2 = "removeUnlockWithPinPolicyDescV2";
   type = PolicyType.RemoveUnlockWithPin;
   category = PolicyCategory.Authentication;
   priority = 80;
   component = RemoveUnlockWithPinPolicyComponent;
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    description: "removeUnlockWithPinPolicyDescV2",
   };
 }
 
