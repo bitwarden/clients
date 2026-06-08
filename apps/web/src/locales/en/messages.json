@@ -7346,6 +7346,9 @@
   "resetPasswordDetailsError": {
     "message": "Reset password details response is null"
   },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
+  },
   "trashCleanupWarning": {
     "message": "Items that have been in trash more than 30 days will be automatically deleted."
   },
