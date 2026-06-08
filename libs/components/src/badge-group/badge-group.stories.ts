@@ -73,6 +73,20 @@ export const WithIcons: Story = {
 };
 
 /**
+ * With no badges projected, the group renders an empty container — no overflow
+ * "+N" badge is shown.
+ */
+export const Empty: Story = {
+  render: () => ({
+    template: `
+      <div style="width: 300px;">
+        <bit-badge-group></bit-badge-group>
+      </div>
+    `,
+  }),
+};
+
+/**
  * Drag the bottom-right corner to resize the container and watch badges move
  * in and out of the overflow "+N" badge as the available width changes.
  */
