@@ -17,7 +17,6 @@ import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
@@ -106,7 +105,6 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
-  configService: ConfigService;
 
   constructor() {
     // Set paths for portable builds
