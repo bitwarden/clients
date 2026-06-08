@@ -1,9 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME: rename output bindings and then remove this line
-/* eslint-disable @angular-eslint/no-output-on-prefix */
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, output, Output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -26,6 +22,7 @@ import {
   MenuModule,
   SearchModule,
   SimpleDialogOptions,
+  IconModule,
 } from "@bitwarden/components";
 import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
@@ -33,11 +30,10 @@ import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     MenuModule,
@@ -47,141 +43,119 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     SearchModule,
     JslibModule,
     NewCipherMenuComponent,
+    IconModule,
   ],
 })
 export class VaultHeaderComponent {
-  protected All = All;
-  protected Unassigned = Unassigned;
+  private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
+  private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly router = inject(Router);
+  private readonly accountService = inject(AccountService);
+
+  protected readonly All = All;
+  protected readonly Unassigned = Unassigned;
+  protected readonly CollectionDialogTabType = CollectionDialogTabType;
+  protected readonly CipherType = CipherType;
 
   /**
    * Boolean to determine the loading state of the header.
    * Shows a loading spinner if set to true
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() loading: boolean;
+  readonly loading = input<boolean>(false);
 
   /** Current active filter */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() filter: RoutedVaultFilterModel;
+  readonly filter = input.required<RoutedVaultFilterModel>();
 
   /** The organization currently being viewed */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() organization: Organization;
+  readonly organization = input.required<Organization>();
 
   /** Currently selected collection */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() collection?: TreeNode<CollectionAdminView>;
+  readonly collection = input<TreeNode<CollectionAdminView> | undefined>(undefined);
 
   /** The current search text in the header */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() searchText: string;
+  readonly searchText = input<string>("");
 
   /** Emits an event when the new item button is clicked in the header */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
+  readonly addCipher = output<CipherType | undefined>();
 
   /** Emits an event when the new collection button is clicked in the header */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onAddCollection = new EventEmitter<void>();
+  readonly addCollection = output<void>();
 
   /** Emits an event when the edit collection button is clicked in the header */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onEditCollection = new EventEmitter<{
-    tab: CollectionDialogTabType;
-    readonly: boolean;
-  }>();
+  readonly editCollection = output<{ tab: CollectionDialogTabType; readonly: boolean }>();
 
   /** Emits an event when the delete collection button is clicked in the header */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onDeleteCollection = new EventEmitter<void>();
+  readonly deleteCollection = output<void>();
 
   /** Emits an event when the search text changes in the header*/
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() searchTextChanged = new EventEmitter<string>();
+  readonly searchTextChanged = output<string>();
 
   /** Emits an event when the add item dialog should be opened */
-  readonly onOpenAddItemDialog = output();
+  readonly openAddItemDialogEvent = output();
 
-  protected CollectionDialogTabType = CollectionDialogTabType;
-
-  /** The cipher type enum. */
-  protected CipherType = CipherType;
-
-  constructor(
-    private i18nService: I18nService,
-    private dialogService: DialogService,
-    private collectionAdminService: CollectionAdminService,
-    private router: Router,
-    private accountService: AccountService,
-  ) {}
-
-  get title() {
+  protected readonly title = computed(() => {
     const headerType = this.i18nService.t("collections").toLowerCase();
 
-    if (this.collection != null) {
-      return this.collection.node.name;
+    const collection = this.collection();
+    if (collection != null) {
+      return collection.node.name;
     }
 
-    if (this.filter.collectionId === Unassigned) {
+    if (this.filter().collectionId === Unassigned) {
       return this.i18nService.t("unassigned");
     }
 
-    return this.organization?.name
-      ? `${this.organization?.name} ${headerType}`
+    return this.organization().name
+      ? `${this.organization().name} ${headerType}`
       : this.i18nService.t("collections");
-  }
+  });
 
-  get icon() {
-    return this.filter.collectionId !== undefined ? "bwi-collection-shared" : "";
-  }
+  protected readonly icon = computed(() =>
+    this.filter().collectionId !== undefined ? "bwi-collection-shared" : "",
+  );
 
-  protected get showBreadcrumbs() {
-    return this.filter.collectionId !== undefined && this.filter.collectionId !== All;
-  }
+  protected readonly showBreadcrumbs = computed(
+    () => this.filter().collectionId !== undefined && this.filter().collectionId !== All,
+  );
 
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.
    * Begins from the organization root and excludes the currently selected collection.
    */
-  protected get collections() {
-    if (this.collection == undefined) {
+  protected readonly collections = computed<CollectionAdminView[]>(() => {
+    const collection = this.collection();
+    if (collection == undefined) {
       return [];
     }
 
-    const collections = [this.collection];
-    while (collections[collections.length - 1].parent != undefined) {
-      collections.push(collections[collections.length - 1].parent);
+    const nodes: TreeNode<CollectionAdminView>[] = [collection];
+    let current: TreeNode<CollectionAdminView> = collection;
+    while (current.parent != undefined) {
+      current = current.parent;
+      nodes.push(current);
     }
 
-    return collections
+    return nodes
       .slice(1)
       .reverse()
       .map((treeNode) => treeNode.node);
-  }
+  });
 
-  private showFreeOrgUpgradeDialog(): void {
+  private async showFreeOrgUpgradeDialog(): Promise<void> {
+    const org = this.organization();
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
-        this.organization.canEditSubscription
+        org.canEditSubscription
           ? "freeOrgMaxCollectionReachedManageBilling"
           : "freeOrgMaxCollectionReachedNoManageBilling",
-        this.organization.maxCollections,
+        org.maxCollections,
       ),
       type: "primary",
     };
 
-    if (this.organization.canEditSubscription) {
+    if (org.canEditSubscription) {
       orgUpgradeSimpleDialogOpts.acceptButtonText = this.i18nService.t("upgrade");
     } else {
       orgUpgradeSimpleDialogOpts.acceptButtonText = this.i18nService.t("ok");
@@ -189,96 +163,88 @@ export class VaultHeaderComponent {
     }
 
     const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
+    const result = await firstValueFrom(simpleDialog.closed);
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    firstValueFrom(simpleDialog.closed).then((result: boolean | undefined) => {
-      if (!result) {
-        return;
-      }
-
-      if (result && this.organization.canEditSubscription) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/organizations", this.organization.id, "billing", "subscription"], {
-          queryParams: { upgrade: true },
-        });
-      }
-    });
+    if (result && org.canEditSubscription) {
+      await this.router.navigate(["/organizations", org.id, "billing", "subscription"], {
+        queryParams: { upgrade: true },
+      });
+    }
   }
 
-  get canEditCollection(): boolean {
+  protected readonly canEditCollection = computed(() => {
     // Only edit collections if not editing "Unassigned"
-    if (this.collection === undefined) {
+    const collection = this.collection();
+    if (collection === undefined) {
       return false;
     }
 
     // Otherwise, check if we can edit the specified collection
-    return this.collection.node.canEdit(this.organization);
-  }
+    return collection.node.canEdit(this.organization());
+  });
 
-  addCipher(cipherType?: CipherType) {
-    this.onAddCipher.emit(cipherType);
+  handleAddCipher(cipherType?: CipherType) {
+    this.addCipher.emit(cipherType);
   }
 
   protected openAddItemDialog(): void {
-    this.onOpenAddItemDialog.emit();
+    this.openAddItemDialogEvent.emit();
   }
 
-  async addCollection() {
-    if (this.organization.productTierType === ProductTierType.Free) {
+  async handleAddCollection() {
+    const org = this.organization();
+    if (org.productTierType === ProductTierType.Free) {
       const collections = await firstValueFrom(
         this.accountService.activeAccount$.pipe(
           getUserId,
-          switchMap((userId) =>
-            this.collectionAdminService.collectionAdminViews$(this.organization.id, userId),
-          ),
+          switchMap((userId) => this.collectionAdminService.collectionAdminViews$(org.id, userId)),
         ),
       );
-      if (collections.length === this.organization.maxCollections) {
-        this.showFreeOrgUpgradeDialog();
+      if (collections.length === org.maxCollections) {
+        await this.showFreeOrgUpgradeDialog();
         return;
       }
     }
 
-    this.onAddCollection.emit();
+    this.addCollection.emit();
   }
 
-  async editCollection(tab: CollectionDialogTabType, readonly: boolean): Promise<void> {
-    this.onEditCollection.emit({ tab, readonly });
+  async handleEditCollection(tab: CollectionDialogTabType, readonly: boolean): Promise<void> {
+    this.editCollection.emit({ tab, readonly });
   }
 
-  get canDeleteCollection(): boolean {
+  protected readonly canDeleteCollection = computed(() => {
     // Only delete collections if not deleting "Unassigned"
-    if (this.collection === undefined) {
+    const collection = this.collection();
+    if (collection === undefined) {
       return false;
     }
 
     // Otherwise, check if we can delete the specified collection
-    return this.collection.node.canDelete(this.organization);
-  }
+    return collection.node.canDelete(this.organization());
+  });
 
-  get canViewCollectionInfo(): boolean {
-    return this.collection.node.canViewCollectionInfo(this.organization);
-  }
+  protected readonly canViewCollectionInfo = computed(
+    () => this.collection()?.node.canViewCollectionInfo(this.organization()) ?? false,
+  );
 
-  get canCreateCollection(): boolean {
-    return this.organization?.canCreateNewCollections;
-  }
+  protected readonly canCreateCollection = computed(
+    () => this.organization()?.canCreateNewCollections,
+  );
 
-  get canCreateCipher(): boolean {
-    if (this.organization?.isProviderUser && !this.organization?.isMember) {
+  protected readonly canCreateCipher = computed(() => {
+    const org = this.organization();
+    if (org?.isProviderUser && !org?.isMember) {
       return false;
     }
     return true;
-  }
+  });
 
-  deleteCollection() {
-    this.onDeleteCollection.emit();
+  handleDeleteCollection() {
+    this.deleteCollection.emit();
   }
 
   onSearchTextChanged(t: string) {
-    this.searchText = t;
     this.searchTextChanged.emit(t);
   }
 }

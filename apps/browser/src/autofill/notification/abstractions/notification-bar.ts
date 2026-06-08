@@ -55,6 +55,16 @@ type NotificationBarIframeInitData = {
    * Use type guards like `isAtRiskPasswordNotification` to read this field.
    */
   params?: AtRiskPasswordNotificationParams | unknown;
+  /**
+   * When true, the notification bar opens directly in the confirmation (post-save) state,
+   * skipping the "Save login?" prompt. Use `confirmationData` to provide the cipher details.
+   */
+  isConfirmation?: boolean;
+  /**
+   * Cipher details used when opening the notification bar in confirmation state.
+   * Only relevant when `isConfirmation` is true.
+   */
+  confirmationData?: { cipherId?: string; itemName?: string };
 };
 
 type NotificationBarWindowMessage = {
