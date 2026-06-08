@@ -82,6 +82,9 @@ export type EnvAccessTokenLocation = (typeof EnvAccessTokenLocation)[keyof typeo
  * Reads the `ACCESS_TOKEN_LOCATION` env var. `DISK` forces the access token to be stored
  * unencrypted on disk (bypassing the OS keyring); anything else (including unset) keeps the
  * default keyring-backed secure storage.
+ * 
+ * This is useful on systems where the keyring is unreliable (KDE/Kwallet) where the user
+ * otherwise experiences periodic logouts.
  */
 export function accessTokenLocation(): EnvAccessTokenLocation {
   return process.env.ACCESS_TOKEN_LOCATION?.toUpperCase() === EnvAccessTokenLocation.Disk
