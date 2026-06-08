@@ -1,16 +1,10 @@
-//! Alternative clipboard-set path for GNOME, using XDG Desktop Portals.
+//! Portal based implementation for setting and reading the clipboard.
 //!
-//! On GNOME/Wayland the direct `arboard` data-control path is unreliable (GNOME does not
-//! implement the `wlr-data-control` protocol), so this module offers the clipboard contents
-//! through the
-//! [`Clipboard`](ashpd::desktop::clipboard::Clipboard) portal. The Clipboard portal does not
-//! own a session of its own; it attaches to an existing portal session. Currently,
-//! we use a [`RemoteDesktop`](ashpd::desktop::remote_desktop::RemoteDesktop) session.
-//!
-//! Starting a `RemoteDesktop` session normally prompts the user for consent. We request a
-//! persistent session ([`PersistMode::ExplicitlyRevoked`](ashpd::desktop::PersistMode)) and
-//! persist the returned `restore_token` to disk, so the consent dialog is shown only once and the
-//! session is silently restored on subsequent runs.
+//! On GNOME/Wayland the direct `arboard` does not work because GNOME does not implement
+//! `zwlr_data_control_manager_v1`. This implementation works via the RemoteDesktop
+//! portal instead. Essentially, Bitwarden starts a RemoteDesktop session and gets
+//! persistent rights to restart it, resulting in a single permission prompt. This
+//! is subsequently used to read and write the clipboard.
 
 use std::io::{Read, Write};
 
@@ -49,8 +43,8 @@ pub(crate) fn should_use_portal() -> bool {
 /// caller must keep the returned future running until the paste has been served.
 /// ```
 pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
-    // The portal does not support setting the password flag / removing the clipboard item from history.
-    // This means that the clipboard item will remain in history for this backend.
+    // The portal does not support setting the password flag / removing the clipboard item from
+    // history. This means that the clipboard item will remain in history for this backend.
     let _ = password;
 
     let remote_desktop = RemoteDesktop::new().await?;
