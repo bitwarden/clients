@@ -136,6 +136,7 @@ import {
   SessionTimeoutSettingsComponentService,
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UnlockService } from "@bitwarden/unlock";
@@ -189,7 +190,6 @@ import { DesktopDeviceManagementComponentService } from "../../services/desktop-
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
-import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
@@ -227,7 +227,6 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
-  safeProvider(SearchBarService),
   safeProvider(DialogService),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
@@ -677,7 +676,7 @@ const safeProviders: SafeProvider[] = [
 ];
 
 @NgModule({
-  imports: [JslibServicesModule, GeneratorServicesModule],
+  imports: [JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,

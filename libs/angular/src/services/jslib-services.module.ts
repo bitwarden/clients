@@ -309,8 +309,10 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -413,6 +415,11 @@ import {
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  UserCryptoDialogService,
+  UserKeyRotationService,
+  UserKeyRotationServiceAbstraction,
+} from "@bitwarden/user-crypto-management";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -650,6 +657,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherSdkService,
     useClass: DefaultCipherSdkService,
     deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: UserKeyRotationServiceAbstraction,
+    useClass: UserKeyRotationService,
+    deps: [SdkService, LogService, UserCryptoDialogService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
@@ -925,9 +937,19 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SendApiServiceAbstraction,
+    provide: SendApiService,
     useClass: SendApiService,
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+  }),
+  safeProvider({
+    provide: SendSdkApiService,
+    useClass: SendSdkApiService,
+    deps: [SdkService, SendApiService, InternalSendService, AccountServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: SendApiServiceAbstraction,
+    useClass: SendApiServiceSelector,
+    deps: [ConfigService, SendApiService, SendSdkApiService],
   }),
   safeProvider({
     provide: KeyApiService,
