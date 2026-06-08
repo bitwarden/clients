@@ -186,6 +186,19 @@ mod tests {
         ssh_key.to_openssh(LineEnding::LF).unwrap().to_string()
     }
 
+    fn ecdsa_keypair(curve: EcdsaCurve) -> EcdsaKeypair {
+        EcdsaKeypair::random(&mut OsRng, curve).unwrap()
+    }
+
+    fn ecdsa_private_key_from_ssh_key(curve: EcdsaCurve) -> PrivateKey {
+        let ssh_key = ssh_key::PrivateKey::new(
+            ssh_key::private::KeypairData::Ecdsa(ecdsa_keypair(curve)),
+            "",
+        )
+        .unwrap();
+        PrivateKey::try_from(ssh_key).unwrap()
+    }
+
     #[test]
     fn test_privatekey_from_ed25519() {
         let key_string = create_valid_ed25519_key_string();
@@ -305,19 +318,6 @@ mod tests {
         let sig = signing_key.sign(TEST_DATA);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
-    }
-
-    fn ecdsa_keypair(curve: EcdsaCurve) -> EcdsaKeypair {
-        EcdsaKeypair::random(&mut OsRng, curve).unwrap()
-    }
-
-    fn ecdsa_private_key_from_ssh_key(curve: EcdsaCurve) -> PrivateKey {
-        let ssh_key = ssh_key::PrivateKey::new(
-            ssh_key::private::KeypairData::Ecdsa(ecdsa_keypair(curve)),
-            "",
-        )
-        .unwrap();
-        PrivateKey::try_from(ssh_key).unwrap()
     }
 
     #[test]
