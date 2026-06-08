@@ -38,6 +38,7 @@ import { Utils } from "../../misc/utils";
 import { ScheduledTaskNames } from "../../scheduling/scheduled-task-name.enum";
 import { TaskSchedulerService } from "../../scheduling/task-scheduler.service";
 
+import { compareCredentialIds, parseCredentialId } from "./credential-id-utils";
 import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";
 import { guidToRawFormat } from "./guid-utils";
@@ -341,44 +342,37 @@ export class Fido2ClientService<
       )
     ) {
       // Spec reference: https://www.w3.org/TR/webauthn-3/#sctn-discover-from-external-source step 20.
-      // The spec says the client should determine if "no authenticator will become available" by
-      // examining transports. Since Bitwarden is an internal-only authenticator, allowCredentials
-      // entries that specify only non-internal transports normally cannot be satisfied here.
-      //
-      // However, vault-synced passkeys originally registered via the cross-device hybrid flow are
-      // commonly echoed back by the RP with transports such as ["hybrid"]. Bailing purely on
-      // transports causes those credentials to be unreachable on Chrome 146+ when another passkey
-      // provider is installed alongside Bitwarden (see #20973). Before falling back, consult the
-      // vault for the requesting rpId so a Bitwarden-resident credential gets a chance to handle
-      // the request. The lookup intentionally only checks "does the vault have any credential for
-      // this rpId" rather than matching individual credential ids, so the RP cannot use this code
-      // path to enumerate specific vault credentials beyond what it already knows about its own
-      // registrations.
-      const rpId = params.rpId;
+      // Bitwarden is an internal authenticator, but vault-synced passkeys originally registered via
+      // the cross-device hybrid flow are commonly echoed back by the RP with transports such as
+      // ["hybrid"], so the transport check alone is not enough to know we can't serve the request
+      // (see #20973). Consult the vault for the requesting rpId and only fall back when none of
+      // the requested credential ids matches a vault credential. The RP could already probe vault
+      // ids by sending the same allowCredentials with transports:["internal"], so this check adds
+      // no enumeration capability beyond what the existing internal-transport path exposes.
+      let matchedVaultCredential = false;
       const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
-      let vaultHasCredentialForRp = false;
       if (authStatus === AuthenticationStatus.Unlocked) {
         try {
-          const vaultCredentials = await this.authenticator.silentCredentialDiscovery(rpId);
-          vaultHasCredentialForRp = vaultCredentials.length > 0;
+          const vaultCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
+          const requestedIds = params.allowedCredentials.map((c) => Fido2Utils.stringToArray(c.id));
+          matchedVaultCredential = vaultCredentials.some((vc) => {
+            const parsed = parseCredentialId(vc.credentialId);
+            return parsed != null && requestedIds.some((id) => compareCredentialIds(parsed, id));
+          });
         } catch (error) {
           this.logService?.warning(
-            `[Fido2Client] silentCredentialDiscovery failed during transport-only fallback check; falling back to browser. ${error}`,
+            `[Fido2Client] silentCredentialDiscovery failed; falling back to browser. ${error}`,
           );
           throw new FallbackRequestedError();
         }
       }
 
-      if (!vaultHasCredentialForRp) {
+      if (!matchedVaultCredential) {
         this.logService?.info(
-          `[Fido2Client] All allowCredentials entries specify non-internal transports only and vault has no credentials for rpId — falling back to browser.`,
+          `[Fido2Client] No vault credential matches allowCredentials; falling back to browser.`,
         );
         throw new FallbackRequestedError();
       }
-
-      this.logService?.info(
-        `[Fido2Client] All allowCredentials entries specify non-internal transports only but vault has credentials for rpId — proceeding with Bitwarden.`,
-      );
     }
 
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });

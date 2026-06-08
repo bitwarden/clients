@@ -619,11 +619,11 @@ describe("FidoAuthenticatorService", () => {
     });
 
     describe("fallback for hardware/roaming keys", () => {
-      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only and vault has no credentials for rpId", async () => {
+      it("falls back when transports are non-internal and the vault has no credential for rpId", async () => {
         const params = createParams({
           allowedCredentials: [
-            { id: "credId1", transports: ["usb"] },
-            { id: "credId2", transports: ["nfc"] },
+            { id: Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())), transports: ["usb"] },
+            { id: Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())), transports: ["nfc"] },
           ],
           fallbackSupported: true,
         });
@@ -636,22 +636,56 @@ describe("FidoAuthenticatorService", () => {
         expect(authenticator.getAssertion).not.toHaveBeenCalled();
       });
 
-      it("proceeds with Bitwarden when transports are non-internal but the vault has a credential for rpId", async () => {
+      it("falls back when vault has credentials for rpId but none match the requested ids", async () => {
+        const requestedId = Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid()));
         const params = createParams({
-          allowedCredentials: [
-            { id: "credId1", transports: ["hybrid"] },
-            { id: "credId2", transports: ["usb"] },
-          ],
+          allowedCredentials: [{ id: requestedId, transports: ["usb"] }],
           fallbackSupported: true,
         });
         authenticator.silentCredentialDiscovery.mockResolvedValue([
           { credentialId: Utils.newGuid() } as Fido2CredentialView,
+        ]);
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("proceeds when a vault credential matches a requested id (uuid form)", async () => {
+        const credentialId = Utils.newGuid();
+        const params = createParams({
+          allowedCredentials: [
+            { id: Fido2Utils.arrayToString(guidToRawFormat(credentialId)), transports: ["hybrid"] },
+          ],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([
+          { credentialId } as Fido2CredentialView,
         ]);
         authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
 
         await client.assertCredential(params, windowReference);
 
         expect(authenticator.silentCredentialDiscovery).toHaveBeenCalledWith(RpId);
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
+      it("proceeds when a vault credential matches a requested id (b64 form)", async () => {
+        const raw = randomBytes(32);
+        const requestedId = Fido2Utils.arrayToString(raw);
+        const credentialId = "b64." + requestedId;
+        const params = createParams({
+          allowedCredentials: [{ id: requestedId, transports: ["hybrid"] }],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([
+          { credentialId } as Fido2CredentialView,
+        ]);
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
 
