@@ -14,6 +14,7 @@ type ActionDescriptor = {
   action: () => void;
   icon: BitwardenIcon;
   label: string;
+  color?: string;
 };
 
 /** When the total number of available actions exceeds this, split into primary + overflow. */
@@ -75,7 +76,7 @@ export class VaultBatchActionComponent {
       actions.push({
         action: this.service.bulkDelete.bind(this.service),
         icon: "bwi-trash",
-        label: this.i18nService.t("delete"),
+        label: this.i18nService.t(this.service.inTrash() ? "permanentlyDelete" : "delete"),
       });
     }
 

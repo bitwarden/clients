@@ -26,6 +26,7 @@ describe("VaultBatchActionComponent", () => {
   const canUnarchive = signal(false);
   const canRestore = signal(false);
   const canDelete = signal(false);
+  const inTrash = signal(false);
   const selectedCount = signal(0);
 
   const clearSpy = jest.fn();
@@ -43,6 +44,7 @@ describe("VaultBatchActionComponent", () => {
     canUnarchive.set(false);
     canRestore.set(false);
     canDelete.set(false);
+    inTrash.set(false);
     selectedCount.set(0);
     jest.clearAllMocks();
 
@@ -59,6 +61,7 @@ describe("VaultBatchActionComponent", () => {
             canUnarchive,
             canRestore,
             canDelete,
+            inTrash,
             selection: { clear: clearSpy },
             bulkMoveToFolder: bulkMoveToFolderSpy,
             bulkAssignToCollections: bulkAssignToCollectionsSpy,
