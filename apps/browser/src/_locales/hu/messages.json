@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Ez a webhely nem egyezik a mentett bejelentkezési adatokkal. Mielőtt kitöltenénk a bejelentkezés hitelesítő adatokat, győződjünk meg arról, hogy megbízható webhelyről van-e szó."
   },
+  "loginNeverMatchTitle": {
+    "message": "A bejelentkezési adatok nem egyeznek."
+  },
+  "loginNeverMatchDesc": {
+    "message": "Ez a webhely nem egyezik azzal, amelyet ehhez a bejelentkezéshez mentettünk. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "uriMatchRule": {
+    "message": "URI egyezési szabály"
+  },
+  "neverMatch": {
+    "message": "Sosincs egyezés"
+  },
   "loginHasNoSiteSaved": {
     "message": "A bejelentkezés nem mentett webhelyet."
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bankszámla"
+  },
+  "bankAccountDetails": {
+    "message": "Bankszámla adatok"
   },
   "typeNote": {
     "message": "Jegyzet"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Nem lehetséges az automatikus kitöltés."
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Az alapértelmezett egyezés beállítása 'Pontos egyezés'. Az aktuális webhely nem egyezik pontosan az ezzel az elemmel mentett bejelentkezési adatokkal."
   },
   "okay": {
     "message": "OK"
