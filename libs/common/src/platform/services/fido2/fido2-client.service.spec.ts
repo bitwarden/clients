@@ -6,6 +6,7 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
 import { Utils } from "../../../platform/misc/utils";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
+import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
   ActiveRequest,
@@ -618,7 +619,7 @@ describe("FidoAuthenticatorService", () => {
     });
 
     describe("fallback for hardware/roaming keys", () => {
-      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only", async () => {
+      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only and vault has no credentials for rpId", async () => {
         const params = createParams({
           allowedCredentials: [
             { id: "credId1", transports: ["usb"] },
@@ -626,6 +627,54 @@ describe("FidoAuthenticatorService", () => {
           ],
           fallbackSupported: true,
         });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([]);
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.silentCredentialDiscovery).toHaveBeenCalledWith(RpId);
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("proceeds with Bitwarden when transports are non-internal but the vault has a credential for rpId", async () => {
+        const params = createParams({
+          allowedCredentials: [
+            { id: "credId1", transports: ["hybrid"] },
+            { id: "credId2", transports: ["usb"] },
+          ],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockResolvedValue([
+          { credentialId: Utils.newGuid() } as Fido2CredentialView,
+        ]);
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.silentCredentialDiscovery).toHaveBeenCalledWith(RpId);
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
+      it("falls back when the vault is locked, without invoking silentCredentialDiscovery", async () => {
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
+        const params = createParams({
+          allowedCredentials: [{ id: "credId1", transports: ["hybrid"] }],
+          fallbackSupported: true,
+        });
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.silentCredentialDiscovery).not.toHaveBeenCalled();
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("falls back when silentCredentialDiscovery throws", async () => {
+        const params = createParams({
+          allowedCredentials: [{ id: "credId1", transports: ["hybrid"] }],
+          fallbackSupported: true,
+        });
+        authenticator.silentCredentialDiscovery.mockRejectedValue(new Error("boom"));
 
         await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
           fallbackRequested: true,
@@ -642,6 +691,7 @@ describe("FidoAuthenticatorService", () => {
 
         await client.assertCredential(params, windowReference);
 
+        expect(authenticator.silentCredentialDiscovery).not.toHaveBeenCalled();
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
 
@@ -654,6 +704,7 @@ describe("FidoAuthenticatorService", () => {
 
         await client.assertCredential(params, windowReference);
 
+        expect(authenticator.silentCredentialDiscovery).not.toHaveBeenCalled();
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
     });
