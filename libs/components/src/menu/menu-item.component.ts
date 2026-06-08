@@ -15,7 +15,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "[class]": "classList()",
-    "attr.role": "menuitem",
+    role: "menuitem",
     tabindex: "-1",
     "[attr.disabled]": "disabled || null",
   },
