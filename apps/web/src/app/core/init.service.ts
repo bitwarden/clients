@@ -75,13 +75,10 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      // Run the ipc init non-blocking because it has up to a 1 second timeout
-      void (async () => {
-        await this.ipcService.init();
-        if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
-          await this.sharedUnlockFollowerService.start();
-        }
-      })();
+      await this.ipcService.init();
+      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
+        await this.sharedUnlockFollowerService.start();
+      }
       this.taskService.listenForTaskNotifications();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);

@@ -81,16 +81,6 @@ export class WebIpcService extends IpcService {
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),
       });
-
-      // Ensure the browser extension is present
-      const version = await ipcRequestDiscover(
-        this.client,
-        { BrowserBackground: { id: "Own" } },
-        AbortSignal.timeout(DISCOVER_MESSAGE_TIMEOUT_MS),
-      );
-      this.logService.info(
-        `[IPC] Connected to Bitwarden Browser Extension with version ${version.version}`,
-      );
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
