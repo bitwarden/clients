@@ -45,7 +45,7 @@ pub(crate) fn write_internal(text: &str, hide_from_history: bool) -> Result<()> 
 /// Write to the clipboard, using the XDG Desktop Portal on GNOME.
 ///
 /// On GNOME/Wayland `arboard` cannot reliably set the clipboard (GNOME does not implement the
-/// `wlr-data-control` protocol), so on GNOME we always offer the contents through the [`portal`]
+/// `zwlr_data_control_manager_v1` protocol), so on GNOME we always offer the contents through the [`portal`]
 /// (RemoteDesktop + Clipboard). On every other Linux desktop this is just [`write_internal`].
 #[cfg(target_os = "linux")]
 pub async fn write(text: &str, hide_from_history: bool) -> Result<()> {
