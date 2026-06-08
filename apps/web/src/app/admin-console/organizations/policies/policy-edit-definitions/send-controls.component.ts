@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { UntypedFormBuilder } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 import { Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -31,14 +31,12 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+
   readonly data = this.formBuilder.group({
     disableSend: false,
     disableHideEmail: false,
   });
-
-  constructor(private readonly formBuilder: UntypedFormBuilder) {
-    super();
-  }
 
   async ngOnInit() {
     super.ngOnInit();
