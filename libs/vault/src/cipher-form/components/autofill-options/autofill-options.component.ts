@@ -30,6 +30,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { UriOptionComponent, UriType } from "./uri-option.component";
@@ -40,7 +41,6 @@ interface UriField {
   uriType: UriType;
 }
 
-const APP_URI_PREFIX = "app://";
 const URI_TYPE_APP: UriType = "app";
 const URI_TYPE_WEBSITE: UriType = "website";
 

@@ -21,7 +21,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-const APP_URI_PREFIX = "app://";
+import { APP_URI_PREFIX } from "../../models/desktop-app-uri.constants";
 const APP_URI_LABEL = "application";
 const WEBSITE_URI_LABEL = "website";
 
