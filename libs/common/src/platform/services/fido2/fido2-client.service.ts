@@ -342,13 +342,9 @@ export class Fido2ClientService<
       )
     ) {
       // Spec reference: https://www.w3.org/TR/webauthn-3/#sctn-discover-from-external-source step 20.
-      // Bitwarden is an internal authenticator, but vault-synced passkeys originally registered via
-      // the cross-device hybrid flow are commonly echoed back by the RP with transports such as
-      // ["hybrid"], so the transport check alone is not enough to know we can't serve the request
-      // (see #20973). Consult the vault for the requesting rpId and only fall back when none of
-      // the requested credential ids matches a vault credential. The RP could already probe vault
-      // ids by sending the same allowCredentials with transports:["internal"], so this check adds
-      // no enumeration capability beyond what the existing internal-transport path exposes.
+      // Hybrid-registered vault passkeys are echoed back by RPs with non-internal transports, so
+      // check the vault for a matching credential id before falling back. The same id probe is
+      // already available via transports:["internal"], so matching here adds no enumeration surface.
       let matchedVaultCredential = false;
       const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
       if (authStatus === AuthenticationStatus.Unlocked) {
