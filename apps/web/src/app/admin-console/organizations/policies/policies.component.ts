@@ -180,12 +180,11 @@ export class PoliciesComponent {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
-    const drawerOpener =
-      useDrawer && policy.v2 != null
-        ? PolicyEditDrawerComponent.openDrawer
-        : useDrawer
-          ? dialogComponent.openDrawer
-          : undefined;
+    // For custom dialog components (e.g. MultiStep), prefer their own openDrawer.
+    // For standard policies, route all drawer opens through PolicyEditDrawerComponent.
+    const drawerOpener = useDrawer
+      ? (dialogComponent.openDrawer ?? PolicyEditDrawerComponent.openDrawer)
+      : undefined;
 
     if (drawerOpener) {
       const triggerEl =
