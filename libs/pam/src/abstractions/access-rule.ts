@@ -74,3 +74,44 @@ export type AccessRule =
   | { kind: "human_approval" }
   | { kind: "ip_allowlist"; cidrs: string[] }
   | { kind: "all_of"; rules: AccessRule[] };
+
+export function parseRule(json: unknown): AccessRule | null {
+  if (json == null || typeof json !== "object") {
+    return null;
+  }
+  const obj = json as Record<string, unknown>;
+  const kind = get(obj, "kind");
+  switch (kind) {
+    case ConditionKind.HumanApproval:
+      return { kind: "human_approval" };
+    case ConditionKind.IpAllowlist:
+      return { kind: "ip_allowlist", cidrs: (get(obj, "cidrs") as string[]) ?? [] };
+    case "all_of": {
+      const rules = get(obj, "rules");
+      const parsed = Array.isArray(rules)
+        ? rules.map(parseRule).filter((r): r is AccessRule => r != null)
+        : [];
+      return { kind: "all_of", rules: parsed };
+    }
+    default:
+      return null;
+  }
+}
+
+/**
+ * Flatten the server's AccessRule tree back into the UI's `Condition[]` — the
+ * inverse of {@link AccessRuleRequest}'s `conditionsToRule`. The server stores
+ * the tree, not the conditions list, so this reconstructs the list on read.
+ * Note the tree carries no `approvers` (the forward mapping drops them), so a
+ * reconstructed `human_approval` has no approvers — all the current UI needs.
+ */
+export function ruleToConditions(rule: AccessRule): Condition[] {
+  switch (rule.kind) {
+    case "human_approval":
+      return [{ kind: "human_approval" }];
+    case "ip_allowlist":
+      return [{ kind: "ip_allowlist", cidrs: rule.cidrs }];
+    case "all_of":
+      return rule.rules.flatMap(ruleToConditions);
+  }
+}

@@ -335,6 +335,33 @@ describe("DefaultPamApiService", () => {
       expect(result.data[0].id).toBe("pol-1");
       expect(result.data[0].conditions[0].kind).toBe("human_approval");
     });
+
+    it("derives conditions from the `rule` tree for list items lacking `Conditions`", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "pol-1",
+            OrganizationId: "org-1",
+            Name: "Approval + IP",
+            Description: null,
+            rule: {
+              kind: "all_of",
+              rules: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
+            },
+            CreationDate: "2026-05-25T00:00:00Z",
+            RevisionDate: "2026-05-25T00:00:00Z",
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listAccessRules("org-1");
+
+      expect(result.data[0].conditions).toEqual([
+        { kind: "human_approval" },
+        { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
+      ]);
+    });
   });
 
   describe("getAccessRule", () => {
@@ -360,6 +387,64 @@ describe("DefaultPamApiService", () => {
       );
       expect(result.id).toBe("pol-1");
       expect(result.conditions[0].kind).toBe("human_approval");
+    });
+
+    it("derives conditions from a bare `rule` leaf when the response omits `Conditions`", async () => {
+      // Mirrors the real server response: a camelCase `rule` tree, no `Conditions` field.
+      apiService.send.mockResolvedValue({
+        id: "pol-1",
+        organizationId: "org-1",
+        name: "Test",
+        description: null,
+        rule: { kind: "human_approval" },
+        creationDate: "2026-06-08T08:49:30.7166667Z",
+        revisionDate: "2026-06-08T17:50:25.84Z",
+        object: "accessRule",
+      });
+
+      const result = await service.getAccessRule("org-1", "pol-1");
+
+      expect(result.conditions).toEqual([{ kind: "human_approval" }]);
+    });
+
+    it("derives ip_allowlist cidrs from the `rule` tree", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "pol-1",
+        OrganizationId: "org-1",
+        Name: "IP restricted",
+        Description: null,
+        Rule: { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
+        CreationDate: "2026-05-25T00:00:00Z",
+        RevisionDate: "2026-05-25T00:00:00Z",
+      });
+
+      const result = await service.getAccessRule("org-1", "pol-1");
+
+      expect(result.conditions).toEqual([
+        { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
+      ]);
+    });
+
+    it("flattens an `all_of` rule tree into multiple conditions", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "pol-1",
+        OrganizationId: "org-1",
+        Name: "Approval + IP",
+        Description: null,
+        Rule: {
+          kind: "all_of",
+          rules: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
+        },
+        CreationDate: "2026-05-25T00:00:00Z",
+        RevisionDate: "2026-05-25T00:00:00Z",
+      });
+
+      const result = await service.getAccessRule("org-1", "pol-1");
+
+      expect(result.conditions).toEqual([
+        { kind: "human_approval" },
+        { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
+      ]);
     });
   });
 
