@@ -71,3 +71,30 @@ export const WithIcons: Story = {
     `,
   }),
 };
+
+/**
+ * Drag the bottom-right corner to resize the container and watch badges move
+ * in and out of the overflow "+N" badge as the available width changes.
+ */
+export const Resizable: Story = {
+  // Resizing is interactive; a static snapshot adds no coverage over the other stories.
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+  render: () => ({
+    template: `
+      <div
+        class="tw-resize-x tw-overflow-hidden tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-2"
+        style="width: 400px; max-width: 100%;"
+      >
+        <bit-badge-group>
+          <span bitBadge variant="subtle">Personal</span>
+          <span bitBadge variant="subtle">Work</span>
+          <span bitBadge variant="success">Shared</span>
+          <span bitBadge variant="warning">Archived</span>
+          <span bitBadge variant="primary">Favorite</span>
+        </bit-badge-group>
+      </div>
+    `,
+  }),
+};
