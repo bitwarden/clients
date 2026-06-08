@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-import { Condition, parseConditions } from "../access-rule";
+import { Condition, parseConditions, parseRule, ruleToConditions } from "../access-rule";
 
 export class AccessRuleResponse extends BaseResponse {
   id: string;
@@ -25,7 +25,16 @@ export class AccessRuleResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Name");
     this.description = this.getResponseProperty("Description") ?? null;
-    this.conditions = parseConditions(this.getResponseProperty("Conditions"));
+    // Prefer an explicit `Conditions` list when present; otherwise reconstruct
+    // it from the server's canonical `Rule` tree (the GET response carries the
+    // tree, not a flat conditions list).
+    const rawConditions = this.getResponseProperty("Conditions");
+    if (rawConditions != null) {
+      this.conditions = parseConditions(rawConditions);
+    } else {
+      const rule = parseRule(this.getResponseProperty("Rule"));
+      this.conditions = rule ? ruleToConditions(rule) : [];
+    }
     const collections = this.getResponseProperty("Collections");
     this.collections = Array.isArray(collections) ? collections.map(String) : [];
     const duration = this.getResponseProperty("DefaultLeaseDurationSeconds");
