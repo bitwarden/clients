@@ -40,13 +40,12 @@
           <button
             type="button"
             bitMenuItem
+            variant="danger"
             (click)="denyAllRequests()"
             [disabled]="actionInProgress"
           >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-              {{ "denyAllRequests" | i18n }}
-            </span>
+            <bit-icon fixedWidth name="bwi-close" slot="start" />
+            {{ "denyAllRequests" | i18n }}
           </button>
         </bit-menu>
       </th>
@@ -86,13 +85,12 @@
           <button
             type="button"
             bitMenuItem
+            variant="danger"
             (click)="denyRequest(r.id)"
             [disabled]="actionInProgress"
           >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-              {{ "denyRequest" | i18n }}
-            </span>
+            <bit-icon fixedWidth name="bwi-close" slot="start" />
+            {{ "denyRequest" | i18n }}
           </button>
         </bit-menu>
       </td>

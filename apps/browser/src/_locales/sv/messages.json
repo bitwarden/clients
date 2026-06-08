@@ -1823,10 +1823,22 @@
     "message": "Stäng av autofyll"
   },
   "confirmAutofill": {
-    "message": "Bekräfta autofyll"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Denna webbplats matchar inte dina sparade inloggningsuppgifter. Innan du fyller i dina inloggningsuppgifter, se till att det är en betrodd webbplats."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Anteckning"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Aktivera automatisk ifyllnad vid sidhämtning sattes till att använda standardinställningen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Kan inte autofylla"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Standardmatchning är satt till 'Exakt matchning'. Den aktuella webbplatsen matchar inte exakt de sparade inloggningsuppgifterna för detta objekt."
   },
   "okay": {
     "message": "Okej"

@@ -59,10 +59,8 @@
       }
     }
     @if (canDelete$ | async) {
-      <button type="button" bitMenuItem (click)="delete()">
-        <span class="tw-text-danger">
-          {{ "delete" | i18n }}
-        </span>
+      <button type="button" bitMenuItem variant="danger" (click)="delete()">
+        {{ "delete" | i18n }}
       </button>
     }
   </bit-menu>

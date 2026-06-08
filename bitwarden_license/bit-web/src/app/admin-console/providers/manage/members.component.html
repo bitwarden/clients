@@ -110,12 +110,11 @@
                 <button
                   type="button"
                   bitMenuItem
+                  variant="danger"
                   (click)="isProcessing ? null : bulkRemove(providerId)"
                 >
-                  <span class="tw-text-danger">
-                    <i aria-hidden="true" class="bwi bwi-close"></i>
-                    {{ "remove" | i18n }}
-                  </span>
+                  <bit-icon name="bwi-close" slot="start" />
+                  {{ "remove" | i18n }}
                 </button>
               </bit-menu>
             </th>
@@ -220,12 +219,11 @@
                 <button
                   type="button"
                   bitMenuItem
+                  variant="danger"
                   (click)="isProcessing ? null : remove(user, providerId)"
                 >
-                  <span class="tw-text-danger">
-                    <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                    {{ "remove" | i18n }}
-                  </span>
+                  <bit-icon fixedWidth name="bwi-close" slot="start" />
+                  {{ "remove" | i18n }}
                 </button>
               </bit-menu>
             </td>
