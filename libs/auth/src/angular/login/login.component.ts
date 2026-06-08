@@ -192,6 +192,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.formGroup.controls.email.setValue(qParamsEmail);
         paramEmailIsSet = true;
       }
+
+      // Delegate any query-param-driven UI to the client-specific service.
+      this.loginComponentService.showLoginQueryParamMessages?.(params);
     }
 
     // If there are no params or no email in the query params, loadEmailSettings from state

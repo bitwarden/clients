@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Params } from "@angular/router";
+
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
@@ -47,4 +49,12 @@ export abstract class LoginComponentService {
    * Shows the back button.
    */
   showBackButton: (showBackButton: boolean) => void;
+
+  /**
+   * Allows the client to render UI in response to query params on /login
+   * (today: toasts for errors emitted by the server's SSO callback when it
+   * redirects after rejecting authentication).
+   * - Used by: Web
+   */
+  showLoginQueryParamMessages?: (params: Params) => void;
 }

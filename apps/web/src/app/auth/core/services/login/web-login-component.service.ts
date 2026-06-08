@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
+import { Params, Router } from "@angular/router";
 
 import {
   DefaultLoginComponentService,
@@ -17,11 +17,24 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { RouterService } from "../../../../core/router.service";
+
+/**
+ * Error codes emitted by the server's SSO callback as the `error` query
+ * param when redirecting back to /login. Must stay in sync with
+ * `Bit.Sso.Utilities.SsoRedirectUrlBuilder.ErrorCodes` on the server.
+ */
+const SsoRedirectErrorCode = Object.freeze({
+  InviteAcceptanceRequired: "ssoOrgInviteAcceptanceRequired",
+  // Future: AccessRevoked: "ssoOrganizationAccessRevoked", etc.
+} as const);
+type SsoRedirectErrorCode = (typeof SsoRedirectErrorCode)[keyof typeof SsoRedirectErrorCode];
 
 @Injectable()
 export class WebLoginComponentService
@@ -42,6 +55,8 @@ export class WebLoginComponentService
     private router: Router,
     private accountService: AccountService,
     private configService: ConfigService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {
     super(
       cryptoFunctionService,
@@ -67,6 +82,24 @@ export class WebLoginComponentService
       queryParams: { identifier: orgSsoIdentifier },
     });
     return;
+  }
+
+  showLoginQueryParamMessages(params: Params): void {
+    if (!params.organizationName) {
+      return;
+    }
+    switch (params.error) {
+      case SsoRedirectErrorCode.InviteAcceptanceRequired:
+        this.toastService.showToast({
+          variant: "warning",
+          title: null,
+          message: this.i18nService.t("acceptInviteBeforeUsingSso", params.organizationName),
+          timeout: 10000,
+        });
+        return;
+      default:
+        return;
+    }
   }
 
   async getOrgPoliciesFromOrgInvite(email: string): Promise<PasswordPolicies | undefined> {

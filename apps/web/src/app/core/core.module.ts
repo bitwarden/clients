@@ -353,6 +353,8 @@ const safeProviders: SafeProvider[] = [
       Router,
       AccountService,
       ConfigService,
+      ToastService,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({

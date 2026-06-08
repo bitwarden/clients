@@ -5824,6 +5824,15 @@
   "and": {
     "message": "and"
   },
+  "acceptInviteBeforeUsingSso": {
+    "message": "To accept your invite to $ORG_NAME$, you must first log in using your master password. Once your invite has been accepted, you will be able to log in using SSO.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
   },
