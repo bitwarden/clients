@@ -1,4 +1,4 @@
-//! Alternative clipboard implementation for GNOME, using XDG Desktop Portals.
+//! Alternative clipboard-set path for GNOME, using XDG Desktop Portals.
 //!
 //! On GNOME/Wayland the direct `arboard` data-control path is unreliable (GNOME does not
 //! implement the `wlr-data-control` protocol), so this module offers the clipboard contents
@@ -48,7 +48,9 @@ pub(crate) fn should_use_portal() -> bool {
 /// offer-based: ownership of the selection lasts only while the session is alive, so the
 /// caller must keep the returned future running until the paste has been served.
 /// ```
-pub(crate) async fn write_clipboard(text: &str, password: bool) -> Result<()> {
+pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
+    // The portal does not support setting the password flag / removing the clipboard item from history.
+    // This means that the clipboard item will remain in history for this backend.
     let _ = password;
 
     let remote_desktop = RemoteDesktop::new().await?;
