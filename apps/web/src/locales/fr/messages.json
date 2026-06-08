@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Une erreur est survenue lors de la génération du rapport. Veuillez réessayer."
   },
+  "reportLoadFailed": {
+    "message": "Une erreur est survenue lors du chargement du rapport. Essayez de rafraîchir la page ou de générer un nouveau rapport."
+  },
   "riskInsightsRunReport": {
     "message": "Exécuter le rapport"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Compte bancaire"
+  },
+  "bankAccountDetails": {
+    "message": "Coordonnées du compte bancaire"
   },
   "amountX": {
     "message": "Montant $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Erreur lors du traitement de votre demande : \"Reset Password Details response is null\""
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Un nouveau mot de passe est requis"
   },
   "trashCleanupWarning": {
     "message": "Les éléments présents dans la corbeille depuis plus de 30 jours seront automatiquement supprimés."
@@ -13146,7 +13155,7 @@
     "message": "Action requise : Il vous manque un ID de Taxes dans les détails du paiement. Si un ID de Taxes n'est pas ajouté, vos factures peuvent inclure des taxes supplémentaires."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Breadcrumbs (Fil d'Ariane)",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -13952,7 +13961,7 @@
     "message": "Copier le numéro de compte"
   },
   "copyRoutingNumber": {
-    "message": "Copier le numéro de succursale"
+    "message": "Copier le numéro de routage"
   },
   "copyPin": {
     "message": "Copier le NIP"
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Conservez une forte sécurité des éléments de votre coffre-fort en vérifiant les rapports de vulnérabilités."
   },
-  "coachmarkStepIndicator": {
-    "message": "Étape $CURRENT$ de $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ de $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14076,7 +14085,7 @@
     "message": "Retour à l’édition"
   },
   "sendHasUnsavedEdits": {
-    "message": "L'envoi a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    "message": "Sends a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "saveSendEditsFailed": {
