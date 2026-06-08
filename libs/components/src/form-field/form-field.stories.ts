@@ -361,6 +361,26 @@ export const InputGroup: Story = {
   args: {},
 };
 
+export const InlineEndButton: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field [formGroup]="formObj">
+        <bit-label>Allowed domains</bit-label>
+        <input bitInput formControlName="test" placeholder="example.com" />
+        <bit-hint>Comma-separated list of email domains.</bit-hint>
+        <button type="button" bitButton buttonType="primary" slot="inline-end">
+          Save
+        </button>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+};
+
 export const ButtonInputGroup: Story = {
   render: (args) => ({
     props: args,

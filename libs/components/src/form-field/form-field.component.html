@@ -9,28 +9,31 @@
       <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
     }
   </label>
-  <div bitFieldContainer [size]="size()" [hasError]="input().hasError()" [readOnly]="readOnly">
-    <div
-      #prefixContainer
-      [hidden]="!prefixHasChildren()"
-      class="tw-flex tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-bg-bg-quaternary tw-rounded-s-[11px]"
-    >
-      <ng-content select="[bitPrefix]"></ng-content>
-    </div>
-    <div
-      class="tw-flex tw-w-full tw-items-center tw-pe-3 has-[[biticonbutton]:last-child]:tw-pe-1 has-[bit-select]:tw-pe-0 has-[bit-multi-select]:tw-pe-0 has-[textarea]:!tw-items-start"
-    >
-      <div [class]="contentContainerClasses" data-default-content>
-        <ng-content></ng-content>
+  <div class="tw-flex tw-gap-2 tw-items-center">
+    <div bitFieldContainer [size]="size()" [hasError]="input().hasError()" [readOnly]="readOnly">
+      <div
+        #prefixContainer
+        [hidden]="!prefixHasChildren()"
+        class="tw-flex tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-bg-bg-quaternary tw-rounded-s-[11px]"
+      >
+        <ng-content select="[bitPrefix]"></ng-content>
       </div>
       <div
-        #suffixContainer
-        [hidden]="!suffixHasChildren()"
-        class="tw-flex tw-items-center group-has-[textarea]/form-field:tw-pt-1"
+        class="tw-flex tw-w-full tw-items-center tw-pe-3 has-[[biticonbutton]:last-child]:tw-pe-1 has-[bit-select]:tw-pe-0 has-[bit-multi-select]:tw-pe-0 has-[textarea]:!tw-items-start"
       >
-        <ng-content select="[bitSuffix]"></ng-content>
+        <div [class]="contentContainerClasses" data-default-content>
+          <ng-content></ng-content>
+        </div>
+        <div
+          #suffixContainer
+          [hidden]="!suffixHasChildren()"
+          class="tw-flex tw-items-center group-has-[textarea]/form-field:tw-pt-1"
+        >
+          <ng-content select="[bitSuffix]"></ng-content>
+        </div>
       </div>
     </div>
+    <ng-content select="[slot='inline-end']"></ng-content>
   </div>
   @switch (input().hasError()) {
     @case (false) {
