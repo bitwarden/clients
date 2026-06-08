@@ -7,11 +7,13 @@ use tokio::{io::AsyncWriteExt, net::UnixStream};
 
 mod common;
 use common::{
-    agent_with_keys, always_approving_agent, always_denying_agent, framed_request_identities,
-    framed_sign_request, init_tracing, parse_first_key_name, parse_sign_response_algorithm,
-    read_framed_response, test_ed25519_key, test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,
-    unsupported_dsa_key_blob,
+    agent_with_keys, always_approving_agent, always_denying_agent,
+    framed_invalid_session_bind_extension, framed_request_identities,
+    framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
+    parse_sign_response_algorithm, read_framed_response, test_ed25519_key, test_ed25519_key_blob,
+    test_rsa_key, test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
 };
+use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
 fn test_socket_path() -> PathBuf {
     std::env::temp_dir().join("bw-ssh-agent-test.sock")
@@ -377,6 +379,111 @@ async fn test_sign_request_unsupported_key_type_returns_failure() {
     let response = read_framed_response(&mut stream).await;
 
     assert_eq!(response[0], 5, "expected FAILURE for unsupported key type");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_session_bind_valid_returns_success() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_session_bind_extension(false))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(
+        response[0], 6,
+        "expected SSH_AGENT_SUCCESS for valid session-bind"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_session_bind_forwarding_returns_success() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_session_bind_extension(true))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(
+        response[0], 6,
+        "expected SSH_AGENT_SUCCESS for forwarding session-bind"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_session_bind_invalid_signature_returns_failure() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_invalid_session_bind_extension())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(
+        response[0], 5,
+        "expected FAILURE for invalid session-bind payload"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_session_bind_is_forwarding_reaches_approval_layer() {
+    setup();
+
+    let mut requester = MockApprovalRequester::new();
+    requester
+        .expect_request_sign_approval()
+        .once()
+        .withf(|req| req.sign_request.is_forwarding)
+        .returning(|_| Ok(true));
+
+    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    agent.replace(vec![test_ed25519_key()]).unwrap();
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+
+    stream
+        .write_all(&framed_session_bind_extension(true))
+        .await
+        .unwrap();
+    let bind_response = read_framed_response(&mut stream).await;
+    assert_eq!(bind_response[0], 6, "session-bind should succeed");
+
+    stream
+        .write_all(&framed_sign_request(
+            &test_ed25519_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let sign_response = read_framed_response(&mut stream).await;
+    assert_eq!(sign_response[0], 14, "expected SIGN_RESPONSE");
 
     agent.stop();
 }
