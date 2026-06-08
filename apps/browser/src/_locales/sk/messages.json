@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Táto stránka nezodpovedá vašim uloženým prihlasovacím údajom. Pred vyplnením prihlasovacích údajov sa uistite, že ide o dôveryhodnú stránku."
   },
+  "loginNeverMatchTitle": {
+    "message": "Prihlásenie sa nezhoduje"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Táto stránka nezodpovedá vašim uloženým prihlasovacím údajom. Pred automatickým vyplnením sa uistite, že ste na dôveryhodnej stránke."
+  },
+  "uriMatchRule": {
+    "message": "Pravidlo mapovania URI"
+  },
+  "neverMatch": {
+    "message": "Nikdy na nezhoduje"
+  },
   "loginHasNoSiteSaved": {
     "message": "Prihlásenie nemá uloženú žiadnu stránku"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bankový účet"
+  },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
   },
   "typeNote": {
     "message": "Poznámka"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vypĺňanie pri načítaní stránky nastavené na pôvodné nastavenie.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Automatické vypĺňanie nie je možné"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Predvolená zhoda je nastavená na \"Presná zhoda\". Aktuálna webová stránka sa presne nezhoduje s uloženými prihlasovacími údajmi pre túto položku."
   },
   "okay": {
     "message": "OK"
