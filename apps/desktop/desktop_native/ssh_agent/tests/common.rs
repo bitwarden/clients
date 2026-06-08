@@ -200,3 +200,67 @@ mockall::mock! {
         ) -> Result<bool, ApprovalError>;
     }
 }
+
+fn write_ssh_string(buf: &mut Vec<u8>, data: &[u8]) {
+    buf.extend_from_slice(&(data.len() as u32).to_be_bytes());
+    buf.extend_from_slice(data);
+}
+
+fn make_session_bind_payload(
+    keypair: &ssh_key::private::Ed25519Keypair,
+    session_id: &[u8],
+    is_forwarding: bool,
+) -> Vec<u8> {
+    use signature::Signer as _;
+    use ssh_key::private::KeypairData;
+
+    let private_key = ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "")
+        .expect("key generation not to fail.");
+    let hostkey_bytes = private_key
+        .public_key()
+        .to_bytes()
+        .expect("conversion to bytes not to fail.");
+    let sig: ssh_key::Signature = keypair.sign(session_id);
+
+    let mut sig_outer = Vec::new();
+    write_ssh_string(&mut sig_outer, sig.algorithm().to_string().as_bytes());
+    write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+    let mut payload = Vec::new();
+    write_ssh_string(&mut payload, &hostkey_bytes);
+    write_ssh_string(&mut payload, session_id);
+    write_ssh_string(&mut payload, &sig_outer);
+    payload.push(u8::from(is_forwarding));
+    payload
+}
+
+/// Builds a framed EXTENSION message containing a valid session-bind payload.
+pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
+    use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+
+    let keypair = Ed25519Keypair::random(&mut OsRng);
+    let session_id = [0x42u8; 32];
+    let bind_payload = make_session_bind_payload(&keypair, &session_id, is_forwarding);
+
+    let name = b"session-bind@openssh.com";
+    let mut msg = vec![27u8]; // SSH2_AGENTC_EXTENSION
+    write_ssh_string(&mut msg, name);
+    msg.extend_from_slice(&bind_payload);
+
+    let mut framed = (msg.len() as u32).to_be_bytes().to_vec();
+    framed.extend(msg);
+    framed
+}
+
+/// Builds a framed EXTENSION message with the session-bind name but a garbage payload.
+pub fn framed_invalid_session_bind_extension() -> Vec<u8> {
+    let name = b"session-bind@openssh.com";
+    let garbage = [0xDE, 0xAD, 0xBE, 0xEF];
+    let mut msg = vec![27u8]; // SSH2_AGENTC_EXTENSION
+    write_ssh_string(&mut msg, name);
+    msg.extend_from_slice(&garbage);
+
+    let mut framed = (msg.len() as u32).to_be_bytes().to_vec();
+    framed.extend(msg);
+    framed
+}

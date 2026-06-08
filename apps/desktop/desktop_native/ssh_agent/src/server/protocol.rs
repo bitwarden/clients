@@ -8,6 +8,10 @@ use tracing::warn;
 
 use crate::crypto::PublicKey;
 
+/// `SSH_AGENT_FAILURE`
+pub(super) const FAILURE: u8 = 5;
+/// `SSH_AGENT_SUCCESS`
+pub(super) const SUCCESS: u8 = 6;
 /// `SSH2_AGENTC_REQUEST_IDENTITIES`
 pub(super) const REQUEST_IDENTITIES: u8 = 11;
 /// `SSH2_AGENT_IDENTITIES_ANSWER`
@@ -16,12 +20,27 @@ pub(super) const IDENTITIES_ANSWER: u8 = 12;
 pub(super) const SIGN_REQUEST: u8 = 13;
 /// `SSH2_AGENT_SIGN_RESPONSE`
 pub(super) const SIGN_RESPONSE: u8 = 14;
-/// `SSH_AGENT_FAILURE`
-pub(super) const FAILURE: u8 = 5;
+/// `SSH2_AGENTC_EXTENSION`
+pub(super) const EXTENSION: u8 = 27;
+
+/// RSA with SHA-256 signing algorithm identifier
+pub(super) const RSA_SHA2_256: &str = "rsa-sha2-256";
+/// RSA with SHA-512 signing algorithm identifier
+pub(super) const RSA_SHA2_512: &str = "rsa-sha2-512";
+
+/// SSHSIG `git` namespace identifier
+pub(super) const SSHSIG_NAMESPACE_GIT: &str = "git";
+/// SSHSIG `file` namespace identifier
+pub(super) const SSHSIG_NAMESPACE_FILE: &str = "file";
 
 /// Returns an SSH `SSH_AGENT_FAILURE` response message.
 pub(super) fn failure() -> Vec<u8> {
     vec![FAILURE]
+}
+
+/// Returns an SSH `SSH_AGENT_SUCCESS` response message.
+pub(super) fn success() -> Vec<u8> {
+    vec![SUCCESS]
 }
 
 /// Represents the parsed SSHSIG namespace.
@@ -105,6 +124,19 @@ pub(super) fn frame(msg: Vec<u8>) -> Vec<u8> {
     framed.extend(msg);
 
     framed
+}
+
+/// Reads a single SSH string `[u32 len][bytes]` from `data`.
+/// Returns `Some((content, remaining))` or `None` if truncated.
+pub(super) fn read_ssh_string(data: &[u8]) -> Option<(&[u8], &[u8])> {
+    if data.len() < 4 {
+        return None;
+    }
+    let len = u32::from_be_bytes(data[0..4].try_into().ok()?) as usize;
+    if data.len() < 4 + len {
+        return None;
+    }
+    Some((&data[4..4 + len], &data[4 + len..]))
 }
 
 /// Builds an SSH `AGENT_IDENTITIES_ANSWER` message from a list of public keys and names.
@@ -249,8 +281,8 @@ pub(super) fn detect_namespace(data: &[u8]) -> Option<SIGNamespace> {
 
     let ns_str = std::str::from_utf8(&data[offset + 4..offset + 4 + ns_len]).ok()?;
     match ns_str {
-        "git" => Some(SIGNamespace::Git),
-        "file" => Some(SIGNamespace::File),
+        SSHSIG_NAMESPACE_GIT => Some(SIGNamespace::Git),
+        SSHSIG_NAMESPACE_FILE => Some(SIGNamespace::File),
         _ => Some(SIGNamespace::Unsupported),
     }
 }
@@ -258,30 +290,12 @@ pub(super) fn detect_namespace(data: &[u8]) -> Option<SIGNamespace> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::crypto::PublicKey;
+    use crate::{
+        crypto::PublicKey,
+        server::test_common::{make_minimal_ed25519_blob, make_sign_request_msg},
+    };
 
     const TEST_DATA: &[u8] = b"test data";
-
-    fn make_sign_request_msg(blob: &[u8], data: &[u8], flags: u32) -> Vec<u8> {
-        let mut msg = vec![SIGN_REQUEST];
-        msg.extend_from_slice(&(blob.len() as u32).to_be_bytes());
-        msg.extend_from_slice(blob);
-        msg.extend_from_slice(&(data.len() as u32).to_be_bytes());
-        msg.extend_from_slice(data);
-        msg.extend_from_slice(&flags.to_be_bytes());
-        msg
-    }
-
-    fn make_minimal_ed25519_blob() -> Vec<u8> {
-        let alg = b"ssh-ed25519";
-        let key_bytes = [0u8; 32];
-        let mut blob = Vec::new();
-        blob.extend_from_slice(&(alg.len() as u32).to_be_bytes());
-        blob.extend_from_slice(alg);
-        blob.extend_from_slice(&(key_bytes.len() as u32).to_be_bytes());
-        blob.extend_from_slice(&key_bytes);
-        blob
-    }
 
     fn make_sshsig_blob(namespace: &str) -> Vec<u8> {
         let mut v = Vec::new();
@@ -599,5 +613,45 @@ mod tests {
                 as usize;
         let sig_bytes = &msg[sig_len_offset + 4..sig_len_offset + 4 + sig_len];
         assert_eq!(sig_bytes, sig.as_bytes());
+    }
+
+    #[test]
+    fn read_ssh_string_inputs_shorter_than_four_bytes_return_none() {
+        for len in 0..4 {
+            assert!(
+                read_ssh_string(&vec![0u8; len]).is_none(),
+                "expected None for {len}-byte input"
+            );
+        }
+    }
+
+    #[test]
+    fn read_ssh_string_zero_length_returns_empty_content_and_remainder() {
+        let (content, remainder) = read_ssh_string(&[0u8, 0, 0, 0]).unwrap();
+        assert!(content.is_empty());
+        assert!(remainder.is_empty());
+    }
+
+    #[test]
+    fn read_ssh_string_returns_content_and_remainder() {
+        let data = [0u8, 0, 0, 3, b'a', b'b', b'c', b'x', b'y'];
+        let (content, remainder) = read_ssh_string(&data).unwrap();
+        assert_eq!(content, b"abc");
+        assert_eq!(remainder, b"xy");
+    }
+
+    #[test]
+    fn read_ssh_string_exact_fit_leaves_empty_remainder() {
+        let data = [0u8, 0, 0, 3, b'a', b'b', b'c'];
+        let (content, remainder) = read_ssh_string(&data).unwrap();
+        assert_eq!(content, b"abc");
+        assert!(remainder.is_empty());
+    }
+
+    #[test]
+    fn read_ssh_string_truncated_content_returns_none() {
+        let mut data = vec![0u8, 0, 0, 10]; // length claims 10 bytes
+        data.extend_from_slice(&[0u8; 5]); // only 5 present
+        assert!(read_ssh_string(&data).is_none());
     }
 }
