@@ -115,6 +115,11 @@ export class ByLinkTabComponent {
         void this.prefillFromVerifiedDomains();
       }
     });
+
+    // Reset the hint once the user edits the autopopulated value.
+    this.form.controls.domains.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.isFilledFromClaimedDomains.set(false));
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
