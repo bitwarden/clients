@@ -15,6 +15,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { map, firstValueFrom, switchMap, filter, of } from "rxjs";
+import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -203,12 +204,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    const flagged = this.data.policy.flaggedComponent;
-    const useFlag =
-      flagged != null && (await this.configService.getFeatureFlag(flagged.flag)) === true;
-    const componentToLoad = useFlag ? flagged!.component : this.data.policy.component;
-
-    const componentRef = policyFormRef.createComponent(componentToLoad);
+    const componentRef = policyFormRef.createComponent(this.getComponentToLoad());
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
     const component = componentRef.instance;
@@ -288,17 +284,18 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
+  /**
+   * Returns the policy form component to load into the dialog.
+   * Subclasses can override this to load a different component (e.g. the drawer variant).
+   */
+  protected getComponentToLoad(): Constructor<BasePolicyEditComponent> {
+    return this.data.policy.component;
+  }
+
   static readonly open = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
-  };
-
-  static readonly openDrawer = (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => {
-    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

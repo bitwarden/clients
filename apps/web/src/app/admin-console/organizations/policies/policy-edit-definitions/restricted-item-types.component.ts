@@ -14,14 +14,14 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDesc";
-  descriptionV2 = "restrictedItemTypePolicyDescV2";
   type = PolicyType.RestrictedItemTypes;
   category = PolicyCategory.VaultManagement;
   priority = 50;
   component = RestrictedItemTypesPolicyComponent;
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    description: "restrictedItemTypePolicyDescV2",
   };
 }
 

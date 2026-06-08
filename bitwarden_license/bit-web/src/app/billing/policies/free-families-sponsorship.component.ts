@@ -14,16 +14,16 @@ import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-cons
 
 export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   name = "freeFamiliesSponsorship";
-  nameV2 = "freeFamiliesSponsorshipPolicyTitleV2";
   description = "freeFamiliesSponsorshipPolicyDesc";
-  descriptionV2 = "freeFamiliesSponsorshipPolicyDescV2";
   type = PolicyType.FreeFamiliesSponsorship;
   category = PolicyCategory.VaultManagement;
   priority = 60;
   component = FreeFamiliesSponsorshipPolicyComponent;
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    name: "freeFamiliesSponsorshipPolicyTitleV2",
+    description: "freeFamiliesSponsorshipPolicyDescV2",
   };
 }
 

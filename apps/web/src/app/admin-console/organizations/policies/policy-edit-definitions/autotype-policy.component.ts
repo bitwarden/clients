@@ -15,16 +15,16 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinition {
   name = "desktopAutotypePolicy";
-  nameV2 = "desktopAutotypePolicyTitleV2";
   description = "desktopAutotypePolicyDesc";
-  descriptionV2 = "desktopAutotypePolicyDescV2";
   type = PolicyType.AutotypeDefaultSetting;
   category = PolicyCategory.VaultManagement;
   priority = 70;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    name: "desktopAutotypePolicyTitleV2",
+    description: "desktopAutotypePolicyDescV2",
   };
 
   display$(organization: Organization, configService: ConfigService) {

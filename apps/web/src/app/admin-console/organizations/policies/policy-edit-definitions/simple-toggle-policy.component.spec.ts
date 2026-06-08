@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -11,8 +11,19 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
+import { BasePolicyEditDefinition } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
+
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
-import { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
+
+class StubPolicy extends BasePolicyEditDefinition {
+  name = "stubPolicy";
+  description = "stubPolicyDesc";
+  type = PolicyType.TwoFactorAuthentication;
+  category = PolicyCategory.Authentication;
+  priority = 0;
+  component = SimpleTogglePolicyComponent;
+}
 
 function makePolicyResponse(enabled: boolean) {
   return new PolicyStatusResponse({
@@ -25,11 +36,15 @@ function makePolicyResponse(enabled: boolean) {
 describe("SimpleTogglePolicyComponent", () => {
   let component: SimpleTogglePolicyComponent;
   let fixture: ComponentFixture<SimpleTogglePolicyComponent>;
+  let i18nService: MockProxy<I18nService>;
 
   beforeEach(async () => {
+    i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((key: string) => key);
+
     await TestBed.configureTestingModule({
       providers: [
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
@@ -43,7 +58,7 @@ describe("SimpleTogglePolicyComponent", () => {
 
   describe("warning callout", () => {
     it("should not render a callout when no warningKey is set", () => {
-      const policy = new TwoFactorAuthenticationPolicy(); // warningKey is undefined
+      const policy = new StubPolicy();
       fixture.componentRef.setInput("policy", policy);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       component.ngOnInit();
@@ -53,21 +68,22 @@ describe("SimpleTogglePolicyComponent", () => {
     });
 
     it("should render a callout when warningKey is set on the policy", () => {
-      const policy = Object.assign(new TwoFactorAuthenticationPolicy(), {
-        warningKey: "twoStepLoginPolicyWarning",
-      });
+      const policy = Object.assign(new StubPolicy(), { warningKey: "someWarningKey" });
       fixture.componentRef.setInput("policy", policy);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       component.ngOnInit();
       fixture.detectChanges();
 
-      expect(fixture.debugElement.query(By.css("bit-callout"))).not.toBeNull();
+      const callout = fixture.debugElement.query(By.css("bit-callout"));
+      expect(callout).not.toBeNull();
+      expect(callout.attributes["type"]).toBe("warning");
+      expect(callout.nativeElement.textContent.trim()).toBe("someWarningKey");
     });
   });
 
   describe("buildRequest", () => {
     it("should return enabled: true when the toggle is on", async () => {
-      const policy = new TwoFactorAuthenticationPolicy();
+      const policy = new StubPolicy();
       fixture.componentRef.setInput("policy", policy);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(true));
       component.ngOnInit();
@@ -81,7 +97,7 @@ describe("SimpleTogglePolicyComponent", () => {
     });
 
     it("should return enabled: false when the toggle is off", async () => {
-      const policy = new TwoFactorAuthenticationPolicy();
+      const policy = new StubPolicy();
       fixture.componentRef.setInput("policy", policy);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       component.ngOnInit();
@@ -94,8 +110,8 @@ describe("SimpleTogglePolicyComponent", () => {
       });
     });
 
-    it("should return enabled: false when policy is disabled and then re-enabled via the form", async () => {
-      const policy = new TwoFactorAuthenticationPolicy();
+    it("should return enabled: true when policy is disabled and then re-enabled via the form", async () => {
+      const policy = new StubPolicy();
       fixture.componentRef.setInput("policy", policy);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       component.ngOnInit();

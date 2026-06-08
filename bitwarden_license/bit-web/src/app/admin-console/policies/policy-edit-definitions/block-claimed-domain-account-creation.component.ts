@@ -12,19 +12,19 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefinition {
   name = "blockClaimedDomainAccountCreation";
-  nameV2 = "blockClaimedDomainAccountCreationTitleV2";
   description = "blockClaimedDomainAccountCreationDesc";
-  descriptionV2 = "blockClaimedDomainAccountCreationDescV2";
   type = PolicyType.BlockClaimedDomainAccountCreation;
   category = PolicyCategory.Authentication;
   priority = 60;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
-  prerequisiteKey = "blockClaimedDomainAccountCreationPrerequisiteV2";
-  prerequisiteLinkHref = "https://bitwarden.com/help/domain-verification/";
-  prerequisiteLinkTextKey = "blockClaimedDomainAccountCreationLearnMoreV2";
-  flaggedComponent = {
+  v2 = {
     flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
+    name: "blockClaimedDomainAccountCreationTitleV2",
+    description: "blockClaimedDomainAccountCreationDescV2",
+    prerequisiteKey: "blockClaimedDomainAccountCreationPrerequisiteV2",
+    prerequisiteLinkHref: "https://bitwarden.com/help/claimed-domains/",
+    prerequisiteLinkTextKey: "blockClaimedDomainAccountCreationLearnMoreV2",
   };
 }
 

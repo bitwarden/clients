@@ -3,9 +3,12 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="'editPolicy' | i18n"
-  [subtitle]="policy.name | i18n"
+  [title]="policy.v2?.name ?? policy.name | i18n"
+  subtitle=""
 >
+  <span bitBadge [variant]="policyEnabled() ? 'success' : 'secondary'" bitDialogHeaderEnd>{{
+    (policyEnabled() ? "on" : "off") | i18n
+  }}</span>
   <ng-container bitDialogContent>
     @if (loading()) {
       <div>
@@ -18,8 +21,18 @@
       </div>
     }
     <div [hidden]="loading()">
+      @if (policy.v2?.prerequisiteKey) {
+        <bit-callout type="info" [title]="'prerequisite' | i18n">
+          {{ policy.v2.prerequisiteKey | i18n }}
+          @if (policy.v2.prerequisiteLinkHref && policy.v2.prerequisiteLinkTextKey) {
+            <a bitLink [href]="policy.v2.prerequisiteLinkHref" target="_blank" rel="noreferrer">
+              {{ policy.v2.prerequisiteLinkTextKey | i18n }}
+            </a>
+          }
+        </bit-callout>
+      }
       @if (policy.showDescription) {
-        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        <p bitTypography="body1">{{ policy.v2?.description ?? policy.description | i18n }}</p>
       }
       <ng-template #policyForm></ng-template>
     </div>
