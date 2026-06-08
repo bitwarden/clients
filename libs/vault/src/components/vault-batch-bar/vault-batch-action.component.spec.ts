@@ -20,7 +20,7 @@ describe("VaultBatchActionComponent", () => {
   let component: VaultBatchActionComponent;
   let fixture: ComponentFixture<VaultBatchActionComponent>;
 
-  const canMove = signal(false);
+  const canAddToFolder = signal(false);
   const canAssignToCollections = signal(false);
   const canArchive = signal(false);
   const canUnarchive = signal(false);
@@ -37,7 +37,7 @@ describe("VaultBatchActionComponent", () => {
   const bulkDeleteSpy = jest.fn();
 
   beforeEach(async () => {
-    canMove.set(false);
+    canAddToFolder.set(false);
     canAssignToCollections.set(false);
     canArchive.set(false);
     canUnarchive.set(false);
@@ -53,7 +53,7 @@ describe("VaultBatchActionComponent", () => {
           provide: VaultBatchBarService,
           useValue: {
             selectedCount,
-            canMove,
+            canAddToFolder,
             canAssignToCollections,
             canArchive,
             canUnarchive,
@@ -83,7 +83,7 @@ describe("VaultBatchActionComponent", () => {
     });
 
     it("includes all actions when total equals threshold (3)", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
       canArchive.set(true);
       canDelete.set(true);
 
@@ -92,7 +92,7 @@ describe("VaultBatchActionComponent", () => {
     });
 
     it("caps at 2 when total exceeds threshold (3)", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
       canAssignToCollections.set(true);
       canArchive.set(true);
       canDelete.set(true);
@@ -108,7 +108,7 @@ describe("VaultBatchActionComponent", () => {
     });
 
     it("contains all actions when exactly 2 are enabled", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
       canDelete.set(true);
 
       expect(component["primaryActions"]()).toHaveLength(2);
@@ -118,14 +118,14 @@ describe("VaultBatchActionComponent", () => {
 
   describe("overflowActions", () => {
     it("is empty when total is at or below the threshold (3)", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
       canDelete.set(true);
 
       expect(component["overflowActions"]()).toHaveLength(0);
     });
 
     it("contains remaining actions when total is 4", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
       canAssignToCollections.set(true);
       canArchive.set(true);
       canDelete.set(true);
@@ -134,7 +134,7 @@ describe("VaultBatchActionComponent", () => {
     });
 
     it("contains remaining actions when all 6 actions are enabled", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
       canAssignToCollections.set(true);
       canArchive.set(true);
       canUnarchive.set(true);
@@ -148,7 +148,7 @@ describe("VaultBatchActionComponent", () => {
 
   describe("visibleActions labels and icons", () => {
     it("assigns the correct icon and translated label for move-to-folder", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
 
       const [action] = component["primaryActions"]();
       expect(action.icon).toBe("bwi-folder");
@@ -198,7 +198,7 @@ describe("VaultBatchActionComponent", () => {
 
   describe("action invocation", () => {
     it("calls service.bulkMoveToFolder when move action is invoked", () => {
-      canMove.set(true);
+      canAddToFolder.set(true);
 
       component["primaryActions"]()[0].action();
 

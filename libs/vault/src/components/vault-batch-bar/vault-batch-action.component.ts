@@ -36,7 +36,7 @@ export class VaultBatchActionComponent {
   private readonly visibleActions = computed<ActionDescriptor[]>(() => {
     const actions: ActionDescriptor[] = [];
 
-    if (this.service.canMove()) {
+    if (this.service.canAddToFolder()) {
       actions.push({
         action: this.service.bulkMoveToFolder.bind(this.service),
         icon: "bwi-folder",
