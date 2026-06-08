@@ -208,12 +208,15 @@ a different email.
 
 ### Init-organization invites
 
-Invites with `initOrganization === true` are for the user who is _creating_
-the org (e.g., new org signup). `validateAndAcceptInvite` routes these to
+Invites with `initOrganization === true` are for orgs that were provisioned
+in a `Pending` state (no keys yet) — either by a reseller/provider signing
+up a client org on a customer's behalf, or re-sent from the internal
+Bitwarden admin portal. The customer-owner clicking the link is the first
+time the org gets initialized: `validateAndAcceptInvite` routes to
 `acceptAndInitOrganization` instead of the normal accept path — it generates
 org keys, a default collection, and posts `OrganizationUserAcceptInitRequest`.
 No MP-policy check happens for init invites because the user is the org's
-first member.
+first (and currently only) member.
 
 ### Authed user pastes the accept-invite URL directly
 
