@@ -95,6 +95,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
         installExtension: currentTasks.installExtension,
       };
       await this.vaultOnboardingService.setVaultOnboardingTasks(this.activeId, updatedTasks);
+      this.showOnboarding = Object.values(updatedTasks).includes(false);
     }
   }
 
@@ -124,6 +125,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
         installExtension: true,
       };
       await this.vaultOnboardingService.setVaultOnboardingTasks(this.activeId, updatedTasks);
+      this.showOnboarding = Object.values(updatedTasks).includes(false);
     }
   }
 

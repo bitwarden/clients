@@ -1,7 +1,7 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
-import { ScrollLayoutDirective } from "@bitwarden/components";
+import { ScrollLayoutDirective, IconModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -21,6 +21,7 @@ import { AccessSelectorModule } from "./shared/components/access-selector";
     HeaderModule,
     ScrollingModule,
     ScrollLayoutDirective,
+    IconModule,
   ],
   declarations: [GroupsComponent, GroupAddEditComponent],
 })

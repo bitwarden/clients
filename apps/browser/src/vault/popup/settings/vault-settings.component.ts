@@ -14,7 +14,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { BerryComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
+import {
+  BerryComponent,
+  SpinnerComponent,
+  ItemModule,
+  ToastOptions,
+  ToastService,
+} from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -34,6 +40,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     ItemModule,
     BerryComponent,
     PremiumBadgeComponent,
+    SpinnerComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
@@ -43,6 +50,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
   private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
 
   lastSync = "--";
+  syncLoading = false;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly userCanArchive = toSignal(
@@ -89,19 +97,25 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
   }
 
   async sync() {
+    this.syncLoading = true;
     let toastConfig: ToastOptions;
-    const success = await this.syncService.fullSync(true);
-    if (success) {
-      await this.setLastSync();
-      toastConfig = {
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("syncingComplete"),
-      };
-    } else {
-      toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
+
+    try {
+      const success = await this.syncService.fullSync(true);
+      if (success) {
+        await this.setLastSync();
+        toastConfig = {
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("syncingComplete"),
+        };
+      } else {
+        toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
+      }
+      this.toastService.showToast(toastConfig);
+    } finally {
+      this.syncLoading = false;
     }
-    this.toastService.showToast(toastConfig);
   }
 
   private async setLastSync() {
