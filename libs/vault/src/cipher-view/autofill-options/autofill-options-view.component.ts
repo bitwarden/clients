@@ -21,7 +21,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { APP_URI_PREFIX } from "../../models/desktop-app-uri.constants";
+import { DESKTOP_APP_URI_PREFIX } from "../../models/desktop-app-uri.constants";
 const APP_URI_LABEL = "application";
 const WEBSITE_URI_LABEL = "website";
 
@@ -65,13 +65,13 @@ export class AutofillOptionsViewComponent {
   }
 
   protected getUriLabel(uri: LoginUriView): string {
-    return this.windowsDesktopAutotypeGA && uri.uri?.startsWith(APP_URI_PREFIX)
+    return this.windowsDesktopAutotypeGA && uri.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
       ? APP_URI_LABEL
       : WEBSITE_URI_LABEL;
   }
 
   protected isAppUri(uri: LoginUriView): boolean {
-    return this.windowsDesktopAutotypeGA && (uri.uri?.startsWith(APP_URI_PREFIX) ?? false);
+    return this.windowsDesktopAutotypeGA && (uri.uri?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false);
   }
 
   async openWebsite(selectedUri: string) {

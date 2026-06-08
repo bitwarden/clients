@@ -30,7 +30,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { UriOptionComponent, UriType } from "./uri-option.component";
@@ -182,7 +182,7 @@ export class AutofillOptionsComponent implements OnInit {
         {
           uri: uri.uri,
           matchDetection: uri.match,
-          type: uri.uri?.startsWith(APP_URI_PREFIX) ? URI_TYPE_APP : URI_TYPE_WEBSITE,
+          type: uri.uri?.startsWith(DESKTOP_APP_URI_PREFIX) ? URI_TYPE_APP : URI_TYPE_WEBSITE,
         },
         false,
         false,
