@@ -38,7 +38,7 @@ import { UriOptionComponent, UriType } from "./uri-option.component";
 interface UriField {
   uri: string;
   matchDetection: UriMatchStrategySetting;
-  uriType: UriType;
+  type: UriType;
 }
 
 const URI_TYPE_APP: UriType = "app";
@@ -182,7 +182,7 @@ export class AutofillOptionsComponent implements OnInit {
         {
           uri: uri.uri,
           matchDetection: uri.match,
-          uriType: uri.uri?.startsWith(APP_URI_PREFIX) ? URI_TYPE_APP : URI_TYPE_WEBSITE,
+          type: uri.uri?.startsWith(APP_URI_PREFIX) ? URI_TYPE_APP : URI_TYPE_WEBSITE,
         },
         false,
         false,
@@ -206,7 +206,7 @@ export class AutofillOptionsComponent implements OnInit {
         this.addUri({
           uri: this.cipherFormContainer.config.initialValues.loginUri,
           matchDetection: null,
-          uriType: URI_TYPE_WEBSITE,
+          type: URI_TYPE_WEBSITE,
         });
       }
     }
@@ -216,7 +216,7 @@ export class AutofillOptionsComponent implements OnInit {
     this.addUri({
       uri: this.cipherFormContainer.config.initialValues?.loginUri ?? null,
       matchDetection: null,
-      uriType: URI_TYPE_WEBSITE,
+      type: URI_TYPE_WEBSITE,
     });
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: null,
@@ -249,7 +249,7 @@ export class AutofillOptionsComponent implements OnInit {
    * @param emitEvent When false, prevents the `valueChanges` & `statusChanges` observables from firing.
    */
   addUri(
-    uriFieldValue: UriField = { uri: null, matchDetection: null, uriType: URI_TYPE_WEBSITE },
+    uriFieldValue: UriField = { uri: null, matchDetection: null, type: URI_TYPE_WEBSITE },
     focusNewInput = false,
     emitEvent = true,
   ) {

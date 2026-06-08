@@ -133,14 +133,14 @@ describe("UriOptionComponent", () => {
   });
 
   it("should update form when `writeValue` is invoked", () => {
-    expect(component["uriForm"].value).toEqual({ uri: null, matchDetection: null, uriType: null });
+    expect(component["uriForm"].value).toEqual({ uri: null, matchDetection: null, type: null });
 
     component.writeValue({ uri: "example.com", matchDetection: UriMatchStrategy.Exact });
 
     expect(component["uriForm"].value).toEqual({
       uri: "example.com",
       matchDetection: UriMatchStrategy.Exact,
-      uriType: "website",
+      type: "website",
     });
   });
 

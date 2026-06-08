@@ -76,7 +76,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected uriForm = this.formBuilder.group({
     uri: [null as string],
     matchDetection: [null as UriMatchStrategySetting],
-    uriType: [null as UriType | null],
+    type: [null as UriType | null],
   });
 
   protected uriMatchOptions: {
@@ -163,7 +163,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
-    if (this.windowsDesktopAutotypeGA && this.uriForm.controls.uriType.value === "app") {
+    if (this.windowsDesktopAutotypeGA && this.uriForm.controls.type.value === "app") {
       return this.index === 0
         ? this.i18nService.t("appUri")
         : this.i18nService.t("appUriCount", this.index + 1);
@@ -255,14 +255,14 @@ export class UriOptionComponent implements ControlValueAccessor {
   writeValue(value: {
     uri: string;
     matchDetection: UriMatchStrategySetting | null;
-    uriType?: UriType | null;
+    type?: UriType | null;
   }): void {
     if (value) {
       this.uriForm.setValue(
         {
           uri: value.uri ?? "",
           matchDetection: value.matchDetection ?? null,
-          uriType: value.uriType ?? "website",
+          type: value.type ?? "website",
         },
         { emitEvent: false },
       );
