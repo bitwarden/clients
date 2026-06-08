@@ -16,18 +16,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AriaDisableDirective,
-  BaseCardDirective,
   BitActionDirective,
   BitIconButtonComponent,
-  CardComponent,
   DialogService,
   FormFieldModule,
-  IconComponent,
   LinkComponent,
   SpinnerComponent,
   SwitchComponent,
   ToastService,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { WebHeaderComponent } from "@bitwarden/web-vault/app/layouts/header/web-header.component";
@@ -41,16 +37,12 @@ import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
   imports: [
     WebHeaderComponent,
     ReactiveFormsModule,
-    BaseCardDirective,
-    CardComponent,
-    TypographyModule,
     LinkComponent,
     AriaDisableDirective,
     SwitchComponent,
     FormFieldModule,
     BitIconButtonComponent,
     BitActionDirective,
-    IconComponent,
     I18nPipe,
     SpinnerComponent,
   ],
@@ -70,8 +62,8 @@ export class ScimV2Component {
 
   protected readonly enabled = new FormControl(false);
   protected readonly formData = new FormGroup({
-    endpointUrl: new FormControl({ value: "", disabled: true }),
-    clientSecret: new FormControl({ value: "", disabled: true }),
+    endpointUrl: new FormControl({ value: "", disabled: false }),
+    clientSecret: new FormControl({ value: "", disabled: false }),
   });
 
   private readonly organizationId: Signal<OrganizationId>;
