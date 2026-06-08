@@ -59,6 +59,10 @@ case "$DISPLAY_MODE" in
   # configure Electron to use X11 (with an opt-out) until the upstream bug is
   # fixed. The follow-up task is https://bitwarden.atlassian.net/browse/PM-31080.
   AUTO) PARAMS="--enable-features=UseOzonePlatform --ozone-platform=x11" ;;
+  *)
+    echo "Unknown DISPLAY_MODE '$DISPLAY_MODE', falling back to X11" >&2
+    PARAMS="--enable-features=UseOzonePlatform --ozone-platform=x11"
+  ;;
 esac
 
 if [ -n "$FLATPAK_ID" ]; then
