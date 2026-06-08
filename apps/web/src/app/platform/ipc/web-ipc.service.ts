@@ -9,11 +9,8 @@ import {
   IpcClient,
   IpcCommunicationBackend,
   ipcRegisterDiscoverHandler,
-  ipcRequestDiscover,
   OutgoingMessage,
 } from "@bitwarden/sdk-internal";
-
-const DISCOVER_MESSAGE_TIMEOUT_MS = 1_000;
 
 export class WebIpcService extends IpcService {
   private logService = inject(LogService);
