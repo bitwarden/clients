@@ -4747,7 +4747,7 @@
     "message": "Ungültiges Tastaturkürzel"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Navigationspfade",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
