@@ -105,6 +105,9 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  BulkDeleteDialogResult,
+  BulkMoveDialogResult,
+  openBulkMoveDialog,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -120,14 +123,7 @@ import { VaultItemsComponent } from "../components/vault-items/vault-items.compo
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import {
-  BulkMoveDialogResult,
-  openBulkMoveDialog,
-} from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
+import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";

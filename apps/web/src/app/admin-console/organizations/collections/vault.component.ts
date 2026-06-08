@@ -97,6 +97,7 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  BulkDeleteDialogResult,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -105,15 +106,12 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
+import { openBulkDeleteDialog } from "@bitwarden/web-vault/app/vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { CollectionPermission } from "../shared/components/access-selector";

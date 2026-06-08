@@ -64,3 +64,26 @@ export {
   VaultItemDialogResult,
   VaultItemDialogMode,
 } from "./vault-item-dialog/vault-item-dialog.component";
+
+export {
+  ASSIGN_COLLECTIONS_DIALOG,
+  AssignCollectionsDialogRef,
+  AssignCollectionsParams,
+  AssignCollectionsResult,
+} from "./tokens/assign-collections-dialog.token";
+
+export { BulkDialogsModule } from "./components/bulk-action-dialogs/bulk-dialogs.module";
+export {
+  BulkMoveDialogComponent,
+  BulkMoveDialogParams,
+  BulkMoveDialogResult,
+  openBulkMoveDialog,
+} from "./components/bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
+export {
+  BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
+  BulkDeleteDialogParams,
+  BulkDeleteDialogResult,
+} from "./tokens/bulk-delete-dialog.token";
+
+export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
