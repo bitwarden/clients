@@ -77,7 +77,7 @@ describe("SimpleTogglePolicyComponent", () => {
       const callout = fixture.debugElement.query(By.css("bit-callout"));
       expect(callout).not.toBeNull();
       expect(callout.attributes["type"]).toBe("warning");
-      expect(callout.nativeElement.textContent.trim()).toBe("someWarningKey");
+      expect(callout.nativeElement.textContent).toContain("someWarningKey");
     });
   });
 

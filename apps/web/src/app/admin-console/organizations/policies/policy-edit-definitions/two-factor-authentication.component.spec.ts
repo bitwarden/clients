@@ -2,7 +2,6 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
@@ -17,18 +16,14 @@ describe("TwoFactorAuthenticationPolicy", () => {
   it("should have correct attributes", () => {
     expect(policy.name).toBe("twoStepLoginPolicyTitle");
     expect(policy.description).toBe("twoStepLoginPolicyDesc");
-    expect(policy.descriptionV2).toBe("twoStepLoginPolicyDescV2");
+    expect(policy.v2?.description).toBe("twoStepLoginPolicyDescV2");
     expect(policy.type).toBe(PolicyType.TwoFactorAuthentication);
     expect(policy.component).toBe(TwoFactorAuthenticationPolicyComponent);
   });
 
-  describe("flaggedComponent", () => {
+  describe("v2", () => {
     it("should point to SimpleTogglePolicyComponent", () => {
-      expect(policy.flaggedComponent?.component).toBe(SimpleTogglePolicyComponent);
-    });
-
-    it("should be gated behind the PolicyDrawers feature flag", () => {
-      expect(policy.flaggedComponent?.flag).toBe(FeatureFlag.PolicyDrawers);
+      expect(policy.v2?.component).toBe(SimpleTogglePolicyComponent);
     });
   });
 
