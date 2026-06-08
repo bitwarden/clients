@@ -6892,9 +6892,9 @@
     "message": "Manage how members use Send. Admins and owners are exempt from this policy.",
     "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
-  "sendControlsExemption": {
+  "sendControlsFormDescription": {
     "message": "Manage how members use Send.",
-    "description": "Short description shown below the Send Controls heading in the policy edit dialog."
+    "description": "Short description shown in the Send Controls policy edit form, below the policy heading. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "enableSend": {
     "message": "Enable Send",
