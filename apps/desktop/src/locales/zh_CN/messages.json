@@ -361,7 +361,7 @@
     "message": "切换可见性"
   },
   "toggleCollapse": {
-    "message": "切换折叠",
+    "message": "展开/折叠",
     "description": "Toggling an expand/collapse state."
   },
   "cardholderName": {
@@ -1074,10 +1074,10 @@
     "message": "使用设备登录"
   },
   "useSingleSignOn": {
-    "message": "使用单点登录"
+    "message": "使用单点登录 (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的组织要求单点登录。"
+    "message": "您的组织要求单点登录 (SSO)。"
   },
   "submit": {
     "message": "提交"
@@ -2054,7 +2054,7 @@
     "message": "窗口"
   },
   "checkPassword": {
-    "message": "检查密码是否已经被公开。"
+    "message": "检查密码是否已暴露。"
   },
   "passwordExposed": {
     "message": "此密码在数据泄露中已被暴露 $VALUE$ 次。请立即修改。",
@@ -2438,7 +2438,7 @@
     "message": "超时动作确认"
   },
   "enterpriseSingleSignOn": {
-    "message": "企业单点登录"
+    "message": "企业单点登录 (SSO)"
   },
   "setMasterPassword": {
     "message": "设置主密码"
@@ -2687,10 +2687,10 @@
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeFile": {
-    "message": "文件"
+    "message": "文件 Send"
   },
   "sendTypeText": {
-    "message": "文本"
+    "message": "文本 Send"
   },
   "searchSends": {
     "message": "搜索 Send",
@@ -2880,7 +2880,7 @@
     "message": "确认主密码"
   },
   "passwordConfirmationDesc": {
-    "message": "此操作受到保护。若要继续，请重新输入您的主密码以验证您的身份。"
+    "message": "此操作受到保护。要继续，请重新输入主密码以验证您的身份。"
   },
   "masterPasswordSuccessfullySet": {
     "message": "主密码设置成功"
@@ -2907,7 +2907,7 @@
     "message": "您的主密码不符合此组织的要求。更改您的主密码以继续。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织禁用了受信任设备加密。请设置一个主密码以访问您的密码库。"
   },
   "tryAgain": {
     "message": "重试"
@@ -3630,10 +3630,10 @@
     "message": "已暴露的主密码"
   },
   "exposedMasterPasswordDesc": {
-    "message": "密码在数据泄露中被发现。请使用一个唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
+    "message": "在数据泄露中发现密码。请使用唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
   },
   "weakAndExposedMasterPassword": {
-    "message": "主密码弱且曾经暴露"
+    "message": "弱且已暴露的主密码"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
@@ -4329,7 +4329,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "上次编辑"
+    "message": "最后编辑于"
   },
   "upload": {
     "message": "上传"
@@ -4747,7 +4747,7 @@
     "message": "无效的快捷键"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "面包屑导航",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -5129,7 +5129,7 @@
     "message": "请输入有效的年份。"
   },
   "searchDriversLicense": {
-    "message": "搜索许可证"
+    "message": "搜索驾驶证"
   },
   "bankAccount": {
     "message": "银行账户"
@@ -5330,6 +5330,6 @@
     "message": "签发机构 / 部门"
   },
   "licenseClass": {
-    "message": "许可证等级"
+    "message": "驾驶证等级"
   }
 }
