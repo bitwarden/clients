@@ -22,12 +22,12 @@
       [organization]="organization"
       [collection]="selectedCollection"
       [searchText]="currentSearchText$ | async"
-      (onAddCipher)="addCipher($event)"
-      (onAddCollection)="addCollection()"
-      (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
-      (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
+      (addCipher)="addCipher($event)"
+      (addCollection)="addCollection()"
+      (editCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
+      (deleteCollection)="deleteCollection(selectedCollection?.node)"
       (searchTextChanged)="filterSearchText($event)"
-      (onOpenAddItemDialog)="openAddItemDialog()"
+      (openAddItemDialogEvent)="openAddItemDialog()"
     ></app-org-vault-header>
   }
 
