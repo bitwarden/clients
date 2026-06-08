@@ -19,6 +19,7 @@ import {
   MenuTriggerForDirective,
   TableModule,
   LinkModule,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -53,10 +54,11 @@ interface CopyFieldConfig {
     GetOrgNameFromIdPipe,
     IconComponent,
     LinkModule,
+    IconModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
   protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
