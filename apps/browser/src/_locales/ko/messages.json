@@ -1823,10 +1823,22 @@
     "message": "자동 완성 끄기"
   },
   "confirmAutofill": {
-    "message": "자동 완성 확인"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "메모"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "페이지 로드 시 자동 완성이 기본 설정을 사용하도록 설정되었습니다.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "자동 완성 불가"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "확인"
