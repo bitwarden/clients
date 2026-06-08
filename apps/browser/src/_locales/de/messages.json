@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Stelle sicher, dass dies eine vertrauenswürdige Website ist, bevor du deine Zugangsdaten eingibst."
   },
+  "loginNeverMatchTitle": {
+    "message": "Zugangsdaten stimmen nicht überein"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Die URI dieser Website stimmt nicht mit der aus deinen gespeicherten Zugangsdaten überein. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
+  },
+  "uriMatchRule": {
+    "message": "URI-Übereinstimmungsregel"
+  },
+  "neverMatch": {
+    "message": "Niemals abgleichen"
+  },
   "loginHasNoSiteSaved": {
     "message": "Keine Website für diese Zugangsdaten gespeichert"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bankkonto"
+  },
+  "bankAccountDetails": {
+    "message": "Bankverbindung"
   },
   "typeNote": {
     "message": "Notiz"
@@ -4431,12 +4446,6 @@
     "message": "Auto-Ausfüllen beim Laden einer Seite wurde auf die Standardeinstellung gesetzt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Kein Auto-Ausfüllen möglich"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Die Standard-Übereinstimmungserkennung ist auf „Exakte Übereinstimmung“ eingestellt. Die aktuelle Website stimmt nicht genau mit den gespeicherten Zugangsdaten für diesen Eintrag überein."
-  },
   "okay": {
     "message": "Okay"
   },
@@ -6226,11 +6235,11 @@
     "message": "Weiter"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Navigationspfade",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "Dateipfad erweitern",
+    "message": "Weitere Navigationspfade",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
