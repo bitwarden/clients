@@ -37,13 +37,7 @@ export type KillSwitchState =
   templateUrl: "./kill-switch.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    CalloutModule,
-    TypographyModule,
-    I18nPipe,
-  ],
+  imports: [CommonModule, ButtonModule, CalloutModule, TypographyModule, I18nPipe],
 })
 export class KillSwitchComponent implements OnInit {
   private readonly pamApiService = inject(PamApiService);

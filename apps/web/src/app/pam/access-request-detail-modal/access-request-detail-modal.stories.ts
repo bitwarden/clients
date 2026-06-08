@@ -6,12 +6,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  DIALOG_DATA,
-  DialogRef,
-  I18nMockService,
-  ToastService,
-} from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestResponse, PamApiService } from "@bitwarden/pam";
 
 import {
@@ -81,7 +76,10 @@ const withData = (data: AccessRequestDetailModalData) => ({
     moduleMetadata({
       providers: [
         { provide: DIALOG_DATA, useValue: data },
-        { provide: DialogRef, useValue: { close: (_r: AccessRequestDetailModalResult): void => undefined } },
+        {
+          provide: DialogRef,
+          useValue: { close: (_r: AccessRequestDetailModalResult): void => undefined },
+        },
         { provide: I18nService, useFactory: i18nMock },
         { provide: PamApiService, useValue: pamApiStub() },
         { provide: ToastService, useValue: { showToast: (): void => undefined } },

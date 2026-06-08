@@ -31,9 +31,12 @@ export function providePam(): SafeProvider[] {
   return [
     safeProvider({
       provide: PamApiService,
-      useFactory: (apiService: ApiService, mock: MockPamApiService) =>
-        PamMockConfig.isEnabled() ? mock : new DefaultPamApiService(apiService),
-      deps: [ApiService, MockPamApiService],
+      useFactory: (
+        apiService: ApiService,
+        leaseEvents: LeaseEventService,
+        mock: MockPamApiService,
+      ) => (PamMockConfig.isEnabled() ? mock : new DefaultPamApiService(apiService, leaseEvents)),
+      deps: [ApiService, LeaseEventService, MockPamApiService],
     }),
     safeProvider({
       provide: LeaseEventService,

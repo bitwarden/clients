@@ -24,8 +24,7 @@ import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badg
 })
 export class PamUserNavSlotComponent {
   protected readonly pamEnabled$ = inject(ConfigService).getFeatureFlag$(FeatureFlag.Pam);
-  protected readonly pamInboxBadgeCount = toSignal(
-    inject(ApproverInboxBadgeService).count$,
-    { initialValue: 0 },
-  );
+  protected readonly pamInboxBadgeCount = toSignal(inject(ApproverInboxBadgeService).count$, {
+    initialValue: 0,
+  });
 }

@@ -31,12 +31,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  AccessRuleRequest,
-  AccessRuleResponse,
-  Condition,
-  PamApiService,
-} from "@bitwarden/pam";
+import { AccessRuleRequest, AccessRuleResponse, Condition, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IpAllowlistEditorComponent } from "../access-rule-editor/ip-allowlist/ip-allowlist-editor.component";
@@ -259,8 +254,8 @@ function hasKind(conditions: Condition[] | undefined, kind: Condition["kind"]): 
 }
 
 function findCidrs(conditions: Condition[]): string[] {
-  const ip = conditions.find((c): c is Extract<Condition, { kind: "ip_allowlist" }> =>
-    c.kind === "ip_allowlist",
+  const ip = conditions.find(
+    (c): c is Extract<Condition, { kind: "ip_allowlist" }> => c.kind === "ip_allowlist",
   );
   return ip?.cidrs ?? [];
 }

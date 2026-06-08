@@ -16,7 +16,6 @@ the collection-side toggle (`pamLeasingTab*`, `pamLeasingEnabled*`,
 design; rule-shape editor keys moved to `pamAccessRule*`. `requestDetailModal*`
 keys moved to `accessRequestDetailModal*`.
 
-
 Terminology:
 Access Rules - Rules attached to a collection
 
@@ -24,35 +23,35 @@ Privileged collection - Slang for a Collection with rules attached.
 
 Access Request - User submitting for access
 
-* Justification / Reason - reason provided with a request
+- Justification / Reason - reason provided with a request
 
-* Duration - Requested/granted time window
+- Duration - Requested/granted time window
 
-* Approver - Human that approves the request
+- Approver - Human that approves the request
 
-* (States: Pending, Approved or Denied Access Requests)
+- (States: Pending, Approved or Denied Access Requests)
 
 Lease - Approved active access
 
-* States
+- States
 
-* * Pending - approved but not yet active (User does not have the credential)
+- - Pending - approved but not yet active (User does not have the credential)
 
-* * Active
+- - Active
 
-* * Revoked
+- - Revoked
 
-* * Expired
+- - Expired
 
-* Alternatives:
+- Alternatives:
 
-* * Access Lease
+- - Access Lease
 
-* * Access Grant
+- - Access Grant
 
-* * Access Session
+- - Access Session
 
-* * Active access? – active is no good, since a lease have states that can be expired/historic.
+- - Active access? – active is no good, since a lease have states that can be expired/historic.
 
 End Access - User action when voluntarily ending their lease early
 

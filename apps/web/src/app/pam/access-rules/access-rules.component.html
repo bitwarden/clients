@@ -55,7 +55,10 @@
               }
             </td>
             <td bitCell>
-              <pam-access-rule-summary [conditions]="r.conditions" [singleActiveLease]="r.singleActiveLease" />
+              <pam-access-rule-summary
+                [conditions]="r.conditions"
+                [singleActiveLease]="r.singleActiveLease"
+              />
             </td>
             <td bitCell>
               @let names = collectionNamesByRule().get(r.id) ?? [];
@@ -150,9 +153,7 @@
         </div>
       </div>
 
-      <div
-        class="tw-flex tw-w-full tw-max-w-2xl tw-items-center tw-gap-3 tw-text-sm tw-text-muted"
-      >
+      <div class="tw-flex tw-w-full tw-max-w-2xl tw-items-center tw-gap-3 tw-text-sm tw-text-muted">
         <div class="tw-flex-1 tw-border-t tw-border-secondary-300"></div>
         <span>{{ "pamEmptyStateOrScratch" | i18n }}</span>
         <div class="tw-flex-1 tw-border-t tw-border-secondary-300"></div>

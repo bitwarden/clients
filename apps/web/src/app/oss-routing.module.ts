@@ -642,7 +642,9 @@ const routes: Routes = [
         // post-launch. Tracked in the PM-37267 tech breakdown.
         data: { titleId: "pamMyRequestsPageTitle" } satisfies RouteDataProperties,
         loadComponent: () =>
-          import("./pam/my-access-requests/my-access-requests.component").then((m) => m.MyAccessRequestsComponent),
+          import("./pam/my-access-requests/my-access-requests.component").then(
+            (m) => m.MyAccessRequestsComponent,
+          ),
       },
       {
         path: "vault",

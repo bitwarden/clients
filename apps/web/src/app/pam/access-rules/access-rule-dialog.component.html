@@ -93,7 +93,9 @@
       <p bitTypography="body2" class="tw-mt-6 tw-mb-0 tw-text-muted">
         {{
           "pamAccessRuleLastEditedByOn"
-            | i18n: data.existing!.lastEditedByName! : (data.existing!.revisionDate | date: "mediumDate")
+            | i18n
+              : data.existing!.lastEditedByName!
+              : (data.existing!.revisionDate | date: "mediumDate")
         }}
       </p>
     }

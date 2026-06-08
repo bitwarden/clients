@@ -1,5 +1,5 @@
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { importProvidersFrom } from "@angular/core";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 

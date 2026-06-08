@@ -17,11 +17,7 @@
         </bit-section-header>
 
         @if (pendingRows().length === 0) {
-          <p
-            bitTypography="body2"
-            class="tw-text-muted"
-            data-testid="my-requests-pending-empty"
-          >
+          <p bitTypography="body2" class="tw-text-muted" data-testid="my-requests-pending-empty">
             {{ "pamMyRequestsPendingEmpty" | i18n }}
           </p>
         } @else {
@@ -32,7 +28,9 @@
                 <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
                 <th bitCell>{{ "pamColumnSubmitted" | i18n }}</th>
                 <th bitCell>{{ "pamColumnApprovers" | i18n }}</th>
-                <th bitCell class="tw-w-32"><span class="tw-sr-only">{{ "actions" | i18n }}</span></th>
+                <th bitCell class="tw-w-32">
+                  <span class="tw-sr-only">{{ "actions" | i18n }}</span>
+                </th>
               </tr>
             </ng-container>
             <ng-template body>
@@ -83,11 +81,7 @@
         </bit-section-header>
 
         @if (recentRows().length === 0) {
-          <p
-            bitTypography="body2"
-            class="tw-text-muted"
-            data-testid="my-requests-recent-empty"
-          >
+          <p bitTypography="body2" class="tw-text-muted" data-testid="my-requests-recent-empty">
             {{ "pamMyRequestsRecentEmpty" | i18n }}
           </p>
         } @else {

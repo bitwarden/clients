@@ -22,7 +22,7 @@
           type="button"
           buttonType="dangerGhost"
           [title]="'accessRuleIpAllowlistRemoveRow' | i18n"
-          [attr.aria-label]="'accessRuleIpAllowlistRemoveRow' | i18n"
+          [label]="'accessRuleIpAllowlistRemoveRow' | i18n"
           (click)="removeRow($index)"
         ></button>
       }
@@ -30,11 +30,11 @@
   }
 </div>
 
-@if (cidrArray.touched && cidrArray.hasError('duplicateCidrs')) {
+@if (cidrArray.touched && cidrArray.hasError("duplicateCidrs")) {
   <p class="tw-mt-1 tw-text-danger">{{ "accessRuleIpAllowlistDuplicateCidr" | i18n }}</p>
 }
 
-@if (cidrArray.touched && cidrArray.hasError('atLeastOneCidr')) {
+@if (cidrArray.touched && cidrArray.hasError("atLeastOneCidr")) {
   <p class="tw-mt-1 tw-text-danger">{{ "accessRuleIpAllowlistAtLeastOne" | i18n }}</p>
 }
 

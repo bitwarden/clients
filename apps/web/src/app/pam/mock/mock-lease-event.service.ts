@@ -31,4 +31,8 @@ export class MockLeaseEventService extends LeaseEventService {
   events$(requestId: string): Observable<LeaseEvent> {
     return this.store.events$.pipe(filter((event) => event.requestId === requestId));
   }
+
+  allEvents$(): Observable<LeaseEvent> {
+    return this.store.events$.asObservable();
+  }
 }

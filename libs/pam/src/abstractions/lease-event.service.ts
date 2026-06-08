@@ -25,4 +25,13 @@ export abstract class LeaseEventService {
    * teardown (e.g. `takeUntilDestroyed()` in Angular).
    */
   abstract events$(requestId: string): Observable<LeaseEvent>;
+
+  /**
+   * Observable of every {@link LeaseEvent} the channel surfaces, regardless of
+   * `requestId`. Consumed by surfaces whose state can change for reasons other
+   * than a single tracked request — e.g. the per-cipher access-state snapshot,
+   * which needs to refresh whenever any of the caller's leases or requests
+   * transition.
+   */
+  abstract allEvents$(): Observable<LeaseEvent>;
 }

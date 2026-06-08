@@ -19,11 +19,13 @@ describe("KillSwitchComponent", () => {
   let logService: MockProxy<LogService>;
   let configService: MockProxy<ConfigService>;
 
-  async function setup(opts: {
-    killSwitchEnabled?: boolean;
-    organizationId?: string;
-    organizationName?: string;
-  } = {}): Promise<ComponentFixture<KillSwitchComponent>> {
+  async function setup(
+    opts: {
+      killSwitchEnabled?: boolean;
+      organizationId?: string;
+      organizationName?: string;
+    } = {},
+  ): Promise<ComponentFixture<KillSwitchComponent>> {
     pamApiService = mock<PamApiService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();

@@ -38,7 +38,9 @@ describe("CipherLeaseBadgeComponent", () => {
   };
 
   const tooltipContent = (fixture: ComponentFixture<CipherLeaseBadgeComponent>): string =>
-    fixture.debugElement.query(By.directive(TooltipDirective)).injector.get(TooltipDirective)
+    fixture.debugElement
+      .query(By.directive(TooltipDirective))
+      .injector.get(TooltipDirective)
       .tooltipContent();
 
   it("renders nothing when state is 'unleased'", () => {
@@ -67,9 +69,7 @@ describe("CipherLeaseBadgeComponent", () => {
     expect(host).not.toBeNull();
     expect(host.querySelector(".bwi-unlock")).not.toBeNull();
 
-    const countdown = host.querySelector(
-      '[data-testid="cipher-lease-countdown"]',
-    ) as HTMLElement;
+    const countdown = host.querySelector('[data-testid="cipher-lease-countdown"]') as HTMLElement;
     expect(countdown.textContent?.trim()).toBe("47m");
     expect(tooltipContent(fixture)).toBe("Leased — expires in 47m");
   });

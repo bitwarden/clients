@@ -139,9 +139,7 @@ describe("MyAccessRequestsComponent", () => {
 
   it("shows the global empty state when there are no requests", async () => {
     const fixture = await create([]);
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]'),
-    ).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
   });
 
   it("places pending rows in the Pending section", async () => {
@@ -189,9 +187,7 @@ describe("MyAccessRequestsComponent", () => {
       fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-old"]'),
     ).toBeNull();
     // Both empties show, but the global empty also fires since nothing fits anywhere.
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]'),
-    ).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
   });
 
   it("cancels a pending request optimistically and calls the API", fakeAsync(() => {
@@ -218,9 +214,7 @@ describe("MyAccessRequestsComponent", () => {
 
     flush();
     fixture.detectChanges();
-    expect(toast.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "success" }),
-    );
+    expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
   }));
 
   it("reverts the optimistic cancel when the API call fails", fakeAsync(() => {
@@ -255,9 +249,7 @@ describe("MyAccessRequestsComponent", () => {
     fixture.detectChanges();
 
     expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]'),
-    ).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
   }));
 });
 
@@ -284,7 +276,9 @@ describe("statusLabelKey", () => {
 });
 
 describe("resolveResolverDisplayName", () => {
-  const i18nMock = new I18nMockService({ pamResolverAccessRule: "Access rule" }) as unknown as I18nService;
+  const i18nMock = new I18nMockService({
+    pamResolverAccessRule: "Access rule",
+  }) as unknown as I18nService;
 
   it("returns null for pending requests", () => {
     expect(
@@ -293,9 +287,9 @@ describe("resolveResolverDisplayName", () => {
   });
 
   it("returns the access-rule label when there is no resolver user", () => {
-    expect(
-      resolveResolverDisplayName({ status: "expired", resolverUserId: null }, i18nMock),
-    ).toBe("Access rule");
+    expect(resolveResolverDisplayName({ status: "expired", resolverUserId: null }, i18nMock)).toBe(
+      "Access rule",
+    );
   });
 
   it("falls back to the raw user id when a human resolved the request", () => {
