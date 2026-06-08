@@ -15,6 +15,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { map, firstValueFrom, switchMap, filter, of } from "rxjs";
+import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -66,10 +67,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
   protected readonly enabled = false;
-  protected readonly policyEnabled = signal(false);
   private readonly _saveDisabled = signal(false);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
+  protected readonly policyEnabled = signal(false);
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -196,7 +197,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     const policyResponse = await this.load();
-    this.policyEnabled.set(policyResponse.enabled);
     this.loading.set(false);
 
     const policyFormRef = this.policyFormRef();
@@ -204,20 +204,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    let componentClass = this.data.policy.component;
-    if (this.data.policy.flaggedComponent) {
-      const flagOn = await this.configService.getFeatureFlag(
-        this.data.policy.flaggedComponent.flag,
-      );
-      if (flagOn) {
-        componentClass = this.data.policy.flaggedComponent.component;
-      }
-    }
-    const componentRef = policyFormRef.createComponent(componentClass);
+    const componentRef = policyFormRef.createComponent(this.getComponentToLoad());
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
     const component = componentRef.instance;
     this.policyComponent.set(component);
+    this.policyEnabled.set(policyResponse.enabled);
 
     if (component.data) {
       component.data.statusChanges
@@ -292,17 +284,18 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
+  /**
+   * Returns the policy form component to load into the dialog.
+   * Subclasses can override this to load a different component (e.g. the drawer variant).
+   */
+  protected getComponentToLoad(): Constructor<BasePolicyEditComponent> {
+    return this.data.policy.component;
+  }
+
   static readonly open = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
-  };
-
-  static readonly openDrawer = (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => {
-    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

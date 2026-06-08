@@ -53,11 +53,6 @@ export abstract class BasePolicyEditDefinition {
   abstract description: string;
 
   /**
-   * Optional i18n key for an updated description shown in the drawer edit dialog (flag-on path).
-   * Falls back to {@link description} when not set.
-   */
-  descriptionV2?: string;
-  /**
    * The PolicyType enum that this policy represents.
    */
   abstract type: PolicyType;
@@ -89,23 +84,33 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
-   * Optional i18n key for a prerequisite info callout rendered above the enable/disable toggle.
-   * Used by {@link SimpleTogglePolicyComponent} when a policy requires another policy to be enabled first.
-   */
-  prerequisiteKey?: string;
-
-  /**
    * Optional i18n key for a warning callout rendered above the enable/disable toggle.
    * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
    */
   warningKey?: string;
 
   /**
-   * Optional alternative component to use when a feature flag is enabled.
-   * When set, the {@link PolicyEditDialogComponent} checks the flag at dialog open time
-   * and uses this component instead of {@link component} when the flag is on.
+   * Optional drawer-specific configuration for this policy.
+   * When set, {@link PolicyEditDialogComponent} checks the flag at dialog open time
+   * and activates the drawer UI when the flag is on, using the nested overrides in place
+   * of the top-level properties.
    */
-  flaggedComponent?: { flag: FeatureFlag; component: Constructor<BasePolicyEditComponent> };
+  v2?: {
+    /** Feature flag that gates the drawer path. */
+    flag: FeatureFlag;
+    /** Component to render inside the drawer instead of {@link component}. */
+    component: Constructor<BasePolicyEditComponent>;
+    /** Drawer-only title. Falls back to {@link name} when not set. */
+    name?: string;
+    /** Drawer-only description. Falls back to {@link description} when not set. */
+    description?: string;
+    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDialogComponent} above the policy form. */
+    prerequisiteKey?: string;
+    /** URL for an optional "learn more" link inside the prerequisite callout. */
+    prerequisiteLinkHref?: string;
+    /** i18n key for the text of {@link prerequisiteLinkHref}. */
+    prerequisiteLinkTextKey?: string;
+  };
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.

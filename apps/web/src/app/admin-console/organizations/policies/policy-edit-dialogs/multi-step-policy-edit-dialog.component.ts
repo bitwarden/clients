@@ -183,7 +183,7 @@ export class MultiStepPolicyEditDialogComponent
     );
   };
 
-  static override readonly openDrawer = (
+  static readonly openDrawer = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {

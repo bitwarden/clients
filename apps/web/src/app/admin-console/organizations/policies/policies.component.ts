@@ -37,6 +37,7 @@ import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
@@ -179,13 +180,19 @@ export class PoliciesComponent {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
-    if (useDrawer && dialogComponent.openDrawer) {
+    // For custom dialog components (e.g. MultiStep), prefer their own openDrawer.
+    // For standard policies, route all drawer opens through PolicyEditDrawerComponent.
+    const drawerOpener = useDrawer
+      ? (dialogComponent.openDrawer ?? PolicyEditDrawerComponent.openDrawer)
+      : undefined;
+
+    if (drawerOpener) {
       const triggerEl =
         document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
       // openDrawer is async and returns undefined if a currently-open drawer's
       // closePredicate prevented it from closing — only update the ref when it opened.
-      const ref = await dialogComponent.openDrawer(this.dialogService, {
+      const ref = await drawerOpener(this.dialogService, {
         data: {
           policy: policy,
           organization: organization,
