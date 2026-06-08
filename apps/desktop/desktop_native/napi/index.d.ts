@@ -318,6 +318,7 @@ export declare namespace sshagent_v2 {
     processName?: string
     isForwarding: boolean
     namespace?: SIGNamespace
+    hostFingerprint?: string
   }
   /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {
