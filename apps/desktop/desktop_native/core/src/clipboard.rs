@@ -15,7 +15,7 @@ pub(crate) fn read_internal() -> Result<String> {
 /// Read the clipboard, using the XDG Desktop Portal on GNOME.
 ///
 /// On GNOME/Wayland `arboard` cannot reliably read the clipboard (GNOME does not implement the
-/// `wlr-data-control` protocol), so on GNOME we read through the [`portal`] (RemoteDesktop +
+/// `zwlr_data_control_manager_v1` protocol), so on GNOME we read through the [`portal`] (RemoteDesktop +
 /// Clipboard). On every other Linux desktop this is just [`read`].
 #[cfg(target_os = "linux")]
 pub async fn read() -> Result<String> {
