@@ -5113,9 +5113,6 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
-  "unlockTogetherWithBrowserExtension": {
-    "message": "Unlock together with the browser extension"
-  },
   "more": {
     "message": "More"
   },
