@@ -63,6 +63,7 @@ pub mod sshagent_v2 {
         pub process_name: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<SIGNamespace>,
+        pub host_fingerprint: Option<String>,
     }
 
     impl From<ssh_agent::SignRequest> for SignRequest {
@@ -75,6 +76,7 @@ pub mod sshagent_v2 {
                 process_name: r.process_name,
                 is_forwarding: r.is_forwarding,
                 namespace: r.namespace.map(Into::into),
+                host_fingerprint: r.host_fingerprint,
             }
         }
     }
