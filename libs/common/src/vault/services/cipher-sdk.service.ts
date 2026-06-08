@@ -7,7 +7,12 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/commo
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
-import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import {
+  CipherSdkService,
+  DecryptAllCiphersResult,
+  DecryptCipherFullGracefulResult,
+  DecryptCipherListGracefulResult,
+} from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
 
 export class DefaultCipherSdkService implements CipherSdkService {
@@ -401,6 +406,127 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list and decrypt ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async decryptGraceful(userId: UserId, cipher: Cipher): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const result = await sdkCiphersClient.decrypt_graceful(cipher.toSdkCipher());
+
+          // eslint-disable-next-line no-console
+          console.log("[graceful-sdk] decrypt_graceful (single cipher)", {
+            cipherId: cipher.id,
+            resultDecryptionFailures: (result as any).decryptionFailures?.length ?? 0,
+            paths: (result as any).decryptionFailures?.map((f: any) => f.path),
+          });
+
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+        }),
+        catchError((error: unknown) => {
+          // eslint-disable-next-line no-console
+          console.error("[graceful-sdk] decrypt_graceful threw:", error);
+          this.logService.error(`Failed to gracefully decrypt cipher: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async decryptListGraceful(
+    userId: UserId,
+    ciphers: Cipher[],
+  ): Promise<DecryptCipherListGracefulResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const decryptResult = await sdkCiphersClient.decrypt_list_graceful(
+            ciphers.map((c) => c.toSdkCipher()),
+          );
+
+          const successes = [...(decryptResult.successes ?? [])];
+
+          const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) => {
+            const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
+            cipherView.name = DECRYPT_ERROR;
+            cipherView.decryptionFailure = true;
+            return cipherView;
+          });
+
+          // eslint-disable-next-line no-console
+          console.log("[graceful-sdk] decrypt_list_graceful", {
+            input: ciphers.length,
+            sdkSuccesses: decryptResult.successes?.length ?? 0,
+            sdkFailures: decryptResult.failures?.length ?? 0,
+            successesWithFieldFailures: successes
+              .filter((v) => v.decryptionFailures && v.decryptionFailures.length > 0)
+              .map((v) => ({
+                id: v.id,
+                paths: v.decryptionFailures?.map((f) => f.path),
+              })),
+            wholeCipherFailureIds: failures.map((f) => f.id),
+          });
+
+          return { successes, failures };
+        }),
+        catchError((error: unknown) => {
+          // eslint-disable-next-line no-console
+          console.error("[graceful-sdk] decrypt_list_graceful threw:", error);
+          this.logService.error(`Failed to gracefully decrypt cipher list: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async decryptListFullGraceful(
+    userId: UserId,
+    ciphers: Cipher[],
+  ): Promise<DecryptCipherFullGracefulResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const decryptResult = await sdkCiphersClient.decrypt_list_full_graceful(
+            ciphers.map((c) => c.toSdkCipher()),
+          );
+
+          const successes = [...(decryptResult.successes ?? [])]
+            .map((sdkCipherView) => CipherView.fromSdkCipherView(sdkCipherView, sdkCiphersClient))
+            .filter((v): v is CipherView => v !== undefined);
+
+          const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) => {
+            const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
+            cipherView.name = DECRYPT_ERROR;
+            cipherView.decryptionFailure = true;
+            return cipherView;
+          });
+
+          return { successes, failures };
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to gracefully decrypt full cipher list: ${error}`);
           throw error;
         }),
       ),

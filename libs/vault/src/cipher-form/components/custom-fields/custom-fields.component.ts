@@ -42,6 +42,7 @@ import {
 } from "@bitwarden/components";
 
 import { CipherFormContainer } from "../../cipher-form-container";
+import { hasFailureAtIndexedPath } from "../../utils/cipher-decryption-failure-paths";
 
 import {
   AddEditCustomFieldDialogComponent,
@@ -127,6 +128,16 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   destroyed$: DestroyRef;
   FieldType = FieldType;
+
+  /** True when the custom field at the given index has a failed `value` decryption. */
+  protected fieldValueDecryptionFailed(index: number): boolean {
+    return hasFailureAtIndexedPath(
+      this.cipherFormContainer.decryptionFailures,
+      "fields",
+      index,
+      "value",
+    );
+  }
 
   constructor(
     private dialogService: DialogService,

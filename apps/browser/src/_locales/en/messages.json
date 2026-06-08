@@ -3645,6 +3645,12 @@
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
   },
+  "cannotSaveCipherWithDecryptionFailures": {
+    "message": "Can't save this item"
+  },
+  "cannotSaveCipherWithDecryptionFailuresBody": {
+    "message": "Some fields in this item could not be decrypted. Saving now would replace their original encrypted values with empty ones. The failed fields are listed below."
+  },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contact customer success",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
@@ -6290,6 +6296,12 @@
   },
   "errorCannotDecrypt": {
     "message": "Error: Cannot decrypt"
+  },
+  "cipherHasDecryptionFailures": {
+    "message": "Some fields in this item could not be decrypted."
+  },
+  "fieldDecryptionFailed": {
+    "message": "This field could not be decrypted. Editing and saving will overwrite the original encrypted value."
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."

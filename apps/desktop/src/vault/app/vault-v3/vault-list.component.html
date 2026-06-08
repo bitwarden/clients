@@ -61,6 +61,9 @@
               alignContent="middle"
               [disabled]="disabled()"
               [cipher]="item.cipher"
+              [decryptionFailures]="
+                (decryptionFailuresByCipher$ | async)?.get($any(item.cipher.id))
+              "
               [showOwner]="showOwner()"
               [showPremiumFeatures]="showPremiumFeatures()"
               [cloneable]="canClone$(item) | async"

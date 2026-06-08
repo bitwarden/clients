@@ -5,7 +5,10 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -24,9 +27,45 @@ export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
   private taskService: TaskService = inject(TaskService);
+  private cipherSdkService: CipherSdkService = inject(CipherSdkService);
+  private configService: ConfigService = inject(ConfigService);
 
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const gracefulEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PMXXXXX_GracefulCipherDecryption),
+    );
+
+    // eslint-disable-next-line no-console
+    console.log("[graceful-form] decryptCipher", {
+      cipherId: cipher?.id,
+      flag: gracefulEnabled,
+    });
+
+    if (gracefulEnabled) {
+      // Populate `decryptionFailures` on the working CipherView so the save
+      // guardrail and per-field warnings have the data they need. Falls back to
+      // the lenient path if graceful decrypt throws (whole-cipher key failure).
+      const graceful = await this.cipherSdkService
+        .decryptGraceful(activeUserId, cipher)
+        .catch((err: unknown): CipherView | undefined => {
+          // eslint-disable-next-line no-console
+          console.warn("[graceful-form] decryptGraceful threw, falling back to lenient:", err);
+          return undefined;
+        });
+      if (graceful) {
+        // eslint-disable-next-line no-console
+        console.log("[graceful-form] graceful succeeded", {
+          cipherId: graceful.id,
+          decryptionFailure: graceful.decryptionFailure,
+          decryptionFailuresCount: graceful.decryptionFailures?.length ?? 0,
+          paths: graceful.decryptionFailures?.map((f) => f.path),
+        });
+        return graceful;
+      }
+    }
+
     return await this.cipherService.decrypt(cipher, activeUserId);
   }
 

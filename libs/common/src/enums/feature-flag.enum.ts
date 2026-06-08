@@ -90,6 +90,7 @@ export enum FeatureFlag {
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
+  PMXXXXX_GracefulCipherDecryption = "pm-xxxxx-graceful-cipher-decryption",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -170,6 +171,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
+  [FeatureFlag.PMXXXXX_GracefulCipherDecryption]: true,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,

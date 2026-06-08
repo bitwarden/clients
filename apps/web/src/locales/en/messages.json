@@ -5951,6 +5951,12 @@
   "attachmentsNeedFix": {
     "message": "This item has old file attachments that need to be fixed."
   },
+  "cipherHasDecryptionFailures": {
+    "message": "Some fields in this item could not be decrypted."
+  },
+  "fieldDecryptionFailed": {
+    "message": "This field could not be decrypted. Editing and saving will overwrite the original encrypted value."
+  },
   "attachmentFixDescription": {
     "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
   },
@@ -7514,6 +7520,12 @@
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "cannotSaveCipherWithDecryptionFailures": {
+    "message": "Can't save this item"
+  },
+  "cannotSaveCipherWithDecryptionFailuresBody": {
+    "message": "Some fields in this item could not be decrypted. Saving now would replace their original encrypted values with empty ones. The failed fields are listed below."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contact customer success",

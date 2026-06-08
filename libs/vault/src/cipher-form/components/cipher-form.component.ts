@@ -28,6 +28,7 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
+  DialogService,
   FormFieldModule,
   ItemModule,
   SelectModule,
@@ -35,6 +36,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { CipherSaveBlockedDialogComponent } from "../../components/cipher-save-blocked-dialog/cipher-save-blocked-dialog.component";
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
@@ -165,6 +167,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
   }
 
+  get decryptionFailures() {
+    return this.updatedCipherView?.decryptionFailures ?? [];
+  }
+
   protected loading: boolean = true;
 
   CipherType = CipherType;
@@ -289,6 +295,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
         this.updatedCipherView.key = undefined;
         // Cloning attachments is not supported
         this.updatedCipherView.attachments = [];
+        // A clone is a brand-new cipher; do not inherit the source's graceful
+        // decrypt diagnostics. Otherwise the save guardrail would block saving
+        // the clone for fields that were never actually edited.
+        this.updatedCipherView.decryptionFailures = [];
 
         if (this.updatedCipherView.login) {
           this.updatedCipherView.login.fido2Credentials = null;
@@ -349,6 +359,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private cipherFormCacheService: CipherFormCacheService,
     private cipherArchiveService: CipherArchiveService,
     private accountService: AccountService,
+    private dialogService: DialogService,
   ) {}
 
   /**
@@ -371,6 +382,20 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
   submit = async () => {
     let successToast: string = "editedItem";
+
+    // Block save when the working CipherView carries per-field decryption
+    // failures from the graceful decrypt path. Otherwise re-encrypting would
+    // silently overwrite intact ciphertext with the null/empty values that
+    // graceful left behind on those fields. Runs before the form-invalid check
+    // because the null values would otherwise trip required-field validators
+    // and the toast would name the wrong root cause.
+    if ((this.updatedCipherView?.decryptionFailures?.length ?? 0) > 0) {
+      CipherSaveBlockedDialogComponent.open(this.dialogService, {
+        failures: this.updatedCipherView.decryptionFailures,
+      });
+      return;
+    }
+
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();
 

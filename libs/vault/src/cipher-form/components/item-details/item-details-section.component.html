@@ -22,6 +22,9 @@
     <bit-form-field>
       <bit-label>{{ "itemName" | i18n }}</bit-label>
       <input bitInput formControlName="name" />
+      @if (nameDecryptionFailed) {
+        <bit-hint class="tw-text-warning">{{ "fieldDecryptionFailed" | i18n }}</bit-hint>
+      }
     </bit-form-field>
     @if (showOwnership) {
       <bit-form-field>

@@ -3,7 +3,9 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import {
   CipherService,
   EncryptionContext,
@@ -39,6 +41,8 @@ describe("DefaultCipherFormService", () => {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" as UserId } as Account) },
         },
+        { provide: CipherSdkService, useValue: mock<CipherSdkService>() },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         DefaultCipherFormService,
       ],
     });

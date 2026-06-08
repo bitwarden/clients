@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { CipherDecryptionFailure } from "@bitwarden/common/vault/models/cipher-decryption-failure";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherFormConfig } from "@bitwarden/vault";
 
@@ -53,6 +54,14 @@ export abstract class CipherFormContainer {
    * The original cipher that is being edited/cloned. Used to pre-populate the form and compare changes.
    */
   readonly originalCipherView: CipherView | null;
+
+  /**
+   * Per-field decryption failures from the SDK's graceful decrypt path on the
+   * working cipher view. Empty when the graceful path is disabled or when no
+   * fields failed. Section components read this to render inline warnings next
+   * to the affected inputs.
+   */
+  abstract get decryptionFailures(): CipherDecryptionFailure[];
 
   abstract registerChildForm<K extends keyof CipherForm>(
     name: K,

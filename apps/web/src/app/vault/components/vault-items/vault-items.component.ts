@@ -19,8 +19,12 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { CipherDecryptionFailureService } from "@bitwarden/common/vault/abstractions/cipher-decryption-failure.service";
+import { CipherDecryptionFailureMap } from "@bitwarden/common/vault/models/cipher-decryption-failure";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -158,6 +162,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
   protected showCopyAndLaunchActions$: Observable<boolean>;
+  protected decryptionFailuresByCipher$: Observable<CipherDecryptionFailureMap>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
   constructor(
@@ -165,9 +170,18 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected routedVaultFilterService: RoutedVaultFilterService,
     private configService: ConfigService,
+    private accountService: AccountService,
+    private cipherDecryptionFailureService: CipherDecryptionFailureService,
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
+
+    this.decryptionFailuresByCipher$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.cipherDecryptionFailureService.decryptionFailuresByCipher$(userId),
+      ),
     );
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),

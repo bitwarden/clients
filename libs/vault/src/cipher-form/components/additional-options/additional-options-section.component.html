@@ -11,6 +11,9 @@
     <bit-form-field>
       <bit-label>{{ "notes" | i18n }}</bit-label>
       <textarea bitInput rows="5" formControlName="notes"></textarea>
+      @if (notesDecryptionFailed) {
+        <bit-hint class="tw-text-warning">{{ "fieldDecryptionFailed" | i18n }}</bit-hint>
+      }
     </bit-form-field>
     @if (passwordRepromptEnabled$ | async) {
       <bit-form-control [disableMargin]="hasCustomFields || isPartialEdit">
