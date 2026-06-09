@@ -40,6 +40,7 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
   LoginEmailService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -74,7 +75,14 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  DefaultSharedUnlockSettingsService,
+  SharedUnlockFollowerService,
+  SharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
+import {
   VaultTimeout,
+  VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -128,17 +136,18 @@ import {
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
+import { UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   SshImportPromptService,
 } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
-import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
@@ -430,9 +439,36 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockFollowerService,
+    useClass: DefaultSharedUnlockFollowerService,
+    deps: [
+      IpcService,
+      AccountService,
+      LockService,
+      KeyServiceAbstraction,
+      PlatformUtilsService,
+      VaultTimeoutSettingsService,
+      EnvironmentService,
+      SharedUnlockSettingsService,
+      UnlockService,
+    ],
+  }),
+  safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
-    deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+    deps: [
+      DialogService,
+      ToastService,
+      PlatformUtilsService,
+      I18nServiceAbstraction,
+      ConfigService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: ChangePasswordService,
@@ -457,9 +493,7 @@ const safeProviders: SafeProvider[] = [
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [
       DialogService,
-      ConfigService,
       AccountService,
-      ApiService,
       SyncService,
       BillingAccountProfileStateService,
       PlatformUtilsService,
@@ -519,7 +553,7 @@ const safeProviders: SafeProvider[] = [
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule, UserCryptoManagementModule, GeneratorServicesModule],
+  imports: [CommonModule, JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })

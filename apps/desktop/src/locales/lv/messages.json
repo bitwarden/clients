@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
   "collectionSubtitle": {
     "message": "Organize shared items"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -144,7 +162,7 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
@@ -208,7 +226,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Pases numurs"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "Autovadītāja apliecības numurs"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Nav vienumu, ko parādīt."
   },
+  "noValueEntered": {
+    "message": "Nav ievadīta vērtība",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Nosūtīt apliecinājuma kodu e-pastā"
   },
@@ -1755,6 +1813,10 @@
     "message": "Ievietot numuru starpliktuvē",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Ievietot e-pasta adresi starpliktuvē"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Atlasīt visu"
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "zoomIn": {
     "message": "Pietuvināt"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Konta izdzēšana ir neatgriezeniska. To nevar atsaukt."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "Nevar izdzēst kontu"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Diemžēl sasaistīšana ar pārlūku pagaidām nav nodrošināta Windows veikala laidienā."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Diemžēl sasaistīšana ar pārlūku Linux laidienā pagaidām nav nodrošināta."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Pieprasīt apliecinājumu sasaistīšanai ar pārlūku"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Iespējo papildu drošības slāni, pieprasot atpazīšanas vārdkopas pārbaudi, kad tiek izveidota saikne starp darbvirsmu un pārlūku. Ir nepieciešama lietotāja darbība un apliecināšana katru reizi, kad tiek izveidots savienojums."
-  },
   "enableHardwareAcceleration": {
     "message": "Izmantot aparatūras paātrināšanu"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Apstiprināt"
-  },
-  "verifyBrowserTitle": {
-    "message": "Pārbaudīt pārlūka savienojumu"
-  },
-  "verifyBrowserDesc": {
-    "message": "Lūgums pārliecināties, ka attēlotā atpazīšanas vārdkopa ir tāda pati kā tā, kas ir redzama pārlūka paplašinājumā."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ pieprasa savienojumu ar Bitwarden",
@@ -4120,6 +4198,22 @@
   "troubleshooting": {
     "message": "Sarežģījumu novēršana"
   },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Atspējot aparatūras paātrinājumu un pārsāknēt"
   },
@@ -4652,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Nederīgi īsinājumtaustiņi"
   },
+  "breadcrumbs": {
+    "message": "Ceļvedis",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5012,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Lietotāja apliecināšana neizdevās."
   },
+  "more": {
+    "message": "Vairāk"
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankAccount": {
     "message": "Bank account"
   },
@@ -5052,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -5063,6 +5185,30 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Ievietot kontā esošo vārdu starpliktuvē"
+  },
+  "copyBranchNumber": {
+    "message": "Ievietot starpliktuvē zara numuru"
+  },
+  "copySwiftCode": {
+    "message": "Ievietot starpliktuvē SWIFT kodu"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "copyPassportNumber": {
+    "message": "Ievietot pases numuru starpliktuvē"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -5140,5 +5286,50 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "“Mani vienumi” nevar ievietot vienumus, kas ir daļa no vairākiem krājumiem"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }

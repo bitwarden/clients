@@ -3,7 +3,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -157,7 +156,9 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -245,9 +246,6 @@ import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
-// Polyfills
-global.DOMParser = new jsdom.JSDOM().window.DOMParser;
-
 // eslint-disable-next-line
 const packageJson = require("../../package.json");
 
@@ -323,7 +321,7 @@ export class ServiceContainer {
   folderApiService: FolderApiService;
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
-  sendApiService: SendApiService;
+  sendApiService: SendApiServiceSelector;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -559,13 +557,19 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
+
+    this.newPolicyService = new DefaultNewPolicyService(
+      this.stateProvider,
+      () => this.sdkService,
+      this.organizationService,
+    );
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
+      this.newPolicyService,
+      () => this.configService,
     );
-
-    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
 
@@ -650,10 +654,21 @@ export class ServiceContainer {
       this.configService,
     );
 
-    this.sendApiService = this.sendApiService = new SendApiService(
+    const legacySendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
       this.sendService,
+    );
+    this.sendApiService = new SendApiServiceSelector(
+      this.configService,
+      legacySendApiService,
+      new SendSdkApiService(
+        this.sdkService,
+        legacySendApiService,
+        this.sendService,
+        this.accountService,
+        this.logService,
+      ),
     );
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
@@ -1120,6 +1135,10 @@ export class ServiceContainer {
       this.configService,
       this.masterPasswordService,
       this.syncService,
+      this.keyService,
+      new CliBiometricsService(),
+      this.biometricStateService,
+      this.platformUtilsService,
     );
   }
 

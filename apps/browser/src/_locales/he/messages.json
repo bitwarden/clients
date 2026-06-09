@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "העתק מספר דרכון"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "העתק מספר רישיון"
   },
@@ -707,6 +719,22 @@
   },
   "rateExtension": {
     "message": "דרג את ההרחבה"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "browserNotSupportClipboard": {
     "message": "הדפדפן שלך לא תומך בהעתקה ללוח. אנא העתק בצורה ידנית."
@@ -1795,10 +1823,22 @@
     "message": "השבת מילוי אוטומטי"
   },
   "confirmAutofill": {
-    "message": "אשר מילוי אוטומטי"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "אתר זה אינו תואם את פרטי הכניסה השמורה שלך. לפני שאתה ממלא את אישורי הכניסה שלך, וודא שזהו אתר מהימן."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -1976,11 +2016,32 @@
   "brand": {
     "message": "מותג"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "חודש תפוגה"
   },
   "expirationYear": {
     "message": "שנת תפוגה"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
   },
   "monthly": {
     "message": "חודש"
@@ -2075,6 +2136,51 @@
   "passportNumber": {
     "message": "מספר דרכון"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "מספר רישיון"
   },
@@ -2135,6 +2241,9 @@
   "bankAccount": {
     "message": "Bank account"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "typeNote": {
     "message": "הערה"
   },
@@ -2164,6 +2273,33 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Banking details"
+  },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "licenseClass": {
+    "message": "License class"
   },
   "newItemHeaderLogin": {
     "message": "כניסה חדשה",
@@ -2229,7 +2365,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -2269,7 +2405,7 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
@@ -2334,6 +2470,31 @@
   "clear": {
     "message": "נקה",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "בדוק אם הסיסמה נחשפה."
@@ -2823,18 +2984,6 @@
   },
   "biometricsFailedDesc": {
     "message": "לא ניתן להשלים זיהוי ביומטרי, שקול להשתמש במפתח ראשי או לצאת. אם הדבר נמשך, אנא צור קשר עם תמיכת Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "הרשאה לא סופקה"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "ללא הרשאות לתקשר עם אפליקציית שולחן העבודה אין באפשרותנו לספק תמיכה באמצעים ביומטריים בדפדפן. אנא נסה שוב."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "שגיאת בקשת הרשאה"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "לא ניתן לבצע את הפעולה בסרגל הצד, נא לנסות שוב את הפעולה בחלון הצץ או המוקפץ."
   },
   "personalOwnershipSubmitError": {
     "message": "בשל מדיניות ארגונית, אתה מוגבל מלשמור פריטים לכספת האישית שלך. שנה את אפשרות הבעלות לארגון ובחר מאוספים זמינים."
@@ -4297,12 +4446,6 @@
     "message": "מילוי אוטומטי בעת טעינת הוגדר להשתמש בהגדרת ברירת מחדל.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "לא ניתן למלא אוטומטית"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "ברירת המחדל להתאמה מוגדרת כ'התאמה מדויקת'. האתר הנוכחי אינו תואם באופן מדויק את פרטי הכניסה השמורים עבור פריט זה."
-  },
   "okay": {
     "message": "בסדר"
   },
@@ -4987,6 +5130,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "אין ערכים להעתקה"
@@ -6087,6 +6234,10 @@
   "next": {
     "message": "הבא"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6350,6 +6501,24 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankName": {
     "message": "Bank name"
   },
@@ -6387,6 +6556,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -6398,6 +6570,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -6420,14 +6601,11 @@
   "bankAccountTypeOther": {
     "message": "Other"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
-  },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "more": {
+    "message": "More"
   },
   "maxAccessCount": {
     "message": "Maximum access count",
@@ -6472,5 +6650,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   }
 }

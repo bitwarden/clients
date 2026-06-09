@@ -31,6 +31,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -68,7 +69,6 @@ import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -120,6 +120,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
+    allowSharingUnlockState: true,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -131,6 +132,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
+  protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
   protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
@@ -160,6 +162,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+    private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
@@ -167,6 +170,21 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
+    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SharedUnlockPart2,
+    );
+  }
+
+  get sharedUnlockDescriptionKey(): string {
+    if (this.platformUtilsService.isSafari()) {
+      return "sharedUnlockDescriptionSafari";
+    }
+
+    if (this.platformUtilsService.isFirefox()) {
+      return "sharedUnlockDescriptionFirefox";
+    }
+
+    return "sharedUnlockDescription";
   }
 
   async ngOnInit() {
@@ -195,6 +213,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.biometricStateService.promptAutomatically$,
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
+      allowSharingUnlockState: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockState$(activeAccount.id),
+      ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
     this.loading.set(false);
@@ -207,14 +228,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
             this.form.controls.biometric.enable({ emitEvent: false });
-          }
-
-          // Biometrics status shouldn't be checked if permissions are needed.
-          const needsPermissionPrompt =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
-            !this.platformUtilsService.isSafari();
-          if (needsPermissionPrompt) {
-            return;
           }
 
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
@@ -303,6 +316,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    this.form.controls.allowSharingUnlockState.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockState(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   protected async dismissAccountSecurityNudge() {
@@ -345,40 +367,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   async updateBiometric(enabled: boolean) {
     if (enabled) {
-      let granted;
-      try {
-        granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
-      } catch (e) {
-        // eslint-disable-next-line
-        console.error(e);
-
-        if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
-          await this.dialogService.openSimpleDialog({
-            title: { key: "nativeMessaginPermissionSidebarTitle" },
-            content: { key: "nativeMessaginPermissionSidebarDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-            type: "info",
-          });
-
-          this.form.controls.biometric.setValue(false);
-          return;
-        }
-      }
-
-      if (!granted) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "nativeMessaginPermissionErrorTitle" },
-          content: { key: "nativeMessaginPermissionErrorDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-
-        this.form.controls.biometric.setValue(false);
-        return;
-      }
-
       try {
         const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
         await this.keyService.refreshAdditionalKeys(userId);
@@ -492,6 +480,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     await Promise.all([waitForUserDialogPromise(), biometricsPromise()]);
     return setupResult;
+  }
+
+  async updateAllowSharingUnlockState(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
+    if (!enabled) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
   }
 
   async updateAutoBiometricsPrompt() {

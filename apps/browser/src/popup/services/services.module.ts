@@ -94,6 +94,10 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import {
   VaultTimeoutService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -166,6 +170,7 @@ import {
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
@@ -370,7 +375,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: ForegroundBrowserBiometricsService,
-    deps: [PlatformUtilsService],
+    deps: [],
   }),
   safeProvider({
     provide: SyncService,
@@ -538,6 +543,11 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: PhishingDetectionSettingsServiceAbstraction,
     useClass: PhishingDetectionSettingsService,
     deps: [
@@ -605,6 +615,8 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       BrowserRouterService,
       WebAuthnPrfUnlockService,
+      SharedUnlockSettingsService,
+      ConfigService,
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
@@ -753,7 +765,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
-    deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+    deps: [
+      DialogService,
+      ToastService,
+      PlatformUtilsService,
+      I18nServiceAbstraction,
+      ConfigService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: ChangePasswordService,
@@ -814,7 +833,7 @@ const safeProviders: SafeProvider[] = [
 ];
 
 @NgModule({
-  imports: [JslibServicesModule, GeneratorServicesModule],
+  imports: [JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,

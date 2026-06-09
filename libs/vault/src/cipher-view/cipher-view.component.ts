@@ -43,9 +43,11 @@ import { AutofillOptionsViewComponent } from "./autofill-options/autofill-option
 import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
+import { DriversLicenseViewComponent } from "./drivers-license-sections/drivers-license-view.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
+import { PassportViewComponent } from "./passport-sections/passport-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
@@ -67,6 +69,8 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CardDetailsComponent,
     SshKeyViewComponent,
     BankAccountViewComponent,
+    DriversLicenseViewComponent,
+    PassportViewComponent,
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
@@ -247,6 +251,24 @@ export class CipherViewComponent {
       return false;
     }
     return Array.from(Object.values(cipher.bankAccount)).some((value) => Boolean(value));
+  });
+
+  readonly hasDriversLicense = computed(() => {
+    const cipher = this.cipher();
+
+    if (!cipher) {
+      return false;
+    }
+
+    return Array.from(Object.values(cipher.driversLicense)).some((value) => Boolean(value));
+  });
+
+  readonly hasPassport = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.passport ?? {})).some((value) => Boolean(value));
   });
 
   readonly hasLoginUri = computed(() => {

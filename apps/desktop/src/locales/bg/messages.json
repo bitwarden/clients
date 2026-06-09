@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Банкови данни"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Подробности за паспорта"
+  },
+  "passportAdded": {
+    "message": "Паспортът е добавен"
+  },
+  "typePassportSubtitle": {
+    "message": "Пътен документ"
+  },
   "folderSubtitle": {
     "message": "Организирайте данните си"
   },
   "collectionSubtitle": {
     "message": "Организирайте споделените данни"
+  },
+  "typeDriversLicense": {
+    "message": "Шофьорска книжка"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Шофьорска книжка"
   },
   "chooseItemToAdd": {
     "message": "Изберете елемент за добавяне"
@@ -144,7 +162,7 @@
     "message": "Преглед на банковата сметка",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Преглед на лиценза",
     "description": "Header for view license item type"
   },
@@ -208,7 +226,7 @@
     "message": "Редактиране на банковата сметка",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Редактиране на лиценза",
     "description": "Header for edit license item type"
   },
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "№ на паспорта"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Копиране на пола"
+  },
+  "birthPlace": {
+    "message": "Място на раждане"
+  },
+  "copyBirthPlace": {
+    "message": "Копиране на мястото на раждане"
+  },
+  "nationality": {
+    "message": "Националност"
+  },
+  "copyNationality": {
+    "message": "Копиране на националността"
+  },
+  "copyIssuingCountry": {
+    "message": "Копиране на страната издател"
+  },
+  "passportType": {
+    "message": "Вид на паспорта"
+  },
+  "copyPassportType": {
+    "message": "Копиране на вида на паспорта"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Копиране на националния идентификационен номер"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национален идентификационен номер"
+  },
+  "copyIssuingAuthority": {
+    "message": "Копиране на институцията/офиса издател"
   },
   "licenseNumber": {
     "message": "№ на лиценза"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Няма елементи за показване."
   },
+  "noValueEntered": {
+    "message": "Няма въведена стойност",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Изпращане на код за потвърждаване до Вашата ел. поща"
   },
@@ -1755,6 +1813,10 @@
     "message": "Копиране на но̀мера",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Копиране на името",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Копиране на е-пощата"
   },
@@ -1893,6 +1955,31 @@
   },
   "selectAll": {
     "message": "Избиране на всичко"
+  },
+  "selected": {
+    "message": "Избрано"
+  },
+  "bulkActionsBar": {
+    "message": "Групови действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Избрани елементи $COUNT$. Лентата за групови действия е достъпна в дъното на екрана. Натиснете $SHORTCUTBINDING$, за да превключите фокуса към нея.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Изборът е изчистен"
+  },
+  "additionalActions": {
+    "message": "Допълнителни действия"
   },
   "zoomIn": {
     "message": "Увеличаване"
@@ -2215,6 +2302,12 @@
   "deleteAccountWarning": {
     "message": "Изтриването на регистрацията е окончателно и необратимо."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Вие сте собственик на поне една организация. Ако изтриете акаунта си, ще изтриете и всички организации, на които сте единствен собственик."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Не можете да изтриете акаунта си, докато сте собственик на организация. Първо прехвърлете собствеността или изтрийте организацията."
+  },
   "cannotDeleteAccount": {
     "message": "Регистрацията не може да бъде изтрита"
   },
@@ -2525,15 +2618,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за магазина на Windows."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за Линукс."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Потвърждаване на интеграцията с браузър"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Допълнително ниво на сигурност, чрез изискване на потвърждаване на биометричните данни при създаване на връзка между самостоятелното приложение и браузъра. При включваното му потребителят трябва да потвърждава всяко установяване на връзка."
-  },
   "enableHardwareAcceleration": {
     "message": "Използване на хардуерно ускорение"
   },
@@ -2542,12 +2626,6 @@
   },
   "approve": {
     "message": "Одобряване"
-  },
-  "verifyBrowserTitle": {
-    "message": "Проверка на връзката с браузъра"
-  },
-  "verifyBrowserDesc": {
-    "message": "Уверете се, че идентификаторът в разширението съвпада с показания."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ иска де се свърже с Битуорден",
@@ -4120,6 +4198,22 @@
   "troubleshooting": {
     "message": "Отстраняване на проблеми"
   },
+  "downloadDiagnosticReport": {
+    "message": "Сваляне на доклада от диагностиката"
+  },
+  "experiencingAnIssue": {
+    "message": "Имате проблем?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Свалете и после споделете доклада от диагностиката чрез"
+  },
+  "bitwardenSupport": {
+    "message": "поддръжката на Битуорден",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Сваляне"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Изключете хардуерното ускорение и рестартирайте"
   },
@@ -4652,6 +4746,10 @@
   "invalidShortcut": {
     "message": "Неправилна комбинация"
   },
+  "breadcrumbs": {
+    "message": "Пътечка",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -5012,6 +5110,27 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "more": {
+    "message": "Още"
+  },
+  "enterMonth": {
+    "message": "Въведете месец."
+  },
+  "enterDay": {
+    "message": "Въведете ден."
+  },
+  "enterYear": {
+    "message": "Въведете година."
+  },
+  "invalidDay": {
+    "message": "Въведете правилен ден."
+  },
+  "invalidYear": {
+    "message": "Въведете правилна година."
+  },
+  "searchDriversLicense": {
+    "message": "Търсене на лицензи"
+  },
   "bankAccount": {
     "message": "Банкова сметка"
   },
@@ -5052,6 +5171,9 @@
   "searchBankAccount": {
     "message": "Търсене на банкова сметка"
   },
+  "searchPassport": {
+    "message": "Търсене в паспортите"
+  },
   "copyAccountNumber": {
     "message": "Копиране на номера на сметката"
   },
@@ -5063,6 +5185,30 @@
   },
   "copyIban": {
     "message": "Копиране на IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Копиране на името на титуляра"
+  },
+  "copyBranchNumber": {
+    "message": "Копиране на номера на клона"
+  },
+  "copySwiftCode": {
+    "message": "Копиране на кода SWIFT"
+  },
+  "copyFirstName": {
+    "message": "Копиране на първото име"
+  },
+  "copyMiddleName": {
+    "message": "Копиране на средното име"
+  },
+  "copyLastName": {
+    "message": "Копиране на последното име"
+  },
+  "copyLicenseNumber": {
+    "message": "Копиране на номера на свидетелството"
+  },
+  "copyPassportNumber": {
+    "message": "Копиране на номера на паспорта"
   },
   "bankAccountTypeChecking": {
     "message": "Разплащателна"
@@ -5131,7 +5277,7 @@
     "message": "Странична навигация"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Връзка за пропускане"
   },
   "callout": {
     "message": "Известие",
@@ -5140,5 +5286,50 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
+  },
+  "driversLicenseDetails": {
+    "message": "Подробности за лиценза"
+  },
+  "dateOfBirth": {
+    "message": "Дата на раждане"
+  },
+  "birthMonth": {
+    "message": "Месец на раждане"
+  },
+  "birthDay": {
+    "message": "Ден на раждане"
+  },
+  "birthYear": {
+    "message": "Година на раждане"
+  },
+  "issuingCountry": {
+    "message": "Страна издател"
+  },
+  "issuingState": {
+    "message": "Щат/провинция издател"
+  },
+  "issueDate": {
+    "message": "Дата на издаване"
+  },
+  "issueMonth": {
+    "message": "Месец на издаване"
+  },
+  "issueDay": {
+    "message": "Ден на издаване"
+  },
+  "issueYear": {
+    "message": "Година на издаване"
+  },
+  "expirationDay": {
+    "message": "Ден на изтичане"
+  },
+  "issuingAuthority": {
+    "message": "Институция издател"
+  },
+  "licenseClass": {
+    "message": "Клас на лиценза"
   }
 }

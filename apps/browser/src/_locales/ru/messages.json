@@ -167,8 +167,20 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
+  "copyFirstName": {
+    "message": "Скопировать имя"
+  },
+  "copyMiddleName": {
+    "message": "Скопировать отчество"
+  },
+  "copyLastName": {
+    "message": "Скопировать фамилию"
+  },
   "copyLicenseNumber": {
-    "message": "Скопировать номер лицензии"
+    "message": "Скопировать номер водительского удостоверения"
   },
   "copyPrivateKey": {
     "message": "Скопировать приватный ключ"
@@ -707,6 +719,22 @@
   },
   "rateExtension": {
     "message": "Оценить расширение"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "experiencingAnIssue": {
+    "message": "Испытываете проблемы?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Скачайте, а затем поделитесь диагностическим отчетом с"
+  },
+  "bitwardenSupport": {
+    "message": "поддержкой Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Скачать"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
@@ -1800,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
   },
+  "loginNeverMatchTitle": {
+    "message": "Логин не совпадает"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Этот сайт не соответствует вашим сохраненным логинам. Перед автозаполнением убедитесь, что вы находитесь на надежном сайте."
+  },
+  "uriMatchRule": {
+    "message": "Правило сопоставления URI"
+  },
+  "neverMatch": {
+    "message": "Никогда не сопоставлять"
+  },
   "loginHasNoSiteSaved": {
     "message": "Для логина не сохранен сайт"
   },
@@ -1976,11 +2016,32 @@
   "brand": {
     "message": "Тип карты"
   },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
   "expirationMonth": {
     "message": "Месяц"
   },
   "expirationYear": {
     "message": "Год"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
   },
   "monthly": {
     "message": "месяц"
@@ -2075,8 +2136,53 @@
   "passportNumber": {
     "message": "Номер паспорта"
   },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
   "licenseNumber": {
-    "message": "ИНН"
+    "message": "Номер водительского удостоверения"
   },
   "email": {
     "message": "Email"
@@ -2135,6 +2241,9 @@
   "bankAccount": {
     "message": "Банковский счет"
   },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
+  },
   "typeNote": {
     "message": "Заметка"
   },
@@ -2165,6 +2274,33 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
+  },
+  "typeDriversLicense": {
+    "message": "Водительское удостоверение"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Водительское удостоверение или ID"
+  },
+  "driversLicenseDetails": {
+    "message": "Детали водительского удостоверения"
+  },
+  "issuingState": {
+    "message": "Республика / область выдачи"
+  },
+  "licenseClass": {
+    "message": "Категории водительского удостоверения"
+  },
   "newItemHeaderLogin": {
     "message": "Новый логин",
     "description": "Header for new login item type"
@@ -2190,7 +2326,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Новая лицензия",
+    "message": "Новое водительское удостоверение",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -2229,8 +2365,8 @@
     "message": "Изменить банковский счет",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Изменить лицензию",
+  "editItemHeaderLicense": {
+    "message": "Изменить водительское удостоверение",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2405,8 @@
     "message": "Просмотреть банковский счет",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Просмотреть лицензию",
+  "viewItemHeaderLicense": {
+    "message": "Просмотреть водительское удостоверение",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -2334,6 +2470,31 @@
   "clear": {
     "message": "Очистить",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Выбрано"
+  },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
   },
   "checkPassword": {
     "message": "Проверьте, не скомпрометирован ли пароль."
@@ -2823,18 +2984,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Не удалось выполнить биометрическую идентификацию, попробуйте использовать мастер-пароль или выполнить выход. Если ситуация не изменится, обратитесь в службу поддержки Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Разрешение не представлено"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Без разрешения на взаимодействие с Bitwarden для компьютера биометрия в расширении браузера работать не сможет. Попробуйте еще раз."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Ошибка при запросе разрешения"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Это действие невозможно выполнить в боковой панели. Попробуйте снова в всплывающем или отдельном окне."
   },
   "personalOwnershipSubmitError": {
     "message": "В соответствии с корпоративной политикой вам запрещено сохранять элементы в личном хранилище. Измените владельца на организацию и выберите из доступных Коллекций."
@@ -4297,12 +4446,6 @@
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Не удалось заполнить"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По умолчанию установлено значение 'Точное соответствие'. Текущий сайт не полностью соответствует сохраненным для этого элемента логинам."
-  },
   "okay": {
     "message": "OK"
   },
@@ -4987,6 +5130,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Нет значений для копирования"
@@ -6087,6 +6234,10 @@
   "next": {
     "message": "Далее"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6350,6 +6501,24 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "enterMonth": {
+    "message": "Введите месяц."
+  },
+  "enterDay": {
+    "message": "Введите день."
+  },
+  "enterYear": {
+    "message": "Введите год."
+  },
+  "invalidDay": {
+    "message": "Введите правильный день."
+  },
+  "invalidYear": {
+    "message": "Введите правильный год."
+  },
+  "searchDriversLicense": {
+    "message": "Поиск водительских удостоверений"
+  },
   "bankName": {
     "message": "Название банка"
   },
@@ -6387,6 +6556,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -6398,6 +6570,15 @@
   },
   "copyIban": {
     "message": "Скопировать IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -6420,14 +6601,11 @@
   "bankAccountTypeOther": {
     "message": "Прочее"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Надежно храните свои банковские реквизиты"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Сохраните данные своего банковского счета, чтобы иметь к ним удобный и безопасный доступ со всех своих устройств."
-  },
   "downloadFailed": {
     "message": "Не удалось загрузить."
+  },
+  "more": {
+    "message": "Еще"
   },
   "maxAccessCount": {
     "message": "Максимум обращений",
@@ -6472,5 +6650,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   }
 }

@@ -45,6 +45,7 @@ describe("EmergencyViewDialogComponent", () => {
     login: { uris: [] } as Partial<LoginView>,
     card: {},
     bankAccount: {},
+    driversLicense: {},
   } as Partial<CipherView> as CipherView;
 
   const accountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
@@ -185,6 +186,14 @@ describe("EmergencyViewDialogComponent", () => {
       component["updateTitle"]();
 
       expect(component["title"]).toBe("viewItemHeaderBankAccount");
+    });
+
+    it("sets drivers license title", () => {
+      mockCipher.type = CipherType.DriversLicense;
+
+      component["updateTitle"]();
+
+      expect(component["title"]).toBe("viewItemHeaderLicense");
     });
   });
 });
