@@ -79,6 +79,7 @@ where
                 };
                 info!(
                     public_key = %sign_request.public_key,
+                    is_forwarding = %sign_request.is_forwarding,
                     "Requesting sign approval."
                 );
 
@@ -131,6 +132,7 @@ mod tests {
             is_forwarding,
             namespace,
             flags: None,
+            host_fingerprint: None,
         })
     }
 
