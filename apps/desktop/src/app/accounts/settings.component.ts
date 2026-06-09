@@ -151,7 +151,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableCloseToTray: false,
     openAtLogin: false,
     alwaysShowDock: false,
-    enableBrowserIntegration: false,
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
@@ -308,9 +307,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
-      enableBrowserIntegration: await firstValueFrom(
-        this.desktopSettingsService.browserIntegrationEnabled$,
-      ),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -617,44 +613,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
   }
 
-  async saveBrowserIntegration() {
-    const skipSupportedPlatformCheck =
-      ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
-
-    if (!skipSupportedPlatformCheck) {
-      if (ipc.platform.isWindowsStore) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationWindowsStoreDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
-    }
-
-    await this.desktopSettingsService.setBrowserIntegrationEnabled(
-      this.form.value.enableBrowserIntegration,
-    );
-
-    const errorResult = await this.nativeMessagingManifestService.generate(
-      this.form.value.enableBrowserIntegration,
-    );
-    if (errorResult !== null) {
-      this.logService.error("Error in browser integration: " + errorResult);
-      await this.dialogService.openSimpleDialog({
-        title: { key: "browserIntegrationErrorTitle" },
-        content: { key: "browserIntegrationErrorDesc" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "danger",
-      });
-    }
-  }
-
   async saveDdgBrowserIntegration() {
     await this.desktopAutofillSettingsService.setEnableDuckDuckGoBrowserIntegration(
       this.form.value.enableDuckDuckGoBrowserIntegration,
@@ -664,10 +622,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.stateService.setEnableDuckDuckGoBrowserIntegration(
       this.form.value.enableDuckDuckGoBrowserIntegration,
     );
-
-    if (!this.form.value.enableBrowserIntegration) {
-      await this.stateService.setDuckDuckGoSharedKey(null);
-    }
 
     const errorResult = await this.nativeMessagingManifestService.generateDuckDuckGo(
       this.form.value.enableDuckDuckGoBrowserIntegration,

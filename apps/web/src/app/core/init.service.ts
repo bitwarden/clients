@@ -8,8 +8,11 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -44,6 +47,8 @@ export class InitService {
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
+    private configService: ConfigService,
+    private sharedUnlockFollowerService: SharedUnlockFollowerService,
   ) {}
 
   init() {
@@ -70,7 +75,10 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      void this.ipcService.init();
+      await this.ipcService.init();
+      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
+        await this.sharedUnlockFollowerService.start();
+      }
       this.taskService.listenForTaskNotifications();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
