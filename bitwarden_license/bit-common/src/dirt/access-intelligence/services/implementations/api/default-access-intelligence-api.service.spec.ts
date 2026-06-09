@@ -515,13 +515,17 @@ describe("DefaultAccessIntelligenceApiService", () => {
         organizationId: orgId,
         creationDate: "2024-01-01T00:00:00Z",
         summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        reportMetrics: mockMetrics,
+        contentEncryptionKey: "encryption-key",
       };
       mockApiService.send.mockResolvedValue(rawResponse);
 
       const request: AccessReportSettingsUpdateRequest = {
         summaryData: "encrypted-summary",
         applicationData: "encrypted-apps",
-        metrics: mockMetrics,
+        reportMetrics: mockMetrics,
+        contentEncryptionKey: "encryption-key",
       };
 
       const result = await firstValueFrom(service.updateReportSettings$(orgId, reportId, request));

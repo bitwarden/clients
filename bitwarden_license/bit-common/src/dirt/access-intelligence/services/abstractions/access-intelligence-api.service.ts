@@ -28,7 +28,8 @@ export interface AccessReportLegacyCreateRequest {
 export interface AccessReportSettingsUpdateRequest {
   summaryData: string;
   applicationData: string;
-  metrics: AccessReportMetricsApi;
+  reportMetrics: AccessReportMetricsApi;
+  contentEncryptionKey: string;
 }
 
 /**
