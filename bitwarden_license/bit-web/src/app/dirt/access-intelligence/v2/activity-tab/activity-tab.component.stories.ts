@@ -1,7 +1,6 @@
 import { provideLocationMocks } from "@angular/common/testing";
 import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
-import { BehaviorSubject, of } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -13,82 +12,25 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { TimePeriod } from "../../activity/period-selector/period-selector.types";
-import {
-  TrendWidgetData,
-  TrendWidgetViewType,
-} from "../../activity/trend-widget/trend-widget.component";
-import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 import {
+  buildTrendChartProviders,
+  createAccessIntelligenceI18nMock,
   MockAccessIntelligenceDataService,
   MockDialogService,
   MockDrawerStateService,
   MockSecurityTasksService,
   MockToastService,
-  createAccessIntelligenceI18nMock,
+  populatedTrendData,
 } from "../testing";
 
 import { ActivityTabComponent } from "./activity-tab.component";
 
 const orgId = "org-123" as OrganizationId;
-
-const emptyTrendData: TrendWidgetData = {
-  timeframe: TimePeriod.PastMonth,
-  dataView: TrendWidgetViewType.Applications,
-  dataPoints: [],
-};
-
-const populatedTrendData: TrendWidgetData = {
-  timeframe: TimePeriod.PastMonth,
-  dataView: TrendWidgetViewType.Applications,
-  dataPoints: [
-    { timestamp: "2026-05-01", atRisk: 3, total: 12 },
-    { timestamp: "2026-05-08", atRisk: 4, total: 14 },
-    { timestamp: "2026-05-15", atRisk: 2, total: 15 },
-    { timestamp: "2026-05-22", atRisk: 5, total: 17 },
-    { timestamp: "2026-05-29", atRisk: 3, total: 18 },
-  ],
-};
-
-type TrendMockOptions = {
-  flagEnabled?: boolean;
-  data?: TrendWidgetData;
-  loading?: boolean;
-  error?: string | null;
-};
-
-function buildTrendChartProviders({
-  flagEnabled = false,
-  data = emptyTrendData,
-  loading = false,
-  error = null,
-}: TrendMockOptions = {}) {
-  return [
-    {
-      provide: ConfigService,
-      useValue: {
-        getFeatureFlag$: () => of(flagEnabled),
-      },
-    },
-    {
-      provide: RiskOverTimeService,
-      useValue: {
-        riskOverTimeData$: new BehaviorSubject<TrendWidgetData>(data),
-        isLoading$: new BehaviorSubject<boolean>(loading),
-        error$: new BehaviorSubject<string | null>(error),
-        initialize: () => {},
-        setTimeframe: () => {},
-        setDataView: () => {},
-      },
-    },
-  ];
-}
 
 export default {
   title: "DIRT/Access Intelligence/Activity Tab",

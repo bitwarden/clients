@@ -4,12 +4,17 @@ import { action } from "storybook/actions";
 
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { TaskMetrics } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTask } from "@bitwarden/common/vault/tasks";
 import { I18nMockService } from "@bitwarden/components";
 
+import { TrendWidgetData } from "../../activity/trend-widget/trend-widget.component";
+import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+
+import { emptyTrendData } from "./story-fixtures";
 
 /**
  * Creates an I18nMockService pre-loaded with all keys used across Access Intelligence storybooks.
@@ -253,4 +258,42 @@ export class MockConfigService {
     action("ConfigService.getFeatureFlag$")(flag);
     return of(true);
   };
+}
+
+export type TrendMockOptions = {
+  flagEnabled?: boolean;
+  data?: TrendWidgetData;
+  loading?: boolean;
+  error?: string | null;
+};
+
+/**
+ * Builds the ConfigService + RiskOverTimeService providers that drive the
+ * activity-tab trend chart in Storybook stories.
+ */
+export function buildTrendChartProviders({
+  flagEnabled = false,
+  data = emptyTrendData,
+  loading = false,
+  error = null,
+}: TrendMockOptions = {}) {
+  return [
+    {
+      provide: ConfigService,
+      useValue: {
+        getFeatureFlag$: () => of(flagEnabled),
+      },
+    },
+    {
+      provide: RiskOverTimeService,
+      useValue: {
+        riskOverTimeData$: new BehaviorSubject<TrendWidgetData>(data),
+        isLoading$: new BehaviorSubject<boolean>(loading),
+        error$: new BehaviorSubject<string | null>(error),
+        initialize: () => {},
+        setTimeframe: () => {},
+        setDataView: () => {},
+      },
+    },
+  ];
 }

@@ -29,6 +29,7 @@ import {
   TrendWidgetViewType,
 } from "../../activity/trend-widget/trend-widget.component";
 import { RiskOverTimeService } from "../../services/risk-over-time.service";
+import { emptyTrendData } from "../testing/story-fixtures";
 
 import { ActivityTabComponent } from "./activity-tab.component";
 import {
@@ -54,12 +55,6 @@ type MockRiskOverTimeService = {
   initialize: jest.Mock;
   setTimeframe: jest.Mock;
   setDataView: jest.Mock;
-};
-
-const emptyTrendData: TrendWidgetData = {
-  timeframe: TimePeriod.PastMonth,
-  dataView: TrendWidgetViewType.Applications,
-  dataPoints: [],
 };
 
 describe("ActivityTabComponent", () => {
