@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Възникна грешка при създаването на доклада. Опитайте отново."
   },
+  "reportLoadFailed": {
+    "message": "Възникна грешка при зареждането на доклада. Опитайте да презаредите страницата или създайте нов доклад."
+  },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Банкова сметка"
+  },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
   },
   "amountX": {
     "message": "Сума $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Празен отговор на заявката за детайли относно смяната на паролата"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Новата парола е задължителна"
   },
   "trashCleanupWarning": {
     "message": "Записите, които са били в кошчето за повече от 30 дни, ще бъдат изтривани автоматично."
@@ -13146,7 +13155,7 @@
     "message": "Нужно е действие: в данните за разплащането липсва данъчен идентификатор. Ако такъв не бъде добавен, фактурите може да включват допълнителен данък."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Пътечка",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
   },
-  "coachmarkStepIndicator": {
-    "message": "Стъпка $CURRENT$ от $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ от $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

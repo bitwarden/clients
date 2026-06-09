@@ -80,11 +80,12 @@
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         [attr.aria-label]="'revokeAccountMessage' | i18n"
                         (click)="removeSponsorship(sponsoredFamily)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-close tw-text-danger"></i>
-                        <span class="tw-text-danger tw-pl-1">{{ "remove" | i18n }}</span>
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
                       </button>
                     </bit-menu>
                   </td>

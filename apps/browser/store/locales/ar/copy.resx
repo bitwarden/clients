@@ -118,58 +118,56 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>مدير كلمات المرور Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم بتواردن بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
+    <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم Bitwarden بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>حائز على جائزة أفضل مدير كلمات مرور من PCMag وWIRED وThe Verge وCNET وG2 وغيرها!
+أمّن حياتك الرقمية
+أمّن حياتك الرقمية واحمِ نفسك من خروقات البيانات عن طريق توليد وحفظ كلمات مرور فريدة وقوية لكل حساب. احتفظ بكل شيء في خزنة كلمات مرور مشفرة من طرف إلى طرف لا يمكن لأحد الوصول إليها سواك.
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+الوصول إلى بياناتك، في أي مكان، وزمان، وعلى أي جهاز
+يمكنك بسهولة إدارة، تخزين، تأمين، ومشاركة كلمات مرور غير محدودة عبر أجهزة غير محدودة دون أي قيود.
+ 
+الجميع يستحق أدوات الأمان على الإنترنت
+استخدم Bitwarden مجاناً دون إعلانات أو بيع للبيانات. يؤمن Bitwarden بأن الجميع يستحق البقاء آمناً على الإنترنت. تتيح الخطط المدفوعة الوصول إلى ميزات متقدمة.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+عزّز قدرات فرقك مع Bitwarden
+تأتي خطط الفرق والمؤسسات ميزات احترافية مخصصة للأعمال. منها مثلا تكامل تسجيل الدخول الأحادي (SSO)، الاستضافة الذاتية، تكامل الدلائل وتوفير الخدمات عبر SCIM، السياسات العامة،  والوصول إلى واجهة برمجة التطبيقات (API)، وسجلات الأحداث، وغير ذلك الكثير.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
-
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
-
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+استخدم Bitwarden لتأمين موظفيك ومشاركة المعلومات الحساسة مع زملائك.
 
 
-More reasons to choose Bitwarden:
+أسباب إضافية لاختيار Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+تشفير عالمي المستوى
+كلمات المرور محمية بتشفير متقدم من طرف إلى طرف (AES-256 بت، والتجزئة المملّحة، وPBKDF2 SHA-256) لتبقى بياناتك آمنة وخاصة.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+عمليات التدقيق من قبل جهات خارجية
+تجري Bitwarden بانتظام عمليات تدقيق أمنية شاملة من قبل جهات خارجية بالتعاون مع شركات أمنية مرموقة. وتشمل هذه العمليات السنوية تقييمات لشفرات المصدر واختبارات الاختراق التي تشمل عناوين IP وخوادم وتطبيقات الويب الخاصة بـ Bitwarden.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+تحقق بخطوتين 2FA متقدم 
+أمّن تسجيل دخولك باستخدام تطبيق مصادقة خارجي، أو رموز عبر البريد الإلكتروني، أو بيانات FIDO2 WebAuthn كمفتاح أمان مادي أو مفتاح مرور.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+أرسل البيانات مباشرة إلى الآخرين مع الحفاظ على التشفير من طرف إلى طرف وتقليل التعرض للخطر.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+مولّد مدمج
+أنشئ كلمات مرور طويلة ومعقدة وفريدة وأسماء مستخدمين فريدة لكل موقع تزوره. تكامل مع مزودي الأسماء المستعارة للبريد الإلكتروني لحماية أكبر.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+ترجمات عالمية
+يتوفر Bitwarden بأكثر من 60 لغة، بفضل مجتمع المترجمين العالمي عبر Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+تطبيقات متعددة المنصات
+أمّن وشارك البيانات الحساسة من خزنة Bitwarden عبر أي متصBitwardenفح أو جهاز محمول أو نظام تشغيل سطح مكتب وأكثر.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden يحمي أكثر من مجرد كلمات المرور
+تمكّن حلول إدارة بيانات الاعتماد المشفرة من طرف إلى طرف من Bitwarden المؤسسات من تأمين كل شيء، بما في ذلك أسرار المطورين وتجارب مفاتيح المرور. قم بزيارة Bitwarden.com لمعرفة المزيد عن Bitwarden Secrets Manager وBitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم بتواردن بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
+    <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم Bitwarden بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>مزامنة خزانتك والوصول إليها من عدة أجهزة</value>
@@ -181,12 +179,12 @@ End-to-end encrypted credential management solutions from Bitwarden empower orga
     <value>قم بملء بيانات تسجيل الدخول تلقائياً وبسرعة في أي موقع تزوره</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>يمكنك الوصول الى خزانتك بسهولة من قائمة النقر بالزر الأيمن</value>
+    <value>يمكنك الوصول إلى خزانتك بسهولة من قائمة النقر بالزر الأيمن</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>إنشاء كلمات مرور قوية، وعشوائية، وآمنة، تلقائيًا</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>تتم إدارة معلوماتك بشكل آمن باستخدام تشفير AES-256 bit</value>
+    <value>تتم إدارة معلوماتك بشكل آمن باستخدام تشفير AES-256 بت</value>
   </data>
 </root>

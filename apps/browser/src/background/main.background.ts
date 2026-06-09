@@ -111,6 +111,7 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
@@ -136,6 +137,14 @@ import { PinService } from "@bitwarden/common/key-management/pin/pin.service.imp
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  SharedUnlockLeaderService,
+  SharedUnlockFollowerService,
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
+import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
 import {
   DefaultVaultTimeoutSettingsService,
   VaultTimeoutSettingsService,
@@ -307,6 +316,7 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -536,6 +546,10 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
+  sharedUnlockLeaderService: SharedUnlockLeaderService;
+  sharedUnlockFollowerService: SharedUnlockFollowerService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
+  unlockService: UnlockService;
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
@@ -1682,6 +1696,45 @@ export default class MainBackground {
       this.accountService,
     );
 
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      pinStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.stateProvider,
+      this.logService,
+      this.biometricsService,
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
+    );
+
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
+    this.sharedUnlockLeaderService = new DefaultSharedUnlockLeaderService(
+      this.ipcService,
+      this.accountService,
+      this.lockService,
+      this.keyService,
+      this.platformUtilsService,
+      this.vaultTimeoutSettingsService,
+      this.environmentService,
+      this.sharedUnlockSettingsService,
+      this.unlockService,
+    );
+    this.sharedUnlockFollowerService = new DefaultSharedUnlockFollowerService(
+      this.ipcService,
+      this.accountService,
+      this.lockService,
+      this.keyService,
+      this.platformUtilsService,
+      this.vaultTimeoutSettingsService,
+      this.environmentService,
+      this.sharedUnlockSettingsService,
+      this.unlockService,
+    );
+
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
       this.apiService,
@@ -1774,6 +1827,12 @@ export default class MainBackground {
     await this.initOverlayAndTabsBackground();
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
+      await this.sharedUnlockLeaderService.start();
+    }
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
+      await this.sharedUnlockFollowerService.start();
+    }
     this.badgeService.startListening();
 
     return new Promise<void>((resolve) => {

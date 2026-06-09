@@ -1823,10 +1823,22 @@
     "message": "Угасити ауто-пуњење"
   },
   "confirmAutofill": {
-    "message": "Потврди аутопуњење"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Овај сајт се не подудара са вашим сачуваним подацима за пријаву. Пре него што унесете своје акредитиве за пријаву, уверите се да је то поуздан сајт."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Белешка"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Ауто-попуњавање при учитавању странице је подешено да користи подразумевано подешавање.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Не може да се ауто-попуни"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Подразумевано подударање је подешено на „Тачно подударање“. Тренутна веб локација не одговара тачно сачуваним детаљима за пријаву за ову ставку."
   },
   "okay": {
     "message": "У реду"
