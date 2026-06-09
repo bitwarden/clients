@@ -124,6 +124,7 @@ describe("DefaultCipherSdkService", () => {
       cipherView.type = CipherType.Login;
       cipherView.name = "Test Cipher";
       cipherView.organizationId = orgId;
+      cipherView.archivedDate = new Date("2024-01-01T12:00:00.000Z");
 
       const mockSdkCipherView = cipherView.toSdkCipherView();
       mockCiphersSdk.create.mockResolvedValue(mockSdkCipherView);
@@ -136,6 +137,7 @@ describe("DefaultCipherSdkService", () => {
         expect.objectContaining({
           name: cipherView.name,
           organizationId: expect.anything(),
+          archivedDate: undefined,
         }),
       );
       expect(result).toBeInstanceOf(CipherView);
