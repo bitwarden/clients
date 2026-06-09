@@ -8,43 +8,54 @@
 </app-header>
 
 <div *ngIf="!loading && view$ | async as view; else spinner">
-  <app-onboarding [title]="'getStarted' | i18n" *ngIf="showOnboarding" (dismiss)="hideOnboarding()">
+  <app-onboarding
+    *ngIf="showOnboarding"
+    [title]="'getStartedWithSecretsManager' | i18n"
+    [subtitle]="'smOnboardingChecklistSubtitle' | i18n"
+    startIcon="bwi-cli"
+    (dismiss)="hideOnboarding()"
+  >
     <app-onboarding-task
       [title]="'createMachineAccount' | i18n"
-      (click)="openServiceAccountDialog()"
-      icon="bwi-cli"
+      [ctaText]="'smOnboardingCreateMachineAccountCta' | i18n"
+      ctaIcon="bwi-cli"
+      (ctaClick)="openServiceAccountDialog()"
       [completed]="view.tasks.createServiceAccount"
     >
-      <span class="tw-pl-1">
-        {{ "downloadThe" | i18n }}
-        <a
-          bitLink
-          href="https://bitwarden.com/help/secrets-manager-cli/"
-          target="_blank"
-          rel="noreferrer"
-          >{{ "smCLI" | i18n }}</a
-        >
-      </span>
+      {{ "downloadThe" | i18n }}
+      <a
+        bitLink
+        href="https://bitwarden.com/help/secrets-manager-cli/"
+        target="_blank"
+        rel="noreferrer"
+        >{{ "smCLI" | i18n }}</a
+      >
     </app-onboarding-task>
     <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'createProject' | i18n"
-      (click)="openNewProjectDialog()"
-      icon="bwi-collection"
+      [subtitle]="'smOnboardingCreateProjectSubtitle' | i18n"
+      [ctaText]="'smOnboardingCreateProjectCta' | i18n"
+      ctaIcon="bwi-collection"
+      (ctaClick)="openNewProjectDialog()"
       [completed]="view.tasks.createProject"
     ></app-onboarding-task>
     <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'importSecrets' | i18n"
+      [subtitle]="'smOnboardingImportSecretsSubtitle' | i18n"
+      [ctaText]="'importSecrets' | i18n"
+      ctaIcon="bwi-download"
       [route]="['settings', 'import']"
-      icon="bwi-import"
       [completed]="view.tasks.importSecrets"
     ></app-onboarding-task>
     <app-onboarding-task
       *ngIf="view.tasks.createProject"
       [title]="'createSecret' | i18n"
-      (click)="openSecretDialog()"
-      icon="bwi-key"
+      [subtitle]="'smOnboardingCreateSecretSubtitle' | i18n"
+      [ctaText]="'smOnboardingCreateSecretCta' | i18n"
+      ctaIcon="bwi-key"
+      (ctaClick)="openSecretDialog()"
       [completed]="view.tasks.createSecret"
     ></app-onboarding-task>
   </app-onboarding>
