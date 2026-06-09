@@ -509,6 +509,35 @@ export class BrowserApi {
   }
 
   /**
+   * Returns true if the toolbar popup or any popout window is currently open.
+   *
+   * Used to gate `chrome.runtime.reload()` so it doesn't fire while a popout is mid-teardown.
+   * Popouts are classified as `TAB` contexts (not `POPUP`) by `chrome.runtime.getContexts`,
+   * so they're identified by `uilocation=popout` in their documentUrl.
+   */
+  static async isAnyPopupOrPopoutOpen(): Promise<boolean> {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some(
+        (context) =>
+          context.contextType === "POPUP" ||
+          (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")),
+      );
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+    return BrowserApi.getExtensionViews({ type: "tab" }).some((v) =>
+      v.location.href.includes("uilocation=popout"),
+    );
+  }
+
+  /**
    * Returns true if any extension view is currently active/focused.
    *
    * - Main popup: always considered focused (auto-closes on blur).
