@@ -11,6 +11,7 @@ import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/p
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -22,6 +23,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../../../autofill/services/targeting-rules-data.service";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -80,6 +82,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
     private nudgeService: NudgesService,
     private accountService: AccountService,
     private cipherArchiveService: CipherArchiveService,
+    private messagingService: MessagingService,
   ) {}
 
   async ngOnInit() {
@@ -104,6 +107,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
       const success = await this.syncService.fullSync(true);
       if (success) {
         await this.setLastSync();
+        this.messagingService.send(FORCE_TARGETING_RULES_UPDATE_COMMAND);
         toastConfig = {
           variant: "success",
           title: "",

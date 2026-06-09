@@ -10,6 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -89,6 +90,7 @@ describe("VaultSettingsComponent", () => {
           { path: "premium", component: VaultSettingsComponent },
         ]),
         { provide: SyncService, useValue: mock<SyncService>() },
+        { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
