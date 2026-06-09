@@ -180,24 +180,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    let paramEmailIsSet = false;
+    const { paramEmailIsSet, shouldAutoSubmit } = await this.initializeFromQueryParams();
 
-    const params = await firstValueFrom(this.activatedRoute.queryParams);
-
-    if (params) {
-      const qParamsEmail = params.email;
-
-      // If there is an email in the query params, set that email as the form field value
-      if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(qParamsEmail);
-        paramEmailIsSet = true;
-      }
-
-      // Delegate any query-param-driven UI to the client-specific service.
-      this.loginComponentService.showLoginQueryParamMessages?.(params);
-    }
-
-    // If there are no params or no email in the query params, loadEmailSettings from state
     if (!paramEmailIsSet) {
       await this.loadRememberedEmail();
     }
@@ -207,17 +191,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.getKnownDevice(this.emailFormControl.value);
     }
 
-    // Backup check to handle unknown case where activatedRoute is not available
-    // This shouldn't happen under normal circumstances
-    if (!this.activatedRoute) {
-      await this.loadRememberedEmail();
-    }
-
     // Auto-progress past email entry when a server redirect requested it (e.g. the SSO
-    // callback's invited-user redirect). Only fires when an email was actually pre-filled
-    // from the query param — `continue()` validates internally and stays on EMAIL_ENTRY
-    // if the email is invalid.
-    if (paramEmailIsSet && params?.autoSubmit === "true") {
+    // callback's invited-user redirect). `continue()` validates internally and stays on
+    // EMAIL_ENTRY if the email is invalid.
+    if (shouldAutoSubmit) {
       await this.continue();
     }
 
@@ -243,6 +220,36 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.prefetchPasswordPreloginData();
         }
       });
+  }
+
+  /**
+   * Reads `/login` query params and applies any that drive form/UI state:
+   * pre-fills the email, delegates client-specific UI (toasts) to the
+   * client-specific service. Returns flags the caller uses to decide
+   * fallback behavior and auto-progression.
+   */
+  private async initializeFromQueryParams(): Promise<{
+    paramEmailIsSet: boolean;
+    shouldAutoSubmit: boolean;
+  }> {
+    const params = await firstValueFrom(this.activatedRoute.queryParams);
+    if (!params) {
+      return { paramEmailIsSet: false, shouldAutoSubmit: false };
+    }
+
+    let paramEmailIsSet = false;
+    const qParamsEmail = params.email;
+    if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
+      this.formGroup.controls.email.setValue(qParamsEmail);
+      paramEmailIsSet = true;
+    }
+
+    this.loginComponentService.showLoginQueryParamMessages?.(params);
+
+    return {
+      paramEmailIsSet,
+      shouldAutoSubmit: paramEmailIsSet && params.autoSubmit === "true",
+    };
   }
 
   private async desktopOnInit(): Promise<void> {
