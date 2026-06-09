@@ -234,6 +234,10 @@ export class AutofillComponent implements OnInit {
       }
     }
 
+    if (this.defaultBrowserAutofillDisabled && this.canOverrideBrowserAutofillSetting) {
+      await this.dismissSpotlight();
+    }
+
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
     );
@@ -418,6 +422,11 @@ export class AutofillComponent implements OnInit {
     );
   }
 
+  async continueFromAutofillNudge() {
+    this.defaultBrowserAutofillDisabled = true;
+    await this.updateDefaultBrowserAutofillDisabled();
+  }
+
   async updateInlineMenuVisibility() {
     if (!this.enableInlineMenu) {
       this.enableInlineMenuOnIconSelect = false;
@@ -533,6 +542,10 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
+    if (this.defaultBrowserAutofillDisabled) {
+      await this.dismissSpotlight();
+    }
+
     if (!privacyPermissionGranted) {
       await this.setPendingDefaultPasswordManagerApply(true);
       const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
@@ -551,10 +564,16 @@ export class AutofillComponent implements OnInit {
       }
     }
 
-    await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
-    this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
-      this.defaultBrowserAutofillDisabled,
-    );
+    const shouldDisableBrowserAutofill = this.defaultBrowserAutofillDisabled;
+
+    try {
+      await BrowserApi.updateDefaultBrowserAutofillSettings(!shouldDisableBrowserAutofill);
+      this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
+        this.defaultBrowserAutofillDisabled,
+      );
+    } catch {
+      this.defaultBrowserAutofillDisabled = !shouldDisableBrowserAutofill;
+    }
   }
 
   private handleOverrideDialogAccept = async () => {
