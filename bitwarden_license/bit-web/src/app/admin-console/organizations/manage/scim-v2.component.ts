@@ -78,6 +78,8 @@ export class ScimV2Component {
 
   protected readonly descriptionId = `scim-description-${nextId++}`;
   protected readonly labelId = `scim-label-${nextId++}`;
+  protected readonly switchId = `scim-switch-${nextId++}`;
+  protected readonly switchInputId = `${this.switchId}-input`;
   private readonly switchRef = viewChild.required(SwitchComponent);
 
   protected readonly enabled = new FormControl(false);

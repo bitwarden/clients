@@ -22,9 +22,14 @@
             </a>
           </p>
         </div>
-        <label>
+        <label [for]="switchInputId">
           <span [id]="labelId" class="tw-sr-only">{{ "scim" | i18n }}</span>
-          <bit-switch [formControl]="enabled" (change)="submit()" class="tw-shrink-0 tw-mt-1">
+          <bit-switch
+            [id]="switchId"
+            [formControl]="enabled"
+            (change)="submit()"
+            class="tw-shrink-0 tw-mt-1"
+          >
           </bit-switch>
         </label>
       </div>
