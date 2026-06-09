@@ -542,10 +542,6 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
-    if (this.defaultBrowserAutofillDisabled) {
-      await this.dismissSpotlight();
-    }
-
     if (!privacyPermissionGranted) {
       await this.setPendingDefaultPasswordManagerApply(true);
       const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
@@ -571,6 +567,10 @@ export class AutofillComponent implements OnInit {
       this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
         this.defaultBrowserAutofillDisabled,
       );
+
+      if (shouldDisableBrowserAutofill) {
+        await this.dismissSpotlight();
+      }
     } catch {
       this.defaultBrowserAutofillDisabled = !shouldDisableBrowserAutofill;
     }
@@ -697,10 +697,6 @@ export class AutofillComponent implements OnInit {
     if (this.canOverrideBrowserAutofillSetting) {
       this.defaultBrowserAutofillDisabled = true;
       await this.updateDefaultBrowserAutofillDisabled();
-      await this.nudgesService.dismissNudge(
-        NudgeType.AutofillNudge,
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
-      );
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }
