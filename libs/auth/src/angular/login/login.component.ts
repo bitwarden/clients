@@ -213,6 +213,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
+    // Auto-progress past email entry when a server redirect requested it (e.g. the SSO
+    // callback's invited-user redirect). Only fires when an email was actually pre-filled
+    // from the query param — `continue()` validates internally and stays on EMAIL_ENTRY
+    // if the email is invalid.
+    if (paramEmailIsSet && params?.autoSubmit === "true") {
+      await this.continue();
+    }
+
     // This SSO required tracking should be initialized after email has had a chance to be pre-filled
     // (if it was found in query params or was the remembered email)
     await this.initSsoRequiredTracking();
