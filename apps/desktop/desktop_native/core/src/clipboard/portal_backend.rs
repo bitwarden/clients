@@ -66,7 +66,6 @@ pub async fn write_clipboard(text: &str, password: bool) -> Result<()> {
 ///
 /// Establishes (or restores) the same clipboard-enabled RemoteDesktop session used by
 /// [`write_clipboard`], reads the current selection as [`MIME_TEXT`], and closes the session.
-/// ```
 pub(crate) async fn read_clipboard() -> Result<String> {
     let remote_desktop = RemoteDesktop::new().await?;
     let clipboard = Clipboard::new().await?;
