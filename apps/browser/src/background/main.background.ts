@@ -1720,6 +1720,7 @@ export default class MainBackground {
       this.platformUtilsService,
       this.stateService,
       this.biometricStateService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
