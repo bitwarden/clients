@@ -62,8 +62,8 @@ export class ScimV2Component {
 
   protected readonly enabled = new FormControl(false);
   protected readonly formData = new FormGroup({
-    endpointUrl: new FormControl({ value: "", disabled: false }),
-    clientSecret: new FormControl({ value: "", disabled: false }),
+    endpointUrl: new FormControl(""),
+    clientSecret: new FormControl(""),
   });
 
   private readonly organizationId: Signal<OrganizationId>;
