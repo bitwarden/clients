@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, inject, Signal, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  Signal,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -16,19 +24,24 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AriaDisableDirective,
+  BaseCardDirective,
   BitActionDirective,
   BitIconButtonComponent,
+  CardComponent,
   DialogService,
   FormFieldModule,
   LinkComponent,
   SpinnerComponent,
   SwitchComponent,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { WebHeaderComponent } from "@bitwarden/web-vault/app/layouts/header/web-header.component";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
+
+let nextId = 0;
 
 @Component({
   selector: "app-org-manage-scim-v2",
@@ -37,6 +50,9 @@ import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
   imports: [
     WebHeaderComponent,
     ReactiveFormsModule,
+    BaseCardDirective,
+    CardComponent,
+    TypographyModule,
     LinkComponent,
     AriaDisableDirective,
     SwitchComponent,
@@ -60,6 +76,10 @@ export class ScimV2Component {
   protected readonly showScimSettings = signal(false);
   protected readonly showScimKey = signal(false);
 
+  protected readonly descriptionId = `scim-description-${nextId++}`;
+  protected readonly labelId = `scim-label-${nextId++}`;
+  private readonly switchRef = viewChild.required(SwitchComponent);
+
   protected readonly enabled = new FormControl(false);
   protected readonly formData = new FormGroup({
     endpointUrl: new FormControl(""),
@@ -77,6 +97,12 @@ export class ScimV2Component {
       if (this.organizationId()) {
         void this.load();
       }
+    });
+
+    effect(() => {
+      this.switchRef().ariaDescribedBy.set(this.descriptionId);
+      this.switchRef().ariaLabelledBy.set(this.labelId);
+      this.switchRef().size.set("large");
     });
   }
 
