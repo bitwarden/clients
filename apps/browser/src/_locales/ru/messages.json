@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
   },
+  "loginNeverMatchTitle": {
+    "message": "Логин не совпадает"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Этот сайт не соответствует вашим сохраненным логинам. Перед автозаполнением убедитесь, что вы находитесь на надежном сайте."
+  },
+  "uriMatchRule": {
+    "message": "Правило сопоставления URI"
+  },
+  "neverMatch": {
+    "message": "Никогда не сопоставлять"
+  },
   "loginHasNoSiteSaved": {
     "message": "Для логина не сохранен сайт"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Банковский счет"
+  },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
   },
   "typeNote": {
     "message": "Заметка"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Не удалось заполнить"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По умолчанию установлено значение 'Точное соответствие'. Текущий сайт не полностью соответствует сохраненным для этого элемента логинам."
   },
   "okay": {
     "message": "OK"
