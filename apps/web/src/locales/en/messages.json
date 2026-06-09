@@ -3626,6 +3626,34 @@
   "subscriptionPendingCanceled": {
     "message": "The subscription has been marked for cancellation at the end of the current billing period."
   },
+  "subscriptionPriceIncreaseMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "January 1, 2025"
+      }
+    },
+    "description": "A message shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "subscriptionPriceIncreaseAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "January 1, 2025"
+      }
+    },
+    "description": "A message shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
   "reinstateSubscription": {
     "message": "Reinstate subscription"
   },

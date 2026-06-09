@@ -48,6 +48,7 @@ export class BillingSubscriptionResponse extends BaseResponse {
   suspensionDate?: string;
   unpaidPeriodEndDate?: string;
   gracePeriod?: number;
+  scheduledSubscription?: ScheduledSubscriptionResponse;
 
   constructor(response: any) {
     super(response);
@@ -67,6 +68,11 @@ export class BillingSubscriptionResponse extends BaseResponse {
     this.suspensionDate = this.getResponseProperty("SuspensionDate");
     this.unpaidPeriodEndDate = this.getResponseProperty("unpaidPeriodEndDate");
     this.gracePeriod = this.getResponseProperty("GracePeriod");
+    const scheduledSubscription = this.getResponseProperty("ScheduledSubscription");
+    this.scheduledSubscription =
+      scheduledSubscription == null
+        ? null
+        : new ScheduledSubscriptionResponse(scheduledSubscription);
   }
 }
 
@@ -100,5 +106,16 @@ export class BillingSubscriptionUpcomingInvoiceResponse extends BaseResponse {
     super(response);
     this.date = this.getResponseProperty("Date");
     this.amount = this.getResponseProperty("Amount");
+  }
+}
+
+export class ScheduledSubscriptionResponse extends BaseResponse {
+  effectiveDate: string;
+  price: number;
+
+  constructor(response: any) {
+    super(response);
+    this.effectiveDate = this.getResponseProperty("EffectiveDate");
+    this.price = this.getResponseProperty("Price");
   }
 }

@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DatePipe, formatCurrency } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
@@ -83,6 +84,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private dialogService: DialogService,
     private toastService: ToastService,
     private organizationUserApiService: OrganizationUserApiService,
+    private datePipe: DatePipe,
   ) {}
 
   async ngOnInit() {
@@ -161,6 +163,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     if (this.showSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+
       this.lineItems = this.sub?.subscription?.items;
 
       if (this.lineItems && this.lineItems.length) {
@@ -213,6 +216,22 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get subscription() {
     return this.sub != null ? this.sub.subscription : null;
+  }
+
+  get priceIncreaseCalloutMessage(): string | null {
+    const scheduledSubscription = this.subscription?.scheduledSubscription;
+    if (this.subscription?.status !== "active" || !scheduledSubscription) {
+      return null;
+    }
+
+    const formattedPrice = formatCurrency(scheduledSubscription.price, this.locale, "$", "USD");
+    const formattedDate = this.datePipe.transform(scheduledSubscription.effectiveDate, "longDate");
+
+    const key = this.sub.plan.isAnnual
+      ? "subscriptionPriceIncreaseAnnually"
+      : "subscriptionPriceIncreaseMonthly";
+
+    return this.i18nService.t(key, formattedPrice, formattedDate);
   }
 
   get subscriptionLineItems() {
