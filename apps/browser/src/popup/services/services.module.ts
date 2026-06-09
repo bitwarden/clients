@@ -94,6 +94,10 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import {
   VaultTimeoutService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -539,6 +543,11 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: PhishingDetectionSettingsServiceAbstraction,
     useClass: PhishingDetectionSettingsService,
     deps: [
@@ -606,6 +615,8 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       BrowserRouterService,
       WebAuthnPrfUnlockService,
+      SharedUnlockSettingsService,
+      ConfigService,
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
@@ -754,7 +765,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
-    deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+    deps: [
+      DialogService,
+      ToastService,
+      PlatformUtilsService,
+      I18nServiceAbstraction,
+      ConfigService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: ChangePasswordService,
