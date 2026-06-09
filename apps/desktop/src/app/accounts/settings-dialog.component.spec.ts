@@ -28,9 +28,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { ClearClipboardDelaySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -922,10 +922,10 @@ describe("SettingsDialogComponent", () => {
     it("saves the new clear clipboard value when changed", async () => {
       await component.ngOnInit();
 
-      component["form"].controls.clearClipboard.setValue(ClearClipboardDelaySetting.ThirtySeconds);
+      component["form"].controls.clearClipboard.setValue(ClearClipboardDelay.ThirtySeconds);
 
       expect(autofillSettingsServiceAbstraction.setClearClipboardDelay).toHaveBeenLastCalledWith(
-        ClearClipboardDelaySetting.ThirtySeconds,
+        ClearClipboardDelay.ThirtySeconds,
       );
     });
   });
