@@ -75,6 +75,7 @@ export class InitService {
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
+      await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
@@ -114,7 +115,6 @@ export class InitService {
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
 
-      await this.ipcService.init();
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
         await this.sharedUnlockLeaderService.start();
       }
