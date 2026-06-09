@@ -43,7 +43,7 @@ export class OrganizationScheduledPriceIncreaseWarningComponent {
         return null;
       }
       const price = this.currencyPipe.transform(warning.seatPrice, "$") ?? `$${warning.seatPrice}`;
-      const date = this.datePipe.transform(warning.effectiveDate, "longDate", "UTC");
+      const date = this.datePipe.transform(warning.effectiveDate, "longDate", "UTC") ?? "";
       return warning.cadence === "annually"
         ? this.i18nService.t("scheduledPriceIncreaseWarningAnnually", price, date)
         : this.i18nService.t("scheduledPriceIncreaseWarningMonthly", price, date);
