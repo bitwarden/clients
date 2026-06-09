@@ -31,10 +31,6 @@ export class CliUtils {
     return CliUtils.readFileBuffer(input).then((data) => data.toString("utf8"));
   }
 
-  static readFileAsBase64(input: string): Promise<string> {
-    return CliUtils.readFileBuffer(input).then((data) => data.toString("base64"));
-  }
-
   static readBinaryFile(input: string): Promise<Uint8Array> {
     return CliUtils.readFileBuffer(input).then((data) => new Uint8Array(data));
   }

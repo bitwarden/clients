@@ -2,13 +2,15 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   Importer,
   ImportResult,
   ImportServiceAbstraction,
-  KdbxCredentials,
+  SdkImportSummary,
 } from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
@@ -22,6 +24,7 @@ describe("ImportCommand", () => {
   let syncService: MockProxy<SyncService>;
   let accountService: MockProxy<AccountService>;
   let logService: MockProxy<LogService>;
+  let i18nService: MockProxy<I18nService>;
   let command: ImportCommand;
 
   const importerStub = (): Importer => ({
@@ -35,23 +38,34 @@ describe("ImportCommand", () => {
     return result;
   };
 
+  const summary = (): SdkImportSummary => ({
+    ciphers: [{ type: CipherType.Login, count: 3 }],
+    folders: 2,
+    collections: 0,
+  });
+
   beforeEach(() => {
     importService = mock<ImportServiceAbstraction>();
     organizationService = mock<OrganizationService>();
     syncService = mock<SyncService>();
     accountService = mock<AccountService>();
     logService = mock<LogService>();
+    i18nService = mock<I18nService>();
     command = new ImportCommand(
       importService,
       organizationService,
       syncService,
       accountService,
       logService,
+      i18nService,
     );
 
-    importService.getImporter.mockReturnValue(importerStub());
-    importService.import.mockResolvedValue(successResult());
-    jest.spyOn(CliUtils, "readFileAsBase64").mockResolvedValue("BASE64-CONTENTS");
+    // KDBX is an SDK importer requiring a password + optional key file.
+    importService.isSdkImporter.mockImplementation((format) => format === "keepasskdbx");
+    importService.credentialKindFor.mockReturnValue("passwordWithKeyFile");
+    importService.sdkErrorMessageKey.mockReturnValue(undefined);
+    importService.importWithSdk.mockResolvedValue(summary());
+
     jest.spyOn(CliUtils, "readBinaryFile").mockResolvedValue(new Uint8Array([1, 2, 3]));
     jest.spyOn(CliUtils, "getPassword").mockResolvedValue("file-password");
   });
@@ -60,64 +74,43 @@ describe("ImportCommand", () => {
     jest.restoreAllMocks();
   });
 
-  describe("KeePass KDBX import", () => {
-    it("reads the file as base64 and supplies a kdbx credentials callback", async () => {
-      const importer = importerStub();
-      importService.getImporter.mockReturnValue(importer);
-
+  describe("SDK-backed import (KDBX)", () => {
+    it("reads the file as bytes and imports it through the SDK", async () => {
       const response = await command.run("keepasskdbx", "db.kdbx", {});
 
-      expect(CliUtils.readFileAsBase64).toHaveBeenCalledWith("db.kdbx");
-      expect(importService.getImporter).toHaveBeenCalledWith(
+      expect(CliUtils.readBinaryFile).toHaveBeenCalledWith("db.kdbx");
+      expect(importService.importWithSdk).toHaveBeenCalledWith(
         "keepasskdbx",
-        expect.any(Function),
+        new Uint8Array([1, 2, 3]),
+        { kind: "passwordWithKeyFile", password: "file-password", keyFile: null },
         undefined,
-        expect.any(Function),
+        undefined,
+        false,
       );
-      expect(importService.import).toHaveBeenCalledWith(importer, "BASE64-CONTENTS", undefined);
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
       expect(response.success).toBe(true);
     });
 
-    it("resolves the key file from --keyfile and the password into the credentials", async () => {
-      let kdbxCredentialsCallback: () => Promise<KdbxCredentials>;
-      importService.getImporter.mockImplementation((_format, _pw, _org, kdbxCallback) => {
-        kdbxCredentialsCallback = kdbxCallback;
-        return importerStub();
-      });
-
+    it("passes the key file from --keyfile in the collected credentials", async () => {
       await command.run("keepasskdbx", "db.kdbx", { keyfile: "secret.keyx" });
-      const credentials = await kdbxCredentialsCallback();
 
       expect(CliUtils.readBinaryFile).toHaveBeenCalledWith("secret.keyx");
-      expect(credentials).toEqual({
-        password: "file-password",
-        keyFile: new Uint8Array([1, 2, 3]),
-      });
-    });
-
-    it("omits the key file when --keyfile is not provided", async () => {
-      let kdbxCredentialsCallback: () => Promise<KdbxCredentials>;
-      importService.getImporter.mockImplementation((_format, _pw, _org, kdbxCallback) => {
-        kdbxCredentialsCallback = kdbxCallback;
-        return importerStub();
-      });
-
-      await command.run("keepasskdbx", "db.kdbx", {});
-      const credentials = await kdbxCredentialsCallback();
-
-      expect(CliUtils.readBinaryFile).not.toHaveBeenCalled();
-      expect(credentials.keyFile).toBeNull();
+      expect(importService.importWithSdk).toHaveBeenCalledWith(
+        "keepasskdbx",
+        expect.any(Uint8Array),
+        {
+          kind: "passwordWithKeyFile",
+          password: "file-password",
+          keyFile: new Uint8Array([1, 2, 3]),
+        },
+        undefined,
+        undefined,
+        false,
+      );
     });
 
     it("resolves the password from --passwordenv/--passwordfile via CliUtils.getPassword", async () => {
-      let passwordCallback: () => Promise<string>;
-      importService.getImporter.mockImplementation((_format, pwCallback) => {
-        passwordCallback = pwCallback;
-        return importerStub();
-      });
-
       await command.run("keepasskdbx", "db.kdbx", { passwordenv: "BW_KDBX_PW" });
-      const password = await passwordCallback();
 
       expect(CliUtils.getPassword).toHaveBeenCalledWith(
         null,
@@ -125,35 +118,55 @@ describe("ImportCommand", () => {
         logService,
         "Import file password:",
       );
-      expect(password).toBe("file-password");
     });
 
     it("returns a bad request when no password is available non-interactively", async () => {
       jest.spyOn(CliUtils, "getPassword").mockResolvedValue(Response.badRequest("no password"));
-      let kdbxCredentialsCallback: () => Promise<KdbxCredentials>;
-      importService.getImporter.mockImplementation((_format, _pw, _org, kdbxCallback) => {
-        kdbxCredentialsCallback = kdbxCallback;
-        return importerStub();
-      });
-      // Simulate the importer invoking the credentials callback during parse.
-      importService.import.mockImplementation(async () => {
-        await kdbxCredentialsCallback();
-        return successResult();
-      });
 
       const response = await command.run("keepasskdbx", "db.kdbx", {});
 
       expect(response.success).toBe(false);
-      expect(importService.import).toHaveBeenCalled();
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
     });
 
-    it("leaves non-kdbx formats on the utf-8 text read path", async () => {
-      const readFileSpy = jest.spyOn(CliUtils, "readFile").mockResolvedValue("name,login\n");
+    it("returns a bad request when the file is empty", async () => {
+      jest.spyOn(CliUtils, "readBinaryFile").mockResolvedValue(new Uint8Array());
 
-      await command.run("bitwardencsv", "data.csv", {});
+      const response = await command.run("keepasskdbx", "db.kdbx", {});
 
-      expect(readFileSpy).toHaveBeenCalledWith("data.csv");
-      expect(CliUtils.readFileAsBase64).not.toHaveBeenCalled();
+      expect(response.success).toBe(false);
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
     });
+
+    it("surfaces a mapped SDK error via i18n", async () => {
+      importService.importWithSdk.mockRejectedValue(new Error("raw"));
+      importService.sdkErrorMessageKey.mockReturnValue("kdbxWrongFileType");
+      i18nService.t.mockReturnValue("Not a valid KeePass database.");
+
+      const response = await command.run("keepasskdbx", "db.kdbx", {});
+
+      expect(response.success).toBe(false);
+      expect(i18nService.t).toHaveBeenCalledWith("kdbxWrongFileType");
+    });
+
+    it("falls back to the raw error when unmapped", async () => {
+      importService.importWithSdk.mockRejectedValue(new Error("raw failure"));
+      importService.sdkErrorMessageKey.mockReturnValue(undefined);
+
+      const response = await command.run("keepasskdbx", "db.kdbx", {});
+
+      expect(response.success).toBe(false);
+    });
+  });
+
+  it("leaves non-sdk formats on the standard importer path", async () => {
+    const readFileSpy = jest.spyOn(CliUtils, "readFile").mockResolvedValue("name,login\n");
+    importService.getImporter.mockReturnValue(importerStub());
+    importService.import.mockResolvedValue(successResult());
+
+    await command.run("bitwardencsv", "data.csv", {});
+
+    expect(readFileSpy).toHaveBeenCalledWith("data.csv");
+    expect(importService.importWithSdk).not.toHaveBeenCalled();
   });
 });

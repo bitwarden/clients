@@ -71,9 +71,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { KdbxCredentials } from "../importers";
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
-import { ImportOption, ImportType } from "../models";
+import { CredentialKind, ImportOption, ImportType, SdkImportCredentials } from "../models";
 import {
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
@@ -82,11 +81,11 @@ import {
 
 import { ImportChromeComponent } from "./chrome";
 import {
+  CredentialsWithKeyFilePromptComponent,
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
   ImportSuccessDialogData,
-  KdbxCredentialsPromptComponent,
 } from "./dialog";
 import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
@@ -490,6 +489,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async performImport() {
+    if (this.importService.isSdkImporter(this.format)) {
+      await this.performSdkImport();
+      return;
+    }
+
     if (!(await this.validateImport())) {
       return;
     }
@@ -498,15 +502,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return await this.getFilePassword();
     };
 
-    const promptForKdbxCredentials_callback = async () => {
-      return await this.getKdbxCredentials();
-    };
-
     const importer = this.importService.getImporter(
       this.format,
       promptForPassword_callback,
       this.organizationId,
-      promptForKdbxCredentials_callback,
     );
 
     if (importer === null) {
@@ -545,7 +544,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
         data: {
           importResult: result,
-          showDeleteFileReminder: this.isKdbxFormat,
           ...returnDestination,
         },
       });
@@ -562,8 +560,98 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  get isKdbxFormat(): boolean {
-    return this.format === "keepasskdbx";
+  /** Generic flow for any SDK-backed importer: read bytes, collect declared credentials, submit. */
+  private async performSdkImport() {
+    if (!(await this.validateImport())) {
+      return;
+    }
+
+    const fileBytes = await this.getSelectedFileBytes();
+    if (fileBytes == null || fileBytes.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
+      return;
+    }
+
+    const credentials = await this.collectSdkCredentials(
+      this.importService.credentialKindFor(this.format),
+    );
+    if (credentials == null) {
+      // Credentials dialog dismissed.
+      return;
+    }
+
+    try {
+      const summary = await this.importService.importWithSdk(
+        this.format,
+        fileBytes,
+        credentials,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+        this.organization?.canAccessImport && this.isFromAC,
+      );
+
+      const returnDestination = this.returnTo()
+        ? this.resolveReturnDestination(this.returnTo())
+        : undefined;
+      this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+        data: {
+          sdkSummary: summary,
+          showDeleteFileReminder: true,
+          ...returnDestination,
+        },
+      });
+
+      await this.syncService.fullSync(true);
+      this.onSuccessfulImport.emit(this._organizationId);
+    } catch (e) {
+      const messageKey = this.importService.sdkErrorMessageKey(this.format, e);
+      this.dialogService.open<unknown, Error>(ImportErrorDialogComponent, {
+        data: messageKey != null ? new Error(this.i18nService.t(messageKey)) : (e as Error),
+      });
+      this.logService.error(e);
+    }
+  }
+
+  /** Collects the credentials an SDK importer declared, via the matching dialog. */
+  private async collectSdkCredentials(
+    kind: CredentialKind | undefined,
+  ): Promise<SdkImportCredentials | null> {
+    switch (kind) {
+      case CredentialKind.none:
+        return { kind: "none" };
+      case CredentialKind.password: {
+        const password = await this.getFilePassword();
+        return password == null ? null : { kind: "password", password };
+      }
+      case CredentialKind.passwordWithKeyFile: {
+        const dialog = this.dialogService.open<{ password: string; keyFile: Uint8Array | null }>(
+          CredentialsWithKeyFilePromptComponent,
+          { ariaModal: true },
+        );
+        const credentials = await lastValueFrom(dialog.closed);
+        return credentials == null ? null : { kind: "passwordWithKeyFile", ...credentials };
+      }
+      default:
+        return null;
+    }
+  }
+
+  private async getSelectedFileBytes(): Promise<Uint8Array | null> {
+    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
+    const file = fileEl?.files?.[0] ?? this.fileSelected;
+    if (file == null) {
+      return null;
+    }
+    return new Uint8Array(await file.arrayBuffer());
+  }
+
+  /** File-picker `accept` hint for the selected SDK importer, if any. */
+  protected get acceptedFileTypes(): string | null {
+    return this.importService.sdkFileTypeHint(this.format) ?? null;
   }
 
   getFormatInstructionTitle() {
@@ -614,10 +702,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getFileContents(file: File): Promise<string> {
-    if (this.isKdbxFormat) {
-      // KDBX is binary its string representation is base64-encoded
-      return this.getFileAsBase64(file);
-    }
     if (this.format === "1password1pux" && file.name.endsWith(".1pux")) {
       return this.extractZipContent(file, "export.data");
     }
@@ -654,19 +738,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private getFileAsBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsArrayBuffer(file);
-      reader.onload = (evt) => {
-        resolve(Utils.fromBufferToB64((evt.target as any).result));
-      };
-      reader.onerror = () => {
-        reject();
-      };
-    });
-  }
-
   private extractZipContent(zipFile: File, contentFilePath: string): Promise<string> {
     return new JSZip()
       .loadAsync(zipFile)
@@ -685,14 +756,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async getFilePassword(): Promise<string> {
     const dialog = this.dialogService.open<string>(FilePasswordPromptComponent, {
-      ariaModal: true,
-    });
-
-    return await lastValueFrom(dialog.closed);
-  }
-
-  async getKdbxCredentials(): Promise<KdbxCredentials> {
-    const dialog = this.dialogService.open<KdbxCredentials>(KdbxCredentialsPromptComponent, {
       ariaModal: true,
     });
 

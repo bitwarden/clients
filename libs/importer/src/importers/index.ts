@@ -21,7 +21,6 @@ export { FSecureFskImporter } from "./fsecure/fsecure-fsk-importer";
 export { GnomeJsonImporter } from "./gnome-json-importer";
 export { KasperskyTxtImporter } from "./kaspersky-txt-importer";
 export { KeePass2XmlImporter } from "./keepass2-xml-importer";
-export { KeePassKdbxImporter, KdbxCredentials } from "./keepass-kdbx-importer";
 export { KeePassXCsvImporter } from "./keepassx-csv-importer";
 export { KeeperCsvImporter, KeeperJsonImporter } from "./keeper";
 export { LastPassCsvImporter } from "./lastpass";

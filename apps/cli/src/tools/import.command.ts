@@ -9,9 +9,15 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ImportServiceAbstraction, ImportType, KdbxCredentials } from "@bitwarden/importer-core";
+import {
+  CredentialKind,
+  ImportServiceAbstraction,
+  ImportType,
+  SdkImportCredentials,
+} from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
@@ -24,6 +30,7 @@ export class ImportCommand {
     private syncService: SyncService,
     private accountService: AccountService,
     private logService: LogService,
+    private i18nService: I18nService,
   ) {}
 
   async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
@@ -70,6 +77,11 @@ export class ImportCommand {
       return Response.badRequest("`filepath` was not provided.");
     }
 
+    // SDK-backed importers parse/encrypt/submit entirely in the SDK.
+    if (this.importService.isSdkImporter(format)) {
+      return await this.importWithSdk(format, filepath, organizationId, options);
+    }
+
     // Lazy-load jsdom and polyfill DOMParser only when actually running an import.
     // jsdom is heavy and only needed by the XML/HTML importers; loading it eagerly
     // slows CLI startup for every other command.
@@ -78,17 +90,10 @@ export class ImportCommand {
 
     const promptForPassword_callback = () => this.resolveImportPassword(options);
 
-    // KDBX files may optionally be protected using a key-file in addition to a password
-    const promptForKdbxCredentials_callback = async (): Promise<KdbxCredentials> => ({
-      password: await this.resolveImportPassword(options),
-      keyFile: options.keyfile ? await CliUtils.readBinaryFile(options.keyfile) : null,
-    });
-
     const importer = await this.importService.getImporter(
       format,
       promptForPassword_callback,
       organizationId,
-      promptForKdbxCredentials_callback,
     );
     if (importer === null) {
       return Response.badRequest("Proper importer type required.");
@@ -100,8 +105,6 @@ export class ImportCommand {
         contents = await CliUtils.extractZipContent(filepath, "export.data");
       } else if (format === "protonpass" && filepath.endsWith(".zip")) {
         contents = await CliUtils.extractZipContent(filepath, "Proton Pass/data.json");
-      } else if (format === "keepasskdbx") {
-        contents = await CliUtils.readFileAsBase64(filepath);
       } else {
         contents = await CliUtils.readFile(filepath);
       }
@@ -122,6 +125,71 @@ export class ImportCommand {
         return Response.badRequest(err.message);
       }
       return Response.badRequest(err);
+    }
+  }
+
+  private async importWithSdk(
+    format: ImportType,
+    filepath: string,
+    organizationId: string,
+    options: OptionValues,
+  ) {
+    let file: Uint8Array;
+    try {
+      file = await CliUtils.readBinaryFile(filepath);
+    } catch {
+      return Response.badRequest(`Could not read file: ${filepath}`);
+    }
+    if (file == null || file.length === 0) {
+      return Response.badRequest("Import file was empty.");
+    }
+
+    try {
+      const credentials = await this.collectSdkCredentials(
+        this.importService.credentialKindFor(format),
+        options,
+      );
+
+      const summary = await this.importService.importWithSdk(
+        format,
+        file,
+        credentials,
+        organizationId,
+        undefined,
+        // run() already verified import permission for the target organization.
+        organizationId != null,
+      );
+      const total = summary.ciphers.reduce((count, c) => count + c.count, 0);
+
+      await this.syncService.fullSync(true);
+      return Response.success(
+        new MessageResponse(`Imported ${total} item(s) from ${filepath}`, null),
+      );
+    } catch (err) {
+      const messageKey = this.importService.sdkErrorMessageKey(format, err);
+      if (messageKey != null) {
+        return Response.badRequest(this.i18nService.t(messageKey));
+      }
+      return Response.badRequest(err.message ?? err);
+    }
+  }
+
+  /** Collects the credentials an SDK importer declared, from CLI flags/prompts. */
+  private async collectSdkCredentials(
+    kind: CredentialKind | undefined,
+    options: OptionValues,
+  ): Promise<SdkImportCredentials> {
+    switch (kind) {
+      case CredentialKind.password:
+        return { kind: "password", password: await this.resolveImportPassword(options) };
+      case CredentialKind.passwordWithKeyFile: {
+        const password = await this.resolveImportPassword(options);
+        // A key file may optionally protect the database in addition to the password.
+        const keyFile = options.keyfile ? await CliUtils.readBinaryFile(options.keyfile) : null;
+        return { kind: "passwordWithKeyFile", password, keyFile };
+      }
+      default:
+        return { kind: "none" };
     }
   }
 

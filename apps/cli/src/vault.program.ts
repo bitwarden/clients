@@ -516,6 +516,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
           this.serviceContainer.logService,
+          this.serviceContainer.i18nService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);

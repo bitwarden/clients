@@ -482,7 +482,7 @@
             type="file"
             id="import_input_file"
             formControlName="file"
-            [attr.accept]="isKdbxFormat ? '.kdbx' : null"
+            [attr.accept]="acceptedFileTypes"
             (change)="setSelectedFile($event)"
             hidden
             class="tw-hidden"

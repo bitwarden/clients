@@ -305,7 +305,6 @@
       matchPackageNames: [
         "@microsoft/signalr-protocol-msgpack",
         "@microsoft/signalr",
-        "@noble/hashes",
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
@@ -314,7 +313,6 @@
         "clap",
         "jsdom",
         "jszip",
-        "kdbxweb",
         "oidc-client-ts",
         "papaparse",
         "utf-8-validate",

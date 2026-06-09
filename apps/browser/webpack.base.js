@@ -365,7 +365,6 @@ module.exports.buildConfig = function buildConfig(params) {
         url: require.resolve("url/"),
         fs: false,
         path: require.resolve("path-browserify"),
-        crypto: false,
       },
       cache: true,
       alias: params.importAliases,
@@ -502,9 +501,6 @@ module.exports.buildConfig = function buildConfig(params) {
         fallback: {
           fs: false,
           path: require.resolve("path-browserify"),
-          // The background bundles ImportService -> KeePassKdbxImporter -> kdbxweb, whose UMD wrapper
-          // references node's "crypto"; it uses WebCrypto at runtime, so the node module is unused.
-          crypto: false,
         },
         cache: true,
         alias: params.importAliases,

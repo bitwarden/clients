@@ -4082,8 +4082,8 @@
   "kdbxWrongFileType": {
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
   },
-  "importCanceled": {
-    "message": "Import canceled. No data was imported."
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "kdbxDeleteFileReminder": {
     "message": "For your security, delete the local .kdbx file now that your data has been imported."

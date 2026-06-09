@@ -13,15 +13,12 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { KdbxCredentials } from "../../importers";
-
 /**
- * Collects the credentials needed to unlock a KeePass KDBX database: a required master password and
- * an optional key file. Returns a {@link KdbxCredentials} when submitted, or `undefined` when the
- * dialog is dismissed.
+ * Collects a required master password and an optional key file (the `passwordWithKeyFile` credential
+ * kind, e.g. KeePass KDBX). Closes with `{ password, keyFile }`, or `undefined` when dismissed.
  */
 @Component({
-  templateUrl: "kdbx-credentials-prompt.component.html",
+  templateUrl: "credentials-with-key-file-prompt.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -35,7 +32,7 @@ import { KdbxCredentials } from "../../importers";
     I18nPipe,
   ],
 })
-export class KdbxCredentialsPromptComponent {
+export class CredentialsWithKeyFilePromptComponent {
   private readonly dialogRef = inject(DialogRef);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -64,7 +61,7 @@ export class KdbxCredentialsPromptComponent {
       return;
     }
 
-    const credentials: KdbxCredentials = {
+    const credentials: { password: string; keyFile: Uint8Array | null } = {
       password: this.formGroup.getRawValue().password,
       keyFile: this.keyFile(),
     };
