@@ -316,7 +316,6 @@ export class CipherViewComponent {
 
   readonly removeAtRiskCallout = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32016RemoveAtRiskCallout),
-    { initialValue: false },
   );
 
   protected readonly changePasswordUrl = resource({
