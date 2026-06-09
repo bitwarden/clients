@@ -68,8 +68,6 @@ import {
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
 
-const USER_KEY_STATE_KEY: string = "";
-
 export class DefaultKeyService implements KeyServiceAbstraction {
   /**
    * Retrieves a stream of the active users organization keys,
@@ -110,7 +108,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, this.userKeyToStateObject(key), userId);
+    await this.stateProvider.setUserState(USER_KEY, key, userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
@@ -145,15 +143,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
     return this.stateProvider
       .getUserState$(USER_KEY, userId)
-      .pipe(map((userKey) => this.stateObjectToUserKey(userKey)));
+      .pipe(map((userKey) => userKey ?? null));
   }
 
   /**
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
   async getUserKey(userId?: UserId): Promise<UserKey | null> {
-    const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
-    return this.stateObjectToUserKey(userKey);
+    return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) ?? null;
   }
 
   async getUserKeyFromStorage(
@@ -640,9 +637,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider
-      .getUser(userId, USER_KEY)
-      .state$.pipe(map((key) => (key != null ? (key[""] as UserKey) : null)));
+    return this.stateProvider.getUser(userId, USER_KEY).state$.pipe(map((key) => key ?? null));
   }
 
   userPublicKey$(userId: UserId) {
@@ -920,19 +915,5 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
       }),
     );
-  }
-
-  private userKeyToStateObject(userKey: UserKey | null): Record<string, UserKey> | null {
-    if (userKey == null) {
-      return null;
-    }
-    return { [USER_KEY_STATE_KEY]: userKey };
-  }
-
-  private stateObjectToUserKey(stateObject: Record<string, UserKey> | null): UserKey | null {
-    if (stateObject == null) {
-      return null;
-    }
-    return stateObject[USER_KEY_STATE_KEY] ?? null;
   }
 }
