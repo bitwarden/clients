@@ -5,14 +5,11 @@ import { firstValueFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -21,22 +18,9 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { BulkDeleteDialogParams, BulkDeleteDialogResult } from "@bitwarden/vault";
 
-export interface BulkDeleteDialogParams {
-  cipherIds?: string[];
-  permanent?: boolean;
-  organization?: Organization;
-  organizations?: Organization[];
-  collections?: CollectionView[];
-  unassignedCiphers?: string[];
-}
-
-export const BulkDeleteDialogResult = {
-  Deleted: "deleted",
-  Canceled: "canceled",
-} as const;
-
-type BulkDeleteDialogResult = UnionOfValues<typeof BulkDeleteDialogResult>;
+export { BulkDeleteDialogParams, BulkDeleteDialogResult };
 
 /**
  * Strongly typed helper to open a BulkDeleteDialog
@@ -65,9 +49,9 @@ export const openBulkDeleteDialog = (
 export class BulkDeleteDialogComponent {
   cipherIds: string[];
   permanent = false;
-  organization: Organization;
-  organizations: Organization[];
-  collections: CollectionView[];
+  organization: BulkDeleteDialogParams["organization"];
+  organizations: BulkDeleteDialogParams["organizations"];
+  collections: BulkDeleteDialogParams["collections"];
   unassignedCiphers: string[];
 
   constructor(
