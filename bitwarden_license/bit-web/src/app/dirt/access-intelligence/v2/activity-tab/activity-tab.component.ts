@@ -93,18 +93,22 @@ export class ActivityTabComponent {
   // Guards against repeat initialization when either dependency signal re-emits.
   // Read with `untracked` so the effect doesn't subscribe to its own write.
   private readonly trendChartInitialized = signal(false);
-  private readonly initializeTrendChartEffect = effect(() => {
-    const flag = this.trendChartEnabled();
-    const orgId = this.organizationId();
-    if (flag && orgId && !untracked(() => this.trendChartInitialized())) {
-      this.trendChartInitialized.set(true);
-      this.riskOverTimeService.initialize(
-        orgId,
-        DEFAULT_TIME_PERIOD,
-        TrendWidgetViewType.Applications,
-      );
-    }
-  });
+
+  constructor() {
+    // Initialize the trend chart once the feature flag and organization id are available.
+    effect(() => {
+      const flag = this.trendChartEnabled();
+      const orgId = this.organizationId();
+      if (flag && orgId && !untracked(() => this.trendChartInitialized())) {
+        this.trendChartInitialized.set(true);
+        this.riskOverTimeService.initialize(
+          orgId,
+          DEFAULT_TIME_PERIOD,
+          TrendWidgetViewType.Applications,
+        );
+      }
+    });
+  }
 
   protected readonly totalCriticalAppsAtRiskMemberCount = computed(() => {
     const report = this.report();
