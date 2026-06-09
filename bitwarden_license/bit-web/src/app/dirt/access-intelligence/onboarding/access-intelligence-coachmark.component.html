@@ -24,11 +24,11 @@
 
     <div class="tw-flex tw-gap-2">
       @if (service.currentStepNumber() > 1) {
-        <button bitButton buttonType="secondary" type="button" (click)="service.previousStep()">
+        <button bitButton buttonType="secondary" type="button" (click)="service.goToPreviousStep()">
           {{ "back" | i18n }}
         </button>
       }
-      <button bitButton buttonType="primary" type="button" (click)="service.nextStep()">
+      <button bitButton buttonType="primary" type="button" (click)="service.goToNextStep()">
         {{
           service.currentStepNumber() === service.totalSteps() ? ("close" | i18n) : ("next" | i18n)
         }}

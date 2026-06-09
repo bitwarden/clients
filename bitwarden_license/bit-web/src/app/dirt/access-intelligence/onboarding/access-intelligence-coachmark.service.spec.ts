@@ -63,12 +63,17 @@ describe("AccessIntelligenceCoachmarkService", () => {
       expect(service.currentStepNumber()).toBe(1);
     }));
 
-    it("does not start if already running", fakeAsync(async () => {
+    it("does not restart or reset progress if already running", fakeAsync(async () => {
       await service.startTour(mockOrgId);
       tick();
+      await service.goToNextStep();
+      tick(); // advance to step 2 so a reset would be observable
+
       await service.startTour(mockOrgId);
       tick();
-      expect(service.currentStepNumber()).toBe(1);
+
+      expect(service.activeStepId()).toBe("prioritizeRisks");
+      expect(service.currentStepNumber()).toBe(2);
     }));
 
     it("does not start if tour already completed", fakeAsync(async () => {
@@ -85,40 +90,40 @@ describe("AccessIntelligenceCoachmarkService", () => {
     }));
   });
 
-  describe("nextStep", () => {
+  describe("goToNextStep", () => {
     beforeEach(fakeAsync(async () => {
       await service.startTour(mockOrgId);
       tick();
     }));
 
     it("advances to step 2", fakeAsync(async () => {
-      await service.nextStep();
+      await service.goToNextStep();
       tick();
       expect(service.activeStepId()).toBe("prioritizeRisks");
       expect(service.currentStepNumber()).toBe(2);
     }));
 
     it("advances through all steps", fakeAsync(async () => {
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 2
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 3
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 4
       expect(service.activeStepId()).toBe("helpMembers");
       expect(service.currentStepNumber()).toBe(4);
     }));
 
     it("calls completeTour on last step", fakeAsync(async () => {
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 2
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 3
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 4
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 5 (runReport)
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // Done — triggers completeTour
       expect(service.isRunning()).toBe(false);
       expect(setAICoachmarkTourCompleted).toHaveBeenCalled();
@@ -129,7 +134,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
       service.tourCompleted$.subscribe(completed);
 
       for (let i = 0; i < ACCESS_INTELLIGENCE_COACHMARK_STEPS.length; i++) {
-        await service.nextStep();
+        await service.goToNextStep();
         tick();
       }
 
@@ -140,31 +145,31 @@ describe("AccessIntelligenceCoachmarkService", () => {
       await service.completeTour();
       tick();
       const stepBefore = service.activeStepId();
-      await service.nextStep();
+      await service.goToNextStep();
       tick();
       expect(service.activeStepId()).toBe(stepBefore);
     }));
   });
 
-  describe("previousStep", () => {
+  describe("goToPreviousStep", () => {
     beforeEach(fakeAsync(async () => {
       await service.startTour(mockOrgId);
       tick();
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // now on step 2
     }));
 
     it("goes back to step 1", fakeAsync(async () => {
-      await service.previousStep();
+      service.goToPreviousStep();
       tick();
       expect(service.activeStepId()).toBe("monitorActivity");
       expect(service.currentStepNumber()).toBe(1);
     }));
 
     it("does not go before step 1", fakeAsync(async () => {
-      await service.previousStep();
+      service.goToPreviousStep();
       tick(); // back to step 1
-      await service.previousStep();
+      service.goToPreviousStep();
       tick(); // no-op
       expect(service.currentStepNumber()).toBe(1);
     }));
@@ -172,7 +177,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
     it("does nothing when tour is not running", fakeAsync(async () => {
       await service.skipTour();
       tick();
-      await service.previousStep();
+      service.goToPreviousStep();
       tick();
       expect(service.isRunning()).toBe(false);
     }));
@@ -265,9 +270,9 @@ describe("AccessIntelligenceCoachmarkService", () => {
     it("returns 2 when step is criticalApplications", fakeAsync(async () => {
       await service.startTour(mockOrgId);
       tick();
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 2
-      await service.nextStep();
+      await service.goToNextStep();
       tick(); // step 3 = criticalApplications
       expect(service.requiredTabIndex()).toBe(2);
     }));
@@ -276,7 +281,7 @@ describe("AccessIntelligenceCoachmarkService", () => {
       await service.startTour(mockOrgId);
       tick();
       for (let i = 0; i < 4; i++) {
-        await service.nextStep();
+        await service.goToNextStep();
         tick();
       }
       expect(service.activeStepId()).toBe("runReport");

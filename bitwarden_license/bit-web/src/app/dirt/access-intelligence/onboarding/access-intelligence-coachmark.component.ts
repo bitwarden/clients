@@ -22,11 +22,11 @@ import { AccessIntelligenceCoachmarkService } from "./access-intelligence-coachm
  * <div [bitPopoverAnchorFor]="myCoachmark.popover()" [popoverOpen]="isOpen()">
  *   Highlighted element
  * </div>
- * <app-ai-coachmark #myCoachmark stepId="atRiskMembers" />
+ * <dirt-ai-coachmark #myCoachmark stepId="atRiskMembers" />
  * ```
  */
 @Component({
-  selector: "app-ai-coachmark",
+  selector: "dirt-ai-coachmark",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-coachmark.component.html",

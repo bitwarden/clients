@@ -45,15 +45,14 @@ const mockCoachmarkService = {
   requiredTabIndex: jest.fn(),
   tourCompleted$: jest.fn(),
   startTour: jest.fn(),
-  nextStep: jest.fn(),
-  previousStep: jest.fn(),
+  goToNextStep: jest.fn(),
+  goToPreviousStep: jest.fn(),
   skipTour: jest.fn(),
   completeTour: jest.fn(),
   getStepConfig: jest.fn(),
   getStepTitle: jest.fn(),
   getStepDescription: jest.fn(),
   getStepLearnMoreUrl: jest.fn(),
-  getStepPosition: jest.fn(),
 };
 
 describe("PostImportModalDialogComponent", () => {

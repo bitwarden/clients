@@ -21,7 +21,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { AccessIntelligenceCoachmarkService } from "./access-intelligence-coachmark.service";
 import { OnboardingService } from "./services/onboarding.service";
 
-export type WelcomeModalDialogData = {
+export type PostImportModalDialogData = {
   organizationId: OrganizationId;
 };
 
@@ -35,7 +35,7 @@ export class PostImportModalDialogComponent {
   private readonly dialogRef = inject(DialogRef<PostImportModalDialogComponent>);
   private readonly onboardingService = inject(OnboardingService);
   private readonly coachmarkService = inject(AccessIntelligenceCoachmarkService);
-  private readonly data = inject<WelcomeModalDialogData>(DIALOG_DATA);
+  private readonly data = inject<PostImportModalDialogData>(DIALOG_DATA);
   private readonly logger = inject(LogService);
 
   protected async onStartTour(): Promise<void> {
@@ -75,7 +75,7 @@ export class PostImportModalDialogComponent {
       }
 
       const dialog = dialogService.open(PostImportModalDialogComponent, {
-        data: { organizationId } satisfies WelcomeModalDialogData,
+        data: { organizationId } satisfies PostImportModalDialogData,
         width: "600px",
         disableClose: true,
       });

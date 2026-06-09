@@ -76,7 +76,7 @@
               {{ "riskInsightsRunReport" | i18n }}
             </button>
           </div>
-          <app-ai-coachmark #runReportCoachmark stepId="runReport"></app-ai-coachmark>
+          <dirt-ai-coachmark #runReportCoachmark stepId="runReport"></dirt-ai-coachmark>
         </div>
 
         <div class="tw-flex-1 tw-flex tw-flex-col">
@@ -90,7 +90,7 @@
             >
               <app-activity-tab [organizationId]="organizationId()"></app-activity-tab>
             </bit-tab>
-            <app-ai-coachmark #activityCoachmark stepId="monitorActivity"></app-ai-coachmark>
+            <dirt-ai-coachmark #activityCoachmark stepId="monitorActivity"></dirt-ai-coachmark>
             @if (milestone11Enabled()) {
               <bit-tab label="{{ 'applications' | i18n }}">
                 <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
@@ -114,10 +114,10 @@
                   [organizationId]="organizationId()"
                 ></dirt-critical-applications-tab>
               </bit-tab>
-              <app-ai-coachmark
+              <dirt-ai-coachmark
                 #criticalAppsCoachmark
                 stepId="criticalApplications"
-              ></app-ai-coachmark>
+              ></dirt-ai-coachmark>
             }
           </bit-tab-group>
         </div>

@@ -18,12 +18,16 @@ export class AccessIntelligenceCoachmarkService {
 
   readonly activeStepId = signal<AccessIntelligenceCoachmarkStepId | null>(null);
 
-  readonly currentStepNumber = computed(() => {
+  private readonly currentStepIndex = computed(() => {
     const activeId = this.activeStepId();
     if (!activeId) {
-      return 0;
+      return -1;
     }
-    const index = ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex((s) => s.id === activeId);
+    return ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex((s) => s.id === activeId);
+  });
+
+  readonly currentStepNumber = computed(() => {
+    const index = this.currentStepIndex();
     return index >= 0 ? index + 1 : 0;
   });
 
@@ -40,6 +44,9 @@ export class AccessIntelligenceCoachmarkService {
   readonly tourCompleted$ = this.tourCompleted.asObservable();
 
   async startTour(_organizationId: OrganizationId): Promise<void> {
+    if (this.isRunning()) {
+      return;
+    }
     const completed = await this.onboardingService.isAICoachmarkTourCompleted();
     if (completed) {
       return;
@@ -47,13 +54,11 @@ export class AccessIntelligenceCoachmarkService {
     this.activeStepId.set(ACCESS_INTELLIGENCE_COACHMARK_STEPS[0].id);
   }
 
-  async nextStep(): Promise<void> {
+  async goToNextStep(): Promise<void> {
     if (!this.isRunning()) {
       return;
     }
-    const currentIndex = ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex(
-      (s) => s.id === this.activeStepId(),
-    );
+    const currentIndex = this.currentStepIndex();
     if (currentIndex >= ACCESS_INTELLIGENCE_COACHMARK_STEPS.length - 1) {
       await this.completeTour();
     } else {
@@ -61,13 +66,11 @@ export class AccessIntelligenceCoachmarkService {
     }
   }
 
-  async previousStep(): Promise<void> {
+  goToPreviousStep(): void {
     if (!this.isRunning()) {
       return;
     }
-    const currentIndex = ACCESS_INTELLIGENCE_COACHMARK_STEPS.findIndex(
-      (s) => s.id === this.activeStepId(),
-    );
+    const currentIndex = this.currentStepIndex();
     if (currentIndex > 0) {
       this.activeStepId.set(ACCESS_INTELLIGENCE_COACHMARK_STEPS[currentIndex - 1].id);
     }
@@ -105,11 +108,5 @@ export class AccessIntelligenceCoachmarkService {
 
   getStepLearnMoreUrl(id: AccessIntelligenceCoachmarkStepId | null): string | undefined {
     return this.getStepConfig(id)?.learnMoreUrl;
-  }
-
-  getStepPosition(
-    id: AccessIntelligenceCoachmarkStepId | null,
-  ): AccessIntelligenceCoachmarkStep["position"] | undefined {
-    return this.getStepConfig(id)?.position;
   }
 }

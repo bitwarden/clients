@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -139,7 +139,7 @@ describe("AccessIntelligencePageComponent", () => {
 
     mockCoachmarkService = {
       activeStepId: jest.fn().mockReturnValue(null),
-      tourCompleted$: new BehaviorSubject<void>(undefined),
+      tourCompleted$: new Subject<boolean>(),
       requiredTabIndex: jest.fn().mockReturnValue(0),
       isRunning: jest.fn().mockReturnValue(false),
       skipTour: jest.fn().mockResolvedValue(undefined),

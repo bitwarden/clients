@@ -121,6 +121,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected newApplicationsCount = 0;
   protected newApplications: ApplicationHealthReportDetail[] = [];
   protected totalCriticalAppsCount = 0;
+  private hasReportData = false;
 
   protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
@@ -193,6 +194,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     });
 
     this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (!this.hasReportData) {
+        return;
+      }
       NewApplicationsDialogComponent.open(this.dialogService, {
         newApplications: this.newApplications,
         organizationId: this.organizationId,
@@ -239,6 +243,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((report) => {
         // Update report state
+        this.hasReportData = report != null;
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
         this.totalCriticalAppsCount = report?.summaryData?.totalCriticalApplicationCount ?? 0;
