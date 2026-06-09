@@ -28,6 +28,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -914,6 +915,50 @@ describe("SettingsDialogComponent", () => {
 
       // `showEnableAutotype` signal should be false
       expect((component as any).showEnableAutotype()).toBe(false);
+    });
+  });
+
+  describe("clearClipboard valueChanges", () => {
+    it("saves the new clear clipboard value when changed", async () => {
+      await component.ngOnInit();
+
+      component["form"].controls.clearClipboard.setValue(ClearClipboardDelay.ThirtySeconds);
+
+      expect(autofillSettingsServiceAbstraction.setClearClipboardDelay).toHaveBeenLastCalledWith(
+        ClearClipboardDelay.ThirtySeconds,
+      );
+    });
+  });
+
+  describe("sshAgentPromptBehavior valueChanges", () => {
+    it("saves the new ssh agent prompt behavior value when changed", async () => {
+      await component.ngOnInit();
+
+      component["form"].controls.sshAgentPromptBehavior.setValue(SshAgentPromptType.Never);
+
+      expect(desktopSettingsService.setSshAgentPromptBehavior).toHaveBeenLastCalledWith(
+        SshAgentPromptType.Never,
+      );
+    });
+  });
+
+  describe("theme valueChanges", () => {
+    it("saves the new theme value when changed", async () => {
+      await component.ngOnInit();
+
+      component["form"].controls.theme.setValue(ThemeType.Dark);
+
+      expect(themeStateService.setSelectedTheme).toHaveBeenLastCalledWith(ThemeType.Dark);
+    });
+  });
+
+  describe("locale valueChanges", () => {
+    it("saves the new locale value when changed", async () => {
+      await component.ngOnInit();
+
+      component["form"].controls.locale.setValue("fr");
+
+      expect(i18nService.setLocale).toHaveBeenLastCalledWith("fr");
     });
   });
 });
