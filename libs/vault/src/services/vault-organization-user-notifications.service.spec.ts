@@ -12,6 +12,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -62,6 +63,7 @@ describe("VaultOrganizationUserNotificationsService", () => {
   let stateProvider: FakeStateProvider;
   let policyService: MockProxy<PolicyService>;
   let configService: MockProxy<ConfigService>;
+  let eventCollectionService: MockProxy<EventCollectionService>;
 
   let dismissedState: FakeSingleUserState<Date>;
   let dismissedSessionState: FakeSingleUserState<Date>;
@@ -71,6 +73,7 @@ describe("VaultOrganizationUserNotificationsService", () => {
     stateProvider = new FakeStateProvider(accountService);
     policyService = mock<PolicyService>();
     configService = mock<ConfigService>();
+    eventCollectionService = mock<EventCollectionService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -79,6 +82,7 @@ describe("VaultOrganizationUserNotificationsService", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: ConfigService, useValue: configService },
         { provide: StateProvider, useValue: stateProvider },
+        { provide: EventCollectionService, useValue: eventCollectionService },
       ],
     });
 
@@ -249,6 +253,35 @@ describe("VaultOrganizationUserNotificationsService", () => {
       jest.setSystemTime(fakeNow);
 
       await service.saveDismissalToState();
+
+      const dismissed = await firstValueFrom(dismissedState.state$);
+      const dismissedSession = await firstValueFrom(dismissedSessionState.state$);
+
+      expect(dismissed?.getTime()).toBe(fakeNow.getTime());
+      expect(dismissedSession?.getTime()).toBe(fakeNow.getTime());
+
+      jest.useRealTimers();
+    });
+  });
+
+  describe("recordActionButtonClick", () => {
+    it("collects a notification banner action event attributed to the organization", async () => {
+      await service.recordActionButtonClick(mockOrgId);
+
+      expect(eventCollectionService.collect).toHaveBeenCalledWith(
+        EventType.OrganizationUser_NotificationBannerActionClicked,
+        undefined,
+        false,
+        mockOrgId,
+      );
+    });
+
+    it("also saves dismissal state so the banner does not reappear", async () => {
+      jest.useFakeTimers();
+      const fakeNow = new Date("2024-06-01T12:00:00Z");
+      jest.setSystemTime(fakeNow);
+
+      await service.recordActionButtonClick(mockOrgId);
 
       const dismissed = await firstValueFrom(dismissedState.state$);
       const dismissedSession = await firstValueFrom(dismissedSessionState.state$);

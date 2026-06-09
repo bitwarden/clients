@@ -4,7 +4,12 @@
       <bit-banner [title]="data.header">
         {{ data.description }}
         <ng-container slot="actions">
-          <button bitButton type="button" buttonType="primary" (click)="close()">
+          <button
+            bitButton
+            type="button"
+            buttonType="primary"
+            (click)="actionButtonClick(data.organizationId)"
+          >
             {{ buttonText }}
           </button>
         </ng-container>

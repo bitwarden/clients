@@ -24,6 +24,7 @@ describe("VaultOrganizationUserNotificationsComponent", () => {
     notificationData$: notificationData$.asObservable(),
     showNotificationBanner$: showNotificationBanner$.asObservable(),
     saveDismissalToState: jest.fn().mockResolvedValue(undefined),
+    recordActionButtonClick: jest.fn().mockResolvedValue(undefined),
   };
 
   const mockNotificationData: OrganizationUserNotificationBannerData = {
@@ -37,6 +38,7 @@ describe("VaultOrganizationUserNotificationsComponent", () => {
 
   beforeEach(async () => {
     mockService.saveDismissalToState.mockClear();
+    mockService.recordActionButtonClick.mockClear();
     notificationData$.next(null);
     showNotificationBanner$.next(false);
 
@@ -117,13 +119,17 @@ describe("VaultOrganizationUserNotificationsComponent", () => {
         expect(button.nativeElement.textContent.trim()).toBe("Confirm");
       });
 
-      it("calls saveDismissalToState when the button is clicked", async () => {
+      it("calls recordActionButtonClick with the organization id when the button is clicked", async () => {
         const button = fixture.debugElement.query(By.css("button[bitButton]"));
         button.nativeElement.click();
         fixture.detectChanges();
 
         await fixture.whenStable();
-        expect(mockService.saveDismissalToState).toHaveBeenCalledTimes(1);
+        expect(mockService.recordActionButtonClick).toHaveBeenCalledTimes(1);
+        expect(mockService.recordActionButtonClick).toHaveBeenCalledWith(
+          mockNotificationData.organizationId,
+        );
+        expect(mockService.saveDismissalToState).not.toHaveBeenCalled();
       });
     });
   });

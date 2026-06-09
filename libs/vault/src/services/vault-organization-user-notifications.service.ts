@@ -5,6 +5,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -49,6 +50,7 @@ export class VaultOrganizationUserNotificationsService {
   private readonly policyService = inject(PolicyService);
   private readonly configService = inject(ConfigService);
   private readonly stateProvider = inject(StateProvider);
+  private readonly eventCollectionService = inject(EventCollectionService);
 
   private readonly userNotificationPolicies$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -131,5 +133,15 @@ export class VaultOrganizationUserNotificationsService {
         .getUser(userId, NOTIFICATION_BANNER_DISMISSED_SESSION_KEY)
         .update(() => now),
     ]);
+  }
+
+  async recordActionButtonClick(organizationId: OrganizationId): Promise<void> {
+    await this.eventCollectionService.collect(
+      EventType.OrganizationUser_NotificationBannerActionClicked,
+      undefined,
+      false,
+      organizationId,
+    );
+    await this.saveDismissalToState();
   }
 }
