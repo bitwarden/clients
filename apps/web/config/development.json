@@ -23,6 +23,6 @@
   "flags": {},
   "devFlags": {
     "showRiskInsightsDebug": false,
-    "configRetrievalIntervalMs": 60000
+    "configRetrievalIntervalMs": 5000
   }
 }
