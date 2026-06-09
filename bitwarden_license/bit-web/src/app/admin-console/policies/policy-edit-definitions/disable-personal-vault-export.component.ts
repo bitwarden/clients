@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -20,7 +19,6 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     description: "disablePersonalVaultExportDescriptionV2",
   };

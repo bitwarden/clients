@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -16,8 +15,8 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 40;
   component = TwoFactorAuthenticationPolicyComponent;
+  warningKey = "twoStepLoginPolicyWarning";
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     description: "twoStepLoginPolicyDescV2",
   };

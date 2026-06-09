@@ -3,7 +3,6 @@ import { of } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
@@ -20,7 +19,6 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   priority = 30;
   component = RequireSsoPolicyComponent;
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     description: "requireSsoPolicyDescV2",
     prerequisiteKey: "requireSsoPolicyReqV2",

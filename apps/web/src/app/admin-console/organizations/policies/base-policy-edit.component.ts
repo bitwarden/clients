@@ -11,7 +11,6 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -91,13 +90,12 @@ export abstract class BasePolicyEditDefinition {
 
   /**
    * Optional drawer-specific configuration for this policy.
-   * When set, {@link PolicyEditDialogComponent} checks the flag at dialog open time
-   * and activates the drawer UI when the flag is on, using the nested overrides in place
-   * of the top-level properties.
+   * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
+   * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
+   * Drawer routing is gated globally by {@link FeatureFlag.PolicyDrawers} in
+   * {@link PoliciesComponent} — there is no per-policy flag.
    */
   v2?: {
-    /** Feature flag that gates the drawer path. */
-    flag: FeatureFlag;
     /** Component to render inside the drawer instead of {@link component}. */
     component: Constructor<BasePolicyEditComponent>;
     /** Drawer-only title. Falls back to {@link name} when not set. */

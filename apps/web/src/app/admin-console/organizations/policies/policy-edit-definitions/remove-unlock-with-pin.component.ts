@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -17,7 +16,6 @@ export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   priority = 80;
   component = RemoveUnlockWithPinPolicyComponent;
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     description: "removeUnlockWithPinPolicyDescV2",
   };
