@@ -120,10 +120,8 @@
     </ng-container>
     <ng-container bitDialogContent>
       <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
-        (data.members?.length > 0
-          ? "criticalAtRiskMembersDescription"
-          : "criticalAtRiskMembersDescriptionNone"
-        ) | i18n
+        (data.members?.length > 0 ? "atRiskMemberDescription" : "atRiskMembersDescriptionNone")
+          | i18n
       }}</span>
 
       @if (data.members?.length > 0) {
@@ -166,8 +164,8 @@
     <ng-container bitDialogContent>
       <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
         (data.applications?.length > 0
-          ? "criticalAtRiskApplicationsDescription"
-          : "criticalAtRiskApplicationsDescriptionNone"
+          ? "atRiskApplicationsDescription"
+          : "atRiskApplicationsDescriptionNone"
         ) | i18n
       }}</span>
       @if (data.applications?.length > 0) {

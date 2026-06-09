@@ -3,11 +3,11 @@ import { Component, ChangeDetectionStrategy, inject } from "@angular/core";
 import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA } from "@bitwarden/components";
+import { DIALOG_DATA, DialogModule, LinkModule, TypographyModule } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { DrawerContentData } from "../../models/drawer-content-data.types";
 
@@ -20,7 +20,7 @@ import { DrawerContentData } from "../../models/drawer-content-data.types";
  */
 @Component({
   selector: "dirt-access-intelligence-drawer-v2",
-  imports: [SharedModule],
+  imports: [DialogModule, TypographyModule, LinkModule, I18nPipe],
   templateUrl: "./access-intelligence-drawer-v2.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
