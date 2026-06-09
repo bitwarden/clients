@@ -79,6 +79,7 @@ export const BITWARDEN_ICONS = [
   "bwi-filter",
   "bwi-folder",
   "bwi-generate",
+  "bwi-gift",
   "bwi-globe",
   "bwi-grid",
   "bwi-groups",
