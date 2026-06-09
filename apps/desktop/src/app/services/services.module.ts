@@ -32,6 +32,7 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
   LoginEmailService,
   SsoUrlService,
   UserDecryptionOptionsServiceAbstraction,
@@ -74,6 +75,12 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  SharedUnlockLeaderService,
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -98,7 +105,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
-import { IpcService, IpcSessionRepository, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -132,6 +139,7 @@ import {
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
@@ -201,11 +209,6 @@ const safeProviders: SafeProvider[] = [
     provide: CipherFormGenerationService,
     useClass: DesktopCredentialGenerationService,
     deps: [],
-  }),
-  safeProvider({
-    provide: IpcService,
-    useClass: NoopIpcService,
-    deps: [LogServiceAbstraction, IpcSessionRepository],
   }),
   safeProvider({
     provide: BiometricsService,
@@ -389,6 +392,26 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopSettingsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockLeaderService,
+    useClass: DefaultSharedUnlockLeaderService,
+    deps: [
+      IpcService,
+      AccountService,
+      LockService,
+      KeyServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      VaultTimeoutSettingsService,
+      EnvironmentService,
+      SharedUnlockSettingsService,
+      UnlockService,
+    ],
   }),
   safeProvider({
     provide: DesktopAutofillSettingsService,
@@ -643,6 +666,12 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       DialogService,
     ],
+  }),
+
+  safeProvider({
+    provide: IpcService,
+    useClass: NoopIpcService,
+    deps: [LogServiceAbstraction],
   }),
 ];
 
