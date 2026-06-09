@@ -244,6 +244,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
           { field: "lastNameLicense", title: "copyLastName" },
           { field: "licenseNumber", title: "copyLicenseNumber" },
         ];
+      case CipherType.SshKey:
+        return [
+          { field: "privateKey", title: "copyPrivateKey" },
+          { field: "publicKey", title: "copyPublicKey" },
+          { field: "keyFingerprint", title: "copyFingerprint" },
+        ];
       default:
         return [];
     }
