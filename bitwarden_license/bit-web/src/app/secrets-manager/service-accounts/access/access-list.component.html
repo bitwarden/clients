@@ -26,9 +26,7 @@
           (change)="$event ? toggleAll() : null"
           [checked]="selection.hasValue() && isAllSelected()"
           [indeterminate]="selection.hasValue() && !isAllSelected()"
-          [attr.aria-label]="
-            (selection.hasValue() && isAllSelected() ? 'deselectAll' : 'selectAll') | i18n
-          "
+          [attr.aria-label]="'selectAll' | i18n"
         />
       </th>
       <th bitCell>{{ "name" | i18n }}</th>

@@ -174,10 +174,6 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     this.data.forEach((u) => ((u as any).checked = false));
   }
 
-  isAllFilteredChecked(): boolean {
-    return this.filteredData.length > 0 && this.filteredData.every((u) => (u as any).checked);
-  }
-
   /**
    * Remove a user from the data source. Use this to ensure the table is re-rendered after the change.
    */

@@ -247,13 +247,6 @@ export class GroupsComponent {
     );
   }
 
-  get allVisibleChecked(): boolean {
-    return (
-      this.dataSource.filteredData.length > 0 &&
-      this.dataSource.filteredData.every((g) => g.checked)
-    );
-  }
-
   private removeGroup(groupRow: GroupDetailsRow) {
     // Assign a new array to dataSource.data to trigger the setters and update the table
     this.dataSource.data = this.dataSource.data.filter((g) => g !== groupRow);

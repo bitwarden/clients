@@ -91,9 +91,7 @@
                     type="checkbox"
                     bitCheckbox
                     (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
-                    [attr.aria-label]="
-                      (dataSource.isAllFilteredChecked() ? 'deselectAll' : 'selectAll') | i18n
-                    "
+                    [attr.aria-label]="'selectAll' | i18n"
                   />
                 </th>
               }
