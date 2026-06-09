@@ -5,6 +5,7 @@
   >
     <label
       [for]="base.inputId()"
+      [attr.aria-labelledby]="labelId"
       class="tw-absolute tw-inset-0 tw-rounded-xl"
       [class]="control.disabled ? 'tw-cursor-default' : 'tw-cursor-pointer'"
     ></label>
