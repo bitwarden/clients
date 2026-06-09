@@ -10,7 +10,7 @@
     @if (!decryptionFailure) {
       @if (canAutofill && showAutofill() && autofillAllowed$ | async) {
         <button type="button" bitMenuItem (click)="doAutofill()">
-          {{ "autofill" | i18n }}
+          {{ "autofillVerb" | i18n }}
         </button>
       }
       @if (showViewOption()) {
