@@ -19,6 +19,7 @@ import {
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { FIELD_PATHS, hasFailureAtPath } from "../../utils/cipher-decryption-failure-paths";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -67,6 +68,10 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   /** True when the form allows new fields to be added */
   get allowNewField(): boolean {
     return this.additionalOptionsForm.enabled;
+  }
+
+  protected get notesDecryptionFailed(): boolean {
+    return hasFailureAtPath(this.cipherFormContainer.decryptionFailures, FIELD_PATHS.NOTES);
   }
 
   constructor(

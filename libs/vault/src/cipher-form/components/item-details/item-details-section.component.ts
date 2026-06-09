@@ -38,6 +38,7 @@ import {
   OptionalInitialValues,
 } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { FIELD_PATHS, hasFailureAtPath } from "../../utils/cipher-decryption-failure-paths";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -140,6 +141,10 @@ export class ItemDetailsSectionComponent implements OnInit {
         this.config.originalCipher &&
         this.itemDetailsForm.controls.organizationId.value == null)
     );
+  }
+
+  protected get nameDecryptionFailed(): boolean {
+    return hasFailureAtPath(this.cipherFormContainer.decryptionFailures, FIELD_PATHS.NAME);
   }
 
   constructor(

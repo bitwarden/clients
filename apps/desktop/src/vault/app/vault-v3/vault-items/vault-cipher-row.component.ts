@@ -8,6 +8,7 @@ import { IconComponent } from "@bitwarden/angular/vault/components/icon.componen
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherDecryptionFailure } from "@bitwarden/common/vault/models/cipher-decryption-failure";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -87,6 +88,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  /**
+   * Per-field decryption failures for this cipher, surfaced by the graceful
+   * decrypt diagnostic path. Undefined when the diagnostic pass is not active.
+   */
+  protected readonly decryptionFailures = input<CipherDecryptionFailure[] | undefined>(undefined);
   protected readonly onEvent = output<VaultItemEvent<C>>();
 
   protected CipherType = CipherType;
@@ -143,6 +149,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected readonly decryptionFailure = computed(() => {
     return CipherViewLikeUtils.decryptionFailure(this.cipher());
+  });
+
+  protected readonly hasPartialDecryptionFailure = computed(() => {
+    return !this.decryptionFailure() && (this.decryptionFailures()?.length ?? 0) > 0;
   });
 
   protected readonly showFavorite = computed(() => {

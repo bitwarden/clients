@@ -9,8 +9,12 @@ import { Observable, of, switchMap } from "rxjs";
 import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherDecryptionFailureService } from "@bitwarden/common/vault/abstractions/cipher-decryption-failure.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherDecryptionFailureMap } from "@bitwarden/common/vault/models/cipher-decryption-failure";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -92,8 +96,17 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+  private accountService = inject(AccountService);
+  private cipherDecryptionFailureService = inject(CipherDecryptionFailureService);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
+  protected decryptionFailuresByCipher$: Observable<CipherDecryptionFailureMap> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.cipherDecryptionFailureService.decryptionFailuresByCipher$(userId),
+      ),
+    );
   private restrictedTypes: RestrictedCipherType[] = [];
 
   constructor() {

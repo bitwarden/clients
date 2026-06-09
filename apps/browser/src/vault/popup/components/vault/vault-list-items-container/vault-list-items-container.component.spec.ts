@@ -10,6 +10,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherDecryptionFailureService } from "@bitwarden/common/vault/abstractions/cipher-decryption-failure.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CompactModeService, DialogService } from "@bitwarden/components";
@@ -82,6 +83,10 @@ describe("VaultListItemsContainerComponent", () => {
         { provide: I18nService, useValue: { t: (k: string) => k } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "UserId" }) } },
         { provide: CipherService, useValue: mock<CipherService>() },
+        {
+          provide: CipherDecryptionFailureService,
+          useValue: { decryptionFailuresByCipher$: () => of(new Map()) },
+        },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: PlatformUtilsService, useValue: { getAutofillKeyboardShortcut: () => "" } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },

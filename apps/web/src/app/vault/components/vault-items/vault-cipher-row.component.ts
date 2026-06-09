@@ -22,6 +22,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherDecryptionFailure } from "@bitwarden/common/vault/models/cipher-decryption-failure";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -116,6 +117,27 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() enforceOrgDataOwnershipPolicy: boolean;
+  /**
+   * Per-field decryption failures for this cipher, surfaced by the graceful
+   * decrypt diagnostic path. Undefined when the diagnostic pass is not active
+   * (e.g., feature flag off, admin/org vault, no subscriber).
+   */
+  private _decryptionFailures?: CipherDecryptionFailure[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() set decryptionFailures(value: CipherDecryptionFailure[] | undefined) {
+    this._decryptionFailures = value;
+    // eslint-disable-next-line no-console
+    console.log("[graceful-row-input]", {
+      cipherId: this.cipher?.id,
+      cipherName: this.cipher?.name,
+      receivedValue: value,
+      length: value?.length ?? 0,
+    });
+  }
+  get decryptionFailures(): CipherDecryptionFailure[] | undefined {
+    return this._decryptionFailures;
+  }
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -235,6 +257,26 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get decryptionFailure() {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
+  protected get hasPartialDecryptionFailure(): boolean {
+    // A non-empty `decryptionFailures` is itself proof the cipher's own key
+    // decrypted (otherwise the SDK's graceful path would have routed this
+    // cipher into its `failures` bucket, not its `successes`). So this is
+    // always actionable to surface, even when the parallel legacy path
+    // separately classified the cipher as a whole-cipher failure — the user
+    // still needs to know that re-saving would overwrite recoverable fields.
+    return (this.decryptionFailures?.length ?? 0) > 0;
+  }
+
+  protected get decryptionFailureTooltip(): string {
+    const baseMessage = this.i18nService.t("cipherHasDecryptionFailures");
+    const failures = this.decryptionFailures ?? [];
+    if (failures.length === 0) {
+      return baseMessage;
+    }
+    const lines = failures.map((f) => `• ${f.path} (${f.errorVariant})`).join("\n");
+    return `${baseMessage}\n${lines}`;
   }
 
   protected get showAssignToCollections() {

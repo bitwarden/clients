@@ -18,7 +18,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,8 +29,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherDecryptionFailureService } from "@bitwarden/common/vault/abstractions/cipher-decryption-failure.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherDecryptionFailureMap } from "@bitwarden/common/vault/models/cipher-decryption-failure";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -95,7 +97,19 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
   private configService = inject(ConfigService);
+  private cipherDecryptionFailureService = inject(CipherDecryptionFailureService);
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+
+  /** Map of per-cipher decryption failures from the SDK graceful diagnostic pass. */
+  protected readonly decryptionFailuresByCipher: Signal<CipherDecryptionFailureMap | undefined> =
+    toSignal(
+      inject(AccountService).activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.cipherDecryptionFailureService.decryptionFailuresByCipher$(userId),
+        ),
+      ),
+    );
 
   /** Signal for the feature flag that controls simplified item action behavior */
   protected readonly simplifiedItemActionEnabled = toSignal(

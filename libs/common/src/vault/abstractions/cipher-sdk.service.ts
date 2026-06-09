@@ -14,6 +14,35 @@ export interface DecryptAllCiphersResult {
 }
 
 /**
+ * Result of a graceful list-view decryption.
+ *
+ * `successes` are lightweight {@link CipherListView}s (SDK type) — each may
+ * carry a non-empty `decryptionFailures` array describing per-field failures.
+ *
+ * `failures` are whole-cipher decryption failures (cipher-key decrypt errors).
+ * They are mapped to placeholder {@link CipherView}s with `decryptionFailure = true`,
+ * mirroring {@link DecryptAllCiphersResult.failures}.
+ */
+export interface DecryptCipherListGracefulResult {
+  successes: CipherListView[];
+  failures: CipherView[];
+}
+
+/**
+ * Result of a graceful full-view decryption.
+ *
+ * `successes` are full {@link CipherView}s; each may carry a non-empty
+ * `decryptionFailures` array describing per-field failures.
+ *
+ * `failures` are whole-cipher decryption failures, mapped to placeholder
+ * {@link CipherView}s with `decryptionFailure = true`.
+ */
+export interface DecryptCipherFullGracefulResult {
+  successes: CipherView[];
+  failures: CipherView[];
+}
+
+/**
  * Service responsible for cipher operations using the SDK.
  */
 export abstract class CipherSdkService {
@@ -206,6 +235,49 @@ export abstract class CipherSdkService {
    * @returns A promise that resolves to the decrypt result containing successes and failures
    */
   abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
+
+  /**
+   * Decrypts a single cipher gracefully — fields that fail to decrypt do not abort
+   * the operation, and their failures are collected in
+   * {@link CipherView.decryptionFailures}. Throws only when the cipher's own key
+   * fails to decrypt.
+   *
+   * Callers must consult `result.decryptionFailures` before re-encrypting and
+   * saving the cipher; otherwise failed-field ciphertext will be silently
+   * overwritten with null/empty values.
+   *
+   * @param userId The user ID to use for SDK client
+   * @param cipher The encrypted cipher to decrypt
+   */
+  abstract decryptGraceful(userId: UserId, cipher: Cipher): Promise<CipherView | undefined>;
+
+  /**
+   * List-view variant of {@link decryptGraceful}. Per-cipher catastrophic
+   * failures (cipher-key decrypt errors) are returned in `failures` as
+   * placeholder {@link CipherView}s with `decryptionFailure = true`; everything
+   * else lands in `successes` as {@link CipherListView}s, each carrying its own
+   * `decryptionFailures` array.
+   *
+   * @param userId The user ID to use for SDK client
+   * @param ciphers The encrypted ciphers to decrypt
+   */
+  abstract decryptListGraceful(
+    userId: UserId,
+    ciphers: Cipher[],
+  ): Promise<DecryptCipherListGracefulResult>;
+
+  /**
+   * Full-view variant of {@link decryptListGraceful} — returns {@link CipherView}s
+   * (each with its own `decryptionFailures`) instead of the lighter
+   * {@link CipherListView}s. Use when the caller needs every field.
+   *
+   * @param userId The user ID to use for SDK client
+   * @param ciphers The encrypted ciphers to decrypt
+   */
+  abstract decryptListFullGraceful(
+    userId: UserId,
+    ciphers: Cipher[],
+  ): Promise<DecryptCipherFullGracefulResult>;
 
   /**
    * Fetches all ciphers for an organization from the API using the SDK.

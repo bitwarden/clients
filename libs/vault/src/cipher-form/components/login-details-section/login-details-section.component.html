@@ -19,6 +19,9 @@
           [bitAction]="generateUsername"
         ></button>
       }
+      @if (usernameDecryptionFailed) {
+        <bit-hint class="tw-text-warning">{{ "fieldDecryptionFailed" | i18n }}</bit-hint>
+      }
     </bit-form-field>
 
     <bit-form-field>
@@ -77,6 +80,9 @@
           [label]="'generatePassword' | i18n"
           [bitAction]="generatePassword"
         ></button>
+      }
+      @if (passwordDecryptionFailed) {
+        <bit-hint class="tw-text-warning">{{ "fieldDecryptionFailed" | i18n }}</bit-hint>
       }
     </bit-form-field>
 
@@ -140,6 +146,9 @@
           [bitAction]="captureTotp"
           [label]="'totpCapture' | i18n"
         ></button>
+      }
+      @if (totpDecryptionFailed) {
+        <bit-hint class="tw-text-warning">{{ "fieldDecryptionFailed" | i18n }}</bit-hint>
       }
     </bit-form-field>
   </bit-card>

@@ -3,6 +3,7 @@ import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sd
 import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import {
   CipherCreateRequest,
+  CipherDecryptionFailure,
   CipherEditRequest,
   CipherPartialEditRequest,
   CiphersClient,
@@ -73,6 +74,18 @@ export class CipherView implements View, InitializerMetadata {
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
+
+  /**
+   * Per-field decryption failures collected by the SDK's graceful decrypt path.
+   * Only populated when the cipher was decrypted via `decryptGraceful` /
+   * `decryptListFullGraceful` / `decryptListGraceful` on {@link CipherSdkService};
+   * the lenient and strict paths always leave this empty.
+   *
+   * A non-empty value signals incomplete plaintext — re-encrypting and saving the
+   * cipher would overwrite the original ciphertext of the affected fields with
+   * null/empty. Save flows must block or confirm before allowing the write.
+   */
+  decryptionFailures: CipherDecryptionFailure[] = [];
 
   constructor(c?: Cipher) {
     if (!c) {
@@ -239,6 +252,7 @@ export class CipherView implements View, InitializerMetadata {
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;
+    view.decryptionFailures = (obj.decryptionFailures as CipherDecryptionFailure[]) ?? [];
     if (obj.creationDate) {
       view.creationDate = new Date(obj.creationDate);
     }
@@ -341,6 +355,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
     cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
+    cipherView.decryptionFailures = obj.decryptionFailures ?? [];
 
     switch (obj.type) {
       case CipherType.Card:

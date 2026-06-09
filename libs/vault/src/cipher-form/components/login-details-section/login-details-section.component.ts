@@ -27,6 +27,7 @@ import {
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { FIELD_PATHS, hasFailureAtPath } from "../../utils/cipher-decryption-failure-paths";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -105,6 +106,24 @@ export class LoginDetailsSectionComponent implements OnInit {
 
   get initialValues() {
     return this.cipherFormContainer.config.initialValues;
+  }
+
+  protected get usernameDecryptionFailed(): boolean {
+    return hasFailureAtPath(
+      this.cipherFormContainer.decryptionFailures,
+      FIELD_PATHS.LOGIN_USERNAME,
+    );
+  }
+
+  protected get passwordDecryptionFailed(): boolean {
+    return hasFailureAtPath(
+      this.cipherFormContainer.decryptionFailures,
+      FIELD_PATHS.LOGIN_PASSWORD,
+    );
+  }
+
+  protected get totpDecryptionFailed(): boolean {
+    return hasFailureAtPath(this.cipherFormContainer.decryptionFailures, FIELD_PATHS.LOGIN_TOTP);
   }
 
   constructor(
