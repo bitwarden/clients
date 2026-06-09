@@ -41,7 +41,11 @@
         <ng-content select="bit-hint"></ng-content>
       </span>
     </div>
-    <ng-content></ng-content>
+    <div
+      class="tw-relative tw-pointer-events-none [&_a]:tw-pointer-events-auto [&_button]:tw-pointer-events-auto"
+    >
+      <ng-content></ng-content>
+    </div>
   </div>
   <div [id]="errorId" class="tw-text-fg-danger tw-text-xs tw-ms-0.5" [hidden]="!control.hasError">
     @if (control.hasError) {
