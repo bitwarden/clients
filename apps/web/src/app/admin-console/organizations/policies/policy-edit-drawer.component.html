@@ -21,6 +21,9 @@
       </div>
     }
     <div [hidden]="loading()">
+      @if (policy.warningKey) {
+        <bit-callout type="warning">{{ policy.warningKey | i18n }}</bit-callout>
+      }
       @if (policy.v2?.prerequisiteKey) {
         <bit-callout type="info" [title]="'prerequisite' | i18n">
           {{ policy.v2.prerequisiteKey | i18n }}
