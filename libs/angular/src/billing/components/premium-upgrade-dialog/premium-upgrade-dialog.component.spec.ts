@@ -103,6 +103,7 @@ describe("PremiumUpgradeDialogComponent", () => {
 
     mockConfigService = {
       getFeatureFlag: jest.fn().mockResolvedValue(false),
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
     } as any;
 
     mockBillingApiService = {
@@ -195,7 +196,7 @@ describe("PremiumUpgradeDialogComponent", () => {
         expect(mockDialogRef.close).toHaveBeenCalled();
       });
 
-      it("should launch web vault URL on self-host even when flag is enabled", async () => {
+      it("should launch web vault URL on self-host when the checkout flag is enabled and the bypass flag is at its default", async () => {
         mockConfigService.getFeatureFlag.mockResolvedValue(true);
         mockEnvironmentService.environment$ = of({
           getWebVaultUrl: () => "https://self-hosted.example.com",
@@ -208,6 +209,62 @@ describe("PremiumUpgradeDialogComponent", () => {
         expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
         expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
           "https://self-hosted.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+    });
+
+    describe("QA self-host check bypass (PM38393_DisableSelfHostPremiumCheck)", () => {
+      beforeEach(() => {
+        mockConfigService.getFeatureFlag.mockResolvedValue(true);
+        mockEnvironmentService.environment$ = of({
+          getWebVaultUrl: () => "https://vault.qa.example.com",
+          getRegion: () => Region.SelfHosted,
+          isCloud: () => false,
+        }) as any;
+        mockBillingApiService.createPremiumCheckoutSession.mockResolvedValue({
+          checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123",
+        } as any);
+      });
+
+      it("should use the Stripe checkout flow on self-host when the bypass flag is enabled", async () => {
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+        await component["upgrade"]();
+
+        expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+          FeatureFlag.PM38393_DisableSelfHostPremiumCheck,
+        );
+        expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledWith({
+          platform: "browser",
+        });
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should keep the web vault flow on self-host when the bypass flag is disabled", async () => {
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://vault.qa.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should not use the checkout flow when the bypass flag is enabled but the checkout flag is disabled", async () => {
+        mockConfigService.getFeatureFlag.mockResolvedValue(false);
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://vault.qa.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
         );
         expect(mockDialogRef.close).toHaveBeenCalled();
       });

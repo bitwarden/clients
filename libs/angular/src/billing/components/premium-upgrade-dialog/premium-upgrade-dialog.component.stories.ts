@@ -108,6 +108,7 @@ export default {
           provide: ConfigService,
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
+            getFeatureFlag$: () => of(false),
           },
         },
         {

@@ -1,7 +1,7 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
-import { catchError, EMPTY, firstValueFrom, map, Observable } from "rxjs";
+import { catchError, EMPTY, firstValueFrom, map, Observable, of } from "rxjs";
 
 import { SubscriptionPricingCardDetails } from "@bitwarden/angular/billing/types/subscription-pricing-card-details";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -14,6 +14,7 @@ import {
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { isPremiumCloudEnvironment$ } from "@bitwarden/common/billing/utils/premium-environment-utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -88,9 +89,12 @@ export class PremiumUpgradeDialogComponent {
       const checkoutFlagEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM34515_BrowserDesktopCheckout,
       );
+      const isPremiumCloudEnvironment = await firstValueFrom(
+        isPremiumCloudEnvironment$(of(environment), this.configService),
+      );
       const platform = this.resolveCheckoutPlatform();
 
-      if (checkoutFlagEnabled && environment.isCloud() && platform != null) {
+      if (checkoutFlagEnabled && isPremiumCloudEnvironment && platform != null) {
         const { checkoutSessionUrl } = await this.billingApiService.createPremiumCheckoutSession({
           platform,
         });

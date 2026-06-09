@@ -5,6 +5,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
@@ -1034,6 +1035,71 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(premiumTier?.passwordManager.features.length).toBeGreaterThan(0);
 
         done();
+      });
+    });
+
+    it("should call API and return prices for self-hosted when the QA self-host check bypass flag is enabled", (done) => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      selfHostedBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      selfHostedBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        expect(selfHostedConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+          FeatureFlag.PM38393_DisableSelfHostPremiumCheck,
+        );
+        expect(selfHostedBillingApiService.getPlans).toHaveBeenCalled();
+        expect(selfHostedBillingApiService.getPremiumPlan).toHaveBeenCalled();
+
+        const premiumTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Premium);
+        expect(premiumTier?.passwordManager.annualPrice).toBe(10);
+
+        done();
+      });
+    });
+
+    it("should fetch prices for self-hosted when the QA self-host check bypass flag turns on after initially being off", (done) => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      selfHostedBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      selfHostedBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      // Simulates the flag resolving to its FALSE default before the server config arrives,
+      // then flipping to true once the QA-served config lands.
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false, true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        const premiumTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Premium);
+
+        // Earlier emissions reflect the flag-off stub values; the stream recovers once the
+        // flag turns on instead of caching the initial default forever.
+        if (premiumTier?.passwordManager.annualPrice === 10) {
+          expect(selfHostedBillingApiService.getPlans).toHaveBeenCalled();
+          expect(selfHostedBillingApiService.getPremiumPlan).toHaveBeenCalled();
+          done();
+        }
       });
     });
   });

@@ -1,12 +1,12 @@
 import {
   combineLatest,
+  distinctUntilChanged,
   from,
   map,
   Observable,
   of,
   shareReplay,
   switchMap,
-  take,
   throwError,
 } from "rxjs";
 import { catchError } from "rxjs/operators";
@@ -29,6 +29,7 @@ import {
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "../types/subscription-pricing-tier";
+import { isPremiumCloudEnvironment$ } from "../utils/premium-environment-utils";
 
 export class DefaultSubscriptionPricingService implements SubscriptionPricingServiceAbstraction {
   constructor(
@@ -42,7 +43,8 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets personal subscription pricing tiers (Premium and Families).
    * Throws any errors that occur during api request so callers must handle errors.
-   * Pricing information will be undefined if current environment is self-hosted.
+   * Pricing information will be undefined if the current environment is self-hosted, unless
+   * the internal QA self-host bypass flag is enabled — see {@link isPremiumCloudEnvironment$}.
    * @returns An observable of an array of personal subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -57,7 +59,8 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.
-   * Pricing information will be undefined if current environment is self-hosted.
+   * Pricing information will be undefined if the current environment is self-hosted, unless
+   * the internal QA self-host bypass flag is enabled — see {@link isPremiumCloudEnvironment$}.
    * @returns An observable of an array of business subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -72,7 +75,8 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets developer subscription pricing tiers (Free, Teams, and Enterprise).
    * Throws any errors that occur during api request so callers must handle errors.
-   * Pricing information will be undefined if current environment is self-hosted.
+   * Pricing information will be undefined if the current environment is self-hosted, unless
+   * the internal QA self-host bypass flag is enabled — see {@link isPremiumCloudEnvironment$}.
    * @returns An observable of an array of business subscription pricing tiers for developers.
    * @throws Error if any errors occur during api request.
    */
@@ -84,32 +88,37 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
+  // Shared and live (no take(1)): if the QA self-host bypass flag arrives after the first
+  // emission (e.g. the initial config fetch was slow), the pricing streams re-evaluate
+  // instead of caching the flag's default value for the lifetime of the service.
+  private isCloudEnvironment$: Observable<boolean> = isPremiumCloudEnvironment$(
+    this.environmentService.environment$,
+    this.configService,
+  ).pipe(distinctUntilChanged(), shareReplay({ bufferSize: 1, refCount: false }));
+
   private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> =
-    this.environmentService.environment$.pipe(
-      take(1),
-      switchMap((environment) =>
-        !environment.isCloud()
+    this.isCloudEnvironment$.pipe(
+      switchMap((isCloudEnvironment) =>
+        !isCloudEnvironment
           ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
           : from(this.billingApiService.getPlans()),
       ),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-  private premiumPlanResponse$: Observable<PremiumPlanResponse> =
-    this.environmentService.environment$.pipe(
-      take(1),
-      switchMap((environment) =>
-        !environment.isCloud()
-          ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
-          : from(this.billingApiService.getPremiumPlan()).pipe(
-              catchError((error: unknown) => {
-                this.logService.error("Failed to fetch premium plan from API", error);
-                return throwError(() => error); // Re-throw to propagate to higher-level error handler
-              }),
-            ),
-      ),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+  private premiumPlanResponse$: Observable<PremiumPlanResponse> = this.isCloudEnvironment$.pipe(
+    switchMap((isCloudEnvironment) =>
+      !isCloudEnvironment
+        ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
+        : from(this.billingApiService.getPremiumPlan()).pipe(
+            catchError((error: unknown) => {
+              this.logService.error("Failed to fetch premium plan from API", error);
+              return throwError(() => error); // Re-throw to propagate to higher-level error handler
+            }),
+          ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
 
   private premium$: Observable<PersonalSubscriptionPricingTier> = this.premiumPlanResponse$.pipe(
     map((premiumPlan) => ({
