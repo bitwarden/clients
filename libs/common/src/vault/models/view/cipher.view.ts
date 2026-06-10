@@ -415,7 +415,7 @@ export class CipherView implements View, InitializerMetadata {
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       type: this.getSdkCipherViewType(),
-      archivedDate: undefined,
+      archivedDate: this.archivedDate?.toISOString(),
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
