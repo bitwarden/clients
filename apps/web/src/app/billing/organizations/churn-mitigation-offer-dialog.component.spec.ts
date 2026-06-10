@@ -73,7 +73,7 @@ describe("ChurnMitigationOfferDialogComponent", () => {
 
       const component = buildComponent(offer);
 
-      expect((component as any).discountLabel).toBe("$15.00");
+      expect((component as any).discountLabel).toBe("$15 Off");
     });
 
     it("falls back to the coupon name when no discount values are present", () => {
