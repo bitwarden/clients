@@ -43,7 +43,6 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     close: "Close",
     cancel: "Cancel",
     back: "Back",
-    all: "All",
 
     // --- Applications toolbar ---
     critical: (n: string | undefined) => `Critical (${n})`,
@@ -243,4 +242,14 @@ export class MockDialogService {
     return { closed: EMPTY };
   };
   openSimpleDialog = () => Promise.resolve(true);
+}
+
+/**
+ * Mock ConfigService for Storybook stories.
+ */
+export class MockConfigService {
+  getFeatureFlag$ = (flag: string) => {
+    action("ConfigService.getFeatureFlag$")(flag);
+    return of(true);
+  };
 }

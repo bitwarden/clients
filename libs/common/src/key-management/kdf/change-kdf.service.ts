@@ -33,7 +33,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     assertNonNullish(userId, "userId");
     const updateKdfResult = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
+        map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -43,7 +43,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
           const updateKdfResponse = ref.value
             .crypto()
             .make_update_kdf(masterPassword, kdf.toSdkConfig());
-          return updateKdfResponse;
+          return await updateKdfResponse;
         }),
       ),
     );
