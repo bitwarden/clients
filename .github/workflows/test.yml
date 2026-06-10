@@ -119,7 +119,7 @@ jobs:
         # maxWorkers is a workaround for a memory leak that crashes tests in CI:
         # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
         # Reduced to 2 workers and split tests across parallel jobs to prevent OOM kills
-        run: npm test -- ${{ matrix.test-group.paths }} --coverage --maxWorkers=2
+        run: npm test -- ${{ matrix.test-group.paths }} --coverage --maxWorkers=2 --workerIdleMemoryLimit=1500MiB
         env:
           JEST_JUNIT_OUTPUT_NAME: ${{ matrix.test-group.junit }}
 

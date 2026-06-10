@@ -4747,7 +4747,7 @@
     "message": "Atalho inválido"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Caminho de navegação",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -5187,13 +5187,13 @@
     "message": "Copiar IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Copiar nome do titular da conta"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Copiar número da agência"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Copiar código SWIFT"
   },
   "copyFirstName": {
     "message": "Copiar nome próprio"

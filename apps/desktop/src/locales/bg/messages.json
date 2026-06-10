@@ -4747,7 +4747,7 @@
     "message": "Неправилна комбинация"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Пътечка",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
