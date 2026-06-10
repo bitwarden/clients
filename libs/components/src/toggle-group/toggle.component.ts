@@ -118,8 +118,5 @@ export class ToggleComponent<TValue> {
 
     "peer-checked/toggle-input:!tw-text-fg-contrast",
     "peer-checked/toggle-input:after:tw-opacity-[0]",
-
-    // Fix for bootstrap styles that add bottom margin
-    // "!tw-mb-0",
   ];
 }

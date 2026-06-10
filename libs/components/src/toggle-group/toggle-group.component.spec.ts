@@ -1,7 +1,9 @@
+import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -111,7 +113,123 @@ describe("Button", () => {
       expect(fixture.debugElement.query(By.css("label.tw-sr-only"))).toBeNull();
     });
   });
+
+  describe("responsive measurement", () => {
+    // Stub the host's getBoundingClientRect so we can simulate a natural width
+    // wider than the container in jsdom. The component briefly sets
+    // `style.width = "max-content"` to measure unconstrained width, so we
+    // branch on that to return either the natural or current width.
+    function stubHostRect(host: HTMLElement, naturalWidth: number, currentWidth: number) {
+      jest.spyOn(host, "getBoundingClientRect").mockImplementation(() => {
+        const width = host.style.width === "max-content" ? naturalWidth : currentWidth;
+        return {
+          width,
+          height: 40,
+          top: 0,
+          left: 0,
+          right: width,
+          bottom: 40,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect;
+      });
+    }
+
+    it("re-measures naturalWidth after toggles render via async pipe and switches to dropdown when they overflow", async () => {
+      TestBed.configureTestingModule({
+        imports: [AsyncTogglesTestComponent],
+        providers: [{ provide: I18nService, useValue: mock<I18nService>() }],
+      });
+      await TestBed.compileComponents();
+
+      const asyncFixture = TestBed.createComponent(AsyncTogglesTestComponent);
+      asyncFixture.detectChanges();
+
+      const groupDebug = asyncFixture.debugElement.query(By.directive(ToggleGroupComponent));
+      const groupHost = groupDebug.nativeElement as HTMLElement;
+      const group = groupDebug.componentInstance as ToggleGroupComponent<string>;
+
+      // Natural content width (800) exceeds container (400) → should collapse to dropdown.
+      stubHostRect(groupHost, 800, 400);
+
+      // No toggles projected yet → effect short-circuits, mode stays "inline".
+      expect(group.displayMode()).toBe("inline");
+
+      asyncFixture.componentInstance.options$.next([
+        { value: "a", label: "First" },
+        { value: "b", label: "Second" },
+        { value: "c", label: "Third" },
+      ]);
+      asyncFixture.detectChanges();
+      await asyncFixture.whenStable();
+      asyncFixture.detectChanges();
+
+      expect(group.displayMode()).toBe("dropdown");
+    });
+
+    it("re-measures when the toggle count changes at runtime", async () => {
+      TestBed.configureTestingModule({
+        imports: [AsyncTogglesTestComponent],
+        providers: [{ provide: I18nService, useValue: mock<I18nService>() }],
+      });
+      await TestBed.compileComponents();
+
+      const asyncFixture = TestBed.createComponent(AsyncTogglesTestComponent);
+      asyncFixture.detectChanges();
+
+      const groupDebug = asyncFixture.debugElement.query(By.directive(ToggleGroupComponent));
+      const groupHost = groupDebug.nativeElement as HTMLElement;
+      const group = groupDebug.componentInstance as ToggleGroupComponent<string>;
+
+      // First: two toggles fit (natural 300 ≤ container 400).
+      stubHostRect(groupHost, 300, 400);
+      asyncFixture.componentInstance.options$.next([
+        { value: "a", label: "First" },
+        { value: "b", label: "Second" },
+      ]);
+      asyncFixture.detectChanges();
+      await asyncFixture.whenStable();
+      asyncFixture.detectChanges();
+
+      expect(group.displayMode()).toBe("inline");
+
+      // Now five toggles overflow (natural 900 > container 400). A naive
+      // implementation that captured naturalWidth once would still report
+      // inline; the fix re-measures on toggle-count change.
+      stubHostRect(groupHost, 900, 400);
+      asyncFixture.componentInstance.options$.next([
+        { value: "a", label: "First" },
+        { value: "b", label: "Second" },
+        { value: "c", label: "Third" },
+        { value: "d", label: "Fourth" },
+        { value: "e", label: "Fifth" },
+      ]);
+      asyncFixture.detectChanges();
+      await asyncFixture.whenStable();
+      asyncFixture.detectChanges();
+
+      expect(group.displayMode()).toBe("dropdown");
+    });
+  });
 });
+
+@Component({
+  selector: "async-toggles-test",
+  template: `
+    <bit-toggle-group [(selected)]="selected">
+      @for (option of options$ | async; track option.value) {
+        <bit-toggle [value]="option.value">{{ option.label }}</bit-toggle>
+      }
+    </bit-toggle-group>
+  `,
+  imports: [AsyncPipe, ToggleGroupModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class AsyncTogglesTestComponent {
+  readonly selected: WritableSignal<string | undefined> = signal(undefined);
+  protected readonly options$ = new BehaviorSubject<{ value: string; label: string }[]>([]);
+}
 
 @Component({
   selector: "test-app",

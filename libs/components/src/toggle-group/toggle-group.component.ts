@@ -1,5 +1,5 @@
 import {
-  afterNextRender,
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +11,7 @@ import {
   input,
   model,
   signal,
+  untracked,
 } from "@angular/core";
 
 import { Option } from "../select/option";
@@ -79,8 +80,24 @@ export class ToggleGroupComponent<TValue = unknown> {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    afterNextRender(() => {
-      const el = this.el.nativeElement;
+    const el = this.el.nativeElement;
+    // Mutable so the ResizeObserver always reads the latest value, and the
+    // afterRenderEffect below can refresh it when projected toggles change.
+    let naturalWidth = 0;
+    let observerStarted = false;
+
+    afterRenderEffect(() => {
+      // Re-run whenever the set of projected toggles changes — every real
+      // consumer renders them via `@for option of (rootOptions$ | async)`, so
+      // the children arrive after the first paint and need a fresh measurement.
+      const togglesCount = this.toggles().length;
+
+      // In dropdown mode the toggles are not projected (the template's @if
+      // swaps <ng-content> out for <bit-toggle-dropdown>), so measuring would
+      // capture the dropdown's width instead. Skip and keep the prior value.
+      if (togglesCount === 0 || untracked(this.displayMode) === "dropdown") {
+        return;
+      }
 
       // Measure the unconstrained natural width of the toggle group by forcing it to
       // size to its content, temporarily overriding any max-width that may be set on
@@ -90,7 +107,7 @@ export class ToggleGroupComponent<TValue = unknown> {
       // an inline↔dropdown oscillation loop.
       el.style.width = "max-content";
       el.style.maxWidth = "none";
-      const naturalWidth = Math.floor(el.getBoundingClientRect().width);
+      naturalWidth = Math.floor(el.getBoundingClientRect().width);
       el.style.maxWidth = "";
       el.style.width = "";
 
@@ -102,6 +119,11 @@ export class ToggleGroupComponent<TValue = unknown> {
       } else if (this.fullWidth()) {
         this.displayMode.set("full-width");
       }
+
+      if (observerStarted) {
+        return;
+      }
+      observerStarted = true;
 
       const observer = new ResizeObserver((entries) => {
         const currentWidth = Math.floor(entries[0].borderBoxSize[0].inlineSize);
