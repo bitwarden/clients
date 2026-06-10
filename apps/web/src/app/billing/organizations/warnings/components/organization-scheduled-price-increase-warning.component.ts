@@ -42,7 +42,10 @@ export class OrganizationScheduledPriceIncreaseWarningComponent {
       if (!warning) {
         return null;
       }
-      const price = this.currencyPipe.transform(warning.seatPrice, "$") ?? `$${warning.seatPrice}`;
+      const digitsInfo = Number.isInteger(warning.seatPrice) ? "1.0-0" : "1.2-2";
+      const price =
+        this.currencyPipe.transform(warning.seatPrice, "$", "symbol", digitsInfo) ??
+        `$${warning.seatPrice}`;
       const date = this.datePipe.transform(warning.effectiveDate, "longDate", "UTC") ?? "";
       return warning.cadence === "annually"
         ? this.i18nService.t("scheduledPriceIncreaseWarningAnnually", price, date)

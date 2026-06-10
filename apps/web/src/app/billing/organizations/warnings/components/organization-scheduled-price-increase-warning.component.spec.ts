@@ -70,11 +70,11 @@ describe("OrganizationScheduledPriceIncreaseWarningComponent", () => {
 
     expect(i18nService.t).toHaveBeenCalledWith(
       "scheduledPriceIncreaseWarningMonthly",
-      "$6.00",
+      "$6",
       "July 15, 2026",
     );
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain("$6.00 per seat per month on July 15, 2026");
+    expect(text).toContain("$6 per seat per month on July 15, 2026");
     expect(text).not.toContain("billed annually");
   });
 
@@ -89,10 +89,26 @@ describe("OrganizationScheduledPriceIncreaseWarningComponent", () => {
 
     expect(i18nService.t).toHaveBeenCalledWith(
       "scheduledPriceIncreaseWarningAnnually",
-      "$6.00",
+      "$6",
       "July 15, 2026",
     );
     expect(fixture.nativeElement.textContent).toContain("(billed annually)");
+  });
+
+  it("shows cents only when the price has a fractional amount", () => {
+    setWarning({
+      seatPrice: 6.5,
+      effectiveDate: new Date("2026-07-15T02:00:00Z"),
+      cadence: "monthly",
+    });
+
+    fixture.detectChanges();
+
+    expect(i18nService.t).toHaveBeenCalledWith(
+      "scheduledPriceIncreaseWarningMonthly",
+      "$6.50",
+      "July 15, 2026",
+    );
   });
 
   it("renders an info callout with no title", () => {
