@@ -37,6 +37,13 @@ export type CipherAccessState = {
 };
 
 export abstract class PamApiService {
+  /**
+   * Emits after every successful locally-initiated mutation (request created,
+   * cancelled, decided, revoked, extended, …). Surfaces whose state aggregates
+   * leasing data (e.g. the approver-inbox nav badge) refresh on it without
+   * waiting for the server push channel.
+   */
+  abstract readonly mutations$: Observable<void>;
   abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
   abstract getCipherAccessState$(cipherId: string, userId: string): Observable<CipherAccessState>;
   /**

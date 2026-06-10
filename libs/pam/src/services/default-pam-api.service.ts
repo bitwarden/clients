@@ -35,7 +35,9 @@ export class DefaultPamApiService implements PamApiService {
    * (`LeaseEventService`) only fires for backend-driven transitions, so
    * locally-initiated mutations need their own refresh signal.
    */
-  private readonly localRefresh$ = new Subject<void>();
+  protected readonly localRefresh$ = new Subject<void>();
+
+  readonly mutations$: Observable<void> = this.localRefresh$.asObservable();
 
   constructor(
     private apiService: ApiService,
@@ -92,9 +94,11 @@ export class DefaultPamApiService implements PamApiService {
     cipherId: string,
     body: CreateLeaseRequest,
   ): Promise<AccessRequestEnvelopeResponse> {
-    return new AccessRequestEnvelopeResponse(
+    const response = new AccessRequestEnvelopeResponse(
       await this.send("POST", `/ciphers/${cipherId}/lease`, body, true),
     );
+    this.localRefresh$.next();
+    return response;
   }
 
   async getLeasedCipher(cipherId: string): Promise<CipherResponse> {

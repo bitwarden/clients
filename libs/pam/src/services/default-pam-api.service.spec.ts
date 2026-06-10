@@ -139,6 +139,78 @@ describe("DefaultPamApiService", () => {
       expect(result.request?.reason).toBe("Investigating prod incident #4821");
       expect(result.request?.creationDate).toBe("2026-06-04T12:00:00Z");
     });
+
+    it("pumps mutations$ after a successful automatic lease", async () => {
+      apiService.send.mockResolvedValue({
+        Object: "accessRequest",
+        Outcome: "automatic",
+        Lease: {
+          Object: "lease",
+          Id: "lease-1",
+          CipherId: "cipher-1",
+          CollectionId: "col-1",
+          OrganizationId: "org-1",
+          Status: LeaseLifecycleStatus.Active,
+          NotBefore: "2026-06-04T12:00:00Z",
+          NotAfter: "2026-06-04T13:00:00Z",
+        },
+        Request: null,
+      });
+      const mutations = jest.fn();
+      const sub = service.mutations$.subscribe(mutations);
+
+      await service.requestLease("cipher-1", new CreateLeaseRequest({ durationSeconds: 3600 }));
+
+      expect(mutations).toHaveBeenCalledTimes(1);
+      sub.unsubscribe();
+    });
+
+    it("pumps mutations$ after a successful human request", async () => {
+      apiService.send.mockResolvedValue({
+        Object: "accessRequest",
+        Outcome: "human",
+        Lease: null,
+        Request: {
+          Object: "leaseRequest",
+          Id: "req-1",
+          CipherId: "cipher-1",
+          CollectionId: "col-1",
+          OrganizationId: "org-1",
+          Status: LeaseRequestLifecycleStatus.Pending,
+          NotBefore: "2026-06-05T09:00:00Z",
+          NotAfter: "2026-06-05T17:00:00Z",
+          Reason: "incident",
+          CreationDate: "2026-06-04T12:00:00Z",
+        },
+      });
+      const mutations = jest.fn();
+      const sub = service.mutations$.subscribe(mutations);
+
+      await service.requestLease(
+        "cipher-1",
+        new CreateLeaseRequest({
+          start: new Date("2026-06-05T09:00:00Z"),
+          end: new Date("2026-06-05T17:00:00Z"),
+          reason: "incident",
+        }),
+      );
+
+      expect(mutations).toHaveBeenCalledTimes(1);
+      sub.unsubscribe();
+    });
+
+    it("does not pump mutations$ when the request fails", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 400));
+      const mutations = jest.fn();
+      const sub = service.mutations$.subscribe(mutations);
+
+      await expect(
+        service.requestLease("cipher-1", new CreateLeaseRequest({ durationSeconds: 3600 })),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(mutations).not.toHaveBeenCalled();
+      sub.unsubscribe();
+    });
   });
 
   describe("getLeasedCipher", () => {
