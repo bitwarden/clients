@@ -27,8 +27,6 @@ export type ChurnMitigationOfferDialogParams = {
   planName: string;
   /** Next charge date shown in the success state after the offer is applied. */
   nextChargeDate: string | null;
-  /** Subscription billing cadence, used to describe the period a `once` coupon covers. */
-  billingInterval: "year" | "month";
 };
 
 export const ChurnMitigationOfferDialogResultType = Object.freeze({
@@ -68,15 +66,35 @@ export class ChurnMitigationOfferDialogComponent {
   }
 
   protected get durationDescription(): string {
-    return this.params.offer.getDurationDescription(this.params.billingInterval);
+    const count = this.durationCount;
+    return count === 1 ? this.durationUnit : `${count} ${this.durationUnit}`;
   }
 
   protected get durationLength(): string {
-    return this.params.offer.getDurationParts(this.params.billingInterval).length;
+    return this.durationCount.toString();
   }
 
   protected get durationUnit(): string {
-    return this.params.offer.getDurationParts(this.params.billingInterval).unit;
+    return this.i18nService.t(this.durationUnitKey);
+  }
+
+  /** Number of whole years or months the discount covers (years when divisible by 12). */
+  private get durationCount(): number {
+    const months = this.params.offer.durationInMonths;
+    if (months == null) {
+      return 1;
+    }
+    return months % 12 === 0 ? months / 12 : months;
+  }
+
+  /** i18n key for the duration unit, pluralized to match {@link durationCount}. */
+  private get durationUnitKey(): "year" | "years" | "month" | "months" {
+    const months = this.params.offer.durationInMonths;
+    const isYears = months == null || months % 12 === 0;
+    if (isYears) {
+      return this.durationCount === 1 ? "year" : "years";
+    }
+    return this.durationCount === 1 ? "month" : "months";
   }
 
   readonly acceptOffer = async () => {

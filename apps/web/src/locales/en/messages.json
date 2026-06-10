@@ -3562,11 +3562,17 @@
   "year": {
     "message": "year"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "yr"
   },
   "month": {
     "message": "month"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "mo.",
