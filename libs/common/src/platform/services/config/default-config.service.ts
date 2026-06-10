@@ -32,6 +32,7 @@ import { ConfigService } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService, Region } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
+import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { devFlagEnabled, devFlagValue } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import { ServerSettings } from "../../models/domain/server-settings";
@@ -92,6 +93,7 @@ export class DefaultConfigService implements ConfigService {
     private logService: LogService,
     private stateProvider: StateProvider,
     private authService: AuthService,
+    private sdkService: SdkService,
   ) {
     const globalConfig$ = this.environmentService.globalEnvironment$.pipe(
       distinctUntilChanged(environmentComparer),
@@ -260,7 +262,10 @@ export class DefaultConfigService implements ConfigService {
           return { ...configs, [environment.getApiUrl()]: newConfig };
         });
       } else {
-        // update state with new pulled config
+        // Push-then-emit: push the refreshed feature flags into the user's live SDK client BEFORE
+        // persisting the config the observable reflects, so a reactive consumer never sees new flags
+        // with a client the SDK hasn't updated.
+        await this.sdkService.setFlags(userId, toSdkFeatureFlags(newConfig));
         await this.stateProvider.setUserState(USER_SERVER_CONFIG, newConfig, userId);
       }
     } catch (e) {
@@ -301,4 +306,13 @@ export class DefaultConfigService implements ConfigService {
         : { bootstrap: { type: "direct" } };
     this.serverCommunicationConfigSubject.next(communicationConfig);
   }
+}
+
+/** The SDK only supports boolean feature flags at this time. */
+function toSdkFeatureFlags(config: ServerConfig): Map<string, boolean> {
+  return new Map(
+    Object.entries(config?.featureStates ?? {})
+      .filter(([, value]) => typeof value === "boolean")
+      .map(([key, value]) => [key, value] as [string, boolean]),
+  );
 }

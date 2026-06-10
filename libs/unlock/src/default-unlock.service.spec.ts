@@ -14,6 +14,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -23,6 +24,7 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { EncString, PureCrypto, V2UpgradeToken } from "@bitwarden/sdk-internal";
@@ -55,6 +57,8 @@ describe("DefaultUnlockService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  const sdkService = mock<SdkService>();
+  const keyService = mock<KeyService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -100,6 +104,7 @@ describe("DefaultUnlockService", () => {
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
+    keyService.encryptedOrgKeys$.mockReturnValue(of({}));
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -126,6 +131,8 @@ describe("DefaultUnlockService", () => {
       stateService,
       biometricStateService,
       v2UpgradeTokenStateService,
+      sdkService,
+      keyService,
     );
 
     setLegacyMasterKeyFromUnlockDataSpy = jest

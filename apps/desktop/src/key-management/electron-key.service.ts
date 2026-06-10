@@ -6,6 +6,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -35,6 +36,7 @@ export class ElectronKeyService extends DefaultKeyService {
     kdfConfigService: KdfConfigService,
     private biometricService: DesktopBiometricsService,
     accountCryptographicStateService: AccountCryptographicStateService,
+    sdkService: SdkService,
   ) {
     super(
       masterPasswordService,
@@ -48,6 +50,7 @@ export class ElectronKeyService extends DefaultKeyService {
       stateProvider,
       kdfConfigService,
       accountCryptographicStateService,
+      sdkService,
     );
   }
 

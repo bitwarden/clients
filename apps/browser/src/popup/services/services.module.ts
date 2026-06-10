@@ -320,6 +320,7 @@ const safeProviders: SafeProvider[] = [
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
       accountCryptographicStateService: AccountCryptographicStateService,
+      sdkService: SdkService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -333,6 +334,7 @@ const safeProviders: SafeProvider[] = [
         stateProvider,
         kdfConfigService,
         accountCryptographicStateService,
+        sdkService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
@@ -349,6 +351,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
       AccountCryptographicStateService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -760,7 +763,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, AccountSwitcherService, SdkService],
   }),
   safeProvider({
     provide: CompactModeService,

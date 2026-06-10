@@ -34,8 +34,24 @@ export class MockSdkService implements SdkService {
     );
   }
 
-  setClient(): void {
-    throw new Error("Not supported in mock service");
+  unlock(): Promise<void> {
+    throw new Error("Not supported in mock service. Use simulate.userLogin instead.");
+  }
+
+  lock(): Promise<void> {
+    throw new Error("Not supported in mock service. Use simulate.userLogout instead.");
+  }
+
+  logout(): void {
+    throw new Error("Not supported in mock service. Use simulate.userLogout instead.");
+  }
+
+  setFlags(): Promise<void> {
+    throw new Error("Not supported in mock service.");
+  }
+
+  setOrgKeys(): Promise<void> {
+    throw new Error("Not supported in mock service.");
   }
 
   /**

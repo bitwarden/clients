@@ -8,6 +8,7 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import { SdkUnlockData } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -68,6 +69,12 @@ export abstract class KeyService {
    * @param userId The desired user
    */
   abstract setUserKey(key: UserKey, userId: UserId): Promise<void>;
+  /**
+   * Builds the payload to (re)initialize the SDK client's user + org crypto for a user, or `null`
+   * when the account's email / KDF / cryptographic state isn't available yet. Shared by `setUserKey`
+   * and the unlock flow so both produce identical SDK input.
+   */
+  abstract buildSdkUnlockData(userId: UserId, userKey: UserKey): Promise<SdkUnlockData | null>;
   /**
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys

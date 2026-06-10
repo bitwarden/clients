@@ -17,6 +17,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService, SdkUnlockData } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -63,6 +64,7 @@ describe("keyService", () => {
   const stateService = mock<StateService>();
   const kdfConfigService = mock<KdfConfigService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -88,7 +90,13 @@ describe("keyService", () => {
       stateProvider,
       kdfConfigService,
       accountCryptographicStateService,
+      sdkService,
     );
+
+    // buildSdkUnlockData (called by setUserKey) reads these; default them to no-op so the SDK push
+    // is skipped unless a test opts in.
+    kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
+    accountCryptographicStateService.accountCryptographicState$.mockReturnValue(of(null));
   });
 
   const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
@@ -253,6 +261,23 @@ describe("keyService", () => {
       await keyService.setUserKey(mockUserKey, mockUserId);
 
       expect(await firstValueFrom(everHadUserKeyState.state$)).toBe(true);
+    });
+
+    it("pushes the SDK unlock when unlock data is available", async () => {
+      const unlockData = { userKey: mockUserKey } as SdkUnlockData;
+      jest.spyOn(keyService, "buildSdkUnlockData").mockResolvedValue(unlockData);
+
+      await keyService.setUserKey(mockUserKey, mockUserId);
+
+      expect(sdkService.unlock).toHaveBeenCalledWith(mockUserId, unlockData);
+    });
+
+    it("skips the SDK unlock when unlock data is unavailable", async () => {
+      jest.spyOn(keyService, "buildSdkUnlockData").mockResolvedValue(null);
+
+      await keyService.setUserKey(mockUserKey, mockUserId);
+
+      expect(sdkService.unlock).not.toHaveBeenCalled();
     });
 
     describe("Auto Key refresh", () => {

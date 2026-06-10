@@ -3,6 +3,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { LogoutReason, LogoutService } from "@bitwarden/auth/common";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
@@ -13,6 +14,7 @@ describe("ExtensionLogoutService", () => {
   let logoutService: LogoutService;
   let messagingService: MockProxy<MessagingService>;
   let accountSwitcherService: MockProxy<AccountSwitcherService>;
+  let sdkService: MockProxy<SdkService>;
 
   let primaryUserId: UserId;
   let secondaryUserId: UserId;
@@ -25,7 +27,12 @@ describe("ExtensionLogoutService", () => {
 
     messagingService = mock<MessagingService>();
     accountSwitcherService = mock<AccountSwitcherService>();
-    logoutService = new ExtensionLogoutService(messagingService, accountSwitcherService);
+    sdkService = mock<SdkService>();
+    logoutService = new ExtensionLogoutService(
+      messagingService,
+      accountSwitcherService,
+      sdkService,
+    );
   });
 
   it("instantiates", () => {

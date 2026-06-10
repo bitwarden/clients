@@ -14,16 +14,17 @@ import {
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
-import { MasterKey } from "@bitwarden/common/types/key";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import {
   BiometricsService,
   BiometricStateService,
   KdfConfig,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
@@ -69,6 +70,8 @@ export class DefaultUnlockService implements UnlockService {
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    private sdkService: SdkService,
+    private keyService: KeyService,
   ) {}
 
   registerOnUnlockAction(
@@ -267,6 +270,16 @@ export class DefaultUnlockService implements UnlockService {
       await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
     }
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
+
+    // Push the unlock into the long-lived SDK client. This covers the DefaultUnlockService /
+    // SDK-bridge path, which writes USER_KEY via the register client and does not call
+    // keyService.setUserKey (that path pushes the unlock itself). Awaited so the client is fully
+    // unlocked before any dependent unlock action runs. The payload builder is shared with
+    // keyService.setUserKey.
+    const unlockData = await this.keyService.buildSdkUnlockData(userId, userKey as UserKey);
+    if (unlockData != null) {
+      await this.sdkService.unlock(userId, unlockData);
+    }
 
     for (const action of this.onUnlockActions) {
       await action(userId, userKey);

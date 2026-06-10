@@ -1,6 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { LogoutService } from "../../abstractions";
@@ -11,10 +12,12 @@ import { DefaultLogoutService } from "./default-logout.service";
 describe("DefaultLogoutService", () => {
   let logoutService: LogoutService;
   let messagingService: MockProxy<MessagingService>;
+  let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
     messagingService = mock<MessagingService>();
-    logoutService = new DefaultLogoutService(messagingService);
+    sdkService = mock<SdkService>();
+    logoutService = new DefaultLogoutService(messagingService, sdkService);
   });
 
   it("instantiates", () => {
@@ -28,6 +31,14 @@ describe("DefaultLogoutService", () => {
       await logoutService.logout(userId);
 
       expect(messagingService.send).toHaveBeenCalledWith("logout", { userId });
+    });
+
+    it("disposes the user's SDK client", async () => {
+      const userId = "1" as UserId;
+
+      await logoutService.logout(userId);
+
+      expect(sdkService.logout).toHaveBeenCalledWith(userId);
     });
 
     it("sends logout message with a logout reason when provided", async () => {

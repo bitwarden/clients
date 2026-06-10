@@ -736,6 +736,26 @@ export default class MainBackground {
       this.accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    // Constructed before KeyService/ConfigService so they can inject it directly (no lazy getter).
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      // Lazy: these are constructed after SdkService and (KeyService/ConfigService) push into it.
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+    );
+
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
@@ -801,6 +821,7 @@ export default class MainBackground {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.sdkService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
@@ -902,6 +923,7 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
@@ -913,23 +935,6 @@ export default class MainBackground {
       this.policyService,
       this.authService,
       this.accountService,
-      this.configService,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
       this.configService,
     );
 
@@ -1005,6 +1010,8 @@ export default class MainBackground {
       this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.sdkService,
+      this.keyService,
     );
     void browserBiometricsService.setUnlockService(this.unlockService);
 
@@ -1469,7 +1476,7 @@ export default class MainBackground {
       this.authService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.sdkService);
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1486,6 +1493,7 @@ export default class MainBackground {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
       this,
     );
 
