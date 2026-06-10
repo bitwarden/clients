@@ -4,6 +4,7 @@ import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import {
   CipherCreateRequest,
   CipherEditRequest,
+  CipherPartialEditRequest,
   CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
@@ -414,6 +415,7 @@ export class CipherView implements View, InitializerMetadata {
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       type: this.getSdkCipherViewType(),
+      archivedDate: undefined,
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
@@ -456,6 +458,21 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     return sdkCipherEditRequest;
+  }
+
+  /**
+   * Maps CipherView to an SDK CipherPartialEditRequest
+   *
+   * @returns {CipherPartialEditRequest} The SDK cipher edit request object
+   */
+  toSdkPartialUpdateCipherRequest(): CipherPartialEditRequest {
+    const sdkCipherPartialEditRequest: CipherPartialEditRequest = {
+      id: asUuid(this.id),
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      favorite: this.favorite ?? false,
+    };
+
+    return sdkCipherPartialEditRequest;
   }
 
   /**

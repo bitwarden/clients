@@ -13,8 +13,13 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
+import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -92,12 +97,14 @@ export class Main {
   clipboardMain: ClipboardMain;
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
+  ipcService: IpcService;
 
   constructor() {
     // Set paths for portable builds
@@ -306,6 +313,8 @@ export class Main {
       this.logService,
     );
 
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
+
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,
       this.windowMain,
@@ -339,6 +348,7 @@ export class Main {
       this.logService,
       this.windowMain,
     );
+    this.ipcService = new NoopIpcService(this.logService);
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
@@ -352,10 +362,17 @@ export class Main {
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
+        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
-        await this.windowMain.init();
+
+        // Autostart should start to tray. However showing it then hiding it quickly triggers a bug in Kwin
+        // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
+        // autostart is enabled.
+        const showWindow = !isAutostart;
+        await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -372,7 +389,6 @@ export class Main {
         ]);
 
         // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
-        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
         if (isAutostart) {
           await this.trayMain.hideToTray();
         }
@@ -380,29 +396,21 @@ export class Main {
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 
-        const [browserIntegrationEnabled, ddgIntegrationEnabled] = await Promise.all([
-          firstValueFrom(this.desktopSettingsService.browserIntegrationEnabled$),
+        const [ddgIntegrationEnabled] = await Promise.all([
           firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
         ]);
 
-        if (browserIntegrationEnabled || ddgIntegrationEnabled) {
+        try {
           // Re-register the native messaging host integrations on startup, in case they are not present
-          if (browserIntegrationEnabled) {
-            this.nativeMessagingMain
-              .generateManifests()
-              .catch((err) => this.logService.error("Error while generating manifests", err));
-          }
           if (ddgIntegrationEnabled) {
-            this.nativeMessagingMain
-              .generateDdgManifests()
-              .catch((err) => this.logService.error("Error while generating DDG manifests", err));
+            await this.nativeMessagingMain.generateDdgManifests();
           }
 
-          this.nativeMessagingMain
-            .listen()
-            .catch((err) =>
-              this.logService.error("Error while starting native message listener", err),
-            );
+          // Start native messaging when shared unlock is enabled at runtime
+          await this.nativeMessagingMain.generateManifests();
+          await this.nativeMessagingMain.listen();
+        } catch (err) {
+          this.logService.error("Error while setting up native messaging:", err);
         }
 
         app.removeAsDefaultProtocolClient("bitwarden");
@@ -431,6 +439,7 @@ export class Main {
         });
 
         await this.sdkLoadService.loadAndInit();
+        await this.ipcService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

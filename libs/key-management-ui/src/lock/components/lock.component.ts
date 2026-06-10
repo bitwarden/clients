@@ -22,12 +22,10 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -180,7 +178,6 @@ export class LockComponent implements OnInit, OnDestroy {
     // desktop deps
     private broadcasterService: BroadcasterService,
     private unlockService: UnlockService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -385,6 +382,14 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   };
 
+  async swapUnlockOption(unlockOption: UnlockOptionValue): Promise<void> {
+    this.activeUnlockOption = unlockOption;
+
+    if (unlockOption === UnlockOption.Biometrics) {
+      await this.unlockViaBiometrics();
+    }
+  }
+
   async logOut() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
@@ -401,38 +406,33 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockViaBiometrics(): Promise<void> {
-    this.unlockingViaBiometrics = true;
-
-    if (
-      this.unlockOptions == null ||
-      !this.unlockOptions.biometrics.enabled ||
-      this.activeAccount == null
-    ) {
-      this.unlockingViaBiometrics = false;
+    if (this.unlockingViaBiometrics) {
       return;
     }
 
+    this.unlockingViaBiometrics = true;
+
     try {
+      if (
+        this.unlockOptions == null ||
+        !this.unlockOptions.biometrics.enabled ||
+        this.activeAccount == null
+      ) {
+        return;
+      }
+
       await this.biometricStateService.setUserPromptCancelled();
 
-      let userKey: UserKey | null;
-      if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
-        await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
-        userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
-      } else {
-        userKey = await this.biometricService.unlockWithBiometricsForUser(this.activeAccount.id);
-      }
+      await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
+      const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
 
       // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
       }
-
-      this.unlockingViaBiometrics = false;
     } catch (e) {
       // Cancelling is a valid action.
       if (e instanceof Error && e.message === "canceled") {
-        this.unlockingViaBiometrics = false;
         return;
       }
 
@@ -462,9 +462,11 @@ export class LockComponent implements OnInit, OnDestroy {
 
       if (confirmed) {
         // try again
+        this.unlockingViaBiometrics = false;
         await this.unlockViaBiometrics();
+        return;
       }
-
+    } finally {
       this.unlockingViaBiometrics = false;
     }
   }

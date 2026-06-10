@@ -16,12 +16,11 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
+  filter,
 } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
@@ -134,6 +133,13 @@ export class DefaultSdkService implements SdkService {
         return this.internalClient$(userId);
       }),
       takeWhile((client) => client !== undefined, false),
+      // Filter out clients that have been marked for disposal. This can happen in the
+      // race window where `internalClient$`'s `combineLatest` re-emits (e.g. during
+      // unlock when org keys / user key re-emit): the previous inner Observable's
+      // cleanup marks the old Rc for disposal before the new client finishes its
+      // async initialization, leaving the shared ReplaySubject holding a disposed
+      // reference that would otherwise throw on `take()`.
+      filter((client) => !client.isMarkedForDisposal),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
   }
@@ -212,7 +218,6 @@ export class DefaultSdkService implements SdkService {
               client,
               account,
               kdfParams.toSdkConfig(),
-              userKey,
               accountCryptographicState,
               orgKeys,
             );
@@ -259,31 +264,16 @@ export class DefaultSdkService implements SdkService {
     client: PasswordManagerClient,
     account: AccountInfo,
     kdf: Kdf,
-    userKey: UserKey,
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
-    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
-      await client.crypto().initialize_user_crypto({
-        userId: asUuid(userId),
-        email: account.email,
-        method: { clientManagedState: {} },
-        kdfParams: kdf,
-        accountCryptographicState: accountCryptographicState,
-      });
-    } else {
-      await client.crypto().initialize_user_crypto({
-        userId: asUuid(userId),
-        email: account.email,
-        method: {
-          decryptedKey: {
-            decrypted_user_key: userKey.toBase64(),
-          },
-        },
-        kdfParams: kdf,
-        accountCryptographicState: accountCryptographicState,
-      });
-    }
+    await client.crypto().initialize_user_crypto({
+      userId: asUuid(userId),
+      email: account.email,
+      method: { clientManagedState: {} },
+      kdfParams: kdf,
+      accountCryptographicState: accountCryptographicState,
+    });
 
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.

@@ -1,6 +1,6 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import { PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { assertNonNullish } from "../auth/utils";
@@ -63,4 +63,12 @@ export function assertParametersNonNull(): MethodDecorator {
     };
     return descriptor;
   };
+}
+
+export function fromSdkUserId(userId: SdkUserId): UserId {
+  return userId as unknown as UserId;
+}
+
+export function fromTsUserId(userId: UserId): SdkUserId {
+  return userId as unknown as SdkUserId;
 }
