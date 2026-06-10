@@ -7,9 +7,9 @@
 -- Includes:
 --   - Access rules (conditions attached to a collection)
 --   - Access requests (member-submitted requests to open a gated cipher)
---   - Approval-as-ticket: an approved request is a single-use ticket the
---     requester redeems, at a time of their choosing, to start the lease
---   - Leases (time-bounded access grants, minted on redemption)
+--   - Approval as a single-use grant: an approved request is activated by the
+--     requester, at a time of their choosing, to start the lease
+--   - Leases (time-bounded access grants, minted on activation)
 --   - Approver inbox / decisioning
 --   - Lease lifecycle (active, expired, revoked) and extension
 --   - Org-wide kill switch
@@ -120,8 +120,8 @@ value ApproverScope {
 --   - Lease constraints (`single_active_lease`, `max_lease_duration`) do NOT gate
 --     the decision — they shape the LEASE once approved, evaluated at lease start
 --     against state beyond the request (the rule's active-lease set, the clock).
---     Many members can be approved and hold tickets at once; these only limit how
---     a lease may be formed when one is redeemed. This is why single_active_lease
+--     Many members can be approved and hold approved requests at once; these only
+--     limit how a lease may be formed when one is activated. This is why single_active_lease
 --     is a field checked in StartScheduledLease / StartOnDemandLease, not a
 --     Condition variant: it answers "can a lease exist now?", not "approve this
 --     request?".
@@ -179,33 +179,34 @@ entity AccessRequest {
     decision_deadline: submitted_at + config.request_decision_deadline
 
     -- Resolution
-    -- An approved request is a *ticket*: the approver has granted access, but no
-    -- Lease exists yet. The requester redeems the ticket (StartScheduledLease /
-    -- StartOnDemandLease), which mints the Lease and moves the request to
-    -- `activated`. A ticket left unredeemed past its redemption window
-    -- transitions to `expired`. Single use: one approved request yields at most
-    -- one lease.
+    -- An approved request is a *single-use grant*: the approver has granted
+    -- access, but no Lease exists yet. The requester activates the approved
+    -- request (StartScheduledLease / StartOnDemandLease), which mints the Lease
+    -- and moves the request to `activated`. An approved request left unactivated
+    -- past its activation window transitions to `expired`. Single use: one
+    -- approved request yields at most one lease.
     status: pending | approved | activated | denied | cancelled | expired
     resolved_at: Timestamp? when status != pending
     -- When the request lapsed: the decision deadline passed while pending, or an
-    -- approved ticket was never redeemed in time. Distinct from resolved_at,
-    -- which (for an expired-while-approved ticket) keeps the approval time.
+    -- approved request was never activated in time. Distinct from resolved_at,
+    -- which (for an expired-while-approved request) keeps the approval time.
     expired_at: Timestamp? when status = expired
     -- The approver, or null for a system / access-rule auto-decision. Persists
-    -- once set — through activation and unredeemed expiry — for the audit trail.
+    -- once set — through activation and unactivated expiry — for the audit trail.
     resolver: User? when status != pending
     resolver_comment: String? when status != pending
-    -- The lease minted when this ticket was redeemed (at most one — single use).
-    -- Resolved from the inverse Lease.request reference, so it stays correct for
-    -- the request's whole life, whatever the lease's later status.
+    -- The lease minted when this approved request was activated (at most one —
+    -- single use). Resolved from the inverse Lease.request reference, so it stays
+    -- correct for the request's whole life, whatever the lease's later status.
     lease: Lease with request = this
 
-    -- Deadline by which an on-demand ticket must be redeemed (the lease started).
-    -- Null until the request is resolved; only enforced for an approved on-demand
-    -- ticket (see ApprovedOnDemandTicketExpiresUnredeemed). A scheduled ticket is
-    -- instead bounded by its requested window (ScheduledTicketExpiresAfterWindow).
-    -- Distinct from decision_deadline, which bounds the *pending* phase.
-    redemption_deadline: resolved_at + config.ticket_redemption_deadline
+    -- Deadline by which an on-demand approved request must be activated (the lease
+    -- started). Null until the request is resolved; only enforced for an approved
+    -- on-demand request (see ApprovedOnDemandRequestExpiresUnactivated). A scheduled
+    -- approved request is instead bounded by its requested window
+    -- (ScheduledRequestExpiresAfterWindow). Distinct from decision_deadline, which
+    -- bounds the *pending* phase.
+    activation_deadline: resolved_at + config.activation_deadline
 
     -- If this request is an extension of an existing lease, the parent lease.
     extension_of: Lease?
@@ -249,8 +250,8 @@ entity Lease {
 }
 
 -- An org-wide block on starting new leases, engaged by an admin (typically
--- alongside the kill switch). While one exists for an organization, no ticket
--- can be redeemed into a lease there. Its existence IS the "blocked" state;
+-- alongside the kill switch). While one exists for an organization, no approved
+-- request can be activated into a lease there. Its existence IS the "blocked" state;
 -- removing it lifts the block. At most one per organization.
 entity LeasingFreeze {
     organization: Organization
@@ -271,10 +272,10 @@ config {
     -- is the "decision deadline".)
     request_decision_deadline: Duration = 7.days
 
-    -- How long after approval a ticket remains redeemable before it auto-expires
-    -- unused. Bounds the gap between approval and lease start, so a stale
-    -- approval cannot be cashed in long after its justifying context is gone.
-    ticket_redemption_deadline: Duration = 24.hours
+    -- How long after approval an approved request remains activatable before it
+    -- auto-expires unused. Bounds the gap between approval and lease start, so a
+    -- stale approval cannot be cashed in long after its justifying context is gone.
+    activation_deadline: Duration = 24.hours
 
     -- How far back resolved requests are surfaced in history views: the
     -- approver inbox history and the member's own requests page share this
@@ -303,11 +304,11 @@ config {
 -- cipher when the member is ungated or holds an active lease, otherwise a gated
 -- response carrying a partial cipher (a GatedCipherView — id, collections, name,
 -- URIs and created/revised timestamps; no sensitive fields) alongside the
--- request/ticket context, never the protected secret. The client runs the same
--- check to drive its UI, but it is advisory —
+-- request/approved-request context, never the protected secret. The client runs
+-- the same check to drive its UI, but it is advisory —
 -- it cannot release a payload the server withholds, so a tampered or stale
 -- client cannot bypass an access rule. The CipherOpened / CipherOpenNeedsRequest
--- / CipherOpenAwaitingRedemption outcomes below are the server's decision, not a
+-- / CipherOpenAwaitingActivation outcomes below are the server's decision, not a
 -- client-only branch.
 
 rule CipherOpenWithActiveLease {
@@ -328,7 +329,7 @@ rule CipherOpenWithActiveLease {
 
 rule CipherOpenRequiresAccessRequest {
     -- Gated (all of the member's paths to the cipher carry a rule), no active
-    -- lease and no approved ticket → the member must request access. No
+    -- lease and no approved request → the member must request access. No
     -- AccessRequest is created here; the open only signals that the Request
     -- Access modal should be shown (created on MemberSubmitsAccessRequest).
     when: OpenCipher(member, cipher)
@@ -348,11 +349,11 @@ rule CipherOpenRequiresAccessRequest {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    -- CipherOpenWithApprovedTicket handles the already-approved-ticket case.
-    let approved_tickets = AccessRequest where requester = member
-                                            and cipher = cipher
-                                            and status = approved
-    requires: approved_tickets.count = 0
+    -- CipherOpenWithApprovedRequest handles the already-approved-request case.
+    let approved_requests = AccessRequest where requester = member
+                                             and cipher = cipher
+                                             and status = approved
+    requires: approved_requests.count = 0
     ensures: CipherOpenNeedsRequest(member, cipher, gating_rule)
     @guidance
         -- Implementation: the cipher-open round-trip reports that the cipher is
@@ -362,10 +363,10 @@ rule CipherOpenRequiresAccessRequest {
         -- when the rule needs no human approval. See CipherOpenInterceptorService.
 }
 
-rule CipherOpenWithApprovedTicket {
-    -- The member holds an approved (unredeemed) ticket for this cipher but no
+rule CipherOpenWithApprovedRequest {
+    -- The member holds an approved (unactivated) request for this cipher but no
     -- active lease. Opening offers to start the lease rather than creating a
-    -- duplicate request. Redemption stays an explicit member action.
+    -- duplicate request. Activation stays an explicit member action.
     when: OpenCipher(member, cipher)
     let member_memberships = CollectionMembership where member = member
                                                     and collection in cipher.collections
@@ -378,11 +379,11 @@ rule CipherOpenWithApprovedTicket {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    let approved_tickets = AccessRequest where requester = member
-                                            and cipher = cipher
-                                            and status = approved
-    requires: approved_tickets.count > 0
-    ensures: CipherOpenAwaitingRedemption(member, cipher, approved_tickets.first)
+    let approved_requests = AccessRequest where requester = member
+                                             and cipher = cipher
+                                             and status = approved
+    requires: approved_requests.count > 0
+    ensures: CipherOpenAwaitingActivation(member, cipher, approved_requests.first)
 }
 
 rule CipherOpenPassthrough {
@@ -406,8 +407,8 @@ rule CipherOpenPassthrough {
 rule MemberSubmitsAccessRequest {
     -- The member submits the Request Access modal for a gated cipher. THIS is
     -- where the AccessRequest is created — not at cipher-open. A specific window
-    -- (not_before + not_after) makes it a scheduled ticket; otherwise it is an
-    -- on-demand ticket for the rule's default duration. Evaluation runs
+    -- (not_before + not_after) makes it a scheduled request; otherwise it is an
+    -- on-demand request for the rule's default duration. Evaluation runs
     -- immediately, so the submit response may already be approved.
     when: MemberSubmitsRequest(member, cipher, reason?, not_before?, not_after?)
     let memberships = CollectionMembership where collection in cipher.collections
@@ -421,11 +422,11 @@ rule MemberSubmitsAccessRequest {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    -- No duplicate while an approved ticket or another pending request exists.
-    let approved_tickets = AccessRequest where requester = member
-                                            and cipher = cipher
-                                            and status = approved
-    requires: approved_tickets.count = 0
+    -- No duplicate while an approved request or another pending request exists.
+    let approved_requests = AccessRequest where requester = member
+                                             and cipher = cipher
+                                             and status = approved
+    requires: approved_requests.count = 0
     let pending_requests = AccessRequest where requester = member
                                             and cipher = cipher
                                             and status = pending
@@ -490,7 +491,7 @@ rule MemberRequestsLeaseExtension {
 -- an extension is created. Every gated open — including IP-allowlist-only rules
 -- — goes through the modal/submit; evaluation then considers the rule's
 -- conditions. A rule with no human_approval condition resolves synchronously on
--- submit, so the submit response can already carry an approved ticket.
+-- submit, so the submit response can already carry an approved request.
 
 rule RequestReadyForEvaluationOnCreation {
     -- Requests are only ever created by a member submitting the Request Access
@@ -505,8 +506,8 @@ rule RequestReadyForEvaluationOnCreation {
 
 rule AutoApproveWhenNoHumanApproval {
     -- If the access rule has no human_approval condition, and any non-human
-    -- conditions (e.g. ip_allowlist) pass, issue the ticket automatically on
-    -- submit. No lease is minted here — the requester starts it on redemption.
+    -- conditions (e.g. ip_allowlist) pass, approve the request automatically on
+    -- submit. No lease is minted here — the requester starts it on activation.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
     requires: not request.rule.has_human_approval
@@ -547,12 +548,12 @@ rule RouteToHumanApprovers {
 -- ----------------------------------------------------------------------------
 
 rule ApproverApprovesRequest {
-    -- The approver issues the ticket. No lease yet — the requester redeems it
+    -- The approver approves the request. No lease yet — the requester activates it
     -- (StartScheduledLease / StartOnDemandLease) when they actually need access.
-    when: ApproverDecides(approver, request, decision, comment?)
+    when: ApproverDecides(approver, request, verdict, comment?)
     requires: request.status = pending
     requires: request.rule.has_human_approval
-    requires: decision = approve
+    requires: verdict = approve
     requires: approver in EligibleApprovers(request)
     -- Self-approval guard from canApprove.ts: an approver cannot approve their
     -- own request.
@@ -564,10 +565,10 @@ rule ApproverApprovesRequest {
 }
 
 rule ApproverDeniesRequest {
-    when: ApproverDecides(approver, request, decision, comment?)
+    when: ApproverDecides(approver, request, verdict, comment?)
     requires: request.status = pending
     requires: request.rule.has_human_approval
-    requires: decision = deny
+    requires: verdict = deny
     requires: approver in EligibleApprovers(request)
     requires: approver != request.requester
     ensures: request.status = denied
@@ -577,7 +578,7 @@ rule ApproverDeniesRequest {
 }
 
 -- ----------------------------------------------------------------------------
--- Ticket redemption: the requester starts the lease at a time of their choosing
+-- Activation: the requester starts the lease at a time of their choosing
 -- ----------------------------------------------------------------------------
 
 rule ExtensionApprovedExtendsParentLease {
@@ -609,26 +610,26 @@ rule ExtensionDeniedParentGone {
     ensures: request.resolver_comment = "The lease being extended has ended"
 }
 
--- A ticket is redeemed via MemberStartsLease. Redemption is ALWAYS an explicit
--- client-side action by the requester — the system never auto-activates a lease,
--- because minting it requires the requester to be online to drive the client
--- (this is why even a scheduled ticket must be started by the requester inside
+-- An approved request is activated via MemberStartsLease. Activation is ALWAYS an
+-- explicit client-side action by the requester — the system never auto-activates a
+-- lease, because minting it requires the requester to be online to drive the client
+-- (this is why even a scheduled request must be started by the requester inside
 -- its window, rather than springing to life on its own when the window opens).
 --
 -- Two shapes, distinguished by whether the request named a scheduled start
 -- (requested_not_before):
 --
---   - Scheduled  → redeemable only inside [requested_not_before,
+--   - Scheduled  → activatable only inside [requested_not_before,
 --                  requested_not_after]; the lease covers exactly that window.
---   - On-demand  → no scheduled start; redeemable any time up to the redemption
+--   - On-demand  → no scheduled start; activatable any time up to the activation
 --                  deadline; the lease runs from now for the requested duration.
 --
 -- single_active_lease contention is resolved here, at start, since this is when
 -- the lease comes into being: if RuleAllowsLease is false (the single slot is
--- already taken) the start is simply rejected and the ticket stays redeemable
--- for a manual retry — there is no queue. A start is likewise refused while the
--- org is under a LeasingFreeze (the kill switch's optional block-new-leases).
--- Extensions never reach here — they apply in place via
+-- already taken) the start is simply rejected and the approved request stays
+-- activatable for a manual retry — there is no queue. A start is likewise refused
+-- while the org is under a LeasingFreeze (the kill switch's optional
+-- block-new-leases). Extensions never reach here — they apply in place via
 -- ExtensionApprovedExtendsParentLease.
 
 rule StartScheduledLease {
@@ -638,7 +639,7 @@ rule StartScheduledLease {
     requires: request.requester = member
     requires: request.requested_not_before != null
     requires: request.requested_not_after != null
-    -- Redemption is only available within the scheduled window.
+    -- Activation is only available within the scheduled window.
     requires: now >= request.requested_not_before
     requires: now <= request.requested_not_after
     requires: RuleAllowsLease(request.rule)
@@ -667,7 +668,7 @@ rule StartOnDemandLease {
     requires: request.extension_of = null
     requires: request.requester = member
     requires: request.requested_not_before = null
-    requires: now <= request.redemption_deadline
+    requires: now <= request.activation_deadline
     requires: RuleAllowsLease(request.rule)
     -- Blocked while the org is under a leasing freeze (e.g. kill switch).
     requires: not exists LeasingFreeze{organization: request.rule.organization}
@@ -719,20 +720,20 @@ rule PendingRequestExpires {
     ensures: request.resolver_comment = null
 }
 
-rule ApprovedOnDemandTicketExpiresUnredeemed {
-    -- An on-demand ticket the requester never redeemed lapses once its
-    -- redemption deadline passes. resolved_at and resolver keep the approval
+rule ApprovedOnDemandRequestExpiresUnactivated {
+    -- An on-demand approved request the requester never activated lapses once its
+    -- activation deadline passes. resolved_at and resolver keep the approval
     -- record; the lease was never minted.
-    when: request: AccessRequest.redemption_deadline <= now
+    when: request: AccessRequest.activation_deadline <= now
     requires: request.status = approved
     requires: request.requested_not_before = null
     ensures: request.status = expired
     ensures: request.expired_at = now
 }
 
-rule ScheduledTicketExpiresAfterWindow {
-    -- A scheduled ticket the requester never redeemed lapses once its scheduled
-    -- window has fully passed (redemption was only available inside the window).
+rule ScheduledRequestExpiresAfterWindow {
+    -- A scheduled approved request the requester never activated lapses once its
+    -- scheduled window has fully passed (activation was only available inside the window).
     when: request: AccessRequest.requested_not_after <= now
     requires: request.status = approved
     requires: request.requested_not_before != null
@@ -794,7 +795,7 @@ rule OrgAdminTriggersKillSwitch {
 }
 
 rule OrgAdminUnblocksNewLeases {
-    -- Lifts an org-wide leasing freeze so tickets can be redeemed again.
+    -- Lifts an org-wide leasing freeze so approved requests can be activated again.
     when: OrgUnblocksNewLeases(admin, organization)
     let freeze = LeasingFreeze{organization: organization}
     requires: exists freeze
@@ -898,7 +899,7 @@ deferred RuleBypassableCiphers    -- see: server-side rule evaluation
 --                          (AutoApproveWhenNoHumanApproval)
 -- Forecasts the request DECISION only. single_active_lease availability is a
 -- separate axis, surfaced alongside it via RuleAllowsLease(rule): even an
--- "auto_approve" yields an approved ticket whose lease start can still fail
+-- "auto_approve" yields an approved request whose lease start can still fail
 -- single_active_lease contention, re-checked for real at lease start. Both are
 -- current-state hints, not guarantees — the member's source IP or the active-
 -- lease set may change before they submit.
@@ -910,10 +911,10 @@ deferred ForecastDecision    -- see: server-side rule evaluation (dry run)
 -- StartOnDemandLease), not at approval, since that is when the lease comes into
 -- being.
 --
--- Contention policy: when the slot is taken the start is rejected and the ticket
--- stays `approved` — the member retries when it frees, bounded by the redemption
--- window (scheduled) or redemption deadline (on-demand). No server-side queue;
--- the member polls, with availability surfaced by the RequestAccessModal
+-- Contention policy: when the slot is taken the start is rejected and the approved
+-- request stays `approved` — the member retries when it frees, bounded by the
+-- activation window (scheduled) or activation deadline (on-demand). No server-side
+-- queue; the member polls, with availability surfaced by the RequestAccessModal
 -- forecast and the cipher lease banners.
 deferred RuleAllowsLease
 
@@ -953,7 +954,7 @@ surface CipherViewBanner {
         -- Caller's lease/request state for this cipher, surfaced for the badge.
         Lease where grantee = viewer and cipher = cipher and status = active
         AccessRequest where requester = viewer and cipher = cipher and status = pending
-        -- Approved-but-unredeemed ticket: banner offers "Start access".
+        -- Approved-but-unactivated request: banner offers "Start access".
         AccessRequest where requester = viewer and cipher = cipher and status = approved
 
     provides:
@@ -964,7 +965,7 @@ surface CipherViewBanner {
 }
 
 surface RequestAccessModal {
-    -- Shown when the member opens a gated cipher they hold no lease/ticket for
+    -- Shown when the member opens a gated cipher they hold no lease/request for
     -- (CipherOpenNeedsRequest). No AccessRequest exists yet: the member picks a
     -- window and reason and submits, which creates it (MemberSubmitsAccessRequest).
     -- Dismissing the modal without submitting creates nothing.
@@ -985,7 +986,7 @@ surface RequestAccessModal {
         ForecastDecision(requester, cipher, gating_rule)
         -- Whether a lease could actually be started right now — i.e. the rule's
         -- single_active_lease slot is currently free. Lets the modal warn that an
-        -- otherwise-auto_approve ticket could not be started yet because another
+        -- otherwise-auto_approve request could not be started yet because another
         -- lease is active. A current-state hint, re-checked for real at lease start.
         RuleAllowsLease(gating_rule)
 
@@ -1014,14 +1015,14 @@ surface MyAccessRequestsPage {
             r.requested_not_before
             r.requested_not_after
 
-        -- Redemption countdown for approved-but-unredeemed tickets.
+        -- Activation countdown for approved-but-unactivated requests.
         for r in AccessRequest where requester = requester and status = approved:
-            r.redemption_deadline
+            r.activation_deadline
 
     provides:
         MemberCancelsRequest(requester, request)
             when request.status = pending and request.requester = requester
-        -- Redeem an approved ticket: start the lease when ready.
+        -- Activate an approved request: start the lease when ready.
         MemberStartsLease(requester, request)
             when request.status = approved and request.requester = requester
 }
@@ -1087,7 +1088,7 @@ surface ApproverInbox {
             r.lease
 
     provides:
-        ApproverDecides(approver, request, decision, comment)
+        ApproverDecides(approver, request, verdict, comment)
             when request.status = pending and approver != request.requester
         ApproverRevokesLeaseAction(approver, lease, reason)
             when lease.status = active
@@ -1181,7 +1182,7 @@ surface KillSwitchControl {
     provides:
         -- Revoke all active leases; optionally also block new ones from starting.
         OrgKillSwitchActivated(admin, organization, block_new_leases)
-        -- Lift the block so tickets can be redeemed again.
+        -- Lift the block so approved requests can be activated again.
         OrgUnblocksNewLeases(admin, organization)
             when exists LeasingFreeze{organization: organization}
 }
@@ -1191,8 +1192,8 @@ surface KillSwitchControl {
 -- ----------------------------------------------------------------------------
 
 invariant AtMostOneLeasePerActivatedRequest {
-    -- Single-use ticket: a redeemed (activated) request maps to exactly one
-    -- lease; an approved-but-unredeemed ticket maps to none. Extensions are
+    -- Single-use approved request: an activated request maps to exactly one
+    -- lease; an approved-but-unactivated request maps to none. Extensions are
     -- excluded — they activate by extending the parent in place and never mint
     -- a lease of their own.
     for request in AccessRequest where status = activated and extension_of = null:
@@ -1200,8 +1201,8 @@ invariant AtMostOneLeasePerActivatedRequest {
 }
 
 invariant NoLeaseWithoutActivatedRequest {
-    -- A lease exists only because its ticket was redeemed; the request stays
-    -- `activated` for the rest of its life, whatever the lease's later status.
+    -- A lease exists only because its approved request was activated; the request
+    -- stays `activated` for the rest of its life, whatever the lease's later status.
     for lease in Lease:
         lease.request.status = activated
 }
