@@ -7,16 +7,17 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BadgeComponent, CalloutComponent, TypographyDirective } from "@bitwarden/components";
+import { BadgeComponent, CalloutComponent, TypographyModule } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
+import { BasePolicyEditDefinition } from "../base-policy-edit.component";
 
 import { RequireSsoPolicy } from "./require-sso.component";
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
-const policy = new RequireSsoPolicy();
+const policy: BasePolicyEditDefinition = new RequireSsoPolicy();
 
 function makePolicyStatusResponse(enabled: boolean): PolicyStatusResponse {
   return new PolicyStatusResponse({
@@ -89,7 +90,7 @@ export default {
     moduleMetadata({
       imports: [
         I18nPipe,
-        TypographyDirective,
+        TypographyModule,
         BadgeComponent,
         CalloutComponent,
         SimpleTogglePolicyComponent,
