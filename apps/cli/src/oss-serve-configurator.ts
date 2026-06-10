@@ -158,6 +158,8 @@ export class OssServeConfigurator {
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
+      this.serviceContainer.collectionService,
+      this.serviceContainer.organizationService,
     );
     this.lockCommand = new LockCommand(
       serviceContainer.lockService,
