@@ -191,11 +191,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.getKnownDevice(this.emailFormControl.value);
     }
 
-    // Auto-progress past email entry when a server redirect requested it (e.g. the SSO
-    // callback's invited-user redirect). `continue()` validates internally and stays on
-    // EMAIL_ENTRY if the email is invalid.
+    // Auto-progress past email entry when a server redirect requested it (e.g. SSO
+    // invited-user callback). Via continuePressed (not continue) so its pushState
+    // lets back-button return to email entry rather than the SSO callback URL.
     if (shouldAutoSubmit) {
-      await this.continue();
+      await this.continuePressed();
     }
 
     // Applied after continue() so it overrides the default MP-entry layout
