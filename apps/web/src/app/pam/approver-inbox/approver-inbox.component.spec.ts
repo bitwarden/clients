@@ -2,15 +2,17 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
+import { AccessLeaseStatus, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import {
@@ -50,6 +52,8 @@ describe("ApproverInboxComponent", () => {
   let pamApiService: MockProxy<PamApiService>;
   let toastService: MockProxy<ToastService>;
   let badgeService: MockProxy<ApproverInboxBadgeService>;
+  let notifications$: Subject<readonly [{ type: NotificationType }, string]>;
+  let mutations$: Subject<void>;
 
   beforeEach(async () => {
     pamApiService = mock<PamApiService>();
@@ -58,6 +62,14 @@ describe("ApproverInboxComponent", () => {
 
     pamApiService.listInboxRequests.mockResolvedValue([]);
     pamApiService.listInboxHistory.mockResolvedValue([]);
+
+    // Live-refresh triggers: a server push (RefreshApproverInbox) and this client's own mutations.
+    notifications$ = new Subject();
+    mutations$ = new Subject();
+    (pamApiService as unknown as { mutations$: Subject<void> }).mutations$ = mutations$;
+    const notificationsService = mock<ServerNotificationsService>();
+    (notificationsService as unknown as { notifications$: typeof notifications$ }).notifications$ =
+      notifications$;
 
     const accountService = mock<AccountService>();
     (accountService as unknown as { activeAccount$: BehaviorSubject<unknown> }).activeAccount$ =
@@ -88,6 +100,7 @@ describe("ApproverInboxComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ApproverInboxBadgeService, useValue: badgeService },
+        { provide: ServerNotificationsService, useValue: notificationsService },
       ],
     }).compileComponents();
 
@@ -196,6 +209,58 @@ describe("ApproverInboxComponent", () => {
     const approve = fixture.debugElement.query(By.css('[data-testid="approver-inbox-approve"]'));
     expect(approve.nativeElement.disabled).toBe(false);
   });
+
+  // A produced lease whose window is still open but whose status is no longer "active" (e.g. the
+  // requester ended it from the cipher banner). The Revoke button must not appear, since revoking it
+  // would 409 server-side.
+  function leaseHistoryRow(producedLeaseStatus: AccessLeaseStatus): AccessRequestDetailsResponse {
+    return new AccessRequestDetailsResponse({
+      Id: "req-lease",
+      CipherId: "cipher-1",
+      CollectionId: "col-1",
+      RequesterId: "someone-else",
+      Status: "activated",
+      RequestedNotBefore: "2000-01-01T00:00:00Z",
+      RequestedNotAfter: "2999-01-01T00:00:00Z",
+      RequestedTtlSeconds: 3600,
+      SubmittedAt: "2026-06-10T10:00:00Z",
+      ProducedLeaseId: "lease-1",
+      ProducedLeaseStatus: producedLeaseStatus,
+    });
+  }
+
+  it("shows the Revoke button for an active lease", async () => {
+    pamApiService.listInboxHistory.mockResolvedValue([leaseHistoryRow("active")]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const revoke = fixture.debugElement.query(By.css('[data-testid="approver-inbox-revoke"]'));
+    expect(revoke).not.toBeNull();
+  });
+
+  it("hides the Revoke button for a revoked lease still inside its window", async () => {
+    pamApiService.listInboxHistory.mockResolvedValue([leaseHistoryRow("revoked")]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const revoke = fixture.debugElement.query(By.css('[data-testid="approver-inbox-revoke"]'));
+    expect(revoke).toBeNull();
+  });
+
+  it("reloads the inbox when a RefreshApproverInbox push arrives", async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    pamApiService.listInboxHistory.mockClear();
+
+    notifications$.next([{ type: NotificationType.RefreshApproverInbox }, CURRENT_USER]);
+    // Clear the debounceTime(300) window, then let the async reload settle.
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await fixture.whenStable();
+
+    expect(pamApiService.listInboxHistory).toHaveBeenCalled();
+  });
 });
 
 describe("history bucketing and labels (deferred lease minting)", () => {
@@ -208,10 +273,12 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     overrides: Partial<{
       status: string;
       producedLeaseId: string | null;
+      producedLeaseStatus: AccessLeaseStatus | null;
       requestedNotBefore: string | null;
       requestedNotAfter: string | null;
     }> = {},
   ): AccessRequestDetailsResponse {
+    const producedLeaseId = overrides.producedLeaseId ?? null;
     return new AccessRequestDetailsResponse({
       Id: "req-1",
       CipherId: "cipher-1",
@@ -222,7 +289,10 @@ describe("history bucketing and labels (deferred lease minting)", () => {
       RequestedNotAfter: overrides.requestedNotAfter ?? later,
       RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T10:00:00Z",
-      ProducedLeaseId: overrides.producedLeaseId ?? null,
+      ProducedLeaseId: producedLeaseId,
+      // A minted lease defaults to "active"; tests that exercise an ended lease override this.
+      ProducedLeaseStatus:
+        overrides.producedLeaseStatus ?? (producedLeaseId != null ? "active" : null),
     });
   }
 
@@ -242,6 +312,25 @@ describe("history bucketing and labels (deferred lease minting)", () => {
       producedLeaseId: "lease-1",
       requestedNotBefore: "2026-06-10T09:00:00Z",
       requestedNotAfter: "2026-06-10T10:00:00Z",
+    });
+    expect(bucketOf(item)).toBe("past");
+  });
+
+  it("buckets a revoked lease with a live window as Past, never Active", () => {
+    // The request stays "activated" forever, but the lease has ended — it must not look active.
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "revoked",
+    });
+    expect(bucketOf(item)).toBe("past");
+  });
+
+  it("buckets an expired lease as Past", () => {
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "expired",
     });
     expect(bucketOf(item)).toBe("past");
   });
@@ -280,6 +369,15 @@ describe("history bucketing and labels (deferred lease minting)", () => {
   it("labels an awaiting-start row 'Approved · not started', not 'Upcoming'", () => {
     const item = historyRow({ status: "approved", producedLeaseId: null });
     expect(historyStatusLabelFor("future", item)).toBe("pamInboxHistoryStatusAwaitingStart");
+  });
+
+  it("labels a revoked lease 'Revoked', not by the request status", () => {
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "revoked",
+    });
+    expect(historyStatusLabelFor("past", item)).toBe("pamInboxHistoryStatusRevoked");
   });
 
   it("labels a scheduled minted lease 'Upcoming'", () => {

@@ -14923,6 +14923,9 @@
   "pamInboxHistoryStatusExpired": {
     "message": "Expired"
   },
+  "pamInboxHistoryStatusRevoked": {
+    "message": "Revoked"
+  },
   "pamInboxHistoryTitle": {
     "message": "History"
   },
