@@ -110,6 +110,7 @@ export const AutofillOverlayVisibility = {
 
 export const BrowserClientVendors = {
   Chrome: "Chrome",
+  Firefox: "Firefox",
   Opera: "Opera",
   Edge: "Edge",
   Vivaldi: "Vivaldi",
