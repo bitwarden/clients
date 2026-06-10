@@ -275,6 +275,12 @@ config {
     -- unused. Bounds the gap between approval and lease start, so a stale
     -- approval cannot be cashed in long after its justifying context is gone.
     ticket_redemption_deadline: Duration = 24.hours
+
+    -- How far back resolved requests are surfaced in history views: the
+    -- approver inbox history and the member's own requests page share this
+    -- one time-based window. Enforced server-side (listInboxHistory /
+    -- listMyRequests).
+    history_window: Duration = 90.days
 }
 
 -- ----------------------------------------------------------------------------
@@ -862,7 +868,12 @@ deferred EligibleApprovers    -- see: libs/pam/src/helpers/can-approve.ts
 -- own grantee (early end), plus EligibleApprovers for the lease's request, plus
 -- the lease's org admins. Org admins may revoke any single lease directly (from
 -- the governance dashboard) — they are not limited to the org-wide kill switch.
-deferred EligibleRevokers     -- see: apps/web/src/app/pam/active-leases and approver-inbox surfaces
+--
+-- NOT YET IMPLEMENTED in full: the server today only authorizes collection-Manage
+-- holders (RevokeLeaseCommand checks CanManageCollectionAsync); grantee
+-- self-revoke is intended design awaiting implementation (server: extend the
+-- revoke guard to allow lease.RequesterId = caller; client: ActiveLeasesPage).
+deferred EligibleRevokers     -- see: apps/web/src/app/pam/approver-inbox (ActiveLeasesPage planned, not yet built)
 
 -- `RuleAutomatedConditionsPass(request)`: every non-human condition on the
 -- rule evaluates to true for this request (today: ip_allowlist matches the
@@ -983,14 +994,17 @@ surface RequestAccessModal {
 }
 
 surface MyAccessRequestsPage {
-    -- "My requests" page: caller's own AccessRequest rows split into pending
-    -- and recent (resolved within 7 days). See my-access-requests.component.
+    -- "My requests" page: caller's own AccessRequest rows, bounded by the
+    -- shared history window; the UI further splits them into pending and
+    -- recent. See my-access-requests.component.
     facing requester: Member
 
     context requester: Member
 
     exposes:
-        for r in AccessRequest where requester = requester:
+        for r in AccessRequest where requester = requester
+                                  and (status = pending
+                                       or resolved_at >= now - config.history_window):
             r.id
             r.cipher
             r.status
@@ -1014,7 +1028,12 @@ surface MyAccessRequestsPage {
 
 surface ActiveLeasesPage {
     -- Caller's currently-active leases with per-row revoke (used by lease
-    -- holders to end their own access early). See active-leases.component.
+    -- holders to end their own access early).
+    --
+    -- PLANNED — no component exists yet. This surface is intended design: it is
+    -- the only surface providing grantee self-revoke and MemberRequestsExtension,
+    -- neither of which is reachable in the UI until it is built. Today the
+    -- caller's active-lease data feeds only the nav slot and cipher badges.
     facing viewer: Member
 
     context viewer: Member
@@ -1054,9 +1073,10 @@ surface ApproverInbox {
             r.submitted_at
 
         -- History bucket: requests the approver has decided or that resolved
-        -- against this approver's scope.
+        -- against this approver's scope, bounded by the shared history window.
         for r in AccessRequest where status != pending
-                                  and approver in EligibleApprovers(r):
+                                  and approver in EligibleApprovers(r)
+                                  and resolved_at >= now - config.history_window:
             r.id
             r.cipher
             r.collection
