@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Hiba történt a jelentés generálása közben. Próbáljuk újra."
   },
+  "reportLoadFailed": {
+    "message": "Hiba történt a jelentés betöltése közben. Próbáljuk meg frissíteni az oldalt generáljunk egy új jelentést."
+  },
   "riskInsightsRunReport": {
     "message": "Jelentés futtatása"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankszámla"
+  },
+  "bankAccountDetails": {
+    "message": "Bankszámla adatok"
   },
   "amountX": {
     "message": "$COUNT$. összeg",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "A jelszó alaphelyzetbe állítás válasza null"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Új jelszó megadása szükséges."
   },
   "trashCleanupWarning": {
     "message": "A 30 napnál régebben lomtárba került elemek automatikusan törlésre kerülnek."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Tartsuk meg erősen a széfelemek biztonságát azáltal, hogy ellenőrizzük a jelentéseket a sebezhetőség tekintetében."
   },
-  "coachmarkStepIndicator": {
-    "message": "$CURRENT$ / $TOTAL$ lépés",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
