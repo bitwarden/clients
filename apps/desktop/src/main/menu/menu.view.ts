@@ -36,6 +36,7 @@ export class ViewMenu implements IMenubarMenu {
     if (isDev()) {
       items.push(this.toggleDevTools);
     }
+
     return items;
   }
 
