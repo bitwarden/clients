@@ -301,8 +301,7 @@ export class WindowMain {
         backgroundThrottling: false,
         contextIsolation: true,
         session: this.session,
-        // TEMP(debug): force-enable DevTools in prod build for testing — revert before merge
-        devTools: true,
+        devTools: isDev(),
       },
     });
 
