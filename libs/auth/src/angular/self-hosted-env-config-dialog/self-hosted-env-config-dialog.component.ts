@@ -45,8 +45,17 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
     const identityUrl = formGroup.get("identityUrl")?.value;
     const iconsUrl = formGroup.get("iconsUrl")?.value;
     const notificationsUrl = formGroup.get("notificationsUrl")?.value;
+    const sendUrl = formGroup.get("sendUrl")?.value;
 
-    if (baseUrl || webVaultUrl || apiUrl || identityUrl || iconsUrl || notificationsUrl) {
+    if (
+      baseUrl ||
+      webVaultUrl ||
+      apiUrl ||
+      identityUrl ||
+      iconsUrl ||
+      notificationsUrl ||
+      sendUrl
+    ) {
       return null; // valid
     } else {
       return { atLeastOneUrlIsRequired: true }; // invalid
@@ -129,6 +138,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       identityUrl: ["", [onlyHttpsValidator()]],
       iconsUrl: ["", [onlyHttpsValidator()]],
       notificationsUrl: ["", [onlyHttpsValidator()]],
+      sendUrl: ["", [onlyHttpsValidator()]],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );
@@ -155,6 +165,10 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
   get notificationsUrl(): FormControl {
     return this.formGroup.get("notificationsUrl") as FormControl;
+  }
+
+  get sendUrl(): FormControl {
+    return this.formGroup.get("sendUrl") as FormControl;
   }
 
   showCustomEnv = false;
@@ -220,6 +234,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       webVault: this.webVaultUrl.value,
       icons: this.iconsUrl.value,
       notifications: this.notificationsUrl.value,
+      send: this.sendUrl.value,
     });
 
     await this.dialogRef.close(true);
