@@ -2391,6 +2391,16 @@ describe("OrganizationPlansComponent", () => {
 
         expect(newComponent.canUpgradeFromPremium()).toBe(false);
       });
+
+      it("should be false when accepting a sponsorship even with premium personally", async () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
+      });
     });
 
     describe("submit", () => {
