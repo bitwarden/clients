@@ -87,3 +87,4 @@ export {
 } from "./tokens/bulk-delete-dialog.token";
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
+export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";

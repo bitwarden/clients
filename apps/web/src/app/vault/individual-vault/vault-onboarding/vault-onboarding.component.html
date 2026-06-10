@@ -1,42 +1,34 @@
-@if (isNewAccount && showOnboarding && onboardingTasks$ | async; as onboardingTasks) {
+@if (isNewAccount() && showOnboarding() && onboardingTasks$ | async; as onboardingTasks) {
   <div class="tw-mb-6">
-    @if (onboardingTasks) {
-      <app-onboarding [title]="'getStarted' | i18n" (dismiss)="hideOnboarding()">
-        <app-onboarding-task
-          [title]="'createAnAccount' | i18n"
-          [completed]="onboardingTasks.createAccount"
-          [isDisabled]="true"
-        ></app-onboarding-task>
+    <app-onboarding
+      [title]="'getStartedWithYourVault' | i18n"
+      [subtitle]="'onboardingChecklistSubtitle' | i18n"
+      startIcon="bwi-bitwarden-shield"
+      (dismiss)="hideOnboarding()"
+    >
+      <app-onboarding-task
+        [title]="'onboardingCreateYourAccountTitle' | i18n"
+        [completed]="onboardingTasks.createAccount"
+        [isDisabled]="true"
+      ></app-onboarding-task>
 
-        <app-onboarding-task
-          [title]="'importData' | i18n"
-          icon="bwi-import"
-          [route]="['/tools/import']"
-          [completed]="onboardingTasks.importData"
-        >
-          <p class="tw-pl-1">
-            {{ "onboardingImportDataDetailsPartOne" | i18n }}
-            <button type="button" bitLink (click)="emitToAddCipher()">
-              {{ "onboardingImportDataDetailsLoginLink" | i18n }}
-            </button>
-            <span>
-              {{ "onboardingImportDataDetailsPartTwoNoOrgs" | i18n }}
-            </span>
-          </p>
-        </app-onboarding-task>
+      <app-onboarding-task
+        [title]="'onboardingImportYourPasswordsTitle' | i18n"
+        [subtitle]="'onboardingImportDataSubtitle' | i18n"
+        [ctaText]="'onboardingImportCta' | i18n"
+        ctaIcon="bwi-download"
+        [route]="['/tools/import']"
+        [completed]="onboardingTasks.importData"
+      ></app-onboarding-task>
 
-        <app-onboarding-task
-          [title]="'installBrowserExtension' | i18n"
-          icon="bwi-cli"
-          (click)="navigateToExtension()"
-          route="[]"
-          [completed]="onboardingTasks.installExtension"
-        >
-          <span class="tw-pl-1">
-            {{ "installBrowserExtensionDetails" | i18n }}
-          </span>
-        </app-onboarding-task>
-      </app-onboarding>
-    }
+      <app-onboarding-task
+        [title]="'onboardingInstallTheBrowserExtensionTitle' | i18n"
+        [subtitle]="'onboardingInstallExtensionSubtitle' | i18n"
+        [ctaText]="'onboardingInstallExtensionCta' | i18n"
+        ctaIcon="bwi-puzzle"
+        (ctaClick)="navigateToExtension()"
+        [completed]="onboardingTasks.installExtension"
+      ></app-onboarding-task>
+    </app-onboarding>
   </div>
 }

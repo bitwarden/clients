@@ -105,13 +105,13 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   private readonly config = signal<VaultBatchBarConfig>(this.defaultConfig);
 
-  private readonly showBulkTrashOptions = toSignal(
+  readonly inTrash = toSignal(
     this.routedVaultFilterService.filter$.pipe(map((f) => f.type === "trash")),
     { initialValue: false },
   );
 
   private readonly showBulkAddToFolder = computed(
-    () => !this.showBulkTrashOptions() && !this.config().isOrgVault,
+    () => !this.inTrash() && !this.config().isOrgVault,
   );
 
   private readonly allOrganizations = toSignal(
@@ -175,12 +175,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly canArchive = computed(() => {
     const selected = this.selected();
     const hasCollections = selected.some((i) => i.collection);
-    if (
-      selected.length === 0 ||
-      !this.userCanArchive() ||
-      hasCollections ||
-      this.showBulkTrashOptions()
-    ) {
+    if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
       return false;
     }
     return !selected.find(
@@ -191,7 +186,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** True when all selected ciphers can be unarchived. */
   readonly canUnarchive = computed(() => {
     const selected = this.selected();
-    if (selected.length === 0 || this.showBulkTrashOptions()) {
+    if (selected.length === 0 || this.inTrash()) {
       return false;
     }
     return !selected.find((i) => !i.cipher?.archivedDate || i.cipher?.organizationId);
@@ -202,9 +197,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     combineLatest([
       this.selection.changed.pipe(startWith(null)),
       toObservable(this.config),
-      toObservable(this.showBulkTrashOptions),
+      toObservable(this.inTrash),
     ]).pipe(
-      switchMap(([, config, showBulkTrashOptions]) => {
+      switchMap(([, config, inTrash]) => {
         const selected = this.selection.selected;
         const ciphers = selected.filter((i) => i.cipher).map((i) => i.cipher as C);
 
@@ -221,7 +216,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         );
 
         return combineLatest(canRestoreCiphers$).pipe(
-          map((results) => results.every((r) => r) && showBulkTrashOptions),
+          map((results) => results.every((r) => r) && inTrash),
         );
       }),
     ),
@@ -298,7 +293,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     // - Cannot assign ciphers when viewing the trash
     // - An org membership is required
     // - At least one cipher must be selected
-    if (this.showBulkTrashOptions() || allOrganizations.length === 0 || selected.length === 0) {
+    if (this.inTrash() || allOrganizations.length === 0 || selected.length === 0) {
       return false;
     }
 
@@ -529,7 +524,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return;
     }
 
-    const permanent = this.showBulkTrashOptions();
+    const permanent = this.inTrash();
 
     const orgIds = collections.map((c) => c.organizationId);
     const organizations = this.allOrganizations().filter((o) => orgIds.includes(o.id));

@@ -37,6 +37,9 @@ const MANIFEST_FILENAME = "manifest.json";
 /** Manifest key for the forms map version this client targets */
 const TARGET_FORMS_VERSION = "v1";
 
+/** Message command that triggers an immediate manifest check from the background context */
+export const FORCE_TARGETING_RULES_UPDATE_COMMAND = "bgForceTargetingRulesUpdate";
+
 type TargetingRulesDataMeta = {
   /** The last time the data source was checked */
   timestamp: number;

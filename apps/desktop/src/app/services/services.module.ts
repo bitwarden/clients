@@ -555,7 +555,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
-    deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
+    deps: [
+      DialogService,
+      ToastService,
+      PlatformUtilsServiceAbstraction,
+      I18nServiceAbstraction,
+      ConfigService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: DesktopAutotypeService,

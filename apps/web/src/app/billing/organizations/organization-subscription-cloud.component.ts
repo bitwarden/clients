@@ -26,6 +26,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { OrganizationBillingClient } from "../clients";
 import {
   AdjustStorageDialogComponent,
   AdjustStorageDialogResultType,
@@ -37,6 +38,10 @@ import {
 
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
+import {
+  ChurnMitigationOfferDialogComponent,
+  ChurnMitigationOfferDialogResultType,
+} from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
@@ -83,6 +88,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private dialogService: DialogService,
     private toastService: ToastService,
     private organizationUserApiService: OrganizationUserApiService,
+    private organizationBillingClient: OrganizationBillingClient,
   ) {}
 
   async ngOnInit() {
@@ -344,6 +350,32 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   cancelSubscription = async () => {
+    const offer = await this.organizationBillingClient.getChurnOffer(this.organizationId as any);
+
+    if (offer != null) {
+      const churnDialogRef = ChurnMitigationOfferDialogComponent.open(this.dialogService, {
+        data: {
+          organizationId: this.organizationId as any,
+          offer,
+          accessEndDate: this.subscription?.periodEndDate ?? null,
+          planName: this.sub.plan.name,
+          nextChargeDate: this.subscription?.periodEndDate ?? null,
+        },
+      });
+
+      const churnResult = await lastValueFrom(churnDialogRef.closed);
+
+      if (churnResult === ChurnMitigationOfferDialogResultType.Accepted) {
+        await this.load();
+        return;
+      }
+
+      if (churnResult !== ChurnMitigationOfferDialogResultType.Declined) {
+        return;
+      }
+      // Declined — fall through to offboarding survey
+    }
+
     const reference = openOffboardingSurvey(this.dialogService, {
       data: {
         type: "Organization",

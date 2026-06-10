@@ -1,7 +1,10 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SshKeyApi } from "@bitwarden/common/vault/models/api/ssh-key.api";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
@@ -16,6 +19,12 @@ const exampleSshKey = {
   privateKey: "private_key",
   publicKey: "public_key",
   fingerprint: "key_fingerprint",
+} as sdkInternal.SshKeyView;
+
+const exampleEcdsaKey = {
+  privateKey: "ecdsa_private_key",
+  publicKey: "ecdsa-sha2-nistp256 AAAA...",
+  fingerprint: "ecdsa_fingerprint",
 } as sdkInternal.SshKeyView;
 
 const exampleSshKeyData = new SshKeyData(
@@ -33,18 +42,26 @@ describe("SshImportPromptService", () => {
   let toastService: MockProxy<ToastService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let i18nService: MockProxy<I18nService>;
+  let configService: MockProxy<ConfigService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     platformUtilsService = mock<PlatformUtilsService>();
     i18nService = mock<I18nService>();
+    configService = mock<ConfigService>();
+    logService = mock<LogService>();
+
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     sshImportPromptService = new DefaultSshImportPromptService(
       dialogService,
       toastService,
       platformUtilsService,
       i18nService,
+      configService,
+      logService,
     );
     jest.clearAllMocks();
   });
@@ -106,6 +123,42 @@ describe("SshImportPromptService", () => {
 
       expect(await sshImportPromptService.importSshKeyFromClipboard()).toEqual(null);
       expect(i18nService.t).toHaveBeenCalledWith("sshKeyTypeUnsupported");
+    });
+
+    it("blocks ECDSA key import when SSHecdsa flag is disabled", async () => {
+      jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(exampleEcdsaKey);
+      platformUtilsService.readFromClipboard.mockResolvedValue("ecdsa_key");
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      expect(await sshImportPromptService.importSshKeyFromClipboard()).toBeNull();
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SSHecdsa);
+      expect(logService.error).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      expect(i18nService.t).toHaveBeenCalledWith("sshKeyTypeUnsupported");
+    });
+
+    it("allows ECDSA key import when SSHecdsa flag is enabled", async () => {
+      jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(exampleEcdsaKey);
+      platformUtilsService.readFromClipboard.mockResolvedValue("ecdsa_key");
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      expect(await sshImportPromptService.importSshKeyFromClipboard()).not.toBeNull();
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SSHecdsa);
+      expect(logService.error).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(i18nService.t).not.toHaveBeenCalledWith("sshKeyTypeUnsupported");
+    });
+
+    it("does not check SSHecdsa flag for non-ECDSA keys", async () => {
+      jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(exampleSshKey);
+      platformUtilsService.readFromClipboard.mockResolvedValue("ssh_key");
+
+      expect(await sshImportPromptService.importSshKeyFromClipboard()).toEqual(exampleSshKeyData);
+      expect(configService.getFeatureFlag).not.toHaveBeenCalled();
     });
   });
 });

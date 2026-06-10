@@ -1,0 +1,13 @@
+<bit-bulk-actions-bar [selectedCount]="service.selectedCount()" (clear)="service.selection.clear()">
+  @for (action of primaryActions(); track action.label) {
+    <bit-bulk-action [action]="action.action" [icon]="action.icon" [label]="action.label" />
+  }
+
+  @for (action of overflowActions(); track action.label) {
+    <bit-bulk-additional-action
+      [action]="action.action"
+      [icon]="action.icon"
+      [label]="action.label"
+    />
+  }
+</bit-bulk-actions-bar>

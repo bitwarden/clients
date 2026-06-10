@@ -11,6 +11,7 @@ import { AdjustSubscription } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
 import { ChangePlanComponent } from "./change-plan.component";
+import { ChurnMitigationOfferDialogComponent } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
 import { OrganizationBillingRoutingModule } from "./organization-billing-routing.module";
@@ -30,6 +31,7 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     OrganizationPlansComponent,
     HeaderModule,
     BannerModule,
+    ChurnMitigationOfferDialogComponent,
   ],
   declarations: [
     AdjustSubscription,

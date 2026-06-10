@@ -64,67 +64,77 @@
         }
         <th
           bitCell
-          [class]="((showCopyAndLaunchActions$ | async) ? 'tw-w-28' : 'tw-w-12') + ' tw-text-right'"
+          [ngClass]="
+            ((showCopyAndLaunchActions$ | async)
+              ? 'tw-w-28'
+              : batchBarService && batchBarFlag()
+                ? 'tw-w-24'
+                : 'tw-w-12') + ' tw-text-right'
+          "
         >
-          @let menuDisabled = disableMenu$ | async;
-          <button
-            [disabled]="disabled || isEmpty || menuDisabled"
-            [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="menuDisabled ? ('missingPermissions' | i18n) : ''"
-            bitIconButton="bwi-ellipsis-v"
-            size="small"
-            type="button"
-            label="{{ 'options' | i18n }}"
-          ></button>
-          <bit-menu #headerMenu>
-            @if (bulkMoveAllowed) {
-              <button type="button" bitMenuItem (click)="bulkMoveToFolder()">
-                <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-                {{ "addToFolder" | i18n }}
-              </button>
-            }
-            @if (showAdminActions && showBulkEditCollectionAccess) {
-              <button type="button" bitMenuItem (click)="bulkEditCollectionAccess()">
-                <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-                {{ "editAccess" | i18n }}
-              </button>
-            }
-            @if (
-              (showAdminActions || showAssignToCollections()) && bulkAssignToCollectionsAllowed
-            ) {
-              <button type="button" bitMenuItem (click)="assignToCollections()">
-                <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-                {{ "assignToCollections" | i18n }}
-              </button>
-            }
+          @if (!batchBarService || !batchBarFlag()) {
+            @let menuDisabled = disableMenu$ | async;
+            <button
+              [disabled]="disabled || isEmpty || menuDisabled"
+              [bitMenuTriggerFor]="headerMenu"
+              [attr.title]="menuDisabled ? ('missingPermissions' | i18n) : ''"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              type="button"
+              label="{{ 'options' | i18n }}"
+            ></button>
+            <bit-menu #headerMenu>
+              @if (bulkMoveAllowed) {
+                <button type="button" bitMenuItem (click)="bulkMoveToFolder()">
+                  <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+                  {{ "addToFolder" | i18n }}
+                </button>
+              }
+              @if (showAdminActions && showBulkEditCollectionAccess) {
+                <button type="button" bitMenuItem (click)="bulkEditCollectionAccess()">
+                  <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+                  {{ "editAccess" | i18n }}
+                </button>
+              }
+              @if (
+                (showAdminActions || showAssignToCollections()) && bulkAssignToCollectionsAllowed
+              ) {
+                <button type="button" bitMenuItem (click)="assignToCollections()">
+                  <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+                  {{ "assignToCollections" | i18n }}
+                </button>
+              }
 
-            @if (bulkArchiveAllowed) {
-              <button type="button" bitMenuItem (click)="bulkArchive()">
-                <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
-                {{ "archiveVerb" | i18n }}
-              </button>
-            }
+              @if (bulkArchiveAllowed) {
+                <button type="button" bitMenuItem (click)="bulkArchive()">
+                  <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+                  {{ "archiveVerb" | i18n }}
+                </button>
+              }
 
-            @if (bulkUnarchiveAllowed) {
-              <button type="button" bitMenuItem (click)="bulkUnarchive()">
-                <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
-                {{ "unArchive" | i18n }}
-              </button>
-            }
+              @if (bulkUnarchiveAllowed) {
+                <button type="button" bitMenuItem (click)="bulkUnarchive()">
+                  <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
+                  {{ "unArchive" | i18n }}
+                </button>
+              }
 
-            @if (canRestoreSelected$ | async) {
-              <button type="button" bitMenuItem (click)="bulkRestore()">
-                <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
-                {{ "restoreSelected" | i18n }}
-              </button>
-            }
-            @if (canDeleteSelected$ | async) {
-              <button type="button" variant="danger" bitMenuItem (click)="bulkDelete()">
-                <bit-icon fixedWidth name="bwi-trash" slot="start" />
-                {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
-              </button>
-            }
-          </bit-menu>
+              @if (canRestoreSelected$ | async) {
+                <button type="button" bitMenuItem (click)="bulkRestore()">
+                  <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
+                  {{ "restoreSelected" | i18n }}
+                </button>
+              }
+              @if (canDeleteSelected$ | async) {
+                <button type="button" variant="danger" bitMenuItem (click)="bulkDelete()">
+                  <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                  {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
+                </button>
+              }
+            </bit-menu>
+          } @else {
+            {{ "options" | i18n }}
+          }
         </th>
       </tr>
     </ng-container>
