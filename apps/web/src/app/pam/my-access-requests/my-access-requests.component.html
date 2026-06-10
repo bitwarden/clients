@@ -124,7 +124,7 @@
                 </td>
                 <td bitCell>{{ row.resolvedAt | date: "short" }}</td>
                 <td bitCell>
-                  @if (row.status === "approved") {
+                  @if (canStart(row)) {
                     <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
                       <button
                         type="button"

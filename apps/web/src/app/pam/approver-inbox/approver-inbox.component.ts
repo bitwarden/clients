@@ -54,6 +54,11 @@ type FlatHistoryRow = {
   relTime: { key: string; value: string } | null;
 };
 
+/** An approved request that has not produced a lease yet: the requester may still start it. */
+function isAwaitingStart(item: AccessRequestDetailsResponse): boolean {
+  return item.status === "approved" && item.producedLeaseId == null;
+}
+
 function historyStatusClassFor(bucket: BucketKey, status: string): string {
   if (bucket === "active") {
     return "tw-text-success-700";
@@ -67,14 +72,21 @@ function historyStatusClassFor(bucket: BucketKey, status: string): string {
   return "tw-text-muted";
 }
 
-function historyStatusLabelFor(bucket: BucketKey, status: string): string {
+export function historyStatusLabelFor(
+  bucket: BucketKey,
+  item: AccessRequestDetailsResponse,
+): string {
   if (bucket === "active") {
     return "pamInboxHistoryGroupActive";
   }
   if (bucket === "future") {
-    return "pamInboxHistoryGroupFuture";
+    // An approved-but-not-started request grants nothing yet — say so instead of "Upcoming",
+    // which is reserved for a minted lease whose window hasn't opened.
+    return isAwaitingStart(item)
+      ? "pamInboxHistoryStatusAwaitingStart"
+      : "pamInboxHistoryGroupFuture";
   }
-  switch (status) {
+  switch (item.status) {
     case "approved":
       return "pamInboxHistoryStatusApproved";
     case "activated":
@@ -88,16 +100,28 @@ function historyStatusLabelFor(bucket: BucketKey, status: string): string {
   }
 }
 
-function historyRelTimeFor(
+export function historyRelTimeFor(
   item: AccessRequestDetailsResponse,
   bucket: BucketKey,
   now: Date,
 ): { key: string; value: string } | null {
-  if (bucket === "future" && item.requestedNotBefore) {
-    return {
-      key: "pamInboxHistoryStartsIn",
-      value: formatRemaining(Date.parse(item.requestedNotBefore) - now.getTime()),
-    };
+  if (bucket === "future") {
+    const notBeforeMs = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
+    if (notBeforeMs != null && notBeforeMs > now.getTime()) {
+      return {
+        key: "pamInboxHistoryStartsIn",
+        value: formatRemaining(notBeforeMs - now.getTime()),
+      };
+    }
+    // Awaiting start inside an already-open window: show how long the approval stays startable.
+    if (isAwaitingStart(item) && item.requestedNotAfter) {
+      const startable = formatRemaining(Date.parse(item.requestedNotAfter) - now.getTime());
+      if (startable === "0s") {
+        return null;
+      }
+      return { key: "pamInboxHistoryStartableFor", value: startable };
+    }
+    return null;
   }
   if (bucket === "active" && item.requestedNotAfter) {
     const remaining = formatRemaining(Date.parse(item.requestedNotAfter) - now.getTime());
@@ -187,7 +211,7 @@ export class ApproverInboxComponent implements OnInit {
           bucket,
           canRevoke: (bucket === "active" || bucket === "future") && item.producedLeaseId != null,
           statusClass: historyStatusClassFor(bucket, item.status),
-          statusLabel: historyStatusLabelFor(bucket, item.status),
+          statusLabel: historyStatusLabelFor(bucket, item),
           relTime: historyRelTimeFor(item, bucket, now),
         }),
       ),
@@ -314,14 +338,13 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
   const past: AccessRequestDetailsResponse[] = [];
 
   for (const item of items) {
-    // An `activated` request has a minted lease whose window places it in the
-    // active/future buckets; an `approved` ticket may also name a scheduled
-    // window. Both are eligible for time-bucketing.
-    if (item.status === "activated" || item.status === "approved") {
-      const notBefore = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
-      const notAfter = item.requestedNotAfter ? Date.parse(item.requestedNotAfter) : null;
-      // Check each bound independently: a lease that starts immediately has
-      // notBefore=null but is still active if notAfter is in the future.
+    const notBefore = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
+    const notAfter = item.requestedNotAfter ? Date.parse(item.requestedNotAfter) : null;
+
+    // Only a minted lease is real access, so only `activated` rows are eligible for the Active
+    // bucket. Check each bound independently: a lease that starts immediately has notBefore=null
+    // but is still active if notAfter is in the future.
+    if (item.status === "activated" || item.producedLeaseId != null) {
       if (notBefore != null && notBefore > nowMs) {
         future.push(item);
         continue;
@@ -330,6 +353,11 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
         active.push(item);
         continue;
       }
+    } else if (item.status === "approved" && (notAfter == null || notAfter >= nowMs)) {
+      // Approved but not started: the requester can still mint the lease, so the grant belongs
+      // with Upcoming — never Active. Once the window lapses unstarted it falls through to Past.
+      future.push(item);
+      continue;
     }
     past.push(item);
   }

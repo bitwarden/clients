@@ -17611,6 +17611,9 @@
   "pamInboxHistoryStatusApproved": {
     "message": "Approved"
   },
+  "pamInboxHistoryStatusAwaitingStart": {
+    "message": "Approved · not started"
+  },
   "pamInboxHistoryStatusCancelled": {
     "message": "Cancelled"
   },
@@ -17652,6 +17655,14 @@
   },
   "pamInboxRevoke": {
     "message": "Revoke"
+  },
+  "pamInboxHistoryStartableFor": {
+    "message": "can be started for $VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
   },
   "pamInboxHistoryStartsIn": {
     "message": "starts in $VALUE$",

@@ -207,7 +207,18 @@ export class MyAccessRequestsComponent implements OnInit {
     return this.starting().has(id);
   }
 
-  /** A live "redeem within X" label for an approved on-demand request. */
+  /**
+   * An approved request is startable only while its window can still produce access; once the
+   * window lapses the server rejects activation, so the Start button must not be offered.
+   */
+  protected canStart(row: MyRequestRow): boolean {
+    return (
+      row.status === "approved" &&
+      (row.requestedNotAfter == null || row.requestedNotAfter.getTime() > this.nowMs())
+    );
+  }
+
+  /** A live "activate within X" label for an approved on-demand request. */
   protected redemptionRemainingLabel(row: MyRequestRow): string | null {
     if (row.status !== "approved" || row.activationDeadline == null) {
       return null;
