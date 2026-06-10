@@ -11,6 +11,7 @@ import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/se
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -41,6 +42,7 @@ import {
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
 
+import { CipherDecryptionKeys, SdkUnlockData } from "./abstractions/key.service";
 import { DefaultKeyService } from "./key.service";
 
 describe("keyService", () => {
@@ -52,6 +54,7 @@ describe("keyService", () => {
   const logService = mock<LogService>();
   const stateService = mock<StateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -78,7 +81,15 @@ describe("keyService", () => {
       stateService,
       stateProvider,
       accountCryptographicStateService,
+      sdkService,
     );
+
+    // buildSdkUnlockData (called by setUserKey) reads this; default it to null so the SDK push is
+    // skipped unless a test opts in.
+    accountCryptographicStateService.accountCryptographicState$.mockReturnValue(of(null));
+    // `cipherDecryptionKeys$` gates on this. Default to ready, matching the flag-off behavior, so only
+    // tests that care about the gate have to opt out.
+    sdkService.cryptoReady$.mockReturnValue(of(true));
   });
 
   const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
@@ -215,6 +226,29 @@ describe("keyService", () => {
       await keyService.setUserKey(mockUserKey, mockUserId);
 
       expect(await firstValueFrom(everHadUserKeyState.state$)).toBe(true);
+    });
+
+    it("pushes the SDK unlock when unlock data is available", async () => {
+      const unlockData = {
+        request: { email: "email" },
+        orgKeys: {},
+      } as unknown as SdkUnlockData;
+      jest.spyOn(keyService, "buildSdkUnlockData").mockResolvedValue(unlockData);
+
+      await keyService.setUserKey(mockUserKey, mockUserId);
+
+      expect(sdkService.unlock).toHaveBeenCalledWith(mockUserId, unlockData.request);
+      // setOrgKeys is what completes the unlock, so it is not conditional on the user having orgs.
+      expect(sdkService.setOrgKeys).toHaveBeenCalledWith(mockUserId, unlockData.orgKeys);
+    });
+
+    it("skips the SDK unlock when unlock data is unavailable", async () => {
+      jest.spyOn(keyService, "buildSdkUnlockData").mockResolvedValue(null);
+
+      await keyService.setUserKey(mockUserKey, mockUserId);
+
+      expect(sdkService.unlock).not.toHaveBeenCalled();
+      expect(sdkService.setOrgKeys).not.toHaveBeenCalled();
     });
 
     describe("Auto Key refresh", () => {
@@ -471,6 +505,30 @@ describe("keyService", () => {
         return Promise.resolve(new SymmetricCryptoKey(fakeOrgKeyDecryption(data, privateKey)));
       });
     }
+
+    it("emits nothing until the SDK client can decrypt", async () => {
+      // The SDK writes USER_KEY back to state from inside its own unlock, before the credential paths
+      // have pushed org keys. Emitting here would start the vault decrypt batch against a client that
+      // fails every org cipher with "Missing Key for Id: Organization".
+      const ready$ = new BehaviorSubject(false);
+      sdkService.cryptoReady$.mockReturnValue(ready$);
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+      });
+
+      const emissions: (CipherDecryptionKeys | null)[] = [];
+      const sub = keyService.cipherDecryptionKeys$(mockUserId).subscribe((k) => emissions.push(k));
+      await awaitAsync();
+      expect(emissions).toHaveLength(0);
+
+      ready$.next(true);
+      await awaitAsync();
+      expect(emissions).toHaveLength(1);
+      expect(emissions[0]!.userKey).not.toBeNull();
+
+      sub.unsubscribe();
+    });
 
     it("returns decryption keys when there are no org or provider keys set", async () => {
       updateKeys({

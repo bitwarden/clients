@@ -1,6 +1,7 @@
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -24,6 +25,7 @@ export class ElectronKeyService extends DefaultKeyService {
     private biometricStateService: BiometricStateService,
     private biometricService: DesktopBiometricsService,
     accountCryptographicStateService: AccountCryptographicStateService,
+    sdkService: SdkService,
   ) {
     super(
       cryptoFunctionService,
@@ -33,6 +35,7 @@ export class ElectronKeyService extends DefaultKeyService {
       stateService,
       stateProvider,
       accountCryptographicStateService,
+      sdkService,
     );
   }
 

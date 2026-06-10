@@ -25,6 +25,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
@@ -57,6 +58,7 @@ import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 import {
   CipherDecryptionKeys,
   KeyService as KeyServiceAbstraction,
+  SdkUnlockData,
 } from "./abstractions/key.service";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
@@ -77,6 +79,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateService: StateService,
     protected stateProvider: StateProvider,
     protected accountCryptographyStateService: AccountCryptographicStateService,
+    protected sdkService: SdkService,
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
@@ -94,6 +97,28 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No userId provided.");
     }
 
+    // setUserKey is the canonical point the user key enters memory across login, unlock-screen
+    // master-password, biometrics, key-connector, and auto-unlock restore — so (re)initialize the
+    // SDK client's crypto here. (DefaultUnlockService's SDK-bridge path doesn't call setUserKey and
+    // pushes the unlock itself.)
+    //
+    // Push-then-emit: build the payload from the in-memory key and unlock the SDK BEFORE writing the
+    // state that userKey$ reflects, so a reactive consumer never observes the new key paired with a
+    // client the SDK hasn't unlocked yet. Awaited, so callers are ordered after the SDK is unlocked.
+    //
+    // KNOWN LIMITATION: refreshAdditionalKeys() re-calls setUserKey with the *same* key (e.g. when
+    // vault-timeout settings change), so this re-initializes the SDK crypto redundantly. It is
+    // idempotent and infrequent, so it's accepted for now; a future optimization could skip the push
+    // when the key is unchanged.
+    //
+    // Both pushes, always: `setOrgKeys` is what completes the unlock and marks the client able to decrypt.
+    // Skipping it because there are no organizations would leave the client gated forever.
+    const unlockData = await this.buildSdkUnlockData(userId, key);
+    if (unlockData != null) {
+      await this.sdkService.unlock(userId, unlockData.request);
+      await this.sdkService.setOrgKeys(userId, unlockData.orgKeys);
+    }
+
     // Set userId to ensure we have one for the account status update
     await this.stateProvider.setUserState(USER_KEY, key, userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
@@ -106,6 +131,48 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     if (userKey == null) {
       throw new Error("Failed to set user key");
     }
+  }
+
+  /**
+   * Builds the payload to (re)initialize the SDK client's user + org crypto for a user. Returns null
+   * when the account's cryptographic state isn't available yet (e.g. mid-registration), in which case the
+   * SDK is initialized later once it is set. Shared by `setUserKey` and the unlock flow so both produce
+   * identical input for the SDK.
+   *
+   * The account's email and KDF config are deliberately absent: `SdkService.unlock` resolves those itself
+   * (as it already does `upgradeToken`), which is what lets this service hold neither `AccountService` nor
+   * `KdfConfigService` — both moved to `LegacyCompatKeyService` in #22319.
+   */
+  async buildSdkUnlockData(userId: UserId, userKey: UserKey): Promise<SdkUnlockData | null> {
+    const accountCryptographicState = await firstValueFrom(
+      this.accountCryptographyStateService.accountCryptographicState$(userId),
+    );
+    if (accountCryptographicState == null) {
+      return null;
+    }
+
+    // Derive the org-key payload from the in-memory `userKey` — NOT from encryptedOrgKeys$, which reads
+    // USER_KEY back from state. The encrypted private key and encrypted org keys are persisted
+    // independently of USER_KEY, so this works before USER_KEY is written (push-then-emit).
+    const encPrivateKey = await firstValueFrom(this.userEncryptedPrivateKey$(userId));
+    const userPrivateKey = await this.decryptPrivateKey(encPrivateKey, userKey);
+    const providerKeys =
+      userPrivateKey != null
+        ? await firstValueFrom(this.providerKeysHelper$(userId, userPrivateKey))
+        : {};
+    const encOrgKeys = await firstValueFrom(
+      this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+    );
+
+    return {
+      request: {
+        userId: asUuid(userId),
+        // The key is already derived here, so the SDK is told to install it rather than re-derive it.
+        method: { decryptedKey: { decrypted_user_key: userKey.toSdk() } },
+        accountCryptographicState,
+      },
+      orgKeys: await this.toUserEncryptedOrgKeys(encOrgKeys ?? {}, userPrivateKey, providerKeys),
+    };
   }
 
   async refreshAdditionalKeys(userId: UserId): Promise<void> {
@@ -193,25 +260,42 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     providerOrgs: ProfileProviderOrganizationResponse[],
     userId: UserId,
   ): Promise<void> {
-    await this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).update(() => {
-      const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
+    const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
 
-      for (const org of orgs) {
-        encOrgKeyData[org.id] = {
-          type: "organization",
-          key: org.key,
-        };
-      }
+    for (const org of orgs) {
+      encOrgKeyData[org.id] = {
+        type: "organization",
+        key: org.key,
+      };
+    }
 
-      for (const org of providerOrgs) {
-        encOrgKeyData[org.id] = {
-          type: "provider",
-          providerId: org.providerId,
-          key: org.key,
-        };
-      }
-      return encOrgKeyData;
-    });
+    for (const org of providerOrgs) {
+      encOrgKeyData[org.id] = {
+        type: "provider",
+        providerId: org.providerId,
+        key: org.key,
+      };
+    }
+
+    // Push-then-emit: push the org keys we just computed into the user's live SDK client (no-op while
+    // locked) BEFORE writing state, so a reactive consumer never sees the new keys with a stale client.
+    // We reuse `encOrgKeyData` rather than re-reading `encryptedOrgKeys$` — a state$ read right after
+    // `update()` is not guaranteed to reflect the write. `userPrivateKey`/`providerKeys` are unrelated
+    // to that write, so reading them here is safe; both are needed to re-encrypt provider org keys.
+    const userPrivateKey = await firstValueFrom(this.userPrivateKey$(userId));
+    if (userPrivateKey != null) {
+      const providerKeys = await firstValueFrom(this.providerKeysHelper$(userId, userPrivateKey));
+      const sdkOrgKeys = await this.toUserEncryptedOrgKeys(
+        encOrgKeyData,
+        userPrivateKey,
+        providerKeys,
+      );
+      await this.sdkService.setOrgKeys(userId, sdkOrgKeys);
+    }
+
+    await this.stateProvider
+      .getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS)
+      .update(() => encOrgKeyData);
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey | null> {
@@ -535,42 +619,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
           this.providerKeysHelper$(userId, userPrivateKey),
         ]).pipe(
-          switchMap(async ([encryptedOrgKeys, providerKeys]) => {
-            const userPubKey = await this.derivePublicKey(userPrivateKey);
-
-            const result: Record<OrganizationId, EncString> = {};
-            encryptedOrgKeys = encryptedOrgKeys ?? {};
-            for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
-              if (result[orgId] != null) {
-                continue;
-              }
-              const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
-              if (encrypted == null) {
-                continue;
-              }
-
-              let orgKey: EncString;
-
-              // Because the SDK only supports user encrypted org keys, we need to re-encrypt
-              // any provider encrypted org keys with the user's public key. This should be removed
-              // once the SDK has support for provider keys.
-              if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
-                if (providerKeys == null) {
-                  continue;
-                }
-                orgKey = await this.encryptService.encapsulateKeyUnsigned(
-                  await encrypted.decrypt(this.encryptService, providerKeys!),
-                  userPubKey!,
-                );
-              } else {
-                orgKey = encrypted.encryptedOrganizationKey;
-              }
-
-              result[orgId] = orgKey;
-            }
-
-            return result;
-          }),
+          switchMap(([encryptedOrgKeys, providerKeys]) =>
+            this.toUserEncryptedOrgKeys(encryptedOrgKeys ?? {}, userPrivateKey, providerKeys),
+          ),
           catchError((err: unknown) => {
             this.logService.error(
               `Failed to get encrypted organization keys for user ${userId}`,
@@ -583,8 +634,69 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
+  /**
+   * Converts stored encrypted organization keys into the user-encrypted form the SDK accepts,
+   * re-encrypting any provider-encrypted keys with the user's public key. Shared by
+   * {@link encryptedOrgKeys$} and {@link setOrgKeys} so both produce identical input for the SDK.
+   */
+  private async toUserEncryptedOrgKeys(
+    encryptedOrgKeys: Record<OrganizationId, EncryptedOrganizationKeyData>,
+    userPrivateKey: UserPrivateKey | null,
+    providerKeys: Record<ProviderId, ProviderKey> | null,
+  ): Promise<Record<OrganizationId, EncString>> {
+    // Nullable on purpose: `encryptedOrgKeys$` guards before calling, but `buildSdkUnlockData` derives
+    // the key from the in-memory user key and may pass null. No private key → no org keys derivable.
+    if (userPrivateKey == null) {
+      return {};
+    }
+
+    const userPubKey = (await this.derivePublicKey(userPrivateKey))!;
+
+    const result: Record<OrganizationId, EncString> = {};
+    for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
+      const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
+      if (encrypted == null) {
+        continue;
+      }
+
+      let orgKey: EncString;
+
+      // The SDK only supports user-encrypted org keys, so re-encrypt provider-encrypted keys with
+      // the user's public key. Remove once the SDK has support for provider keys.
+      if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
+        if (providerKeys == null) {
+          continue;
+        }
+        orgKey = await this.encryptService.encapsulateKeyUnsigned(
+          await encrypted.decrypt(this.encryptService, providerKeys),
+          userPubKey,
+        );
+      } else {
+        orgKey = encrypted.encryptedOrganizationKey;
+      }
+
+      result[orgId] = orgKey;
+    }
+
+    return result;
+  }
+
   cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {
-    return this.userPrivateKeyHelper$(userId)?.pipe(
+    // Gated on the SDK client being able to decrypt, not on USER_KEY appearing in state. The SDK writes
+    // USER_KEY back to state from inside its own unlock, before the credential paths have pushed org keys,
+    // so keying on state alone starts the vault decrypt batch against a client that fails every org cipher
+    // with "Missing Key for Id: Organization". Holding (rather than emitting null) keeps consumers on the
+    // previous value through the gap instead of flashing "no keys", which reads as locked.
+    //
+    // Gated here rather than in `userPrivateKeyHelper$`: `KeyService.setOrgKeys` awaits `userPrivateKey$`
+    // before calling `sdkService.setOrgKeys`, and `setOrgKeys` is what marks the client ready, so gating
+    // the private key would deadlock it.
+    //
+    // Flag off, `cryptoReady$` is always true and this is a passthrough.
+    return this.sdkService.cryptoReady$(userId).pipe(
+      distinctUntilChanged(),
+      filter((ready) => ready),
+      switchMap(() => this.userPrivateKeyHelper$(userId)),
       switchMap((userKeys) => {
         if (userKeys == null) {
           return of(null);

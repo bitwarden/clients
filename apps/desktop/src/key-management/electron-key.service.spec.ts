@@ -1,8 +1,10 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -34,6 +36,7 @@ describe("ElectronKeyService", () => {
   const biometricStateService = mock<BiometricStateService>();
   const biometricService = mock<DesktopBiometricsService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -45,6 +48,10 @@ describe("ElectronKeyService", () => {
 
     await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
 
+    // setUserKey builds the SDK unlock payload; without a cryptographic state it returns null and skips
+    // the SDK push, keeping these biometric-storage tests focused.
+    accountCryptographicStateService.accountCryptographicState$.mockReturnValue(of(null));
+
     keyService = new ElectronKeyService(
       cryptoFunctionService,
       encryptService,
@@ -55,6 +62,7 @@ describe("ElectronKeyService", () => {
       biometricStateService,
       biometricService,
       accountCryptographicStateService,
+      sdkService,
     );
   });
 

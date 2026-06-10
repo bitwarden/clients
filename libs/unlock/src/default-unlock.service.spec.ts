@@ -14,6 +14,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -21,6 +22,7 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -55,6 +57,8 @@ describe("DefaultUnlockService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  const sdkService = mock<SdkService>();
+  const keyService = mock<KeyService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -100,6 +104,7 @@ describe("DefaultUnlockService", () => {
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
+    keyService.encryptedOrgKeys$.mockReturnValue(of({}));
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -126,6 +131,8 @@ describe("DefaultUnlockService", () => {
       stateService,
       biometricStateService,
       v2UpgradeTokenStateService,
+      sdkService,
+      keyService,
     );
 
     setLegacyMasterKeyFromUnlockDataSpy = jest
@@ -243,6 +250,55 @@ describe("DefaultUnlockService", () => {
         true,
         mockUserId,
       );
+    });
+  });
+
+  describe("long-lived path (flag on)", () => {
+    const longLivedUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+
+    beforeEach(() => {
+      // A non-null return means the long-lived client handled the unlock (flag on).
+      sdkService.unlock.mockResolvedValue(longLivedUserKey);
+    });
+
+    it("unlocks the long-lived client directly and skips the register client", async () => {
+      await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
+
+      expect(sdkService.unlock).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ method: { masterPasswordUnlock: expect.anything() } }),
+      );
+      // The throwaway register client is not touched when the long-lived client unlocked.
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
+    });
+
+    it("initializes org crypto as a follow-up once the user key is derived", async () => {
+      const orgKeys = { org: "encrypted-org-key" } as any;
+      keyService.buildSdkUnlockData.mockResolvedValue({ orgKeys } as any);
+
+      await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
+
+      expect(sdkService.setOrgKeys).toHaveBeenCalledWith(mockUserId, orgKeys);
+    });
+
+    it("runs unlock side effects with the derived key", async () => {
+      await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
+
+      expect(stateProvider.setUserState).toHaveBeenCalledWith(
+        USER_EVER_HAD_USER_KEY,
+        true,
+        mockUserId,
+      );
+    });
+  });
+
+  describe("legacy path (flag off)", () => {
+    it("falls back to the register client when the long-lived unlock is a no-op", async () => {
+      // null from unlock means the flag is off, so the register client handles the unlock.
+      sdkService.unlock.mockResolvedValue(null);
+      await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
+
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalled();
     });
   });
 

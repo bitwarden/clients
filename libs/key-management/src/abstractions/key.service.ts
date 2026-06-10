@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
+import { SdkUnlockRequest } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -41,6 +42,22 @@ export type CipherDecryptionKeys = {
   orgKeys: Record<OrganizationId, OrgKey> | null;
 };
 
+/**
+ * The two payloads the SDK pushes need, returned together because both derive from the same in-memory user
+ * key: {@link SdkService.unlock} takes `request`, and {@link SdkService.setOrgKeys} takes `orgKeys`. Deriving
+ * them separately would repeat the private-key unwrap and the provider-key read.
+ */
+export interface SdkUnlockData {
+  /**
+   * The SDK's user-crypto request. `method` selects how the client unlocks: `decryptedKey` when the caller
+   * already holds the key, or a credential variant (master password, PIN, biometrics, …) when it does not.
+   * `email`, `kdfParams` and `upgradeToken` are absent by design; `SdkService.unlock` resolves them.
+   */
+  request: SdkUnlockRequest;
+  /** Organization keys, pushed via `SdkService.setOrgKeys`, which is what completes the unlock. */
+  orgKeys: Record<OrganizationId, EncString>;
+}
+
 export abstract class KeyService {
   /**
    * Retrieves a stream of the given users {@see UserKey} values. Can emit null if the user does not have a user key, e.g. the user
@@ -65,6 +82,12 @@ export abstract class KeyService {
    * @param userId The desired user
    */
   abstract setUserKey(key: UserKey, userId: UserId): Promise<void>;
+  /**
+   * Builds the payload to (re)initialize the SDK client's user + org crypto for a user, or `null`
+   * when the account's email / KDF / cryptographic state isn't available yet. Shared by `setUserKey`
+   * and the unlock flow so both produce identical SDK input.
+   */
+  abstract buildSdkUnlockData(userId: UserId, userKey: UserKey): Promise<SdkUnlockData | null>;
   /**
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys
