@@ -3,10 +3,6 @@ import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import {
-  AccessIntelligenceDataService,
-  DrawerStateService,
-} from "@bitwarden/bit-common/dirt/access-intelligence";
-import {
   createApplication,
   createMemberRegistry,
   createReport,
@@ -14,16 +10,11 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { ToastService } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 import {
-  buildTrendChartProviders,
+  buildActivityTabProviders,
   createAccessIntelligenceI18nMock,
-  MockAccessIntelligenceDataService,
-  MockDialogService,
-  MockDrawerStateService,
-  MockSecurityTasksService,
   MockToastService,
   populatedTrendData,
 } from "../testing";
@@ -86,18 +77,7 @@ export const Default: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-          ...buildTrendChartProviders(),
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(report) },
     };
   },
 };
@@ -108,18 +88,7 @@ export const Default: Story = {
 export const Loading: Story = {
   render: () => ({
     props: { organizationId: orgId },
-    moduleMetadata: {
-      providers: [
-        {
-          provide: AccessIntelligenceDataService,
-          useValue: new MockAccessIntelligenceDataService(null, true),
-        },
-        { provide: DrawerStateService, useClass: MockDrawerStateService },
-        { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-        { provide: DialogService, useClass: MockDialogService },
-        ...buildTrendChartProviders(),
-      ],
-    },
+    moduleMetadata: { providers: buildActivityTabProviders(null, { loading: true }) },
   }),
 };
 
@@ -137,18 +106,7 @@ export const EmptyState: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(emptyReport),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-          ...buildTrendChartProviders(),
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(emptyReport) },
     };
   },
 };
@@ -185,18 +143,7 @@ export const AllCaughtUp: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-          ...buildTrendChartProviders(),
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(report) },
     };
   },
 };
@@ -237,26 +184,20 @@ export const NeedsReview: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-          ...buildTrendChartProviders(),
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(report) },
     };
   },
 };
 
 /**
- * Trend Chart Enabled - Feature flag on, trend widget visible with populated data and v1-style 2-column layout
+ * Trend Chart Enabled - Feature flag on, trend widget visible with populated data
  */
 export const TrendChartEnabled: Story = {
+  // The trend chart derives its x-axis from the current date, so the rendered
+  // chart is non-deterministic. Snapshotting will be re-enabled in a follow-up that
+  // pins the chart's reference clock. Matches the trend-widget stories
+  // until the drifting date issue is resolved.
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => {
     const report = createRiskInsights({
       organizationId: orgId,
@@ -280,16 +221,9 @@ export const TrendChartEnabled: Story = {
     return {
       props: { organizationId: orgId },
       moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-          ...buildTrendChartProviders({ flagEnabled: true, data: populatedTrendData }),
-        ],
+        providers: buildActivityTabProviders(report, {
+          trend: { flagEnabled: true, data: populatedTrendData },
+        }),
       },
     };
   },
