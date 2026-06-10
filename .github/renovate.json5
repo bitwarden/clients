@@ -4,10 +4,37 @@
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
   customManagers: [
     {
+      // Pinned binary cargo tools declared in [workspace.metadata.bin]. These are
+      // not real dependency tables, so Renovate's native cargo manager ignores
+      // them. The `locked = true` field is the discriminator that keeps this regex
+      // from also matching [workspace.dependencies] entries of the same shape.
       customType: "regex",
-      fileMatch: ["apps/desktop/desktop_native/cargo-tool-versions"],
-      matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
+      fileMatch: ["apps/desktop/desktop_native/Cargo\\.toml$"],
+      matchStrings: [
+        '(?<depName>[a-z][a-z0-9_-]*)\\s*=\\s*\\{\\s*version\\s*=\\s*"=?(?<currentValue>\\d+\\.\\d+\\.\\d+)"\\s*,\\s*locked\\s*=\\s*true',
+      ],
       datasourceTemplate: "crate",
+      versioningTemplate: "cargo",
+    },
+    {
+      // Bootstrap pin for cargo-run-bin across CI workflows, build.js, and
+      // scripts/prepare-env-rust.mjs. Keep these in sync.
+      customType: "regex",
+      fileMatch: [
+        "^\\.github/workflows/.*\\.ya?ml$",
+        "apps/desktop/desktop_native/build\\.js$",
+        "scripts/prepare-env-rust\\.mjs$",
+        "\\.devcontainer/common/post-create-command\\.sh$",
+      ],
+      matchStrings: [
+        "cargo install (?<depName>cargo-run-bin) --locked --version (?<currentValue>\\d+\\.\\d+\\.\\d+)",
+        '"(?<depName>cargo-run-bin)", "--locked", "--version", "(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
+        // JS const form: const CARGO_RUN_BIN_VERSION = "x" (in scripts/prepare-env-rust.mjs).
+        'CARGO_RUN_BIN_VERSION\\s*=\\s*"(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
+      ],
+      depNameTemplate: "cargo-run-bin",
+      datasourceTemplate: "crate",
+      versioningTemplate: "cargo",
     },
     {
       // Keep electronVersion in electron-builder.json in sync with the electron package.
