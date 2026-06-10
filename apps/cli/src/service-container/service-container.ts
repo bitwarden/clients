@@ -108,6 +108,8 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -156,7 +158,9 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -319,7 +323,7 @@ export class ServiceContainer {
   folderApiService: FolderApiService;
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
-  sendApiService: SendApiService;
+  sendApiService: SendApiServiceSelector;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -361,6 +365,7 @@ export class ServiceContainer {
   lockService: LockService;
   unlockService: UnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
+  private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
   constructor() {
     let p = null;
@@ -464,6 +469,8 @@ export class ServiceContainer {
     this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
       this.stateProvider,
     );
+
+    this.v2UpgradeTokenStateService = new DefaultV2UpgradeTokenStateService(this.stateProvider);
 
     this.securityStateService = new DefaultSecurityStateService(
       this.accountCryptographicStateService,
@@ -652,10 +659,21 @@ export class ServiceContainer {
       this.configService,
     );
 
-    this.sendApiService = this.sendApiService = new SendApiService(
+    const legacySendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
       this.sendService,
+    );
+    this.sendApiService = new SendApiServiceSelector(
+      this.configService,
+      legacySendApiService,
+      new SendSdkApiService(
+        this.sdkService,
+        legacySendApiService,
+        this.sendService,
+        this.accountService,
+        this.logService,
+      ),
     );
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
@@ -727,6 +745,7 @@ export class ServiceContainer {
       this.platformUtilsService,
       this.stateService,
       this.biometricStateService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -1000,6 +1019,7 @@ export class ServiceContainer {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);

@@ -26,11 +26,11 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
 import {
   AsyncActionsModule,
   ButtonModule,
+  ChipActionComponent,
   SearchModule,
   IconButtonModule,
   DialogService,
   ToastService,
-  BadgeModule,
 } from "@bitwarden/components";
 import {
   CipherFormComponent,
@@ -176,9 +176,9 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     CipherFormModule,
     AsyncActionsModule,
+    ChipActionComponent,
     PopOutComponent,
     IconButtonModule,
-    BadgeModule,
   ],
 })
 export class AddEditComponent implements OnInit, OnDestroy {
