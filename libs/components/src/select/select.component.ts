@@ -1,97 +1,105 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
+  afterRenderEffect,
   Component,
-  ContentChildren,
+  contentChildren,
   HostBinding,
   Input,
-  Optional,
-  QueryList,
-  Self,
-  Output,
-  EventEmitter,
+  output,
+  computed,
+  effect,
+  inject,
   input,
   Signal,
-  computed,
   model,
   signal,
   viewChild,
 } from "@angular/core";
-import {
-  ControlValueAccessor,
-  NgControl,
-  Validators,
-  ReactiveFormsModule,
-  FormsModule,
-} from "@angular/forms";
+import { ControlValueAccessor, NgControl, ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { BitFormFieldControl } from "../form-field";
+import { BitFormFieldControlDirective } from "../form-field";
+import { IconComponent } from "../icon";
+import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
-
-let nextId = 0;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-select",
   templateUrl: "select.component.html",
-  providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
+  hostDirectives: [
+    {
+      directive: BitFormFieldControlDirective,
+      inputs: ["required", "id"],
+    },
+  ],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, TypographyDirective, IconComponent],
   host: {
-    "[id]": "id()",
+    class: "tw-block tw-w-full tw-h-full",
+    "[id]": "formFieldControl.id()",
+    "[attr.required]": "formFieldControl.required() || null",
   },
 })
-export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
+export class SelectComponent<T> implements ControlValueAccessor {
+  private readonly i18nService = inject(I18nService);
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  readonly formFieldControl = inject(BitFormFieldControlDirective);
+
   readonly select = viewChild.required(NgSelectComponent);
 
   /** Optional: Options can be provided using an array input or using `bit-option` */
   readonly items = model<Option<T>[] | undefined>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() closed = new EventEmitter();
+  readonly closed = output();
 
   protected readonly selectedValue = signal<T | undefined | null>(undefined);
   readonly selectedOption: Signal<Option<T> | null | undefined> = computed(() =>
     this.findSelectedOption(this.items(), this.selectedValue()),
   );
-  protected searchInputId = `bit-select-search-input-${nextId++}`;
+  protected readonly searchInputId = computed(() => `${this.formFieldControl.id()}-search`);
 
   private notifyOnChange?: (value?: T | null) => void;
   private notifyOnTouched?: () => void;
 
-  constructor(
-    private i18nService: I18nService,
-    @Optional() @Self() private ngControl?: NgControl,
-  ) {
-    if (ngControl != null) {
-      ngControl.valueAccessor = this;
+  constructor() {
+    if (this.ngControl != null) {
+      this.ngControl.valueAccessor = this;
     }
+    effect(() => this.formFieldControl.labelForId.set(this.searchInputId()));
+    effect(() => {
+      this.select()
+        ?.searchInput()
+        .nativeElement.setAttribute(
+          "aria-describedby",
+          this.formFieldControl.ariaDescribedBy() ?? "",
+        );
+    });
+    afterRenderEffect({
+      read: () => {
+        const opts = this.options();
+        if (opts.length === 0) {
+          return;
+        }
+        this.items.set(
+          opts.map((option) => ({
+            icon: option.icon(),
+            value: option.value(),
+            label: option.label(),
+            description: option.description(),
+            disabled: option.disabled(),
+          })),
+        );
+      },
+    });
   }
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ContentChildren(OptionComponent)
-  protected set options(value: QueryList<OptionComponent<T>>) {
-    if (value == null || value.length == 0) {
-      return;
-    }
-    this.items.set(
-      value.toArray().map((option) => ({
-        icon: option.icon(),
-        value: option.value(),
-        label: option.label(),
-        disabled: option.disabled(),
-      })),
-    );
-  }
-
-  @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
+  private readonly options = contentChildren(OptionComponent);
 
   // Usings a separate getter for the HostBinding to get around an unexplained angular error
   @HostBinding("attr.disabled")
@@ -149,54 +157,6 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     }
 
     this.notifyOnTouched();
-  }
-
-  /**Implemented as part of BitFormFieldControl */
-  @HostBinding("attr.aria-describedby")
-  get ariaDescribedBy() {
-    return this._ariaDescribedBy;
-  }
-  set ariaDescribedBy(value: string | undefined) {
-    this._ariaDescribedBy = value;
-    this.select()
-      ?.searchInput()
-      .nativeElement.setAttribute("aria-describedby", value ?? "");
-  }
-  private _ariaDescribedBy?: string;
-
-  /**Implemented as part of BitFormFieldControl */
-  get labelForId() {
-    return this.searchInputId;
-  }
-
-  /**Implemented as part of BitFormFieldControl */
-  readonly id = input(`bit-multi-select-${nextId++}`);
-
-  /**Implemented as part of BitFormFieldControl */
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding("attr.required")
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get required() {
-    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
-  }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required?: boolean;
-
-  /**Implemented as part of BitFormFieldControl */
-  get hasError() {
-    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-  }
-
-  /**Implemented as part of BitFormFieldControl */
-  get error(): [string, any] {
-    const errors = this.ngControl?.errors ?? {};
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
   }
 
   private findSelectedOption(

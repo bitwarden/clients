@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, inject, Signal, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  Signal,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -22,7 +30,6 @@ import {
   CardComponent,
   DialogService,
   FormFieldModule,
-  IconComponent,
   LinkComponent,
   SpinnerComponent,
   SwitchComponent,
@@ -33,6 +40,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { WebHeaderComponent } from "@bitwarden/web-vault/app/layouts/header/web-header.component";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
+
+let nextId = 0;
 
 @Component({
   selector: "app-org-manage-scim-v2",
@@ -50,7 +59,6 @@ import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
     FormFieldModule,
     BitIconButtonComponent,
     BitActionDirective,
-    IconComponent,
     I18nPipe,
     SpinnerComponent,
   ],
@@ -68,10 +76,16 @@ export class ScimV2Component {
   protected readonly showScimSettings = signal(false);
   protected readonly showScimKey = signal(false);
 
+  protected readonly descriptionId = `scim-description-${nextId++}`;
+  protected readonly labelId = `scim-label-${nextId++}`;
+  protected readonly switchId = `scim-switch-${nextId++}`;
+  protected readonly switchInputId = `${this.switchId}-input`;
+  private readonly switchRef = viewChild.required(SwitchComponent);
+
   protected readonly enabled = new FormControl(false);
   protected readonly formData = new FormGroup({
-    endpointUrl: new FormControl({ value: "", disabled: true }),
-    clientSecret: new FormControl({ value: "", disabled: true }),
+    endpointUrl: new FormControl(""),
+    clientSecret: new FormControl(""),
   });
 
   private readonly organizationId: Signal<OrganizationId>;
@@ -85,6 +99,12 @@ export class ScimV2Component {
       if (this.organizationId()) {
         void this.load();
       }
+    });
+
+    effect(() => {
+      this.switchRef().ariaDescribedBy.set(this.descriptionId);
+      this.switchRef().ariaLabelledBy.set(this.labelId);
+      this.switchRef().size.set("large");
     });
   }
 

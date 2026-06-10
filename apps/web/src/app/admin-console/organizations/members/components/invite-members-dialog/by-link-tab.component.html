@@ -11,18 +11,10 @@
   </a>
 </p>
 
-<div class="tw-flex tw-items-start tw-gap-2">
-  <bit-form-field class="tw-flex-1">
-    <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
-    <input
-      bitInput
-      type="text"
-      [formControl]="form.controls.domains"
-      data-testid="allowedDomains"
-    />
-    <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
-  </bit-form-field>
-
+<bit-form-field class="tw-flex-1">
+  <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
+  <input bitInput type="text" [formControl]="form.controls.domains" data-testid="allowedDomains" />
+  <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
   <button
     type="button"
     bitButton
@@ -32,12 +24,12 @@
     [disabled]="domainsEmpty()"
     [bitTooltip]="domainsEmpty() ? ('mustEnterAtLeastOneDomain' | i18n) : ''"
     tooltipPosition="left-center"
-    class="tw-mt-[10px]"
+    slot="inline-end"
     data-testid="saveDomains"
   >
     {{ "save" | i18n }}
   </button>
-</div>
+</bit-form-field>
 
 @let inviteLink = inviteLink$ | async;
 @if (inviteLink == null) {
@@ -54,7 +46,7 @@
       <input
         bitInput
         type="text"
-        disabled="true"
+        readonly
         [value]="inviteLinkUrl"
         [class.tw-select-none]="domainsEmpty()"
         data-testid="inviteLink"

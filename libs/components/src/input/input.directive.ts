@@ -1,22 +1,8 @@
-import {
-  Directive,
-  ElementRef,
-  HostBinding,
-  HostListener,
-  Input,
-  NgZone,
-  Optional,
-  Self,
-  input,
-  model,
-} from "@angular/core";
-import { NgControl, Validators } from "@angular/forms";
+import { AfterViewInit, Directive, ElementRef, computed, inject } from "@angular/core";
+import { NgControl } from "@angular/forms";
 
-import { BitFormFieldControl, InputTypes } from "../form-field/form-field-control";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
-
-// Increments for each instance of this component
-let nextId = 0;
 
 export function inputBorderClasses(error: boolean) {
   return [
@@ -29,129 +15,98 @@ export function inputBorderClasses(error: boolean) {
 
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
-  providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
+  hostDirectives: [
+    {
+      directive: BitFormFieldControlDirective,
+      inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck", "id", "readonly"],
+    },
+  ],
   host: {
     "[class]": "classList()",
-    "[id]": "id()",
-    "[attr.type]": "type()",
-    "[attr.spellcheck]": "spellcheck()",
+    "[id]": "formFieldControl.id()",
+    "[attr.type]": "formFieldControl.type()",
+    "[attr.spellcheck]": "formFieldControl.spellcheck()",
+    "(input)": "onInput()",
+    "[attr.aria-invalid]": "ariaInvalid()",
+    "[required]": "formFieldControl.required()",
+    "[attr.readonly]": "formFieldControl.readOnly() ? '' : null",
   },
 })
-export class BitInputDirective implements BitFormFieldControl {
-  classList() {
+export class BitInputDirective implements AfterViewInit {
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private readonly parentFormField = inject(BitFormFieldComponent, { optional: true });
+  readonly formFieldControl = inject(BitFormFieldControlDirective);
+
+  protected readonly classList = computed(() => {
+    const isReadonlyTextarea =
+      this.elementRef.nativeElement.tagName.toLowerCase() === "textarea" &&
+      this.formFieldControl.readOnly();
+
     const classes = [
       "tw-block",
       "tw-w-full",
-      "tw-h-full",
+      "[&:is(input,select)]:tw-h-full",
+      "[&:is(textarea)]:tw-h-auto",
+      "[&:is(textarea)]:tw-min-h-[80px]",
+      ...(isReadonlyTextarea ? [] : ["tw-max-h-[50vh]", "tw-overflow-scroll"]),
+      "[&:is(textarea)]:tw-resize-none",
       "tw-px-1",
-      "tw-text-main",
-      "tw-placeholder-text-muted",
-      "tw-bg-background",
+      "tw-placeholder-fg-body-subtle",
       "tw-border-none",
       "focus:tw-outline-none",
-      "[&:is(input,textarea):disabled]:tw-bg-secondary-100",
+      "tw-bg-transparent",
+      "tw-text-fg-heading",
+      "[&:is(input,textarea):disabled]:tw-bg-bg-secondary",
+      "[&:is(input,textarea):disabled]:!tw-placeholder-fg-inactive",
+      "[&:is(input,textarea):disabled]:!tw-text-fg-inactive",
     ];
 
     if (this.parentFormField === null) {
-      classes.push(...inputBorderClasses(this.hasError), ...this.standaloneInputClasses);
+      classes.push(
+        ...inputBorderClasses(this.formFieldControl.hasError()),
+        ...this.standaloneInputClasses(),
+      );
     }
 
     return classes.filter((s) => s != "");
+  });
+
+  protected readonly ariaInvalid = computed(() =>
+    this.formFieldControl.hasError() ? true : undefined,
+  );
+
+  ngAfterViewInit() {
+    this.adjustTextareaHeight();
   }
 
-  readonly id = input(`bit-input-${nextId++}`);
-
-  @HostBinding("attr.aria-describedby") ariaDescribedBy?: string;
-
-  @HostBinding("attr.aria-invalid") get ariaInvalid() {
-    return this.hasError ? true : undefined;
-  }
-
-  readonly type = model<InputTypes>();
-
-  readonly spellcheck = model<boolean>();
-
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding()
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get required() {
-    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
-  }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required?: boolean;
-
-  readonly hasPrefix = input(false);
-  readonly hasSuffix = input(false);
-
-  readonly showErrorsWhenDisabled = input<boolean>(false);
-
-  get labelForId(): string {
-    return this.id();
-  }
-
-  @HostListener("input")
-  onInput() {
+  protected onInput() {
     this.ngControl?.control?.markAsUntouched();
+    this.adjustTextareaHeight();
   }
 
-  get hasError() {
-    if (this.showErrorsWhenDisabled()) {
-      return !!(
-        (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
-        this.ngControl?.touched &&
-        this.ngControl?.errors != null
-      );
-    } else {
-      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
+  private adjustTextareaHeight() {
+    const el = this.elementRef.nativeElement;
+    if (el.tagName.toLowerCase() !== "textarea") {
+      return;
     }
+    const textarea = el;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
   }
 
-  get error(): [string, any] {
-    const errors = this.ngControl.errors ?? {};
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
-  }
-
-  constructor(
-    @Optional() @Self() private ngControl: NgControl,
-    private ngZone: NgZone,
-    private elementRef: ElementRef<HTMLInputElement>,
-    @Optional() private parentFormField: BitFormFieldComponent,
-  ) {}
-
-  focus() {
-    this.ngZone.runOutsideAngular(() => {
-      const end = this.elementRef.nativeElement.value.length;
-      this.elementRef.nativeElement.setSelectionRange(end, end);
-      this.elementRef.nativeElement.focus();
-    });
-  }
-
-  get readOnly(): boolean {
-    return this.elementRef.nativeElement.readOnly;
-  }
-
-  get standaloneInputClasses() {
-    return [
-      "tw-px-3",
-      "tw-py-2",
-      "tw-rounded-lg",
-      // Hover
-      this.hasError ? "hover:tw-border-danger-700" : "hover:tw-border-primary-600",
-      // Focus
-      "focus:hover:tw-border-primary-600",
-      "disabled:tw-bg-secondary-100",
-      "disabled:hover:tw-border-secondary-500",
-      "focus:tw-border-primary-600",
-      "focus:tw-ring-1",
-      "focus:tw-ring-inset",
-      "focus:tw-ring-primary-600",
-      "focus:tw-z-10",
-    ];
-  }
+  protected readonly standaloneInputClasses = computed(() => [
+    "tw-px-3",
+    "tw-py-2",
+    "tw-rounded-lg",
+    this.formFieldControl.hasError()
+      ? "hover:tw-border-border-danger"
+      : "hover:tw-border-border-brand",
+    "disabled:tw-bg-bg-secondary",
+    "disabled:hover:tw-border-border-base",
+    "focus:tw-border-border-brand",
+    "focus:tw-ring-1",
+    "focus:tw-ring-border-brand",
+    "focus:tw-z-10",
+  ]);
 }

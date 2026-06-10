@@ -1,7 +1,7 @@
 @if (!hideMultiSelect()) {
-  <div class="tw-flex">
+  <div class="tw-flex tw-gap-3">
     @if (permissionMode() == "edit") {
-      <bit-form-field class="tw-mr-3 tw-shrink-0 tw-basis-2/5">
+      <bit-form-field class="tw-shrink-0 tw-basis-2/5">
         <bit-label>{{ "permission" | i18n }}</bit-label>
         <bit-select
           bitInput
@@ -19,7 +19,7 @@
       </bit-form-field>
     }
     @if (!disabled()) {
-      <bit-form-field class="tw-grow tw-py-3">
+      <bit-form-field class="tw-grow">
         <bit-label>{{ selectorLabelText() }}</bit-label>
         @if (!hideTable()) {
           <bit-multi-select

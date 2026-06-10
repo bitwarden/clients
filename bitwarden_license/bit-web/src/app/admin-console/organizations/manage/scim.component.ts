@@ -35,8 +35,8 @@ export class ScimComponent implements OnInit {
   private cachedApiKey: string | undefined;
 
   formData = this.formBuilder.group({
-    endpointUrl: new FormControl({ value: "", disabled: true }),
-    clientSecret: new FormControl({ value: "", disabled: true }),
+    endpointUrl: new FormControl(""),
+    clientSecret: new FormControl(""),
   });
 
   constructor(
