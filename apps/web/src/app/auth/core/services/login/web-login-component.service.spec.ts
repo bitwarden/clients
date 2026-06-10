@@ -14,13 +14,12 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 // FIXME: remove `src` and fix import
@@ -48,8 +47,7 @@ describe("WebLoginComponentService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
   let configService: MockProxy<ConfigService>;
-  let toastService: MockProxy<ToastService>;
-  let i18nService: MockProxy<I18nService>;
+  let anonLayoutWrapperDataService: MockProxy<AnonLayoutWrapperDataService>;
 
   beforeEach(() => {
     organizationInviteService = mock<OrganizationInviteService>();
@@ -64,8 +62,7 @@ describe("WebLoginComponentService", () => {
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     accountService = mockAccountServiceWith(mockUserId);
     configService = mock<ConfigService>();
-    toastService = mock<ToastService>();
-    i18nService = mock<I18nService>();
+    anonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -83,8 +80,7 @@ describe("WebLoginComponentService", () => {
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
         { provide: AccountService, useValue: accountService },
         { provide: ConfigService, useValue: configService },
-        { provide: ToastService, useValue: toastService },
-        { provide: I18nService, useValue: i18nService },
+        { provide: AnonLayoutWrapperDataService, useValue: anonLayoutWrapperDataService },
       ],
     });
     service = TestBed.inject(WebLoginComponentService);
@@ -193,14 +189,9 @@ describe("WebLoginComponentService", () => {
 
   describe("showLoginQueryParamMessages", () => {
     const mockOrganizationName = "Acme Corp";
-    const mockInterpolatedMessage =
-      "To accept your invite to Acme Corp, you must first log in using your master password.";
 
     describe("when error code is ssoOrgInviteAcceptanceRequired", () => {
-      it("shows a warning toast with the i18n-interpolated message and a 10s timeout when organizationName is set", () => {
-        // Arrange
-        i18nService.t.mockReturnValue(mockInterpolatedMessage);
-
+      it("overrides the anon-layout title, subtitle, and icon when organizationName is set", () => {
         // Act
         service.showLoginQueryParamMessages({
           error: "ssoOrgInviteAcceptanceRequired",
@@ -208,31 +199,26 @@ describe("WebLoginComponentService", () => {
         });
 
         // Assert
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "acceptInviteBeforeUsingSso",
-          mockOrganizationName,
-        );
-        expect(toastService.showToast).toHaveBeenCalledWith({
-          variant: "warning",
-          title: null,
-          message: mockInterpolatedMessage,
-          timeout: 10000,
+        expect(anonLayoutWrapperDataService.setAnonLayoutWrapperData).toHaveBeenCalledWith({
+          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: expect.anything(),
         });
       });
 
-      it("does not show a toast when organizationName is missing", () => {
+      it("does not override the anon layout when organizationName is missing", () => {
         // Act
         service.showLoginQueryParamMessages({
           error: "ssoOrgInviteAcceptanceRequired",
         });
 
         // Assert
-        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(anonLayoutWrapperDataService.setAnonLayoutWrapperData).not.toHaveBeenCalled();
       });
     });
 
     describe("when error code is unrecognized or missing", () => {
-      it("does not show a toast for an unknown error code", () => {
+      it("does not override the anon layout for an unknown error code", () => {
         // Act
         service.showLoginQueryParamMessages({
           error: "someUnknownErrorCode",
@@ -240,17 +226,17 @@ describe("WebLoginComponentService", () => {
         });
 
         // Assert
-        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(anonLayoutWrapperDataService.setAnonLayoutWrapperData).not.toHaveBeenCalled();
       });
 
-      it("does not show a toast when the error param is absent", () => {
+      it("does not override the anon layout when the error param is absent", () => {
         // Act
         service.showLoginQueryParamMessages({
           organizationName: mockOrganizationName,
         });
 
         // Assert
-        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(anonLayoutWrapperDataService.setAnonLayoutWrapperData).not.toHaveBeenCalled();
       });
     });
   });

@@ -5804,14 +5804,8 @@
   "and": {
     "message": "and"
   },
-  "acceptInviteBeforeUsingSso": {
-    "message": "To accept your invitation to $ORG_NAME$, finish logging in with your master password.",
-    "placeholders": {
-      "org_name": {
-        "content": "$1",
-        "example": "Acme Corp"
-      }
-    }
+  "acceptInviteWithMasterPassword": {
+    "message": "To finish accepting this invitation, log in with your master password."
   },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"

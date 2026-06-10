@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil, skip, combineLatest, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -180,7 +180,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    const { paramEmailIsSet, shouldAutoSubmit } = await this.initializeFromQueryParams();
+    const { paramEmailIsSet, shouldAutoSubmit, params } = await this.initializeFromQueryParams();
 
     if (!paramEmailIsSet) {
       await this.loadRememberedEmail();
@@ -196,6 +196,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     // EMAIL_ENTRY if the email is invalid.
     if (shouldAutoSubmit) {
       await this.continue();
+    }
+
+    // Applied after continue() so it overrides the default MP-entry layout
+    // (title/subtitle/icon) set by toggleLoginUiState in the auto-progressed
+    // SSO-redirect path.
+    if (params) {
+      this.loginComponentService.showLoginQueryParamMessages?.(params);
     }
 
     // This SSO required tracking should be initialized after email has had a chance to be pre-filled
@@ -223,18 +230,18 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Reads `/login` query params and applies any that drive form/UI state:
-   * pre-fills the email, delegates client-specific UI (toasts) to the
-   * client-specific service. Returns flags the caller uses to decide
-   * fallback behavior and auto-progression.
+   * Reads `/login` query params and pre-fills the email. Returns the raw
+   * params plus flags the caller uses to decide fallback behavior,
+   * auto-progression, and deferred client-specific UI (see defaultOnInit).
    */
   private async initializeFromQueryParams(): Promise<{
     paramEmailIsSet: boolean;
     shouldAutoSubmit: boolean;
+    params: Params | null;
   }> {
     const params = await firstValueFrom(this.activatedRoute.queryParams);
     if (!params) {
-      return { paramEmailIsSet: false, shouldAutoSubmit: false };
+      return { paramEmailIsSet: false, shouldAutoSubmit: false, params: null };
     }
 
     let paramEmailIsSet = false;
@@ -244,11 +251,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       paramEmailIsSet = true;
     }
 
-    this.loginComponentService.showLoginQueryParamMessages?.(params);
-
     return {
       paramEmailIsSet,
       shouldAutoSubmit: paramEmailIsSet && params.autoSubmit === "true",
+      params,
     };
   }
 

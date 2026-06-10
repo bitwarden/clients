@@ -3,6 +3,7 @@
 import { Injectable } from "@angular/core";
 import { Params, Router } from "@angular/router";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 import {
   DefaultLoginComponentService,
   LoginComponentService,
@@ -17,10 +18,9 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { RouterService } from "../../../../core/router.service";
@@ -55,8 +55,7 @@ export class WebLoginComponentService
     private router: Router,
     private accountService: AccountService,
     private configService: ConfigService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {
     super(
       cryptoFunctionService,
@@ -90,11 +89,10 @@ export class WebLoginComponentService
     }
     switch (params.error) {
       case SsoRedirectErrorCode.InviteAcceptanceRequired:
-        this.toastService.showToast({
-          variant: "warning",
-          title: null,
-          message: this.i18nService.t("acceptInviteBeforeUsingSso", params.organizationName),
-          timeout: 10000,
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "joinOrganizationName", placeholders: [params.organizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: LockIcon,
         });
         return;
       default:
