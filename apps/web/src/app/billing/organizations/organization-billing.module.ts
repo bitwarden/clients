@@ -22,6 +22,7 @@ import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscript
 import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
 import { SubscriptionHiddenComponent } from "./subscription-hidden.component";
 import { SubscriptionStatusComponent } from "./subscription-status.component";
+import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/components";
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     OrganizationPlansComponent,
     HeaderModule,
     BannerModule,
+    OrganizationScheduledPriceIncreaseWarningComponent,
     ChurnMitigationOfferDialogComponent,
   ],
   declarations: [
