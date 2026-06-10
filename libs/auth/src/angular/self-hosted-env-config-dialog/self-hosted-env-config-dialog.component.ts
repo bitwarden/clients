@@ -61,7 +61,7 @@ function onlyHttpsValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const url = control.value as string;
 
-    if (url && !url.startsWith("https://") && !platformUtilsService.isDev()) {
+    if (url && url.startsWith("http://") && !platformUtilsService.isDev()) {
       return {
         onlyHttpsAllowed: {
           message: i18nService.t("selfHostedEnvMustUseHttps"),
@@ -71,6 +71,17 @@ function onlyHttpsValidator(): ValidatorFn {
 
     return null; // valid
   };
+}
+
+function normalizeUrl(url: string): string {
+  if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+    return "https://" + url;
+  }
+  return url;
+}
+
+function stripProtocol(url: string): string {
+  return url ? url.replace(/^https?:\/\//, "") : url;
 }
 
 /**
@@ -174,12 +185,12 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
         next: (env) => {
           const urls = env.getUrls();
           this.formGroup.patchValue({
-            baseUrl: urls.base || "",
-            webVaultUrl: urls.webVault || "",
-            apiUrl: urls.api || "",
-            identityUrl: urls.identity || "",
-            iconsUrl: urls.icons || "",
-            notificationsUrl: urls.notifications || "",
+            baseUrl: stripProtocol(urls.base || ""),
+            webVaultUrl: stripProtocol(urls.webVault || ""),
+            apiUrl: stripProtocol(urls.api || ""),
+            identityUrl: stripProtocol(urls.identity || ""),
+            iconsUrl: stripProtocol(urls.icons || ""),
+            notificationsUrl: stripProtocol(urls.notifications || ""),
           });
         },
       });
@@ -187,6 +198,15 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
   submit = async () => {
     this.formGroup.markAllAsTouched();
     this.showErrorSummary = false;
+
+    ["baseUrl", "webVaultUrl", "apiUrl", "identityUrl", "iconsUrl", "notificationsUrl"].forEach(
+      (field) => {
+        const control = this.formGroup.get(field);
+        if (control?.value) {
+          control.setValue(normalizeUrl(control.value), { emitEvent: false });
+        }
+      },
+    );
 
     if (this.formGroup.invalid) {
       this.showErrorSummary = Boolean(this.formGroup.errors?.["atLeastOneUrlIsRequired"]);
