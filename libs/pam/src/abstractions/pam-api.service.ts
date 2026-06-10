@@ -81,9 +81,10 @@ export abstract class PamApiService {
   ): Promise<AccessRequestDetailsResponse>;
   /**
    * Activates an approved request: mints the lease at a time of the requester's
-   * choosing and moves the request to `activated`. Rejected when the rule's
-   * single-active-lease slot is taken or the org is under a leasing freeze; the
-   * approved request stays activatable for a manual retry.
+   * choosing and moves the request to `activated`. Rejected when the request is
+   * not approved, its window has not started or has ended, or its access was
+   * already used (revoked/lapsed lease); repeat calls while the produced lease
+   * is live return that lease.
    */
   abstract activateLease(requestId: string): Promise<AccessLeaseResponse>;
   abstract revokeAccessLease(id: string, request: AccessLeaseRevokeRequest): Promise<void>;

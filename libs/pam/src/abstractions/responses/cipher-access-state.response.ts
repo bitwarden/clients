@@ -9,7 +9,8 @@ import { AccessRequestDetailsResponse } from "./access-request-details.response"
  * Carries the three caller-scoped pieces of access state the cipher view
  * banner and vault-row badge need to render: the active lease (if any), an
  * in-flight pending request (if any), and an approved-but-not-yet-activated
- * request (always null in v0 — approval mints the lease immediately).
+ * request (if any) — the startable state the requester activates to mint the
+ * lease.
  *
  * The service maps this DTO to the consumer-facing `CipherAccessState` shape
  * before handing it to components.

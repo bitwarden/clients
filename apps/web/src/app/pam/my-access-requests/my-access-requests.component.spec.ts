@@ -84,6 +84,8 @@ describe("MyAccessRequestsComponent", () => {
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
     pamWindowTtlSeconds: "__$1__s",
+    pamStartLeaseButton: "Start access",
+    pamActivateWithin: "Activate within __$1__",
     actions: "Actions",
   });
 
@@ -120,30 +122,32 @@ describe("MyAccessRequestsComponent", () => {
     }).compileComponents();
   });
 
-  const create = async (
+  // The component ticks a 1s interval for the countdown labels, so the zone never stabilizes and
+  // `fixture.whenStable()` would hang — create inside fakeAsync and flush the load with tick().
+  const create = (
     responses: AccessRequestDetailsResponse[],
-  ): Promise<ComponentFixture<MyAccessRequestsComponent>> => {
+  ): ComponentFixture<MyAccessRequestsComponent> => {
     pamApi.listMyAccessRequests.mockResolvedValue(responses);
     const fixture = TestBed.createComponent(MyAccessRequestsComponent);
     fixture.detectChanges();
-    await fixture.whenStable();
+    tick();
     fixture.detectChanges();
     return fixture;
   };
 
-  it("hides the entire page when the PAM flag is off", async () => {
+  it("hides the entire page when the PAM flag is off", fakeAsync(() => {
     configFlag$.next(false);
-    const fixture = await create([]);
+    const fixture = create([]);
     expect(fixture.nativeElement.textContent.trim()).toBe("");
-  });
+  }));
 
-  it("shows the global empty state when there are no requests", async () => {
-    const fixture = await create([]);
+  it("shows the global empty state when there are no requests", fakeAsync(() => {
+    const fixture = create([]);
     expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
-  });
+  }));
 
-  it("places pending rows in the Pending section", async () => {
-    const fixture = await create([
+  it("places pending rows in the Pending section", fakeAsync(() => {
+    const fixture = create([
       makeResponse({ id: "p1", status: "pending" }),
       makeResponse({ id: "p2", status: "pending" }),
     ]);
@@ -156,11 +160,11 @@ describe("MyAccessRequestsComponent", () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-recent-empty"]'),
     ).not.toBeNull();
-  });
+  }));
 
-  it("places resolved-within-window rows in the Recent section", async () => {
+  it("places resolved-within-window rows in the Recent section", fakeAsync(() => {
     const within = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const fixture = await create([
+    const fixture = create([
       makeResponse({
         id: "r1",
         status: "approved",
@@ -174,13 +178,44 @@ describe("MyAccessRequestsComponent", () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-pending-empty"]'),
     ).not.toBeNull();
-  });
+  }));
 
-  it("excludes resolved rows older than the recency window", async () => {
+  it("offers Start for an approved request whose window can still produce access", fakeAsync(() => {
+    const fixture = create([
+      makeResponse({
+        id: "a1",
+        status: "approved",
+        resolvedAt: new Date().toISOString(),
+        approverId: "user-7",
+        requestedNotAfter: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      }),
+    ]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-start-a1"]'),
+    ).not.toBeNull();
+  }));
+
+  it("hides Start for an approved request whose window has lapsed — the server would reject it", fakeAsync(() => {
+    const fixture = create([
+      makeResponse({
+        id: "a2",
+        status: "approved",
+        resolvedAt: new Date().toISOString(),
+        approverId: "user-7",
+        requestedNotAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+      }),
+    ]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-a2"]'),
+    ).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="my-requests-start-a2"]')).toBeNull();
+  }));
+
+  it("excludes resolved rows older than the recency window", fakeAsync(() => {
     const stale = new Date(
       Date.now() - (RECENT_WINDOW_DAYS + 1) * 24 * 60 * 60 * 1000,
     ).toISOString();
-    const fixture = await create([
+    const fixture = create([
       makeResponse({ id: "old", status: "approved", resolvedAt: stale, approverId: "x" }),
     ]);
     expect(
@@ -188,7 +223,7 @@ describe("MyAccessRequestsComponent", () => {
     ).toBeNull();
     // Both empties show, but the global empty also fires since nothing fits anywhere.
     expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
-  });
+  }));
 
   it("cancels a pending request optimistically and calls the API", fakeAsync(() => {
     pamApi.listMyAccessRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);

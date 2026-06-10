@@ -13,7 +13,12 @@ import { KeyService } from "@bitwarden/key-management";
 import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
-import { ApproverInboxComponent } from "./approver-inbox.component";
+import {
+  ApproverInboxComponent,
+  groupHistory,
+  historyRelTimeFor,
+  historyStatusLabelFor,
+} from "./approver-inbox.component";
 
 const CURRENT_USER = "user-current";
 
@@ -190,5 +195,121 @@ describe("ApproverInboxComponent", () => {
 
     const approve = fixture.debugElement.query(By.css('[data-testid="approver-inbox-approve"]'));
     expect(approve.nativeElement.disabled).toBe(false);
+  });
+});
+
+describe("history bucketing and labels (deferred lease minting)", () => {
+  const now = new Date("2026-06-10T12:00:00Z");
+  const earlier = "2026-06-10T11:00:00Z";
+  const later = "2026-06-10T13:00:00Z";
+  const muchLater = "2026-06-10T14:00:00Z";
+
+  function historyRow(
+    overrides: Partial<{
+      status: string;
+      producedLeaseId: string | null;
+      requestedNotBefore: string | null;
+      requestedNotAfter: string | null;
+    }> = {},
+  ): AccessRequestDetailsResponse {
+    return new AccessRequestDetailsResponse({
+      Id: "req-1",
+      CipherId: "cipher-1",
+      CollectionId: "col-1",
+      RequesterId: "user-2",
+      Status: overrides.status ?? "approved",
+      RequestedNotBefore: overrides.requestedNotBefore ?? earlier,
+      RequestedNotAfter: overrides.requestedNotAfter ?? later,
+      RequestedTtlSeconds: 3600,
+      SubmittedAt: "2026-06-10T10:00:00Z",
+      ProducedLeaseId: overrides.producedLeaseId ?? null,
+    });
+  }
+
+  const bucketOf = (item: AccessRequestDetailsResponse) => {
+    const groups = groupHistory([item], now);
+    return groups.length > 0 ? groups[0].bucket : null;
+  };
+
+  it("buckets an activated request with a live window as Active", () => {
+    const item = historyRow({ status: "activated", producedLeaseId: "lease-1" });
+    expect(bucketOf(item)).toBe("active");
+  });
+
+  it("buckets an activated request with a lapsed window as Past", () => {
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      requestedNotBefore: "2026-06-10T09:00:00Z",
+      requestedNotAfter: "2026-06-10T10:00:00Z",
+    });
+    expect(bucketOf(item)).toBe("past");
+  });
+
+  it("never buckets an approved-but-not-started request as Active, even with a live window", () => {
+    // No lease exists, so the grant is not access yet — it belongs with Upcoming.
+    const item = historyRow({ status: "approved", producedLeaseId: null });
+    expect(bucketOf(item)).toBe("future");
+  });
+
+  it("buckets an approved-but-not-started request with a future window as Upcoming", () => {
+    const item = historyRow({
+      status: "approved",
+      producedLeaseId: null,
+      requestedNotBefore: later,
+      requestedNotAfter: muchLater,
+    });
+    expect(bucketOf(item)).toBe("future");
+  });
+
+  it("buckets an approved request whose window lapsed unstarted as Past", () => {
+    const item = historyRow({
+      status: "approved",
+      producedLeaseId: null,
+      requestedNotBefore: "2026-06-10T09:00:00Z",
+      requestedNotAfter: "2026-06-10T10:00:00Z",
+    });
+    expect(bucketOf(item)).toBe("past");
+  });
+
+  it("buckets denied requests as Past regardless of window", () => {
+    const item = historyRow({ status: "denied" });
+    expect(bucketOf(item)).toBe("past");
+  });
+
+  it("labels an awaiting-start row 'Approved · not started', not 'Upcoming'", () => {
+    const item = historyRow({ status: "approved", producedLeaseId: null });
+    expect(historyStatusLabelFor("future", item)).toBe("pamInboxHistoryStatusAwaitingStart");
+  });
+
+  it("labels a scheduled minted lease 'Upcoming'", () => {
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      requestedNotBefore: later,
+      requestedNotAfter: muchLater,
+    });
+    expect(historyStatusLabelFor("future", item)).toBe("pamInboxHistoryGroupFuture");
+  });
+
+  it("shows how long an open-window approval stays startable", () => {
+    const item = historyRow({ status: "approved", producedLeaseId: null });
+    expect(historyRelTimeFor(item, "future", now)).toEqual({
+      key: "pamInboxHistoryStartableFor",
+      value: "1h",
+    });
+  });
+
+  it("shows when a future-window approval becomes startable", () => {
+    const item = historyRow({
+      status: "approved",
+      producedLeaseId: null,
+      requestedNotBefore: later,
+      requestedNotAfter: muchLater,
+    });
+    expect(historyRelTimeFor(item, "future", now)).toEqual({
+      key: "pamInboxHistoryStartsIn",
+      value: "1h",
+    });
   });
 });
