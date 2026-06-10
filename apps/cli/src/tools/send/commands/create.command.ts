@@ -153,7 +153,7 @@ export class SendCreateCommand {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const decSend = await newSend.decrypt(activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
-      const res = new SendResponse(decSend, env.getWebVaultUrl());
+      const res = new SendResponse(decSend, env.getSendUrl());
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
