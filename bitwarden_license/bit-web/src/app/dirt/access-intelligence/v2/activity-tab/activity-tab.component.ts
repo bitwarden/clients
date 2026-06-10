@@ -1,3 +1,4 @@
+import { NgClass } from "@angular/common";
 import {
   Component,
   inject,
@@ -20,7 +21,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ActivityCardComponent } from "../../activity/activity-card.component";
 import {
@@ -52,8 +53,9 @@ import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/pas
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./activity-tab.component.html",
   imports: [
+    NgClass,
+    I18nPipe,
     ReportLoadingComponent,
-    SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricV2Component,
     TrendWidgetComponent,
