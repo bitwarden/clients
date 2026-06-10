@@ -16,7 +16,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import * as JSZip from "jszip";
 import {
@@ -32,6 +32,7 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verbatim.directive";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -81,7 +82,6 @@ import {
 
 import { ImportChromeComponent } from "./chrome";
 import {
-  CredentialsWithKeyFilePromptComponent,
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
@@ -112,6 +112,7 @@ import { ImportLastPassComponent } from "./lastpass";
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,
+    InputVerbatimDirective,
   ],
   providers: ImporterProviders,
 })
@@ -122,6 +123,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   importOptions: ImportOption[];
   format: ImportType = null;
   fileSelected: File;
+  keyFileSelected: File | null = null;
+  showKeyFile = false;
 
   folders$: Observable<FolderView[]>;
   collections$: Observable<CollectionView[]>;
@@ -200,6 +203,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
     file: [],
+    kdbxPassword: [""],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
     chromiumLoader: [Loader.file as DataLoader],
@@ -325,6 +329,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.format = value;
+        this.updateKdbxControls(value);
       });
 
     await this.handlePolicies();
@@ -632,12 +637,15 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         return password == null ? null : { kind: "password", password };
       }
       case CredentialKind.passwordWithKeyFile: {
-        const dialog = this.dialogService.open<{ password: string; keyFile: Uint8Array | null }>(
-          CredentialsWithKeyFilePromptComponent,
-          { ariaModal: true },
-        );
-        const credentials = await lastValueFrom(dialog.closed);
-        return credentials == null ? null : { kind: "passwordWithKeyFile", ...credentials };
+        // KDBX collects the master password and optional key file inline in the main dialog.
+        const keyFile = this.keyFileSelected
+          ? new Uint8Array(await this.keyFileSelected.arrayBuffer())
+          : null;
+        return {
+          kind: "passwordWithKeyFile",
+          password: this.formGroup.controls.kdbxPassword.value,
+          keyFile,
+        };
       }
       default:
         return null;
@@ -703,6 +711,41 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   setSelectedFile(event: Event) {
     const fileInputEl = <HTMLInputElement>event.target;
     this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+  }
+
+  setKeyFile(event: Event) {
+    const fileInputEl = <HTMLInputElement>event.target;
+    this.keyFileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+  }
+
+  addKeyFile() {
+    this.showKeyFile = true;
+  }
+
+  /**
+   * Surfaces the existing `invalidMasterPassword` copy as the inline required-field error rather
+   * than the generic "input required" message (`bit-error` renders `message` for custom errors).
+   */
+  private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
+    (control.value ?? "").length > 0
+      ? null
+      : { invalidMasterPassword: { message: this.i18nService.t("invalidMasterPassword") } };
+
+  /**
+   * KDBX collects its master password inline and requires it; switching away from KDBX clears the
+   * control and any selected key file so they don't leak into another format's import.
+   */
+  private updateKdbxControls(format: ImportType | null) {
+    const passwordControl = this.formGroup.controls.kdbxPassword;
+    if (format === "keepasskdbx") {
+      passwordControl.setValidators(this.masterPasswordRequiredValidator);
+    } else {
+      passwordControl.clearValidators();
+      passwordControl.setValue("");
+      this.keyFileSelected = null;
+      this.showKeyFile = false;
+    }
+    passwordControl.updateValueAndValidity();
   }
 
   private getFileContents(file: File): Promise<string> {

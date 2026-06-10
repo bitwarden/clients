@@ -4067,17 +4067,23 @@
   "confirmFilePassword": {
     "message": "Confirm file password"
   },
-  "importKdbxCredentialsTitle": {
-    "message": "Unlock KeePass database"
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
   },
-  "importKdbxCredentialsDesc": {
-    "message": "Enter the master password for your KeePass database. If your database also uses a key file, select it below."
+  "addKeyFile": {
+    "message": "Add key file"
   },
-  "importKdbxKeyFile": {
-    "message": "Key file (optional)"
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "This KeePass database could not be read. It may be corrupted or in an unsupported format. Try re-exporting it from KeePass and importing again."
+    "message": "Data is not formatted correctly. Please check your import file and try again."
   },
   "kdbxWrongFileType": {
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
