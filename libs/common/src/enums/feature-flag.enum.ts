@@ -168,7 +168,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
-  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
+  [FeatureFlag.PM27632_SdkCipherCrudOperations]: true,
   [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,

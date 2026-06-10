@@ -71,10 +71,6 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
         ]),
       );
 
-    if (mode === "clone") {
-      cipher.archivedDate = undefined;
-    }
-
     return {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
