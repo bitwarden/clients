@@ -23,6 +23,7 @@ import { SelectComponent } from "../select/select.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BitFormFieldComponent, SelectComponent, FormsModule],
 })
+/** @internal */
 export class ToggleDropdownComponent<T> {
   readonly items = input<Option<T>[]>([]);
   readonly value = input<T | undefined>();
