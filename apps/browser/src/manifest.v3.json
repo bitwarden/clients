@@ -60,6 +60,7 @@
     "storage",
     "tabs",
     "unlimitedStorage",
+    "webAuthenticationProxy",
     "webNavigation",
     "webRequest",
     "webRequestAuthProvider",
