@@ -7,6 +7,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import {
   VAULT_TIMEOUT,
   VaultTimeoutStringType,
@@ -34,6 +35,7 @@ import {
   PasswordManagerClient,
   PasswordProtectedKeyEnvelope,
   PureCrypto,
+  V2UpgradeToken,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
@@ -69,6 +71,7 @@ export class DefaultUnlockService implements UnlockService {
     private platformUtilsService: PlatformUtilsService,
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
+    private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
   ) {}
 
   registerOnUnlockAction(
@@ -174,6 +177,7 @@ export class DefaultUnlockService implements UnlockService {
             email: await this.getEmail(userId),
             accountCryptographicState: await this.getAccountCryptographicState(userId),
             method,
+            upgradeToken: await this.getV2UpgradeToken(userId),
           });
 
           await this.runOnUnlockSideEffects(userId, ref);
@@ -229,6 +233,12 @@ export class DefaultUnlockService implements UnlockService {
     );
     assertNonNullish(unlockData, "Master password unlock data is required");
     return unlockData.toSdk();
+  }
+
+  private async getV2UpgradeToken(userId: UserId): Promise<V2UpgradeToken | undefined> {
+    return (
+      (await firstValueFrom(this.v2UpgradeTokenStateService.v2UpgradeToken$(userId))) ?? undefined
+    );
   }
 
   private async setLegacyMasterKeyFromUnlockData(

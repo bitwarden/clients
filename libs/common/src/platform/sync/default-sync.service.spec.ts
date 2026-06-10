@@ -39,6 +39,7 @@ import {
   MasterPasswordUnlockData,
 } from "../../key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -81,6 +82,7 @@ describe("DefaultSyncService", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let v2UpgradeTokenStateService: MockProxy<V2UpgradeTokenStateService>;
 
   let sut: DefaultSyncService;
 
@@ -114,6 +116,7 @@ describe("DefaultSyncService", () => {
     securityStateService = mock();
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
+    v2UpgradeTokenStateService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -144,6 +147,7 @@ describe("DefaultSyncService", () => {
       securityStateService,
       kdfConfigService,
       accountCryptographicStateService,
+      v2UpgradeTokenStateService,
     );
   });
 
@@ -444,6 +448,42 @@ describe("DefaultSyncService", () => {
         await sut.fullSync(true, true);
 
         expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
+      });
+
+      it("should persist the V2 upgrade token when present on the user decryption response", async () => {
+        const wrappedUserKey1 = "mockWrappedUserKey1";
+        const wrappedUserKey2 = "mockWrappedUserKey2";
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          UserDecryption: {
+            V2UpgradeToken: {
+              WrappedUserKey1: wrappedUserKey1,
+              WrappedUserKey2: wrappedUserKey2,
+            },
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(v2UpgradeTokenStateService.setV2UpgradeToken).toHaveBeenCalledWith(
+          { wrapped_user_key_1: wrappedUserKey1, wrapped_user_key_2: wrappedUserKey2 },
+          user1,
+        );
+        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).not.toHaveBeenCalled();
+      });
+
+      it("should clear the V2 upgrade token when the response omits it", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          UserDecryption: {},
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).toHaveBeenCalledWith(user1);
+        expect(v2UpgradeTokenStateService.setV2UpgradeToken).not.toHaveBeenCalled();
       });
     });
 
