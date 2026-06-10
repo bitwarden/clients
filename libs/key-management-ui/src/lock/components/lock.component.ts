@@ -142,7 +142,6 @@ export class LockComponent implements OnInit, OnDestroy {
   shouldClosePopout = false;
 
   // Desktop properties:
-  private deferFocus: boolean | null = null;
   private biometricAsked = false;
 
   defaultUnlockOptionSetForUser = false;
@@ -703,22 +702,10 @@ export class LockComponent implements OnInit, OnDestroy {
           case "windowHidden":
             this.onWindowHidden();
             break;
-          case "windowIsFocused":
-            if (this.deferFocus === null) {
-              this.deferFocus = !message.windowIsFocused;
-              if (!this.deferFocus) {
-                this.focusInput();
-              }
-            } else if (this.deferFocus && message.windowIsFocused) {
-              this.focusInput();
-              this.deferFocus = false;
-            }
-            break;
           default:
         }
       });
     });
-    this.messagingService.send("getWindowIsFocused");
   }
 
   private async desktopAutoPromptBiometrics() {
@@ -745,12 +732,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   onWindowHidden() {
     this.showPassword = false;
-  }
-
-  private focusInput() {
-    if (this.unlockOptions) {
-      document.getElementById(this.unlockOptions.pin.enabled ? "pin" : "masterPassword")?.focus();
-    }
   }
 
   // -----------------------------------------------------------------------------------------------
