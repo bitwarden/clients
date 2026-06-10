@@ -13,8 +13,6 @@ import { CipherType } from "../enums/cipher-type";
 import { FieldType } from "../enums/field-type.enum";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
-import { normalizeSearchQuery } from "./search.service";
-
 export type IndexId = Opaque<string, "IndexId">;
 
 type IndexState = {
@@ -165,15 +163,18 @@ function makeIndexId(userId: UserId, organizationId: OrganizationId | null): Ind
 
 /// Helper functions and extractors
 
-function normalizeAccentsPipelineFunction(token: lunr.Token): any {
+function normalizeAccentsPipelineFunction(token: lunr.Token): lunr.Token {
   const searchableFields = ["name", "login.username", "subtitle", "notes"];
   const metadata = (token as unknown as { metadata?: { fields?: unknown[] } }).metadata;
   const fields = metadata?.fields;
-  const checkFields =
-    Array.isArray(fields) && fields.every((i) => searchableFields.includes(String(i)));
 
-  if (checkFields) {
-    return normalizeSearchQuery(token.toString());
+  // When fields is present (indexing): only normalize the searchable fields.
+  // When fields is absent (search pipeline): always normalize.
+  const shouldNormalize =
+    !Array.isArray(fields) || fields.every((f) => searchableFields.includes(String(f)));
+
+  if (shouldNormalize) {
+    return token.update((s) => s.normalize("NFD").replace(/[̀-ͯ]/g, ""));
   }
 
   return token;
@@ -185,6 +186,7 @@ function normalizeAccentsPipelineFunction(token: lunr.Token): any {
 async function buildCipherIndex(ciphers: CipherViewLike[]): Promise<lunr.Index> {
   const builder = new lunr.Builder();
   builder.pipeline.add(normalizeAccentsPipelineFunction);
+  builder.searchPipeline.add(normalizeAccentsPipelineFunction);
   builder.ref("id");
   builder.field("shortid", {
     boost: 100,
