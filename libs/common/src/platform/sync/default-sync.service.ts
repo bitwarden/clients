@@ -47,6 +47,7 @@ import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
+import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -110,6 +111,7 @@ export class DefaultSyncService extends CoreSyncService {
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
   ) {
     super(
       tokenService,
@@ -502,6 +504,15 @@ export class DefaultSyncService extends CoreSyncService {
       } catch (error) {
         this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
       }
+    }
+
+    if (userDecryption.v2UpgradeToken != null) {
+      await this.v2UpgradeTokenStateService.setV2UpgradeToken(
+        userDecryption.v2UpgradeToken.toV2UpgradeToken(),
+        userId,
+      );
+    } else {
+      await this.v2UpgradeTokenStateService.clearV2UpgradeToken(userId);
     }
   }
 }

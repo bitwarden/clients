@@ -38,6 +38,7 @@ import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-uti
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
@@ -51,6 +52,7 @@ describe("AddEditComponent", () => {
   let fixture: ComponentFixture<AddEditComponent>;
   let addEditCipherInfo$: BehaviorSubject<AddEditCipherInfo | null>;
   let cipherServiceMock: MockProxy<CipherService>;
+  let vaultPopupAutofillService: MockProxy<VaultPopupAutofillService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
   const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
@@ -79,6 +81,10 @@ describe("AddEditComponent", () => {
     cipherServiceMock = mock<CipherService>({
       addEditCipherInfo$: jest.fn().mockReturnValue(addEditCipherInfo$),
     });
+    vaultPopupAutofillService = {
+      currentAutofillTab$: of({ id: 1 } as chrome.tabs.Tab),
+      doAutofill: jest.fn().mockResolvedValue(undefined),
+    } as unknown as MockProxy<VaultPopupAutofillService>;
 
     await TestBed.configureTestingModule({
       imports: [AddEditComponent],
@@ -127,6 +133,10 @@ describe("AddEditComponent", () => {
         {
           provide: VaultPopupAfterDeletionNavigationService,
           useValue: { navigateAfterDeletion },
+        },
+        {
+          provide: VaultPopupAutofillService,
+          useValue: vaultPopupAutofillService,
         },
       ],
     })
@@ -329,11 +339,41 @@ describe("AddEditComponent", () => {
     it("closes single action popout", async () => {
       jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);
       jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
+      const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
 
-      await component.onCipherSaved({ id: "123-456-789" } as CipherView);
+      await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
 
+      expect(sendMessageSpy).toHaveBeenCalledWith("showLoginSavedNotification", {
+        cipherId: "123-456-789",
+        itemName: "Test Cipher",
+        senderTabId: 1,
+      });
       expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalled();
       expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("shows the saved notification after successful save and fill", async () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);
+      jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
+      const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+      vaultPopupAutofillService.doAutofill.mockResolvedValue(true);
+      (component as any).fillOnSuccessfulSave = true;
+
+      await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
+
+      expect(vaultPopupAutofillService.doAutofill).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "123-456-789" }),
+        false,
+        true,
+      );
+      expect(sendMessageSpy).toHaveBeenCalledWith("showLoginSavedNotification", {
+        cipherId: "123-456-789",
+        itemName: "Test Cipher",
+        senderTabId: 1,
+      });
+      expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalledWith(
+        "vault_AddEditVaultItem",
+      );
     });
 
     it("navigates to view-cipher for new ciphers", async () => {
@@ -369,6 +409,18 @@ describe("AddEditComponent", () => {
         expect(sendMessageSpy).toHaveBeenCalledWith("addEditCipherSubmitted");
       },
     );
+  });
+
+  describe("submitAndFill", () => {
+    it("resets the fill intent when the form does not save", async () => {
+      const submit = jest.fn().mockResolvedValue(undefined);
+      (component as any).cipherFormComponent = jest.fn(() => ({ submit }));
+
+      await component.submitAndFill();
+
+      expect(submit).toHaveBeenCalled();
+      expect((component as any).fillOnSuccessfulSave).toBe(false);
+    });
   });
 
   describe("handleBackButton", () => {
@@ -566,7 +618,7 @@ describe("AddEditComponent", () => {
     }));
 
     it("does not reload data if config is not set", fakeAsync(() => {
-      component.config = null;
+      component.config = null as any;
 
       const messageListener = component["messageListener"];
       messageListener({ command: "reloadAddEditCipherData" });
