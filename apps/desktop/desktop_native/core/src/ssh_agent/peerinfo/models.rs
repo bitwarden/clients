@@ -52,9 +52,9 @@ impl PeerInfo {
             .load(std::sync::atomic::Ordering::Relaxed)
     }
 
-    pub fn set_forwarding(&self, value: bool) {
+    pub fn set_forwarding(&self) {
         self.is_forwarding
-            .store(value, std::sync::atomic::Ordering::Relaxed);
+            .store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
     pub fn set_host_key(&self, host_key: Vec<u8>) {
