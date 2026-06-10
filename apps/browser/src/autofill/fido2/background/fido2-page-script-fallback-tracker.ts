@@ -10,6 +10,11 @@
  * the user to see the Bitwarden picker twice. This tracker lets the proxy
  * short-circuit and return `NotAllowedError` so Chrome's native picker takes
  * over for the in-flight fallback.
+ *
+ * The tracker is constructed unconditionally and shared by `Fido2Background`
+ * (always writes) and `Fido2WebAuthnProxyBackground` (reads on Chrome 115+).
+ * On Firefox / Safari / older Chrome the reader never runs, so the tracker
+ * self-prunes expired entries on every write to keep the Map bounded.
  */
 export class Fido2PageScriptFallbackTracker {
   private static readonly TTL_MS = 10_000;
@@ -19,13 +24,14 @@ export class Fido2PageScriptFallbackTracker {
 
   /** Mark a tab as actively falling back to the browser's native picker. */
   markFallbackInProgress(tabId: number): void {
-    this.pending.set(tabId, this.now() + Fido2PageScriptFallbackTracker.TTL_MS);
+    const currentTime = this.now();
+    this.pruneExpired(currentTime);
+    this.pending.set(tabId, currentTime + Fido2PageScriptFallbackTracker.TTL_MS);
   }
 
   /**
    * Returns true exactly once when a fallback is in progress for the tab,
-   * consuming the marker. Expired markers are cleaned up lazily and treated
-   * as absent.
+   * consuming the marker. Expired markers are treated as absent.
    */
   consumeIfPending(tabId: number): boolean {
     const expiresAt = this.pending.get(tabId);
@@ -36,8 +42,16 @@ export class Fido2PageScriptFallbackTracker {
     return expiresAt > this.now();
   }
 
+  private pruneExpired(currentTime: number): void {
+    for (const [tabId, expiresAt] of this.pending) {
+      if (expiresAt <= currentTime) {
+        this.pending.delete(tabId);
+      }
+    }
+  }
+
   /** Test helper. */
-  clear(): void {
-    this.pending.clear();
+  get _pendingSize(): number {
+    return this.pending.size;
   }
 }
