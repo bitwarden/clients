@@ -210,8 +210,12 @@ export class AutofillComponent implements OnInit {
     };
 
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
-    this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
-    this.browserShortcutsURI = BrowserShortcutsUris[this.browserClientVendor];
+    this.disablePasswordManagerURI =
+      DisablePasswordManagerUris[this.browserClientVendor as keyof typeof DisablePasswordManagerUris] ??
+      DisablePasswordManagerUris.Unknown;
+    this.browserShortcutsURI =
+      BrowserShortcutsUris[this.browserClientVendor as keyof typeof BrowserShortcutsUris] ??
+      BrowserShortcutsUris.Unknown;
     this.browserClientIsUnknown = this.browserClientVendor === BrowserClientVendors.Unknown;
   }
 
@@ -460,9 +464,9 @@ export class AutofillComponent implements OnInit {
     event.preventDefault();
 
     // If the destination is a password management settings page, ask the user to confirm before proceeding
-    if (uri === DisablePasswordManagerUris[this.browserClientVendor]) {
+    if (uri === this.disablePasswordManagerURI) {
       await this.dialogService.openSimpleDialog({
-        ...(this.browserClientIsUnknown
+        ...(uri === DisablePasswordManagerUris.Unknown
           ? {
               content: { key: "confirmContinueToHelpCenterPasswordManagementContent" },
               title: { key: "confirmContinueToHelpCenter" },
@@ -483,9 +487,9 @@ export class AutofillComponent implements OnInit {
     }
 
     // If the destination is a browser shortcut settings page, ask the user to confirm before proceeding
-    if (uri === BrowserShortcutsUris[this.browserClientVendor]) {
+    if (uri === this.browserShortcutsURI) {
       await this.dialogService.openSimpleDialog({
-        ...(this.browserClientIsUnknown
+        ...(uri === BrowserShortcutsUris.Unknown
           ? {
               content: { key: "confirmContinueToHelpCenterKeyboardShortcutsContent" },
               title: { key: "confirmContinueToHelpCenter" },
@@ -528,6 +532,11 @@ export class AutofillComponent implements OnInit {
   }
 
   async updateDefaultBrowserAutofillDisabled() {
+    const permissionRequest =
+      this.platformUtilsService.isFirefox() && this.defaultBrowserAutofillDisabled
+        ? BrowserApi.requestPermission({ permissions: ["privacy"] })
+        : undefined;
+
     const privacyPermissionGranted = await this.privacyPermissionGranted();
     if (!this.defaultBrowserAutofillDisabled && !privacyPermissionGranted) {
       return;
@@ -535,7 +544,8 @@ export class AutofillComponent implements OnInit {
 
     if (!privacyPermissionGranted) {
       await this.setPendingDefaultPasswordManagerApply(true);
-      const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
+      const granted = await (permissionRequest ??
+        BrowserApi.requestPermission({ permissions: ["privacy"] }));
       if (!granted) {
         await this.setPendingDefaultPasswordManagerApply(false);
         await this.dialogService.openSimpleDialog({
