@@ -9,10 +9,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const cwd = resolve(__dirname, "../apps/desktop/desktop_native");
-const prepareScript =
-  process.platform === "win32"
-    ? "scripts/prepare-env-windows-rust.ps1"
-    : "scripts/prepare-env-unix-rust.sh";
+const prepareScript = "node scripts/prepare-env-rust.mjs";
 
 const args = process.argv.slice(2).join(" ");
 

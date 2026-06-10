@@ -83,15 +83,25 @@ jobs:
         run: npm run lint
 
   rust:
-    name: Run Rust lint on ${{ matrix.os }}
+    name: Rust ${{ matrix.check.name }} (${{ matrix.os }})
     runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-24.04
           - macos-14
           - windows-2022
+        # Each check maps to `scripts/lint-rust.mjs --only <name>`. `nightly` pulls
+        # in the nightly toolchain (fmt, udeps); `cargo_bin` bootstraps cargo-run-bin
+        # and caches the tools it builds (sort, udeps, deny).
+        check:
+          - { name: fmt, nightly: true }
+          - { name: clippy }
+          - { name: sort, cargo_bin: true }
+          - { name: udeps, nightly: true, cargo_bin: true }
+          - { name: deny, cargo_bin: true }
 
     steps:
       - name: Checkout repo
@@ -106,6 +116,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Install Rust nightly
+        if: matrix.check.nightly
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           toolchain: nightly
@@ -117,27 +128,34 @@ jobs:
       - name: Cache cargo registry
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
 
-      - name: Run cargo fmt
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly fmt --check
+      # Cache cargo-run-bin's built tools (.bin) separately from rust-cache. The
+      # tools depend only on their pinned versions (Cargo.toml) and the toolchain,
+      # not on Cargo.lock, so this key avoids rust-cache's lockfile rotation. Keyed
+      # per check so each one caches only the tools it builds.
+      - name: Cache cargo-run-bin tools
+        if: matrix.check.cargo_bin
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: apps/desktop/desktop_native/.bin
+          key: cargo-bin-${{ runner.os }}-${{ matrix.check.name }}-${{ hashFiles('apps/desktop/desktop_native/Cargo.toml', 'apps/desktop/desktop_native/rust-toolchain.toml') }}
+          restore-keys: |
+            cargo-bin-${{ runner.os }}-${{ matrix.check.name }}-
 
-      - name: Run Clippy
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo clippy --all-features --tests
-        env:
-          RUSTFLAGS: "-D warnings"
+      - name: Install cargo-run-bin
+        if: matrix.check.cargo_bin
+        run: cargo install cargo-run-bin --locked --version 1.7.4
 
-      - name: Install cargo tool dependencies
-        run: ./scripts/prepare-env-unix-rust.sh
+      # lint-rust.mjs runs the cargo-binstall guard (check-no-binstall.mjs) itself
+      # before any `cargo bin` invocation, so no separate step is needed here.
+      - name: Run lint --only ${{ matrix.check.name }}
+        run: node scripts/lint-rust.mjs --only ${{ matrix.check.name }}
 
-      - name: Cargo sort
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo sort --workspace --check
-
-      - name: Cargo udeps
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly udeps --workspace --all-features --all-targets
-
-      - name: Run cargo deny
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo deny --log-level error --all-features check all
+  rust-lint:
+    name: Rust lint
+    runs-on: ubuntu-24.04
+    needs: rust
+    if: always()
+    steps:
+      - name: Verify all Rust lint checks passed
+        if: ${{ needs.rust.result != 'success' }}
+        run: exit 1

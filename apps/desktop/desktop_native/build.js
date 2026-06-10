@@ -59,9 +59,13 @@ function cargoBuild(bin, target, release) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const args = ["build", "--bin", bin, releaseArg, targetArg]
-    // Use cross-compilation helper if necessary
+    // Use cross-compilation helper if necessary. cargo-xwin is pinned in
+    // Cargo.toml under [workspace.metadata.bin] and run via cargo-run-bin. When
+    // run-bin invokes the binary directly (rather than via cargo's subcommand
+    // dispatch), the `xwin` cargo-subcommand token must be omitted, so
+    // `cargo xwin build ...` becomes `cargo bin cargo-xwin build ...`.
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
-        args.unshift("xwin")
+        args.unshift("bin", "cargo-xwin")
     }
     runCommand("cargo", args.filter(s => s != ''))
 
@@ -109,9 +113,11 @@ function buildProcessIsolation() {
 
 function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
-    // Install cargo-xwin for cross-platform builds targeting Windows
+    // Bootstrap cargo-run-bin for cross-platform builds targeting Windows; it
+    // lazily builds the pinned cargo-xwin (see [workspace.metadata.bin]) on the
+    // first `cargo bin cargo-xwin` invocation in cargoBuild().
     if (target.includes('windows') && process.platform !== 'win32') {
-        runCommand("cargo", ["install", "--version", "0.20.2", "--locked", "cargo-xwin"]);
+        runCommand("cargo", ["install", "cargo-run-bin", "--locked", "--version", "1.7.4"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
             runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);

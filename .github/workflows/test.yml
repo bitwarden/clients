@@ -240,12 +240,15 @@ jobs:
         with:
           workspaces: "apps/desktop/desktop_native -> target"
 
-      - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --version 0.6.16
+      - name: Install cargo-run-bin
+        run: cargo install cargo-run-bin --locked --version 1.7.4
+
+      - name: Check cargo-binstall is not configured
+        run: node scripts/check-no-binstall.mjs
 
       - name: Generate coverage
         working-directory: ./apps/desktop/desktop_native
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
+        run: cargo bin cargo-llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
 
       - name: Upload test coverage
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0

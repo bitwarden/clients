@@ -65,9 +65,12 @@ if [ "$SETUP_DESKTOP_NATIVE" = "yes" ]; then
     echo "Installing Rust nightly toolchain..."
     rustup toolchain install nightly
 
-    # Install cargo tools for pre-commit hooks (optional but recommended)
-    echo "Installing cargo tools for pre-commit hooks..."
-    cargo install cargo-sort cargo-udeps cargo-deny
+    # Bootstrap cargo-run-bin for pre-commit hooks and lint-rust.mjs. The individual
+    # tools (cargo-sort, cargo-udeps, cargo-deny, ...) are pinned in
+    # apps/desktop/desktop_native/Cargo.toml under [workspace.metadata.bin] and
+    # built lazily on first `cargo bin <tool>`.
+    echo "Bootstrapping cargo-run-bin for cargo tools..."
+    cargo install cargo-run-bin --locked --version 1.7.4
 
     # Build the desktop native module
     echo "Building desktop native module..."
