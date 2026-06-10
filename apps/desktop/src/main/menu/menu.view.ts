@@ -5,7 +5,8 @@ import { MenuItemConstructorOptions } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { isDev } from "../../utils";
+// TEMP(debug): unused while DevTools is force-enabled below — restore on revert
+// import { isDev } from "../../utils";
 import { WindowMain } from "../window.main";
 
 import { IMenubarMenu } from "./menubar";
@@ -33,10 +34,10 @@ export class ViewMenu implements IMenubarMenu {
       this.reload,
     ];
 
-    if (isDev()) {
-      items.push(this.toggleDevTools);
-    }
-
+    // TEMP(debug): always expose DevTools (F12) for prod-build testing — revert before merge
+    // if (isDev()) {
+    items.push(this.toggleDevTools);
+    // }
     return items;
   }
 
