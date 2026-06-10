@@ -30,8 +30,8 @@ let nextId = 0;
     "[attr.role]": "displayMode() === 'dropdown' ? null : 'radiogroup'",
     "[attr.aria-label]": "displayMode() === 'dropdown' ? null : label()",
     "[class]": "classlist()",
-    "[style.--count]": "toggles().length",
-    "[style.--active]": "activeIndex()",
+    "[style.--toggle-count]": "toggles().length",
+    "[style.--active-toggle]": "activeIndex()",
   },
 })
 export class ToggleGroupComponent<TValue = unknown> {
@@ -182,9 +182,9 @@ export class ToggleGroupComponent<TValue = unknown> {
       "after:tw-h-[calc(100%_-_theme(spacing.2))]",
       // Width accounts for left+right padding AND (count-1) grid gaps (tw-gap-1 = spacing.1 each).
       // Total to subtract = (count+1)*spacing.1, written as count*spacing.1 + spacing.1.
-      "after:tw-w-[calc((100%_-_var(--count)*theme(spacing.1)_-_theme(spacing.1))/var(--count,1))]",
+      "after:tw-w-[calc((100%_-_var(--toggle-count)*theme(spacing.1)_-_theme(spacing.1))/var(--toggle-count,1))]",
       // Translate by (slot-width + one gap) per step: 100% = pill's own width, + spacing.1 = gap.
-      "after:tw-translate-x-[calc(var(--active,0)*(100%_+_theme(spacing.1)))]",
+      "after:tw-translate-x-[calc(var(--active-toggle,0)*(100%_+_theme(spacing.1)))]",
       "after:tw-transition-transform",
       "after:tw-duration-[225ms]",
       "after:tw-rounded-xl",
