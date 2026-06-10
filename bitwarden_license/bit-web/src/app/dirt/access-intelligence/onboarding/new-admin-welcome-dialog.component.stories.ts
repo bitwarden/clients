@@ -44,7 +44,7 @@ const mockI18nService = new I18nMockService({
 });
 
 export default {
-  title: "Access Intelligence/NewAdminWelcomeDialog",
+  title: "DIRT/Access Intelligence/NewAdminWelcomeDialog",
   component: NewAdminWelcomeDialogComponent,
   decorators: [
     moduleMetadata({
