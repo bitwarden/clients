@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { map, firstValueFrom, switchMap, filter, of } from "rxjs";
 import { Constructor } from "type-fest";
@@ -63,6 +63,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
   private readonly discardGuardEnabled = signal(false);
+  private readonly useDrawer = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.PolicyDrawers),
+    { initialValue: false },
+  );
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -125,10 +129,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
    *
    * Call this once the child policy component has been initialised.
    */
-  protected async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled.set(
-      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
-    );
+  protected setupDiscardGuard(): void {
+    this.discardGuardEnabled.set(this.useDrawer());
     if (!this.discardGuardEnabled()) {
       return;
     }
@@ -221,7 +223,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
-    await this.setupDiscardGuard();
+    this.setupDiscardGuard();
   }
 
   async load() {
