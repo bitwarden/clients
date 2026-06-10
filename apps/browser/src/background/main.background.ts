@@ -144,6 +144,8 @@ import {
 } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
 import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
   DefaultVaultTimeoutSettingsService,
   VaultTimeoutSettingsService,
@@ -525,6 +527,7 @@ export default class MainBackground {
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
   accountCryptographicStateService: AccountCryptographicStateService;
+  v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   animationControlService: AnimationControlService;
@@ -721,6 +724,8 @@ export default class MainBackground {
     this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
       this.stateProvider,
     );
+
+    this.v2UpgradeTokenStateService = new DefaultV2UpgradeTokenStateService(this.stateProvider);
 
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
@@ -1004,6 +1009,7 @@ export default class MainBackground {
       this.platformUtilsService,
       this.stateService,
       this.biometricStateService,
+      this.v2UpgradeTokenStateService,
     );
     void browserBiometricsService.setUnlockService(this.unlockService);
 
@@ -1229,6 +1235,7 @@ export default class MainBackground {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
