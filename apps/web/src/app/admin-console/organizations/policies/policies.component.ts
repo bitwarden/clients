@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -102,8 +102,9 @@ export class PoliciesComponent {
       }),
     );
 
-  protected readonly useDrawer$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.PolicyDrawers,
+  protected readonly useDrawer = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PolicyDrawers),
+    { initialValue: false },
   );
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
@@ -179,11 +180,10 @@ export class PoliciesComponent {
   }
 
   async edit(policy: BasePolicyEditDefinition, organization: Organization) {
-    const useDrawer = await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers);
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
-    const drawerOpener = useDrawer ? dialogComponent.openDrawer : undefined;
+    const drawerOpener = this.useDrawer() ? dialogComponent.openDrawer : undefined;
 
     if (drawerOpener) {
       const triggerEl =
