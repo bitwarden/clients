@@ -11,16 +11,8 @@
   }}</span>
   <ng-container bitDialogContent>
     @if (loading()) {
-      <div>
-        <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-      </div>
-    }
-    <div [hidden]="loading()">
+      <bit-spinner></bit-spinner>
+    } @else {
       @if (policy.v2?.prerequisiteKey) {
         <bit-callout type="info" [title]="'prerequisite' | i18n">
           {{ policy.v2.prerequisiteKey | i18n }}
@@ -35,7 +27,7 @@
         <p bitTypography="body1">{{ policy.v2?.description ?? policy.description | i18n }}</p>
       }
       <ng-template #policyForm></ng-template>
-    </div>
+    }
   </ng-container>
   <ng-container bitDialogFooter>
     <button bitButton buttonType="primary" [disabled]="saveDisabled()" bitFormButton type="submit">

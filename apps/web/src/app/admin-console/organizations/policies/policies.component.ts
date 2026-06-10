@@ -37,7 +37,6 @@ import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
-import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
@@ -180,11 +179,7 @@ export class PoliciesComponent {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
-    // For custom dialog components (e.g. MultiStep), prefer their own openDrawer.
-    // For standard policies, route all drawer opens through PolicyEditDrawerComponent.
-    const drawerOpener = useDrawer
-      ? (dialogComponent.openDrawer ?? PolicyEditDrawerComponent.openDrawer)
-      : undefined;
+    const drawerOpener = useDrawer ? dialogComponent.openDrawer : undefined;
 
     if (drawerOpener) {
       const triggerEl =

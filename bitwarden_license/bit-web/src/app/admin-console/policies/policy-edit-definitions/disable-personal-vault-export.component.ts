@@ -6,7 +6,6 @@ import {
   BasePolicyEditComponent,
   PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
-import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
@@ -16,10 +15,6 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.DataControl;
   priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
-  v2 = {
-    component: SimpleTogglePolicyComponent,
-    description: "disablePersonalVaultExportDescriptionV2",
-  };
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
