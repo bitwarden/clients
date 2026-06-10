@@ -6066,10 +6066,10 @@
     "message": "Require members to set up two-step login."
   },
   "twoStepLoginPolicyDescV2": {
-    "message": "Require members to set up two-step login. All members – except admins – who don't have two-step login set up for their account will have their access to the organization revoked."
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
   },
   "twoStepLoginPolicyWarning": {
-    "message": "Organization members who are not owners or admins and do not have two-step login setup for their account will be removed from the organization and will receive an email notifying them about the change."
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "You are a member of an organization that requires two-step login to be setup on your user account. If you turn off all two-step login providers you will be automatically removed from these organizations."
