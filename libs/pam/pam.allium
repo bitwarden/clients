@@ -686,10 +686,19 @@ rule StartOnDemandLease {
 -- Lease lifecycle: expiry, revocation, org-wide kill switch
 -- ----------------------------------------------------------------------------
 
+-- Expiry and revocation are the two reasons a lease leaves `active`, and a
+-- single transition out of `active` can have only one terminal outcome. Rather
+-- than have the autonomous expiry timer and the explicit operator revoke each
+-- write `status` directly — racing each other for the terminal value — both
+-- emit a LeaseSettles event and SettleLease owns the single transition. Expiry
+-- takes precedence: a revoke is only emitted while strictly in-window
+-- (now < not_after), so once not_after has passed the only signal that can
+-- arrive is the expiry one and the lease deterministically settles to
+-- `expired`. The two paths are mutually exclusive by construction.
 rule LeaseExpires {
     when: lease: Lease.not_after <= now
     requires: lease.status = active
-    ensures: lease.status = expired
+    ensures: LeaseSettles(lease: lease, revoked_by: null, reason: null)
 }
 
 rule PendingRequestExpires {
@@ -728,11 +737,34 @@ rule ScheduledTicketExpiresAfterWindow {
 rule ApproverRevokesLease {
     when: ApproverRevokesLeaseAction(actor, lease, reason?)
     requires: lease.status = active
+    -- Expiry takes precedence over revocation: once not_after has passed the
+    -- lease is dead regardless of whether LeaseExpires has fired yet, so a
+    -- revoke at or past not_after is rejected (the exact negation of the
+    -- LeaseExpires trigger). Strictly in-window, this emits the settlement
+    -- signal; SettleLease performs the single terminal transition. The two
+    -- paths are therefore mutually exclusive and the terminal state is
+    -- deterministic.
+    requires: now < lease.not_after
     requires: actor in EligibleRevokers(lease)
-    ensures: lease.status = revoked
-    ensures: lease.revoked_at = now
-    ensures: lease.revoked_by = actor
-    ensures: lease.revocation_reason = reason
+    ensures: LeaseSettles(lease: lease, revoked_by: actor, reason: reason)
+}
+
+rule SettleLease {
+    -- The single owner of the transition out of `active`. Driven by exactly one
+    -- of two emitters — the autonomous LeaseExpires timer or an in-window
+    -- ApproverRevokesLease — never both, since revocation is rejected at/past
+    -- not_after. A null revoker means the lease lapsed on its own (expired); a
+    -- present revoker means an operator ended it early (revoked).
+    when: LeaseSettles(lease, revoked_by, reason?)
+    requires: lease.status = active
+    ensures:
+        if revoked_by != null:
+            lease.status = revoked
+            lease.revoked_at = now
+            lease.revoked_by = revoked_by
+            lease.revocation_reason = reason
+        else:
+            lease.status = expired
 }
 
 rule OrgAdminTriggersKillSwitch {
@@ -1185,6 +1217,8 @@ invariant AtMostOneLeasingFreezePerOrg {
 open question "When an AccessRule is deleted while an associated Lease is still active, what happens to in-flight extension requests? Today the Lease keeps a reference to the deleted rule — implementation does not enforce referential cleanup."
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
+
+open question "When a member reaches a cipher through multiple gated collections, which rule governs the request? The spec's gating_rule = (...).first (CipherOpenRequiresAccessRequest, MemberSubmitsAccessRequest, RequestAccessModal) is arbitrary; the implementation (AccessApprovalResolver) prefers a rule with a human-approval condition, else first-by-collection-id — also not a conscious decision. Candidate policies: strictest-rule-wins, all-rules-must-pass (AND across rules, mirroring conditions within a rule), or an explicit admin-defined priority."
 
 
 
