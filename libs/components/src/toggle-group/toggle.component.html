@@ -6,7 +6,7 @@
   [checked]="selected()"
   (change)="handleInputChange()"
 />
-<label [for]="id" [class]="labelClasses" [title]="labelTitle()">
+<label [attr.aria-label]="labelTitle()" [for]="id" [class]="labelClasses">
   <span class="tw-whitespace-nowrap" #labelContent>
     <ng-content></ng-content>
   </span>

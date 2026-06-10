@@ -81,38 +81,31 @@ export class ToggleGroupComponent<TValue = unknown> {
 
   constructor() {
     const el = this.el.nativeElement;
-    // Mutable so the ResizeObserver always reads the latest value, and the
-    // afterRenderEffect below can refresh it when projected toggles change.
     let naturalWidth = 0;
     let observerStarted = false;
 
     afterRenderEffect(() => {
-      // Re-run whenever the set of projected toggles changes — every real
-      // consumer renders them via `@for option of (rootOptions$ | async)`, so
-      // the children arrive after the first paint and need a fresh measurement.
+      // Re-measure whenever projected toggles change — consumers typically render
+      // them via `| async`, so children arrive after the first paint.
       const togglesCount = this.toggles().length;
 
-      // In dropdown mode the toggles are not projected (the template's @if
-      // swaps <ng-content> out for <bit-toggle-dropdown>), so measuring would
-      // capture the dropdown's width instead. Skip and keep the prior value.
+      // Skip in dropdown mode: <ng-content> is swapped for <bit-toggle-dropdown>,
+      // so measuring would capture the dropdown's width.
       if (togglesCount === 0 || untracked(this.displayMode) === "dropdown") {
         return;
       }
 
-      // Measure the unconstrained natural width of the toggle group by forcing it to
-      // size to its content, temporarily overriding any max-width that may be set on
-      // the host. Math.floor normalizes sub-pixel float differences between
-      // getBoundingClientRect and ResizeObserver's borderBoxSize (which can diverge by
-      // a fraction of a pixel inside transformed/padded containers like cards), preventing
-      // an inline↔dropdown oscillation loop.
+      // Force max-content to measure the unconstrained width. Math.floor avoids a
+      // sub-pixel oscillation loop between getBoundingClientRect and ResizeObserver's
+      // borderBoxSize inside transformed/padded containers.
       el.style.width = "max-content";
       el.style.maxWidth = "none";
       naturalWidth = Math.floor(el.getBoundingClientRect().width);
       el.style.maxWidth = "";
       el.style.width = "";
 
-      // Handle the case where the component renders into a container that is already
-      // too narrow — ResizeObserver won't fire for the initial size if it doesn't change.
+      // ResizeObserver won't fire on the initial size if it matches, so handle
+      // already-too-narrow containers explicitly.
       if (Math.floor(el.getBoundingClientRect().width) < naturalWidth) {
         this.toggleOptions.set(this.buildToggleOptions());
         this.displayMode.set("dropdown");
