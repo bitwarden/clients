@@ -37,7 +37,7 @@
       <bit-toggle-group
         [selected]="statusToggle | async"
         (selectedChange)="statusToggle.next($event)"
-        [attr.aria-label]="'memberStatusFilter' | i18n"
+        [label]="'memberStatusFilter' | i18n"
       >
         <bit-toggle [value]="undefined">
           {{ "all" | i18n }}

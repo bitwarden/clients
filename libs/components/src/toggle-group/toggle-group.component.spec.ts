@@ -75,6 +75,12 @@ describe("Button", () => {
   });
 
   describe("label", () => {
+    it("does not render aria-label on the host when no label input is provided", () => {
+      const host = fixture.debugElement.query(By.css("bit-toggle-group")).nativeElement;
+      expect(host.getAttribute("role")).toBe("radiogroup");
+      expect(host.getAttribute("aria-label")).toBeNull();
+    });
+
     it("renders the label as aria-label on the host while in radiogroup mode", () => {
       testAppComponent.label.set("Test filter");
       fixture.detectChanges();
