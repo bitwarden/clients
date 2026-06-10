@@ -21,15 +21,13 @@
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0">
-        <label class="tw-m-0 tw-flex tw-w-fit tw-gap-2 !tw-font-medium !tw-text-muted">
-          <input
-            type="checkbox"
-            (change)="$event ? toggleAll() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          />
-          {{ "all" | i18n }}
-        </label>
+        <input
+          type="checkbox"
+          (change)="$event ? toggleAll() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [attr.aria-label]="'selectAll' | i18n"
+        />
       </th>
       <th bitCell>{{ "name" | i18n }}</th>
       <th bitCell>{{ "expires" | i18n }}</th>
