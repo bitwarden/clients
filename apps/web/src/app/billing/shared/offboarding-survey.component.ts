@@ -97,6 +97,11 @@ export class OffboardingSurveyComponent {
       hintKey: "cancelSurveyNeedsChangedHint",
     },
     {
+      value: "poor_service",
+      labelKey: "cancelSurveyPoorServiceLabel",
+      hintKey: "cancelSurveyPoorServiceHint",
+    },
+    {
       value: "other",
       labelKey: "other",
       hintKey: null,
@@ -106,7 +111,7 @@ export class OffboardingSurveyComponent {
   protected readonly isBusiness: boolean;
 
   protected formGroup = this.formBuilder.group({
-    reason: [null, [Validators.required]],
+    reason: [null],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 

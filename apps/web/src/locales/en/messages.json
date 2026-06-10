@@ -3634,6 +3634,12 @@
   "cancelSubscription": {
     "message": "Cancel subscription"
   },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
+  },
   "subscriptionExpiration": {
     "message": "Subscription expiration"
   },
@@ -11042,6 +11048,14 @@
   },
   "cancelSurveyNeedsChangedHint": {
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
