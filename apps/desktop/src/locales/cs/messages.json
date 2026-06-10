@@ -4747,7 +4747,7 @@
     "message": "Neplatná zkratka"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Drobečková navigace",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {

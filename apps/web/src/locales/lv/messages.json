@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Izveidot atskaiti"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankas konts"
+  },
+  "bankAccountDetails": {
+    "message": "Informācija par bankas kontu"
   },
   "amountX": {
     "message": "Summa $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Paroles atiestatīšanas informācijas atbilde ir `null`"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "Vienumi, kas atkritnē atrodas vairāk nekā 30 dienas, tiks automatiski izdzēsti."
@@ -13146,7 +13155,7 @@
     "message": "Nepieciešama darbība: maksājuma informācijā trūkst nodokļu identifikatora numura. Ja nodokļu identifikators nav pievienots, rēķinos var tikt iekļauts papildu nodoklis."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ceļvedis",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$. no $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

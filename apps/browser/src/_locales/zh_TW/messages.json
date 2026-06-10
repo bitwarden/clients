@@ -1826,7 +1826,19 @@
     "message": "確認自動填入"
   },
   "confirmAutofillDesc": {
-    "message": "此網站與您儲存的登入資料不相符。在填入登入憑證前，請確認這是受信任的網站。"
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "此登入尚未儲存網站"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "銀行帳戶"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "備註"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "將頁面載入時使用自動填入功能設定為預設。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "無法自動填入"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "預設比對方式為「完全相符」。目前的網站與此項目的已儲存登入資料不完全相符。"
   },
   "okay": {
     "message": "確定"

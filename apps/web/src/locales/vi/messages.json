@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Chạy báo cáo"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Tài khoản ngân hàng"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "Số tiền $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Phản hồi chi tiết về việc đặt lại mật khẩu là null"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "Các mục đã nằm trong thùng rác quá 30 ngày sẽ bị xóa tự động."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

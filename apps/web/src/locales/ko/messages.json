@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "은행 계좌"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "금액 $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "비밀번호 재성정 정보 반응 없음"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "휴지통으로 이동된 암호는 30일 이후 자동으로 삭제됩니다."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
