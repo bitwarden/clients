@@ -19,6 +19,7 @@ export class BitFieldContainerDirective {
     return [
       "tw-group/form-field",
       "tw-flex",
+      "tw-w-full",
       "tw-border",
       "tw-rounded-xl",
       "tw-border-solid",
