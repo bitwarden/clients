@@ -23,7 +23,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -32,6 +31,7 @@ import {
   DialogService,
   MenuModule,
   SimpleDialogOptions,
+  IconModule,
 } from "@bitwarden/components";
 import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
@@ -54,6 +54,7 @@ import { PipesModule } from "../pipes/pipes.module";
     JslibModule,
     NewCipherMenuComponent,
     CoachmarkComponent,
+    IconModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -131,7 +132,6 @@ export class VaultHeaderComponent {
     private readonly collectionAdminService: CollectionAdminService,
     private readonly dialogService: DialogService,
     private readonly router: Router,
-    private readonly configService: ConfigService,
     private readonly accountService: AccountService,
   ) {}
 

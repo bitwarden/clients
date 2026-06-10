@@ -5,6 +5,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -13,6 +14,7 @@ import {
   DialogConfig,
   DialogRef,
   DialogService,
+  BadgeComponent,
   ButtonModule,
   DialogModule,
   TypographyModule,
@@ -38,12 +40,17 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
 >;
 
 /** Match strategies that force showing full URLs */
-const FULL_URI_MATCH_STRATEGIES = [UriMatchStrategy.StartsWith, UriMatchStrategy.RegularExpression];
+const FULL_URI_MATCH_STRATEGIES = [
+  UriMatchStrategy.StartsWith,
+  UriMatchStrategy.RegularExpression,
+  UriMatchStrategy.Exact,
+];
 
 @Component({
   templateUrl: "./autofill-confirmation-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    BadgeComponent,
     ButtonModule,
     CalloutComponent,
     CommonModule,
@@ -58,6 +65,7 @@ export class AutofillConfirmationDialogComponent {
   private readonly params = inject<AutofillConfirmationDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject(DialogRef<AutofillConfirmationDialogResultType>);
   private readonly domainSettingsService = inject(DomainSettingsService);
+  private readonly i18nService = inject(I18nService);
 
   private readonly uriMatchSetting = toSignal(
     this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
@@ -97,6 +105,44 @@ export class AutofillConfirmationDialogComponent {
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
 
+  readonly currentUrlMatchesNeverUri = computed<boolean>(() => {
+    const currentHostname = Utils.getHostname(this.currentUrl());
+    if (!currentHostname) {
+      return false;
+    }
+    const uriMatchSetting = this.uriMatchSetting();
+    return this.savedUrls().some((u) => {
+      const effectiveMatch = u.match ?? uriMatchSetting;
+      return (
+        effectiveMatch === UriMatchStrategy.Never &&
+        Utils.getHostname(u.uri ?? "") === currentHostname
+      );
+    });
+  });
+
+  readonly dialogTitle = computed(() => {
+    if (this.currentUrlMatchesNeverUri()) {
+      return this.i18nService.t("loginNeverMatchTitle");
+    }
+    return this.savedUrls().length === 0
+      ? this.i18nService.t("loginHasNoSiteSaved")
+      : this.i18nService.t("siteDoesntMatch");
+  });
+
+  readonly dialogBody = computed(() => {
+    const count = this.savedUrls().length;
+    if (count === 0) {
+      return this.i18nService.t("loginNoSiteDesc");
+    }
+    if (this.currentUrlMatchesNeverUri()) {
+      return this.i18nService.t("loginNeverMatchDesc");
+    }
+    if (count === 1) {
+      return this.i18nService.t("loginSingleSiteDesc");
+    }
+    return this.i18nService.t("loginMultipleSitesDesc");
+  });
+
   readonly savedUrlsListClass = computed(() =>
     this.savedUrlsExpanded()
       ? ""
@@ -110,15 +156,15 @@ export class AutofillConfirmationDialogComponent {
   }
 
   close() {
-    this.dialogRef.close(AutofillConfirmationDialogResult.Canceled);
+    void this.dialogRef.close(AutofillConfirmationDialogResult.Canceled);
   }
 
   autofillAndAddUrl() {
-    this.dialogRef.close(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
+    void this.dialogRef.close(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
   }
 
   autofillOnly() {
-    this.dialogRef.close(AutofillConfirmationDialogResult.AutofilledOnly);
+    void this.dialogRef.close(AutofillConfirmationDialogResult.AutofilledOnly);
   }
 
   static open(

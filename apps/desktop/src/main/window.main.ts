@@ -54,7 +54,7 @@ export class WindowMain {
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
-  init(): Promise<any> {
+  init(show: boolean = true): Promise<any> {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
@@ -191,7 +191,7 @@ export class WindowMain {
             }
           }
 
-          await this.createWindow();
+          await this.createWindow("full-app", show);
           resolve();
 
           if (this.argvCallback != null) {
@@ -268,7 +268,10 @@ export class WindowMain {
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
    * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
    */
-  async createWindow(template: "full-app" | "modal-app" = "full-app"): Promise<void> {
+  async createWindow(
+    template: "full-app" | "modal-app" = "full-app",
+    show: boolean = true,
+  ): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
@@ -327,21 +330,27 @@ export class WindowMain {
       this.win.maximize();
     }
 
-    this.win.show();
+    if (show) {
+      this.win.show();
+    }
 
     if (template === "full-app") {
-      // and load the index.html of the app.
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
-        }),
-        {
-          userAgent: cleanUserAgent(this.win.webContents.userAgent),
-        },
-      );
+      void this.win
+        .loadURL(
+          url.format({
+            protocol: "file:",
+            pathname: path.join(__dirname, "/index.html"),
+            slashes: true,
+          }),
+          {
+            userAgent: cleanUserAgent(this.win.webContents.userAgent),
+          },
+        )
+        .then(() => {
+          if (isDev()) {
+            this.win.webContents.openDevTools();
+          }
+        });
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
@@ -358,11 +367,6 @@ export class WindowMain {
           userAgent: cleanUserAgent(this.win.webContents.userAgent),
         },
       );
-    }
-
-    // Open the DevTools.
-    if (isDev()) {
-      this.win.webContents.openDevTools();
     }
 
     // Emitted when the window is closed.

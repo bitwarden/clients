@@ -227,17 +227,17 @@ export class NewApplicationsDialogV2Component {
 
     // Skip the assign tasks view if there are no new unassigned at-risk cipher IDs
     if (this.newUnassignedAtRiskCipherIds().length === 0) {
-      this.handleAssignTasks();
+      this.handleSendNotifications();
     } else {
       this.currentView.set(DialogView.AssignTasks);
     }
   }
 
   /**
-   * Handles the "Assign tasks" button click.
+   * Handles the "Send notifications" button click.
    * Marks applications as critical/reviewed and assigns security tasks.
    */
-  protected handleAssignTasks() {
+  protected handleSendNotifications() {
     if (this.saving()) {
       return; // Prevent double-click
     }
@@ -302,7 +302,7 @@ export class NewApplicationsDialogV2Component {
         });
 
         this.saving.set(false);
-        this.dialogRef.close(NewApplicationsDialogResultType.Complete);
+        void this.dialogRef.close(NewApplicationsDialogResultType.Complete);
       });
   }
 
@@ -311,7 +311,7 @@ export class NewApplicationsDialogV2Component {
    * Closes the dialog without saving.
    */
   protected handleCancel() {
-    this.dialogRef.close(NewApplicationsDialogResultType.Close);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Close);
   }
 
   /**

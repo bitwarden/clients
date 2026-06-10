@@ -9,6 +9,14 @@
       matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
       datasourceTemplate: "crate",
     },
+    {
+      // Keep electronVersion in electron-builder.json in sync with the electron package.
+      customType: "regex",
+      fileMatch: ["apps/desktop/electron-builder\\.json$"],
+      matchStrings: ['"electronVersion":\\s*"(?<currentValue>[\\d.]+)"'],
+      depNameTemplate: "electron",
+      datasourceTemplate: "npm",
+    },
   ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================
@@ -90,11 +98,9 @@
         "concurrently",
         "cross-env",
         "del",
-        "ed25519",
         "lit",
         "@lit-labs/signals",
         "patch-package",
-        "pkcs8",
         "prettier",
         "prettier-plugin-tailwindcss",
         "rimraf",
@@ -110,7 +116,7 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["mockall"],
+      matchPackageNames: ["mockall", "serial_test"],
       description: "Autofill-Desktop owned dependencies",
       commitMessagePrefix: "[deps] Desktop Native:",
       reviewers: ["team:team-desktop-native-dev"],
@@ -141,6 +147,7 @@
         "@types/firefox-webext-browser",
         "@types/glob",
         "@types/lowdb",
+        "@types/jest",
         "@types/node",
         "@types/node-ipc",
         "@yao-pkg/pkg",
@@ -174,6 +181,12 @@
         "html-webpack-plugin",
         "interprocess",
         "itertools",
+        "jest",
+        "jest-diff",
+        "jest-environment-jsdom",
+        "jest-junit",
+        "jest-mock-extended",
+        "jest-preset-angular",
         "json5",
         "keytar",
         "libc",
@@ -210,8 +223,9 @@
         "tokio-util",
         "tracing",
         "tracing-subscriber",
-        "ts-node",
+        "ts-jest",
         "ts-loader",
+        "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typenum",
@@ -286,19 +300,6 @@
       description: "UI Foundation owned dependencies",
       commitMessagePrefix: "[deps] UI Foundation:",
       reviewers: ["team:team-ui-foundation"],
-    },
-    {
-      matchPackageNames: [
-        "@types/jest",
-        "jest-junit",
-        "jest-mock-extended",
-        "jest-preset-angular",
-        "jest-diff",
-        "ts-jest",
-      ],
-      description: "Secrets Manager owned dependencies",
-      commitMessagePrefix: "[deps] SM:",
-      reviewers: ["team:team-secrets-manager-dev"],
     },
     {
       matchPackageNames: [
@@ -466,6 +467,17 @@
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
+    {
+      // Some electron packages are version coupled
+      groupName: "electron",
+      matchPackageNames: [
+        "@electron/fuses",
+        "@electron/rebuild",
+        "electron",
+        "electron-builder",
+        "electron-updater",
+      ],
+    },
 
     // ==================== Dashboard Rules ====================
     {
@@ -474,12 +486,13 @@
       // This rule comes AFTER grouping rules so that groups are respected while still
       // sending minor/patch updates to the dependency dashboard for approval.
       matchPackageNames: [
+        "@types/jest",
         "anyhow",
         "arboard",
         "ashpd",
         "babel-loader",
-        "base64-loader",
         "base64",
+        "base64-loader",
         "bindgen",
         "byteorder",
         "bytes",
@@ -501,6 +514,12 @@
         "html-webpack-injector",
         "html-webpack-plugin",
         "interprocess",
+        "jest",
+        "jest-diff",
+        "jest-environment-jsdom",
+        "jest-junit",
+        "jest-mock-extended",
+        "jest-preset-angular",
         "json5",
         "keytar",
         "libc",
@@ -535,8 +554,9 @@
         "tokio-util",
         "tracing",
         "tracing-subscriber",
-        "ts-node",
+        "ts-jest",
         "ts-loader",
+        "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typenum",

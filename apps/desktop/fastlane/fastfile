@@ -97,7 +97,7 @@ platform :mac do
 
     # Set up App Store Connect API
     app_store_connect_api_key(
-      key_id: "6TV9MKN3GP",
+      key_id: ENV["APP_STORE_CONNECT_AUTH_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_TEAM_ISSUER"],
       key_content: Base64.encode64(ENV["APP_STORE_CONNECT_AUTH_KEY"]),
       is_key_content_base64: true

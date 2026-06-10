@@ -220,6 +220,9 @@ describe("CipherView", () => {
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
+        bankAccount: undefined,
+        driversLicense: undefined,
+        passport: undefined,
         fields: [
           {
             name: "fieldName",
@@ -408,6 +411,7 @@ describe("CipherView", () => {
         username: "testuser",
         password: "testpass",
       });
+      expect(result.archivedDate).toBeUndefined();
     });
 
     it("handles undefined organizationId and folderId", () => {

@@ -36,6 +36,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -62,8 +63,11 @@ import {
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
-import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
-import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
+import {
+  inputEmailLimitValidator,
+  getEmailBatchLimit,
+  isDynamicSeatPlan,
+} from "./validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "./validators/revoked-emails.validator";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -88,7 +92,7 @@ export interface AddMemberDialogParams extends CommonMemberDialogParams {
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
   kind: "Edit";
   name: string;
-  organizationUserId: string;
+  organizationUserId: Guid;
   usesKeyConnector: boolean;
   managedByOrganization?: boolean;
   initialTab: MemberDialogTab;
@@ -124,6 +128,13 @@ export class MemberDialogComponent implements OnDestroy {
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
   remainingSeats$: Observable<number>;
+  /**
+   * The maximum number of unique emails an admin may submit in a single invite operation,
+   * derived from the organization's plan type and available seats. See {@link getEmailBatchLimit}
+   * for the full business rules.
+   */
+  emailBatchLimit$: Observable<number>;
+  isDynamicSeatPlan$: Observable<boolean>;
   editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
@@ -216,7 +227,7 @@ export class MemberDialogComponent implements OnDestroy {
       this.editMode = true;
       this.title = this.i18nService.t("editMember");
       userDetails$ = this.userService.get(
-        this.params.organizationId,
+        this.params.organizationId as OrganizationId,
         this.params.organizationUserId,
       );
       this.tabIndex = this.params.initialTab;
@@ -292,15 +303,37 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    this.remainingSeats$ = this.organization$.pipe(
+      map((organization) =>
+        this.isEditDialogParams(this.params)
+          ? 0
+          : organization.seats - this.params.occupiedSeatCount,
+      ),
+    );
+
+    this.emailBatchLimit$ = this.organization$.pipe(
+      map((organization) => {
+        const occupiedSeatCount = this.isEditDialogParams(this.params)
+          ? 0
+          : this.params.occupiedSeatCount;
+        return getEmailBatchLimit(organization, occupiedSeatCount);
+      }),
+    );
+
+    this.isDynamicSeatPlan$ = this.organization$.pipe(
+      map((organization) => isDynamicSeatPlan(organization.productTierType)),
+    );
+
     combineLatest({
       organization: this.organization$,
       collections,
       userDetails: userDetails$,
       groups: groups$,
+      emailBatchLimit: this.emailBatchLimit$,
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(({ organization, collections, userDetails, groups }) => {
-        this.setFormValidators(organization);
+      .subscribe(({ organization, collections, userDetails, groups, emailBatchLimit }) => {
+        this.setFormValidators(organization, emailBatchLimit);
 
         // Groups tab: populate available groups
         this.groupAccessItems = [].concat(
@@ -330,19 +363,9 @@ export class MemberDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
-
-    this.remainingSeats$ = this.organization$.pipe(
-      map((organization) => {
-        if (!this.isEditDialogParams(this.params)) {
-          return organization.seats - this.params.occupiedSeatCount;
-        }
-
-        return organization.seats;
-      }),
-    );
   }
 
-  private setFormValidators(organization: Organization) {
+  private setFormValidators(organization: Organization, emailBatchLimit: number) {
     if (this.isEditDialogParams(this.params)) {
       return;
     }
@@ -350,18 +373,14 @@ export class MemberDialogComponent implements OnDestroy {
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
-      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
-        this.i18nService.t("tooManyEmails", maxEmailsCount),
+      inputEmailLimitValidator(
+        emailBatchLimit,
+        (maxEmailsCount: number) => this.i18nService.t("tooManyEmails", maxEmailsCount),
+        this.params.allOrganizationUsers.map((u) => u.email),
       ),
       revokedEmailsValidator(
         this.params.allOrganizationUsers,
         this.i18nService.t("revokedEmailError"),
-      ),
-      orgSeatLimitReachedValidator(
-        organization,
-        this.params.allOrganizationUsers.map((u) => u.email),
-        this.i18nService.t("subscriptionUpgrade", organization.seats),
-        this.params.occupiedSeatCount,
       ),
     ];
 
@@ -502,29 +521,41 @@ export class MemberDialogComponent implements OnDestroy {
     if (this.isEditDialogParams(this.params)) {
       await this.handleEditUser(userView, this.params);
     } else {
-      await this.handleInviteUsers(userView, organization);
+      await this.handleInviteUsers(userView);
     }
   };
 
   private async getUserView(): Promise<OrganizationUserAdminView> {
-    const userView = new OrganizationUserAdminView();
-    userView.organizationId = this.params.organizationId;
-    userView.type = this.formGroup.value.type;
-
-    userView.permissions = this.setRequestPermissions(
-      userView.permissions ?? new PermissionsApi(),
-      userView.type !== OrganizationUserType.Custom,
+    const type = this.formGroup.value.type;
+    const permissions = this.setRequestPermissions(
+      new PermissionsApi(),
+      type !== OrganizationUserType.Custom,
     );
 
-    userView.collections = this.formGroup.value.access
+    const collections = this.formGroup.value.access
       .filter((v) => v.type === AccessItemType.Collection)
       .map(convertToSelectionView);
 
-    userView.groups = (await firstValueFrom(this.restrictEditingSelf$))
+    const groups = (await firstValueFrom(this.restrictEditingSelf$))
       ? null
       : this.formGroup.value.groups.map((m) => m.id);
 
-    userView.accessSecretsManager = this.formGroup.value.accessSecretsManager;
+    const userView = new OrganizationUserAdminView({
+      id: null,
+      userId: null,
+      organizationId: this.params.organizationId as OrganizationId,
+      type,
+      status: null,
+      externalId: null,
+      ssoExternalId: null,
+      permissions,
+      collections,
+      groups,
+      accessSecretsManager: this.formGroup.value.accessSecretsManager,
+      resetPasswordEnrolled: false,
+      hasMasterPassword: false,
+      managedByOrganization: false,
+    });
 
     return userView;
   }
@@ -545,7 +576,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.close(MemberDialogResult.Saved);
   }
 
-  private async handleInviteUsers(userView: OrganizationUserAdminView, organization: Organization) {
+  private async handleInviteUsers(userView: OrganizationUserAdminView) {
     const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
 
     await this.userService.invite(emails, userView);
@@ -726,7 +757,7 @@ export class MemberDialogComponent implements OnDestroy {
   }
 
   private close(result: MemberDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   private noMasterPasswordConfirmationDialog(username: string) {

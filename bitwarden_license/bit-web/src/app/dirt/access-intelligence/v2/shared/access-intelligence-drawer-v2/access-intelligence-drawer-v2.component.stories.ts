@@ -92,15 +92,6 @@ export default {
               atRiskApplicationsWithCount: "At-Risk Applications (__$1__)",
               atRiskApplicationsDescription: "Applications with at-risk passwords.",
               atRiskApplicationsDescriptionNone: "No at-risk applications found.",
-              criticalAtRiskMembersWithCount: "Critical At-Risk Members (__$1__)",
-              criticalAtRiskMembersDescription:
-                "Members with at-risk passwords in critical applications.",
-              criticalAtRiskMembersDescriptionNone:
-                "No at-risk members found in critical applications.",
-              criticalAtRiskApplicationsWithCount: "Critical At-Risk Applications (__$1__)",
-              criticalAtRiskApplicationsDescription:
-                "Critical applications with at-risk passwords.",
-              criticalAtRiskApplicationsDescriptionNone: "No at-risk critical applications found.",
               downloadCSV: "Download CSV",
               email: "Email",
               atRiskPasswords: "At-Risk Passwords",
@@ -296,8 +287,8 @@ export const LargeDataset: Story = {
     }),
   ],
   render: () => ({
-    template: `
-      <div class="tw-max-w-[400px] tw-max-h-[600px] tw-border tw-border-secondary-300 tw-p-5 tw-overflow-y-auto">
+    template: /*html*/ `
+      <div class="tw-max-w-[400px] tw-max-h-[600px] tw-border tw-border-secondary-300 tw-p-5 tw-overflow-y-auto" tabindex="0">
         <dirt-access-intelligence-drawer-v2></dirt-access-intelligence-drawer-v2>
       </div>
     `,

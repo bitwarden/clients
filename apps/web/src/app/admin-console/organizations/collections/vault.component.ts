@@ -21,6 +21,7 @@ import {
   first,
   map,
   shareReplay,
+  skip,
   startWith,
   switchMap,
   take,
@@ -96,6 +97,7 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  BulkDeleteDialogResult,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -104,15 +106,12 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
+import { openBulkDeleteDialog } from "@bitwarden/web-vault/app/vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { CollectionPermission } from "../shared/components/access-selector";
@@ -336,7 +335,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         // If the user can edit all ciphers for the organization then fetch them ALL.
         if (organization.canEditAllCiphers) {
           ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          ciphers.forEach((c) => (c.edit = true));
+          ciphers.forEach((c) => {
+            c.edit = true;
+            c.viewPassword = true;
+          });
         } else {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
@@ -347,7 +349,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
         );
 
-        await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -389,32 +390,43 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.currentSearchText$,
       this.showCollectionAccessRestricted$,
       this.userId$,
+      this.organizationId$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showCollectionAccessRestricted, userId]) => {
-        if (filter.collectionId === undefined && filter.type === undefined) {
-          return [];
-        }
+      concatMap(
+        async ([
+          ciphers,
+          filter,
+          searchText,
+          showCollectionAccessRestricted,
+          userId,
+          organizationId,
+        ]) => {
+          if (filter.collectionId === undefined && filter.type === undefined) {
+            return [];
+          }
 
-        if (showCollectionAccessRestricted) {
-          // Do not show ciphers for restricted collections
-          // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
-          return [];
-        }
+          if (showCollectionAccessRestricted) {
+            // Do not show ciphers for restricted collections
+            // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
+            return [];
+          }
 
-        const filterFunction = createFilterFunction(filter);
+          const filterFunction = createFilterFunction(filter);
 
-        if (await this.searchService.isSearchable(userId, searchText)) {
-          return await this.searchService.searchCiphers<CipherView>(
-            userId,
-            searchText,
-            [filterFunction],
-            ciphers,
-          );
-        }
+          if (await this.searchService.isSearchable(searchText)) {
+            const searchFilteredCiphers = await this.searchService.searchCiphers<CipherView>(
+              userId,
+              organizationId,
+              searchText,
+              ciphers,
+            );
+            return searchFilteredCiphers.filter(filterFunction);
+          }
 
-        return ciphers.filter(filterFunction);
-      }),
+          return ciphers.filter(filterFunction);
+        },
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -478,7 +490,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           let collectionsToReturn: CollectionAdminView[] = [];
 
-          if (await this.searchService.isSearchable(userId, searchText)) {
+          if (await this.searchService.isSearchable(searchText)) {
             // Flatten the tree for searching through all levels
             const flatCollectionTree: CollectionAdminView[] =
               getFlatCollectionTree(searchableCollectionNodes);
@@ -537,6 +549,16 @@ export class VaultComponent implements OnInit, OnDestroy {
           refreshing || processing || !firstLoadComplete,
       ),
     );
+
+    // When Angular reuses this component instance on an org switch (same route definition),
+    // ngOnInit does not re-run and refreshingSubject$ stays false after the initial load,
+    // which causes the filter(([,,,refreshing]) => refreshing) guard in allCiphers$ and
+    // allCollectionsWithoutUnassigned$ to block all subsequent fetches.
+    // Resetting to true on every org change (skipping the first emission that bootstraps
+    // the initial load) ensures the reactive chain re-fires for the new organization.
+    this.organizationId$
+      .pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this.refreshingSubject$.next(true));
   }
 
   async ngOnInit() {
@@ -847,7 +869,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const ref = AddItemDialogComponent.open(this.dialogService, {
       canCreateFolder: false,
       canCreateCollection: organization?.canCreateNewCollections ?? false,
-      canCreateSshKey: true,
+      canCreateSshKey: false,
     });
     const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
     if (!result) {
@@ -862,11 +884,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   /** Opens the Add/Edit Dialog */
   async addCipher(cipherType?: CipherType) {
-    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
-      "add",
-      undefined,
-      cipherType,
-    );
+    const type = cipherType ?? this.activeFilter.cipherType;
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
 
     const collectionId: CollectionId | undefined = this.activeFilter.collectionId as CollectionId;
 
@@ -1382,6 +1401,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async bulkAssignToCollections(items: CipherView[]) {
+    if (!(await this.repromptCipher(items))) {
+      return;
+    }
+
     if (items.length === 0) {
       this.toastService.showToast({
         variant: "error",

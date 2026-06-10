@@ -21,7 +21,7 @@
         </p>
 
         <div class="tw-flex tw-items-center tw-gap-2.5 tw-mb-5">
-          <i class="bwi bwi-star-f tw-text-xl" aria-hidden="true"></i>
+          <bit-icon name="bwi-star-f" class="tw-text-xl" aria-hidden="true"></bit-icon>
           <p bitTypography="helper" class="tw-text-muted tw-mb-0">
             {{ "clickIconToMarkAppAsCritical" | i18n }}
           </p>
@@ -80,12 +80,12 @@
         bitButton
         size="small"
         buttonType="primary"
-        (click)="handleAssignTasks()"
+        (click)="handleSendNotifications()"
         [disabled]="saving()"
         [loading]="saving()"
-        [attr.aria-label]="'assignTasks' | i18n"
+        [attr.aria-label]="'sendNotifications' | i18n"
       >
-        {{ "assignTasks" | i18n }}
+        {{ "sendNotifications" | i18n }}
       </button>
       <button
         type="button"

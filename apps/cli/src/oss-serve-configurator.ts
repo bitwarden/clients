@@ -70,6 +70,7 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.configService,
     );
     this.listCommand = new ListCommand(
       this.serviceContainer.cipherService,
@@ -96,6 +97,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.configService,
     );
     this.editCommand = new EditCommand(
       this.serviceContainer.cipherService,
@@ -108,6 +110,7 @@ export class OssServeConfigurator {
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.policyService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.cipherAuthorizationService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -155,6 +158,8 @@ export class OssServeConfigurator {
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
+      this.serviceContainer.collectionService,
+      this.serviceContainer.organizationService,
     );
     this.lockCommand = new LockCommand(
       serviceContainer.lockService,
@@ -162,7 +167,6 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.keyService,
       this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
@@ -171,9 +175,7 @@ export class OssServeConfigurator {
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
-      this.serviceContainer.masterPasswordUnlockService,
       this.serviceContainer.unlockService,
-      this.serviceContainer.configService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(

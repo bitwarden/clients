@@ -70,7 +70,7 @@ export class ServiceAccountDeleteDialogComponent {
     }
 
     await this.delete();
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   async delete() {

@@ -4,7 +4,9 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 
@@ -23,6 +25,7 @@ describe("CoachmarkService", () => {
   const t = jest.fn((key: string) => key);
 
   let activeAccount$: BehaviorSubject<Account | null>;
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
 
   function createAccount(overrides: Partial<Account> = {}): Account {
     return {
@@ -36,6 +39,7 @@ describe("CoachmarkService", () => {
     jest.clearAllMocks();
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -45,6 +49,7 @@ describe("CoachmarkService", () => {
         { provide: StateProvider, useValue: { getUserState$, setUserState } },
         { provide: I18nService, useValue: { t } },
         { provide: Router, useValue: { navigate } },
+        { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
       ],
     });
 
@@ -125,6 +130,16 @@ describe("CoachmarkService", () => {
       void service.startTour();
       tick(200);
 
+      expect(navigate).not.toHaveBeenCalled();
+    }));
+
+    it("should not start if suppressOnboardingInterstitials is enabled", fakeAsync(() => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      void service.startTour();
+      tick(200);
+
+      expect(service.isRunning()).toBe(false);
       expect(navigate).not.toHaveBeenCalled();
     }));
 
@@ -218,6 +233,7 @@ describe("CoachmarkService", () => {
 
       expect(service.isRunning()).toBe(false);
       expect(setUserState).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(["/vault"]);
     }));
 
     it("should do nothing if tour is not running", fakeAsync(() => {
@@ -289,6 +305,7 @@ describe("CoachmarkService", () => {
 
       expect(service.isRunning()).toBe(true);
 
+      navigate.mockClear();
       void service.completeTour();
       tick(200);
 
@@ -296,6 +313,7 @@ describe("CoachmarkService", () => {
       expect(service.activeStepId()).toBeNull();
       expect(service.totalSteps()).toBe(0);
       expect(setUserState).toHaveBeenCalledWith(expect.anything(), true, mockUserId);
+      expect(navigate).toHaveBeenCalledWith(["/vault"]);
     }));
 
     it("should not persist if no active account", fakeAsync(() => {

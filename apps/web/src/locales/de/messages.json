@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Gefährdete kritische Apps"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Gefährdete kritische Anwendungen"
+  },
   "allCriticalApps": {
     "message": "Alle kritischen Apps"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Organisationszugriff kann nicht wiederhergestellt werden"
   },
-  "allApplicationsWithCount": {
-    "message": "Alle Anwendungen ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Neuen Zugangsdaten-Eintrag erstellen"
   },
@@ -166,15 +160,6 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "Kritische Anwendungen ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
     "message": "kritische Anwendungen markiert"
   },
@@ -222,6 +207,42 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Deine Daten liegen vor. Lass uns damit arbeiten."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Mache eine kurze Tour durch Access Intelligence und erfahre, wie du die Daten deiner Organisation in Aktionen umsetzen kannst."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Die Sicherheit deiner gesamten Organisation auf einen Blick"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Mit Access Intelligence hast du alle gefährdeten Anwendungen, Passwörter und Mitglieder an einem Ort im Blick."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "Du legst die Prioritäten fest. Wir decken die Risiken auf."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "Du gibst an, welche Anwendungen am wichtigsten sind, und Access Intelligence ermittelt automatisch die gefährdeten Passwörter, die zuerst Aufmerksamkeit erfordern."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Verfolge Verbesserungen in deinem Team"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Mitglieder werden automatisch über gefährdete Passwörter in ihrer Bitwarden-Erweiterung benachrichtigt. Ein Nachverfolgen ist nicht erforderlich."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Importiere deine Organisationsdaten, um loszulegen"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Sobald Access Intelligence über die Daten aus dem Tresor verfügt, hat sie alles, was sie benötigt, um einen Bericht über den Zustand der Passwörter in deiner Organisation zu erstellen."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Einführungstour durch Access Intelligence"
+  },
+  "startTour": {
+    "message": "Tour starten"
   },
   "noDataInOrgTitle": {
     "message": "Keine Daten gefunden"
@@ -355,8 +376,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Diese Mitglieder haben Zugriff auf sensible Einträge für kritische Anwendungen."
   },
-  "membersWithAtRiskPasswords": {
+  "membersWithAtRiskPwds": {
     "message": "Mitglieder mit gefährdeten Passwörtern"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Mitglieder mit gefährdeten Passwörtern für $CRITICALAPPCOUNT$ kritische Anwendungen",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Den Mitgliedern deiner Organisation wird die Aufgabe zugewiesen, sensible Passwörter zu ändern. Sie erhalten eine Benachrichtigung innerhalb ihrer Bitwarden Browser-Erweiterung."
@@ -385,6 +419,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "von insgesamt $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -637,6 +680,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
+  },
   "autoFillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite?"
   },
@@ -666,6 +715,27 @@
   },
   "passportNumber": {
     "message": "Reisepassnummer"
+  },
+  "sex": {
+    "message": "Geschlecht"
+  },
+  "copySex": {
+    "message": "Geschlecht kopieren"
+  },
+  "birthPlace": {
+    "message": "Geburtsort"
+  },
+  "nationality": {
+    "message": "Nationalität"
+  },
+  "copyNationality": {
+    "message": "Nationalität kopieren"
+  },
+  "passportType": {
+    "message": "Reisepasstyp"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer"
   },
   "licenseNumber": {
     "message": "Lizenznummer"
@@ -756,6 +826,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Wähle das Kamerasymbol aus, um einen Screenshot des Authenticator-QR-Codes dieser Website zu machen oder kopiere und füge den Schlüssel in dieses Feld ein."
+  },
+  "totpCapture": {
+    "message": "Den Authenticator-QR-Code von der aktuellen Website scannen"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Erfahre mehr über Authenticator-Apps"
@@ -988,6 +1061,48 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "typeDriversLicense": {
+    "message": "Führerschein"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Führerschein oder Personalausweis"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website oder App"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit- oder Debitkarte"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persönliche Informationen"
+  },
+  "typeNoteSubtitle": {
+    "message": "Wichtiger Text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server-Anmeldetoken"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdaten"
+  },
+  "typePassport": {
+    "message": "Reisepass"
+  },
+  "passportDetails": {
+    "message": "Reisepassdetails"
+  },
+  "passportAdded": {
+    "message": "Reisepass hinzugefügt"
+  },
+  "typePassportSubtitle": {
+    "message": "Reisedokument"
+  },
+  "folderSubtitle": {
+    "message": "Organisiere deine Einträge"
+  },
+  "collectionSubtitle": {
+    "message": "Geteilte Einträge organisieren"
+  },
   "typeLoginPlural": {
     "message": "Zugangsdaten"
   },
@@ -999,6 +1114,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Sichere Notizen"
+  },
+  "typeBankAccount": {
+    "message": "Bankkonto"
   },
   "folders": {
     "message": "Ordner"
@@ -1057,6 +1175,9 @@
   "addItem": {
     "message": "Eintrag hinzufügen"
   },
+  "chooseItemToAdd": {
+    "message": "Wähle einen Eintrag zum Hinzufügen aus"
+  },
   "editItem": {
     "message": "Eintrag bearbeiten"
   },
@@ -1083,12 +1204,24 @@
     "message": "Neuer SSH-Schlüssel",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Neues Text-Send",
+  "newItemHeaderBankAccount": {
+    "message": "Neues Bankkonto",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Neuer Führerschein",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Neuer Reisepass",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Neuer Text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Neues Datei-Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Neue Datei",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1111,12 +1244,24 @@
     "message": "SSH-Schlüssel bearbeiten",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Text-Send bearbeiten",
+  "editItemHeaderBankAccount": {
+    "message": "Bankkonto bearbeiten",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Führerschein bearbeiten",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Reisepass bearbeiten",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Text bearbeiten",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Datei-Send bearbeiten",
+  "editItemHeaderFileSendV2": {
+    "message": "Datei bearbeiten",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1138,6 +1283,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH-Schlüssel anzeigen",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankkonto anzeigen",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Führerschein anzeigen",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Reisepass anzeigen",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Neu",
@@ -1227,6 +1384,9 @@
   "copyAddress": {
     "message": "Adresse kopieren"
   },
+  "copyBirthPlace": {
+    "message": "Geburtsort kopieren"
+  },
   "copyPhone": {
     "message": "Telefonnummer kopieren"
   },
@@ -1240,7 +1400,22 @@
     "message": "Sozialversicherungsnummer kopieren"
   },
   "copyPassportNumber": {
-    "message": "Passnummer kopieren"
+    "message": "Reisepassnummer kopieren"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nationale Identifikationsnummer kopieren"
+  },
+  "copyPassportType": {
+    "message": "Reisepasstyp kopieren"
+  },
+  "copyFirstName": {
+    "message": "Vornamen kopieren"
+  },
+  "copyMiddleName": {
+    "message": "Zweiten Vornamen kopieren"
+  },
+  "copyLastName": {
+    "message": "Nachnamen kopieren"
   },
   "copyLicenseNumber": {
     "message": "Lizenznummer kopieren"
@@ -1253,6 +1428,12 @@
   },
   "copyFingerprint": {
     "message": "Fingerabdruck kopieren"
+  },
+  "copyIssuingAuthority": {
+    "message": "Ausstellende Behörde/Stelle kopieren"
+  },
+  "copyIssuingCountry": {
+    "message": "Ausgabeland kopieren"
   },
   "copyName": {
     "message": "Name kopieren"
@@ -1271,6 +1452,42 @@
       "ciphername": {
         "content": "$2",
         "example": "Login Item"
+      }
+    }
+  },
+  "copyInfoTitle": {
+    "message": "Information kopieren - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Notiz kopieren - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValueEntered": {
+    "message": "Kein Wert eingegeben",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
+  "noValuesToCopy": {
+    "message": "Keine Werte zum Kopieren"
+  },
+  "launchWebsiteName": {
+    "message": "Website aufrufen: $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
       }
     }
   },
@@ -1312,6 +1529,28 @@
   },
   "unselectAll": {
     "message": "Alle abwählen"
+  },
+  "bulkActionsBar": {
+    "message": "Massenaktionen"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ Einträge ausgewählt. Die Massenaktionsleiste ist nun am unteren Bildschirmrand verfügbar. Mit $SHORTCUTBINDING$ kannst du den Fokus auf die Massenaktionsleiste umschalten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Auswahl aufgehoben"
+  },
+  "additionalActions": {
+    "message": "Weitere Aktionen"
   },
   "launch": {
     "message": "Starten"
@@ -1382,6 +1621,24 @@
   },
   "deleteAttachment": {
     "message": "Anhang löschen"
+  },
+  "deleteAttachmentName": {
+    "message": "Anhang $NAME$ löschen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ herunterladen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Soll dieser Eintrag wirklich in den Papierkorb verschoben werden?"
@@ -2130,6 +2387,18 @@
   "exportError": {
     "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschädigter Anhang wurde beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschädigte Anhänge wurden beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "passwordGenerator": {
     "message": "Passwort-Generator"
   },
@@ -2392,6 +2661,18 @@
   "deleteAccountWarning": {
     "message": "Die Kontolöschung ist permanent. Sie kann nicht rückgängig gemacht werden."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Du bist der Eigentümer von mindestens einer Organisation. Durch das Löschen deines Kontos werden auch alle Organisationen gelöscht, deren alleinige Eigentümer du bist."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Du kannst dein Konto nicht löschen, solange du Eigentümer einer Organisation bist. Übertrage zunächst die Eigentumsrechte oder lösche die Organisation."
+  },
+  "cannotDeleteAccount": {
+    "message": "Konto kann nicht gelöscht werden"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Diese Aktion kann nicht abgeschlossen werden, da dein Konto im Besitz einer Organisation ist. Kontaktiere deinen Organisationsadministrator für weitere Details."
+  },
   "accountDeleted": {
     "message": "Konto gelöscht"
   },
@@ -2505,6 +2786,9 @@
     "message": "Wählen Sie die Import-Datei"
   },
   "chooseFile": {
+    "message": "Datei auswählen"
+  },
+  "chooseFileSentenceCase": {
     "message": "Datei auswählen"
   },
   "noFileChosen": {
@@ -3323,8 +3607,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Deine Zahlungsmethode wird für alle unbezahlten Abonnements belastet."
   },
-  "paymentChargedWithTrial": {
-    "message": "Dein Tarif beinhaltet eine kostenlose 7-Tage-Testversion. Deine Zahlungsart wird nicht belastet, bis die Testphase abgelaufen ist. Du erhältst pro $INTERVAL$ eine Rechnung. Eine Kündigung ist zu jeder Zeit möglich."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Dein Tarif beinhaltet eine kostenlose $TRIAL_LENGTH$-tägige Testversion. Deine Zahlungsart wird nicht belastet, bis die Testphase abgelaufen ist. Eine Kündigung ist zu jeder Zeit möglich.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Zahlungsinformationen"
@@ -3751,12 +4041,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Deine kostenlose 7-tägige $PLAN$ Testversion wird nach 7 Tagen in ein kostenpflichtiges Abonnement umgewandelt.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Deine $TRIAL_LENGTH$-tägige kostenlose $PLAN$ Testversion wird nach $TRIAL_LENGTH$ Tagen in ein kostenpflichtiges Abonnement umgewandelt.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -3916,8 +4210,14 @@
       }
     }
   },
+  "invite": {
+    "message": "Einladen"
+  },
   "inviteUserDesc": {
     "message": "Lade einen neuen Benutzer zu deinem Anbieter ein, indem du die E-Mail-Adresse seines Bitwarden-Kontos unten einträgst. Falls dieser noch kein Bitwarden-Konto besitzt, wird er/sie zur Erstellung eines neuen Kontos aufgefordert."
+  },
+  "inviteUserDescription": {
+    "message": "Lade neue Benutzer in deine Organisation ein, indem du unten deren E-Mail-Adresse eingibst."
   },
   "inviteMultipleEmailDesc": {
     "message": "Gib bis zu $COUNT$ E-Mail-Adressen mit Komma getrennt ein.",
@@ -3928,11 +4228,33 @@
       }
     }
   },
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Gib bis zu $BATCHLIMIT$ E-Mail-Adressen auf einmal ein, getrennt durch Kommas. ($REMAININGSEATS$ Benutzerplätze übrig)",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
+      }
+    }
+  },
   "inviteSingleEmailDesc": {
     "message": "Du hast noch eine Einladung übrig."
   },
   "inviteZeroEmailDesc": {
     "message": "Du hast 0 Einladungen übrig."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Gib bis zu $BATCHLIMIT$ E-Mail-Adressen auf einmal ein, getrennt durch Kommas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Dieser Benutzer hat sein Konto mit einer Zwei-Faktor-Authentifizierung geschützt."
@@ -4091,6 +4413,53 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Text-Send erstellt"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Text-Send mit E-Mail-Verifizierung erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Text-Send mit Passwort erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Datei-Send erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Datei-Send mit E-Mail-Verifizierung erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Datei-Send mit Passwort erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedTextSend": {
+    "message": "Text-Send bearbeitet",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Datei-Send bearbeitet",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Text-Send gelöscht",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Datei-Send gelöscht",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Auf Text-Send zugegriffen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Auf Datei-Send zugegriffen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Eintrag $ID$ wurde in eine Organisation verschoben.",
     "placeholders": {
@@ -4196,6 +4565,132 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Kontonummer für Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "PIN für Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Kontonummer für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "PIN für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Reisepassnummer für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Reisepassnummer für Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Führerscheinnummer für den Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Führerscheinnummer für den Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedIbanItemId": {
+    "message": "IBAN für Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "IBAN für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "SWIFT-Code für Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "SWIFT-Code für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Nationale Identifikationsnummer für Eintrag $ID$ angesehen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Nationale Identifikationsnummer für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Eintrag $ID$ automatisch ausgefüllt.",
     "placeholders": {
@@ -4234,6 +4729,15 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Änderungen verwerfen"
+  },
+  "discardEditsConfirmation": {
+    "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen."
+  },
+  "keepEditing": {
+    "message": "Mit der Bearbeitung fortfahren"
   },
   "editedPolicyId": {
     "message": "Richtlinie \"$ID$\" bearbeitet.",
@@ -4310,6 +4814,48 @@
   "revokedEmailError": {
     "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
   },
+  "revocationReasonNotLogged": {
+    "message": "Kein Grund protokolliert"
+  },
+  "revocationReasonManual": {
+    "message": "Von einem Administrator widerrufen"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Entspricht nicht den Richtlinien für die Zwei-Faktor-Authentifizierung"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Entspricht nicht den Richtlinien für einzelne Organisationen"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Übertragung an die Organisation abgelehnt"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Der Organisationszugang für $ID$ wurde aufgrund der Nichteinhaltung der Richtlinien zur Zwei-Faktor-Authentifizierung widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Der Organisationszugang für $ID$ wurde aufgrund der Nichteinhaltung der Richtlinie für einzelne Organisationen widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Der Zugriff auf die Organisation wurde für $ID$ entzogen, da die Übertragung in das Eigentum der Organisation abgelehnt wurde.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
     "placeholders": {
@@ -4357,9 +4903,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Eigentumsübertragung an die Organisation akzeptiert."
-  },
-  "userDeclinedTransfer": {
-    "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
   },
   "invitedUserId": {
     "message": "Benutzer $ID$ eingeladen.",
@@ -4459,6 +5002,24 @@
   },
   "loginStatus": {
     "message": "Anmeldestatus"
+  },
+  "recentlyActive": {
+    "message": "Kürzlich aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Heute"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Letzte 7 Tage"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Letzte 14 Tage"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Letzte 30 Tage"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Vor mehr als 30 Tagen"
   },
   "firstLogin": {
     "message": "Erste Anmeldung"
@@ -4668,8 +5229,17 @@
   "reportGenerationDone": {
     "message": "Fertig!"
   },
+  "reportGenerationFailed": {
+    "message": "Beim Erstellen des Berichts ist ein Fehler aufgetreten. Versuche es erneut."
+  },
+  "reportLoadFailed": {
+    "message": "Beim Laden des Berichts ist ein Fehler aufgetreten. Versuch die Seite neu zu laden oder erstelle einen neuen Bericht."
+  },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
+  },
+  "goToAccessIntelligence": {
+    "message": "Zu Access Intelligence wechseln"
   },
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
@@ -4909,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankkonto"
+  },
+  "bankAccountDetails": {
+    "message": "Bankverbindung"
   },
   "amountX": {
     "message": "Betrag $COUNT$",
@@ -5185,6 +5758,65 @@
   },
   "atAnyTime": {
     "message": "jederzeit."
+  },
+  "byEmail": {
+    "message": "Per E-Mail"
+  },
+  "byLink": {
+    "message": "Über einen Link"
+  },
+  "allowedDomains": {
+    "message": "Zulässige Domains"
+  },
+  "allowedDomainsHint": {
+    "message": "Wenn du mehrere Domains eingibst, trenne diese durch Kommas"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Gib die zulässigen Domains ein, um einen Einladungslink zu generieren"
+  },
+  "domainsEdited": {
+    "message": "Domains bearbeitet"
+  },
+  "inviteLink": {
+    "message": "Einladungslink"
+  },
+  "lastGenerated": {
+    "message": "Zuletzt generiert: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Einladungslink kopiert"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Einladungslink neu generiert"
+  },
+  "regenerateInviteLink": {
+    "message": "Einladungslink neu generieren"
+  },
+  "invalidateInviteLink": {
+    "message": "Einladungslink ungültig machen"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "Wenn du alle Domains entfernst, wird dieser Einladungslink für niemanden mehr funktionieren."
+  },
+  "invalidateLink": {
+    "message": "Link ungültig machen"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Einladungslink ungültig"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Mindestens 1 Domain eingeben"
+  },
+  "deactivateLink": {
+    "message": "Link deaktivieren"
+  },
+  "inviteByLinkDesc": {
+    "message": "Lade Mitglieder über einen Link in deine Organisation ein. Wenn noch keine Rolle festgelegt wurde, werden sie als Standardbenutzer hinzugefügt."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Indem du fortfährst, stimmst du den"
@@ -5799,14 +6431,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "Neues Text-Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Neues Datei-Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "Send gespeichert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5899,6 +6523,19 @@
   },
   "downloadAttachments": {
     "message": "Anhänge herunterladen"
+  },
+  "troubleshooting": {
+    "message": "Problembehandlung"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Hast du ein Problem? Lade den Diagnosebericht herunter und sende ihn an den"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden Support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Herunterladen"
   },
   "sendAccessPasswordTitle": {
     "message": "Gib das Passwort ein, um dieses Send anzuzeigen",
@@ -6610,8 +7247,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "Master-Passwort für Benutzer $ID$ zurückgesetzt.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Für $ID$ wurde die Kontowiederherstellung mit dem Master-Passwort eingeleitet.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6619,8 +7256,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Zwei-Faktor-Authentifizierung für Benutzer $ID$ zurückgesetzt.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Für $ID$ wurde die Kontowiederherstellung mit Zwei-Faktor-Authentifizierung eingeleitet.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6708,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Die Rückmeldung der Passwort Details Zurücksetzung ist null"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Neues Passwort ist erforderlich"
   },
   "trashCleanupWarning": {
     "message": "Einträge, die länger als 30 Tage im Papierkorb waren, werden automatisch gelöscht."
@@ -7079,6 +7719,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Aktion bei Sitzungs-Timeout"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Verwaltet von der Bitwarden Browser-Erweiterungsapp. Öffne die Browser-App zum Bearbeiten."
   },
   "immediately": {
     "message": "Sofort"
@@ -7778,26 +8421,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Tresor der Organisation wird exportiert"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Nur Einträge in deinem persönlichen Tresor werden exportiert."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Nur der mit $ORGANIZATION$ verbundene Organisationstresor wird exportiert. Einträge in persönlichen Tresoren oder anderen Organisationen werden nicht berücksichtigt.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Nur Einträge, die mit dem $ORGANIZATION$ Tresor verknüpft sind, werden exportiert. Einträge in persönlichen Tresoren werden nicht exportiert.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8208,9 +8836,19 @@
     "message": "SCIM-Bereitstellung",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Über SCIM-Bereitstellung automatisch Benutzer und Gruppen mit deinem bevorzugten Identitätsanbieter zur Verfügung stellen",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Richte Benutzer und Gruppen automatisch ein, indem du deinen bevorzugten Identitätsanbieter mit der SCIM-URL und dem API-Schlüssel konfigurierst."
+  },
+  "scimLearnMore": {
+    "message": "Mehr über SCIM erfahren"
   },
   "scimIntegrationDescription": {
     "message": "Automatische Bereitstellung von Benutzern und Gruppen mit deinem bevorzugten Identitätsanbieter über SCIM-Bereitstellung. Suche nach unterstützten Integrationen",
@@ -8267,7 +8905,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "Es ist nur eine Integration dieses Typs ($TYPE$) zulässig. Die in Konflikt stehende Integration ist: $NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8280,7 +8918,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "Es gibt bereits eine andere Integration desselben Typs ($TYPE$). Aktualisiere den Browser und versuche es erneut.",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8290,6 +8928,21 @@
   },
   "inputRequired": {
     "message": "Eingabe ist erforderlich."
+  },
+  "enterMonth": {
+    "message": "Monat eingeben."
+  },
+  "enterDay": {
+    "message": "Tag eingeben."
+  },
+  "enterYear": {
+    "message": "Jahr eingeben."
+  },
+  "invalidDay": {
+    "message": "Gib einen gültigen Tag ein."
+  },
+  "invalidYear": {
+    "message": "Gib ein gültiges Jahr ein."
   },
   "inputEmail": {
     "message": "Eingabe ist keine E-Mail-Adresse."
@@ -9090,6 +9743,9 @@
   "inviteMember": {
     "message": "Mitglied einladen"
   },
+  "inviteMembers": {
+    "message": "Mitglieder einladen"
+  },
   "addSponsorship": {
     "message": "Sponsoring hinzufügen"
   },
@@ -9098,6 +9754,9 @@
   },
   "memberRole": {
     "message": "Mitgliedsrolle"
+  },
+  "moreSettings": {
+    "message": "Weitere Einstellungen"
   },
   "moreFromBitwarden": {
     "message": "Mehr von Bitwarden"
@@ -9281,6 +9940,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Benutzerzugriff zum Secrets Manager aktivieren"
+  },
+  "grantSecretsManager": {
+    "message": "Zugriff auf Secrets Manager gewähren"
   },
   "userAccessSecretsManagerGA": {
     "message": "Dieser Benutzer kann auf Secrets Manager zugreifen."
@@ -9508,6 +10170,15 @@
         "example": "4d34e8a8"
       }
     }
+  },
+  "phishingBlockerSiteAccessed": {
+    "message": "Der Benutzer hat versucht, auf eine bekannte Phishing-Website zuzugreifen"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Der Benutzer hat die Website mit der Phishing-Warnung verlassen"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Der Benutzer hat die Phishing-Warnung ignoriert"
   },
   "sdk": {
     "message": "SDK",
@@ -9778,8 +10449,8 @@
   "recoverAccountSuccess": {
     "message": "Konto erfolgreich wiederhergestellt!"
   },
-  "updatedTempPassword": {
-    "message": "Der Benutzer hat ein Passwort aktualisiert, das durch die Kontowiederherstellung ausgestellt wurde."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "Der Benutzer hat sein Master-Passwort über die Kontowiederherstellung zurückgesetzt."
   },
   "activatedAccessToSecretsManager": {
     "message": "Zugriff zum Secrets Manager aktiviert",
@@ -10332,6 +11003,46 @@
     "message": "Wechseln zur kostenlosen Organisation",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Fehlende Funktionen oder Leistungsmerkmale",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Etwas, das wir brauchten, war nicht verfügbar",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Zu schwierig einzurichten oder zu verwalten",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Die Einarbeitung, die Administration oder die tägliche Nutzung waren zu kompliziert",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Das Preis-Leistungs-Verhältnis stimmt nicht",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Der Preis steht in keinem Verhältnis zu dem, was wir dafür bekommen",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Zu geringe Nutzung durch unser Team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Wir konnten die Leute nicht dazu bewegen, es tatsächlich zu nutzen",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Unsere Bedürfnisse haben sich geändert",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Umstrukturierung, Übernahme, veränderte Prioritäten oder wir brauchen keinen Passwort-Manager mehr",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Kostenlos für 1 Jahr"
   },
@@ -10367,6 +11078,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Benachrichtigungen zum Ändern von Passwörtern senden"
+  },
+  "sendNotifications": {
+    "message": "Send-Benachrichtigungen"
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -11918,6 +12632,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Dein Abonnement wird sich in Kürze erneuern. Um eine unterbrechungsfreie Nutzung zu gewährleisten, wende dich bitte vor dem $RENEWAL_DATE$ an deinen Bitwarden-Anbieter, um die Verlängerung zu bestätigen.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Eine Rechnung für dein Abonnement wurde am $ISSUED_DATE$ ausgestellt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $DUE_DATE$ zu bestätigen.",
     "placeholders": {
@@ -11944,6 +12667,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Die Rechnung für dein Abonnement wurde nicht bezahlt. Um eine unterbrechungsfreie Nutzung zu gewährleisten, kontaktiere deinen Bitwarden-Anbieter vor dem $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -12388,12 +13120,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Deine 7-tägige Testversion von $PLAN$ startet heute. Füge jetzt eine Zahlungsmethode hinzu, um diese Funktionen nach dem Ende der Testphase weiterzunutzen: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Deine $TRIAL_LENGTH$-tägige $PLAN$ Testphase beginnt heute. Füge jetzt eine Zahlungsmethode hinzu, um diese Funktionen auch nach Ablauf der Testphase weiter zu nutzen zu können: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -12417,6 +13153,10 @@
   },
   "missingTaxIdWarning": {
     "message": "Maßnahme erforderlich: In den Zahlungsdetails fehlt eine Steueridentifikationsnummer. Wenn keine Steuernummer hinzugefügt wird, können deine Rechnungen zusätzliche Steuern enthalten."
+  },
+  "breadcrumbs": {
+    "message": "Navigationspfade",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "Weitere Navigationspfade",
@@ -13079,6 +13819,9 @@
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
   },
@@ -13186,6 +13929,82 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bankname"
+  },
+  "nameOnAccount": {
+    "message": "Name des Kontoinhabers"
+  },
+  "bankRoutingNumber": {
+    "message": "Bankleitzahl",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial-/Institutionsnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-Code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefonnummer der Bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankkonto suchen"
+  },
+  "searchPassport": {
+    "message": "Reisepässe suchen"
+  },
+  "copyAccountNumber": {
+    "message": "Kontonummer kopieren"
+  },
+  "copyRoutingNumber": {
+    "message": "Bankleitzahl kopieren"
+  },
+  "copyPin": {
+    "message": "PIN kopieren"
+  },
+  "copyIban": {
+    "message": "IBAN kopieren"
+  },
+  "copyNameOnAccount": {
+    "message": "Name des Kontoinhabers kopieren"
+  },
+  "copyBranchNumber": {
+    "message": "Filial-/Institutionsnummer kopieren"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT-Code kopieren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Wird überprüft"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ersparnisse"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Einlagenzertifikat"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kreditrahmen"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Anlage/Wertpapierhandel"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Finanzmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Sonstige"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Deine Bankdaten sicher speichern"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Speicher deine Bankdaten, um auf allen deinen Geräten einfach und sicher darauf zugreifen zu können."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Keine Suchergebnisse gefunden"
   },
@@ -13211,7 +14030,7 @@
     "message": "Zeitraum"
   },
   "of": {
-    "message": "of"
+    "message": "von"
   },
   "coachmarkImportTitle": {
     "message": "Importiere schnell deine Passwörter"
@@ -13237,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Sorge für die Sicherheit deiner Tresor-Einträge, indem du Berichte auf Schwachstellen überprüfst."
   },
-  "coachmarkStepIndicator": {
-    "message": "Schritt $CURRENT$ von $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ von $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -13249,5 +14068,133 @@
         "example": "4"
       }
     }
+  },
+  "more": {
+    "message": "Mehr"
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Dein Bankkonto muss verifiziert werden, bevor es für dieses Upgrade verwendet werden kann. Bitte verifiziere dein Bankkonto oder wähle eine andere Zahlungsmethode."
+  },
+  "discardEdits": {
+    "message": "Änderungen verwerfen"
+  },
+  "discardEditsMessage": {
+    "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen"
+  },
+  "backToEditing": {
+    "message": "Zurück zur Bearbeitung"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Speichern der Send-Änderungen fehlgeschlagen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideMyEmail": {
+    "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
+  },
+  "fileToShare": {
+    "message": "Zu teilende Datei"
+  },
+  "viewTextSendHeader": {
+    "message": "Text anzeigen"
+  },
+  "viewFileSendHeader": {
+    "message": "Datei anzeigen"
+  },
+  "sendCreated": {
+    "message": "Send erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Die Eingabe muss eine Zahl sein"
+  },
+  "integerInputError": {
+    "message": "Die Eingabe muss eine ganze Zahl sein"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
+  },
+  "sideNavigation": {
+    "message": "Seitennavigation"
+  },
+  "skipLink": {
+    "message": "Link überspringen"
+  },
+  "rotateAccountEncryptionKey": {
+    "message": "Verschlüsselungsschlüssel des Kontos erneuern"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Durch das Erneuern des Verschlüsselungsschlüssels deines Kontos wird ein neuer Verschlüsselungsschlüssel generiert, mit dem alle Daten im Tresor neu verschlüsselt werden. Du solltest eine Erneuerung des Verschlüsselungsschlüssels in Betracht ziehen, wenn dein Konto kompromittiert wurde."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generiere einen neuen Schlüssel und verschlüssel alle Tresordaten neu. Dies wird empfohlen, wenn du vermutest, dass dein Konto kompromittiert wurde."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "Du wirst abgemeldet und aufgefordert, dich erneut anzumelden. Um Datenverluste zu vermeiden, schließe deinen Browser bitte nicht, bevor der Vorgang abgeschlossen ist."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Kontoverschlüsselungsschlüssel erneuert"
+  },
+  "callout": {
+    "message": "Meldung",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Fortschrittsanzeige",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  },
+  "searchDriversLicense": {
+    "message": "Führerscheine suchen"
+  },
+  "driversLicenseDetails": {
+    "message": "Führerscheindetails"
+  },
+  "dateOfBirth": {
+    "message": "Geburtsdatum"
+  },
+  "birthMonth": {
+    "message": "Geburtsmonat"
+  },
+  "birthDay": {
+    "message": "Geburtstag"
+  },
+  "birthYear": {
+    "message": "Geburtsjahr"
+  },
+  "issuingCountry": {
+    "message": "Ausstellendes Land"
+  },
+  "issuingState": {
+    "message": "Ausstellendes Bundesland/Stadt/Landkreis"
+  },
+  "issueDate": {
+    "message": "Ausstellungsdatum"
+  },
+  "issueMonth": {
+    "message": "Ausstellungsmonat"
+  },
+  "issueDay": {
+    "message": "Ausstellungstag"
+  },
+  "issueYear": {
+    "message": "Ausstellungsjahr"
+  },
+  "expirationDay": {
+    "message": "Ablaufdatum"
+  },
+  "issuingAuthority": {
+    "message": "Ausstellende Behörde"
+  },
+  "licenseClass": {
+    "message": "Führerscheinklasse"
+  },
+  "copy": {
+    "message": "Kopieren"
   }
 }

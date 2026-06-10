@@ -1,20 +1,33 @@
 /* eslint-disable */
 const colors = require("tailwindcss/colors");
 const plugin = require("tailwindcss/plugin");
+const path = require("path");
 
 function rgba(color) {
   return "rgb(var(" + color + ") / <alpha-value>)";
 }
 
+// shared lib paths; add app-specific paths to the app's tailwind.config.js, not here
+const libContent = [
+  "./src/**/*.{html,ts,mdx}",
+  "../../libs/admin-console/src/**/*.{html,ts,mdx}",
+  "../../libs/angular/src/**/*.{html,ts,mdx}",
+  "../../libs/assets/src/**/*.{html,ts,mdx}",
+  "../../libs/auth/src/**/*.{html,ts,mdx}",
+  "../../libs/billing/src/**/*.{html,ts,mdx}",
+  "../../libs/dirt/card/src/**/*.{html,ts,mdx}",
+  "../../libs/key-management-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/platform/src/**/*.{html,ts,mdx}",
+  "../../libs/pricing/src/**/*.{html,ts,mdx}",
+  "../../libs/subscription/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/vault/src/**/*.{html,ts,mdx}",
+].map((libPath) => path.resolve(__dirname, libPath));
+
 module.exports = {
   prefix: "tw-",
-  content: [
-    "./src/**/*.{html,ts,mdx}",
-    "../../libs/assets/src/**/*.{html,ts}",
-    "../../libs/components/src/**/*.{html,ts,mdx}",
-    "../../libs/key-management-ui/src/**/*.{html,ts}",
-    "../../libs/auth/src/**/*.{html,ts}",
-  ],
+  content: libContent,
   safelist: [],
   corePlugins: { preflight: false },
   theme: {
@@ -82,8 +95,8 @@ module.exports = {
         white: "var(--color-bg-white)",
         dark: "var(--color-bg-dark)",
         contrast: "var(--color-bg-contrast)",
-        "contrast-strong": "var(--color-bg-contrast-strong)",
         "contrast-soft": "var(--color-bg-contrast-soft)",
+        "contrast-strong": "var(--color-bg-contrast-strong)",
         primary: "var(--color-bg-primary)",
         secondary: "var(--color-bg-secondary)",
         tertiary: "var(--color-bg-tertiary)",
@@ -158,6 +171,7 @@ module.exports = {
         body: "var(--color-fg-body)",
         "body-subtle": "var(--color-fg-body-subtle)",
         disabled: "var(--color-fg-disabled)",
+        inactive: "var(--color-fg-inactive)",
         "brand-soft": "var(--color-fg-brand-soft)",
         brand: "var(--color-fg-brand)",
         "brand-strong": "var(--color-fg-brand-strong)",
@@ -258,6 +272,7 @@ module.exports = {
       "fg-body": "var(--color-fg-body)",
       "fg-body-subtle": "var(--color-fg-body-subtle)",
       "fg-disabled": "var(--color-fg-disabled)",
+      "fg-inactive": "var(--color-fg-inactive)",
       "fg-brand-soft": "var(--color-fg-brand-soft)",
       "fg-brand": "var(--color-fg-brand)",
       "fg-brand-strong": "var(--color-fg-brand-strong)",
@@ -340,6 +355,7 @@ module.exports = {
         xxs: [".5rem", "150%"],
       },
       container: {
+        "@3xl": "769px",
         "@5xl": "1100px",
       },
       keyframes: {

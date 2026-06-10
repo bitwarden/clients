@@ -1,5 +1,5 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
 
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
@@ -7,9 +7,8 @@ import { ScrollLayoutDirective } from "../../../layout";
 import { SectionComponent } from "../../../section";
 import { TableDataSource, TableModule } from "../../../table";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dialog-virtual-scroll-block",
   imports: [
     DialogModule,
@@ -48,9 +47,12 @@ import { TableDataSource, TableModule } from "../../../table";
   </bit-section>`,
 })
 export class DialogVirtualScrollBlockComponent implements OnInit {
-  constructor(public dialogService: DialogService) {}
-
-  protected dataSource = new TableDataSource<{ id: number; name: string; other: string }>();
+  protected readonly dialogService = inject(DialogService);
+  protected readonly dataSource = new TableDataSource<{
+    id: number;
+    name: string;
+    other: string;
+  }>();
 
   ngOnInit(): void {
     this.dataSource.data = [...Array(100).keys()].map((i) => ({

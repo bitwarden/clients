@@ -14,12 +14,7 @@
   (onOpenAddItemDialog)="openAddItemDialog()"
 ></app-vault-header>
 
-<app-vault-onboarding
-  [ciphers]="ciphers"
-  [orgs]="allOrganizations"
-  (onAddCipher)="addCipher($event)"
->
-</app-vault-onboarding>
+<app-vault-onboarding [ciphers]="ciphers"></app-vault-onboarding>
 
 <div class="tw-flex tw-flex-row -tw-mx-2.5">
   <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5">
@@ -98,8 +93,8 @@
               bitButton
               (click)="addCipher()"
               slot="button"
+              startIcon="bwi-plus"
             >
-              <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
               {{ "newItem" | i18n }}
             </button>
           }
@@ -108,3 +103,7 @@
     }
   </div>
 </div>
+
+@if (vaultBatchBarFeatureFlag()) {
+  <bit-vault-batch-action />
+}

@@ -299,28 +299,216 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(vc.savedUrlsExpanded()).toBe(false);
   });
 
-  it("shows autofillWithoutAdding text on autofill button when viewOnly is false", () => {
+  it("shows autofillOnly text on autofill button when viewOnly is false", () => {
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text.includes("autofillWithoutAdding")).toBe(true);
+    expect(text.includes("autofillOnly")).toBe(true);
   });
 
-  it("does not show autofillWithoutAdding text on autofill button when viewOnly is true", async () => {
+  it("does not show autofillOnly text on autofill button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
     const text = vf.nativeElement.textContent as string;
-    expect(text.includes("autofillWithoutAdding")).toBe(false);
+    expect(text.includes("autofillOnly")).toBe(false);
   });
 
   it("shows autofill and save button when viewOnly is false", () => {
     // default viewOnly is false
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text.includes("autofillAndAddWebsite")).toBe(true);
+    expect(text.includes("autofillAndSaveThisSite")).toBe(true);
   });
 
   it("does not show autofill and save button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
     const text = vf.nativeElement.textContent as string;
-    expect(text.includes("autofillAndAddWebsite")).toBe(false);
+    expect(text.includes("autofillAndSaveThisSite")).toBe(false);
+  });
+
+  describe("dialogTitle()", () => {
+    it("returns loginHasNoSiteSaved when no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogTitle()).toBe("loginHasNoSiteSaved");
+    });
+
+    it("returns siteDoesntMatch when 1 URI is saved", () => {
+      expect(component.dialogTitle()).toBe("siteDoesntMatch");
+    });
+
+    it("returns siteDoesntMatch when multiple URIs are saved", async () => {
+      const { component: c } = await createFreshFixture();
+      expect(c.dialogTitle()).toBe("siteDoesntMatch");
+    });
+
+    it("returns loginNeverMatchTitle when Never strategy is active and URL matches a saved URI", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.dialogTitle()).toBe("loginNeverMatchTitle");
+    });
+  });
+
+  describe("dialogBody()", () => {
+    it("returns loginNoSiteDesc when no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogBody()).toBe("loginNoSiteDesc");
+    });
+
+    it("returns loginSingleSiteDesc when 1 URI is saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+      });
+      expect(c.dialogBody()).toBe("loginSingleSiteDesc");
+    });
+
+    it("returns loginMultipleSitesDesc when multiple URIs are saved", () => {
+      expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
+    });
+
+    it("returns loginNeverMatchDesc when Never strategy is active and URL matches a saved URI", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Never,
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.dialogBody()).toBe("loginNeverMatchDesc");
+    });
+  });
+
+  describe("accessibility", () => {
+    it("URI display divs are keyboard focusable via tabindex", async () => {
+      const singleUriParams: AutofillConfirmationDialogParams = {
+        currentUrl: "https://example.com/path",
+        savedUris: [makeUri("https://saved.example.com/login")],
+      };
+      const { fixture: vf } = await createFreshFixture({ params: singleUriParams });
+      const savedDivs = vf.nativeElement.querySelectorAll(
+        '[data-testid="saved-uri"]',
+      ) as NodeListOf<HTMLElement>;
+      const currentDiv = vf.nativeElement.querySelector(
+        '[data-testid="current-uri"]',
+      ) as HTMLElement;
+      expect(savedDivs.length).toBe(1);
+      expect(savedDivs[0].getAttribute("tabindex")).toBe("0");
+      expect(currentDiv).toBeTruthy();
+      expect(currentDiv.getAttribute("tabindex")).toBe("0");
+    });
+
+    it("saved URI div has aria-label with the full URI", async () => {
+      const singleUriParams: AutofillConfirmationDialogParams = {
+        currentUrl: "https://example.com/path",
+        savedUris: [makeUri("https://saved.example.com/login")],
+      };
+      const { fixture: vf } = await createFreshFixture({ params: singleUriParams });
+      const savedDiv = vf.nativeElement.querySelector('[data-testid="saved-uri"]') as HTMLElement;
+      expect(savedDiv.getAttribute("aria-label")).toBe("https://saved.example.com/login");
+    });
+
+    it("current URL div has aria-label with the full URL", async () => {
+      const singleUriParams: AutofillConfirmationDialogParams = {
+        currentUrl: "https://example.com/path?q=1",
+        savedUris: [makeUri("https://saved.example.com")],
+      };
+      const { fixture: vf } = await createFreshFixture({ params: singleUriParams });
+      const currentDiv = vf.nativeElement.querySelector(
+        '[data-testid="current-uri"]',
+      ) as HTMLElement;
+      expect(currentDiv.getAttribute("aria-label")).toBe("https://example.com/path?q=1");
+    });
+
+    it("multiple saved URI divs each have aria-label with their full URI", () => {
+      const savedDivs = fixture.nativeElement.querySelectorAll(
+        '[data-testid="saved-uri"]',
+      ) as NodeListOf<HTMLElement>;
+      expect(savedDivs.length).toBe(3);
+      expect(savedDivs[0].getAttribute("aria-label")).toBe("https://one.example.com/a");
+      expect(savedDivs[1].getAttribute("aria-label")).toBe("https://two.example.com/b");
+      expect(savedDivs[2].getAttribute("aria-label")).toBe("https://three.example.com/c");
+    });
+
+    it("shows full URIs when strategy is Exact", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Exact,
+      });
+      expect(c.showFullUrls()).toBe(true);
+      expect(c.formattedCurrentUrl()).toBe("https://example.com/path?q=1");
+      expect(c.formattedSavedUrls()).toEqual([
+        "https://one.example.com/a",
+        "https://two.example.com/b",
+        "https://three.example.com/c",
+      ]);
+    });
+  });
+
+  describe("Never strategy + current URL match", () => {
+    const neverMatchParams: AutofillConfirmationDialogParams = {
+      currentUrl: "https://example.com/path",
+      savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+    };
+
+    it("shows loginNeverMatchTitle via per-URI Never strategy", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("loginNeverMatchTitle");
+    });
+
+    it("shows loginNeverMatchTitle via global Never strategy", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: neverMatchParams,
+        uriMatchStrategy: UriMatchStrategy.Never,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("loginNeverMatchTitle");
+    });
+
+    it("shows loginNeverMatchDesc body text", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("loginNeverMatchDesc");
+    });
+
+    it("currentUrlMatchesNeverUri is true when the matching URI is itself the Never one", async () => {
+      const { component: c } = await createFreshFixture({ params: neverMatchParams });
+      expect(c.currentUrlMatchesNeverUri()).toBe(true);
+    });
+
+    it("does NOT show Never UI when a Never URI exists but the matching URI is not the Never one", async () => {
+      const { fixture: vf, component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [
+            makeUri("https://other.com/secret", UriMatchStrategy.Never),
+            makeUri("https://example.com", UriMatchStrategy.Exact),
+          ],
+        },
+      });
+      expect(c.currentUrlMatchesNeverUri()).toBe(false);
+      const text = vf.nativeElement.textContent as string;
+      expect(text).not.toContain("loginNeverMatchTitle");
+      expect(text).not.toContain("neverMatch");
+    });
+
+    it("shows URI match rule label and neverMatch badge", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("uriMatchRule");
+      expect(text).toContain("neverMatch");
+    });
+
+    it("shows standard dialog buttons", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("autofillAndSaveThisSite");
+      expect(text).toContain("autofillOnly");
+      expect(text).toContain("cancel");
+    });
   });
 });

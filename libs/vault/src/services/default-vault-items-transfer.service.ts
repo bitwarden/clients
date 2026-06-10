@@ -13,11 +13,9 @@ import {
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
@@ -52,7 +50,6 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private dialogService: DialogService,
     private toastService: ToastService,
     private eventCollectionService: EventCollectionService,
-    private configService: ConfigService,
     private organizationUserApiService: OrganizationUserApiService,
     private syncService: SyncService,
   ) {}
@@ -79,7 +76,10 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         if (policy == null) {
           return of(undefined);
         }
-        return this.organizationService.organizations$(userId).pipe(getById(policy.organizationId));
+        return this.organizationService.organizations$(userId).pipe(
+          getById(policy.organizationId),
+          map((org) => (org?.status === OrganizationUserStatusType.Confirmed ? org : undefined)),
+        );
       }),
     );
   }
@@ -145,11 +145,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
   }
 
   async enforceOrganizationDataOwnership(userId: UserId): Promise<void> {
-    const featureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.MigrateMyVaultToMyItems,
-    );
-
-    if (!featureEnabled || this.enforcementInFlight) {
+    if (this.enforcementInFlight) {
       return;
     }
 

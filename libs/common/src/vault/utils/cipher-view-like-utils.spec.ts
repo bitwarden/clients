@@ -257,6 +257,12 @@ describe("CipherViewLikeUtils", () => {
 
         cipherListView.type = "secureNote";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.SecureNote);
+
+        cipherListView.type = "bankAccount";
+        expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
+
+        cipherListView.type = "driversLicense";
+        expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.DriversLicense);
       });
     });
   });
@@ -528,6 +534,25 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "phone")).toBe(true);
       });
 
+      it("returns true for bank account fields", () => {
+        const cipherView = createCipherView(CipherType.BankAccount);
+        cipherView.bankAccount.nameOnAccount = "Jane Doe";
+        cipherView.bankAccount.accountNumber = "123456789";
+        cipherView.bankAccount.routingNumber = "987654321";
+        cipherView.bankAccount.branchNumber = "001";
+        cipherView.bankAccount.pin = "1234";
+        cipherView.bankAccount.iban = "GB29NWBK60161331926819";
+        cipherView.bankAccount.swiftCode = "BOFAUS3N";
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "nameOnAccount")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "accountNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "routingNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "branchNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "pin")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "iban")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "swiftCode")).toBe(true);
+      });
+
       it("returns false when values are not populated", () => {
         const cipherView = createCipherView(CipherType.Login);
 
@@ -535,6 +560,68 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "password")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "securityCode")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "username")).toBe(false);
+      });
+
+      it("returns false for bank account fields when not populated", () => {
+        const cipherView = createCipherView(CipherType.BankAccount);
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "nameOnAccount")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "accountNumber")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "routingNumber")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "branchNumber")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "pin")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "iban")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "swiftCode")).toBe(false);
+      });
+
+      it("returns true for drivers license name and license number fields when populated", () => {
+        const cipherView = createCipherView(CipherType.DriversLicense);
+        cipherView.driversLicense.firstName = "Jane";
+        cipherView.driversLicense.middleName = "Q";
+        cipherView.driversLicense.lastName = "Doe";
+        cipherView.driversLicense.licenseNumber = "D1234567";
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "firstNameLicense")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "middleNameLicense")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "lastNameLicense")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "licenseNumber")).toBe(true);
+      });
+
+      it("returns false for drivers license fields when not populated", () => {
+        const cipherView = createCipherView(CipherType.DriversLicense);
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "firstNameLicense")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "middleNameLicense")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "lastNameLicense")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "licenseNumber")).toBe(false);
+      });
+
+      it("returns true for passport name, number, and nid fields when populated", () => {
+        const cipherView = createCipherView(CipherType.Passport);
+        cipherView.passport.givenName = "Jane";
+        cipherView.passport.surname = "Doe";
+        cipherView.passport.passportNumber = "P12345678";
+        cipherView.passport.nationalIdentificationNumber = "NID-001";
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "givenName")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "surname")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "passportNumber")).toBe(true);
+        expect(
+          CipherViewLikeUtils.hasCopyableValue(cipherView, "nationalIdentificationNumber"),
+        ).toBe(true);
+        // Passport has no middleName.
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "middleNamePassport")).toBe(false);
+      });
+
+      it("returns false for passport fields when not populated", () => {
+        const cipherView = createCipherView(CipherType.Passport);
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "givenName")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "surname")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "passportNumber")).toBe(false);
+        expect(
+          CipherViewLikeUtils.hasCopyableValue(cipherView, "nationalIdentificationNumber"),
+        ).toBe(false);
       });
     });
 
@@ -581,6 +668,69 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "phone")).toBe(true);
       });
 
+      it("returns true for copyable fields in a bank account cipher", () => {
+        const cipherListView = {
+          type: "bankAccount",
+          copyableFields: [
+            "BankAccountNameOnAccount",
+            "BankAccountAccountNumber",
+            "BankAccountRoutingNumber",
+            "BankAccountBranchNumber",
+            "BankAccountPin",
+            "BankAccountIban",
+            "BankAccountSwift",
+          ],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "nameOnAccount")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "accountNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "routingNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "branchNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "pin")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "iban")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "swiftCode")).toBe(true);
+      });
+
+      it("returns true for copyable fields in a drivers license cipher", () => {
+        const cipherListView = {
+          type: "driversLicense",
+          copyableFields: [
+            "DriversLicenseFirstName",
+            "DriversLicenseMiddleName",
+            "DriversLicenseLastName",
+            "DriversLicenseLicenseNumber",
+          ],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "firstNameLicense")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "middleNameLicense")).toBe(
+          true,
+        );
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "lastNameLicense")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "licenseNumber")).toBe(true);
+      });
+
+      it("returns true for copyable fields in a passport cipher", () => {
+        const cipherListView = {
+          type: "passport",
+          copyableFields: [
+            "PassportGivenName",
+            "PassportSurname",
+            "PassportPassportNumber",
+            "PassportNationalIdentificationNumber",
+          ],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "givenName")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "surname")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "passportNumber")).toBe(true);
+        expect(
+          CipherViewLikeUtils.hasCopyableValue(cipherListView, "nationalIdentificationNumber"),
+        ).toBe(true);
+        // Passport has no middleName, even if a drivers-license middleName SDK field were present.
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "middleName")).toBe(false);
+      });
+
       it("returns false for when missing a field", () => {
         const cipherListView = {
           type: { login: {} },
@@ -591,6 +741,24 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "phone")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "address")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "publicKey")).toBe(false);
+      });
+
+      it("returns false for login username when copyableFields includes it but the value is empty", () => {
+        const cipherListView = {
+          type: { login: { username: "" } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(false);
+      });
+
+      it("returns false for login username when copyableFields includes it but the value is undefined", () => {
+        const cipherListView = {
+          type: { login: { username: undefined } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(false);
       });
     });
   });

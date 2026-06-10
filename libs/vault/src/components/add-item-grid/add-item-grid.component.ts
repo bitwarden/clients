@@ -52,7 +52,7 @@ export class AddItemGridComponent {
     initialValue: [] as RestrictedCipherType[],
   });
 
-  protected readonly items = computed<GridItem[]>(() => {
+  readonly items = computed<GridItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
     const items: GridItem[] = DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
       if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {

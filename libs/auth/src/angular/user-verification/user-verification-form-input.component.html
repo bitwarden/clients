@@ -143,6 +143,7 @@
         name="verificationCode"
         [formControl]="secret"
         appInputVerbatim
+        (paste)="onPaste($event)"
       />
       <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
     </bit-form-field>

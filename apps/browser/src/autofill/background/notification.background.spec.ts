@@ -4,12 +4,14 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -19,6 +21,7 @@ import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/defau
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -44,13 +47,6 @@ import {
 } from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
-
-const mockGetChangePasswordUrl = jest.fn();
-jest.mock("../services/notification-change-login-password.service", () => ({
-  TemporaryNotificationChangeLoginService: jest.fn().mockImplementation(() => ({
-    getChangePasswordUrl: mockGetChangePasswordUrl,
-  })),
-}));
 
 jest.mock("rxjs", () => {
   const rxjs = jest.requireActual("rxjs");
@@ -93,7 +89,8 @@ describe("NotificationBackground", () => {
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
   const fido2Background = mock<Fido2Background>();
-  fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
+  fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValue(false);
+  const changeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject({
@@ -127,6 +124,7 @@ describe("NotificationBackground", () => {
       themeStateService,
       userNotificationSettingsService,
       taskService,
+      changeLoginPasswordService,
       messagingService,
       fido2Background,
     );
@@ -259,6 +257,82 @@ describe("NotificationBackground", () => {
     ])("$name", ({ tab, expected }) => {
       const message = createQueueMessage(tab);
       expect(notificationBackground["queueMessageIsFromTabOrigin"](message, tab)).toBe(expected);
+    });
+  });
+
+  describe("getOrgData", () => {
+    it("omits disabled organizations from the notification bar vault list for cipher flows", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "enabledOrg",
+            name: "On",
+            enabled: true,
+            productTierType: ProductTierType.Teams,
+          } as Organization,
+          {
+            id: "disabledOrg",
+            name: "Off",
+            enabled: false,
+            productTierType: ProductTierType.Free,
+          } as Organization,
+        ]),
+      );
+
+      await expect(notificationBackground["getOrgData"]()).resolves.toEqual([
+        { id: "enabledOrg", name: "On", productTierType: ProductTierType.Teams },
+      ]);
+    });
+
+    it("returns an empty array when every organization is disabled", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "disabledOrgA",
+            name: "Disabled Org A",
+            enabled: false,
+            productTierType: ProductTierType.Free,
+          } as Organization,
+          {
+            id: "disabledOrgB",
+            name: "Disabled Org B",
+            enabled: false,
+            productTierType: ProductTierType.Teams,
+          } as Organization,
+        ]),
+      );
+
+      await expect(notificationBackground["getOrgData"]()).resolves.toEqual([]);
+    });
+
+    it("returns every organization when all are enabled", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "firstEnabledOrg",
+            name: "FirstOrg",
+            enabled: true,
+            productTierType: ProductTierType.Teams,
+          } as Organization,
+          {
+            id: "secondEnabledOrg",
+            name: "SecondOrg",
+            enabled: true,
+            productTierType: ProductTierType.Families,
+          } as Organization,
+          {
+            id: "thirdDisabledOrg",
+            name: "ThirdOrg",
+            enabled: false,
+            productTierType: ProductTierType.Families,
+          } as Organization,
+        ]),
+      );
+
+      await expect(notificationBackground["getOrgData"]()).resolves.toEqual([
+        { id: "firstEnabledOrg", name: "FirstOrg", productTierType: ProductTierType.Teams },
+        { id: "secondEnabledOrg", name: "SecondOrg", productTierType: ProductTierType.Families },
+      ]);
     });
   });
 
@@ -402,7 +476,7 @@ describe("NotificationBackground", () => {
       let createNewTabSpy: jest.SpyInstance;
 
       beforeEach(() => {
-        mockGetChangePasswordUrl.mockReset();
+        changeLoginPasswordService.getChangePasswordUrl.mockReset();
         taskService.tasksEnabled$.mockReturnValue(of(true));
         taskService.pendingTasks$.mockReturnValue(of([]));
         createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue(null as any);
@@ -416,7 +490,7 @@ describe("NotificationBackground", () => {
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
         taskService.pendingTasks$.mockReturnValue(of([task]));
-        mockGetChangePasswordUrl.mockResolvedValue(
+        changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(
           "https://jest-testing-website.com/.well-known/change-password",
         );
 
@@ -424,7 +498,7 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
-        expect(mockGetChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
         expect(createNewTabSpy).toHaveBeenCalledWith(
           "https://jest-testing-website.com/.well-known/change-password",
         );
@@ -501,7 +575,7 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(mockGetChangePasswordUrl).not.toHaveBeenCalled();
+        expect(changeLoginPasswordService.getChangePasswordUrl).not.toHaveBeenCalled();
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 
@@ -517,7 +591,7 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(mockGetChangePasswordUrl).not.toHaveBeenCalled();
+        expect(changeLoginPasswordService.getChangePasswordUrl).not.toHaveBeenCalled();
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 
@@ -529,12 +603,12 @@ describe("NotificationBackground", () => {
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
         taskService.pendingTasks$.mockReturnValue(of([task]));
-        mockGetChangePasswordUrl.mockResolvedValue(null);
+        changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(null);
 
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(mockGetChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 
@@ -1044,7 +1118,7 @@ describe("NotificationBackground", () => {
         expectSkippedCheckingNotification();
       });
 
-      it("skips checking if a notification should trigger if a fido2 credential request is in progress for the tab", async () => {
+      it("skips checking if a notification should trigger when a passkey picker is active for the tab", async () => {
         const formEntryData: ModifyLoginCipherFormData = {
           newPassword: "",
           password: "",
@@ -1053,7 +1127,7 @@ describe("NotificationBackground", () => {
         };
 
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        fido2Background.isCredentialRequestInProgress.mockReturnValueOnce(true);
+        fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValueOnce(true);
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 

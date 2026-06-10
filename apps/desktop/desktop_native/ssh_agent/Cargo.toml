@@ -11,17 +11,47 @@ async-trait = { workspace = true }
 base64 = { workspace = true }
 desktop_core = { path = "../core" }
 mockall = { workspace = true }
-rkyv = "=0.8.14"
+rkyv = "=0.8.16"
+rsa = "0.9"
+sha2 = "=0.10.9"
+signature = "=2.2.0"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
     "ed25519",
+    "p256",
+    "p384",
+    "p521",
     "rsa",
     "rand_core",
 ] }
+sysinfo = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+homedir = { workspace = true }
+libc = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_System_Pipes",
+] }
+
+[target.'cfg(unix)'.dev-dependencies]
+mockall = { workspace = true }
+rand = { workspace = true }
+serial_test = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
+tracing-subscriber = { workspace = true }
+
+[target.'cfg(windows)'.dev-dependencies]
+mockall = { workspace = true }
+serial_test = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
+tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true
