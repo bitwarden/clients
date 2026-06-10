@@ -1,4 +1,4 @@
-export class LeaseExtensionRequest {
+export class AccessLeaseExtensionRequest {
   leaseId: string;
   notBefore?: string;
   notAfter: string;

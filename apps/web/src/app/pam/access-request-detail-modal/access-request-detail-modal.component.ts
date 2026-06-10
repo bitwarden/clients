@@ -16,7 +16,11 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessRequestPatchRequest, AccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import {
+  AccessRequestPatchRequest,
+  AccessRequestDetailsResponse,
+  PamApiService,
+} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -28,7 +32,7 @@ import {
 
 export type AccessRequestDetailModalData = {
   /** The server-issued pending lease request (from the 202 response). */
-  request: AccessRequestResponse;
+  request: AccessRequestDetailsResponse;
 };
 
 export const AccessRequestDetailModalResult = Object.freeze({
@@ -74,11 +78,11 @@ export class AccessRequestDetailModalComponent implements OnInit {
   protected readonly submitting = signal(false);
   protected readonly showCustomWindow = signal(false);
   /**
-   * True when the modal was opened for an already-approved ticket
-   * (CipherOpenAwaitingRedemption): the window is fixed, so we offer "Start
+   * True when the modal was opened for an already-approved request
+   * (CipherOpenAwaitingActivation): the window is fixed, so we offer "Start
    * access" (redemption) instead of the amend-and-submit form.
    */
-  protected readonly isApprovedTicket = signal(false);
+  protected readonly isApprovedRequest = signal(false);
 
   protected readonly durationOptions = LEASE_DURATION_PRESETS;
 
@@ -102,7 +106,7 @@ export class AccessRequestDetailModalComponent implements OnInit {
 
   ngOnInit(): void {
     const req = this.data.request;
-    this.isApprovedTicket.set(req.status === "approved");
+    this.isApprovedRequest.set(req.status === "approved");
     let durationMinutes = 60;
     if (req.requestedNotBefore && req.requestedNotAfter) {
       const diffMs =
@@ -186,14 +190,14 @@ export class AccessRequestDetailModalComponent implements OnInit {
     }
   }
 
-  /** Redeems an approved ticket (MemberStartsLease) and closes the modal. */
-  protected async startLease(): Promise<void> {
+  /** Activates an approved request (MemberStartsLease) and closes the modal. */
+  protected async activateLease(): Promise<void> {
     if (this.submitting()) {
       return;
     }
     this.submitting.set(true);
     try {
-      await this.pamApi.startLease(this.data.request.id);
+      await this.pamApi.activateLease(this.data.request.id);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamStartLeaseSuccess"),

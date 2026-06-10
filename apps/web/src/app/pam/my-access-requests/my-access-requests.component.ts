@@ -27,7 +27,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  AccessRequestResponse,
+  AccessRequestDetailsResponse,
   AccessRequestStatus,
   PamApiService,
   formatRemaining,
@@ -56,9 +56,9 @@ export type MyRequestRow = {
   requestedNotAfter: Date | null;
   requestedTtlSeconds: number;
   resolverDisplayName: string | null;
-  resolverComment: string | null;
-  /** Deadline to redeem an approved on-demand ticket; null for other states. */
-  redemptionDeadline: Date | null;
+  approverComment: string | null;
+  /** Deadline to activate an approved on-demand request; null for other states. */
+  activationDeadline: Date | null;
 };
 
 /**
@@ -98,7 +98,7 @@ export class MyAccessRequestsComponent implements OnInit {
   protected readonly showPam = signal(false);
   protected readonly loading = signal(true);
   protected readonly cancelling = signal<Set<string>>(new Set<string>());
-  /** Ids of approved tickets currently being redeemed (prevents double-click). */
+  /** Ids of approved requests currently being activated (prevents double-click). */
   protected readonly starting = signal<Set<string>>(new Set<string>());
   /** Ticks once a second so the redemption countdown stays live. */
   private readonly nowMs = signal(Date.now());
@@ -140,7 +140,7 @@ export class MyAccessRequestsComponent implements OnInit {
   protected async reload(): Promise<void> {
     this.loading.set(true);
     try {
-      const responses = await this.pamApi.listMyRequests();
+      const responses = await this.pamApi.listMyAccessRequests();
       this.rows.set(responses.map((r) => toRow(r, this.i18nService)));
     } catch (e) {
       this.logService.error(e);
@@ -207,22 +207,22 @@ export class MyAccessRequestsComponent implements OnInit {
     return this.starting().has(id);
   }
 
-  /** A live "redeem within X" label for an approved on-demand ticket. */
+  /** A live "redeem within X" label for an approved on-demand request. */
   protected redemptionRemainingLabel(row: MyRequestRow): string | null {
-    if (row.status !== "approved" || row.redemptionDeadline == null) {
+    if (row.status !== "approved" || row.activationDeadline == null) {
       return null;
     }
-    return formatRemaining(row.redemptionDeadline.getTime() - this.nowMs());
+    return formatRemaining(row.activationDeadline.getTime() - this.nowMs());
   }
 
-  /** Redeems an approved ticket (MemberStartsLease). */
-  protected async startLease(row: MyRequestRow): Promise<void> {
+  /** Activates an approved request (MemberStartsLease). */
+  protected async activateLease(row: MyRequestRow): Promise<void> {
     if (row.status !== "approved" || this.isStarting(row.id)) {
       return;
     }
     this.starting.update((s) => new Set([...s, row.id]));
     try {
-      await this.pamApi.startLease(row.id);
+      await this.pamApi.activateLease(row.id);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamStartLeaseSuccess"),
@@ -231,7 +231,7 @@ export class MyAccessRequestsComponent implements OnInit {
     } catch (e) {
       this.logService.error(e);
       // A taken single-active-lease slot or an org-wide freeze surfaces here;
-      // the ticket stays redeemable for a manual retry.
+      // the approved request stays activatable for a manual retry.
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("pamStartLeaseError"),
@@ -293,25 +293,25 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 /**
  * Build the resolver display label.
  *
- * The API surfaces `resolverUserId = null` for system / access-rule decisions and a
+ * The API surfaces `approverId = null` for system / access-rule decisions and a
  * user id for human decisions. Mapping the id → display name needs another data
  * source we don't have wired up yet (PM-37267 follow-up). Until then, surface the
  * raw id as a fallback so the page is still functional.
  */
 export function resolveResolverDisplayName(
-  response: Pick<AccessRequestResponse, "status" | "resolverUserId">,
+  response: Pick<AccessRequestDetailsResponse, "status" | "approverId">,
   i18n: I18nService,
 ): string | null {
   if (response.status === "pending") {
     return null;
   }
-  if (response.resolverUserId == null) {
+  if (response.approverId == null) {
     return i18n.t("pamResolverAccessRule");
   }
-  return response.resolverUserId;
+  return response.approverId;
 }
 
-function toRow(response: AccessRequestResponse, i18n: I18nService): MyRequestRow {
+function toRow(response: AccessRequestDetailsResponse, i18n: I18nService): MyRequestRow {
   return {
     id: response.id,
     cipherId: response.cipherId,
@@ -325,8 +325,8 @@ function toRow(response: AccessRequestResponse, i18n: I18nService): MyRequestRow
       response.requestedNotAfter == null ? null : new Date(response.requestedNotAfter),
     requestedTtlSeconds: response.requestedTtlSeconds,
     resolverDisplayName: resolveResolverDisplayName(response, i18n),
-    resolverComment: response.resolverComment,
-    redemptionDeadline:
-      response.redemptionDeadline == null ? null : new Date(response.redemptionDeadline),
+    approverComment: response.approverComment,
+    activationDeadline:
+      response.activationDeadline == null ? null : new Date(response.activationDeadline),
   };
 }

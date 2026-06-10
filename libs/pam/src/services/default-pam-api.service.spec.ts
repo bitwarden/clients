@@ -3,34 +3,32 @@ import { firstValueFrom, Subject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
-import { Condition } from "../abstractions/access-rule";
-import { LeaseEvent } from "../abstractions/lease-event";
-import { LeaseEventService } from "../abstractions/lease-event.service";
-import { LeaseLifecycleStatus } from "../abstractions/responses/lease-model.response";
-import { LeaseRequestLifecycleStatus } from "../abstractions/responses/lease-request-model.response";
+import { AccessEvent } from "../abstractions/access-event";
+import { AccessEventService } from "../abstractions/access-event.service";
+import { AccessCondition } from "../abstractions/access-rule";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
+import { AccessDecisionRequest } from "./requests/access-decision.request";
+import { AccessLeaseExtensionRequest } from "./requests/access-lease-extension.request";
+import { AccessLeaseRevokeRequest } from "./requests/access-lease-revoke.request";
+import { AccessRequestCreateRequest } from "./requests/access-request-create.request";
 import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { AccessRuleRequest } from "./requests/access-rule.request";
-import { CreateLeaseRequest } from "./requests/create-lease.request";
-import { LeaseDecisionRequest } from "./requests/lease-decision.request";
-import { LeaseExtensionRequest } from "./requests/lease-extension.request";
-import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
 
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("DefaultPamApiService", () => {
   let apiService: jest.Mocked<Pick<ApiService, "send">>;
-  let leaseEvents: Subject<LeaseEvent>;
+  let accessEvents: Subject<AccessEvent>;
   let service: DefaultPamApiService;
 
   beforeEach(() => {
     apiService = { send: jest.fn() } as jest.Mocked<Pick<ApiService, "send">>;
-    leaseEvents = new Subject<LeaseEvent>();
-    const leaseEventService: LeaseEventService = {
-      events$: () => leaseEvents.asObservable(),
-      allEvents$: () => leaseEvents.asObservable(),
-    } as LeaseEventService;
+    accessEvents = new Subject<AccessEvent>();
+    const leaseEventService: AccessEventService = {
+      events$: () => accessEvents.asObservable(),
+      allEvents$: () => accessEvents.asObservable(),
+    } as AccessEventService;
     service = new DefaultPamApiService(apiService as unknown as ApiService, leaseEventService);
   });
 
@@ -40,15 +38,15 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("getLeasePreCheck", () => {
+  describe("getAccessPreCheck", () => {
     it("GETs /ciphers/{id}/lease/pre-check and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessPreCheck",
         CipherId: "cipher-1",
-        Outcome: "human",
+        ApprovalMode: "human",
       });
 
-      const result = await service.getLeasePreCheck("cipher-1");
+      const result = await service.getAccessPreCheck("cipher-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
@@ -58,30 +56,30 @@ describe("DefaultPamApiService", () => {
         true,
       );
       expect(result.cipherId).toBe("cipher-1");
-      expect(result.outcome).toBe("human");
+      expect(result.approvalMode).toBe("human");
     });
   });
 
-  describe("requestLease", () => {
+  describe("submitAccessRequest", () => {
     it("POSTs /ciphers/{id}/lease with a duration body on the automatic path", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        Outcome: "automatic",
+        ApprovalMode: "automatic",
         Lease: {
           Object: "lease",
           Id: "lease-1",
           CipherId: "cipher-1",
           CollectionId: "col-1",
           OrganizationId: "org-1",
-          Status: LeaseLifecycleStatus.Active,
+          Status: "active",
           NotBefore: "2026-06-04T12:00:00Z",
           NotAfter: "2026-06-04T13:00:00Z",
         },
         Request: null,
       });
-      const body = new CreateLeaseRequest({ durationSeconds: 3600, reason: "incident" });
+      const body = new AccessRequestCreateRequest({ durationSeconds: 3600, reason: "incident" });
 
-      const result = await service.requestLease("cipher-1", body);
+      const result = await service.submitAccessRequest("cipher-1", body);
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
@@ -90,10 +88,10 @@ describe("DefaultPamApiService", () => {
         true,
         true,
       );
-      expect(result.outcome).toBe("automatic");
+      expect(result.approvalMode).toBe("automatic");
       expect(result.lease).not.toBeNull();
       expect(result.lease?.id).toBe("lease-1");
-      expect(result.lease?.status).toBe(LeaseLifecycleStatus.Active);
+      expect(result.lease?.status).toBe("active");
       expect(result.lease?.notAfter).toBe("2026-06-04T13:00:00Z");
       expect(result.request).toBeNull();
     });
@@ -101,7 +99,7 @@ describe("DefaultPamApiService", () => {
     it("POSTs /ciphers/{id}/lease with a window body on the human path", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        Outcome: "human",
+        ApprovalMode: "human",
         Lease: null,
         Request: {
           Object: "leaseRequest",
@@ -109,20 +107,20 @@ describe("DefaultPamApiService", () => {
           CipherId: "cipher-1",
           CollectionId: "col-1",
           OrganizationId: "org-1",
-          Status: LeaseRequestLifecycleStatus.Pending,
+          Status: "pending",
           NotBefore: "2026-06-05T09:00:00Z",
           NotAfter: "2026-06-05T17:00:00Z",
           Reason: "Investigating prod incident #4821",
           CreationDate: "2026-06-04T12:00:00Z",
         },
       });
-      const body = new CreateLeaseRequest({
+      const body = new AccessRequestCreateRequest({
         start: new Date("2026-06-05T09:00:00Z"),
         end: new Date("2026-06-05T17:00:00Z"),
         reason: "Investigating prod incident #4821",
       });
 
-      const result = await service.requestLease("cipher-1", body);
+      const result = await service.submitAccessRequest("cipher-1", body);
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
@@ -131,11 +129,11 @@ describe("DefaultPamApiService", () => {
         true,
         true,
       );
-      expect(result.outcome).toBe("human");
+      expect(result.approvalMode).toBe("human");
       expect(result.lease).toBeNull();
       expect(result.request).not.toBeNull();
       expect(result.request?.id).toBe("req-1");
-      expect(result.request?.status).toBe(LeaseRequestLifecycleStatus.Pending);
+      expect(result.request?.status).toBe("pending");
       expect(result.request?.reason).toBe("Investigating prod incident #4821");
       expect(result.request?.creationDate).toBe("2026-06-04T12:00:00Z");
     });
@@ -143,14 +141,14 @@ describe("DefaultPamApiService", () => {
     it("pumps mutations$ after a successful automatic lease", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        Outcome: "automatic",
+        ApprovalMode: "automatic",
         Lease: {
           Object: "lease",
           Id: "lease-1",
           CipherId: "cipher-1",
           CollectionId: "col-1",
           OrganizationId: "org-1",
-          Status: LeaseLifecycleStatus.Active,
+          Status: "active",
           NotBefore: "2026-06-04T12:00:00Z",
           NotAfter: "2026-06-04T13:00:00Z",
         },
@@ -159,7 +157,10 @@ describe("DefaultPamApiService", () => {
       const mutations = jest.fn();
       const sub = service.mutations$.subscribe(mutations);
 
-      await service.requestLease("cipher-1", new CreateLeaseRequest({ durationSeconds: 3600 }));
+      await service.submitAccessRequest(
+        "cipher-1",
+        new AccessRequestCreateRequest({ durationSeconds: 3600 }),
+      );
 
       expect(mutations).toHaveBeenCalledTimes(1);
       sub.unsubscribe();
@@ -168,7 +169,7 @@ describe("DefaultPamApiService", () => {
     it("pumps mutations$ after a successful human request", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        Outcome: "human",
+        ApprovalMode: "human",
         Lease: null,
         Request: {
           Object: "leaseRequest",
@@ -176,7 +177,7 @@ describe("DefaultPamApiService", () => {
           CipherId: "cipher-1",
           CollectionId: "col-1",
           OrganizationId: "org-1",
-          Status: LeaseRequestLifecycleStatus.Pending,
+          Status: "pending",
           NotBefore: "2026-06-05T09:00:00Z",
           NotAfter: "2026-06-05T17:00:00Z",
           Reason: "incident",
@@ -186,9 +187,9 @@ describe("DefaultPamApiService", () => {
       const mutations = jest.fn();
       const sub = service.mutations$.subscribe(mutations);
 
-      await service.requestLease(
+      await service.submitAccessRequest(
         "cipher-1",
-        new CreateLeaseRequest({
+        new AccessRequestCreateRequest({
           start: new Date("2026-06-05T09:00:00Z"),
           end: new Date("2026-06-05T17:00:00Z"),
           reason: "incident",
@@ -205,7 +206,10 @@ describe("DefaultPamApiService", () => {
       const sub = service.mutations$.subscribe(mutations);
 
       await expect(
-        service.requestLease("cipher-1", new CreateLeaseRequest({ durationSeconds: 3600 })),
+        service.submitAccessRequest(
+          "cipher-1",
+          new AccessRequestCreateRequest({ durationSeconds: 3600 }),
+        ),
       ).rejects.toBeInstanceOf(ErrorResponse);
 
       expect(mutations).not.toHaveBeenCalled();
@@ -234,9 +238,9 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("CreateLeaseRequest", () => {
+  describe("AccessRequestCreateRequest", () => {
     it("serializes dates to UTC ISO 8601", () => {
-      const req = new CreateLeaseRequest({
+      const req = new AccessRequestCreateRequest({
         start: new Date("2026-06-05T09:00:00Z"),
         end: new Date("2026-06-05T17:00:00Z"),
         reason: "test",
@@ -247,7 +251,7 @@ describe("DefaultPamApiService", () => {
     });
 
     it("leaves optional fields undefined when not provided", () => {
-      const req = new CreateLeaseRequest({ durationSeconds: 3600 });
+      const req = new AccessRequestCreateRequest({ durationSeconds: 3600 });
       expect(req.durationSeconds).toBe(3600);
       expect(req.start).toBeUndefined();
       expect(req.end).toBeUndefined();
@@ -296,7 +300,7 @@ describe("DefaultPamApiService", () => {
   describe("requestLeaseExtension", () => {
     it("POSTs /leasing/requests/extension and wraps the response", async () => {
       apiService.send.mockResolvedValue({ Id: "req-2", Status: "pending" });
-      const req = new LeaseExtensionRequest({
+      const req = new AccessLeaseExtensionRequest({
         leaseId: "lease-1",
         notAfter: new Date("2026-01-01T02:00:00Z"),
       });
@@ -317,7 +321,7 @@ describe("DefaultPamApiService", () => {
   describe("decideAccessRequest", () => {
     it("POSTs /leasing/requests/{id}/decision and wraps the response", async () => {
       apiService.send.mockResolvedValue({ Id: "req-1", Status: "approved" });
-      const req = new LeaseDecisionRequest({ decision: "approve" });
+      const req = new AccessDecisionRequest({ verdict: "approve" });
 
       const result = await service.decideAccessRequest("req-1", req);
 
@@ -332,8 +336,8 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("startLease", () => {
-    it("POSTs /leasing/requests/{requestId}/start with no body and wraps the response", async () => {
+  describe("activateLease", () => {
+    it("POSTs /leasing/requests/{requestId}/activate with no body and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Id: "lease-1",
         RequestId: "req-1",
@@ -345,11 +349,11 @@ describe("DefaultPamApiService", () => {
         Status: "active",
       });
 
-      const result = await service.startLease("req-1");
+      const result = await service.activateLease("req-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/leasing/requests/req-1/start",
+        "/leasing/requests/req-1/activate",
         null,
         true,
         true,
@@ -360,12 +364,12 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("revokeLease", () => {
+  describe("revokeAccessLease", () => {
     it("POSTs /leasing/leases/{id}/revoke without expecting a response body", async () => {
       apiService.send.mockResolvedValue(undefined);
-      const req = new LeaseRevokeRequest({ reason: "rule violation" });
+      const req = new AccessLeaseRevokeRequest({ reason: "rule violation" });
 
-      await service.revokeLease("lease-1", req);
+      await service.revokeAccessLease("lease-1", req);
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
@@ -408,7 +412,7 @@ describe("DefaultPamApiService", () => {
       expect(result.data[0].conditions[0].kind).toBe("human_approval");
     });
 
-    it("derives conditions from the `rule` tree for list items lacking `Conditions`", async () => {
+    it("derives conditions from a tree-shaped `Conditions` on list items", async () => {
       apiService.send.mockResolvedValue({
         Data: [
           {
@@ -416,9 +420,12 @@ describe("DefaultPamApiService", () => {
             OrganizationId: "org-1",
             Name: "Approval + IP",
             Description: null,
-            rule: {
+            Conditions: {
               kind: "all_of",
-              rules: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
+              conditions: [
+                { kind: "human_approval" },
+                { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
+              ],
             },
             CreationDate: "2026-05-25T00:00:00Z",
             RevisionDate: "2026-05-25T00:00:00Z",
@@ -461,14 +468,14 @@ describe("DefaultPamApiService", () => {
       expect(result.conditions[0].kind).toBe("human_approval");
     });
 
-    it("derives conditions from a bare `rule` leaf when the response omits `Conditions`", async () => {
-      // Mirrors the real server response: a camelCase `rule` tree, no `Conditions` field.
+    it("derives conditions from a bare `Conditions` leaf", async () => {
+      // Mirrors the real server response: a camelCase `conditions` tree.
       apiService.send.mockResolvedValue({
         id: "pol-1",
         organizationId: "org-1",
         name: "Test",
         description: null,
-        rule: { kind: "human_approval" },
+        conditions: { kind: "human_approval" },
         creationDate: "2026-06-08T08:49:30.7166667Z",
         revisionDate: "2026-06-08T17:50:25.84Z",
         object: "accessRule",
@@ -479,13 +486,13 @@ describe("DefaultPamApiService", () => {
       expect(result.conditions).toEqual([{ kind: "human_approval" }]);
     });
 
-    it("derives ip_allowlist cidrs from the `rule` tree", async () => {
+    it("derives ip_allowlist cidrs from the `Conditions` tree", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "IP restricted",
         Description: null,
-        Rule: { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
+        Conditions: { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
       });
@@ -497,15 +504,15 @@ describe("DefaultPamApiService", () => {
       ]);
     });
 
-    it("flattens an `all_of` rule tree into multiple conditions", async () => {
+    it("flattens an `all_of` `Conditions` tree into multiple conditions", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "Approval + IP",
         Description: null,
-        Rule: {
+        Conditions: {
           kind: "all_of",
-          rules: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
+          conditions: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
         },
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
@@ -531,7 +538,7 @@ describe("DefaultPamApiService", () => {
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
       });
-      const createConditions: Condition[] = [{ kind: "human_approval" }];
+      const createConditions: AccessCondition[] = [{ kind: "human_approval" }];
       const req = new AccessRuleRequest({ name: "Human approval", conditions: createConditions });
 
       const result = await service.createAccessRule("org-1", req);
@@ -558,7 +565,7 @@ describe("DefaultPamApiService", () => {
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-26T00:00:00Z",
       });
-      const updateConditions: Condition[] = [{ kind: "human_approval" }];
+      const updateConditions: AccessCondition[] = [{ kind: "human_approval" }];
       const req = new AccessRuleRequest({
         name: "Human approval (updated)",
         conditions: updateConditions,
@@ -597,20 +604,18 @@ describe("DefaultPamApiService", () => {
     it("GETs /ciphers/{id}/lease/state on initial subscription and emits the mapped snapshot", async () => {
       apiService.send.mockResolvedValue({
         CipherId: "cipher-1",
-        Lease: {
-          ActiveLease: {
-            Id: "lease-1",
-            RequestId: "req-1",
-            CipherId: "cipher-1",
-            CollectionId: "col-1",
-            GranteeUserId: "user-1",
-            NotBefore: "2026-06-04T12:00:00Z",
-            NotAfter: "2026-06-04T13:00:00Z",
-            Status: "active",
-          },
-          PendingRequest: null,
-          ApprovedTicket: null,
+        ActiveLease: {
+          Id: "lease-1",
+          RequestId: "req-1",
+          CipherId: "cipher-1",
+          CollectionId: "col-1",
+          RequesterId: "user-1",
+          NotBefore: "2026-06-04T12:00:00Z",
+          NotAfter: "2026-06-04T13:00:00Z",
+          Status: "active",
         },
+        PendingRequest: null,
+        ApprovedRequest: null,
       });
 
       const state = await firstValueFrom(service.getCipherAccessState$("cipher-1", "user-1"));
@@ -622,10 +627,10 @@ describe("DefaultPamApiService", () => {
         true,
         true,
       );
-      expect(state.lease.activeLease?.id).toBe("lease-1");
-      expect(state.lease.activeLease?.notAfter).toBe("2026-06-04T13:00:00Z");
-      expect(state.lease.pendingRequest).toBeUndefined();
-      expect(state.lease.approvedTicket).toBeUndefined();
+      expect(state.activeLease?.id).toBe("lease-1");
+      expect(state.activeLease?.notAfter).toBe("2026-06-04T13:00:00Z");
+      expect(state.pendingRequest).toBeUndefined();
+      expect(state.approvedRequest).toBeUndefined();
     });
 
     it("emits an empty snapshot when the endpoint rejects with 404", async () => {
@@ -633,7 +638,7 @@ describe("DefaultPamApiService", () => {
 
       const state = await firstValueFrom(service.getCipherAccessState$("cipher-1", "user-1"));
 
-      expect(state).toEqual({ lease: {} });
+      expect(state).toEqual({});
     });
 
     it("propagates non-404 errors to the consumer", async () => {
@@ -645,7 +650,7 @@ describe("DefaultPamApiService", () => {
     });
 
     it("re-fetches when the lease event channel emits", async () => {
-      apiService.send.mockResolvedValue({ CipherId: "cipher-1", Lease: {} });
+      apiService.send.mockResolvedValue({ CipherId: "cipher-1" });
       const sink = jest.fn();
 
       const sub = service.getCipherAccessState$("cipher-1", "user-1").subscribe(sink);
@@ -653,7 +658,7 @@ describe("DefaultPamApiService", () => {
       expect(sink).toHaveBeenCalledTimes(1);
       expect(apiService.send).toHaveBeenCalledTimes(1);
 
-      leaseEvents.next({ kind: "approved", requestId: "req-1" });
+      accessEvents.next({ kind: "approved", requestId: "req-1" });
       await flushMicrotasks();
 
       expect(apiService.send).toHaveBeenCalledTimes(2);
@@ -662,7 +667,7 @@ describe("DefaultPamApiService", () => {
     });
 
     it("re-fetches after a local mutation succeeds", async () => {
-      apiService.send.mockResolvedValue({ CipherId: "cipher-1", Lease: {} });
+      apiService.send.mockResolvedValue({ CipherId: "cipher-1" });
       const sink = jest.fn();
 
       const sub = service.getCipherAccessState$("cipher-1", "user-1").subscribe(sink);
@@ -678,7 +683,7 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("listMyRequests", () => {
+  describe("listMyAccessRequests", () => {
     it("GETs /leasing/requests/mine and unwraps a ListResponse envelope", async () => {
       apiService.send.mockResolvedValue({
         Data: [
@@ -695,7 +700,7 @@ describe("DefaultPamApiService", () => {
         ContinuationToken: null,
       });
 
-      const result = await service.listMyRequests();
+      const result = await service.listMyAccessRequests();
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",

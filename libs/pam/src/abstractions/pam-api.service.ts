@@ -3,37 +3,34 @@ import { Observable } from "rxjs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
+import { AccessDecisionRequest } from "../services/requests/access-decision.request";
+import { AccessLeaseExtensionRequest } from "../services/requests/access-lease-extension.request";
+import { AccessLeaseRevokeRequest } from "../services/requests/access-lease-revoke.request";
+import { AccessRequestCreateRequest } from "../services/requests/access-request-create.request";
 import { AccessRequestPatchRequest } from "../services/requests/access-request-patch.request";
 import { AccessRuleRequest } from "../services/requests/access-rule.request";
-import { CreateLeaseRequest } from "../services/requests/create-lease.request";
-import { LeaseDecisionRequest } from "../services/requests/lease-decision.request";
-import { LeaseExtensionRequest } from "../services/requests/lease-extension.request";
-import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
 
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
+import { AccessLeaseResponse } from "./responses/access-lease.response";
 import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
-import { AccessRequestEnvelopeResponse } from "./responses/access-request-envelope.response";
-import { AccessRequestResponse } from "./responses/access-request.response";
+import { AccessRequestDetailsResponse } from "./responses/access-request-details.response";
+import { AccessRequestResultResponse } from "./responses/access-request-result.response";
 import { AccessRuleResponse } from "./responses/access-rule.response";
 import { BulkRevokeResult } from "./responses/bulk-revoke.result";
 import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
-import { InboxAccessRequestResponse } from "./responses/inbox-access-request.response";
-import { LeaseResponse } from "./responses/lease.response";
 
 /**
- * Snapshot of a cipher's leasing state from the perspective of the current
+ * Snapshot of a cipher's access state from the perspective of the current
  * user — what the badge/banner need to render.
  */
 export type CipherAccessState = {
-  lease: {
-    activeLease?: LeaseResponse;
-    pendingRequest?: AccessRequestResponse;
-    /**
-     * An approved-but-unredeemed ticket: the banner offers "Start access"
-     * (MemberStartsLease) rather than creating a duplicate request.
-     */
-    approvedTicket?: AccessRequestResponse;
-  };
+  activeLease?: AccessLeaseResponse;
+  pendingRequest?: AccessRequestDetailsResponse;
+  /**
+   * An approved-but-not-yet-activated request: the banner offers "Start access"
+   * (activation) rather than creating a duplicate request.
+   */
+  approvedRequest?: AccessRequestDetailsResponse;
 };
 
 export abstract class PamApiService {
@@ -51,17 +48,17 @@ export abstract class PamApiService {
    * or `human`) applies for the caller on this cipher. Returns 404 when the
    * cipher isn't visible to the caller or the PAM feature flag is off.
    */
-  abstract getLeasePreCheck(cipherId: string): Promise<AccessPreCheckResponse>;
+  abstract getAccessPreCheck(cipherId: string): Promise<AccessPreCheckResponse>;
   /**
    * Creates an active lease (automatic) or a pending lease request (human),
    * depending on the server's re-evaluated approval requirement and the body
    * shape. The server rejects (400) if the body doesn't match the resolved
    * outcome — see the lease-request frontend handover for the error catalog.
    */
-  abstract requestLease(
+  abstract submitAccessRequest(
     cipherId: string,
-    body: CreateLeaseRequest,
-  ): Promise<AccessRequestEnvelopeResponse>;
+    body: AccessRequestCreateRequest,
+  ): Promise<AccessRequestResultResponse>;
   /**
    * Returns the cipher with its complete (encrypted) data — only when the
    * caller currently holds an active lease covering it. 404 if no active lease
@@ -73,40 +70,41 @@ export abstract class PamApiService {
   abstract patchAccessRequest(
     id: string,
     request: AccessRequestPatchRequest,
-  ): Promise<AccessRequestResponse>;
+  ): Promise<AccessRequestDetailsResponse>;
   abstract cancelAccessRequest(id: string): Promise<void>;
-  abstract requestLeaseExtension(request: LeaseExtensionRequest): Promise<AccessRequestResponse>;
+  abstract requestLeaseExtension(
+    request: AccessLeaseExtensionRequest,
+  ): Promise<AccessRequestDetailsResponse>;
   abstract decideAccessRequest(
     id: string,
-    request: LeaseDecisionRequest,
-  ): Promise<AccessRequestResponse>;
+    request: AccessDecisionRequest,
+  ): Promise<AccessRequestDetailsResponse>;
   /**
-   * Redeems an approved ticket (MemberStartsLease): mints the lease at a time of
-   * the requester's choosing and moves the request to `activated`. Rejected when
-   * the rule's single-active-lease slot is taken or the org is under a leasing
-   * freeze; the ticket stays redeemable for a manual retry.
+   * Activates an approved request: mints the lease at a time of the requester's
+   * choosing and moves the request to `activated`. Rejected when the rule's
+   * single-active-lease slot is taken or the org is under a leasing freeze; the
+   * approved request stays activatable for a manual retry.
    */
-  abstract startLease(requestId: string): Promise<LeaseResponse>;
-  abstract revokeLease(id: string, request: LeaseRevokeRequest): Promise<void>;
+  abstract activateLease(requestId: string): Promise<AccessLeaseResponse>;
+  abstract revokeAccessLease(id: string, request: AccessLeaseRevokeRequest): Promise<void>;
 
-  abstract listInboxRequests(): Promise<InboxAccessRequestResponse[]>;
-  abstract listInboxHistory(): Promise<InboxAccessRequestResponse[]>;
-  abstract listMyRequests(): Promise<AccessRequestResponse[]>;
-  abstract listActiveLeases(): Promise<LeaseResponse[]>;
+  abstract listInboxRequests(): Promise<AccessRequestDetailsResponse[]>;
+  abstract listInboxHistory(): Promise<AccessRequestDetailsResponse[]>;
+  abstract listMyAccessRequests(): Promise<AccessRequestDetailsResponse[]>;
+  abstract listActiveLeases(): Promise<AccessLeaseResponse[]>;
 
   abstract getGovernanceSummary(
     organizationId: string,
   ): Promise<OrganizationGovernanceSummaryResponse>;
   /**
    * Org-wide kill switch: revokes all active leases in the organization. When
-   * `blockNewLeases` is true, also engages a leasing freeze so no ticket can be
-   * redeemed until {@link unblockNewLeases} lifts it.
+   * `blockNewLeases` is true,    * activated until {@link unblockNewLeases} lifts it.
    */
   abstract bulkRevokeLeases(
     organizationId: string,
     blockNewLeases: boolean,
   ): Promise<BulkRevokeResult>;
-  /** Lifts an org-wide leasing freeze so tickets can be redeemed again. */
+  /** Lifts an org-wide leasing freeze so approved requests can be activated again. */
   abstract unblockNewLeases(organizationId: string): Promise<void>;
   /** Whether the organization is currently under a leasing freeze. */
   abstract isLeasingFrozen(organizationId: string): Promise<boolean>;

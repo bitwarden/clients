@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { AccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 /**
  * Outcome of attempting to open a (possibly) gated cipher. Drives the cipher
@@ -18,17 +18,17 @@ import { AccessRequestResponse, PamApiService } from "@bitwarden/pam";
  *     must always surface the Request Access modal (PM-37265) so the user
  *     explicitly confirms the request before any approval — automated or
  *     human — happens.
- *   - "awaiting_redemption" → the caller already holds an approved-but-unredeemed
- *     ticket for this cipher. Opening offers to start the lease rather than
- *     creating a duplicate request (CipherOpenAwaitingRedemption).
+ *   - "awaiting_activation" → the caller already holds an approved-but-not-yet-activated
+ *     request for this cipher. Opening offers to start the lease rather than
+ *     creating a duplicate request (CipherOpenAwaitingActivation).
  *   - "denied"      → server returned 403; caller renders the denial state
  *     using `reason` verbatim, no retry.
  */
 export type CipherOpenDecision =
   | { kind: "passthrough" }
   | { kind: "reveal"; leaseId: string | null }
-  | { kind: "pending"; request: AccessRequestResponse }
-  | { kind: "awaiting_redemption"; request: AccessRequestResponse }
+  | { kind: "pending"; request: AccessRequestDetailsResponse }
+  | { kind: "awaiting_activation"; request: AccessRequestDetailsResponse }
   | { kind: "denied"; reason: string };
 
 /**
@@ -81,8 +81,8 @@ export class CipherOpenInterceptorService {
         return { kind: "reveal", leaseId: result.leaseId };
       case "pending":
         return { kind: "pending", request: result.request };
-      case "awaiting_redemption":
-        return { kind: "awaiting_redemption", request: result.request };
+      case "awaiting_activation":
+        return { kind: "awaiting_activation", request: result.request };
       case "denied":
         return { kind: "denied", reason: result.reason };
     }

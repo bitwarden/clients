@@ -31,7 +31,12 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessRuleRequest, AccessRuleResponse, Condition, PamApiService } from "@bitwarden/pam";
+import {
+  AccessRuleRequest,
+  AccessRuleResponse,
+  AccessCondition,
+  PamApiService,
+} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IpAllowlistEditorComponent } from "../access-rule-editor/ip-allowlist/ip-allowlist-editor.component";
@@ -181,7 +186,7 @@ export class AccessRuleDialogComponent implements OnInit {
     }
 
     const value = this.formGroup.getRawValue();
-    const conditions: Condition[] = [];
+    const conditions: AccessCondition[] = [];
 
     if (value.humanApprovalEnabled) {
       conditions.push({
@@ -249,13 +254,16 @@ export class AccessRuleDialogComponent implements OnInit {
   }
 }
 
-function hasKind(conditions: Condition[] | undefined, kind: Condition["kind"]): boolean {
+function hasKind(
+  conditions: AccessCondition[] | undefined,
+  kind: AccessCondition["kind"],
+): boolean {
   return conditions?.some((c) => c.kind === kind) ?? false;
 }
 
-function findCidrs(conditions: Condition[]): string[] {
+function findCidrs(conditions: AccessCondition[]): string[] {
   const ip = conditions.find(
-    (c): c is Extract<Condition, { kind: "ip_allowlist" }> => c.kind === "ip_allowlist",
+    (c): c is Extract<AccessCondition, { kind: "ip_allowlist" }> => c.kind === "ip_allowlist",
   );
   return ip?.cidrs ?? [];
 }

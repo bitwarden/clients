@@ -1,17 +1,16 @@
-import { AccessRule, Condition } from "../../abstractions/access-rule";
+import { AccessCondition, AccessConditionTree } from "../../abstractions/access-rule";
 
 export class AccessRuleRequest {
   name: string;
   description: string | null;
-  /** Access conditions, ANDed together. Empty array = no access checks (lease settings still apply). */
-  conditions: Condition[];
   /**
-   * Server-required AccessRule tree. Derived from {@link conditions} so the UI
-   * doesn't need to maintain both shapes: each condition maps to a leaf rule,
-   * multiple conditions are wrapped in an `all_of`, and zero conditions
-   * collapse to an empty `all_of` (a no-op gate, which the server accepts).
+   * Server-required conditions document: a single AccessCondition tree.
+   * Derived from the UI's flat condition list so the UI doesn't need to
+   * maintain both shapes: each condition maps to a leaf, multiple conditions
+   * are wrapped in an `all_of`, and zero conditions collapse to an empty
+   * `all_of` (a no-op gate, which the server accepts).
    */
-  rule: AccessRule;
+  conditions: AccessConditionTree;
   collections: string[];
   /** Default lease duration in seconds. Null = backend default. */
   defaultLeaseDurationSeconds: number | null;
@@ -29,7 +28,7 @@ export class AccessRuleRequest {
   constructor(init: {
     name: string;
     description?: string | null;
-    conditions: Condition[];
+    conditions: AccessCondition[];
     collections?: string[];
     defaultLeaseDurationSeconds?: number | null;
     maxLeaseDurationSeconds?: number | null;
@@ -38,8 +37,7 @@ export class AccessRuleRequest {
   }) {
     this.name = init.name;
     this.description = init.description ?? null;
-    this.conditions = init.conditions;
-    this.rule = conditionsToRule(init.conditions);
+    this.conditions = conditionsToTree(init.conditions);
     this.collections = init.collections ?? [];
     this.defaultLeaseDurationSeconds = init.defaultLeaseDurationSeconds ?? null;
     this.maxLeaseDurationSeconds = init.maxLeaseDurationSeconds ?? null;
@@ -48,7 +46,7 @@ export class AccessRuleRequest {
   }
 }
 
-function conditionToRule(condition: Condition): AccessRule {
+function conditionToTree(condition: AccessCondition): AccessConditionTree {
   switch (condition.kind) {
     case "human_approval":
       return { kind: "human_approval" };
@@ -57,9 +55,9 @@ function conditionToRule(condition: Condition): AccessRule {
   }
 }
 
-function conditionsToRule(conditions: Condition[]): AccessRule {
+function conditionsToTree(conditions: AccessCondition[]): AccessConditionTree {
   if (conditions.length === 1) {
-    return conditionToRule(conditions[0]);
+    return conditionToTree(conditions[0]);
   }
-  return { kind: "all_of", rules: conditions.map(conditionToRule) };
+  return { kind: "all_of", conditions: conditions.map(conditionToTree) };
 }

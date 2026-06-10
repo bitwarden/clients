@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { LeaseEvent } from "./lease-event";
+import { AccessEvent } from "./access-event";
 
 /**
  * Streams credential-leasing lifecycle push events to consumers (cipher view,
@@ -17,21 +17,21 @@ import { LeaseEvent } from "./lease-event";
  * Feature-flag gating is the consumer's responsibility — this stream is a
  * no-op (cold) until subscribed.
  */
-export abstract class LeaseEventService {
+export abstract class AccessEventService {
   /**
-   * Observable of {@link LeaseEvent}s for the given lease-request id.
+   * Observable of {@link AccessEvent}s for the given lease-request id.
    *
    * The observable does not complete; consumers should manage their own
    * teardown (e.g. `takeUntilDestroyed()` in Angular).
    */
-  abstract events$(requestId: string): Observable<LeaseEvent>;
+  abstract events$(requestId: string): Observable<AccessEvent>;
 
   /**
-   * Observable of every {@link LeaseEvent} the channel surfaces, regardless of
+   * Observable of every {@link AccessEvent} the channel surfaces, regardless of
    * `requestId`. Consumed by surfaces whose state can change for reasons other
    * than a single tracked request — e.g. the per-cipher access-state snapshot,
    * which needs to refresh whenever any of the caller's leases or requests
    * transition.
    */
-  abstract allEvents$(): Observable<LeaseEvent>;
+  abstract allEvents$(): Observable<AccessEvent>;
 }

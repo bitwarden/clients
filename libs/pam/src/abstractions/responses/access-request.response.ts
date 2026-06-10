@@ -1,13 +1,13 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 /**
- * Lifecycle of an access request under the approval-as-ticket model.
+ * Lifecycle of an access request.
  *
- * An `approved` request is a single-use *ticket*: the approver has granted
- * access but no Lease exists yet. The requester redeems the ticket
- * (`MemberStartsLease`) which mints the Lease and moves the request to
- * `activated`. A ticket left unredeemed past its redemption window transitions
- * to `expired`.
+ * An `approved` request means the approver has granted access. In v0 approval
+ * mints the lease immediately; in the activation model the requester activates
+ * the approved request, which mints the lease and moves the request to
+ * `activated`. An approved request left unactivated past its activation
+ * deadline transitions to `expired`.
  */
 export type AccessRequestStatus =
   | "pending"
@@ -17,65 +17,32 @@ export type AccessRequestStatus =
   | "cancelled"
   | "expired";
 
+/**
+ * A plain access-request row, as returned inside the submission result
+ * envelope of `POST /ciphers/{id}/lease` on the human path. The richer
+ * `AccessRequestDetailsResponse` adds approver and display fields.
+ */
 export class AccessRequestResponse extends BaseResponse {
   id: string;
   cipherId: string;
   collectionId: string;
-  /**
-   * The access rule that gated the cipher and that this request is evaluated
-   * against (resolved at submit time). Null when the gating rule is not modelled
-   * (e.g. the demo member flow), in which case lease constraints do not apply.
-   */
-  ruleId: string | null;
-  /** Owning organization, surfaced for org-scoped operations (kill switch / freeze). */
-  organizationId: string | null;
-  requesterUserId: string;
+  organizationId: string;
   status: AccessRequestStatus;
-  requestedNotBefore: string | null;
-  requestedNotAfter: string | null;
-  requestedTtlSeconds: number;
+  notBefore: string;
+  notAfter: string;
   reason: string | null;
-  submittedAt: string;
-  resolvedAt: string | null;
-  /**
-   * When the request lapsed: the decision deadline passed while pending, or an
-   * approved ticket was never redeemed in time. Distinct from `resolvedAt`,
-   * which (for an expired-while-approved ticket) keeps the approval time.
-   */
-  expiredAt: string | null;
-  resolverUserId: string | null;
-  resolverComment: string | null;
-  /** The lease minted when this ticket was redeemed (the inverse Lease.request). */
-  leaseId: string | null;
-  /** If this request is an extension of an existing lease, the parent lease id. */
-  extensionOfLeaseId: string | null;
-  /**
-   * Deadline by which an approved on-demand ticket must be redeemed
-   * (`resolvedAt + ticket_redemption_deadline`). Null until resolved and only
-   * meaningful for an approved on-demand ticket.
-   */
-  redemptionDeadline: string | null;
+  creationDate: string;
 
   constructor(response: unknown) {
     super(response);
     this.id = this.getResponseProperty("Id");
     this.cipherId = this.getResponseProperty("CipherId");
     this.collectionId = this.getResponseProperty("CollectionId");
-    this.ruleId = this.getResponseProperty("RuleId") ?? null;
-    this.organizationId = this.getResponseProperty("OrganizationId") ?? null;
-    this.requesterUserId = this.getResponseProperty("RequesterUserId");
+    this.organizationId = this.getResponseProperty("OrganizationId");
     this.status = this.getResponseProperty("Status");
-    this.requestedNotBefore = this.getResponseProperty("RequestedNotBefore") ?? null;
-    this.requestedNotAfter = this.getResponseProperty("RequestedNotAfter") ?? null;
-    this.requestedTtlSeconds = this.getResponseProperty("RequestedTtlSeconds");
+    this.notBefore = this.getResponseProperty("NotBefore");
+    this.notAfter = this.getResponseProperty("NotAfter");
     this.reason = this.getResponseProperty("Reason") ?? null;
-    this.submittedAt = this.getResponseProperty("SubmittedAt");
-    this.resolvedAt = this.getResponseProperty("ResolvedAt") ?? null;
-    this.expiredAt = this.getResponseProperty("ExpiredAt") ?? null;
-    this.resolverUserId = this.getResponseProperty("ResolverUserId") ?? null;
-    this.resolverComment = this.getResponseProperty("ResolverComment") ?? null;
-    this.leaseId = this.getResponseProperty("LeaseId") ?? null;
-    this.extensionOfLeaseId = this.getResponseProperty("ExtensionOfLeaseId") ?? null;
-    this.redemptionDeadline = this.getResponseProperty("RedemptionDeadline") ?? null;
+    this.creationDate = this.getResponseProperty("CreationDate");
   }
 }

@@ -4,10 +4,9 @@ import { Subject } from "rxjs";
 import {
   AccessRuleResponse,
   AccessRequestStatus,
-  InboxAccessRequestResponse,
-  LeaseEvent,
-  AccessRequestResponse,
-  LeaseResponse,
+  AccessRequestDetailsResponse,
+  AccessEvent,
+  AccessLeaseResponse,
 } from "@bitwarden/pam";
 
 import { PamMockConfig } from "./pam-mock-config";
@@ -20,23 +19,23 @@ import { PamMockConfig } from "./pam-mock-config";
 @Injectable({ providedIn: "root" })
 export class PamMockStore {
   /** Request id → request. */
-  readonly requests = new Map<string, AccessRequestResponse>();
+  readonly requests = new Map<string, AccessRequestDetailsResponse>();
 
   /** Lease id → lease. */
-  readonly leases = new Map<string, LeaseResponse>();
+  readonly leases = new Map<string, AccessLeaseResponse>();
 
   /** Cipher id → the latest *active* lease (if any) for the current user. */
-  readonly leasesByCipher = new Map<string, LeaseResponse>();
+  readonly leasesByCipher = new Map<string, AccessLeaseResponse>();
 
   /** Inbox requests synthesised "from other users" so the approver UI has rows. */
-  readonly inboxRequests = new Map<string, InboxAccessRequestResponse>();
+  readonly inboxRequests = new Map<string, AccessRequestDetailsResponse>();
 
   /** Access rule id → rule. Survives the session; resets on reload. */
   readonly accessRules = new Map<string, AccessRuleResponse>();
 
   /**
    * Organization id → engaged leasing freeze. Its presence IS the "blocked"
-   * state; while one exists no ticket can be redeemed for that org. Keyed by
+   * state; while one exists no approved request can be activated for that org. Keyed by
    * org id, so there is at most one per organization (AtMostOneLeasingFreezePerOrg).
    */
   readonly leasingFreezes = new Map<string, { engagedAt: string; engagedByUserId: string }>();
@@ -46,7 +45,7 @@ export class PamMockStore {
 
   /** Push channel — `events$.next({ kind, requestId })` to deliver an event. */
   // eslint-disable-next-line rxjs/no-exposed-subjects -- intentional mock push channel
-  readonly events$ = new Subject<LeaseEvent>();
+  readonly events$ = new Subject<AccessEvent>();
 
   private seededInbox = false;
   private nextId = 1;
@@ -74,7 +73,7 @@ export class PamMockStore {
     }
     const now = new Date();
     const notAfter = new Date(now.getTime() + PamMockConfig.DEFAULT_LEASE_DURATION_MS);
-    // A lease only exists because a ticket was redeemed; give the seed lease a
+    // A lease only exists because an approved request was activated; give the seed lease a
     // real backing `activated` request so NoLeaseWithoutActivatedRequest and
     // AtMostOneLeasePerActivatedRequest hold for seeded state too.
     const requestId = this.mintId("req");
@@ -84,14 +83,14 @@ export class PamMockStore {
       cipherId,
       collectionId: this.collectionFor(cipherId),
       organizationId: PamMockConfig.MOCK_ORG_ID,
-      requesterUserId: userId,
+      requesterId: userId,
       status: "activated",
       requestedNotBefore: now,
       requestedNotAfter: notAfter,
       requestedTtlSeconds: Math.floor(PamMockConfig.DEFAULT_LEASE_DURATION_MS / 1000),
       submittedAt: now,
       resolvedAt: now,
-      leaseId,
+      producedLeaseId: leaseId,
     });
     this.requests.set(requestId, request);
     const lease = buildLease({
@@ -100,7 +99,7 @@ export class PamMockStore {
       cipherId,
       collectionId: this.collectionFor(cipherId),
       organizationId: PamMockConfig.MOCK_ORG_ID,
-      granteeUserId: userId,
+      requesterId: userId,
       notBefore: now,
       notAfter,
       status: "active",
@@ -128,7 +127,7 @@ export class PamMockStore {
       id,
       cipherId,
       collectionId: this.collectionFor(cipherId),
-      requesterUserId: userId,
+      requesterId: userId,
       status: "pending",
       requestedNotBefore: now,
       requestedNotAfter: notAfter,
@@ -143,7 +142,7 @@ export class PamMockStore {
    * scheduled here — call {@link scheduleAutoDecideFor} once the user has
    * actually confirmed the request via the Request Access modal.
    *
-   * Gated opens default to an *on-demand* ticket (no scheduled start); a
+   * Gated opens default to an *on-demand* request (no scheduled start); a
    * scheduled window is set later via patch if the requester picks one. An
    * extension passes the parent lease id so approval extends it in place.
    */
@@ -158,7 +157,7 @@ export class PamMockStore {
       reason?: string;
       extensionOfLeaseId?: string | null;
     } = {},
-  ): AccessRequestResponse {
+  ): AccessRequestDetailsResponse {
     this.currentUserId ??= userId;
     const id = this.mintId("req");
     const now = new Date();
@@ -167,7 +166,7 @@ export class PamMockStore {
       cipherId,
       collectionId: opts.collectionId ?? this.collectionFor(cipherId),
       organizationId: PamMockConfig.MOCK_ORG_ID,
-      requesterUserId: userId,
+      requesterId: userId,
       status: "pending",
       requestedNotBefore: opts.requestedNotBefore ?? null,
       requestedNotAfter: opts.requestedNotAfter ?? null,
@@ -188,8 +187,8 @@ export class PamMockStore {
 
   /**
    * After the auto-decide delay, resolve the request (deterministic per request
-   * id) and emit the corresponding event. Approval issues a *ticket* — no lease
-   * is minted here; the requester redeems it via {@link startLease}.
+   * id) and emit the corresponding event. Approval issues an approved request — no lease
+   * is minted here; the requester activates it via {@link activateLease}.
    */
   private scheduleAutoDecide(requestId: string): void {
     setTimeout(() => {
@@ -201,7 +200,7 @@ export class PamMockStore {
       if (PamMockConfig.shouldAutoDeny(requestId)) {
         request.status = "denied";
         request.resolvedAt = new Date().toISOString();
-        request.resolverComment = "Outside access-rule window";
+        request.approverComment = "Outside access-rule window";
         this.syncInboxEntry(requestId, request);
         this.events$.next({ kind: "denied", requestId });
         return;
@@ -214,20 +213,20 @@ export class PamMockStore {
   /**
    * Apply an approval to a pending request. An extension extends its parent
    * lease in place (ExtensionApprovedExtendsParentLease) and never mints a
-   * redeemable ticket; everything else becomes an approved *ticket* the
-   * requester redeems via {@link startLease}. `resolverUserId` is null for an
+   * activatable approved request; everything else becomes an approved request the
+   * requester activates via {@link activateLease}. `approverId` is null for an
    * auto / access-rule decision, or the approver for a human decision.
    */
   approveRequest(
-    request: AccessRequestResponse,
-    resolverUserId: string | null,
+    request: AccessRequestDetailsResponse,
+    approverId: string | null,
     comment?: string,
   ): void {
     const now = new Date();
     request.resolvedAt = now.toISOString();
-    request.resolverUserId = resolverUserId;
+    request.approverId = approverId;
     if (comment !== undefined) {
-      request.resolverComment = comment;
+      request.approverComment = comment;
     }
 
     if (request.extensionOfLeaseId != null) {
@@ -235,7 +234,7 @@ export class PamMockStore {
       if (parent == null || parent.status !== "active") {
         // ExtensionDeniedParentGone — nothing left to extend.
         request.status = "denied";
-        request.resolverComment = "The lease being extended has ended";
+        request.approverComment = "The lease being extended has ended";
         this.syncInboxEntry(request.id, request);
         this.events$.next({ kind: "denied", requestId: request.id });
         return;
@@ -245,18 +244,18 @@ export class PamMockStore {
         parent.notAfter = request.requestedNotAfter;
       }
       request.status = "activated";
-      request.leaseId = parent.id;
+      request.producedLeaseId = parent.id;
       this.syncInboxEntry(request.id, request);
       this.events$.next({ kind: "activated", requestId: request.id });
       return;
     }
 
     request.status = "approved";
-    // An on-demand ticket is bounded by the redemption deadline; a scheduled
-    // ticket is instead bounded by its requested window.
+    // An on-demand request is bounded by the activation deadline; a scheduled
+    // request is instead bounded by its requested window.
     if (isOnDemand(request, now.getTime())) {
-      request.redemptionDeadline = new Date(
-        now.getTime() + PamMockConfig.TICKET_REDEMPTION_DEADLINE_MS,
+      request.activationDeadline = new Date(
+        now.getTime() + PamMockConfig.ACTIVATION_DEADLINE_MS,
       ).toISOString();
     }
     this.syncInboxEntry(request.id, request);
@@ -264,19 +263,19 @@ export class PamMockStore {
   }
 
   /**
-   * Redeem an approved ticket (MemberStartsLease): mint the lease and move the
+   * Activate an approved request (MemberStartsLease): mint the lease and move the
    * request to `activated`. Throws when the org is under a leasing freeze, the
    * rule's single-active-lease slot is taken, or the scheduled window /
-   * redemption deadline has lapsed — the ticket stays `approved` for a manual
+   * activation deadline has lapsed — the request stays `approved` for a manual
    * retry. Extensions never reach here (they apply in place on approval).
    */
-  startLease(requestId: string): LeaseResponse {
+  activateLease(requestId: string): AccessLeaseResponse {
     const request = this.requests.get(requestId);
     if (request == null) {
       throw new Error(`Mock PAM: request ${requestId} not found`);
     }
     if (request.status !== "approved" || request.extensionOfLeaseId != null) {
-      throw new Error("Mock PAM: request is not a redeemable ticket");
+      throw new Error("Mock PAM: request is not an activatable approved request");
     }
     const now = new Date();
     const nowMs = now.getTime();
@@ -302,12 +301,12 @@ export class PamMockStore {
     let notAfter: Date;
     // Classify on-demand vs scheduled off the *approval* instant (the same
     // reference approveRequest/sweepExpiries use), never the live `nowMs`:
-    // re-deriving it from `nowMs` would flip a scheduled ticket to on-demand the
+    // re-deriving it from `nowMs` would flip a scheduled request to on-demand the
     // moment its window opened, making the scheduled branch below unreachable and
     // silently discarding the chosen window.
     const classificationRef = Date.parse(request.resolvedAt ?? request.submittedAt);
     if (!isOnDemand(request, classificationRef)) {
-      // Scheduled: redeemable only inside [not_before, not_after].
+      // Scheduled: activatable only inside [not_before, not_after].
       const nb = Date.parse(request.requestedNotBefore as string);
       const na = request.requestedNotAfter != null ? Date.parse(request.requestedNotAfter) : nb;
       if (nowMs < nb) {
@@ -320,9 +319,9 @@ export class PamMockStore {
       // Clamp the window to the rule's max_lease_duration ceiling, if any.
       notAfter = new Date(maxMs != null && na - nb > maxMs ? nb + maxMs : na);
     } else {
-      // On-demand: redeemable up to the redemption deadline; runs from now.
-      if (request.redemptionDeadline != null && nowMs > Date.parse(request.redemptionDeadline)) {
-        throw new Error("Mock PAM: the ticket's redemption window has passed");
+      // On-demand: activatable up to the activation deadline; runs from now.
+      if (request.activationDeadline != null && nowMs > Date.parse(request.activationDeadline)) {
+        throw new Error("Mock PAM: the request's activation window has passed");
       }
       const ttlMs = request.requestedTtlSeconds * 1000;
       const grantedMs = maxMs != null && ttlMs > maxMs ? maxMs : ttlMs;
@@ -337,7 +336,7 @@ export class PamMockStore {
       collectionId: request.collectionId,
       ruleId: request.ruleId,
       organizationId: request.organizationId,
-      granteeUserId: request.requesterUserId,
+      requesterId: request.requesterId,
       notBefore,
       notAfter,
       status: "active",
@@ -345,7 +344,7 @@ export class PamMockStore {
     this.leases.set(lease.id, lease);
     this.leasesByCipher.set(lease.cipherId, lease);
     request.status = "activated";
-    request.leaseId = lease.id;
+    request.producedLeaseId = lease.id;
     this.syncInboxEntry(request.id, request);
     this.events$.next({ kind: "activated", requestId: request.id });
     return lease;
@@ -359,7 +358,7 @@ export class PamMockStore {
    */
   sweepExpiries({ emit }: { emit: boolean } = { emit: true }): void {
     const nowMs = Date.now();
-    const fire = (requestId: string, kind: LeaseEvent["kind"]) => {
+    const fire = (requestId: string, kind: AccessEvent["kind"]) => {
       if (emit) {
         this.events$.next({ kind, requestId });
       }
@@ -392,7 +391,7 @@ export class PamMockStore {
       if (request.status === "approved" && request.extensionOfLeaseId == null) {
         const refMs = Date.parse(request.resolvedAt ?? request.submittedAt);
         const lapsed = isOnDemand(request, refMs)
-          ? request.redemptionDeadline != null && nowMs > Date.parse(request.redemptionDeadline)
+          ? request.activationDeadline != null && nowMs > Date.parse(request.activationDeadline)
           : request.requestedNotAfter != null && nowMs >= Date.parse(request.requestedNotAfter);
         if (lapsed) {
           request.status = "expired";
@@ -467,7 +466,7 @@ export class PamMockStore {
         id,
         cipherId,
         collectionId: this.collectionFor(cipherId),
-        requesterUserId: this.mintId("user"),
+        requesterId: this.mintId("user"),
         status: "pending",
         requestedNotBefore: now,
         requestedNotAfter: new Date(now.getTime() + PamMockConfig.DEFAULT_LEASE_DURATION_MS),
@@ -496,7 +495,7 @@ export class PamMockStore {
       comment?: string;
       windowOffsetMs?: [number, number];
     }> = [
-      // Active now: a redeemed ticket whose lease window spans the present moment.
+      // Active now: an activated request whose lease window spans the present moment.
       {
         user: "Dana Kim",
         email: "dana@example.com",
@@ -509,7 +508,7 @@ export class PamMockStore {
         comment: "Approved for hotfix deploy.",
         windowOffsetMs: [-30 * 60 * 1000, 30 * 60 * 1000],
       },
-      // Scheduled: a redeemed ticket whose lease window starts in the future.
+      // Scheduled: an activated request whose lease window starts in the future.
       {
         user: "Jordan Lee",
         email: "jordan@example.com",
@@ -593,7 +592,7 @@ export class PamMockStore {
         id,
         cipherId,
         collectionId: this.collectionFor(cipherId),
-        requesterUserId: this.mintId("user"),
+        requesterId: this.mintId("user"),
         status: h.status,
         requestedNotBefore: winStart,
         requestedNotAfter: winEnd,
@@ -607,9 +606,9 @@ export class PamMockStore {
       });
       inbox.resolvedAt = resolvedAt.toISOString();
       if (h.comment) {
-        inbox.resolverComment = h.comment;
+        inbox.approverComment = h.comment;
       }
-      // Mint a real lease for activated (redeemed) items that have an active or
+      // Mint a real lease for activated items that have an active or
       // future window so the revoke button has a leaseId to act on.
       if (h.status === "activated" && h.windowOffsetMs) {
         const lease = buildLease({
@@ -618,32 +617,32 @@ export class PamMockStore {
           cipherId,
           collectionId: this.collectionFor(cipherId),
           organizationId: PamMockConfig.MOCK_ORG_ID,
-          granteeUserId: this.mintId("user"),
+          requesterId: this.mintId("user"),
           notBefore: winStart,
           notAfter: winEnd,
           status: "active",
         });
         this.leases.set(lease.id, lease);
-        inbox.leaseId = lease.id;
+        inbox.producedLeaseId = lease.id;
       }
       this.inboxRequests.set(id, inbox);
     }
   }
 
   /**
-   * Copies resolution fields from a decided {@link AccessRequestResponse} into
+   * Copies resolution fields from a decided {@link AccessRequestDetailsResponse} into
    * the matching inbox entry (if one exists). Called after auto-decide so the
    * history table reflects the outcome for user-submitted requests.
    */
-  syncInboxEntry(requestId: string, source: AccessRequestResponse): void {
+  syncInboxEntry(requestId: string, source: AccessRequestDetailsResponse): void {
     const entry = this.inboxRequests.get(requestId);
     if (!entry) {
       return;
     }
     entry.status = source.status;
     entry.resolvedAt = source.resolvedAt;
-    entry.resolverComment = source.resolverComment;
-    entry.leaseId = source.leaseId;
+    entry.approverComment = source.approverComment;
+    entry.producedLeaseId = source.producedLeaseId;
   }
 
   mintId(prefix: string): string {
@@ -652,13 +651,13 @@ export class PamMockStore {
 }
 
 /**
- * Whether a ticket is on-demand (redeemable now, bounded by the redemption
+ * Whether a request is on-demand (activatable now, bounded by the activation
  * deadline) versus scheduled (bounded by a future window). The spec keys this
  * on `requested_not_before != null`; the mock additionally treats a "start now"
  * window (not_before at or before the reference instant) as on-demand, since
  * the request modal stamps not_before = now for preset durations.
  */
-function isOnDemand(request: AccessRequestResponse, refMs: number): boolean {
+function isOnDemand(request: AccessRequestDetailsResponse, refMs: number): boolean {
   if (request.requestedNotBefore == null) {
     return true;
   }
@@ -676,19 +675,19 @@ function buildLease(init: {
   collectionId: string;
   ruleId?: string | null;
   organizationId?: string | null;
-  granteeUserId: string;
+  requesterId: string;
   notBefore: Date;
   notAfter: Date;
   status: "active" | "expired" | "revoked";
-}): LeaseResponse {
-  return new LeaseResponse({
+}): AccessLeaseResponse {
+  return new AccessLeaseResponse({
     Id: init.id,
     RequestId: init.requestId,
     CipherId: init.cipherId,
     CollectionId: init.collectionId,
     RuleId: init.ruleId ?? null,
     OrganizationId: init.organizationId ?? null,
-    GranteeUserId: init.granteeUserId,
+    GranteeUserId: init.requesterId,
     NotBefore: init.notBefore.toISOString(),
     NotAfter: init.notAfter.toISOString(),
     Status: init.status,
@@ -704,7 +703,7 @@ function buildAccessRequest(init: {
   collectionId: string;
   ruleId?: string | null;
   organizationId?: string | null;
-  requesterUserId: string;
+  requesterId: string;
   status: AccessRequestStatus;
   requestedNotBefore: Date | null;
   requestedNotAfter: Date | null;
@@ -712,16 +711,16 @@ function buildAccessRequest(init: {
   submittedAt: Date;
   resolvedAt?: Date | null;
   reason?: string;
-  leaseId?: string | null;
+  producedLeaseId?: string | null;
   extensionOfLeaseId?: string | null;
-}): AccessRequestResponse {
-  return new AccessRequestResponse({
+}): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: init.id,
     CipherId: init.cipherId,
     CollectionId: init.collectionId,
     RuleId: init.ruleId ?? null,
     OrganizationId: init.organizationId ?? null,
-    RequesterUserId: init.requesterUserId,
+    RequesterUserId: init.requesterId,
     Status: init.status,
     RequestedNotBefore: init.requestedNotBefore?.toISOString() ?? null,
     RequestedNotAfter: init.requestedNotAfter?.toISOString() ?? null,
@@ -732,7 +731,7 @@ function buildAccessRequest(init: {
     ExpiredAt: null,
     ResolverUserId: null,
     ResolverComment: null,
-    LeaseId: init.leaseId ?? null,
+    LeaseId: init.producedLeaseId ?? null,
     ExtensionOfLeaseId: init.extensionOfLeaseId ?? null,
     RedemptionDeadline: null,
   });
@@ -742,7 +741,7 @@ function buildInboxAccessRequest(init: {
   id: string;
   cipherId: string;
   collectionId: string;
-  requesterUserId: string;
+  requesterId: string;
   status: AccessRequestStatus;
   requestedNotBefore: Date | null;
   requestedNotAfter: Date | null;
@@ -753,14 +752,14 @@ function buildInboxAccessRequest(init: {
   requesterName: string | null;
   requesterEmail: string;
   reason?: string;
-}): InboxAccessRequestResponse {
-  return new InboxAccessRequestResponse({
+}): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: init.id,
     CipherId: init.cipherId,
     CollectionId: init.collectionId,
     RuleId: null,
     OrganizationId: PamMockConfig.MOCK_ORG_ID,
-    RequesterUserId: init.requesterUserId,
+    RequesterUserId: init.requesterId,
     Status: init.status,
     RequestedNotBefore: init.requestedNotBefore?.toISOString() ?? null,
     RequestedNotAfter: init.requestedNotAfter?.toISOString() ?? null,

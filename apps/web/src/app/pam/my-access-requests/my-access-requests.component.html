@@ -116,8 +116,8 @@
                 </td>
                 <td bitCell>{{ row.resolverDisplayName }}</td>
                 <td bitCell>
-                  @if (row.resolverComment) {
-                    {{ row.resolverComment }}
+                  @if (row.approverComment) {
+                    {{ row.approverComment }}
                   } @else {
                     <span class="tw-text-muted">&mdash;</span>
                   }
@@ -132,14 +132,14 @@
                         buttonType="primary"
                         size="small"
                         [disabled]="isStarting(row.id)"
-                        (click)="startLease(row)"
+                        (click)="activateLease(row)"
                         [attr.data-testid]="'my-requests-start-' + row.id"
                       >
                         {{ "pamStartLeaseButton" | i18n }}
                       </button>
                       @if (redemptionRemainingLabel(row); as remaining) {
                         <span class="tw-text-xs tw-text-muted">
-                          {{ "pamRedeemWithin" | i18n: remaining }}
+                          {{ "pamActivateWithin" | i18n: remaining }}
                         </span>
                       }
                     </div>

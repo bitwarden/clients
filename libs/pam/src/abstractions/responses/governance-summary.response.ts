@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-import { Condition, parseConditions } from "../access-rule";
+import { AccessCondition, parseAccessConditions } from "../access-rule";
 
 /**
  * One row in the organization governance dashboard — one leasing-enabled
@@ -9,7 +9,7 @@ import { Condition, parseConditions } from "../access-rule";
 export class CollectionGovernanceRowResponse extends BaseResponse {
   collectionId: string;
   collectionName: string;
-  conditions: Condition[];
+  conditions: AccessCondition[];
   /** Distinct members with access to this collection (independent of rule status). */
   memberWithAccessCount: number;
   /** Lease requests on this collection currently in the `pending` state. */
@@ -23,7 +23,7 @@ export class CollectionGovernanceRowResponse extends BaseResponse {
     super(response);
     this.collectionId = this.getResponseProperty("CollectionId");
     this.collectionName = this.getResponseProperty("CollectionName");
-    this.conditions = parseConditions(this.getResponseProperty("Conditions"));
+    this.conditions = parseAccessConditions(this.getResponseProperty("Conditions"));
     this.memberWithAccessCount = this.getResponseProperty("MemberWithAccessCount") ?? 0;
     this.pendingRequestCount = this.getResponseProperty("PendingRequestCount") ?? 0;
     this.activeLeaseCount = this.getResponseProperty("ActiveLeaseCount") ?? 0;

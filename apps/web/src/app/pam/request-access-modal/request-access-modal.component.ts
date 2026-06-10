@@ -17,10 +17,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  AccessApprovalOutcome,
-  CreateLeaseRequest,
-  LeaseModelResponse,
-  LeaseRequestModelResponse,
+  AccessApprovalMode,
+  AccessRequestCreateRequest,
+  AccessLeaseResponse,
+  AccessRequestResponse,
   PamApiService,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -36,7 +36,8 @@ import {
 
 export type RequestAccessModalData = {
   cipherId: string;
-  outcome: AccessApprovalOutcome;
+  /** `"active"` mirrors the pre-check hasActiveLease fold the trigger applies. */
+  outcome: AccessApprovalMode | "active";
 };
 
 export const RequestAccessModalResult = Object.freeze({
@@ -56,8 +57,8 @@ export type RequestAccessModalResultKind =
   (typeof RequestAccessModalResult)[keyof typeof RequestAccessModalResult];
 
 export type RequestAccessModalCloseResult =
-  | { kind: typeof RequestAccessModalResult.LeaseCreated; lease: LeaseModelResponse }
-  | { kind: typeof RequestAccessModalResult.RequestCreated; request: LeaseRequestModelResponse }
+  | { kind: typeof RequestAccessModalResult.LeaseCreated; lease: AccessLeaseResponse }
+  | { kind: typeof RequestAccessModalResult.RequestCreated; request: AccessRequestResponse }
   | { kind: typeof RequestAccessModalResult.AlreadyResolved }
   | { kind: typeof RequestAccessModalResult.Dismissed };
 
@@ -84,9 +85,9 @@ const SERVER_ERROR_MESSAGES = Object.freeze({
 /**
  * "Request access" modal opened from the cipher view banner when the user
  * explicitly asks to request a lease on a partial-data cipher. The outcome
- * (`automatic` | `human`) is resolved by `getLeasePreCheck` before opening, so
+ * (`automatic` | `human`) is resolved by `getAccessPreCheck` before opening, so
  * the form is pre-shaped: a duration picker for automatic, a start/end window
- * with required reason for human. Submitting calls `requestLease` against the
+ * with required reason for human. Submitting calls `submitAccessRequest` against the
  * new server contract (PM-37044).
  */
 @Component({
@@ -180,9 +181,9 @@ export class RequestAccessModalComponent implements OnInit {
     try {
       const body =
         this.data.outcome === "automatic" ? this.buildAutomaticBody() : this.buildHumanBody();
-      const response = await this.pamApi.requestLease(this.data.cipherId, body);
+      const response = await this.pamApi.submitAccessRequest(this.data.cipherId, body);
 
-      if (response.outcome === "automatic" && response.lease) {
+      if (response.approvalMode === "automatic" && response.lease) {
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("requestAccessModalLeaseCreatedSuccess"),
@@ -193,7 +194,7 @@ export class RequestAccessModalComponent implements OnInit {
         });
         return;
       }
-      if (response.outcome === "human" && response.request) {
+      if (response.approvalMode === "human" && response.request) {
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("requestAccessModalRequestCreatedSuccess"),
@@ -217,17 +218,17 @@ export class RequestAccessModalComponent implements OnInit {
     void this.dialogRef.close({ kind: RequestAccessModalResult.Dismissed });
   }
 
-  private buildAutomaticBody(): CreateLeaseRequest {
+  private buildAutomaticBody(): AccessRequestCreateRequest {
     const { durationMinutes, reason } = this.automaticForm.getRawValue();
-    return new CreateLeaseRequest({
+    return new AccessRequestCreateRequest({
       durationSeconds: durationMinutes * 60,
       reason: reason.trim() || undefined,
     });
   }
 
-  private buildHumanBody(): CreateLeaseRequest {
+  private buildHumanBody(): AccessRequestCreateRequest {
     const { customDate, customStart, customEnd, reason } = this.humanForm.getRawValue();
-    return new CreateLeaseRequest({
+    return new AccessRequestCreateRequest({
       start: new Date(`${customDate}T${customStart}`),
       end: new Date(`${customDate}T${customEnd}`),
       reason: reason.trim(),

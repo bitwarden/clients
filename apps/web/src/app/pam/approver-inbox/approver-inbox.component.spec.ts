@@ -10,7 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { InboxAccessRequestResponse, AccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import { ApproverInboxComponent } from "./approver-inbox.component";
@@ -20,16 +20,16 @@ const CURRENT_USER = "user-current";
 function row(
   overrides: Partial<{
     id: string;
-    requesterUserId: string;
+    requesterId: string;
     submittedAt: string;
     collectionName: string;
   }> = {},
-): InboxAccessRequestResponse {
-  return new InboxAccessRequestResponse({
+): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: overrides.id ?? "req-1",
     CipherId: "cipher-1",
     CollectionId: "col-1",
-    RequesterUserId: overrides.requesterUserId ?? "user-2",
+    RequesterId: overrides.requesterId ?? "user-2",
     Status: "pending",
     RequestedTtlSeconds: 3600,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",
@@ -100,10 +100,10 @@ describe("ApproverInboxComponent", () => {
   });
 
   it("calls decideAccessRequest exactly once per approval click", async () => {
-    const target = row({ id: "target", requesterUserId: "someone-else" });
+    const target = row({ id: "target", requesterId: "someone-else" });
     pamApiService.listInboxRequests.mockResolvedValue([target]);
     pamApiService.decideAccessRequest.mockResolvedValue(
-      new AccessRequestResponse({ Id: "target", Status: "approved" }),
+      new AccessRequestDetailsResponse({ Id: "target", Status: "approved" }),
     );
 
     fixture.detectChanges();
@@ -125,12 +125,12 @@ describe("ApproverInboxComponent", () => {
     expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);
     expect(pamApiService.decideAccessRequest).toHaveBeenCalledWith(
       "target",
-      expect.objectContaining({ decision: "approve" }),
+      expect.objectContaining({ verdict: "approve" }),
     );
   });
 
   it("rolls back and toasts when the decision API fails", async () => {
-    const target = row({ id: "target", requesterUserId: "someone-else" });
+    const target = row({ id: "target", requesterId: "someone-else" });
     pamApiService.listInboxRequests.mockResolvedValue([target]);
     pamApiService.decideAccessRequest.mockRejectedValue(new Error("boom"));
 
@@ -155,7 +155,7 @@ describe("ApproverInboxComponent", () => {
   });
 
   it("disables approve/deny for the current user's own requests", async () => {
-    const self = row({ id: "self", requesterUserId: CURRENT_USER });
+    const self = row({ id: "self", requesterId: CURRENT_USER });
     pamApiService.listInboxRequests.mockResolvedValue([self]);
 
     fixture.detectChanges();
@@ -182,7 +182,7 @@ describe("ApproverInboxComponent", () => {
   });
 
   it("uses canApprove() — different requester id, current user can decide", async () => {
-    const other = row({ id: "other", requesterUserId: "someone-else" });
+    const other = row({ id: "other", requesterId: "someone-else" });
     pamApiService.listInboxRequests.mockResolvedValue([other]);
     fixture.detectChanges();
     await fixture.whenStable();

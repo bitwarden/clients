@@ -5,25 +5,24 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
+import { AccessEventService } from "../abstractions/access-event.service";
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
-import { LeaseEventService } from "../abstractions/lease-event.service";
 import { CipherAccessState, PamApiService } from "../abstractions/pam-api.service";
+import { AccessLeaseResponse } from "../abstractions/responses/access-lease.response";
 import { AccessPreCheckResponse } from "../abstractions/responses/access-pre-check.response";
-import { AccessRequestEnvelopeResponse } from "../abstractions/responses/access-request-envelope.response";
-import { AccessRequestResponse } from "../abstractions/responses/access-request.response";
+import { AccessRequestDetailsResponse } from "../abstractions/responses/access-request-details.response";
+import { AccessRequestResultResponse } from "../abstractions/responses/access-request-result.response";
 import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
 import { BulkRevokeResult } from "../abstractions/responses/bulk-revoke.result";
-import { CipherLeaseStateResponse } from "../abstractions/responses/cipher-lease-state.response";
+import { CipherAccessStateResponse } from "../abstractions/responses/cipher-access-state.response";
 import { OrganizationGovernanceSummaryResponse } from "../abstractions/responses/governance-summary.response";
-import { InboxAccessRequestResponse } from "../abstractions/responses/inbox-access-request.response";
-import { LeaseResponse } from "../abstractions/responses/lease.response";
 
+import { AccessDecisionRequest } from "./requests/access-decision.request";
+import { AccessLeaseExtensionRequest } from "./requests/access-lease-extension.request";
+import { AccessLeaseRevokeRequest } from "./requests/access-lease-revoke.request";
+import { AccessRequestCreateRequest } from "./requests/access-request-create.request";
 import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { AccessRuleRequest } from "./requests/access-rule.request";
-import { CreateLeaseRequest } from "./requests/create-lease.request";
-import { LeaseDecisionRequest } from "./requests/lease-decision.request";
-import { LeaseExtensionRequest } from "./requests/lease-extension.request";
-import { LeaseRevokeRequest } from "./requests/lease-revoke.request";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -32,7 +31,7 @@ export class DefaultPamApiService implements PamApiService {
    * Pumped after every successful mutation so that any active
    * `getCipherAccessState$` subscriber re-fetches its snapshot. Mirrors what
    * the in-memory mock does via `store.events$` — the real push channel
-   * (`LeaseEventService`) only fires for backend-driven transitions, so
+   * (`AccessEventService`) only fires for backend-driven transitions, so
    * locally-initiated mutations need their own refresh signal.
    */
   protected readonly localRefresh$ = new Subject<void>();
@@ -41,7 +40,7 @@ export class DefaultPamApiService implements PamApiService {
 
   constructor(
     private apiService: ApiService,
-    private leaseEvents: LeaseEventService,
+    private accessEvents: AccessEventService,
   ) {}
 
   // TODO(PM-37264): implement the cipher-fetch transport. ApiService.send is
@@ -57,7 +56,7 @@ export class DefaultPamApiService implements PamApiService {
     // Re-fetch on (a) initial subscription, (b) any lease event from the push
     // channel, and (c) any local mutation. Mirrors the mock's
     // `store.events$.pipe(map(snapshot), startWith(snapshot))` semantics.
-    return merge(of(undefined), this.leaseEvents.allEvents$(), this.localRefresh$).pipe(
+    return merge(of(undefined), this.accessEvents.allEvents$(), this.localRefresh$).pipe(
       switchMap(() => this.fetchCipherAccessState(cipherId)),
     );
   }
@@ -65,36 +64,34 @@ export class DefaultPamApiService implements PamApiService {
   private async fetchCipherAccessState(cipherId: string): Promise<CipherAccessState> {
     try {
       const raw = await this.send("GET", `/ciphers/${cipherId}/lease/state`, null, true);
-      const envelope = new CipherLeaseStateResponse(raw);
+      const snapshot = new CipherAccessStateResponse(raw);
       return {
-        lease: {
-          activeLease: envelope.activeLease ?? undefined,
-          pendingRequest: envelope.pendingRequest ?? undefined,
-          approvedTicket: envelope.approvedTicket ?? undefined,
-        },
+        activeLease: snapshot.activeLease ?? undefined,
+        pendingRequest: snapshot.pendingRequest ?? undefined,
+        approvedRequest: snapshot.approvedRequest ?? undefined,
       };
     } catch (e) {
       // 404 = cipher not gated / PAM flag off (spec §2). The banner should
       // render inert; treat as an empty snapshot rather than surfacing the
       // error to the consumer.
       if (e instanceof ErrorResponse && e.statusCode === 404) {
-        return { lease: {} };
+        return {};
       }
       throw e;
     }
   }
 
-  async getLeasePreCheck(cipherId: string): Promise<AccessPreCheckResponse> {
+  async getAccessPreCheck(cipherId: string): Promise<AccessPreCheckResponse> {
     return new AccessPreCheckResponse(
       await this.send("GET", `/ciphers/${cipherId}/lease/pre-check`, null, true),
     );
   }
 
-  async requestLease(
+  async submitAccessRequest(
     cipherId: string,
-    body: CreateLeaseRequest,
-  ): Promise<AccessRequestEnvelopeResponse> {
-    const response = new AccessRequestEnvelopeResponse(
+    body: AccessRequestCreateRequest,
+  ): Promise<AccessRequestResultResponse> {
+    const response = new AccessRequestResultResponse(
       await this.send("POST", `/ciphers/${cipherId}/lease`, body, true),
     );
     this.localRefresh$.next();
@@ -107,24 +104,24 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
-  async listInboxRequests(): Promise<InboxAccessRequestResponse[]> {
+  async listInboxRequests(): Promise<AccessRequestDetailsResponse[]> {
     const r = await this.send("GET", "/leasing/inbox/requests", null, true);
-    return new ListResponse(r, InboxAccessRequestResponse).data;
+    return new ListResponse(r, AccessRequestDetailsResponse).data;
   }
 
-  async listInboxHistory(): Promise<InboxAccessRequestResponse[]> {
+  async listInboxHistory(): Promise<AccessRequestDetailsResponse[]> {
     const r = await this.send("GET", "/leasing/inbox/history", null, true);
-    return new ListResponse(r, InboxAccessRequestResponse).data;
+    return new ListResponse(r, AccessRequestDetailsResponse).data;
   }
 
-  async listMyRequests(): Promise<AccessRequestResponse[]> {
+  async listMyAccessRequests(): Promise<AccessRequestDetailsResponse[]> {
     const r = await this.send("GET", "/leasing/requests/mine", null, true);
-    return new ListResponse(r, AccessRequestResponse).data;
+    return new ListResponse(r, AccessRequestDetailsResponse).data;
   }
 
-  async listActiveLeases(): Promise<LeaseResponse[]> {
+  async listActiveLeases(): Promise<AccessLeaseResponse[]> {
     const r = await this.send("GET", "/leasing/leases/mine/active", null, true);
-    return new ListResponse(r, LeaseResponse).data;
+    return new ListResponse(r, AccessLeaseResponse).data;
   }
 
   getGovernanceSummary(_organizationId: string): Promise<OrganizationGovernanceSummaryResponse> {
@@ -146,8 +143,8 @@ export class DefaultPamApiService implements PamApiService {
   async patchAccessRequest(
     id: string,
     request: AccessRequestPatchRequest,
-  ): Promise<AccessRequestResponse> {
-    const response = new AccessRequestResponse(
+  ): Promise<AccessRequestDetailsResponse> {
+    const response = new AccessRequestDetailsResponse(
       await this.send("PATCH", `/leasing/requests/${id}`, request, true),
     );
     this.localRefresh$.next();
@@ -159,8 +156,10 @@ export class DefaultPamApiService implements PamApiService {
     this.localRefresh$.next();
   }
 
-  async requestLeaseExtension(request: LeaseExtensionRequest): Promise<AccessRequestResponse> {
-    const response = new AccessRequestResponse(
+  async requestLeaseExtension(
+    request: AccessLeaseExtensionRequest,
+  ): Promise<AccessRequestDetailsResponse> {
+    const response = new AccessRequestDetailsResponse(
       await this.send("POST", "/leasing/requests/extension", request, true),
     );
     this.localRefresh$.next();
@@ -169,24 +168,24 @@ export class DefaultPamApiService implements PamApiService {
 
   async decideAccessRequest(
     id: string,
-    request: LeaseDecisionRequest,
-  ): Promise<AccessRequestResponse> {
-    const response = new AccessRequestResponse(
+    request: AccessDecisionRequest,
+  ): Promise<AccessRequestDetailsResponse> {
+    const response = new AccessRequestDetailsResponse(
       await this.send("POST", `/leasing/requests/${id}/decision`, request, true),
     );
     this.localRefresh$.next();
     return response;
   }
 
-  async startLease(requestId: string): Promise<LeaseResponse> {
-    const response = new LeaseResponse(
-      await this.send("POST", `/leasing/requests/${requestId}/start`, null, true),
+  async activateLease(requestId: string): Promise<AccessLeaseResponse> {
+    const response = new AccessLeaseResponse(
+      await this.send("POST", `/leasing/requests/${requestId}/activate`, null, true),
     );
     this.localRefresh$.next();
     return response;
   }
 
-  async revokeLease(id: string, request: LeaseRevokeRequest): Promise<void> {
+  async revokeAccessLease(id: string, request: AccessLeaseRevokeRequest): Promise<void> {
     await this.send("POST", `/leasing/leases/${id}/revoke`, request, false);
     this.localRefresh$.next();
   }

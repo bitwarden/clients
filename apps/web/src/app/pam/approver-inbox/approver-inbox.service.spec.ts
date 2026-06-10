@@ -6,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KeyService } from "@bitwarden/key-management";
-import { InboxAccessRequestResponse, LeaseDecisionRequest, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxService, sortInbox } from "./approver-inbox.service";
 
@@ -15,17 +15,17 @@ function makeRow(
     id: string;
     submittedAt: string;
     collectionName: string;
-    requesterUserId: string;
+    requesterId: string;
     organizationId: string;
     cipherName: string;
   }> = {},
-): InboxAccessRequestResponse {
-  return new InboxAccessRequestResponse({
+): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: overrides.id ?? "req-1",
     CipherId: "cipher-1",
     CollectionId: "col-1",
     OrganizationId: overrides.organizationId ?? "org-1",
-    RequesterUserId: overrides.requesterUserId ?? "user-2",
+    RequesterUserId: overrides.requesterId ?? "user-2",
     Status: "pending",
     RequestedTtlSeconds: 3600,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",
@@ -158,7 +158,7 @@ describe("ApproverInboxService", () => {
 
       await service.decideAccessRequest(
         "target",
-        new LeaseDecisionRequest({ decision: "approve" }),
+        new AccessDecisionRequest({ verdict: "approve" }),
       );
 
       expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);
@@ -173,7 +173,7 @@ describe("ApproverInboxService", () => {
       await service.load();
 
       await expect(
-        service.decideAccessRequest("target", new LeaseDecisionRequest({ decision: "deny" })),
+        service.decideAccessRequest("target", new AccessDecisionRequest({ verdict: "deny" })),
       ).rejects.toThrow("server down");
 
       const rows = await firstValueFrom(service.requests$);
@@ -187,7 +187,7 @@ describe("ApproverInboxService", () => {
 
       await service.decideAccessRequest(
         "missing",
-        new LeaseDecisionRequest({ decision: "approve" }),
+        new AccessDecisionRequest({ verdict: "approve" }),
       );
 
       expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);

@@ -1,8 +1,13 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-export type LeaseStatus = "active" | "expired" | "revoked";
+export type AccessLeaseStatus = "active" | "expired" | "revoked";
 
-export class LeaseResponse extends BaseResponse {
+/**
+ * An access lease as its requester sees it: the originating request, string
+ * status vocabulary, and revocation fields. Returned by the submission result
+ * envelope, "my active leases", and the cipher access-state snapshot.
+ */
+export class AccessLeaseResponse extends BaseResponse {
   id: string;
   requestId: string;
   cipherId: string;
@@ -11,10 +16,11 @@ export class LeaseResponse extends BaseResponse {
   ruleId: string | null;
   /** Owning organization, surfaced for org-scoped operations (kill switch / freeze). */
   organizationId: string | null;
-  granteeUserId: string;
+  /** The user the lease was granted to (the original requester). */
+  requesterId: string;
   notBefore: string;
   notAfter: string;
-  status: LeaseStatus;
+  status: AccessLeaseStatus;
   revokedAt: string | null;
   revokedByUserId: string | null;
   revocationReason: string | null;
@@ -27,7 +33,7 @@ export class LeaseResponse extends BaseResponse {
     this.collectionId = this.getResponseProperty("CollectionId");
     this.ruleId = this.getResponseProperty("RuleId") ?? null;
     this.organizationId = this.getResponseProperty("OrganizationId") ?? null;
-    this.granteeUserId = this.getResponseProperty("GranteeUserId");
+    this.requesterId = this.getResponseProperty("RequesterId");
     this.notBefore = this.getResponseProperty("NotBefore");
     this.notAfter = this.getResponseProperty("NotAfter");
     this.status = this.getResponseProperty("Status");

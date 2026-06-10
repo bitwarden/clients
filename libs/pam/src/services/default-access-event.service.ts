@@ -3,8 +3,8 @@ import { filter, map, Observable, share } from "rxjs";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { LeaseEvent, LeaseEventKind } from "../abstractions/lease-event";
-import { LeaseEventService } from "../abstractions/lease-event.service";
+import { AccessEvent, AccessEventKind } from "../abstractions/access-event";
+import { AccessEventService } from "../abstractions/access-event.service";
 
 /**
  * Discriminator strings emitted by the server in the push payload's `kind`
@@ -26,7 +26,7 @@ type RawLeasePushPayload = {
 };
 
 /**
- * Default {@link LeaseEventService} implementation.
+ * Default {@link AccessEventService} implementation.
  *
  * Subscribes to the application-wide server-notifications stream once, filters
  * for lease-lifecycle push payloads, and shares the resulting hot observable
@@ -45,13 +45,13 @@ type RawLeasePushPayload = {
  * payloads and refuses to react to unrelated push messages that happen to
  * carry a `requestId`.
  */
-export class DefaultLeaseEventService implements LeaseEventService {
-  private readonly leaseEvents$: Observable<LeaseEvent>;
+export class DefaultAccessEventService implements AccessEventService {
+  private readonly accessEvents$: Observable<AccessEvent>;
 
   constructor(notifications$: Observable<readonly [NotificationResponse, UserId]>) {
-    this.leaseEvents$ = notifications$.pipe(
+    this.accessEvents$ = notifications$.pipe(
       map(([notification]) => this.toLeaseEvent(notification)),
-      filter((event): event is LeaseEvent => event != null),
+      filter((event): event is AccessEvent => event != null),
       // Single upstream subscription shared across all per-request filters.
       // `share()` (no replay) matches the fire-and-forget semantics of the
       // underlying push channel.
@@ -59,15 +59,15 @@ export class DefaultLeaseEventService implements LeaseEventService {
     );
   }
 
-  events$(requestId: string): Observable<LeaseEvent> {
-    return this.leaseEvents$.pipe(filter((event) => event.requestId === requestId));
+  events$(requestId: string): Observable<AccessEvent> {
+    return this.accessEvents$.pipe(filter((event) => event.requestId === requestId));
   }
 
-  allEvents$(): Observable<LeaseEvent> {
-    return this.leaseEvents$;
+  allEvents$(): Observable<AccessEvent> {
+    return this.accessEvents$;
   }
 
-  private toLeaseEvent(notification: NotificationResponse): LeaseEvent | null {
+  private toLeaseEvent(notification: NotificationResponse): AccessEvent | null {
     const payload = notification?.payload as RawLeasePushPayload | undefined;
     if (payload == null) {
       return null;
@@ -81,9 +81,9 @@ export class DefaultLeaseEventService implements LeaseEventService {
 
     switch (kind) {
       case APPROVED_KIND:
-        return { kind: LeaseEventKind.Approved, requestId };
+        return { kind: AccessEventKind.Approved, requestId };
       case DENIED_KIND:
-        return { kind: LeaseEventKind.Denied, requestId };
+        return { kind: AccessEventKind.Denied, requestId };
       default:
         return null;
     }

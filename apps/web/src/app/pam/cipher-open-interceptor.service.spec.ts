@@ -1,6 +1,6 @@
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { AccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { CipherOpenInterceptorService } from "./cipher-open-interceptor.service";
 
@@ -80,7 +80,7 @@ describe("CipherOpenInterceptorService", () => {
   });
 
   it("routes 202 (pending) to a pending decision carrying the AccessRequest", async () => {
-    const request = { id: "req-7", status: "pending" } as unknown as AccessRequestResponse;
+    const request = { id: "req-7", status: "pending" } as unknown as AccessRequestDetailsResponse;
     pamApiService.fetchGatedCipher.mockResolvedValue({ kind: "pending", request });
 
     const decision = await service.open({

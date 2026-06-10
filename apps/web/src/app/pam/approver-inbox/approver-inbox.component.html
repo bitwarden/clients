@@ -111,21 +111,21 @@
                     &nbsp;·&nbsp;{{ row.item.resolvedAt | date: "shortDate" }}
                   </span>
                 }
-                @if (row.item.resolverComment) {
+                @if (row.item.approverComment) {
                   <div class="tw-mt-0.5 tw-text-xs tw-text-muted tw-italic">
-                    {{ row.item.resolverComment }}
+                    {{ row.item.approverComment }}
                   </div>
                 }
               </td>
               <td bitCell>
-                @if (row.canRevoke && row.item.leaseId) {
+                @if (row.canRevoke && row.item.producedLeaseId) {
                   <button
                     bitButton
                     type="button"
                     buttonType="secondary"
                     size="small"
-                    [loading]="revoking().has(row.item.leaseId)"
-                    [disabled]="revoking().has(row.item.leaseId)"
+                    [loading]="revoking().has(row.item.producedLeaseId)"
+                    [disabled]="revoking().has(row.item.producedLeaseId)"
                     data-testid="approver-inbox-revoke"
                     (click)="onRevoke(row.item)"
                   >

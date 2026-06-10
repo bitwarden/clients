@@ -6,12 +6,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import {
-  AccessRequestEnvelopeResponse,
-  LeaseLifecycleStatus,
-  LeaseRequestLifecycleStatus,
-  PamApiService,
-} from "@bitwarden/pam";
+import { AccessRequestResultResponse, PamApiService } from "@bitwarden/pam";
 
 import {
   RequestAccessModalComponent,
@@ -29,16 +24,16 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 };
 
 function automaticEnvelope() {
-  return new AccessRequestEnvelopeResponse({
+  return new AccessRequestResultResponse({
     Object: "accessRequest",
-    Outcome: "automatic",
+    ApprovalMode: "automatic",
     Lease: {
       Object: "lease",
       Id: "lease-1",
       CipherId: "cipher-1",
       CollectionId: "col-1",
       OrganizationId: "org-1",
-      Status: LeaseLifecycleStatus.Active,
+      Status: "active",
       NotBefore: "2026-06-04T12:00:00Z",
       NotAfter: "2026-06-04T13:00:00Z",
     },
@@ -47,9 +42,9 @@ function automaticEnvelope() {
 }
 
 function humanEnvelope() {
-  return new AccessRequestEnvelopeResponse({
+  return new AccessRequestResultResponse({
     Object: "accessRequest",
-    Outcome: "human",
+    ApprovalMode: "human",
     Lease: null,
     Request: {
       Object: "leaseRequest",
@@ -57,7 +52,7 @@ function humanEnvelope() {
       CipherId: "cipher-1",
       CollectionId: "col-1",
       OrganizationId: "org-1",
-      Status: LeaseRequestLifecycleStatus.Pending,
+      Status: "pending",
       NotBefore: "2026-06-05T09:00:00Z",
       NotAfter: "2026-06-05T17:00:00Z",
       Reason: "incident",
@@ -69,12 +64,12 @@ function humanEnvelope() {
 describe("RequestAccessModalComponent", () => {
   let fixture: ComponentFixture<RequestAccessModalComponent>;
   let component: RequestAccessModalComponent;
-  let pamApi: jest.Mocked<Pick<PamApiService, "requestLease">>;
+  let pamApi: jest.Mocked<Pick<PamApiService, "submitAccessRequest">>;
   let dialogRef: jest.Mocked<Pick<DialogRef<unknown>, "close">>;
   let toastService: jest.Mocked<Pick<ToastService, "showToast">>;
 
   const setupComponent = (data: RequestAccessModalData) => {
-    pamApi = { requestLease: jest.fn() };
+    pamApi = { submitAccessRequest: jest.fn() };
     dialogRef = { close: jest.fn() };
     toastService = { showToast: jest.fn() };
 
@@ -106,12 +101,12 @@ describe("RequestAccessModalComponent", () => {
     });
 
     it("submits with durationSeconds derived from durationMinutes", async () => {
-      pamApi.requestLease.mockResolvedValue(automaticEnvelope());
+      pamApi.submitAccessRequest.mockResolvedValue(automaticEnvelope());
       component["automaticForm"].patchValue({ durationMinutes: 240, reason: "  incident  " });
 
       await component["submit"]();
 
-      expect(pamApi.requestLease).toHaveBeenCalledWith(
+      expect(pamApi.submitAccessRequest).toHaveBeenCalledWith(
         "cipher-1",
         expect.objectContaining({ durationSeconds: 240 * 60, reason: "incident" }),
       );
@@ -124,11 +119,11 @@ describe("RequestAccessModalComponent", () => {
     });
 
     it("omits reason when blank", async () => {
-      pamApi.requestLease.mockResolvedValue(automaticEnvelope());
+      pamApi.submitAccessRequest.mockResolvedValue(automaticEnvelope());
 
       await component["submit"]();
 
-      const body = pamApi.requestLease.mock.calls[0][1];
+      const body = pamApi.submitAccessRequest.mock.calls[0][1];
       expect(body.reason).toBeUndefined();
     });
 
@@ -174,7 +169,7 @@ describe("RequestAccessModalComponent", () => {
     });
 
     it("submits with start/end ISO strings and trimmed reason", async () => {
-      pamApi.requestLease.mockResolvedValue(humanEnvelope());
+      pamApi.submitAccessRequest.mockResolvedValue(humanEnvelope());
       component["humanForm"].patchValue({
         customDate: "2026-06-05",
         customStart: "09:00",
@@ -184,7 +179,7 @@ describe("RequestAccessModalComponent", () => {
 
       await component["submit"]();
 
-      const body = pamApi.requestLease.mock.calls[0][1];
+      const body = pamApi.submitAccessRequest.mock.calls[0][1];
       expect(body.start).toBeDefined();
       expect(body.end).toBeDefined();
       expect(body.reason).toBe("incident");
@@ -199,7 +194,7 @@ describe("RequestAccessModalComponent", () => {
     beforeEach(() => setupComponent({ cipherId: "cipher-1", outcome: "automatic" }));
 
     it("maps 'already active' 400 to AlreadyResolved close + info toast", async () => {
-      pamApi.requestLease.mockRejectedValue(
+      pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse({ Message: "You already have active access to this item." }, 400),
       );
 
@@ -214,7 +209,7 @@ describe("RequestAccessModalComponent", () => {
     });
 
     it("maps 'already pending' 400 to AlreadyResolved close + info toast", async () => {
-      pamApi.requestLease.mockRejectedValue(
+      pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse({ Message: "You already have a pending request for this item." }, 400),
       );
 
@@ -226,7 +221,7 @@ describe("RequestAccessModalComponent", () => {
     });
 
     it("surfaces a 'duration exceeds max' 400 inline without closing", async () => {
-      pamApi.requestLease.mockRejectedValue(
+      pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse(
           { Message: "The requested duration exceeds the maximum of 86400 seconds." },
           400,
@@ -241,7 +236,7 @@ describe("RequestAccessModalComponent", () => {
     });
 
     it("falls back to a generic error for non-400 failures", async () => {
-      pamApi.requestLease.mockRejectedValue(new Error("network"));
+      pamApi.submitAccessRequest.mockRejectedValue(new Error("network"));
 
       await component["submit"]();
 
@@ -255,7 +250,7 @@ describe("RequestAccessModalComponent", () => {
 
     it("closes with Dismissed and does not call the API", () => {
       component["dismiss"]();
-      expect(pamApi.requestLease).not.toHaveBeenCalled();
+      expect(pamApi.submitAccessRequest).not.toHaveBeenCalled();
       expect(dialogRef.close).toHaveBeenCalledWith({
         kind: RequestAccessModalResult.Dismissed,
       });

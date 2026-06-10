@@ -15050,7 +15050,7 @@
   "pamResolverAccessRule": {
     "message": "Access rule"
   },
-  "pamApprovedTicketBannerTitle": {
+  "pamApprovedRequestBannerTitle": {
     "message": "Your access is approved — start it when you're ready"
   },
   "pamStartLeaseButton": {
@@ -15062,7 +15062,7 @@
   "pamStartLeaseError": {
     "message": "Could not start access. The slot may be taken or new leases may be blocked; try again."
   },
-  "pamRedeemWithin": {
+  "pamActivateWithin": {
     "message": "Redeem within $REMAINING$",
     "placeholders": {
       "remaining": {

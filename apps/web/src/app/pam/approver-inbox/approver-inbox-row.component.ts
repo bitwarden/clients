@@ -12,7 +12,7 @@ import {
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
-import { InboxAccessRequestResponse, LeaseDecision } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, AccessDecisionVerdict } from "@bitwarden/pam";
 
 /**
  * Render a single pending lease request and capture an approve/deny decision.
@@ -41,7 +41,7 @@ import { InboxAccessRequestResponse, LeaseDecision } from "@bitwarden/pam";
 })
 export class ApproverInboxRowComponent {
   /** The request to render. */
-  readonly request = input.required<InboxAccessRequestResponse>();
+  readonly request = input.required<AccessRequestDetailsResponse>();
   /**
    * Whether the current user can take a decision on this row.
    * False for self-requests; the buttons render disabled with a tooltip.
@@ -51,10 +51,10 @@ export class ApproverInboxRowComponent {
   readonly now = input<Date>(new Date());
 
   /** Emitted once per confirmed decision; parent makes the network call. */
-  readonly decide = output<{ decision: LeaseDecision; comment: string | undefined }>();
+  readonly decide = output<{ verdict: AccessDecisionVerdict; comment: string | undefined }>();
 
   protected readonly commentControl = new FormControl<string>("", { nonNullable: true });
-  protected readonly pendingDecision = signal<LeaseDecision | null>(null);
+  protected readonly pendingDecision = signal<AccessDecisionVerdict | null>(null);
   protected readonly submitting = signal<boolean>(false);
 
   protected readonly reasonText = computed(() => this.request().reason?.trim() || null);
@@ -106,7 +106,7 @@ export class ApproverInboxRowComponent {
     return `${fmt.format(new Date(r.requestedNotBefore))} – ${fmt.format(new Date(r.requestedNotAfter))}`;
   });
 
-  protected beginDecision(decision: LeaseDecision): void {
+  protected beginDecision(decision: AccessDecisionVerdict): void {
     if (!this.canDecide() || this.submitting()) {
       return;
     }
@@ -128,7 +128,7 @@ export class ApproverInboxRowComponent {
     }
     this.submitting.set(true);
     const comment = this.commentControl.value.trim();
-    this.decide.emit({ decision, comment: comment.length > 0 ? comment : undefined });
+    this.decide.emit({ verdict: decision, comment: comment.length > 0 ? comment : undefined });
   }
 
   /**

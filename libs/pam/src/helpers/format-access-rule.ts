@@ -1,4 +1,4 @@
-import { Condition } from "../abstractions/access-rule";
+import { AccessCondition } from "../abstractions/access-rule";
 
 /**
  * Translatable i18n key + interpolation payload for a rendered condition.
@@ -18,7 +18,7 @@ export type ConditionSummary = {
  *   { kind: "human_approval" }                       -> pamAccessRuleHumanApproval
  *   { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }  -> pamAccessRuleIpAllowlist (count 1)
  */
-export function formatCondition(condition: Condition): ConditionSummary {
+export function formatCondition(condition: AccessCondition): ConditionSummary {
   switch (condition.kind) {
     case "human_approval":
       return { key: "pamAccessRuleHumanApproval" };
@@ -31,7 +31,7 @@ export function formatCondition(condition: Condition): ConditionSummary {
  * Summarise a full condition list. Empty list returns a single `pamAccessRuleNone`
  * entry so callers don't need to special-case empty.
  */
-export function summarizeConditions(conditions: Condition[]): ConditionSummary[] {
+export function summarizeConditions(conditions: AccessCondition[]): ConditionSummary[] {
   if (conditions.length === 0) {
     return [{ key: "pamAccessRuleNone" }];
   }

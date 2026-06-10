@@ -7,7 +7,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
-import { CipherAccessState, LeaseResponse, PamApiService } from "@bitwarden/pam";
+import { CipherAccessState, AccessLeaseResponse, PamApiService } from "@bitwarden/pam";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
@@ -84,7 +84,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
 
   it("renders the gated-no-lease badge when the cipher has neither lease nor request", () => {
     const fixture = create(gatedCipher("gated-cipher"));
-    accessState$.next({ lease: {} });
+    accessState$.next({});
     fixture.detectChanges();
 
     expect(badgeEl(fixture)).not.toBeNull();
@@ -96,13 +96,13 @@ describe("VaultRowLeaseBadgeComponent", () => {
   it("renders the active-lease badge when the cipher has an active lease", () => {
     const activeLease = {
       cipherId: "gated-cipher",
-      granteeUserId: "user-1",
+      requesterId: "user-1",
       status: "active",
       notAfter: new Date(Date.now() + 60_000).toISOString(),
-    } as unknown as LeaseResponse;
+    } as unknown as AccessLeaseResponse;
 
     const fixture = create(gatedCipher("gated-cipher"));
-    accessState$.next({ lease: { activeLease } });
+    accessState$.next({ activeLease });
     fixture.detectChanges();
 
     expect(
@@ -113,21 +113,19 @@ describe("VaultRowLeaseBadgeComponent", () => {
   it("updates from gated-no-lease to active when a lease arrives on the stream", () => {
     const fixture = create(gatedCipher("gated-cipher"));
 
-    accessState$.next({ lease: {} });
+    accessState$.next({});
     fixture.detectChanges();
     expect(
       fixture.nativeElement.querySelector('[data-testid="cipher-lease-badge-gated"]'),
     ).not.toBeNull();
 
     accessState$.next({
-      lease: {
-        activeLease: {
-          cipherId: "gated-cipher",
-          granteeUserId: "user-1",
-          status: "active",
-          notAfter: new Date(Date.now() + 60_000).toISOString(),
-        } as unknown as LeaseResponse,
-      },
+      activeLease: {
+        cipherId: "gated-cipher",
+        requesterId: "user-1",
+        status: "active",
+        notAfter: new Date(Date.now() + 60_000).toISOString(),
+      } as unknown as AccessLeaseResponse,
     });
     fixture.detectChanges();
     expect(
