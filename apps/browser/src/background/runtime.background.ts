@@ -61,10 +61,16 @@ export default class RuntimeBackground {
       this.onInstalledReason = details.reason;
     });
 
-    if (chrome?.permissions?.onAdded) {
-      chrome.permissions.onAdded.addListener((permissions) => {
-        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
-      });
+    const onPrivacyPermissionAdded = (
+      permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+    ) => {
+      void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+    };
+
+    if (BrowserApi.isWebExtensionsApi) {
+      browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    } else if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
     }
   }
 
@@ -228,24 +234,19 @@ export default class RuntimeBackground {
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
-    permissions: chrome.permissions.Permissions,
+    permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
   ) {
-    if (!permissions.permissions?.includes("privacy")) {
+    if (!(permissions.permissions as string[] | undefined)?.includes("privacy")) {
       return;
     }
 
-    if (!chrome.storage?.session) {
-      return;
-    }
-
-    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
-    if (!result.pendingDefaultPasswordManagerApply) {
+    if (!(await BrowserApi.getPendingDefaultPasswordManagerApply())) {
       return;
     }
 
     try {
       await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+      await BrowserApi.setPendingDefaultPasswordManagerApply(false);
     } catch (error) {
       this.logService.error(error);
     }
