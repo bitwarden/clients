@@ -76,8 +76,6 @@ describe("ViewComponent", () => {
   const navigateAfterDeletion = jest.fn().mockResolvedValue(undefined);
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
-  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
-  const getFeatureFlag = jest.fn().mockResolvedValue(true);
   const currentAutofillTab$ = of({ url: "https://example.com", id: 1 });
 
   const mockCipher = {
@@ -136,7 +134,6 @@ describe("ViewComponent", () => {
     back.mockClear();
     showToast.mockClear();
     showPasswordPrompt.mockClear();
-    getFeatureFlag.mockClear();
     autofillAllowed$.next(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
@@ -155,7 +152,12 @@ describe("ViewComponent", () => {
           }),
         },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: mock<ConfigService>({
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          }),
+        },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
         { provide: EventCollectionService, useValue: { collect } },
@@ -165,7 +167,6 @@ describe("ViewComponent", () => {
         },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
-        { provide: ConfigService, useValue: { getFeatureFlag$, getFeatureFlag } },
         {
           provide: I18nService,
           useValue: {
@@ -736,8 +737,7 @@ describe("ViewComponent", () => {
       component.cipher = { ...mockCipher, type: CipherType.Login } as CipherView;
     });
 
-    it("returns true when feature flag is enabled, cipher is a login, and not archived/deleted", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
+    it("returns true when cipher is a login, and not archived/deleted", fakeAsync(() => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -760,7 +760,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns true for Card type when conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -783,7 +782,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns true for Identity type when conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -805,30 +803,7 @@ describe("ViewComponent", () => {
       expect(result).toBe(true);
     }));
 
-    it("returns false when feature flag is disabled", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(false));
-
-      // Recreate component to pick up the new feature flag value
-      fixture = TestBed.createComponent(ViewComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      component.cipher = {
-        ...mockCipher,
-        type: CipherType.Login,
-        isArchived: false,
-        isDeleted: false,
-      } as CipherView;
-
-      flush();
-
-      const result = component.showAutofillButton();
-
-      expect(result).toBe(false);
-    }));
-
     it("returns false when autofill is not allowed", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(false);
 
       // Recreate component to pick up the new autofillAllowed value
@@ -851,7 +826,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false for SecureNote type", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -874,7 +848,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false for SshKey type", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -897,7 +870,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false when cipher is archived", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -920,7 +892,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false when cipher is deleted", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -972,17 +943,7 @@ describe("ViewComponent", () => {
       mockVaultPopupAutofillService.currentAutofillTab$ = originalCurrentAutofillTab$;
     });
 
-    it("returns early when feature flag is disabled", async () => {
-      getFeatureFlag.mockResolvedValue(false);
-
-      await component.doAutofill();
-
-      expect(doAutofill).not.toHaveBeenCalled();
-      expect(openSimpleDialog).not.toHaveBeenCalled();
-    });
-
     it("shows confirmation dialog (not exact match block) when no URIs and default strategy is Exact", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       component.cipher.login.uris = [];
       (component as any).uriMatchStrategy$ = of(UriMatchStrategy.Exact);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
@@ -995,7 +956,6 @@ describe("ViewComponent", () => {
     });
 
     it("shows confirmation dialog (not exact match block) when all URIs have exact match strategy", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       component.cipher.login.uris = [
         { uri: "https://example.com", match: UriMatchStrategy.Exact } as LoginUriView,
         { uri: "https://example2.com", match: UriMatchStrategy.Exact } as LoginUriView,
@@ -1010,7 +970,6 @@ describe("ViewComponent", () => {
     });
 
     it("shows error dialog when current tab URL is unavailable", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       mockVaultPopupAutofillService.currentAutofillTab$ = of({ url: null, id: 1 });
 
       await component.doAutofill();
@@ -1024,7 +983,6 @@ describe("ViewComponent", () => {
     });
 
     it("autofills directly when domain matches", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(true);
 
       await component.doAutofill();
@@ -1033,7 +991,6 @@ describe("ViewComponent", () => {
     });
 
     it("shows confirmation dialog when domain does not match", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1053,7 +1010,6 @@ describe("ViewComponent", () => {
     });
 
     it("does not autofill when user cancels confirmation dialog", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1068,7 +1024,6 @@ describe("ViewComponent", () => {
     });
 
     it("autofills only when user selects AutofilledOnly", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1083,7 +1038,6 @@ describe("ViewComponent", () => {
     });
 
     it("autofills and saves URL when user selects AutofillAndUrlAdded", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1098,7 +1052,6 @@ describe("ViewComponent", () => {
     });
 
     it("passes viewOnly as true when cipher is not editable", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
       component.cipher.edit = false;
 
@@ -1121,7 +1074,6 @@ describe("ViewComponent", () => {
     });
 
     it("filters out URIs without uri property", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
       component.cipher.login.uris = [
         { uri: "https://example.com" } as LoginUriView,
@@ -1148,7 +1100,6 @@ describe("ViewComponent", () => {
     });
 
     it("handles cipher with no login uris gracefully", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
       component.cipher.login.uris = null;
 

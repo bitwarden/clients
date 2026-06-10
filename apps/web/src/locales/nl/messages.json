@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Er is een fout opgetreden bij het genereren van het rapport. Probeer het nog eens."
   },
+  "reportLoadFailed": {
+    "message": "Er is een fout opgetreden tijdens het laden van het rapport. Probeer de pagina te vernieuwen of maak een nieuw rapport aan."
+  },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankrekening"
+  },
+  "bankAccountDetails": {
+    "message": "Bankgegevens"
   },
   "amountX": {
     "message": "Bedrag $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Reactie Wachtwoordhersteldetails is null"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Nieuw wachtwoord is verplicht"
   },
   "trashCleanupWarning": {
     "message": "Codes die meer dan 30 dagen in de prullenbak zitten worden automatisch verwijderd."
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
   },
-  "coachmarkStepIndicator": {
-    "message": "Stap $CURRENT$ van $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ van $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

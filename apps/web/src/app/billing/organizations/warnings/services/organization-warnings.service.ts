@@ -32,6 +32,7 @@ import { openChangePlanDialog } from "../../change-plan-dialog.component";
 import {
   OrganizationFreeTrialWarning,
   OrganizationResellerRenewalWarning,
+  OrganizationScheduledPriceIncreaseWarning,
   OrganizationWarningsResponse,
 } from "../types";
 
@@ -143,6 +144,11 @@ export class OrganizationWarningsService {
         }
       }),
     );
+
+  getScheduledPriceIncreaseWarning$ = (
+    organization: Organization,
+  ): Observable<OrganizationScheduledPriceIncreaseWarning | null> =>
+    this.getWarning$(organization, (response) => response.scheduledPriceIncrease);
 
   getTaxIdWarning$ = (organization: Organization): Observable<TaxIdWarningType | null> =>
     merge(
