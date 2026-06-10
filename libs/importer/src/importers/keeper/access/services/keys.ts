@@ -1,6 +1,10 @@
-import { KeeperKey, RsaPublicKey } from "../models/crypto-types";
+import {
+  keeper_base64url_decode,
+  keeper_encrypt_ec,
+  keeper_encrypt_rsa,
+} from "@bitwarden/sdk-internal";
 
-import { base64UrlDecode, encryptEc, encryptRsa, loadEcPublicKey } from "./crypto";
+import { KeeperKey, RsaPublicKey } from "../models/crypto-types";
 
 // Keeper's RSA public keys (keyId 1-6)
 const KEEPER_RSA_KEYS: Record<number, string> = {
@@ -28,7 +32,8 @@ const KEEPER_EC_KEYS: Record<number, string> = {
 };
 
 const rsaKeysCache = new Map<number, RsaPublicKey>();
-const ecKeysCache = new Map<number, CryptoKey>();
+// Keeper's EC public keys, decoded to SEC1 uncompressed bytes.
+const ecKeysCache = new Map<number, Uint8Array>();
 
 export function getKeeperRsaKeyBytes(keyId: number): RsaPublicKey {
   if (!rsaKeysCache.has(keyId)) {
@@ -36,30 +41,27 @@ export function getKeeperRsaKeyBytes(keyId: number): RsaPublicKey {
     if (!keyString) {
       throw new Error(`Invalid RSA key ID: ${keyId}`);
     }
-    rsaKeysCache.set(keyId, base64UrlDecode(keyString) as RsaPublicKey);
+    rsaKeysCache.set(keyId, keeper_base64url_decode(keyString) as RsaPublicKey);
   }
   return rsaKeysCache.get(keyId)!;
 }
 
-export async function getKeeperEcKey(keyId: number): Promise<CryptoKey> {
+export function getKeeperEcKey(keyId: number): Uint8Array {
   if (!ecKeysCache.has(keyId)) {
     const keyString = KEEPER_EC_KEYS[keyId];
     if (!keyString) {
       throw new Error(`Invalid EC key ID: ${keyId}`);
     }
-    const keyBytes = base64UrlDecode(keyString);
-    const key = await loadEcPublicKey(keyBytes);
-    ecKeysCache.set(keyId, key);
+    ecKeysCache.set(keyId, keeper_base64url_decode(keyString));
   }
   return ecKeysCache.get(keyId)!;
 }
 
-export async function encryptWithKeeperKey(data: KeeperKey, keyId: number): Promise<Uint8Array> {
+export function encryptWithKeeperKey(data: KeeperKey, keyId: number): Uint8Array {
   if (keyId >= 1 && keyId <= 6) {
-    return encryptRsa(data, getKeeperRsaKeyBytes(keyId));
+    return keeper_encrypt_rsa(data, getKeeperRsaKeyBytes(keyId));
   } else if (keyId >= 7 && keyId <= 17) {
-    const ecKey = await getKeeperEcKey(keyId);
-    return await encryptEc(data, ecKey);
+    return keeper_encrypt_ec(data, getKeeperEcKey(keyId));
   } else {
     throw new Error(`Invalid key ID: ${keyId}`);
   }

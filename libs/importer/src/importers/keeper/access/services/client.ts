@@ -6,6 +6,20 @@ import {
   type MessageShape,
 } from "@bufbuild/protobuf";
 
+import {
+  keeper_base64url_decode,
+  keeper_base64url_encode,
+  keeper_decrypt_aes_v2,
+  keeper_decrypt_ec,
+  keeper_decrypt_encryption_params,
+  keeper_derive_v1_key_hash,
+  keeper_ec_public_key_from_private,
+  keeper_encrypt_aes_v2,
+  keeper_generate_ec_key,
+  keeper_generate_encryption_key,
+  keeper_get_random_bytes,
+} from "@bitwarden/sdk-internal";
+
 import { DeviceApprovalChannel, DuoMethod, TwoFactorMethod } from "../enums";
 import { KeeperAuthError, KeeperAuthErrorCode } from "../errors";
 import {
@@ -62,19 +76,6 @@ import {
 } from "../models";
 import { Cancel, Resend, TryAnother, Ui } from "../ui";
 
-import {
-  base64UrlDecode,
-  base64UrlEncode,
-  decryptAesV2,
-  decryptEc,
-  decryptEncryptionParams,
-  deriveV1KeyHash,
-  encryptAesV2,
-  generateEcKey,
-  generateEncryptionKey,
-  getRandomBytes,
-  unloadEcPublicKey,
-} from "./crypto";
 import { post } from "./http";
 import { encryptWithKeeperKey } from "./keys";
 import { connectPushSocket } from "./socket";
@@ -97,8 +98,8 @@ export class Client {
   async login(username: string): Promise<LoginResult> {
     const { deviceToken, devicePrivateKey } = await this.registerDevice();
 
-    const messageSessionUid = getRandomBytes(16) as MessageSessionUid;
-    const transmissionKey = generateEncryptionKey();
+    const messageSessionUid = keeper_get_random_bytes(16) as MessageSessionUid;
+    const transmissionKey = keeper_generate_encryption_key() as KeeperKey;
     let socket: SocketListener | null = null;
 
     try {
@@ -206,13 +207,12 @@ export class Client {
   }
 
   private async registerDevice(): Promise<DeviceCredentials> {
-    const { privateKey, publicKey } = await generateEcKey();
-    const publicKeyBytes = await unloadEcPublicKey(publicKey);
+    const { privateKey, publicKey } = keeper_generate_ec_key();
 
     const request = create(DeviceRegistrationRequestSchema, {
       deviceName: this.deviceName,
       clientVersion: this.clientVersion,
-      devicePublicKey: publicKeyBytes,
+      devicePublicKey: new Uint8Array(publicKey),
     });
 
     const response = await this.apiRequest(
@@ -226,15 +226,15 @@ export class Client {
 
     return {
       deviceToken,
-      devicePrivateKey: privateKey,
+      devicePrivateKey: new Uint8Array(privateKey),
     };
   }
 
   private async registerDeviceInRegion(
     deviceToken: DeviceToken,
-    devicePrivateKey: CryptoKey,
+    devicePrivateKey: Uint8Array,
   ): Promise<void> {
-    const publicKeyBytes = await this.getPublicKeyFromPrivate(devicePrivateKey);
+    const publicKeyBytes = keeper_ec_public_key_from_private(devicePrivateKey);
 
     const request = create(RegisterDeviceInRegionRequestSchema, {
       encryptedDeviceToken: deviceToken,
@@ -255,29 +255,6 @@ export class Client {
         throw error;
       }
     }
-  }
-
-  private async getPublicKeyFromPrivate(privateKey: CryptoKey): Promise<Uint8Array> {
-    // Export private key to JWK to extract public key components
-    const jwk = await crypto.subtle.exportKey("jwk", privateKey);
-
-    // Create public key JWK (remove private component 'd')
-    const publicJwk: JsonWebKey = {
-      kty: jwk.kty,
-      crv: jwk.crv,
-      x: jwk.x,
-      y: jwk.y,
-    };
-
-    const publicKey = await crypto.subtle.importKey(
-      "jwk",
-      publicJwk,
-      { name: "ECDH", namedCurve: "P-256" },
-      true,
-      [],
-    );
-
-    return await unloadEcPublicKey(publicKey);
   }
 
   private async handleAuthHash(response: LoginResponse): Promise<LoginResponse> {
@@ -304,7 +281,7 @@ export class Client {
 
       this.password = passwordOrCancel;
 
-      const authHash = await deriveV1KeyHash(this.password, salt, iterations);
+      const authHash = keeper_derive_v1_key_hash(this.password, salt, iterations);
       try {
         return await this.validateAuthHash(authHash, response.encryptedLoginToken as LoginToken);
       } catch {
@@ -360,14 +337,14 @@ export class Client {
       payload: ssoRequestBytes,
     });
 
-    this.ssoTransmissionKey = generateEncryptionKey();
+    this.ssoTransmissionKey = keeper_generate_encryption_key() as KeeperKey;
 
     const payloadBytes = toBinary(ApiRequestPayloadSchema, payload);
-    const encryptedPayload = await encryptAesV2(
+    const encryptedPayload = keeper_encrypt_aes_v2(
       new Uint8Array(payloadBytes),
       this.ssoTransmissionKey,
     );
-    const encryptedKey = await encryptWithKeeperKey(this.ssoTransmissionKey, this.serverKeyId);
+    const encryptedKey = encryptWithKeeperKey(this.ssoTransmissionKey, this.serverKeyId);
 
     const apiRequest = create(ApiRequestSchema, {
       encryptedTransmissionKey: encryptedKey,
@@ -377,7 +354,7 @@ export class Client {
     });
 
     const apiRequestBytes = toBinary(ApiRequestSchema, apiRequest);
-    const encodedPayload = base64UrlEncode(new Uint8Array(apiRequestBytes));
+    const encodedPayload = keeper_base64url_encode(new Uint8Array(apiRequestBytes));
 
     return ssoBaseUrl + "?payload=" + encodedPayload;
   }
@@ -387,8 +364,8 @@ export class Client {
       throw new Error("SSO transmission key not available");
     }
 
-    const encryptedBytes = base64UrlDecode(token);
-    const decryptedBytes = await decryptAesV2(encryptedBytes, this.ssoTransmissionKey);
+    const encryptedBytes = keeper_base64url_decode(token);
+    const decryptedBytes = keeper_decrypt_aes_v2(encryptedBytes, this.ssoTransmissionKey);
     return fromBinary(SsoCloudResponseSchema, decryptedBytes);
   }
 
@@ -415,7 +392,7 @@ export class Client {
 
   private async extractLoginResult(
     response: LoginResponse,
-    devicePrivateKey: CryptoKey,
+    devicePrivateKey: Uint8Array,
   ): Promise<LoginResult> {
     if (!response.encryptedSessionToken || response.encryptedSessionToken.length === 0) {
       throw new Error("No session token received from server");
@@ -430,19 +407,19 @@ export class Client {
     let dataKey: KeeperKey;
     switch (response.encryptedDataKeyType) {
       case EncryptedDataKeyType.BY_DEVICE_PUBLIC_KEY:
-        dataKey = (await decryptEc(
+        dataKey = keeper_decrypt_ec(
           new Uint8Array(response.encryptedDataKey),
           devicePrivateKey,
-        )) as KeeperKey;
+        ) as KeeperKey;
         break;
       case EncryptedDataKeyType.BY_PASSWORD:
         if (!this.password) {
           throw new Error("Password required but not available");
         }
-        dataKey = await decryptEncryptionParams(
+        dataKey = keeper_decrypt_encryption_params(
           this.password,
           new Uint8Array(response.encryptedDataKey),
-        );
+        ) as KeeperKey;
         break;
       default:
         throw new Error(`Unsupported encrypted data key type: ${response.encryptedDataKeyType}`);
@@ -516,7 +493,7 @@ export class Client {
 
             if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
               // Server already validated the code from the watch; reuse the new token.
-              updatedToken = base64UrlDecode(encryptedLoginToken) as LoginToken;
+              updatedToken = keeper_base64url_decode(encryptedLoginToken) as LoginToken;
             } else if (mt === MessageType.DNA && passcode) {
               updatedToken = await this.validate2FA(
                 currentLoginToken,
@@ -913,7 +890,7 @@ export class Client {
                 const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
 
                 if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
-                  currentLoginToken = base64UrlDecode(encryptedLoginToken) as LoginToken;
+                  currentLoginToken = keeper_base64url_decode(encryptedLoginToken) as LoginToken;
                 } else {
                   throw new KeeperAuthError(
                     KeeperAuthErrorCode.MfaFailed,
@@ -1202,10 +1179,13 @@ export class Client {
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const transmissionKey = generateEncryptionKey();
+        const transmissionKey = keeper_generate_encryption_key() as KeeperKey;
         const payloadBytes = toBinary(ApiRequestPayloadSchema, payload);
-        const encryptedPayload = await encryptAesV2(new Uint8Array(payloadBytes), transmissionKey);
-        const encryptedKey = await encryptWithKeeperKey(transmissionKey, keyId);
+        const encryptedPayload = keeper_encrypt_aes_v2(
+          new Uint8Array(payloadBytes),
+          transmissionKey,
+        );
+        const encryptedKey = encryptWithKeeperKey(transmissionKey, keyId);
 
         const apiRequest = create(ApiRequestSchema, {
           encryptedTransmissionKey: encryptedKey,
@@ -1222,7 +1202,7 @@ export class Client {
         }
 
         if (response.data && response.data.length > 0) {
-          const decryptedResponse = await decryptAesV2(response.data, transmissionKey);
+          const decryptedResponse = keeper_decrypt_aes_v2(response.data, transmissionKey);
           return decryptedResponse;
         }
 

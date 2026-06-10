@@ -2,5 +2,6 @@ import { DeviceToken } from "./token-types";
 
 export interface DeviceCredentials {
   deviceToken: DeviceToken;
-  devicePrivateKey: CryptoKey;
+  /** P-256 device private key, PKCS#8 DER encoded. */
+  devicePrivateKey: Uint8Array;
 }

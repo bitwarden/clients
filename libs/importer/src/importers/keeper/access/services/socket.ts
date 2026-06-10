@@ -1,5 +1,11 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 
+import {
+  keeper_base64url_encode,
+  keeper_decrypt_aes_v2,
+  keeper_encrypt_aes_v2,
+} from "@bitwarden/sdk-internal";
+
 import { KeeperAuthError, KeeperAuthErrorCode } from "../errors";
 import { ApiRequestSchema, ApiRequestPayloadSchema } from "../generated/api-request_pb";
 import { WssClientResponseSchema, WssConnectionRequestSchema } from "../generated/push_pb";
@@ -12,7 +18,6 @@ import {
   SocketListener,
 } from "../models";
 
-import { base64UrlEncode, decryptAesV2, encryptAesV2 } from "./crypto";
 import { encryptWithKeeperKey } from "./keys";
 
 export async function connectPushSocket(
@@ -35,8 +40,8 @@ export async function connectPushSocket(
     payload: connectionRequestBytes,
   });
   const payloadBytes = toBinary(ApiRequestPayloadSchema, payload);
-  const encryptedPayload = await encryptAesV2(new Uint8Array(payloadBytes), transmissionKey);
-  const encryptedTransmissionKey = await encryptWithKeeperKey(transmissionKey, serverKeyId);
+  const encryptedPayload = keeper_encrypt_aes_v2(new Uint8Array(payloadBytes), transmissionKey);
+  const encryptedTransmissionKey = encryptWithKeeperKey(transmissionKey, serverKeyId);
 
   const apiRequest = create(ApiRequestSchema, {
     encryptedTransmissionKey,
@@ -46,7 +51,7 @@ export async function connectPushSocket(
   });
 
   const apiRequestBytes = toBinary(ApiRequestSchema, apiRequest);
-  const encodedRequest = base64UrlEncode(new Uint8Array(apiRequestBytes));
+  const encodedRequest = keeper_base64url_encode(new Uint8Array(apiRequestBytes));
 
   const host = server.replace("govcloud.", "");
   const url = `wss://push.services.${host}/wss_open_connection/${encodedRequest}`;
@@ -105,7 +110,7 @@ export async function connectPushSocket(
       let stage = "decrypt";
       try {
         const messageData = new Uint8Array(event.data as ArrayBuffer);
-        const decryptedData = await decryptAesV2(messageData, transmissionKey);
+        const decryptedData = keeper_decrypt_aes_v2(messageData, transmissionKey);
         stage = "decode";
         const response = fromBinary(WssClientResponseSchema, decryptedData);
 

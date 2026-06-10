@@ -1,3 +1,10 @@
+import {
+  keeper_base64url_encode,
+  keeper_decrypt_aes_v1,
+  keeper_decrypt_aes_v2,
+  keeper_decrypt_keeper_key,
+} from "@bitwarden/sdk-internal";
+
 import * as sd from "./generated/sync-down_pb";
 import {
   ClientOptions,
@@ -8,7 +15,7 @@ import {
   VaultRecordError,
   VaultRecordErrorReason,
 } from "./models";
-import { Client, base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./services";
+import { Client } from "./services";
 
 export class Vault {
   static async open(username: string, options: ClientOptions): Promise<Vault> {
@@ -182,7 +189,11 @@ export class Vault {
     for (const folder of userFolders) {
       const uid = uidToString(folder.folderUid);
       try {
-        const folderKey = await decryptKeeperKey(folder.userFolderKey, folder.keyType, masterKey);
+        const folderKey = keeper_decrypt_keeper_key(
+          folder.userFolderKey,
+          folder.keyType,
+          masterKey,
+        ) as KeeperKey;
         const decrypted = await Vault.decryptJsonV1<{ name: string }>(folder.data, folderKey);
         result.set(uid, decrypted.name);
       } catch {
@@ -200,7 +211,11 @@ export class Vault {
     for (const folder of sharedFolders) {
       const uid = uidToString(folder.sharedFolderUid);
       try {
-        const key = await decryptKeeperKey(folder.sharedFolderKey, folder.keyType, masterKey);
+        const key = keeper_decrypt_keeper_key(
+          folder.sharedFolderKey,
+          folder.keyType,
+          masterKey,
+        ) as KeeperKey;
         result.set(uid, key);
       } catch {
         // Ignored here. The items that need this key report their own errors later.
@@ -225,7 +240,7 @@ export class Vault {
       try {
         const name = folder.data
           ? (await Vault.decryptJsonV1<{ name: string }>(folder.data, key)).name
-          : await Vault.decryptString(folder.name, key, decryptAesV1);
+          : await Vault.decryptString(folder.name, key, keeper_decrypt_aes_v1);
         result.set(uid, name);
       } catch {
         errors.push({ id: uid, reason: VaultRecordErrorReason.FolderDecryptionFailed });
@@ -249,8 +264,8 @@ export class Vault {
         const encryptedKey = new Uint8Array(sfr.recordKey);
         const recordKey = (
           encryptedKey.length === 60
-            ? await decryptAesV2(encryptedKey, key)
-            : await decryptAesV1(encryptedKey, key)
+            ? keeper_decrypt_aes_v2(encryptedKey, key)
+            : keeper_decrypt_aes_v1(encryptedKey, key)
         ) as KeeperKey;
         result.set(uidToString(sfr.recordUid), recordKey);
       } catch {
@@ -286,8 +301,8 @@ export class Vault {
         try {
           const childKey = (
             encryptedKey.length === 60
-              ? await decryptAesV2(encryptedKey, parentKey)
-              : await decryptAesV1(encryptedKey, parentKey)
+              ? keeper_decrypt_aes_v2(encryptedKey, parentKey)
+              : keeper_decrypt_aes_v1(encryptedKey, parentKey)
           ) as KeeperKey;
           resolved.set(childUid, childKey);
           progress = true;
@@ -307,7 +322,11 @@ export class Vault {
     for (const meta of metaData) {
       const uid = uidToString(meta.recordUid);
       try {
-        const recordKey = await decryptKeeperKey(meta.recordKey, meta.recordKeyType, masterKey);
+        const recordKey = keeper_decrypt_keeper_key(
+          meta.recordKey,
+          meta.recordKeyType,
+          masterKey,
+        ) as KeeperKey;
         result.set(uid, recordKey);
       } catch {
         // Ignored here. The record that needs this key reports its own error later.
@@ -364,7 +383,11 @@ export class Vault {
         continue;
       }
       try {
-        const folderKey = await decryptKeeperKey(sff.sharedFolderFolderKey, sff.keyType, sfKey);
+        const folderKey = keeper_decrypt_keeper_key(
+          sff.sharedFolderFolderKey,
+          sff.keyType,
+          sfKey,
+        ) as KeeperKey;
         const decrypted = await Vault.decryptJsonV1<{ name: string }>(sff.data, folderKey);
         result.set(folderUid, decrypted.name);
       } catch {
@@ -478,11 +501,11 @@ export class Vault {
   }
 
   private static async decryptJsonV1<T>(data: Uint8Array, key: KeeperKey): Promise<T> {
-    return await Vault.decryptJson(data, key, decryptAesV1);
+    return await Vault.decryptJson(data, key, keeper_decrypt_aes_v1);
   }
 
   private static async decryptJsonV2<T>(data: Uint8Array, key: KeeperKey): Promise<T> {
-    return await Vault.decryptJson(data, key, decryptAesV2);
+    return await Vault.decryptJson(data, key, keeper_decrypt_aes_v2);
   }
 
   private static async decryptJson<T>(
@@ -498,12 +521,12 @@ export class Vault {
     key: KeeperKey,
     decrypt: Decryptor,
   ): Promise<string> {
-    return new TextDecoder().decode(await decrypt(data, key));
+    return new TextDecoder().decode(decrypt(data, key));
   }
 }
 
 function uidToString(uid: Uint8Array): string {
-  return base64UrlEncode(uid);
+  return keeper_base64url_encode(uid);
 }
 
 function sanitizeFolderName(name: string): string {
