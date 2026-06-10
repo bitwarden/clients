@@ -71,6 +71,8 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     criticalApplications: "Critical Applications",
     countOfCriticalApplications: (n: string | undefined) => `${n} critical application(s)`,
     countOfApplicationsAtRisk: (n: string | undefined) => `${n} application(s) at risk`,
+    noCriticalApplicationsMarkedYet:
+      "You haven't marked any critical applications yet. Review applications to get started.",
     onceYouMarkApplicationsCriticalTheyWillDisplayHere:
       "Once you mark applications critical they will display here",
     criticalApplicationsAreAtRisk: (n: string | undefined, total: string | undefined) =>
