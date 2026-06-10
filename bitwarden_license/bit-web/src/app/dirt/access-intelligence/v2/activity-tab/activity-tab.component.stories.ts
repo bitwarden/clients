@@ -106,7 +106,7 @@ export const Default: Story = {
  * Loading state - Shows loading spinner while data is being fetched
  */
 export const Loading: Story = {
-  render: (args) => ({
+  render: () => ({
     props: { organizationId: orgId },
     moduleMetadata: {
       providers: [
@@ -117,6 +117,7 @@ export const Loading: Story = {
         { provide: DrawerStateService, useClass: MockDrawerStateService },
         { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
         { provide: DialogService, useClass: MockDialogService },
+        ...buildTrendChartProviders(),
       ],
     },
   }),
@@ -292,49 +293,4 @@ export const TrendChartEnabled: Story = {
       },
     };
   },
-};
-
-/**
- * Trend Chart Loading - Feature flag on, trend widget shows loading state
- */
-export const TrendChartLoading: Story = {
-  render: () => ({
-    props: { organizationId: orgId },
-    moduleMetadata: {
-      providers: [
-        {
-          provide: AccessIntelligenceDataService,
-          useValue: new MockAccessIntelligenceDataService(null, false),
-        },
-        { provide: DrawerStateService, useClass: MockDrawerStateService },
-        { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-        { provide: DialogService, useClass: MockDialogService },
-        ...buildTrendChartProviders({ flagEnabled: true, loading: true }),
-      ],
-    },
-  }),
-};
-
-/**
- * Trend Chart Error - Feature flag on, trend widget surfaces an error message
- */
-export const TrendChartError: Story = {
-  render: () => ({
-    props: { organizationId: orgId },
-    moduleMetadata: {
-      providers: [
-        {
-          provide: AccessIntelligenceDataService,
-          useValue: new MockAccessIntelligenceDataService(null, false),
-        },
-        { provide: DrawerStateService, useClass: MockDrawerStateService },
-        { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-        { provide: DialogService, useClass: MockDialogService },
-        ...buildTrendChartProviders({
-          flagEnabled: true,
-          error: "Failed to load trend data",
-        }),
-      ],
-    },
-  }),
 };
