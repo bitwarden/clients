@@ -16,6 +16,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { PamApiService } from "@bitwarden/pam";
 
@@ -24,11 +25,18 @@ import { PamApiService } from "@bitwarden/pam";
  * {@link FeatureFlag.Pam} is on. Singleton (`providedIn: "root"`) so the badge
  * survives across page navigations.
  *
- * Freshness is push-driven: the backend fires
- * {@link NotificationType.RefreshApproverInbox} whenever any approver-visible
- * row changes (new request, decision, lease revocation). On receipt — and on
- * initial flag enable — we re-fetch the inbox and take its length. No periodic
- * polling.
+ * Freshness combines push and local signals — no periodic polling:
+ *
+ * - The backend fires {@link NotificationType.RefreshApproverInbox} whenever
+ *   any approver-visible row changes (new request, decision, lease revocation).
+ * - {@link PamApiService.mutations$} fires after every locally-initiated
+ *   mutation, so the badge updates immediately when this client creates,
+ *   cancels, decides, or revokes — without waiting on the push round-trip.
+ * - `syncCompleted` messages act as a recovery fallback when a push was
+ *   missed (same pattern as the security-tasks badge).
+ *
+ * On any trigger — and on initial flag enable — we re-fetch the inbox and
+ * take its length.
  *
  * Errors are swallowed — a nav badge must never break navigation.
  */
@@ -37,6 +45,7 @@ export class ApproverInboxBadgeService {
   private readonly configService = inject(ConfigService);
   private readonly pamApiService = inject(PamApiService);
   private readonly notificationsService = inject(ServerNotificationsService);
+  private readonly messageListener = inject(MessageListener);
   private readonly logService = inject(LogService);
 
   private readonly _count$ = new BehaviorSubject<number>(0);
@@ -72,6 +81,10 @@ export class ApproverInboxBadgeService {
       this.notificationsService.notifications$.pipe(
         filter(([notification]) => notification.type === NotificationType.RefreshApproverInbox),
       ),
+      // Locally-initiated mutations (create / cancel / decide / revoke / …).
+      this.pamApiService.mutations$,
+      // Recovery fallback for pushes missed while disconnected.
+      this.messageListener.allMessages$.pipe(filter((msg) => msg.command === "syncCompleted")),
     );
   }
 

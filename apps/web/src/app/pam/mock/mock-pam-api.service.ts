@@ -52,6 +52,10 @@ export class MockPamApiService extends DefaultPamApiService {
     leaseEvents: LeaseEventService,
   ) {
     super(apiService, leaseEvents);
+    // The overridden mutation methods below bypass the base class's
+    // localRefresh$ pumps, so bridge the store's event stream (which also
+    // covers timer-driven auto-decisions) into the inherited mutations$.
+    this.store.events$.subscribe(() => this.localRefresh$.next());
   }
 
   /**

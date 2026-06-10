@@ -214,6 +214,10 @@ export class ApproverInboxComponent implements OnInit {
     try {
       await this.inbox.load();
       this.renderedAt.set(new Date());
+      // Keep the nav badge consistent with what the page just rendered, even
+      // if a server push was missed while the user was elsewhere. Best-effort;
+      // failure is swallowed by the service.
+      void this.badgeService.refresh();
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
@@ -248,8 +252,6 @@ export class ApproverInboxComponent implements OnInit {
           event.decision === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
         ),
       });
-      // Best-effort badge refresh; failure here is swallowed by the service.
-      void this.badgeService.refresh();
     } catch (e) {
       this.logService.error(e);
       const row = this.rows().find((r) => r.request().id === request.id);
