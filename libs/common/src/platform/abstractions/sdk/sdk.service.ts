@@ -114,7 +114,8 @@ export abstract class SdkService {
    *   - If the user is not logged when the subscription is created, the observable will complete
    *     immediately with {@link UserNotLoggedInError}.
    *   - If the user is logged in, the observable will emit the client and complete whithout an error
-   *     when the user logs out.
+   *     when the user logs out. The returned client MAY be locked or unlocked depending on the state
+   *     of the user.
    *
    * **WARNING:** Do not use `firstValueFrom(userClient$)`! Any operations on the client must be done within the observable.
    * The client will be destroyed when the observable is no longer subscribed to.

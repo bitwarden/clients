@@ -3,7 +3,6 @@ import { filter, concatMap } from "rxjs/operators";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { fromTsUserId } from "@bitwarden/common/key-management/utils";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -40,7 +39,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private pinService: PinServiceAbstraction,
     private ipcService: () => IpcService,
   ) {
     super();
@@ -132,7 +130,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
             await this.biometricStateService.setBiometricUnlockEnabled(true);
             await this.keyService.setUserKey(userKey, userId);
-            await this.pinService.userUnlocked(userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
             return userKey;
@@ -157,13 +154,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         // In case the requesting foreground context dies (popup), the userkey should still be set, so the user is unlocked / the setting should be enabled
         const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
-        if (await this.keyService.validateUserKey(userKey, userId)) {
+        try {
+          await this.unlockService!.unlockWithDecryptedUserKey(userId, userKey);
           await this.biometricStateService.setBiometricUnlockEnabled(true);
-          await this.keyService.setUserKey(userKey, userId);
-          await this.pinService.userUnlocked(userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;
+        } catch (e) {
+          this.logService.info("Biometric unlock for user failed during unlock or validation", e);
         }
       } else {
         return null;

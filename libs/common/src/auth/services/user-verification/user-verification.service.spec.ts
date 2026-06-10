@@ -17,9 +17,7 @@ import {
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { MasterPasswordUnlockService } from "../../../key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinLockType } from "../../../key-management/pin/pin-lock-type";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
-import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeout";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
@@ -39,7 +37,6 @@ describe("UserVerificationService", () => {
   const userVerificationApiService = mock<UserVerificationApiServiceAbstraction>();
   const userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
   const pinService = mock<PinServiceAbstraction>();
-  const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
   const kdfConfigService = mock<KdfConfigService>();
   const biometricsService = mock<BiometricsService>();
   const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
@@ -69,7 +66,7 @@ describe("UserVerificationService", () => {
     describe("client verification type", () => {
       it("correctly returns master password availability", async () => {
         setMasterPasswordAvailability(true);
-        setPinAvailability("DISABLED");
+        setPinAvailability(false);
         disableBiometricsAvailability();
 
         const result = await sut.getAvailableVerificationOptions("client");
@@ -87,15 +84,14 @@ describe("UserVerificationService", () => {
         });
       });
 
-      test.each([
-        [true, "PERSISTENT"],
-        [true, "EPHEMERAL"],
-        [false, "DISABLED"],
+      it.each([
+        [true, true],
+        [false, false],
       ])(
-        "returns %s for PIN availability when pin lock type is %s",
-        async (expectedPin: boolean, pinLockType: PinLockType) => {
+        "returns %s for PIN availability when PIN decryption availability is %s",
+        async (expectedPin: boolean, isPinDecryptionAvailable: boolean) => {
           setMasterPasswordAvailability(false);
-          setPinAvailability(pinLockType);
+          setPinAvailability(isPinDecryptionAvailable);
           disableBiometricsAvailability();
 
           const result = await sut.getAvailableVerificationOptions("client");
@@ -114,15 +110,15 @@ describe("UserVerificationService", () => {
         },
       );
 
-      test.each([
+      it.each([
         [true, BiometricsStatus.Available],
         [false, BiometricsStatus.DesktopDisconnected],
         [false, BiometricsStatus.HardwareUnavailable],
       ])(
-        "returns %s for biometrics availability when isBiometricLockSet is %s, hasUserKeyStored is %s, and supportsSecureStorage is %s",
+        "returns %s for biometrics availability when biometrics status is %s",
         async (expectedReturn: boolean, biometricsStatus: BiometricsStatus) => {
           setMasterPasswordAvailability(false);
-          setPinAvailability("DISABLED");
+          setPinAvailability(false);
           biometricsService.getBiometricsStatus.mockResolvedValue(biometricsStatus);
 
           const result = await sut.getAvailableVerificationOptions("client");
@@ -473,17 +469,11 @@ describe("UserVerificationService", () => {
     userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(hasMasterPassword));
   }
 
-  function setPinAvailability(type: PinLockType) {
-    pinService.getPinLockType.mockResolvedValue(type);
-
-    if (type === "EPHEMERAL" || type === "PERSISTENT") {
-      pinService.isPinDecryptionAvailable.mockResolvedValue(true);
-    } else if (type === "DISABLED") {
-      pinService.isPinDecryptionAvailable.mockResolvedValue(false);
-    }
+  function setPinAvailability(isAvailable: boolean) {
+    pinService.isPinDecryptionAvailable.mockResolvedValue(isAvailable);
   }
 
   function disableBiometricsAvailability() {
-    vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(false);
+    biometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.HardwareUnavailable);
   }
 });

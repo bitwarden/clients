@@ -14,6 +14,7 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -149,6 +150,9 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               client.platform().state(),
               this.stateProvider,
             );
+            client
+              .km_state_bridge()
+              .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
 
             await this.loadFeatureFlags(client);
 

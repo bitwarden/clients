@@ -101,7 +101,6 @@ import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/ma
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -531,15 +530,6 @@ export class ServiceContainer {
       this.accountCryptographicStateService,
     );
 
-    const pinStateService = new PinStateService(this.stateProvider);
-    this.pinService = new PinService(
-      this.encryptService,
-      this.logService,
-      this.keyService,
-      this.sdkService,
-      pinStateService,
-    );
-
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
       this.keyService,
@@ -580,7 +570,6 @@ export class ServiceContainer {
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
-      pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
       this.tokenService,
@@ -718,6 +707,8 @@ export class ServiceContainer {
       customUserAgent,
     );
 
+    this.pinService = new PinService(this.sdkService);
+
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
@@ -735,7 +726,6 @@ export class ServiceContainer {
     this.unlockService = new DefaultUnlockService(
       this.registerSdkService,
       this.accountCryptographicStateService,
-      pinStateService,
       this.kdfConfigService,
       this.accountService,
       this.masterPasswordService,
