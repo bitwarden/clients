@@ -44,9 +44,15 @@ export class OrgReportContextService {
   async load(organizationId: string, logContext: string): Promise<OrgReportContext> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const organization = await this.step(logContext, "load organization", () =>
-      firstValueFrom(this.organizationService.organizations$(userId).pipe(getById(organizationId))),
-    );
+    const organization = await this.step(logContext, "load organization", async () => {
+      const org = await firstValueFrom(
+        this.organizationService.organizations$(userId).pipe(getById(organizationId)),
+      );
+      if (org == null) {
+        throw new Error(`Organization ${organizationId} not found`);
+      }
+      return org;
+    });
 
     const manageableCipherIds = await this.step(logContext, "load manageable ciphers", async () => {
       const ciphers = await this.cipherService.getAll(userId);
@@ -59,7 +65,7 @@ export class OrgReportContextService {
       );
       return new Set(
         collections
-          .filter((c) => !c.isDefaultCollection && c.organizationId === organization?.id)
+          .filter((c) => !c.isDefaultCollection && c.organizationId === organization.id)
           .map((c) => c.id as string),
       );
     });
