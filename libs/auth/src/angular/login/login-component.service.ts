@@ -52,8 +52,8 @@ export abstract class LoginComponentService {
 
   /**
    * Allows the client to render UI in response to query params on /login
-   * (today: toasts for errors emitted by the server's SSO callback when it
-   * redirects after rejecting authentication).
+   * (today: anon-layout title/subtitle/icon overrides for errors emitted by
+   * the server's SSO callback when it redirects after rejecting authentication).
    * - Used by: Web
    */
   showLoginQueryParamMessages?: (params: Params) => void;
