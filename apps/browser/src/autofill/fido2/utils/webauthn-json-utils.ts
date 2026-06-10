@@ -133,7 +133,8 @@ export class WebauthnJsonUtils {
     return {
       origin: context.origin,
       sameOriginWithAncestors: context.sameOriginWithAncestors,
-      allowedCredentialIds: options.allowCredentials?.map((c) => c.id) ?? [],
+      allowedCredentials:
+        options.allowCredentials?.map((c) => ({ id: c.id, transports: c.transports ?? [] })) ?? [],
       challenge: options.challenge,
       rpId: options.rpId,
       userVerification: options.userVerification,

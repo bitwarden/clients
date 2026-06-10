@@ -409,7 +409,7 @@ describe("Fido2WebAuthnProxyBackground", () => {
           origin: "https://example.com",
           challenge: "Y2hhbA",
           rpId: "example.com",
-          allowedCredentialIds: ["Y3JlZA"],
+          allowedCredentials: [{ id: "Y3JlZA", transports: ["internal"] }],
         }),
         tabMock,
         expect.any(AbortController),

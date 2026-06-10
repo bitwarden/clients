@@ -101,7 +101,7 @@ describe("WebauthnJsonUtils", () => {
       expect(params).toEqual({
         origin: "https://example.com",
         sameOriginWithAncestors: true,
-        allowedCredentialIds: ["Y3JlZA"],
+        allowedCredentials: [{ id: "Y3JlZA", transports: ["usb"] }],
         challenge: "Y2hhbA",
         rpId: "example.com",
         userVerification: "preferred",
@@ -111,11 +111,11 @@ describe("WebauthnJsonUtils", () => {
       });
     });
 
-    it("returns an empty allowedCredentialIds when allowCredentials is missing", () => {
+    it("returns an empty allowedCredentials when allowCredentials is missing", () => {
       const { allowCredentials: _omit, ...rest } = baseGet;
       void _omit;
       const params = WebauthnJsonUtils.parseGetRequest(JSON.stringify(rest), context);
-      expect(params.allowedCredentialIds).toEqual([]);
+      expect(params.allowedCredentials).toEqual([]);
     });
 
     it("throws when the envelope is missing a challenge", () => {
