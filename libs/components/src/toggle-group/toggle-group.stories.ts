@@ -31,6 +31,19 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881-17157&t=b5tDKylm5sWm2yKo-4",
     },
+    a11y: {
+      config: {
+        rules: [
+          {
+            // axe cannot determine the background under label text because the
+            // active-toggle indicator is rendered as an ::after pseudo-element
+            // on the parent. Contrast is validated by the design tokens.
+            id: "color-contrast",
+            enabled: false,
+          },
+        ],
+      },
+    },
   },
 } as Meta;
 
