@@ -31,24 +31,44 @@
   }
 
   <popup-footer slot="footer">
-    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
+    @if (showSaveAndFill) {
+      <button [bitAction]="submitAndFill" type="button" bitButton buttonType="primary">
+        {{ "saveAndFill" | i18n }}
+      </button>
+    }
+    <button
+      bitButton
+      type="submit"
+      form="cipherForm"
+      [buttonType]="showSaveAndFill ? 'secondary' : 'primary'"
+      #submitBtn
+    >
       {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
     </button>
-
-    <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
-      {{ "cancel" | i18n }}
-    </button>
-
-    <ng-container slot="end">
-      @if (canDeleteCipher$ | async) {
-        <button
-          [bitAction]="delete"
-          type="button"
-          buttonType="dangerGhost"
-          bitIconButton="bwi-trash"
-          [label]="'delete' | i18n"
-        ></button>
-      }
-    </ng-container>
+    @if (showSaveAndFill) {
+      <button
+        (click)="handleBackButton()"
+        bitButton
+        type="button"
+        buttonType="subtleGhost"
+        slot="end"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    } @else {
+      <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
+        {{ "cancel" | i18n }}
+      </button>
+    }
+    @if (canDeleteCipher$ | async) {
+      <button
+        [bitAction]="delete"
+        type="button"
+        slot="end"
+        buttonType="dangerGhost"
+        bitIconButton="bwi-trash"
+        [label]="'delete' | i18n"
+      ></button>
+    }
   </popup-footer>
 </popup-page>
