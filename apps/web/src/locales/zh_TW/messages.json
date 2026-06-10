@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "產生報告時發生錯誤。請再試一次。"
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "執行報告"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "銀行帳戶"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "金額 $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "重設密碼詳細資訊回應為 null"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "垃圾桶中超過 30 天的項目將會被自動刪除。"
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "透過檢查報告中的漏洞來保持您的保管庫項目安全。"
   },
-  "coachmarkStepIndicator": {
-    "message": "步驟 $CURRENT$ / $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

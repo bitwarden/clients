@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Deze website komt past niet bij je opgeslagen inloggegevens. Verzeker jezelf ervan dat het een vertrouwde website is, voordat je je inloggegevens invult."
   },
+  "loginNeverMatchTitle": {
+    "message": "Login komt niet overeen"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Deze website komt niet overeen met je opgeslagen logindetails. Controleer of je op een vertrouwde site bent voordat je automatisch invult."
+  },
+  "uriMatchRule": {
+    "message": "URI-matchregel"
+  },
+  "neverMatch": {
+    "message": "Nooit matchen"
+  },
   "loginHasNoSiteSaved": {
     "message": "Login heeft geen site opgeslagen"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bankrekening"
+  },
+  "bankAccountDetails": {
+    "message": "Bankgegevens"
   },
   "typeNote": {
     "message": "Notitie"
@@ -4431,12 +4446,6 @@
     "message": "Automatisch invullen bij het laden van een pagina ingesteld op de standaardinstelling.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Kan niet automatisch invullen"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Standaard overeenkomst is ingesteld op 'Exacte match'. De huidige website komt niet precies overeen met de opgeslagen inloggegevens voor dit item."
-  },
   "okay": {
     "message": "Oké"
   },
@@ -6226,7 +6235,7 @@
     "message": "Volgende"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Broodkruimels",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
