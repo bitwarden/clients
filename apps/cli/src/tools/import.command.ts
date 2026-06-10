@@ -156,8 +156,8 @@ export class ImportCommand {
         credentials,
         organizationId,
         undefined,
-        // run() already verified import permission for the target organization.
-        organizationId != null,
+        // run() already rejected callers without import permission for this org
+        true,
       );
       const total = summary.ciphers.reduce((count, c) => count + c.count, 0);
 

@@ -32,6 +32,8 @@ export abstract class ImportServiceAbstraction {
   credentialKindFor: (format: ImportType) => CredentialKind | undefined;
   /** Optional file-picker `accept` hint declared by an SDK importer. */
   sdkFileTypeHint: (format: ImportType) => string | undefined;
+  /** Optional localization key for an SDK importer's post-import "delete source file" reminder. */
+  sdkDeleteFileReminderKey: (format: ImportType) => string | undefined;
   /** Maps an SDK importer error to a localization key, or `undefined` for the raw error. */
   sdkErrorMessageKey: (format: ImportType, error: unknown) => string | undefined;
   importWithSdk: (

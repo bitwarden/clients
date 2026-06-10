@@ -247,6 +247,11 @@ export class ImportService implements ImportServiceAbstraction {
     return this.sdkImporters.get(format)?.fileTypeHint;
   }
 
+  /** Optional localization key for an SDK importer's post-import "delete source file" reminder. */
+  sdkDeleteFileReminderKey(format: ImportType): string | undefined {
+    return this.sdkImporters.get(format)?.deleteFileReminderKey;
+  }
+
   /** Maps an SDK importer error to a localization key, or `undefined` to surface the raw error. */
   sdkErrorMessageKey(format: ImportType, error: unknown): string | undefined {
     return this.sdkImporters.get(format)?.errorMessageKey?.(error);

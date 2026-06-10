@@ -24,14 +24,15 @@ describe("SdkImporterRegistry", () => {
     expect(registry.get("keepasskdbx")).toBe(importer);
   });
 
-  it("invokes the factory on each resolution", () => {
+  it("constructs each importer once and memoizes it across resolutions", () => {
     const registry = new SdkImporterRegistry();
     const factory = jest.fn(() => stubImporter());
     registry.register("keepasskdbx", factory);
 
-    registry.get("keepasskdbx");
-    registry.get("keepasskdbx");
+    const first = registry.get("keepasskdbx");
+    const second = registry.get("keepasskdbx");
 
-    expect(factory).toHaveBeenCalledTimes(2);
+    expect(factory).toHaveBeenCalledTimes(1);
+    expect(second).toBe(first);
   });
 });

@@ -85,7 +85,7 @@ describe("ImportCommand", () => {
         { kind: "passwordWithKeyFile", password: "file-password", keyFile: null },
         undefined,
         undefined,
-        false,
+        true,
       );
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
       expect(response.success).toBe(true);
@@ -105,7 +105,7 @@ describe("ImportCommand", () => {
         },
         undefined,
         undefined,
-        false,
+        true,
       );
     });
 

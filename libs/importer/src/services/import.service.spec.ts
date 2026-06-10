@@ -459,10 +459,8 @@ describe("ImportService", () => {
       expect(result).toBe(summary);
       expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
         organization_id: undefined,
-        target_folder_id: target.id,
-        target_folder_name: "My Folder",
-        target_collection_id: undefined,
-        target_collection_name: undefined,
+        target_folder: { id: target.id, name: "My Folder" },
+        target_collection: undefined,
         restricted_types: [],
       });
     });
@@ -486,10 +484,8 @@ describe("ImportService", () => {
 
       expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
         organization_id: organizationId,
-        target_folder_id: undefined,
-        target_folder_name: undefined,
-        target_collection_id: target.id,
-        target_collection_name: "Shared",
+        target_folder: undefined,
+        target_collection: { id: target.id, name: "Shared" },
         restricted_types: [],
       });
     });
@@ -521,7 +517,7 @@ describe("ImportService", () => {
         undefined,
         expect.objectContaining({
           organization_id: organizationId,
-          target_collection_id: undefined,
+          target_collection: undefined,
         }),
       );
     });

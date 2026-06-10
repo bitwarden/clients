@@ -1,13 +1,9 @@
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SdkImportCredentials } from "@bitwarden/importer-core";
-import {
-  CipherType as SdkCipherType,
-  ImportOptions,
-  PasswordManagerClient,
-  isImportError,
-} from "@bitwarden/sdk-internal";
+import { ImportOptions, PasswordManagerClient, isImportError } from "@bitwarden/sdk-internal";
 
 import { CredentialKind } from "../credential-kind";
+import { toSdkCipherType } from "../sdk-cipher-type";
 import { SdkImportSummary } from "../sdk-import-summary";
 import { resolveSdkImportTargets } from "../sdk-import-target";
 import { SdkImportContext, SdkVaultImporter } from "../sdk-vault-importer";
@@ -16,6 +12,7 @@ import { SdkImportContext, SdkVaultImporter } from "../sdk-vault-importer";
 export class KdbxSdkImporter implements SdkVaultImporter {
   readonly credentialKind = CredentialKind.passwordWithKeyFile;
   readonly fileTypeHint = ".kdbx";
+  readonly deleteFileReminderKey = "kdbxDeleteFileReminder";
 
   async import(
     client: PasswordManagerClient,
@@ -30,11 +27,11 @@ export class KdbxSdkImporter implements SdkVaultImporter {
     const { folder, collection } = resolveSdkImportTargets(context);
     const options: ImportOptions = {
       organization_id: context.organizationId ? asUuid(context.organizationId) : undefined,
-      target_folder_id: folder ? asUuid(folder.id) : undefined,
-      target_folder_name: folder?.name,
-      target_collection_id: collection ? asUuid(collection.id) : undefined,
-      target_collection_name: collection?.name,
-      restricted_types: context.restrictedTypes as unknown as SdkCipherType[],
+      target_folder: folder ? { id: asUuid(folder.id), name: folder.name } : undefined,
+      target_collection: collection
+        ? { id: asUuid(collection.id), name: collection.name }
+        : undefined,
+      restricted_types: context.restrictedTypes.map(toSdkCipherType),
     };
 
     return await client

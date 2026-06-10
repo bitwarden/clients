@@ -38,6 +38,8 @@ export class CredentialsWithKeyFilePromptComponent {
 
   protected readonly keyFileName = signal<string | null>(null);
   private readonly keyFile = signal<Uint8Array | null>(null);
+  /** True while a selected key file is being read; submission is blocked until the read resolves. */
+  protected readonly loadingKeyFile = signal(false);
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     password: ["", Validators.required],
@@ -51,8 +53,13 @@ export class CredentialsWithKeyFilePromptComponent {
       this.keyFileName.set(null);
       return;
     }
-    this.keyFile.set(new Uint8Array(await file.arrayBuffer()));
-    this.keyFileName.set(file.name);
+    this.loadingKeyFile.set(true);
+    try {
+      this.keyFile.set(new Uint8Array(await file.arrayBuffer()));
+      this.keyFileName.set(file.name);
+    } finally {
+      this.loadingKeyFile.set(false);
+    }
   };
 
   protected readonly submit = () => {
@@ -61,10 +68,13 @@ export class CredentialsWithKeyFilePromptComponent {
       return;
     }
 
+    // JS can't zero a Uint8Array; the SDK zeroizes its own copy. Drop our reference at submit so it
+    // isn't retained past dialog close.
     const credentials: { password: string; keyFile: Uint8Array | null } = {
       password: this.formGroup.getRawValue().password,
       keyFile: this.keyFile(),
     };
+    this.keyFile.set(null);
     void this.dialogRef.close(credentials);
   };
 }

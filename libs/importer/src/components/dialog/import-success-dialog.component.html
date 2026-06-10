@@ -23,9 +23,9 @@
       </ng-template>
     </bit-table>
 
-    @if (showDeleteFileReminder) {
+    @if (deleteFileReminderKey; as reminderKey) {
       <bit-callout type="warning" class="tw-mt-4">
-        {{ "kdbxDeleteFileReminder" | i18n }}
+        {{ reminderKey | i18n }}
       </bit-callout>
     }
   </div>

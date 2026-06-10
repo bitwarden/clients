@@ -65,10 +65,8 @@ describe("KdbxSdkImporter", () => {
 
     expect(importKdbx).toHaveBeenCalledWith(new Uint8Array([1]), "pw", undefined, {
       organization_id: undefined,
-      target_folder_id: folder.id,
-      target_folder_name: "Personal",
-      target_collection_id: undefined,
-      target_collection_name: undefined,
+      target_folder: { id: folder.id, name: "Personal" },
+      target_collection: undefined,
       restricted_types: [CipherType.Card],
     });
   });
@@ -96,10 +94,8 @@ describe("KdbxSdkImporter", () => {
 
     expect(importKdbx).toHaveBeenCalledWith(new Uint8Array([2]), "pw", keyFile, {
       organization_id: organizationId,
-      target_folder_id: undefined,
-      target_folder_name: undefined,
-      target_collection_id: collection.id,
-      target_collection_name: "Shared",
+      target_folder: undefined,
+      target_collection: { id: collection.id, name: "Shared" },
       restricted_types: [],
     });
   });

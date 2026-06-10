@@ -21,7 +21,8 @@ export interface ImportSuccessDialogData {
   importResult?: ImportResult;
   /** Counts from an SDK-backed importer that submitted directly. Mutually exclusive with importResult. */
   sdkSummary?: SdkImportSummary;
-  showDeleteFileReminder?: boolean;
+  /** Localization key for a "delete your source file" reminder; the callout is shown when set. */
+  deleteFileReminderKey?: string;
   returnUrl?: string;
   returnLabel?: string;
 }
@@ -45,8 +46,8 @@ export class ImportSuccessDialogComponent implements OnInit {
     return !!this.data.returnUrl && !!this.data.returnLabel;
   }
 
-  protected get showDeleteFileReminder(): boolean {
-    return this.data.showDeleteFileReminder ?? false;
+  protected get deleteFileReminderKey(): string | undefined {
+    return this.data.deleteFileReminderKey;
   }
 
   protected get totalImported(): number {

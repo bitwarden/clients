@@ -30,6 +30,12 @@ export interface SdkVaultImporter {
   /** Optional file-picker `accept` hint (e.g. `".kdbx"`) for the file input. */
   readonly fileTypeHint?: string;
 
+  /**
+   * Optional localization key for a post-import "delete your source file" reminder. Each importer
+   * owns its own copy so the reminder isn't hardcoded to one format's wording.
+   */
+  readonly deleteFileReminderKey?: string;
+
   /** Parse + encrypt + submit via the SDK, returning normalized counts. Throws on failure. */
   import(
     client: PasswordManagerClient,
