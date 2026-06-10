@@ -83,8 +83,8 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
-   * Optional i18n key for a warning callout rendered above the enable/disable toggle.
-   * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
+   * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form, alongside the prerequisite callout.
    */
   warningKey?: string;
 
