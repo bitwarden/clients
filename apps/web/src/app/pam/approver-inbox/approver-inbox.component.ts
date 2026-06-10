@@ -2,6 +2,7 @@ import { CommonModule, DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
@@ -9,13 +10,15 @@ import {
   signal,
   viewChildren,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { debounceTime, filter, map, merge } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import {
   ButtonModule,
   IconModule,
@@ -30,6 +33,7 @@ import {
   AccessRequestDetailsResponse,
   AccessDecisionVerdict,
   AccessDecisionRequest,
+  PamApiService,
   canApprove,
   formatRemaining,
 } from "@bitwarden/pam";
@@ -85,6 +89,14 @@ export function historyStatusLabelFor(
     return isAwaitingStart(item)
       ? "pamInboxHistoryStatusAwaitingStart"
       : "pamInboxHistoryGroupFuture";
+  }
+  // A produced lease that has ended is labelled by the lease outcome, not the request status (which
+  // stays "activated"): distinguish a manually revoked lease from one that lapsed.
+  if (item.producedLeaseStatus === "revoked") {
+    return "pamInboxHistoryStatusRevoked";
+  }
+  if (item.producedLeaseStatus === "expired") {
+    return "pamInboxHistoryStatusExpired";
   }
   switch (item.status) {
     case "approved":
@@ -168,6 +180,9 @@ export class ApproverInboxComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly notificationsService = inject(ServerNotificationsService);
+  private readonly pamApiService = inject(PamApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly rows = viewChildren(ApproverInboxRowComponent);
 
@@ -209,7 +224,10 @@ export class ApproverInboxComponent implements OnInit {
         (item): FlatHistoryRow => ({
           item,
           bucket,
-          canRevoke: (bucket === "active" || bucket === "future") && item.producedLeaseId != null,
+          canRevoke:
+            (bucket === "active" || bucket === "future") &&
+            item.producedLeaseId != null &&
+            item.producedLeaseStatus === "active",
           statusClass: historyStatusClassFor(bucket, item.status),
           statusLabel: historyStatusLabelFor(bucket, item),
           relTime: historyRelTimeFor(item, bucket, now),
@@ -232,6 +250,21 @@ export class ApproverInboxComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.refresh();
+
+    // Keep an open inbox fresh when a lease changes elsewhere, so a lease that ends drops out of the
+    // Active group and its (now-stale) Revoke button disappears without a manual refresh:
+    // - a RefreshApproverInbox push fires when another approver or the requester ends a lease, and
+    // - mutations$ fires for changes made in this same client (e.g. the requester ending their lease
+    //   from the cipher banner, which would otherwise leave a 409-ing Revoke button here).
+    // Debounced to coalesce bursts (several leases ending at once).
+    merge(
+      this.notificationsService.notifications$.pipe(
+        filter(([notification]) => notification.type === NotificationType.RefreshApproverInbox),
+      ),
+      this.pamApiService.mutations$,
+    )
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => void this.refresh());
   }
 
   protected async refresh(): Promise<void> {
@@ -341,10 +374,15 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
     const notBefore = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
     const notAfter = item.requestedNotAfter ? Date.parse(item.requestedNotAfter) : null;
 
-    // Only a minted lease is real access, so only `activated` rows are eligible for the Active
-    // bucket. Check each bound independently: a lease that starts immediately has notBefore=null
-    // but is still active if notAfter is in the future.
-    if (item.status === "activated" || item.producedLeaseId != null) {
+    // A minted lease is real access only while its status is still "active": a revoked or expired
+    // lease drops to Past regardless of its window, so the inbox never offers Revoke on a lease that
+    // has already ended (the request itself stays "activated" forever). Check each bound
+    // independently: a lease that starts immediately has notBefore=null but is still active if
+    // notAfter is in the future.
+    if (
+      (item.status === "activated" || item.producedLeaseId != null) &&
+      item.producedLeaseStatus === "active"
+    ) {
       if (notBefore != null && notBefore > nowMs) {
         future.push(item);
         continue;

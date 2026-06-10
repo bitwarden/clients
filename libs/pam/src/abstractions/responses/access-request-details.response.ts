@@ -1,5 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
+import { AccessLeaseStatus } from "./access-lease.response";
 import { AccessRequestStatus } from "./access-request.response";
 
 /**
@@ -48,6 +49,11 @@ export class AccessRequestDetailsResponse extends BaseResponse {
   approverComment: string | null;
   /** The lease minted when this approved request was activated. */
   producedLeaseId: string | null;
+  /**
+   * The produced lease's status (`active | expired | revoked`), or null when no lease exists. Lets the inbox tell a
+   * still-live lease from one that has ended, so an ended lease is not shown as active/revocable.
+   */
+  producedLeaseStatus: AccessLeaseStatus | null;
   /** If this request is an extension of an existing lease, the parent lease id. */
   extensionOfLeaseId: string | null;
   /**
@@ -79,6 +85,7 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.approverId = this.getResponseProperty("ApproverId") ?? null;
     this.approverComment = this.getResponseProperty("ApproverComment") ?? null;
     this.producedLeaseId = this.getResponseProperty("ProducedLeaseId") ?? null;
+    this.producedLeaseStatus = this.getResponseProperty("ProducedLeaseStatus") ?? null;
     this.extensionOfLeaseId = this.getResponseProperty("ExtensionOfLeaseId") ?? null;
     this.activationDeadline = this.getResponseProperty("ActivationDeadline") ?? null;
     this.cipherName = this.getResponseProperty("CipherName") ?? null;

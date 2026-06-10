@@ -107,19 +107,16 @@ export class ApproverInboxService {
   }
 
   /**
-   * Revoke an active lease and move it to the past bucket in history
-   * by setting requestedNotAfter to the epoch optimistically.
-   *
-   * The decision-response payload doesn't carry a lease-status field, so
-   * revocation is not reflected in any status enum we receive — flipping
-   * the window is the only way to drop the row out of "Active" in the UI.
+   * Revoke an active lease and drop it out of the Active group optimistically
+   * by flipping the produced lease's status to "revoked", so the Revoke button
+   * disappears immediately. The next load (or a RefreshApproverInbox push)
+   * reconciles with the server.
    */
   async revokeAccessLease(leaseId: string): Promise<void> {
     await this.pamApiService.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
-    const epoch = new Date(0).toISOString();
     const updated = this._history$.value.map((item) => {
       if (item.producedLeaseId === leaseId) {
-        item.requestedNotAfter = epoch;
+        item.producedLeaseStatus = "revoked";
       }
       return item;
     });
