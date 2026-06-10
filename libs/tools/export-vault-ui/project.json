@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/vault-export-ui",
-  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/tools/export/vault-export/vault-export-ui/src",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tools/export-vault-ui/src",
   "projectType": "library",
   "tags": ["scope:vault-export-ui", "type:lib"],
   "targets": {
@@ -28,7 +28,7 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/tools/export/vault-export/vault-export-ui/**/*.ts"]
+        "lintFilePatterns": ["libs/tools/export-vault-ui/**/*.ts"]
       }
     },
     "test": {

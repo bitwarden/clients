@@ -70,8 +70,8 @@
       "@bitwarden/user-core": ["./libs/user-core/src/index.ts"],
       "@bitwarden/user-crypto-management": ["./libs/user-crypto-management/src/index.ts"],
       "@bitwarden/vault": ["./libs/vault/src"],
-      "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
-      "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
+      "@bitwarden/vault-export-core": ["./libs/tools/export-vault-core/src"],
+      "@bitwarden/vault-export-ui": ["./libs/tools/export-vault-ui/src"],
       "@bitwarden/web-vault/*": ["./apps/web/src/*"]
     },
     "plugins": [
