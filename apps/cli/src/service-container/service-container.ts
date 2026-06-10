@@ -396,6 +396,13 @@ export class ServiceContainer {
     const logoutCallback = async () => await this.logout();
 
     this.platformUtilsService = new CliPlatformUtilsService(ClientType.Cli, packageJson);
+
+    const customUserAgent =
+      "Bitwarden_CLI/" +
+      this.platformUtilsService.getApplicationVersionSync() +
+      " (" +
+      this.platformUtilsService.getDeviceString().toUpperCase() +
+      ")";
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
@@ -491,6 +498,27 @@ export class ServiceContainer {
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
+    // Constructed before KeyService/ConfigService so they can inject it directly (no lazy getter).
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      // Lazy: these are constructed after SdkService and (KeyService/ConfigService) push into it.
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      customUserAgent,
+    );
+
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
 
     this.tokenService = new TokenService(
@@ -537,6 +565,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.sdkService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
@@ -546,13 +575,6 @@ export class ServiceContainer {
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
-
-    const customUserAgent =
-      "Bitwarden_CLI/" +
-      this.platformUtilsService.getApplicationVersionSync() +
-      " (" +
-      this.platformUtilsService.getDeviceString().toUpperCase() +
-      ")";
 
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
@@ -624,6 +646,7 @@ export class ServiceContainer {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -665,25 +688,6 @@ export class ServiceContainer {
       this.fileUploadService,
       this.sendService,
     );
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new CliSdkLoadService();
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      customUserAgent,
-    );
-
     this.sendApiService = new SendApiServiceSelector(
       this.configService,
       legacySendApiService,
@@ -748,6 +752,8 @@ export class ServiceContainer {
       this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.sdkService,
+      this.keyService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -964,7 +970,7 @@ export class ServiceContainer {
     );
 
     const biometricService = new CliBiometricsService();
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.sdkService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -983,6 +989,7 @@ export class ServiceContainer {
       processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
     );
 
     this.vaultTimeoutService = new DefaultVaultTimeoutService(

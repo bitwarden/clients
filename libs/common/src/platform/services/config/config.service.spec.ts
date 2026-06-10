@@ -22,6 +22,7 @@ import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-ap
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
+import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { Utils } from "../../misc/utils";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import {
@@ -47,6 +48,7 @@ describe("ConfigService", () => {
   const authService = mock<AuthService>({
     authStatusFor$: (userId) => of(AuthenticationStatus.Unlocked),
   });
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
   let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig>>;
   let userState: FakeSingleUserState<ServerConfig>;
@@ -83,6 +85,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -264,6 +267,7 @@ describe("ConfigService", () => {
       mock<AuthService>({
         authStatusFor$: () => of(AuthenticationStatus.Locked),
       }),
+      sdkService,
     );
 
     const config = await firstValueFrom(sut.serverConfig$);
@@ -290,6 +294,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -343,6 +348,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
 
       userState.nextState(null);
@@ -391,6 +397,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -484,6 +491,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 

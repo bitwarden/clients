@@ -14,24 +14,24 @@ import {
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
-import { MasterKey } from "@bitwarden/common/types/key";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import {
   BiometricsService,
   BiometricStateService,
   KdfConfig,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
   EncString,
   InitUserCryptoMethod,
+  InitUserCryptoRequest,
   Kdf,
   MasterPasswordUnlockData,
-  PasswordManagerClient,
   PureCrypto,
   V2UpgradeToken,
   WrappedAccountCryptographicState,
@@ -69,6 +69,8 @@ export class DefaultUnlockService implements UnlockService {
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    private sdkService: SdkService,
+    private keyService: KeyService,
   ) {}
 
   registerOnUnlockAction(
@@ -158,6 +160,32 @@ export class DefaultUnlockService implements UnlockService {
   }
 
   private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {
+    // `upgradeToken` is left out: SdkService supplies it on the long-lived path. The legacy branch below
+    // adds it for itself, since it drives the register client directly.
+    const request: InitUserCryptoRequest = {
+      userId: asUuid(userId),
+      kdfParams: await this.getKdfParams(userId),
+      email: await this.getEmail(userId),
+      accountCryptographicState: await this.getAccountCryptographicState(userId),
+      method,
+    };
+
+    // Flag on: unlock the long-lived client directly, so the client that derives the key and writes
+    // USER_KEY is the same one consumers read through userClient$. Returns the key it unlocked with, or
+    // null when the flag is off. Org keys can only be built once that key exists, so they follow in
+    // runOnUnlockSideEffects rather than being passed here.
+    const longLivedUserKey = await this.sdkService.unlock(userId, request);
+    if (longLivedUserKey != null) {
+      await this.runOnUnlockSideEffects(userId, longLivedUserKey);
+      return;
+    }
+
+    // Flag off (legacy): unlock via a throwaway register client. It writes USER_KEY to state, and the
+    // reactive SDK client rebuilds itself from that state.
+    const legacyRequest: InitUserCryptoRequest = {
+      ...request,
+      upgradeToken: await this.getV2UpgradeToken(userId),
+    };
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
@@ -167,16 +195,12 @@ export class DefaultUnlockService implements UnlockService {
 
           using ref = sdk.take();
 
-          await ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
-            kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId),
-            accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method,
-            upgradeToken: await this.getV2UpgradeToken(userId),
-          });
+          await ref.value.crypto().initialize_user_crypto(legacyRequest);
 
-          await this.runOnUnlockSideEffects(userId, ref);
+          const userKey = SymmetricCryptoKey.fromString(
+            await ref.value.crypto().get_user_encryption_key(),
+          );
+          await this.runOnUnlockSideEffects(userId, userKey);
         }),
       ),
     );
@@ -253,13 +277,7 @@ export class DefaultUnlockService implements UnlockService {
 
   // When unlocking, certain side-effects must be run, such as setting the never-lock key and the biometrics key.
   // Currently this does not happen from within the SDK but form here instead.
-  private async runOnUnlockSideEffects(
-    userId: UserId,
-    client: Ref<PasswordManagerClient>,
-  ): Promise<void> {
-    const userKey = SymmetricCryptoKey.fromString(
-      await client.value.crypto().get_user_encryption_key(),
-    );
+  private async runOnUnlockSideEffects(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
     if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
     }
@@ -267,6 +285,23 @@ export class DefaultUnlockService implements UnlockService {
       await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
     }
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
+
+    // Initialize org crypto on the long-lived client (no-op while the flag is off; the reactive client
+    // rebuilds org crypto from state). The org-key payload can only be built once the user key exists,
+    // which is why it follows the unlock rather than being passed to it. On the flag-on path the user
+    // crypto was already established directly on the long-lived client; this completes the unlock.
+    //
+    // This push is also what marks the client ready (`SdkService.cryptoReady$`), since this path omitted
+    // org keys from the unlock. It has to run even when the payload could not be built, or the client
+    // would stay gated forever and the vault would never decrypt. An empty push is correct there: the
+    // client has no org keys, which is exactly what we failed to build.
+    const unlockData = await this.keyService.buildSdkUnlockData(userId, userKey as UserKey);
+    if (unlockData == null) {
+      this.logService.warning(
+        `Could not build the SDK unlock payload for user (${userId}); the client has no organization keys.`,
+      );
+    }
+    await this.sdkService.setOrgKeys(userId, unlockData?.orgKeys ?? {});
 
     for (const action of this.onUnlockActions) {
       await action(userId, userKey);

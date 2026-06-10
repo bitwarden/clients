@@ -873,6 +873,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
       AccountCryptographicStateService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1043,6 +1044,8 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      SdkService,
+      KeyService,
     ],
   }),
   safeProvider({
@@ -1462,6 +1465,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       StateProvider,
       AuthServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1867,19 +1871,36 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkService,
-    useClass: DefaultSdkService,
+    useFactory: (
+      sdkClientFactory: SdkClientFactory,
+      environmentService: EnvironmentService,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      accountService: AccountServiceAbstraction,
+      stateProvider: StateProvider,
+      injector: Injector,
+    ) =>
+      new DefaultSdkService(
+        sdkClientFactory,
+        environmentService,
+        platformUtilsService,
+        accountService,
+        // The legacy-path / cycle-participating deps are resolved lazily (via the injector) so the
+        // services that push into SdkService can inject it without a construction cycle.
+        () => injector.get(KdfConfigService),
+        () => injector.get(KeyService),
+        () => injector.get(AccountCryptographicStateService),
+        () => injector.get(ApiServiceAbstraction),
+        stateProvider,
+        () => injector.get(ConfigService),
+        injector.get(V2UpgradeTokenStateService),
+      ),
     deps: [
       SdkClientFactory,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
       AccountServiceAbstraction,
-      KdfConfigService,
-      KeyService,
-      AccountCryptographicStateService,
-      ApiServiceAbstraction,
       StateProvider,
-      ConfigService,
-      V2UpgradeTokenStateService,
+      Injector,
     ],
   }),
   safeProvider({
@@ -1978,7 +1999,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: DefaultLogoutService,
-    deps: [MessagingServiceAbstraction],
+    deps: [MessagingServiceAbstraction, SdkService],
   }),
   safeProvider({
     provide: DocumentLangSetter,
@@ -2058,6 +2079,7 @@ const safeProviders: SafeProvider[] = [
       ProcessReloadServiceAbstraction,
       LogService,
       KeyService,
+      SdkService,
     ],
   }),
   safeProvider({
