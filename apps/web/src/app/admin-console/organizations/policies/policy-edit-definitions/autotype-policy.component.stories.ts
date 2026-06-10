@@ -7,14 +7,16 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { TypographyDirective } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 
-import {
-  DesktopAutotypeDefaultSettingPolicyComponent,
-  DesktopAutotypeDefaultSettingPolicy,
-} from "./autotype-policy.component";
+import { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
+import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
+
+const policy = new DesktopAutotypeDefaultSettingPolicy();
 
 function makePolicyStatusResponse(enabled: boolean): PolicyStatusResponse {
   return new PolicyStatusResponse({
@@ -43,21 +45,27 @@ type StoryArgs = { enabled: boolean };
 function renderStory(args: StoryArgs) {
   return {
     props: {
-      policy: new DesktopAutotypeDefaultSettingPolicy(),
+      titleKey: policy.v2?.name ?? policy.name,
+      descriptionKey: policy.v2?.description ?? policy.description,
+      showDescription: policy.showDescription,
+      policyDef: policy,
       policyResponse: makePolicyStatusResponse(args.enabled),
     },
     template: `
-      <autotype-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></autotype-policy-edit>
+      <div class="tw-p-4 tw-w-96">
+        <p bitTypography="body1">{{ descriptionKey | i18n }}</p>
+        <app-simple-toggle-policy-edit
+          [policy]="policyDef"
+          [policyResponse]="policyResponse"
+        ></app-simple-toggle-policy-edit>
+      </div>
     `,
   };
 }
 
 export default {
   title: "Admin Console/Organizations/Policies/Desktop Autotype Default Setting",
-  component: DesktopAutotypeDefaultSettingPolicyComponent,
+  component: SimpleTogglePolicyComponent,
   args: { enabled: false },
   argTypes: {
     enabled: {
@@ -67,7 +75,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [DesktopAutotypeDefaultSettingPolicyComponent],
+      imports: [I18nPipe, TypographyDirective, SimpleTogglePolicyComponent],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },

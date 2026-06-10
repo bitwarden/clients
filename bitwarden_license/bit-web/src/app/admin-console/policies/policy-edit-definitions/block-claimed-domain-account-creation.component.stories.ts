@@ -7,13 +7,15 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CalloutComponent, LinkComponent, TypographyDirective } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions/simple-toggle-policy.component";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import {
-  BlockClaimedDomainAccountCreationPolicyComponent,
-  BlockClaimedDomainAccountCreationPolicy,
-} from "./block-claimed-domain-account-creation.component";
+import { BlockClaimedDomainAccountCreationPolicy } from "./block-claimed-domain-account-creation.component";
+
+const policy = new BlockClaimedDomainAccountCreationPolicy();
 
 function makePolicyStatusResponse(enabled: boolean): PolicyStatusResponse {
   return new PolicyStatusResponse({
@@ -42,21 +44,38 @@ type StoryArgs = { enabled: boolean };
 function renderStory(args: StoryArgs) {
   return {
     props: {
-      policy: new BlockClaimedDomainAccountCreationPolicy(),
+      descriptionKey: policy.v2?.description ?? policy.description,
+      prerequisiteKey: policy.v2?.prerequisiteKey,
+      prerequisiteLinkHref: policy.v2?.prerequisiteLinkHref,
+      prerequisiteLinkTextKey: policy.v2?.prerequisiteLinkTextKey,
+      policyDef: policy,
       policyResponse: makePolicyStatusResponse(args.enabled),
     },
     template: `
-      <block-claimed-domain-account-creation-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></block-claimed-domain-account-creation-policy-edit>
+      <div class="tw-p-4 tw-w-96">
+        @if (prerequisiteKey) {
+          <bit-callout type="info" [title]="'prerequisite' | i18n">
+            {{ prerequisiteKey | i18n }}
+            @if (prerequisiteLinkHref && prerequisiteLinkTextKey) {
+              <a bitLink [href]="prerequisiteLinkHref" target="_blank" rel="noreferrer">
+                {{ prerequisiteLinkTextKey | i18n }}
+              </a>
+            }
+          </bit-callout>
+        }
+        <p bitTypography="body1">{{ descriptionKey | i18n }}</p>
+        <app-simple-toggle-policy-edit
+          [policy]="policyDef"
+          [policyResponse]="policyResponse"
+        ></app-simple-toggle-policy-edit>
+      </div>
     `,
   };
 }
 
 export default {
   title: "Admin Console/Organizations/Policies/Block Claimed Domain Account Creation",
-  component: BlockClaimedDomainAccountCreationPolicyComponent,
+  component: SimpleTogglePolicyComponent,
   args: { enabled: false },
   argTypes: {
     enabled: {
@@ -66,7 +85,13 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [BlockClaimedDomainAccountCreationPolicyComponent],
+      imports: [
+        I18nPipe,
+        TypographyDirective,
+        CalloutComponent,
+        LinkComponent,
+        SimpleTogglePolicyComponent,
+      ],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },

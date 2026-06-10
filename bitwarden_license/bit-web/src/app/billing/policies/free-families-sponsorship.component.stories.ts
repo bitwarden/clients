@@ -1,5 +1,4 @@
-import { NgComponentOutlet } from "@angular/common";
-import { importProvidersFrom, Type } from "@angular/core";
+import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
@@ -8,14 +7,15 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { TypographyDirective } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { BasePolicyEditComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions/simple-toggle-policy.component";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import {
-  FreeFamiliesSponsorshipPolicyComponent,
-  FreeFamiliesSponsorshipPolicy,
-} from "./free-families-sponsorship.component";
+import { FreeFamiliesSponsorshipPolicy } from "./free-families-sponsorship.component";
+
+const policy = new FreeFamiliesSponsorshipPolicy();
 
 function makePolicyStatusResponse(enabled: boolean): PolicyStatusResponse {
   return new PolicyStatusResponse({
@@ -44,24 +44,25 @@ type StoryArgs = { enabled: boolean };
 function renderStory(args: StoryArgs) {
   return {
     props: {
-      component: FreeFamiliesSponsorshipPolicyComponent as Type<BasePolicyEditComponent>,
-      inputs: {
-        policy: new FreeFamiliesSponsorshipPolicy(),
-        policyResponse: makePolicyStatusResponse(args.enabled),
-      },
+      descriptionKey: policy.v2?.description ?? policy.description,
+      policyDef: policy,
+      policyResponse: makePolicyStatusResponse(args.enabled),
     },
     template: `
-      <ng-container
-        [ngComponentOutlet]="component"
-        [ngComponentOutletInputs]="inputs"
-      ></ng-container>
+      <div class="tw-p-4 tw-w-96">
+        <p bitTypography="body1">{{ descriptionKey | i18n }}</p>
+        <app-simple-toggle-policy-edit
+          [policy]="policyDef"
+          [policyResponse]="policyResponse"
+        ></app-simple-toggle-policy-edit>
+      </div>
     `,
   };
 }
 
 export default {
   title: "Admin Console/Organizations/Policies/Free Families Sponsorship",
-  component: FreeFamiliesSponsorshipPolicyComponent,
+  component: SimpleTogglePolicyComponent,
   args: { enabled: false },
   argTypes: {
     enabled: {
@@ -71,7 +72,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [FreeFamiliesSponsorshipPolicyComponent, NgComponentOutlet],
+      imports: [I18nPipe, TypographyDirective, SimpleTogglePolicyComponent],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },

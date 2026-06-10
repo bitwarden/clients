@@ -7,14 +7,16 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { TypographyDirective } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 
-import {
-  RestrictedItemTypesPolicyComponent,
-  RestrictedItemTypesPolicy,
-} from "./restricted-item-types.component";
+import { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
+import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
+
+const policy = new RestrictedItemTypesPolicy();
 
 function makePolicyStatusResponse(enabled: boolean): PolicyStatusResponse {
   return new PolicyStatusResponse({
@@ -43,21 +45,25 @@ type StoryArgs = { enabled: boolean };
 function renderStory(args: StoryArgs) {
   return {
     props: {
-      policy: new RestrictedItemTypesPolicy(),
+      descriptionKey: policy.v2?.description ?? policy.description,
+      policyDef: policy,
       policyResponse: makePolicyStatusResponse(args.enabled),
     },
     template: `
-      <restricted-item-types-policy-edit
-        [policy]="policy"
-        [policyResponse]="policyResponse"
-      ></restricted-item-types-policy-edit>
+      <div class="tw-p-4 tw-w-96">
+        <p bitTypography="body1">{{ descriptionKey | i18n }}</p>
+        <app-simple-toggle-policy-edit
+          [policy]="policyDef"
+          [policyResponse]="policyResponse"
+        ></app-simple-toggle-policy-edit>
+      </div>
     `,
   };
 }
 
 export default {
   title: "Admin Console/Organizations/Policies/Restricted Item Types",
-  component: RestrictedItemTypesPolicyComponent,
+  component: SimpleTogglePolicyComponent,
   args: { enabled: false },
   argTypes: {
     enabled: {
@@ -67,7 +73,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [RestrictedItemTypesPolicyComponent],
+      imports: [I18nPipe, TypographyDirective, SimpleTogglePolicyComponent],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },

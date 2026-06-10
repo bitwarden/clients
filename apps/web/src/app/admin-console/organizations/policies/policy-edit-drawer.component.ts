@@ -161,6 +161,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
   async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading.set(false);
+    this.cdr.detectChanges(); // ensure @else branch renders before accessing policyFormRef
 
     const policyFormRef = this.policyFormRef();
     if (!policyFormRef) {
