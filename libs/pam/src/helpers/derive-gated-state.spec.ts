@@ -1,14 +1,14 @@
-import { LeaseResponse } from "../abstractions/responses/lease.response";
+import { AccessLeaseResponse } from "../abstractions/responses/access-lease.response";
 
 import { deriveGatedState } from "./derive-gated-state";
 
-function buildLease(overrides: Partial<LeaseResponse> = {}): LeaseResponse {
-  return Object.assign(new LeaseResponse({}), {
+function buildLease(overrides: Partial<AccessLeaseResponse> = {}): AccessLeaseResponse {
+  return Object.assign(new AccessLeaseResponse({}), {
     id: "lease-1",
     requestId: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
-    granteeUserId: "user-1",
+    requesterId: "user-1",
     notBefore: new Date("2026-01-01T00:00:00Z").toISOString(),
     notAfter: new Date("2026-01-01T01:00:00Z").toISOString(),
     status: "active",
@@ -54,7 +54,7 @@ describe("deriveGatedState", () => {
 
   it("ignores leases granted to other users", () => {
     const memberships = [{ requireLease: true }];
-    const otherUser = buildLease({ granteeUserId: "user-2" });
+    const otherUser = buildLease({ requesterId: "user-2" });
     expect(deriveGatedState(cipherId, memberships, [otherUser], userId, now)).toBe(
       "gated_no_lease",
     );

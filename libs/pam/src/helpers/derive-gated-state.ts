@@ -1,4 +1,4 @@
-import { LeaseResponse } from "../abstractions/responses/lease.response";
+import { AccessLeaseResponse } from "../abstractions/responses/access-lease.response";
 
 import { GatedState } from "./gated-state";
 
@@ -9,7 +9,7 @@ export type CollectionMembershipForLeasing = {
 export function deriveGatedState(
   cipherId: string,
   memberships: readonly CollectionMembershipForLeasing[],
-  activeLeases: readonly LeaseResponse[],
+  activeLeases: readonly AccessLeaseResponse[],
   userId: string,
   now: Date,
 ): GatedState {
@@ -23,7 +23,7 @@ export function deriveGatedState(
   const hasActiveLease = activeLeases.some(
     (lease) =>
       lease.cipherId === cipherId &&
-      lease.granteeUserId === userId &&
+      lease.requesterId === userId &&
       lease.status === "active" &&
       Date.parse(lease.notAfter) > nowMs,
   );

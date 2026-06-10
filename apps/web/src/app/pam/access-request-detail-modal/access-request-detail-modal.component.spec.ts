@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogRef, I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import {
   AccessRequestDetailModalComponent,
@@ -14,9 +14,9 @@ import {
 } from "./access-request-detail-modal.component";
 
 function makeRequest(
-  overrides: Partial<ConstructorParameters<typeof AccessRequestResponse>[0]> = {},
-): AccessRequestResponse {
-  return new AccessRequestResponse({
+  overrides: Partial<ConstructorParameters<typeof AccessRequestDetailsResponse>[0]> = {},
+): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: "req-1",
     CipherId: "cipher-1",
     CollectionId: "col-1",

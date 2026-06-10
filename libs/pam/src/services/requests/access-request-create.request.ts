@@ -4,7 +4,7 @@
  * human = `start` + `end` + required `reason`). Client-side validation lives in
  * the form layer.
  */
-export class CreateLeaseRequest {
+export class AccessRequestCreateRequest {
   durationSeconds?: number;
   start?: string;
   end?: string;

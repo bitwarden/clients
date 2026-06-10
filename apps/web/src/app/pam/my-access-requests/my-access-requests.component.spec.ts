@@ -8,7 +8,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
 
 import {
   MyAccessRequestsComponent,
@@ -24,15 +24,15 @@ type ResponseFixture = {
   status: AccessRequestStatus;
   submittedAt?: string;
   resolvedAt?: string | null;
-  resolverUserId?: string | null;
-  resolverComment?: string | null;
+  approverId?: string | null;
+  approverComment?: string | null;
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
   requestedTtlSeconds?: number;
 };
 
-function makeResponse(fixture: ResponseFixture): AccessRequestResponse {
-  return new AccessRequestResponse({
+function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: fixture.id,
     CipherId: fixture.cipherId ?? `cipher-${fixture.id}`,
     CollectionId: "col-1",
@@ -44,8 +44,8 @@ function makeResponse(fixture: ResponseFixture): AccessRequestResponse {
     Reason: null,
     SubmittedAt: fixture.submittedAt ?? "2026-05-01T00:00:00Z",
     ResolvedAt: fixture.resolvedAt ?? null,
-    ResolverUserId: fixture.resolverUserId ?? null,
-    ResolverComment: fixture.resolverComment ?? null,
+    ResolverUserId: fixture.approverId ?? null,
+    ResolverComment: fixture.approverComment ?? null,
     LeaseId: null,
   });
 }
@@ -94,8 +94,8 @@ describe("MyAccessRequestsComponent", () => {
       cancelAccessRequest: jest.fn(),
       requestLeaseExtension: jest.fn(),
       decideAccessRequest: jest.fn(),
-      revokeLease: jest.fn(),
-      listMyRequests: jest.fn().mockResolvedValue([]),
+      revokeAccessLease: jest.fn(),
+      listMyAccessRequests: jest.fn().mockResolvedValue([]),
     } as unknown as jest.Mocked<PamApiService>;
 
     configFlag$ = new BehaviorSubject<boolean>(true);
@@ -121,9 +121,9 @@ describe("MyAccessRequestsComponent", () => {
   });
 
   const create = async (
-    responses: AccessRequestResponse[],
+    responses: AccessRequestDetailsResponse[],
   ): Promise<ComponentFixture<MyAccessRequestsComponent>> => {
-    pamApi.listMyRequests.mockResolvedValue(responses);
+    pamApi.listMyAccessRequests.mockResolvedValue(responses);
     const fixture = TestBed.createComponent(MyAccessRequestsComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -165,7 +165,7 @@ describe("MyAccessRequestsComponent", () => {
         id: "r1",
         status: "approved",
         resolvedAt: within,
-        resolverUserId: "user-7",
+        approverId: "user-7",
       }),
     ]);
     expect(
@@ -181,7 +181,7 @@ describe("MyAccessRequestsComponent", () => {
       Date.now() - (RECENT_WINDOW_DAYS + 1) * 24 * 60 * 60 * 1000,
     ).toISOString();
     const fixture = await create([
-      makeResponse({ id: "old", status: "approved", resolvedAt: stale, resolverUserId: "x" }),
+      makeResponse({ id: "old", status: "approved", resolvedAt: stale, approverId: "x" }),
     ]);
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-old"]'),
@@ -191,7 +191,7 @@ describe("MyAccessRequestsComponent", () => {
   });
 
   it("cancels a pending request optimistically and calls the API", fakeAsync(() => {
-    pamApi.listMyRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
+    pamApi.listMyAccessRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
     pamApi.cancelAccessRequest.mockResolvedValue(undefined);
 
     const fixture = TestBed.createComponent(MyAccessRequestsComponent);
@@ -218,7 +218,7 @@ describe("MyAccessRequestsComponent", () => {
   }));
 
   it("reverts the optimistic cancel when the API call fails", fakeAsync(() => {
-    pamApi.listMyRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
+    pamApi.listMyAccessRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
     pamApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
 
     const fixture = TestBed.createComponent(MyAccessRequestsComponent);
@@ -241,7 +241,7 @@ describe("MyAccessRequestsComponent", () => {
   }));
 
   it("shows a toast and renders the empty state when load fails", fakeAsync(() => {
-    pamApi.listMyRequests.mockRejectedValue(new Error("boom"));
+    pamApi.listMyAccessRequests.mockRejectedValue(new Error("boom"));
 
     const fixture = TestBed.createComponent(MyAccessRequestsComponent);
     fixture.detectChanges();
@@ -282,19 +282,19 @@ describe("resolveResolverDisplayName", () => {
 
   it("returns null for pending requests", () => {
     expect(
-      resolveResolverDisplayName({ status: "pending", resolverUserId: null }, i18nMock),
+      resolveResolverDisplayName({ status: "pending", approverId: null }, i18nMock),
     ).toBeNull();
   });
 
   it("returns the access-rule label when there is no resolver user", () => {
-    expect(resolveResolverDisplayName({ status: "expired", resolverUserId: null }, i18nMock)).toBe(
+    expect(resolveResolverDisplayName({ status: "expired", approverId: null }, i18nMock)).toBe(
       "Access rule",
     );
   });
 
   it("falls back to the raw user id when a human resolved the request", () => {
-    expect(
-      resolveResolverDisplayName({ status: "approved", resolverUserId: "user-7" }, i18nMock),
-    ).toBe("user-7");
+    expect(resolveResolverDisplayName({ status: "approved", approverId: "user-7" }, i18nMock)).toBe(
+      "user-7",
+    );
   });
 });

@@ -8,12 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import {
-  InboxAccessRequestResponse,
-  LeaseDecisionRequest,
-  AccessRequestResponse,
-  PamApiService,
-} from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 
@@ -25,7 +20,7 @@ const CURRENT_USER_ID = "user-current";
 function row(
   overrides: Partial<{
     id: string;
-    requesterUserId: string;
+    requesterId: string;
     requesterName: string | null;
     requesterEmail: string;
     cipherName: string;
@@ -36,13 +31,13 @@ function row(
     requestedNotAfter: string | null;
     requestedTtlSeconds: number;
   }> = {},
-): InboxAccessRequestResponse {
+): AccessRequestDetailsResponse {
   const submittedAt = overrides.submittedAt ?? new Date(Date.now() - 30 * 60_000).toISOString();
-  return new InboxAccessRequestResponse({
+  return new AccessRequestDetailsResponse({
     Id: overrides.id ?? "req-1",
     CipherId: "cipher-1",
     CollectionId: "col-1",
-    RequesterUserId: overrides.requesterUserId ?? "user-2",
+    RequesterUserId: overrides.requesterId ?? "user-2",
     Status: "pending",
     RequestedNotBefore: overrides.requestedNotBefore ?? null,
     RequestedNotAfter: overrides.requestedNotAfter ?? null,
@@ -56,21 +51,21 @@ function row(
   });
 }
 
-function fakeApi(rows: InboxAccessRequestResponse[]): PamApiService {
+function fakeApi(rows: AccessRequestDetailsResponse[]): PamApiService {
   return {
     fetchGatedCipher: () => Promise.reject(new Error("not used")),
     patchAccessRequest: () => Promise.reject(new Error("not used")),
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not used")),
-    decideAccessRequest: (id: string, _request: LeaseDecisionRequest) =>
-      Promise.resolve(new AccessRequestResponse({ Id: id, Status: "approved" })),
-    revokeLease: () => Promise.resolve(),
+    decideAccessRequest: (id: string, _request: AccessDecisionRequest) =>
+      Promise.resolve(new AccessRequestDetailsResponse({ Id: id, Status: "approved" })),
+    revokeAccessLease: () => Promise.resolve(),
     listInboxRequests: () => Promise.resolve(rows),
     listInboxHistory: () => Promise.resolve([]),
   } as unknown as PamApiService;
 }
 
-function decorators(rows: InboxAccessRequestResponse[]) {
+function decorators(rows: AccessRequestDetailsResponse[]) {
   return [
     moduleMetadata({
       imports: [JslibModule, RouterTestingModule],
@@ -202,7 +197,7 @@ export const PopulatedWithSelfRequest: Story = {
     row({
       id: "req-self",
       submittedAt: new Date(Date.now() - 10 * 60_000).toISOString(),
-      requesterUserId: CURRENT_USER_ID,
+      requesterId: CURRENT_USER_ID,
       requesterName: "Me",
       requesterEmail: "me@example.com",
       cipherName: "My own request",

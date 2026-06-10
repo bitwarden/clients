@@ -2,7 +2,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   CipherLeaseBannerComponent,
   DefaultPamApiService,
-  LeaseEventService,
+  AccessEventService,
   LeasedCipherFetcher,
   PamApiService,
   RequestAccessTrigger,
@@ -14,7 +14,7 @@ import { CIPHER_OPEN_GATE } from "../vault/individual-vault/cipher-open-gate";
 
 import { PamCipherOpenGate } from "./cipher-open-gate.service";
 // DEMO ONLY: mock layer for the PAM API surface.
-import { MockLeaseEventService } from "./mock/mock-lease-event.service";
+import { MockAccessEventService } from "./mock/mock-access-event.service";
 import { MockPamApiService } from "./mock/mock-pam-api.service";
 import { PamMockConfig } from "./mock/pam-mock-config";
 import { WebRequestAccessTrigger } from "./request-access-trigger/web-request-access-trigger.service";
@@ -33,14 +33,14 @@ export function providePam(): SafeProvider[] {
       provide: PamApiService,
       useFactory: (
         apiService: ApiService,
-        leaseEvents: LeaseEventService,
+        accessEvents: AccessEventService,
         mock: MockPamApiService,
-      ) => (PamMockConfig.isEnabled() ? mock : new DefaultPamApiService(apiService, leaseEvents)),
-      deps: [ApiService, LeaseEventService, MockPamApiService],
+      ) => (PamMockConfig.isEnabled() ? mock : new DefaultPamApiService(apiService, accessEvents)),
+      deps: [ApiService, AccessEventService, MockPamApiService],
     }),
     safeProvider({
-      provide: LeaseEventService,
-      useExisting: MockLeaseEventService,
+      provide: AccessEventService,
+      useExisting: MockAccessEventService,
       deps: [],
     }),
     safeProvider({

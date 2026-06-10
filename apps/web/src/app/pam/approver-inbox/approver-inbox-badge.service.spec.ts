@@ -8,7 +8,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessageListener, Message } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { UserId } from "@bitwarden/common/types/guid";
-import { InboxAccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 
@@ -55,7 +55,7 @@ describe("ApproverInboxBadgeService", () => {
 
   function resolveRows(count: number) {
     listInboxRequests.mockResolvedValue(
-      Array.from({ length: count }, (_, i) => ({ id: `req-${i}` }) as InboxAccessRequestResponse),
+      Array.from({ length: count }, (_, i) => ({ id: `req-${i}` }) as AccessRequestDetailsResponse),
     );
   }
 

@@ -1,4 +1,4 @@
-export class LeaseRevokeRequest {
+export class AccessLeaseRevokeRequest {
   reason?: string;
 
   constructor(init: { reason?: string }) {

@@ -27,9 +27,9 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  InboxAccessRequestResponse,
-  LeaseDecision,
-  LeaseDecisionRequest,
+  AccessRequestDetailsResponse,
+  AccessDecisionVerdict,
+  AccessDecisionRequest,
   canApprove,
   formatRemaining,
 } from "@bitwarden/pam";
@@ -46,7 +46,7 @@ type HistoryFilter = BucketKey | "all";
 
 /** A single row in the flat history table — all display fields pre-computed. */
 type FlatHistoryRow = {
-  item: InboxAccessRequestResponse;
+  item: AccessRequestDetailsResponse;
   bucket: BucketKey;
   canRevoke: boolean;
   statusClass: string; // Tailwind colour classes for the status label
@@ -89,7 +89,7 @@ function historyStatusLabelFor(bucket: BucketKey, status: string): string {
 }
 
 function historyRelTimeFor(
-  item: InboxAccessRequestResponse,
+  item: AccessRequestDetailsResponse,
   bucket: BucketKey,
   now: Date,
 ): { key: string; value: string } | null {
@@ -185,7 +185,7 @@ export class ApproverInboxComponent implements OnInit {
         (item): FlatHistoryRow => ({
           item,
           bucket,
-          canRevoke: (bucket === "active" || bucket === "future") && item.leaseId != null,
+          canRevoke: (bucket === "active" || bucket === "future") && item.producedLeaseId != null,
           statusClass: historyStatusClassFor(bucket, item.status),
           statusLabel: historyStatusLabelFor(bucket, item.status),
           relTime: historyRelTimeFor(item, bucket, now),
@@ -228,28 +228,28 @@ export class ApproverInboxComponent implements OnInit {
     }
   }
 
-  protected canDecide(request: InboxAccessRequestResponse): boolean {
+  protected canDecide(request: AccessRequestDetailsResponse): boolean {
     const userId = this.currentUserId();
     if (userId == null) {
       return false;
     }
-    return canApprove({ requesterUserId: request.requesterUserId }, { id: userId });
+    return canApprove({ requesterId: request.requesterId }, { id: userId });
   }
 
   protected async onDecide(
-    request: InboxAccessRequestResponse,
-    event: { decision: LeaseDecision; comment: string | undefined },
+    request: AccessRequestDetailsResponse,
+    event: { verdict: AccessDecisionVerdict; comment: string | undefined },
   ): Promise<void> {
     try {
       await this.inbox.decideAccessRequest(
         request.id,
-        new LeaseDecisionRequest({ decision: event.decision, comment: event.comment }),
+        new AccessDecisionRequest({ verdict: event.verdict, comment: event.comment }),
       );
       this.toastService.showToast({
         variant: "success",
         title: null,
         message: this.i18nService.t(
-          event.decision === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
+          event.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
         ),
       });
     } catch (e) {
@@ -267,14 +267,14 @@ export class ApproverInboxComponent implements OnInit {
   /** IDs of leases currently being revoked (prevents double-click). */
   protected readonly revoking = signal<Set<string>>(new Set());
 
-  protected async onRevoke(item: InboxAccessRequestResponse): Promise<void> {
-    if (!item.leaseId) {
+  protected async onRevoke(item: AccessRequestDetailsResponse): Promise<void> {
+    if (!item.producedLeaseId) {
       return;
     }
-    const leaseId = item.leaseId;
+    const leaseId = item.producedLeaseId;
     this.revoking.update((s) => new Set([...s, leaseId]));
     try {
-      await this.inbox.revokeLease(leaseId);
+      await this.inbox.revokeAccessLease(leaseId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -297,21 +297,21 @@ export class ApproverInboxComponent implements OnInit {
   }
 
   /** Used by @for track on the inbox list. */
-  protected trackById(_index: number, request: InboxAccessRequestResponse): string {
+  protected trackById(_index: number, request: AccessRequestDetailsResponse): string {
     return request.id;
   }
 }
 
 export type HistoryGroup = {
   bucket: BucketKey;
-  items: InboxAccessRequestResponse[];
+  items: AccessRequestDetailsResponse[];
 };
 
-export function groupHistory(items: InboxAccessRequestResponse[], now: Date): HistoryGroup[] {
+export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): HistoryGroup[] {
   const nowMs = now.getTime();
-  const future: InboxAccessRequestResponse[] = [];
-  const active: InboxAccessRequestResponse[] = [];
-  const past: InboxAccessRequestResponse[] = [];
+  const future: AccessRequestDetailsResponse[] = [];
+  const active: AccessRequestDetailsResponse[] = [];
+  const past: AccessRequestDetailsResponse[] = [];
 
   for (const item of items) {
     // An `activated` request has a minted lease whose window places it in the

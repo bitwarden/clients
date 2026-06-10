@@ -12,9 +12,9 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import {
-  InboxAccessRequestResponse,
-  LeaseDecisionRequest,
-  LeaseRevokeRequest,
+  AccessRequestDetailsResponse,
+  AccessDecisionRequest,
+  AccessLeaseRevokeRequest,
   PamApiService,
 } from "@bitwarden/pam";
 
@@ -23,7 +23,7 @@ import {
  * inbox sort (oldest first, then collection name), and manages optimistic
  * removal + rollback on decision submission.
  *
- * Cipher names arrive encrypted on the wire (see {@link InboxAccessRequestResponse})
+ * Cipher names arrive encrypted on the wire (see {@link AccessRequestDetailsResponse})
  * and are decrypted in-place with the owning org's key before rows reach
  * subscribers. No other Vault Data passes through this service.
  */
@@ -35,13 +35,13 @@ export class ApproverInboxService {
   private readonly encryptService = inject(EncryptService);
   private readonly logService = inject(LogService);
 
-  private readonly _requests$ = new BehaviorSubject<InboxAccessRequestResponse[]>([]);
-  private readonly _history$ = new BehaviorSubject<InboxAccessRequestResponse[]>([]);
+  private readonly _requests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
+  private readonly _history$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
-  readonly requests$: Observable<InboxAccessRequestResponse[]> = this._requests$.asObservable();
-  readonly history$: Observable<InboxAccessRequestResponse[]> = this._history$.asObservable();
+  readonly requests$: Observable<AccessRequestDetailsResponse[]> = this._requests$.asObservable();
+  readonly history$: Observable<AccessRequestDetailsResponse[]> = this._history$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   readonly badgeCount$: Observable<number> = this._requests$.pipe(
@@ -77,7 +77,7 @@ export class ApproverInboxService {
    * Submit a decision; remove the row optimistically. On failure, restore
    * the row in its original position and rethrow so the caller can toast.
    */
-  async decideAccessRequest(requestId: string, request: LeaseDecisionRequest): Promise<void> {
+  async decideAccessRequest(requestId: string, request: AccessDecisionRequest): Promise<void> {
     const current = this._requests$.value;
     const index = current.findIndex((r) => r.id === requestId);
     if (index === -1) {
@@ -92,11 +92,11 @@ export class ApproverInboxService {
     this._requests$.next(next);
     try {
       const resolved = await this.pamApiService.decideAccessRequest(requestId, request);
-      // Decision response only populates status/resolvedAt/resolverComment;
+      // Decision response only populates status/resolvedAt/approverComment;
       // keep the already-decrypted display fields from the existing row.
       row.status = resolved.status;
       row.resolvedAt = resolved.resolvedAt;
-      row.resolverComment = resolved.resolverComment;
+      row.approverComment = resolved.approverComment;
       this._history$.next([row, ...this._history$.value]);
     } catch (e) {
       const restored = this._requests$.value.slice();
@@ -114,11 +114,11 @@ export class ApproverInboxService {
    * revocation is not reflected in any status enum we receive — flipping
    * the window is the only way to drop the row out of "Active" in the UI.
    */
-  async revokeLease(leaseId: string): Promise<void> {
-    await this.pamApiService.revokeLease(leaseId, new LeaseRevokeRequest({}));
+  async revokeAccessLease(leaseId: string): Promise<void> {
+    await this.pamApiService.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
     const epoch = new Date(0).toISOString();
     const updated = this._history$.value.map((item) => {
-      if (item.leaseId === leaseId) {
+      if (item.producedLeaseId === leaseId) {
         item.requestedNotAfter = epoch;
       }
       return item;
@@ -136,7 +136,7 @@ export class ApproverInboxService {
   }
 
   private async decryptDisplayNames(
-    rows: InboxAccessRequestResponse[],
+    rows: AccessRequestDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<void> {
     await Promise.all(
@@ -154,7 +154,7 @@ export class ApproverInboxService {
   }
 
   private async decryptField(
-    row: InboxAccessRequestResponse,
+    row: AccessRequestDetailsResponse,
     field: "cipherName" | "collectionName",
     orgKey: OrgKey,
   ): Promise<void> {
@@ -178,7 +178,7 @@ export class ApproverInboxService {
  * Exported for testing.
  */
 export function sortInbox<
-  T extends Pick<InboxAccessRequestResponse, "submittedAt" | "collectionName">,
+  T extends Pick<AccessRequestDetailsResponse, "submittedAt" | "collectionName">,
 >(rows: readonly T[]): T[] {
   return rows.slice().sort((a, b) => {
     const submittedDelta = Date.parse(a.submittedAt) - Date.parse(b.submittedAt);

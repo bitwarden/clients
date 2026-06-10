@@ -63,11 +63,11 @@ export class VaultRowLeaseBadgeComponent {
         return of(null);
       }
       return this.pamApiService.getCipherAccessState$(cipher.id, userId).pipe(
-        map(({ lease }): LeaseBadgeView => {
-          if (lease.activeLease != null) {
+        map((state): LeaseBadgeView => {
+          if (state.activeLease != null) {
             return {
               state: "gated_active_lease",
-              expiresAt: new Date(lease.activeLease.notAfter),
+              expiresAt: new Date(state.activeLease.notAfter),
             };
           }
           return { state: "gated_no_lease", expiresAt: null };

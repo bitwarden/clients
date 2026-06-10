@@ -13,7 +13,7 @@ import {
 
 /**
  * Host-side implementation of {@link RequestAccessTrigger}: calls
- * {@link PamApiService.getLeasePreCheck} to resolve the approval outcome, then
+ * {@link PamApiService.getAccessPreCheck} to resolve the approval outcome, then
  * opens {@link RequestAccessModalComponent} so the user can supply the matching
  * body (duration for automatic, window + reason for human). The modal posts to
  * `POST /ciphers/{id}/lease` itself; this service just orchestrates and toasts
@@ -28,10 +28,10 @@ export class WebRequestAccessTrigger extends RequestAccessTrigger {
   private readonly logService = inject(LogService);
 
   async requestAccess(cipherId: string): Promise<RequestAccessOutcome> {
-    let outcome;
+    let outcome: "active" | import("@bitwarden/pam").AccessApprovalMode;
     try {
-      const preCheck = await this.pamApi.getLeasePreCheck(cipherId);
-      outcome = preCheck.outcome;
+      const preCheck = await this.pamApi.getAccessPreCheck(cipherId);
+      outcome = preCheck.hasActiveLease ? "active" : preCheck.approvalMode;
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({

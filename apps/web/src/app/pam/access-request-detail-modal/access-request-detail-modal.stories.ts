@@ -7,7 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogRef, I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import {
   AccessRequestDetailModalComponent,
@@ -18,8 +18,10 @@ import {
 const oneHour = 60 * 60 * 1000;
 const now = Date.now();
 
-function makeRequest(overrides: Partial<Record<string, unknown>> = {}): AccessRequestResponse {
-  return new AccessRequestResponse({
+function makeRequest(
+  overrides: Partial<Record<string, unknown>> = {},
+): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: "req-storybook",
     CipherId: "cipher-1",
     CollectionId: "col-1",
@@ -65,8 +67,8 @@ function pamApiStub(): PamApiService {
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not implemented")),
     decideAccessRequest: () => Promise.reject(new Error("not implemented")),
-    revokeLease: () => Promise.resolve(),
-    listMyRequests: () => Promise.resolve([]),
+    revokeAccessLease: () => Promise.resolve(),
+    listMyAccessRequests: () => Promise.resolve([]),
   } as unknown as PamApiService;
 }
 

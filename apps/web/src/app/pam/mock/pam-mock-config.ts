@@ -30,7 +30,7 @@ export const PamMockConfig = {
   /** Delay before the mock auto-decides a pending request. */
   AUTO_DECIDE_DELAY_MS: 4000,
 
-  /** Default lease duration for both seed leases and redeemed on-demand leases. */
+  /** Default lease duration for both seed leases and activated on-demand leases. */
   DEFAULT_LEASE_DURATION_MS: 60 * 60 * 1000,
 
   /**
@@ -41,10 +41,10 @@ export const PamMockConfig = {
   MOCK_ORG_ID: "mock-org",
 
   /**
-   * How long after approval an on-demand ticket stays redeemable before it
-   * auto-expires unused. Mirrors `config.ticket_redemption_deadline` (24h).
+   * How long after approval an on-demand approved request stays activatable before it
+   * auto-expires unused. Mirrors `config.activation deadline` (24h).
    */
-  TICKET_REDEMPTION_DEADLINE_MS: 24 * 60 * 60 * 1000,
+  ACTIVATION_DEADLINE_MS: 24 * 60 * 60 * 1000,
 
   /**
    * How long a pending request stays valid before auto-expiring without a

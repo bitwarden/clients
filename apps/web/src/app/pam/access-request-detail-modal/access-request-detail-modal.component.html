@@ -2,8 +2,8 @@
   <span bitDialogTitle>{{ "accessRequestDetailModalTitle" | i18n }}</span>
 
   <ng-container bitDialogContent>
-    @if (isApprovedTicket()) {
-      <p bitTypography="body2" class="tw-text-muted" data-testid="approved-ticket-description">
+    @if (isApprovedRequest()) {
+      <p bitTypography="body2" class="tw-text-muted" data-testid="approved-request-description">
         {{ "accessRequestDetailModalApprovedDescription" | i18n }}
       </p>
     } @else {
@@ -101,14 +101,14 @@
   </ng-container>
 
   <ng-container bitDialogFooter>
-    @if (isApprovedTicket()) {
+    @if (isApprovedRequest()) {
       <button
         type="button"
         bitButton
         buttonType="primary"
         [disabled]="submitting()"
         [loading]="submitting()"
-        (click)="startLease()"
+        (click)="activateLease()"
         data-testid="request-start-lease"
       >
         {{ "pamStartLeaseButton" | i18n }}

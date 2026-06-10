@@ -12,11 +12,11 @@ export type ConditionKind = (typeof ConditionKind)[keyof typeof ConditionKind];
 export type Approvers = { mode: "collection_managers" } | { mode: "specific"; userIds: string[] };
 
 /**
- * A single access check on a lease request. An access rule is a flat list of
+ * A single access check on an access request. An access rule is a flat list of
  * conditions, ANDed together. Zero conditions means no access checks — the
  * lease settings still apply, but anyone with collection access can lease.
  */
-export type Condition =
+export type AccessCondition =
   | { kind: "human_approval"; approvers?: Approvers }
   | { kind: "ip_allowlist"; cidrs: string[] };
 
@@ -39,7 +39,7 @@ function parseApprovers(json: unknown): Approvers | undefined {
   return undefined;
 }
 
-export function parseCondition(json: unknown): Condition {
+export function parseAccessCondition(json: unknown): AccessCondition {
   if (json == null || typeof json !== "object") {
     throw new Error("Invalid condition: not an object");
   }
@@ -57,25 +57,25 @@ export function parseCondition(json: unknown): Condition {
   }
 }
 
-export function parseConditions(json: unknown): Condition[] {
+export function parseAccessConditions(json: unknown): AccessCondition[] {
   if (json == null) {
     return [];
   }
   if (!Array.isArray(json)) {
     throw new Error("Invalid conditions: not an array");
   }
-  return json.map(parseCondition);
+  return json.map(parseAccessCondition);
 }
 
-// Server-side AccessRule shape: a single tree, not a flat conditions list.
-// The UI still works in terms of `Condition[]`; AccessRuleRequest derives the
-// tree from those conditions before sending.
-export type AccessRule =
+// Server-side conditions document shape: a single AccessCondition tree, not a
+// flat list. The UI still works in terms of `AccessCondition[]`;
+// AccessRuleRequest derives the tree from those conditions before sending.
+export type AccessConditionTree =
   | { kind: "human_approval" }
   | { kind: "ip_allowlist"; cidrs: string[] }
-  | { kind: "all_of"; rules: AccessRule[] };
+  | { kind: "all_of"; conditions: AccessConditionTree[] };
 
-export function parseRule(json: unknown): AccessRule | null {
+export function parseConditionTree(json: unknown): AccessConditionTree | null {
   if (json == null || typeof json !== "object") {
     return null;
   }
@@ -87,11 +87,11 @@ export function parseRule(json: unknown): AccessRule | null {
     case ConditionKind.IpAllowlist:
       return { kind: "ip_allowlist", cidrs: (get(obj, "cidrs") as string[]) ?? [] };
     case "all_of": {
-      const rules = get(obj, "rules");
-      const parsed = Array.isArray(rules)
-        ? rules.map(parseRule).filter((r): r is AccessRule => r != null)
+      const children = get(obj, "conditions");
+      const parsed = Array.isArray(children)
+        ? children.map(parseConditionTree).filter((c): c is AccessConditionTree => c != null)
         : [];
-      return { kind: "all_of", rules: parsed };
+      return { kind: "all_of", conditions: parsed };
     }
     default:
       return null;
@@ -99,19 +99,20 @@ export function parseRule(json: unknown): AccessRule | null {
 }
 
 /**
- * Flatten the server's AccessRule tree back into the UI's `Condition[]` — the
- * inverse of {@link AccessRuleRequest}'s `conditionsToRule`. The server stores
- * the tree, not the conditions list, so this reconstructs the list on read.
- * Note the tree carries no `approvers` (the forward mapping drops them), so a
- * reconstructed `human_approval` has no approvers — all the current UI needs.
+ * Flatten the server's condition tree back into the UI's `AccessCondition[]` —
+ * the inverse of {@link AccessRuleRequest}'s `conditionsToTree`. The server
+ * stores the tree, not the conditions list, so this reconstructs the list on
+ * read. Note the tree carries no `approvers` (the forward mapping drops them),
+ * so a reconstructed `human_approval` has no approvers — all the current UI
+ * needs.
  */
-export function ruleToConditions(rule: AccessRule): Condition[] {
-  switch (rule.kind) {
+export function treeToConditions(tree: AccessConditionTree): AccessCondition[] {
+  switch (tree.kind) {
     case "human_approval":
       return [{ kind: "human_approval" }];
     case "ip_allowlist":
-      return [{ kind: "ip_allowlist", cidrs: rule.cidrs }];
+      return [{ kind: "ip_allowlist", cidrs: tree.cidrs }];
     case "all_of":
-      return rule.rules.flatMap(ruleToConditions);
+      return tree.conditions.flatMap(treeToConditions);
   }
 }

@@ -28,8 +28,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherAccessState, PamApiService } from "../../abstractions/pam-api.service";
 import { RequestAccessTrigger } from "../../abstractions/request-access-trigger";
 import { formatRemaining } from "../../helpers/format-remaining";
-import { LeaseExtensionRequest } from "../../services/requests/lease-extension.request";
-import { LeaseRevokeRequest } from "../../services/requests/lease-revoke.request";
+import { AccessLeaseExtensionRequest } from "../../services/requests/access-lease-extension.request";
+import { AccessLeaseRevokeRequest } from "../../services/requests/access-lease-revoke.request";
 
 @Component({
   selector: "app-cipher-lease-banner",
@@ -43,7 +43,7 @@ export class CipherLeaseBannerComponent implements OnInit {
    * Server-supplied partial-data blob attached to leasing-gated ciphers on
    * sync. Presence is the gating signal: when set, the cipher requires a lease
    * and the "Request access" entry point should render whenever no lease /
-   * approved ticket / pending request exists.
+   * approved request / pending request exists.
    */
   readonly partialData = input<string | undefined>(undefined);
 
@@ -71,16 +71,16 @@ export class CipherLeaseBannerComponent implements OnInit {
     { initialValue: { lease: {} } as CipherAccessState },
   );
 
-  protected readonly activeLease = computed(() => this.state().lease.activeLease);
-  protected readonly pendingRequest = computed(() => this.state().lease.pendingRequest);
-  protected readonly approvedTicket = computed(() => this.state().lease.approvedTicket);
+  protected readonly activeLease = computed(() => this.state().activeLease);
+  protected readonly pendingRequest = computed(() => this.state().pendingRequest);
+  protected readonly approvedRequest = computed(() => this.state().approvedRequest);
 
   /**
    * Show the "Request access" entry point when:
    * - the PAM feature flag is on,
    * - a {@link RequestAccessTrigger} impl is provided by the host,
    * - the cipher is gated (has `partialData`),
-   * - and there's no active lease / approved ticket / pending request yet.
+   * - and there's no active lease / approved request / pending request yet.
    */
   protected readonly canRequestAccess = computed(
     () =>
@@ -88,7 +88,7 @@ export class CipherLeaseBannerComponent implements OnInit {
       this.requestAccessTrigger != null &&
       this.partialData() != null &&
       !this.activeLease() &&
-      !this.approvedTicket() &&
+      !this.approvedRequest() &&
       !this.pendingRequest(),
   );
 
@@ -111,13 +111,13 @@ export class CipherLeaseBannerComponent implements OnInit {
     this.destroyRef.onDestroy(() => clearInterval(intervalId));
   }
 
-  readonly startLease = async () => {
-    const ticket = this.approvedTicket();
-    if (!ticket) {
+  readonly activateLease = async () => {
+    const approved = this.approvedRequest();
+    if (!approved) {
       return;
     }
     try {
-      await this.pamApiService.startLease(ticket.id);
+      await this.pamApiService.activateLease(approved.id);
       // `getCipherAccessState$` re-emits on the Activated event; the active-lease
       // branch takes over once the new lease lands.
       this.toastService.showToast({
@@ -129,7 +129,7 @@ export class CipherLeaseBannerComponent implements OnInit {
       this.toastService.showToast({
         variant: "error",
         // A taken single-active-lease slot or an org-wide freeze surfaces here;
-        // the ticket stays redeemable for a manual retry.
+        // the approved request stays activatable for a manual retry.
         message: this.i18nService.t("pamStartLeaseError"),
       });
     }
@@ -170,7 +170,7 @@ export class CipherLeaseBannerComponent implements OnInit {
       return;
     }
     try {
-      await this.pamApiService.revokeLease(lease.id, new LeaseRevokeRequest({}));
+      await this.pamApiService.revokeAccessLease(lease.id, new AccessLeaseRevokeRequest({}));
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamEndLeaseSuccess"),
@@ -211,7 +211,7 @@ export class CipherLeaseBannerComponent implements OnInit {
     const newNotAfter = new Date(currentNotAfter.getTime() + 60 * 60 * 1000);
     try {
       const response = await this.pamApiService.requestLeaseExtension(
-        new LeaseExtensionRequest({
+        new AccessLeaseExtensionRequest({
           leaseId: lease.id,
           notBefore: currentNotAfter,
           notAfter: newNotAfter,

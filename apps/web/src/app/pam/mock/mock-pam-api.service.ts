@@ -11,14 +11,13 @@ import {
   CipherAccessState,
   DefaultPamApiService,
   GatedCipherFetchResult,
-  InboxAccessRequestResponse,
-  LeaseDecisionRequest,
-  LeaseEventService,
-  LeaseExtensionRequest,
+  AccessRequestDetailsResponse,
+  AccessDecisionRequest,
+  AccessEventService,
+  AccessLeaseExtensionRequest,
   AccessRequestPatchRequest,
-  AccessRequestResponse,
-  LeaseResponse,
-  LeaseRevokeRequest,
+  AccessLeaseResponse,
+  AccessLeaseRevokeRequest,
   OrganizationGovernanceSummaryResponse,
 } from "@bitwarden/pam";
 
@@ -31,8 +30,8 @@ import { PamMockBuilders, PamMockStore } from "./pam-mock-store";
  *
  * Stateful in-memory: a click on a gated cipher creates a pending request whose
  * auto-decision (approve / deny, deterministic per request id) fires once the
- * Request Access modal is submitted. Approval issues a redeemable *ticket* — no
- * lease exists until the requester redeems it via {@link startLease}.
+ * Request Access modal is submitted. Approval issues a activatable *approved request* — no
+ * lease exists until the requester activates it via {@link activateLease}.
  */
 @Injectable({ providedIn: "root" })
 export class MockPamApiService extends DefaultPamApiService {
@@ -49,9 +48,9 @@ export class MockPamApiService extends DefaultPamApiService {
     private readonly cipherService: CipherService,
     private readonly accountService: AccountService,
     apiService: ApiService,
-    leaseEvents: LeaseEventService,
+    accessEvents: AccessEventService,
   ) {
-    super(apiService, leaseEvents);
+    super(apiService, accessEvents);
     // The overridden mutation methods below bypass the base class's
     // localRefresh$ pumps, so bridge the store's event stream (which also
     // covers timer-driven auto-decisions) into the inherited mutations$.
@@ -88,16 +87,14 @@ export class MockPamApiService extends DefaultPamApiService {
       const pendingRequest = requests.find(
         (r) => r.cipherId === cipherId && r.status === "pending",
       );
-      // An approved-but-unredeemed ticket → the banner offers "Start access".
-      const approvedTicket = requests.find(
+      // An approved-but-not-yet-activated request → the banner offers "Start access".
+      const approvedRequest = requests.find(
         (r) => r.cipherId === cipherId && r.status === "approved" && r.extensionOfLeaseId == null,
       );
       return {
-        lease: {
-          activeLease: activeLease?.status === "active" ? activeLease : undefined,
-          pendingRequest,
-          approvedTicket,
-        },
+        activeLease: activeLease?.status === "active" ? activeLease : undefined,
+        pendingRequest,
+        approvedRequest,
       };
     };
 
@@ -113,7 +110,7 @@ export class MockPamApiService extends DefaultPamApiService {
 
   async fetchGatedCipher(id: string): Promise<GatedCipherFetchResult> {
     const userId = this.store.currentUserId ?? "demo-user";
-    // Settle any lapsed leases/tickets before deciding the open outcome.
+    // Settle any lapsed leases/approved requests before deciding the open outcome.
     this.store.sweepExpiries();
     // Ciphers in the "active" bucket lazily seed their lease on first open, so a
     // returning user lands straight on the active-lease banner. No-ops for the
@@ -130,15 +127,15 @@ export class MockPamApiService extends DefaultPamApiService {
       };
     }
     const ownRequests = [...this.store.requests.values()].filter(
-      (r) => r.cipherId === id && r.requesterUserId === userId,
+      (r) => r.cipherId === id && r.requesterId === userId,
     );
-    // An approved-but-unredeemed ticket → offer to start the lease rather than
-    // creating a duplicate request (CipherOpenAwaitingRedemption).
-    const approvedTicket = ownRequests.find(
+    // An approved-but-not-yet-activated request → offer to start the lease rather than
+    // creating a duplicate request (CipherOpenAwaitingActivation).
+    const approvedRequest = ownRequests.find(
       (r) => r.status === "approved" && r.extensionOfLeaseId == null,
     );
-    if (approvedTicket) {
-      return { kind: "awaiting_redemption", request: approvedTicket };
+    if (approvedRequest) {
+      return { kind: "awaiting_activation", request: approvedRequest };
     }
     // A request already in flight → return it rather than minting a second one.
     const pending = ownRequests.find((r) => r.status === "pending");
@@ -155,7 +152,7 @@ export class MockPamApiService extends DefaultPamApiService {
   async patchAccessRequest(
     id: string,
     request: AccessRequestPatchRequest,
-  ): Promise<AccessRequestResponse> {
+  ): Promise<AccessRequestDetailsResponse> {
     const existing = this.requireRequest(id);
     if (request.notBefore !== undefined) {
       existing.requestedNotBefore = request.notBefore;
@@ -178,11 +175,11 @@ export class MockPamApiService extends DefaultPamApiService {
   }
 
   /**
-   * Builds an {@link InboxAccessRequestResponse} from a user-submitted request
+   * Builds an {@link AccessRequestDetailsResponse} from a user-submitted request
    * and inserts it into the inbox store, resolving the real cipher name from
    * the vault. No-ops if the entry already exists.
    */
-  private async addRequestToInbox(request: AccessRequestResponse): Promise<void> {
+  private async addRequestToInbox(request: AccessRequestDetailsResponse): Promise<void> {
     if (this.store.inboxRequests.has(request.id)) {
       return;
     }
@@ -199,7 +196,7 @@ export class MockPamApiService extends DefaultPamApiService {
         collectionId: request.collectionId,
         // Use a distinct mock ID so the self-approval guard (canApprove) does
         // not block the current user from deciding their own demo request.
-        requesterUserId: "mock-requester",
+        requesterId: "mock-requester",
         status: request.status,
         requestedNotBefore: request.requestedNotBefore
           ? new Date(request.requestedNotBefore)
@@ -236,9 +233,11 @@ export class MockPamApiService extends DefaultPamApiService {
     }
   }
 
-  async requestLeaseExtension(request: LeaseExtensionRequest): Promise<AccessRequestResponse> {
+  async requestLeaseExtension(
+    request: AccessLeaseExtensionRequest,
+  ): Promise<AccessRequestDetailsResponse> {
     const parent = this.requireLease(request.leaseId);
-    const userId = this.store.currentUserId ?? parent.granteeUserId;
+    const userId = this.store.currentUserId ?? parent.requesterId;
     // Modelled as a fresh request pointing back at the parent lease; carries the
     // requested window through so approval extends the parent in place (rather
     // than the old behaviour of clobbering leaseId and discarding the window).
@@ -263,18 +262,18 @@ export class MockPamApiService extends DefaultPamApiService {
 
   async decideAccessRequest(
     id: string,
-    request: LeaseDecisionRequest,
-  ): Promise<AccessRequestResponse> {
+    request: AccessDecisionRequest,
+  ): Promise<AccessRequestDetailsResponse> {
     return this.applyDecision(id, request);
   }
 
-  async startLease(requestId: string): Promise<LeaseResponse> {
+  async activateLease(requestId: string): Promise<AccessLeaseResponse> {
     // Throws (single-active-lease taken / org frozen / window lapsed) bubble up
-    // to the caller's toast; the ticket stays redeemable for a manual retry.
-    return this.store.startLease(requestId);
+    // to the caller's toast; the approved request stays activatable for a manual retry.
+    return this.store.activateLease(requestId);
   }
 
-  async revokeLease(id: string, request: LeaseRevokeRequest): Promise<void> {
+  async revokeAccessLease(id: string, request: AccessLeaseRevokeRequest): Promise<void> {
     const lease = this.store.leases.get(id);
     if (!lease) {
       return;
@@ -284,7 +283,7 @@ export class MockPamApiService extends DefaultPamApiService {
     // The mock has no distinct actor identity for a self-/approver-initiated
     // revoke; attribute it to the current user so RevokedLeasesHaveResolverFields
     // holds (revoked_at and revoked_by both set).
-    lease.revokedByUserId = this.store.currentUserId ?? lease.granteeUserId;
+    lease.revokedByUserId = this.store.currentUserId ?? lease.requesterId;
     lease.revocationReason = request.reason ?? null;
     if (this.store.leasesByCipher.get(lease.cipherId)?.id === id) {
       this.store.leasesByCipher.delete(lease.cipherId);
@@ -292,19 +291,19 @@ export class MockPamApiService extends DefaultPamApiService {
     this.store.events$.next({ kind: "revoked", requestId: lease.requestId });
   }
 
-  async listMyRequests(): Promise<AccessRequestResponse[]> {
+  async listMyAccessRequests(): Promise<AccessRequestDetailsResponse[]> {
     this.store.sweepExpiries();
     const userId = this.store.currentUserId;
     return Array.from(this.store.requests.values())
-      .filter((r) => userId == null || r.requesterUserId === userId)
+      .filter((r) => userId == null || r.requesterId === userId)
       .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   }
 
-  async listActiveLeases(): Promise<LeaseResponse[]> {
+  async listActiveLeases(): Promise<AccessLeaseResponse[]> {
     this.store.sweepExpiries();
     const userId = this.store.currentUserId;
     return Array.from(this.store.leases.values()).filter(
-      (l) => l.status === "active" && (userId == null || l.granteeUserId === userId),
+      (l) => l.status === "active" && (userId == null || l.requesterId === userId),
     );
   }
 
@@ -370,8 +369,8 @@ export class MockPamApiService extends DefaultPamApiService {
       },
     ];
 
-    // Fold the live store state (member-flow tickets/leases for this org) into
-    // the hardcoded demo rows so the dashboard reacts to redeem / revoke / kill
+    // Fold the live store state (member-flow requests/leases for this org) into
+    // the hardcoded demo rows so the dashboard reacts to activate / revoke / kill
     // actions instead of showing decorative-only numbers.
     this.store.sweepExpiries();
     const livePending = [...this.store.requests.values()].filter(
@@ -427,13 +426,13 @@ export class MockPamApiService extends DefaultPamApiService {
     return this.store.isFrozen(organizationId);
   }
 
-  async listInboxRequests(): Promise<InboxAccessRequestResponse[]> {
+  async listInboxRequests(): Promise<AccessRequestDetailsResponse[]> {
     await this.ensureInboxSeeded();
     this.store.sweepExpiries();
     return Array.from(this.store.inboxRequests.values()).filter((r) => r.status === "pending");
   }
 
-  async listInboxHistory(): Promise<InboxAccessRequestResponse[]> {
+  async listInboxHistory(): Promise<AccessRequestDetailsResponse[]> {
     await this.ensureInboxSeeded();
     this.store.sweepExpiries();
     return Array.from(this.store.inboxRequests.values())
@@ -445,23 +444,26 @@ export class MockPamApiService extends DefaultPamApiService {
       });
   }
 
-  private applyDecision(requestId: string, request: LeaseDecisionRequest): AccessRequestResponse {
+  private applyDecision(
+    requestId: string,
+    request: AccessDecisionRequest,
+  ): AccessRequestDetailsResponse {
     const existing = this.requireRequest(requestId, /* fallbackInbox */ true);
     if (existing.status !== "pending") {
       return existing;
     }
-    if (request.decision === "approve") {
-      // Approval issues a ticket — no lease is minted here. The requester
-      // redeems it via startLease. An extension instead extends its parent in
-      // place. The mock has no approver identity wired in, so resolverUserId
+    if (request.verdict === "approve") {
+      // Approval issues an approved request — no lease is minted here. The requester
+      // activates it via activateLease. An extension instead extends its parent in
+      // place. The mock has no approver identity wired in, so approverId
       // stays null (the self-approval guard is enforced by the inbox UI).
-      this.store.approveRequest(existing, /* resolverUserId */ null, request.comment ?? undefined);
+      this.store.approveRequest(existing, /* approverId */ null, request.comment ?? undefined);
       return existing;
     }
     const now = new Date();
     existing.status = "denied";
     existing.resolvedAt = now.toISOString();
-    existing.resolverComment = request.comment ?? null;
+    existing.approverComment = request.comment ?? null;
     // If the request also lives in inboxRequests (user-submitted), sync
     // resolution fields so the history table shows the correct outcome.
     this.store.syncInboxEntry(requestId, existing);
@@ -469,7 +471,7 @@ export class MockPamApiService extends DefaultPamApiService {
     return existing;
   }
 
-  private requireRequest(id: string, fallbackInbox = false): AccessRequestResponse {
+  private requireRequest(id: string, fallbackInbox = false): AccessRequestDetailsResponse {
     const request = this.store.requests.get(id);
     if (request) {
       return request;
@@ -483,7 +485,7 @@ export class MockPamApiService extends DefaultPamApiService {
     throw new Error(`Mock PAM: lease request ${id} not found`);
   }
 
-  private requireLease(id: string): LeaseResponse {
+  private requireLease(id: string): AccessLeaseResponse {
     const lease = this.store.leases.get(id);
     if (!lease) {
       throw new Error(`Mock PAM: lease ${id} not found`);

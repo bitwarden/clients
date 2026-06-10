@@ -2,15 +2,15 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { filter } from "rxjs/operators";
 
-import { LeaseEvent, LeaseEventService } from "@bitwarden/pam";
+import { AccessEvent, AccessEventService } from "@bitwarden/pam";
 
 import { PamMockStore } from "./pam-mock-store";
 
 /**
  * DEMO ONLY — the fake "server push channel" for lease lifecycle events.
  *
- * In production {@link LeaseEventService} is implemented by
- * `DefaultLeaseEventService`, which subscribes to the app-wide WebPush/SignalR
+ * In production {@link AccessEventService} is implemented by
+ * `DefaultAccessEventService`, which subscribes to the app-wide WebPush/SignalR
  * notification stream and surfaces lease-approved / lease-denied push payloads.
  * There is no such server in the demo, so this mock stands in for that channel:
  * it republishes {@link PamMockStore.events$} — the Subject the store fires when
@@ -23,16 +23,16 @@ import { PamMockStore } from "./pam-mock-store";
  * substitution.
  */
 @Injectable({ providedIn: "root" })
-export class MockLeaseEventService extends LeaseEventService {
+export class MockAccessEventService extends AccessEventService {
   constructor(private readonly store: PamMockStore) {
     super();
   }
 
-  events$(requestId: string): Observable<LeaseEvent> {
+  events$(requestId: string): Observable<AccessEvent> {
     return this.store.events$.pipe(filter((event) => event.requestId === requestId));
   }
 
-  allEvents$(): Observable<LeaseEvent> {
+  allEvents$(): Observable<AccessEvent> {
     return this.store.events$.asObservable();
   }
 }

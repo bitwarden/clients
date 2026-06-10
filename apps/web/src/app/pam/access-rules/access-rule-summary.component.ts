@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Condition } from "@bitwarden/pam";
+import { AccessCondition } from "@bitwarden/pam";
 
 @Component({
   selector: "pam-access-rule-summary",
@@ -11,14 +11,14 @@ import { Condition } from "@bitwarden/pam";
 export class AccessRuleSummaryComponent {
   private readonly i18nService = inject(I18nService);
 
-  readonly conditions = input.required<Condition[]>();
+  readonly conditions = input.required<AccessCondition[]>();
   readonly singleActiveLease = input<boolean>(false);
 
   protected readonly summary = computed(() =>
     this.summarize(this.conditions(), this.singleActiveLease()),
   );
 
-  private summarize(conditions: Condition[], singleActiveLease: boolean): string {
+  private summarize(conditions: AccessCondition[], singleActiveLease: boolean): string {
     const parts = conditions.map((c) => this.summarizeOne(c));
     if (singleActiveLease) {
       parts.push(this.i18nService.t("pamAccessRuleSummarySingleActiveLease"));
@@ -29,7 +29,7 @@ export class AccessRuleSummaryComponent {
     return parts.join(" + ");
   }
 
-  private summarizeOne(condition: Condition): string {
+  private summarizeOne(condition: AccessCondition): string {
     switch (condition.kind) {
       case "human_approval":
         return this.i18nService.t("pamAccessRuleSummaryHumanApproval");

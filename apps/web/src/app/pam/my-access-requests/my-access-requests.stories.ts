@@ -7,7 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
 
 import { MyAccessRequestsComponent } from "./my-access-requests.component";
 
@@ -16,8 +16,8 @@ type Fixture = {
   status: AccessRequestStatus;
   submittedAt: string;
   resolvedAt?: string | null;
-  resolverUserId?: string | null;
-  resolverComment?: string | null;
+  approverId?: string | null;
+  approverComment?: string | null;
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
 };
@@ -26,8 +26,8 @@ const oneHour = 60 * 60 * 1000;
 const oneDay = 24 * oneHour;
 const now = Date.now();
 
-function makeResponse(f: Fixture): AccessRequestResponse {
-  return new AccessRequestResponse({
+function makeResponse(f: Fixture): AccessRequestDetailsResponse {
+  return new AccessRequestDetailsResponse({
     Id: f.id,
     CipherId: `cipher-${f.id}`,
     CollectionId: "col-1",
@@ -39,21 +39,21 @@ function makeResponse(f: Fixture): AccessRequestResponse {
     Reason: null,
     SubmittedAt: f.submittedAt,
     ResolvedAt: f.resolvedAt ?? null,
-    ResolverUserId: f.resolverUserId ?? null,
-    ResolverComment: f.resolverComment ?? null,
+    ResolverUserId: f.approverId ?? null,
+    ResolverComment: f.approverComment ?? null,
     LeaseId: null,
   });
 }
 
-function pamApi(responses: AccessRequestResponse[]): PamApiService {
+function pamApi(responses: AccessRequestDetailsResponse[]): PamApiService {
   return {
     fetchGatedCipher: () => Promise.reject(new Error("not implemented")),
     patchAccessRequest: () => Promise.reject(new Error("not implemented")),
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not implemented")),
     decideAccessRequest: () => Promise.reject(new Error("not implemented")),
-    revokeLease: () => Promise.resolve(),
-    listMyRequests: () => Promise.resolve(responses),
+    revokeAccessLease: () => Promise.resolve(),
+    listMyAccessRequests: () => Promise.resolve(responses),
   } as unknown as PamApiService;
 }
 
@@ -92,7 +92,7 @@ const i18nMock = () =>
     actions: "Actions",
   });
 
-const withFixtures = (responses: AccessRequestResponse[]) => ({
+const withFixtures = (responses: AccessRequestDetailsResponse[]) => ({
   decorators: [
     applicationConfig({
       providers: [provideNoopAnimations()],
@@ -156,23 +156,23 @@ export const OnlyRecent: Story = {
       status: "approved",
       submittedAt: new Date(now - 2 * oneDay).toISOString(),
       resolvedAt: new Date(now - 1 * oneDay).toISOString(),
-      resolverUserId: "alice-id",
-      resolverComment: "LGTM",
+      approverId: "alice-id",
+      approverComment: "LGTM",
     }),
     makeResponse({
       id: "r2",
       status: "denied",
       submittedAt: new Date(now - 3 * oneDay).toISOString(),
       resolvedAt: new Date(now - 2 * oneDay).toISOString(),
-      resolverUserId: "bob-id",
-      resolverComment: "Wrong scope.",
+      approverId: "bob-id",
+      approverComment: "Wrong scope.",
     }),
     makeResponse({
       id: "r3",
       status: "expired",
       submittedAt: new Date(now - 4 * oneDay).toISOString(),
       resolvedAt: new Date(now - 3 * oneDay).toISOString(),
-      resolverUserId: null,
+      approverId: null,
     }),
   ]),
 };
@@ -190,15 +190,15 @@ export const Mixed: Story = {
       status: "approved",
       submittedAt: new Date(now - 2 * oneDay).toISOString(),
       resolvedAt: new Date(now - 1 * oneDay).toISOString(),
-      resolverUserId: "alice-id",
-      resolverComment: "Approved for incident response.",
+      approverId: "alice-id",
+      approverComment: "Approved for incident response.",
     }),
     makeResponse({
       id: "r2",
       status: "cancelled",
       submittedAt: new Date(now - 4 * oneDay).toISOString(),
       resolvedAt: new Date(now - 4 * oneDay).toISOString(),
-      resolverUserId: null,
+      approverId: null,
     }),
   ]),
 };
