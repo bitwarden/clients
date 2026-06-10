@@ -149,6 +149,7 @@ export default class NotificationBackground {
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
+    showLoginSavedNotification: ({ message }) => this.handleShowLoginSavedNotification(message),
   };
 
   constructor(
@@ -578,6 +579,52 @@ export default class NotificationBackground {
     this.notificationQueue.push(queueMessage);
     await this.checkNotificationQueue(tab);
     return true;
+  }
+
+  /**
+   * Sends a "Login saved" confirmation notification bar directly to the given tab.
+   * Used after a cipher is saved via the inline menu "Save and fill" flow,
+   * where no notification bar is already open on the originating tab.
+   *
+   * @param cipherName - The name of the saved cipher, shown in the confirmation bar.
+   * @param cipherId - The ID of the saved cipher, used by the "View" action in the bar.
+   * @param tab - The tab to show the notification bar on.
+   */
+  async triggerLoginSavedNotification(
+    cipherName: string,
+    cipherId: string,
+    tab: chrome.tabs.Tab,
+  ): Promise<void> {
+    const theme = await firstValueFrom(this.themeStateService.selectedTheme$);
+    const showAnimations =
+      (await firstValueFrom(this.autofillService.enableNotificationAnimation$)) ?? true;
+
+    await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
+      type: "add",
+      typeData: {
+        isVaultLocked: false,
+        theme,
+        launchTimestamp: new Date().getTime(),
+        showAnimations,
+      },
+      params: {},
+      isConfirmation: true,
+      confirmationData: { cipherId, itemName: cipherName },
+    });
+  }
+
+  private async handleShowLoginSavedNotification(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<void> {
+    const { senderTabId, cipherId, itemName } = message;
+    if (!senderTabId) {
+      return;
+    }
+    const tab = await BrowserApi.getTab(senderTabId);
+    if (!tab) {
+      return;
+    }
+    await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
   }
 
   /**
