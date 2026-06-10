@@ -72,6 +72,54 @@ describe("OrganizationBillingClient", () => {
     });
   });
 
+  describe("ChurnMitigationOfferResponseModel.getDurationDescription", () => {
+    const build = (props: Record<string, unknown>) =>
+      new ChurnMitigationOfferResponseModel({
+        CouponId: "CHURN",
+        PercentOff: 15,
+        Duration: "once",
+        DurationInMonths: null,
+        Name: "Churn",
+        ...props,
+      });
+
+    it("describes a `once` coupon using the annual billing interval", () => {
+      const model = build({ Duration: "once", DurationInMonths: null });
+
+      expect(model.getDurationDescription("year")).toBe("year");
+    });
+
+    it("describes a `once` coupon using the monthly billing interval", () => {
+      const model = build({ Duration: "once", DurationInMonths: null });
+
+      expect(model.getDurationDescription("month")).toBe("month");
+    });
+
+    it("returns 'forever' for a forever coupon regardless of billing interval", () => {
+      const model = build({ Duration: "forever", DurationInMonths: null });
+
+      expect(model.getDurationDescription("year")).toBe("forever");
+    });
+
+    it("returns 'year' for a 12-month repeating coupon", () => {
+      const model = build({ Duration: "repeating", DurationInMonths: 12 });
+
+      expect(model.getDurationDescription("month")).toBe("year");
+    });
+
+    it("returns 'month' for a 1-month repeating coupon", () => {
+      const model = build({ Duration: "repeating", DurationInMonths: 1 });
+
+      expect(model.getDurationDescription("year")).toBe("month");
+    });
+
+    it("returns 'N months' for a multi-month repeating coupon", () => {
+      const model = build({ Duration: "repeating", DurationInMonths: 3 });
+
+      expect(model.getDurationDescription("year")).toBe("3 months");
+    });
+  });
+
   describe("redeemChurnOffer", () => {
     it("calls the correct route", async () => {
       mockApiService.send.mockResolvedValue(undefined);

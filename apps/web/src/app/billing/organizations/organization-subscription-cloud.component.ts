@@ -360,6 +360,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           accessEndDate: this.subscription?.periodEndDate ?? null,
           planName: this.sub.plan.name,
           nextChargeDate: this.subscription?.periodEndDate ?? null,
+          billingInterval: this.sub.plan.isAnnual ? "year" : "month",
         },
       });
 

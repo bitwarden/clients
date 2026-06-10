@@ -27,6 +27,8 @@ export type ChurnMitigationOfferDialogParams = {
   planName: string;
   /** Next charge date shown in the success state after the offer is applied. */
   nextChargeDate: string | null;
+  /** Subscription billing cadence, used to describe the period a `once` coupon covers. */
+  billingInterval: "year" | "month";
 };
 
 export const ChurnMitigationOfferDialogResultType = Object.freeze({
@@ -63,6 +65,18 @@ export class ChurnMitigationOfferDialogComponent {
       return `${this.params.offer.percentOff}%`;
     }
     return this.params.offer.name;
+  }
+
+  protected get durationDescription(): string {
+    return this.params.offer.getDurationDescription(this.params.billingInterval);
+  }
+
+  protected get durationLength(): string {
+    return this.params.offer.getDurationParts(this.params.billingInterval).length;
+  }
+
+  protected get durationUnit(): string {
+    return this.params.offer.getDurationParts(this.params.billingInterval).unit;
   }
 
   readonly acceptOffer = async () => {
