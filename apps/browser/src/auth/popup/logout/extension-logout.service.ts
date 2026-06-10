@@ -5,6 +5,7 @@ import {
   NewActiveUser,
 } from "@bitwarden/auth/common";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
@@ -13,8 +14,9 @@ export class ExtensionLogoutService extends DefaultLogoutService implements Logo
   constructor(
     protected messagingService: MessagingService,
     private accountSwitcherService: AccountSwitcherService,
+    sdkService: SdkService,
   ) {
-    super(messagingService);
+    super(messagingService, sdkService);
   }
 
   override async logout(
@@ -25,6 +27,8 @@ export class ExtensionLogoutService extends DefaultLogoutService implements Logo
     const accountSwitchFinishPromise =
       this.accountSwitcherService.listenForSwitchAccountFinish(null);
 
+    // Dispose the user's SDK client (frees the in-memory key) before broadcasting logout.
+    this.sdkService.logout(userId);
     // send the logout message
     this.messagingService.send("logout", { userId, logoutReason });
 

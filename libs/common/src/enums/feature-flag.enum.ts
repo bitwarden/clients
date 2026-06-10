@@ -116,6 +116,7 @@ export enum FeatureFlag {
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
+  PM31845_LongLivedSdkClient = "pm-31845-long-lived-sdk-client",
 
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
@@ -134,6 +135,7 @@ export type AllowedFeatureFlagTypes = boolean | number | string;
 
 // Helper to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
+const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -246,6 +248,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
+  [FeatureFlag.PM31845_LongLivedSdkClient]: TRUE,
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,

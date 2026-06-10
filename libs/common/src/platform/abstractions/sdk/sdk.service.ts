@@ -1,11 +1,30 @@
 import { Observable } from "rxjs";
 
-import { PasswordManagerClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+import {
+  PasswordManagerClient,
+  Uuid,
+  DeviceType as SdkDeviceType,
+  InitUserCryptoRequest,
+} from "@bitwarden/sdk-internal";
 
 import { DeviceType } from "../../../enums";
-import { UserId } from "../../../types/guid";
+import { OrganizationId, UserId } from "../../../types/guid";
+import { UserKey } from "../../../types/key";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
+
+/**
+ * The caller-supplied half of an {@link SdkService.unlock} request.
+ *
+ * `email`, `kdfParams` and `upgradeToken` are omitted because this service resolves them itself. They are
+ * account-scoped facts rather than unlock inputs, so every caller would otherwise resolve the same three
+ * values from the same sources, and a caller that forgot one would silently change how the client unlocks.
+ * `userId` identifies the account and `method` selects how it unlocks: `decryptedKey` when the caller already
+ * holds the key, or a credential variant (master password, PIN, biometrics, …) when it does not.
+ */
+export type SdkUnlockRequest = Omit<InitUserCryptoRequest, "email" | "kdfParams" | "upgradeToken">;
 
 export class UserNotLoggedInError extends Error {
   constructor(userId: UserId) {
@@ -111,28 +130,72 @@ export abstract class SdkService {
    * This client can be used for operations that require a user context, such as retrieving ciphers
    * and operations involving crypto. It can also be used for operations that don't require a user context.
    *
-   *   - If the user is not logged when the subscription is created, the observable will complete
+   *   - If the user is not logged in when the subscription is created, the observable will complete
    *     immediately with {@link UserNotLoggedInError}.
    *   - If the user is logged in, the observable will emit the client and complete without an error
    *     when the user logs out. The returned client MAY be locked or unlocked depending on the state
    *     of the user.
    *
-   * **WARNING:** Do not use `firstValueFrom(userClient$)`! Any operations on the client must be done within the observable.
-   * The client will be destroyed when the observable is no longer subscribed to.
-   * Please let platform know if you need a client that is not destroyed when the observable is no longer subscribed to.
+   * The client is long-lived (bound to the user session), so it is safe to take a reference and use
+   * it across operations. The returned {@link Rc} guards against disposal while a reference is held.
    *
    * @param userId The user id for which to retrieve the client
    */
   abstract userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>>;
 
   /**
-   * This method is used during/after an authentication procedure to set a new client for a specific user.
-   * It can also be used to unset the client when a user logs out, this will result in:
-   *  - The client being disposed of
-   *  - All subscriptions to the client being completed
-   *  - Any new subscribers receiving an error
-   * @param userId The user id for which to set the client
-   * @param client The client to set for the user. If undefined, the client will be unset.
+   * Initialize (or re-initialize) user and org crypto on the user's existing client, whether the caller
+   * holds the derived key already (`method: decryptedKey`) or is unlocking from a credential (master
+   * password, PIN, biometrics, …). Running the credential unlock here rather than on a throwaway register
+   * client is what makes the client that derives the key and writes `USER_KEY` the same one consumers read
+   * through {@link userClient$}, closing the window where a consumer could read `USER_KEY` and query a
+   * still-locked client.
+   *
+   * This initializes **user** crypto only. Organization keys always follow through {@link setOrgKeys}, which
+   * is what completes the unlock and flips {@link cryptoReady$}. Splitting it that way is not a preference:
+   * the credential paths cannot build organization keys until the user key exists, so one of the two callers
+   * has to defer, and having both defer means one rule instead of two.
+   *
+   * Returns the {@link UserKey} the client is now unlocked with, so a credential caller can run its unlock
+   * side effects (biometric / auto-unlock storage, org keys) without re-deriving it. `null` signals one
+   * thing only — the flag is off — and tells a credential caller to fall back to the legacy register-client
+   * unlock. A failure to unlock throws, since falling back on failure would land the caller on the very
+   * path this replaces.
    */
-  abstract setClient(userId: UserId, client: PasswordManagerClient | undefined): void;
+  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null>;
+
+  /**
+   * Whether the user's client can decrypt: user crypto is initialized **and** organization keys have been
+   * applied. Consumers that trigger decryption must gate on this rather than on `USER_KEY` appearing in
+   * state, because the SDK writes `USER_KEY` from inside its own unlock, before organization keys exist.
+   * A consumer keyed on state alone starts decrypting against a client that fails every organization
+   * cipher with "Missing Key for Id: Organization".
+   *
+   * Emits `false` from the start of an {@link unlock} until {@link setOrgKeys} completes it, and on
+   * {@link lock} and {@link logout}. Always `true` while the rollout flag is off, where the reactive path
+   * rebuilds the client from the same state the consumers read.
+   *
+   * An unlock that never reaches {@link setOrgKeys} leaves this `false` forever and the vault undecryptable.
+   * That is deliberate: it fails loudly rather than decrypting against a half-initialized client.
+   */
+  abstract cryptoReady$(userId: UserId): Observable<boolean>;
+
+  /**
+   * Clear the in-memory user key by disposing the unlocked client and replacing it with a token-only,
+   * key-cleared client. Called by the lock flow.
+   */
+  abstract lock(userId: UserId): Promise<void>;
+
+  /** Dispose the user's client and complete its {@link userClient$}. Called by the logout flow. */
+  abstract logout(userId: UserId): void;
+
+  /** Apply feature flags to the user's live client. Called by the config service. */
+  abstract setFlags(userId: UserId, flags: Map<string, boolean>): Promise<void>;
+
+  /**
+   * Apply organization keys to the user's live client, completing an {@link unlock} and flipping
+   * {@link cryptoReady$} true. Every unlock path must reach this, including for a user with no
+   * organizations, where `{}` is the correct payload.
+   */
+  abstract setOrgKeys(userId: UserId, orgKeys: Record<OrganizationId, EncString>): Promise<void>;
 }

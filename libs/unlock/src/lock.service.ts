@@ -8,6 +8,7 @@ import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -59,6 +60,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
+    private readonly sdkService: SdkService,
   ) {}
 
   registerOnLockAction(action: (userId: UserId, source: LockSource) => Promise<void>): void {
@@ -116,6 +118,11 @@ export class DefaultLockService implements LockService {
       return;
     }
 
+    // Push-then-emit: lock the SDK (replace the unlocked client with a token-only, key-cleared one,
+    // freeing the in-memory key) BEFORE clearing USER_KEY state, so a reactive consumer never sees
+    // USER_KEY=null with a still-unlocked client. The interim dispose+rebuild frees the old client, so a
+    // stale USER_KEY can't re-unlock it during the window.
+    await this.sdkService.lock(userId);
     await this.wipeDecryptedState(userId);
     await this.waitForLockedStatus(userId);
     await this.systemService.clearPendingClipboard();

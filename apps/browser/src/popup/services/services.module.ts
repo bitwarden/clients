@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
+import { APP_INITIALIZER, Injector, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -97,6 +97,7 @@ import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -233,6 +234,7 @@ import { BrowserScriptInjectorService } from "../../platform/services/browser-sc
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
+import { BrowserSdkService } from "../../platform/services/sdk/browser-sdk.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
@@ -325,6 +327,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       AccountCryptographicStateService,
       BiometricsService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -767,6 +770,64 @@ const safeProviders: SafeProvider[] = [
     useClass: BrowserSdkLoadService,
     deps: [LogService],
   }),
+  // Provided under its own token, with SdkService aliased to it below: the popup is a separate process
+  // from the background, each with its own clients, so pushes have to be mirrored between them, and the
+  // APP_INITIALIZER needs the concrete type to call init().
+  safeProvider({
+    provide: BrowserSdkService,
+    useFactory: (
+      sdkClientFactory: SdkClientFactory,
+      environmentService: EnvironmentService,
+      platformUtilsService: PlatformUtilsService,
+      accountService: AccountServiceAbstraction,
+      stateProvider: StateProvider,
+      v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+      messageSender: MessageSender,
+      messageListener: MessageListener,
+      logService: LogService,
+      injector: Injector,
+    ) =>
+      new BrowserSdkService(
+        sdkClientFactory,
+        environmentService,
+        platformUtilsService,
+        accountService,
+        // Lazy, mirroring the jslib provider: breaks the KeyService/ConfigService construction cycle.
+        () => injector.get(KdfConfigService),
+        () => injector.get(KeyService),
+        () => injector.get(AccountCryptographicStateService),
+        () => injector.get(ApiService),
+        stateProvider,
+        () => injector.get(ConfigService),
+        v2UpgradeTokenStateService,
+        messageSender,
+        messageListener,
+        logService,
+      ),
+    deps: [
+      SdkClientFactory,
+      EnvironmentService,
+      PlatformUtilsService,
+      AccountServiceAbstraction,
+      StateProvider,
+      V2UpgradeTokenStateService,
+      MessageSender,
+      MessageListener,
+      LogService,
+      Injector,
+    ],
+  }),
+  // Overrides the jslib provider.
+  safeProvider({
+    provide: SdkService,
+    useExisting: BrowserSdkService,
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
+    useFactory: (sdkService: BrowserSdkService) => () => sdkService.init(),
+    deps: [BrowserSdkService],
+    multi: true,
+  }),
   safeProvider({
     provide: SdkClientFactory,
     useFactory: () =>
@@ -786,7 +847,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, AccountSwitcherService, SdkService],
   }),
   safeProvider({
     provide: CompactModeService,

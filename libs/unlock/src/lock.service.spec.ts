@@ -7,6 +7,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { mockAccountServiceWith, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -37,6 +38,7 @@ describe("DefaultLockService", () => {
   const processReloadService = mock<ProcessReloadServiceAbstraction>();
   const logService = mock<LogService>();
   const keyService = mock<KeyService>();
+  const sdkService = mock<SdkService>();
   const sut = new DefaultLockService(
     accountService,
     biometricsService,
@@ -51,6 +53,7 @@ describe("DefaultLockService", () => {
     processReloadService,
     logService,
     keyService,
+    sdkService,
   );
 
   describe("lockAll", () => {
@@ -68,6 +71,7 @@ describe("DefaultLockService", () => {
       processReloadService,
       logService,
       keyService,
+      sdkService,
     );
 
     it("locks the active account last", async () => {
@@ -126,6 +130,7 @@ describe("DefaultLockService", () => {
       await sut.lock(userId, LockSource.Manual);
       expect(logoutService.logout).not.toHaveBeenCalled();
       expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", userId);
+      expect(sdkService.lock).toHaveBeenCalledWith(userId);
     });
   });
 });
