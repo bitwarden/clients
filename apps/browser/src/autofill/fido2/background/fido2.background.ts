@@ -28,6 +28,7 @@ import {
   SharedFido2ScriptInjectionDetails,
   SharedFido2ScriptRegistrationOptions,
 } from "./abstractions/fido2.background";
+import { Fido2PageScriptFallbackTracker } from "./fido2-page-script-fallback-tracker";
 
 export class Fido2Background implements Fido2BackgroundInterface {
   private currentAuthStatus$: Subscription = Subscription.EMPTY;
@@ -59,6 +60,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
+    private pageScriptFallbackTracker?: Fido2PageScriptFallbackTracker,
   ) {}
 
   /**
@@ -366,6 +368,21 @@ export class Fido2Background implements Fido2BackgroundInterface {
       return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
         try {
           return await callback(data!, tab, abortController);
+        } catch (err) {
+          if (
+            tabId != null &&
+            err != null &&
+            typeof err === "object" &&
+            "fallbackRequested" in err &&
+            (err as { fallbackRequested?: boolean }).fallbackRequested === true
+          ) {
+            // The page-script will call the saved-native credentials API next.
+            // Mark this tab so the (Chrome-only) webAuthenticationProxy can
+            // short-circuit and let Chrome's native picker handle that call
+            // instead of re-entering Bitwarden.
+            this.pageScriptFallbackTracker?.markFallbackInProgress(tabId);
+          }
+          throw err;
         } finally {
           if (tab.id != null) {
             await BrowserApi.focusTab(tab.id);

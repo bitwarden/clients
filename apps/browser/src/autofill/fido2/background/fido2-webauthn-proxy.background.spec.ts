@@ -18,6 +18,7 @@ import { flushPromises } from "../../../autofill/spec/testing-utils";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { BrowserFido2ParentWindowReference } from "../services/browser-fido2-user-interface.service";
 
+import { Fido2PageScriptFallbackTracker } from "./fido2-page-script-fallback-tracker";
 import { Fido2WebAuthnProxyBackground } from "./fido2-webauthn-proxy.background";
 
 interface ProxyEvent<P> {
@@ -42,6 +43,7 @@ describe("Fido2WebAuthnProxyBackground", () => {
   let vaultSettingsService: MockProxy<VaultSettingsService>;
   let authService: MockProxy<AuthService>;
   let configService: MockProxy<ConfigService>;
+  let fallbackTracker: Fido2PageScriptFallbackTracker;
 
   let enablePasskeys$: BehaviorSubject<boolean>;
   let authStatus$: BehaviorSubject<AuthenticationStatus>;
@@ -73,6 +75,7 @@ describe("Fido2WebAuthnProxyBackground", () => {
     vaultSettingsService = mock<VaultSettingsService>();
     authService = mock<AuthService>();
     configService = mock<ConfigService>();
+    fallbackTracker = new Fido2PageScriptFallbackTracker();
 
     enablePasskeys$ = new BehaviorSubject<boolean>(true);
     authStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
@@ -108,11 +111,12 @@ describe("Fido2WebAuthnProxyBackground", () => {
       vaultSettingsService,
       authService,
       configService,
+      fallbackTracker,
     );
   });
 
-  afterEach(() => {
-    bg.destroy();
+  afterEach(async () => {
+    await bg.destroy();
     delete (global as any).chrome.webAuthenticationProxy;
     jest.restoreAllMocks();
   });
@@ -163,7 +167,7 @@ describe("Fido2WebAuthnProxyBackground", () => {
       expect(proxyApi.attach).not.toHaveBeenCalled();
     });
 
-    it("detaches when the flag goes off after being on", async () => {
+    it("detaches when the flag flips off after being on", async () => {
       bg.init();
       featureFlag$.next(true);
       await flushPromises();
@@ -182,16 +186,49 @@ describe("Fido2WebAuthnProxyBackground", () => {
     });
 
     it("does not attach again if another extension owns the proxy", async () => {
-      proxyApi.attach.mockResolvedValueOnce("Another extension is already attached");
+      proxyApi.attach.mockResolvedValue("Another extension is already attached");
       bg.init();
       featureFlag$.next(true);
       await flushPromises();
       expect(logService.warning).toHaveBeenCalled();
-      // Toggling should still try to attach again next time.
-      featureFlag$.next(false);
+    });
+
+    it("converges to detached when state flips during an in-flight attach (TOCTOU)", async () => {
+      let resolveAttach: () => void = () => undefined;
+      proxyApi.attach.mockImplementation(
+        () =>
+          new Promise<undefined>((resolve) => {
+            resolveAttach = () => resolve(undefined);
+          }),
+      );
+
+      bg.init();
+      featureFlag$.next(true);
       await flushPromises();
-      // attempt to detach was a no-op because we never attached successfully
-      expect(proxyApi.detach).not.toHaveBeenCalled();
+      expect(proxyApi.attach).toHaveBeenCalledTimes(1);
+      // While attach is pending, the user logs out.
+      authStatus$.next(AuthenticationStatus.LoggedOut);
+      await flushPromises();
+      // Resolve the attach: the second reconcile pass should now detach.
+      resolveAttach();
+      await flushPromises();
+      expect(proxyApi.detach).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("destroy", () => {
+    it("removes listeners and detaches the proxy", async () => {
+      bg.init();
+      featureFlag$.next(true);
+      await flushPromises();
+
+      await bg.destroy();
+
+      expect(proxyApi.onCreateRequest.removeListener).toHaveBeenCalled();
+      expect(proxyApi.onGetRequest.removeListener).toHaveBeenCalled();
+      expect(proxyApi.onIsUvpaaRequest.removeListener).toHaveBeenCalled();
+      expect(proxyApi.onRequestCanceled.removeListener).toHaveBeenCalled();
+      expect(proxyApi.detach).toHaveBeenCalled();
     });
   });
 
@@ -264,7 +301,46 @@ describe("Fido2WebAuthnProxyBackground", () => {
       });
     });
 
-    it("reports SecurityError for non-https tabs", async () => {
+    it("declines and falls back when rpId does not match the active tab hostname", async () => {
+      bg.init();
+      proxyApi.onCreateRequest.listener?.({
+        requestId: 1,
+        requestDetailsJson: JSON.stringify({
+          ...createOptions,
+          rp: { id: "other.com", name: "Other" },
+        }),
+      });
+      await flushPromises();
+
+      expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
+      expect(proxyApi.completeCreateRequest).toHaveBeenCalledWith({
+        requestId: 1,
+        error: { name: "NotAllowedError", message: expect.stringContaining("cannot be served") },
+      });
+    });
+
+    it("accepts an rpId that is a parent domain of the active tab hostname", async () => {
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(
+          mock<chrome.tabs.Tab>({ id: 7, url: "https://accounts.example.com/login", windowId: 1 }),
+        );
+      fido2ClientService.createCredential.mockResolvedValue(createResult);
+      bg.init();
+
+      proxyApi.onCreateRequest.listener?.({
+        requestId: 2,
+        requestDetailsJson: JSON.stringify({
+          ...createOptions,
+          rp: { id: "example.com", name: "Example" },
+        }),
+      });
+      await flushPromises();
+
+      expect(fido2ClientService.createCredential).toHaveBeenCalled();
+    });
+
+    it("declines for non-https tabs", async () => {
       jest
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(mock<chrome.tabs.Tab>({ id: 1, url: "chrome://newtab/" }));
@@ -279,7 +355,27 @@ describe("Fido2WebAuthnProxyBackground", () => {
       expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
       expect(proxyApi.completeCreateRequest).toHaveBeenCalledWith({
         requestId: 1,
-        error: expect.objectContaining({ name: "SecurityError" }),
+        error: expect.objectContaining({ name: "NotAllowedError" }),
+      });
+    });
+
+    it("short-circuits when the page-script just initiated a fallback for the tab", async () => {
+      fallbackTracker.markFallbackInProgress(tabMock.id!);
+      bg.init();
+
+      proxyApi.onCreateRequest.listener?.({
+        requestId: 3,
+        requestDetailsJson: JSON.stringify(createOptions),
+      });
+      await flushPromises();
+
+      expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
+      expect(proxyApi.completeCreateRequest).toHaveBeenCalledWith({
+        requestId: 3,
+        error: {
+          name: "NotAllowedError",
+          message: "Page-script fallback in progress",
+        },
       });
     });
   });
@@ -340,7 +436,6 @@ describe("Fido2WebAuthnProxyBackground", () => {
         requestId: 5,
         requestDetailsJson: JSON.stringify(getOptions),
       });
-      // Wait for the request to be in-flight
       await flushPromises();
       expect(externalAbort?.aborted).toBe(false);
 
@@ -350,6 +445,31 @@ describe("Fido2WebAuthnProxyBackground", () => {
       expect(externalAbort?.aborted).toBe(true);
       expect(proxyApi.completeGetRequest).toHaveBeenCalledWith({
         requestId: 5,
+        error: expect.objectContaining({ name: "AbortError" }),
+      });
+    });
+
+    it("honors a cancel that arrives before any awaits in the request handler", async () => {
+      let resolveTabQuery: ((tab: chrome.tabs.Tab) => void) | undefined;
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockImplementation(
+          () => new Promise<chrome.tabs.Tab>((resolve) => (resolveTabQuery = resolve)),
+        );
+      bg.init();
+
+      proxyApi.onGetRequest.listener?.({
+        requestId: 11,
+        requestDetailsJson: JSON.stringify(getOptions),
+      });
+      // Cancel races ahead of the tab lookup resolving.
+      proxyApi.onRequestCanceled.listener?.(11);
+      resolveTabQuery?.(tabMock);
+      await flushPromises();
+
+      expect(fido2ClientService.assertCredential).not.toHaveBeenCalled();
+      expect(proxyApi.completeGetRequest).toHaveBeenCalledWith({
+        requestId: 11,
         error: expect.objectContaining({ name: "AbortError" }),
       });
     });
