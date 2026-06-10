@@ -103,6 +103,10 @@ export class PoliciesComponent {
       }),
     );
 
+  protected readonly useDrawer$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.PolicyDrawers,
+  );
+
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>
       combineLatest(
