@@ -21,6 +21,8 @@ import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BitFormFieldControlDirective } from "../form-field";
+import { IconComponent } from "../icon";
+import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
@@ -36,7 +38,7 @@ import { OptionComponent } from "./option.component";
       inputs: ["required", "id"],
     },
   ],
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, TypographyDirective, IconComponent],
   host: {
     class: "tw-block tw-w-full tw-h-full",
     "[id]": "formFieldControl.id()",
@@ -89,6 +91,7 @@ export class SelectComponent<T> implements ControlValueAccessor {
             icon: option.icon(),
             value: option.value(),
             label: option.label(),
+            description: option.description(),
             disabled: option.disabled(),
           })),
         );
