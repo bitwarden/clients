@@ -31,6 +31,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -119,6 +120,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
+    allowSharingUnlockState: true,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -130,6 +132,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
+  protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
   protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
@@ -159,6 +162,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+    private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
@@ -166,6 +170,21 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
+    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SharedUnlockPart2,
+    );
+  }
+
+  get sharedUnlockDescriptionKey(): string {
+    if (this.platformUtilsService.isSafari()) {
+      return "sharedUnlockDescriptionSafari";
+    }
+
+    if (this.platformUtilsService.isFirefox()) {
+      return "sharedUnlockDescriptionFirefox";
+    }
+
+    return "sharedUnlockDescription";
   }
 
   async ngOnInit() {
@@ -188,12 +207,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     const initialValues = {
       pin: await this.pinService.isPinSet(activeAccount.id),
       pinLockWithMasterPassword:
-        (await this.pinService.getPinLockType(activeAccount.id)) == "EPHEMERAL",
+        (await this.pinService.getPinLockType(activeAccount.id)) == "AfterFirstUnlock",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
+      allowSharingUnlockState: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockState$(activeAccount.id),
+      ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
     this.loading.set(false);
@@ -253,7 +275,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
           const pin = await this.pinService.getPin(userId);
-          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
+          await this.pinService.setPin(
+            pin,
+            value ? "AfterFirstUnlock" : "BeforeFirstUnlock",
+            userId,
+          );
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -294,6 +320,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    this.form.controls.allowSharingUnlockState.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockState(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   protected async dismissAccountSecurityNudge() {
@@ -318,7 +353,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       );
       const userHasPinSet = await firstValueFrom(dialogRef.closed);
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
-      const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
+      const requireReprompt = (await this.pinService.getPinLockType(userId)) == "AfterFirstUnlock";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
       if (userHasPinSet) {
         this.toastService.showToast({
@@ -449,6 +484,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     await Promise.all([waitForUserDialogPromise(), biometricsPromise()]);
     return setupResult;
+  }
+
+  async updateAllowSharingUnlockState(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
+    if (!enabled) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
   }
 
   async updateAutoBiometricsPrompt() {
