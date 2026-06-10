@@ -84,7 +84,7 @@ export abstract class BasePolicyEditDefinition {
 
   /**
    * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
-   * above the policy form, alongside the prerequisite callout.
+   * above the policy form.
    */
   warningKey?: string;
 

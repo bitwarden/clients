@@ -15,7 +15,7 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 40;
   component = TwoFactorAuthenticationPolicyComponent;
-  warningKey = "twoStepLoginPolicyWarning";
+  warningKey = "twoStepLoginPolicyWarningV2";
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "twoStepLoginPolicyDescV2",

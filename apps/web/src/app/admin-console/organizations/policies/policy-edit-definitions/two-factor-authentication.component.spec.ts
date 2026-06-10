@@ -16,7 +16,7 @@ describe("TwoFactorAuthenticationPolicy", () => {
   it("should have correct attributes", () => {
     expect(policy.name).toBe("twoStepLoginPolicyTitle");
     expect(policy.description).toBe("twoStepLoginPolicyDesc");
-    expect(policy.warningKey).toBe("twoStepLoginPolicyWarning");
+    expect(policy.warningKey).toBe("twoStepLoginPolicyWarningV2");
     expect(policy.v2?.description).toBe("twoStepLoginPolicyDescV2");
     expect(policy.type).toBe(PolicyType.TwoFactorAuthentication);
     expect(policy.component).toBe(TwoFactorAuthenticationPolicyComponent);

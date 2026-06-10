@@ -42,7 +42,7 @@ describe("PolicyEditDialogComponent", () => {
   beforeEach(async () => {
     policyApiService = mock<PolicyApiServiceAbstraction>();
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(false);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
