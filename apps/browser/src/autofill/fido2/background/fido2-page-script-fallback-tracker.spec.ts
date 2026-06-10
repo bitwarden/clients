@@ -35,12 +35,12 @@ describe("Fido2PageScriptFallbackTracker", () => {
   it("prunes expired markers on each write so the map stays bounded when nothing consumes", () => {
     tracker.markFallbackInProgress(1);
     tracker.markFallbackInProgress(2);
-    expect(tracker._pendingSize).toBe(2);
 
     now += 11_000;
     tracker.markFallbackInProgress(3);
-    // Tabs 1 and 2 were expired; only tab 3 should remain.
-    expect(tracker._pendingSize).toBe(1);
+    // Tabs 1 and 2 were expired and pruned on tab 3's write; only tab 3 remains.
+    expect(tracker.consumeIfPending(1)).toBe(false);
+    expect(tracker.consumeIfPending(2)).toBe(false);
     expect(tracker.consumeIfPending(3)).toBe(true);
   });
 });

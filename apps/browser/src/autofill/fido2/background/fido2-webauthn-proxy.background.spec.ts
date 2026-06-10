@@ -193,6 +193,47 @@ describe("Fido2WebAuthnProxyBackground", () => {
       expect(logService.warning).toHaveBeenCalled();
     });
 
+    it("does not re-attempt attach on subsequent state changes after a contention rejection", async () => {
+      proxyApi.attach.mockResolvedValue("Another extension is already attached");
+      bg.init();
+      featureFlag$.next(true);
+      await flushPromises();
+      // Same upstream re-emission (e.g., unrelated config refresh) must not retry.
+      enablePasskeys$.next(true);
+      await flushPromises();
+      expect(proxyApi.attach).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears the contention latch after a detach, allowing a fresh attach on the next window", async () => {
+      proxyApi.attach.mockResolvedValueOnce("Another extension is already attached");
+      bg.init();
+      featureFlag$.next(true);
+      await flushPromises();
+      // Flip off then back on. The flip-off triggers a detach (which clears
+      // the latch); the flip-on then re-attempts attach.
+      featureFlag$.next(false);
+      await flushPromises();
+      proxyApi.attach.mockResolvedValue(undefined);
+      featureFlag$.next(true);
+      await flushPromises();
+      expect(proxyApi.attach).toHaveBeenCalledTimes(2);
+    });
+
+    it("recovers when attach() throws and continues reacting to state changes", async () => {
+      proxyApi.attach.mockRejectedValueOnce(new Error("boom"));
+      bg.init();
+      featureFlag$.next(true);
+      await flushPromises();
+      expect(logService.error).toHaveBeenCalled();
+      // A subsequent valid transition should still be reachable.
+      proxyApi.attach.mockResolvedValue(undefined);
+      featureFlag$.next(false);
+      await flushPromises();
+      featureFlag$.next(true);
+      await flushPromises();
+      expect(proxyApi.attach).toHaveBeenCalledTimes(2);
+    });
+
     it("converges to detached when state flips during an in-flight attach (TOCTOU)", async () => {
       let resolveAttach: () => void = () => undefined;
       proxyApi.attach.mockImplementation(
@@ -338,6 +379,64 @@ describe("Fido2WebAuthnProxyBackground", () => {
       await flushPromises();
 
       expect(fido2ClientService.createCredential).toHaveBeenCalled();
+    });
+
+    it("matches rpId case-insensitively against the active tab hostname", async () => {
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(
+          mock<chrome.tabs.Tab>({ id: 7, url: "https://Login.Example.COM/", windowId: 1 }),
+        );
+      fido2ClientService.createCredential.mockResolvedValue(createResult);
+      bg.init();
+
+      proxyApi.onCreateRequest.listener?.({
+        requestId: 20,
+        requestDetailsJson: JSON.stringify({
+          ...createOptions,
+          rp: { id: "EXAMPLE.com", name: "Example" },
+        }),
+      });
+      await flushPromises();
+
+      expect(fido2ClientService.createCredential).toHaveBeenCalled();
+    });
+
+    it("declines when rpId differs only by a trailing dot", async () => {
+      bg.init();
+      proxyApi.onCreateRequest.listener?.({
+        requestId: 21,
+        requestDetailsJson: JSON.stringify({
+          ...createOptions,
+          rp: { id: "example.com.", name: "Example" },
+        }),
+      });
+      await flushPromises();
+
+      expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
+      expect(proxyApi.completeCreateRequest).toHaveBeenCalledWith({
+        requestId: 21,
+        error: expect.objectContaining({ name: "NotAllowedError" }),
+      });
+    });
+
+    it("declines when rpId is a sibling (not parent) domain", async () => {
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(
+          mock<chrome.tabs.Tab>({ id: 7, url: "https://foo.example.com/", windowId: 1 }),
+        );
+      bg.init();
+      proxyApi.onCreateRequest.listener?.({
+        requestId: 22,
+        requestDetailsJson: JSON.stringify({
+          ...createOptions,
+          rp: { id: "bar.example.com", name: "Bar" },
+        }),
+      });
+      await flushPromises();
+
+      expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
     });
 
     it("declines for non-https tabs", async () => {

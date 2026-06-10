@@ -60,7 +60,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
-    private pageScriptFallbackTracker?: Fido2PageScriptFallbackTracker,
+    private pageScriptFallbackTracker: Fido2PageScriptFallbackTracker,
   ) {}
 
   /**
@@ -380,7 +380,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
             // Mark this tab so the (Chrome-only) webAuthenticationProxy can
             // short-circuit and let Chrome's native picker handle that call
             // instead of re-entering Bitwarden.
-            this.pageScriptFallbackTracker?.markFallbackInProgress(tabId);
+            this.pageScriptFallbackTracker.markFallbackInProgress(tabId);
           }
           throw err;
         } finally {

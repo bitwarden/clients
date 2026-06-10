@@ -58,6 +58,7 @@ export class Fido2WebAuthnProxyBackground {
   private subscriptions = new Subscription();
   private isAttached = false;
   private listenersWired = false;
+  private attachBlocked = false;
 
   constructor(
     private readonly logService: LogService,
@@ -155,10 +156,16 @@ export class Fido2WebAuthnProxyBackground {
       desired.status !== AuthenticationStatus.LoggedOut &&
       this.isProxyApiAvailable();
 
-    if (shouldBeAttached && !this.isAttached) {
+    if (shouldBeAttached && !this.isAttached && !this.attachBlocked) {
       await this.runAttach();
-    } else if (!shouldBeAttached && this.isAttached) {
-      await this.runDetach();
+    } else if (!shouldBeAttached) {
+      // Clear contention latch whenever we are no longer trying to attach so
+      // the next "should attach" window gets a fresh attempt, even if the
+      // prior attach failed without ever flipping isAttached to true.
+      this.attachBlocked = false;
+      if (this.isAttached) {
+        await this.runDetach();
+      }
     }
 
     // Re-check after the async hop. If state flipped while we were attaching
@@ -172,10 +179,13 @@ export class Fido2WebAuthnProxyBackground {
       this.isProxyApiAvailable();
 
     if (shouldBeAttachedAfter !== this.isAttached) {
-      if (shouldBeAttachedAfter) {
+      if (shouldBeAttachedAfter && !this.attachBlocked) {
         await this.runAttach();
-      } else {
-        await this.runDetach();
+      } else if (!shouldBeAttachedAfter) {
+        this.attachBlocked = false;
+        if (this.isAttached) {
+          await this.runDetach();
+        }
       }
     }
   }
@@ -185,9 +195,14 @@ export class Fido2WebAuthnProxyBackground {
       const error = await chrome.webAuthenticationProxy.attach();
       if (error) {
         // Most commonly: another extension is already attached as the proxy.
+        // Latch attachBlocked so reactive state changes don't re-spam attach
+        // attempts. A detach (ours or a state change requiring detach) clears
+        // the latch, giving us a fresh attempt on the next attach window.
+        this.attachBlocked = true;
         this.logService.warning(`[Fido2WebAuthnProxy] Failed to attach: ${error}`);
         return;
       }
+      this.attachBlocked = false;
       this.isAttached = true;
     } catch (err) {
       this.logService.error(err);
@@ -201,6 +216,7 @@ export class Fido2WebAuthnProxyBackground {
       this.logService.error(err);
     } finally {
       this.isAttached = false;
+      this.attachBlocked = false;
     }
   }
 
@@ -316,7 +332,6 @@ export class Fido2WebAuthnProxyBackground {
       }
 
       if (abortController.signal.aborted) {
-        // Canceled while we awaited tab lookup.
         await this.completeWithError(kind, requestId, {
           name: "AbortError",
           message: "Request canceled",

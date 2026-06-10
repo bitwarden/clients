@@ -210,4 +210,43 @@ describe("WebauthnJsonUtils", () => {
       });
     });
   });
+
+  describe("malformed input handling", () => {
+    it("parseCreateRequest throws on non-JSON input", () => {
+      expect(() => WebauthnJsonUtils.parseCreateRequest("not-json", context)).toThrow();
+    });
+
+    it("parseGetRequest throws on non-JSON input", () => {
+      expect(() => WebauthnJsonUtils.parseGetRequest("not-json", context)).toThrow();
+    });
+
+    it("parseCreateRequest throws when rp is missing", () => {
+      const malformed = JSON.stringify({
+        user: { id: "u", name: "n", displayName: "d" },
+        challenge: "c",
+        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+      });
+      expect(() => WebauthnJsonUtils.parseCreateRequest(malformed, context)).toThrow(
+        "Malformed proxy create request",
+      );
+    });
+
+    it("parseCreateRequest throws when user is missing", () => {
+      const malformed = JSON.stringify({
+        rp: { id: "example.com", name: "Example" },
+        challenge: "c",
+        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+      });
+      expect(() => WebauthnJsonUtils.parseCreateRequest(malformed, context)).toThrow(
+        "Malformed proxy create request",
+      );
+    });
+
+    it("parseGetRequest throws when challenge is missing", () => {
+      const malformed = JSON.stringify({ rpId: "example.com" });
+      expect(() => WebauthnJsonUtils.parseGetRequest(malformed, context)).toThrow(
+        "Malformed proxy get request",
+      );
+    });
+  });
 });

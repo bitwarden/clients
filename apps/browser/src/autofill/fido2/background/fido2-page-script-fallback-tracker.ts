@@ -22,7 +22,6 @@ export class Fido2PageScriptFallbackTracker {
 
   constructor(private readonly now: () => number = () => Date.now()) {}
 
-  /** Mark a tab as actively falling back to the browser's native picker. */
   markFallbackInProgress(tabId: number): void {
     const currentTime = this.now();
     this.pruneExpired(currentTime);
@@ -48,10 +47,5 @@ export class Fido2PageScriptFallbackTracker {
         this.pending.delete(tabId);
       }
     }
-  }
-
-  /** Test helper. */
-  get _pendingSize(): number {
-    return this.pending.size;
   }
 }
