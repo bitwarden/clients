@@ -348,12 +348,12 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedSshKeys = { "cipher-abc": new Date() };
+    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
 
     service.ngOnDestroy();
     await flush();
 
-    expect((service as any).authorizedSshKeys).toEqual({});
+    expect((service as any).authorizedKeys).toEqual(new Map());
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {
@@ -372,24 +372,24 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedSshKeys = { "cipher-abc": new Date() };
+    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedSshKeys).toEqual({});
+    expect((service as any).authorizedKeys).toEqual(new Map());
   });
 
   it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    (service as any).authorizedSshKeys = { "cipher-abc": new Date() };
+    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedSshKeys).toEqual({});
+    expect((service as any).authorizedKeys).toEqual(new Map());
   });
 
   it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
@@ -397,13 +397,13 @@ describe("SshAgentService", () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    const seeded = { "cipher-abc": new Date() };
-    (service as any).authorizedSshKeys = seeded;
+    const seeded = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedKeys = seeded;
 
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    expect((service as any).authorizedSshKeys).toBe(seeded);
+    expect((service as any).authorizedKeys).toBe(seeded);
   });
 });
 
