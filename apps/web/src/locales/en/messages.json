@@ -13462,13 +13462,13 @@
     "message": "Block account creation for claimed domains"
   },
   "blockClaimedDomainAccountCreationTitleV2": {
-    "message": "Claimed domain restriction"
+    "message": "Block account creation for claimed domains"
   },
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
   },
   "blockClaimedDomainAccountCreationDescV2": {
-    "message": "Require members to use email addresses that match your claimed domain when creating their account and block them from using your claimed domain to create Bitwarden accounts outside your organization."
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."

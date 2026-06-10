@@ -7,7 +7,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CalloutComponent, LinkComponent, TypographyDirective } from "@bitwarden/components";
+import {
+  BadgeComponent,
+  CalloutComponent,
+  LinkComponent,
+  TypographyDirective,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions/simple-toggle-policy.component";
@@ -44,15 +49,23 @@ type StoryArgs = { enabled: boolean };
 function renderStory(args: StoryArgs) {
   return {
     props: {
+      titleKey: policy.v2?.name ?? policy.name,
       descriptionKey: policy.v2?.description ?? policy.description,
       prerequisiteKey: policy.v2?.prerequisiteKey,
       prerequisiteLinkHref: policy.v2?.prerequisiteLinkHref,
       prerequisiteLinkTextKey: policy.v2?.prerequisiteLinkTextKey,
+      enabled: args.enabled,
       policyDef: policy,
       policyResponse: makePolicyStatusResponse(args.enabled),
     },
     template: `
       <div class="tw-p-4 tw-w-96">
+        <div class="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-mb-4">
+          <h2 bitTypography="h4">{{ titleKey | i18n }}</h2>
+          <span bitBadge [variant]="enabled ? 'success' : 'secondary'">
+            {{ (enabled ? 'on' : 'off') | i18n }}
+          </span>
+        </div>
         @if (prerequisiteKey) {
           <bit-callout type="info" [title]="'prerequisite' | i18n">
             {{ prerequisiteKey | i18n }}
@@ -88,6 +101,7 @@ export default {
       imports: [
         I18nPipe,
         TypographyDirective,
+        BadgeComponent,
         CalloutComponent,
         LinkComponent,
         SimpleTogglePolicyComponent,
