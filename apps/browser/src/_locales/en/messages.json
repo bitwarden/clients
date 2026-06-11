@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Use fill assist"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },
