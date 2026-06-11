@@ -13,6 +13,7 @@ import {
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { BuildTestObject, GetUniqueString } from "@bitwarden/common/spec";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -40,7 +41,6 @@ import {
   KdfType,
 } from "@bitwarden/key-management";
 
-import { BuildTestObject, GetUniqueString } from "../../../../../../common/spec";
 import {
   BitwardenJsonExport,
   ExportedVault,

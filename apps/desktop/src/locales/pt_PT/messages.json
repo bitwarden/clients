@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL do servidor de ícones"
   },
+  "sendUrl": {
+    "message": "Enviar URL do servidor"
+  },
   "environmentSaved": {
     "message": "URLs de ambiente guardados"
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configure um método de desbloqueio para alterar a sua ação de tempo limite"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "O tempo limite da sessão é controlado pela aplicação para computador"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "O $BROWSER$ não está instalado. Por favor, instale o $BROWSER$ antes de importar palavras-passe a partir dele.",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Conta bancária"
+  },
+  "bankAccountDetails": {
+    "message": "Detalhes da conta bancária"
   },
   "bankName": {
     "message": "Nome do banco"

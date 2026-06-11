@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Адрес на сървъра с иконки"
   },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
+  },
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Времето на давност на сесията се управлява от настолното приложение"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ не е инсталиран. Моля, инсталирайте $BROWSER$ преди да внасяте паролите от него.",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Банкова сметка"
+  },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
   },
   "bankName": {
     "message": "Име на банката"
