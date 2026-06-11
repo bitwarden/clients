@@ -91,7 +91,6 @@ describe("MyAccessRequestsComponent", () => {
 
   beforeEach(async () => {
     pamApi = {
-      patchAccessRequest: jest.fn(),
       cancelAccessRequest: jest.fn(),
       requestLeaseExtension: jest.fn(),
       decideAccessRequest: jest.fn(),

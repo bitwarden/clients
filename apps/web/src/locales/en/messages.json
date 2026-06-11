@@ -14448,74 +14448,26 @@
   "pamInboxSubtitle": {
     "message": "Review and act on access requests, and manage who has temporary access to your collections."
   },
-  "accessRequestDetailModalTitle": {
-    "message": "Request access"
-  },
-  "accessRequestDetailModalApprovedDescription": {
-    "message": "Your request for this item is approved. Start access now to begin your lease."
-  },
-  "accessRequestDetailModalDescription": {
-    "message": "Submit a request for temporary access to this item. You'll be notified as soon as it's reviewed."
-  },
-  "accessRequestDetailModalDuration": {
-    "message": "Duration"
-  },
-  "accessRequestDetailModalDuration15m": {
+  "requestAccessModalDuration15m": {
     "message": "15 minutes"
   },
-  "accessRequestDetailModalDuration30m": {
+  "requestAccessModalDuration30m": {
     "message": "30 minutes"
   },
-  "accessRequestDetailModalDuration1h": {
+  "requestAccessModalDuration1h": {
     "message": "1 hour"
   },
-  "accessRequestDetailModalDuration4h": {
+  "requestAccessModalDuration4h": {
     "message": "4 hours"
   },
-  "accessRequestDetailModalDuration8h": {
+  "requestAccessModalDuration8h": {
     "message": "8 hours"
   },
-  "accessRequestDetailModalDuration1d": {
+  "requestAccessModalDuration1d": {
     "message": "1 day"
   },
-  "accessRequestDetailModalSetCustomWindow": {
-    "message": "Set a custom window"
-  },
-  "accessRequestDetailModalUsePreset": {
-    "message": "Use a preset duration"
-  },
-  "accessRequestDetailModalCustomDate": {
-    "message": "Date"
-  },
-  "accessRequestDetailModalCustomStart": {
-    "message": "Start time"
-  },
-  "accessRequestDetailModalCustomEnd": {
-    "message": "End time"
-  },
-  "accessRequestDetailModalReason": {
-    "message": "Reason"
-  },
-  "accessRequestDetailModalReasonPlaceholder": {
+  "requestAccessModalReasonPlaceholder": {
     "message": "Why do you need this?"
-  },
-  "accessRequestDetailModalReasonHint": {
-    "message": "Approvers will see this reason when reviewing your request."
-  },
-  "accessRequestDetailModalSubmit": {
-    "message": "Request access"
-  },
-  "accessRequestDetailModalDismiss": {
-    "message": "Cancel"
-  },
-  "accessRequestDetailModalSubmitSuccess": {
-    "message": "Access request submitted"
-  },
-  "accessRequestDetailModalSubmitError": {
-    "message": "Could not submit access request"
-  },
-  "accessRequestDetailModalCustomWindowEndBeforeStart": {
-    "message": "End time must be after start time"
   },
   "requestAccessModalTitle": {
     "message": "Request access"

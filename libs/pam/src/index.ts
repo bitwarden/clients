@@ -42,7 +42,6 @@ export {
   AccessDecisionRequest,
 } from "./services/requests/access-decision.request";
 export { AccessLeaseExtensionRequest } from "./services/requests/access-lease-extension.request";
-export { AccessRequestPatchRequest } from "./services/requests/access-request-patch.request";
 export { AccessLeaseRevokeRequest } from "./services/requests/access-lease-revoke.request";
 export { AccessRuleRequest } from "./services/requests/access-rule.request";
 

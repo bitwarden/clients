@@ -12,7 +12,6 @@ import { AccessDecisionRequest } from "./requests/access-decision.request";
 import { AccessLeaseExtensionRequest } from "./requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "./requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "./requests/access-request-create.request";
-import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { AccessRuleRequest } from "./requests/access-rule.request";
 
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -249,28 +248,6 @@ describe("DefaultPamApiService", () => {
       expect(req.start).toBeUndefined();
       expect(req.end).toBeUndefined();
       expect(req.reason).toBeUndefined();
-    });
-  });
-
-  describe("patchAccessRequest", () => {
-    it("PATCHes /leasing/requests/{id} and wraps the response", async () => {
-      apiService.send.mockResolvedValue({ Id: "req-1", Status: "pending" });
-      const req = new AccessRequestPatchRequest({
-        notAfter: new Date("2026-01-01T00:00:00Z"),
-        reason: "needed",
-      });
-
-      const result = await service.patchAccessRequest("req-1", req);
-
-      expect(apiService.send).toHaveBeenCalledWith(
-        "PATCH",
-        "/leasing/requests/req-1",
-        req,
-        true,
-        true,
-      );
-      expect(result.id).toBe("req-1");
-      expect(result.status).toBe("pending");
     });
   });
 

@@ -20,7 +20,6 @@ import { AccessDecisionRequest } from "./requests/access-decision.request";
 import { AccessLeaseExtensionRequest } from "./requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "./requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "./requests/access-request-create.request";
-import { AccessRequestPatchRequest } from "./requests/access-request-patch.request";
 import { AccessRuleRequest } from "./requests/access-rule.request";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -128,17 +127,6 @@ export class DefaultPamApiService implements PamApiService {
 
   isLeasingFrozen(_organizationId: string): Promise<boolean> {
     return Promise.reject(new Error("isLeasingFrozen is not implemented yet"));
-  }
-
-  async patchAccessRequest(
-    id: string,
-    request: AccessRequestPatchRequest,
-  ): Promise<AccessRequestDetailsResponse> {
-    const response = new AccessRequestDetailsResponse(
-      await this.send("PATCH", `/leasing/requests/${id}`, request, true),
-    );
-    this.localRefresh$.next();
-    return response;
   }
 
   async cancelAccessRequest(id: string): Promise<void> {

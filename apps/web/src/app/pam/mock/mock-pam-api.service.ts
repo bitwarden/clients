@@ -13,13 +13,12 @@ import {
   AccessDecisionRequest,
   AccessEventService,
   AccessLeaseExtensionRequest,
-  AccessRequestPatchRequest,
   AccessLeaseResponse,
   AccessLeaseRevokeRequest,
   OrganizationGovernanceSummaryResponse,
 } from "@bitwarden/pam";
 
-import { PamMockBuilders, PamMockStore } from "./pam-mock-store";
+import { PamMockStore } from "./pam-mock-store";
 
 /**
  * DEMO ONLY — extends `DefaultPamApiService` and overrides the lease/request
@@ -104,76 +103,6 @@ export class MockPamApiService extends DefaultPamApiService {
       map(() => snapshot()),
       startWith(snapshot()),
     );
-  }
-
-  async patchAccessRequest(
-    id: string,
-    request: AccessRequestPatchRequest,
-  ): Promise<AccessRequestDetailsResponse> {
-    const existing = this.requireRequest(id);
-    if (request.notBefore !== undefined) {
-      existing.requestedNotBefore = request.notBefore;
-    }
-    if (request.notAfter !== undefined) {
-      existing.requestedNotAfter = request.notAfter;
-    }
-    if (request.reason !== undefined) {
-      existing.reason = request.reason;
-    }
-    // Submitting the Request Access modal patches the request — that's the
-    // signal the user actually confirmed, so kick off auto-decision now.
-    if (existing.status === "pending") {
-      this.store.scheduleAutoDecideFor(existing.id);
-    }
-    // Mirror the confirmed request into the approver inbox so it appears
-    // as a pending item. Fire-and-forget; failure is non-critical.
-    void this.addRequestToInbox(existing);
-    return existing;
-  }
-
-  /**
-   * Builds an {@link AccessRequestDetailsResponse} from a user-submitted request
-   * and inserts it into the inbox store, resolving the real cipher name from
-   * the vault. No-ops if the entry already exists.
-   */
-  private async addRequestToInbox(request: AccessRequestDetailsResponse): Promise<void> {
-    if (this.store.inboxRequests.has(request.id)) {
-      return;
-    }
-    try {
-      const account = await firstValueFrom(this.accountService.activeAccount$);
-      const userId = account?.id;
-      if (userId == null) {
-        return;
-      }
-      const [cipher] = await this.cipherService.getAllDecryptedForIds(userId, [request.cipherId]);
-      const inbox = PamMockBuilders.buildInboxAccessRequest({
-        id: request.id,
-        cipherId: request.cipherId,
-        collectionId: request.collectionId,
-        // Use a distinct mock ID so the self-approval guard (canApprove) does
-        // not block the current user from deciding their own demo request.
-        requesterId: "mock-requester",
-        status: request.status,
-        requestedNotBefore: request.requestedNotBefore
-          ? new Date(request.requestedNotBefore)
-          : null,
-        requestedNotAfter: request.requestedNotAfter ? new Date(request.requestedNotAfter) : null,
-        requestedTtlSeconds: request.requestedTtlSeconds,
-        submittedAt: new Date(request.submittedAt),
-        cipherName: cipher?.name ?? `Cipher ${request.cipherId.slice(-4)}`,
-        // cipher.collectionIds is a list of GUIDs; resolving the human name
-        // would need CollectionService. For mock fidelity, use a friendly
-        // default rather than rendering a raw UUID in the history table.
-        collectionName: "Your collection",
-        requesterName: account?.name ?? null,
-        requesterEmail: account?.email ?? "you@example.com",
-        reason: request.reason ?? undefined,
-      });
-      this.store.inboxRequests.set(request.id, inbox);
-    } catch {
-      // Non-critical — the inbox degrades gracefully if the vault is locked.
-    }
   }
 
   async cancelAccessRequest(id: string): Promise<void> {
