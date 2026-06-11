@@ -109,10 +109,20 @@ export class SponsoringOrgRowComponent implements OnInit {
   }
 
   private async doRevokeSponsorship() {
+    const tiers = await firstValueFrom(
+      this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$(),
+    );
+    const familiesTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Families);
+    const annualPrice = familiesTier?.passwordManager.annualPrice ?? 0;
+    const digitsInfo = Number.isInteger(annualPrice) ? "1.0-0" : "1.2-2";
+    const formattedPrice =
+      this.currencyPipe.transform(annualPrice, "USD", "symbol", digitsInfo) ?? `$${annualPrice}`;
+
     const content = this.sponsoringOrg.familySponsorshipValidUntil
       ? this.i18nService.t(
           "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship",
           this.sponsoringOrg.familySponsorshipFriendlyName,
+          formattedPrice,
           formatDate(this.sponsoringOrg.familySponsorshipValidUntil, "MM/dd/yyyy", this.locale),
         )
       : this.i18nService.t(
