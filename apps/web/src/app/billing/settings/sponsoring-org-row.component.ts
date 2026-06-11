@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule, formatDate } from "@angular/common";
+import { CommonModule, CurrencyPipe, formatDate } from "@angular/common";
 import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
@@ -11,6 +11,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -29,6 +31,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
   imports: [CommonModule, I18nPipe, TableModule, IconButtonModule, MenuModule, IconModule],
+  providers: [CurrencyPipe],
 })
 export class SponsoringOrgRowComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -56,6 +59,8 @@ export class SponsoringOrgRowComponent implements OnInit {
     private policyService: PolicyService,
     private accountService: AccountService,
     private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
+    private currencyPipe: CurrencyPipe,
   ) {}
 
   async ngOnInit() {
