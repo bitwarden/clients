@@ -168,7 +168,7 @@
     "message": "複製護照號碼"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "複製身分證字號"
   },
   "copyFirstName": {
     "message": "複製名字"
@@ -214,8 +214,13 @@
     "message": "填入",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "自動填入"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "自動填入登入資料"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "儲存"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "移動"
@@ -1794,6 +1802,9 @@
   "iconsUrl": {
     "message": "圖示伺服器 URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "環境 URL 已儲存"
   },
@@ -1826,19 +1837,19 @@
     "message": "確認自動填入"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "此網站與您儲存的登入資訊不符。在自動填入登入憑證前，請確認這是您信任的網站。"
   },
   "loginNeverMatchTitle": {
-    "message": "Login doesn't match"
+    "message": "登入資訊不符"
   },
   "loginNeverMatchDesc": {
-    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+    "message": "此網站與您儲存的登入資訊不符。請先確認您位於可信任的網站，再進行自動填入。"
   },
   "uriMatchRule": {
-    "message": "URI match rule"
+    "message": "URI 比對規則"
   },
   "neverMatch": {
-    "message": "Never match"
+    "message": "永不比對"
   },
   "loginHasNoSiteSaved": {
     "message": "此登入尚未儲存網站"
@@ -2167,16 +2178,16 @@
     "message": "護照類型"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "複製護照類型"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "身分證字號"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "簽發機關"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "複製簽發機關／單位"
   },
   "issueDate": {
     "message": "簽發日期"
@@ -2242,7 +2253,7 @@
     "message": "銀行帳戶"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "銀行帳戶詳細資訊"
   },
   "typeNote": {
     "message": "備註"
@@ -2278,13 +2289,13 @@
     "message": "護照"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "護照詳細資訊"
   },
   "passportAdded": {
     "message": "護照已新增"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "旅行證件"
   },
   "typeDriversLicense": {
     "message": "駕照"
@@ -2293,13 +2304,13 @@
     "message": "駕照或身分證件"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "駕照詳細資訊"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "簽發州／省"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "駕照類別"
   },
   "newItemHeaderLogin": {
     "message": "新增登入資料",
@@ -2475,10 +2486,10 @@
     "message": "已選擇"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "大量操作"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "已選取 $COUNT$ 個項目。大量操作列現已顯示於畫面底部。按下 $SHORTCUTBINDING$ 可將焦點切換至大量操作列。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2491,10 +2502,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "已清除選取項目"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "其他操作"
   },
   "checkPassword": {
     "message": "檢查密碼是否已外洩。"
@@ -6235,7 +6246,7 @@
     "message": "下一步"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "導覽路徑",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6501,6 +6512,18 @@
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
   },
+  "sharedUnlock": {
+    "message": "共享解鎖"
+  },
+  "sharedUnlockDescription": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，此裝置上的所有應用程式將共用解鎖狀態。若要在不同瀏覽器之間同步，需安裝桌面應用程式。"
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，解鎖狀態將與 Safari 中的 Bitwarden 網頁保管庫共用。"
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，解鎖狀態將與 Bitwarden 桌面應用程式共用。"
+  },
   "enterMonth": {
     "message": "請輸入月份。"
   },
@@ -6652,6 +6675,6 @@
     "message": "您的組織要求電子郵件可見性。請取消勾選「向檢視者隱藏您的電子郵件」後再儲存。"
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
   }
 }

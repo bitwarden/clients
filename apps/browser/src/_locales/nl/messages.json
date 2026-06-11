@@ -214,8 +214,13 @@
     "message": "Invullen",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatisch invullen"
+  "autofillNoun": {
+    "message": "Automatisch invullen",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatisch invullen",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Login automatisch invullen"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Opslaan"
+  },
+  "saveAndFill": {
+    "message": "Opslaan en vullen"
   },
   "move": {
     "message": "Verplaatsen"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "Pictogrammenserver-URL"
+  },
+  "sendUrl": {
+    "message": "Server-URL Send"
   },
   "environmentSaved": {
     "message": "Omgeving-URL's opgeslagen"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
+  },
+  "sharedUnlock": {
+    "message": "Gezamenlijk ontgrendelen"
+  },
+  "sharedUnlockDescription": {
+    "message": "Houd je Bitwarden-apps gesynchroniseerd. Inschakelen deelt de ontgrendelstatus met alle apps op dit apparaat. Vereist de desktop-app om verschillende browsers te synchroniseren."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Houd je Bitwarden-apps gesynchroniseerd. Inschakelen deelt de ontgrendelstatus met Bitwarden-webkluis in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Houd je Bitwarden-apps gesynchroniseerd. Inschakelen deelt de ontgrendelstatus met de Bitwarden-desktop-app."
   },
   "enterMonth": {
     "message": "Enter month."

@@ -214,8 +214,13 @@
     "message": "Толтуруу",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автотолтуруу"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Логинди автотолтуруу"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Сактоо"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Жылдыруу"
@@ -643,13 +651,13 @@
     "message": "Authenticator secret"
   },
   "passphrase": {
-    "message": "Passphrase"
+    "message": "Купуя сүйлөм"
   },
   "favorite": {
     "message": "Сүйүктүү"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Сүйүктүүлөрдөн өчүрүү"
   },
   "itemAddedToFavorites": {
     "message": "Item added to favorites"
@@ -658,7 +666,7 @@
     "message": "Item removed from favorites"
   },
   "notes": {
-    "message": "Notes"
+    "message": "Жазмалар"
   },
   "privateNote": {
     "message": "Private note"
@@ -798,7 +806,7 @@
     "message": "Lock now"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "Баарын кулпулдоо"
   },
   "immediately": {
     "message": "Immediately"
@@ -1129,7 +1137,7 @@
     "message": "Издөөнүн түрү"
   },
   "noneFolder": {
-    "message": "No folder",
+    "message": "Бүктөмө жок",
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "Icons server URL"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "Чөйрөнүн URL'дери сакталды"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
   },
   "enterMonth": {
     "message": "Enter month."
