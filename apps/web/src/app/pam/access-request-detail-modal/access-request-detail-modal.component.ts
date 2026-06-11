@@ -20,15 +20,12 @@ import {
   AccessRequestPatchRequest,
   AccessRequestDetailsResponse,
   PamApiService,
-} from "@bitwarden/pam";
-import { I18nPipe } from "@bitwarden/ui-common";
-
-import {
   LEASE_DURATION_PRESETS,
   endAfterStartValidator,
   toDateString,
   toTimeString,
-} from "../lease-window-form/lease-window.utils";
+} from "@bitwarden/pam";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export type AccessRequestDetailModalData = {
   /** The server-issued pending lease request (from the 202 response). */

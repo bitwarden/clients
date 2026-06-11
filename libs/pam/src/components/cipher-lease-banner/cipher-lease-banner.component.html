@@ -40,11 +40,24 @@
   </div>
 } @else if (canRequestAccess()) {
   <div
-    class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-info-600 tw-bg-info-100 tw-px-4 tw-py-2 tw-text-info-700"
+    class="tw-mb-4 tw-rounded-xl tw-border tw-border-solid tw-border-info-600 tw-bg-info-100 tw-px-4 tw-py-2 tw-text-info-700"
   >
-    <span class="tw-text-sm tw-font-medium">{{ "pamRequestAccessBannerTitle" | i18n }}</span>
-    <button type="button" bitButton buttonType="primary" size="small" [bitAction]="requestAccess">
-      {{ "pamRequestAccessButton" | i18n }}
-    </button>
+    <div class="tw-flex tw-items-center tw-justify-between">
+      <span class="tw-text-sm tw-font-medium">{{ "pamRequestAccessBannerTitle" | i18n }}</span>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        (click)="toggleRequestForm()"
+        id="cipher-lease-banner_button_request-access-toggle"
+      >
+        {{ (requestFormExpanded() ? "cancel" : "pamRequestAccessButton") | i18n }}
+      </button>
+    </div>
+    @if (requestFormExpanded()) {
+      <hr class="tw-my-3 tw-border-t tw-border-info-600" />
+      <app-request-access-form [cipherId]="cipherId()" (submitted)="onRequestSubmitted()" />
+    }
   </div>
 }

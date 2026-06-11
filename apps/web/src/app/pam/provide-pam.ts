@@ -5,7 +5,6 @@ import {
   AccessEventService,
   LeasedCipherFetcher,
   PamApiService,
-  RequestAccessTrigger,
 } from "@bitwarden/pam";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
@@ -18,7 +17,6 @@ import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
 import { MockAccessEventService } from "./mock/mock-access-event.service";
 import { MockPamApiService } from "./mock/mock-pam-api.service";
 import { PamMockConfig } from "./mock/pam-mock-config";
-import { WebRequestAccessTrigger } from "./request-access-trigger/web-request-access-trigger.service";
 
 /**
  * PAM-owned root-level providers. Consumed by `core.module.ts` so the web shell
@@ -56,11 +54,6 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: GATED_CIPHER_RELOADER,
       useExisting: PamGatedCipherReloader,
-      deps: [],
-    }),
-    safeProvider({
-      provide: RequestAccessTrigger,
-      useClass: WebRequestAccessTrigger,
       deps: [],
     }),
     safeProvider({
