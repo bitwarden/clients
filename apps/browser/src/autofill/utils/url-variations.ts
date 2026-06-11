@@ -21,45 +21,47 @@ export function getSubFrameUrlVariations(
     ? globalThis.location?.href
     : undefined,
 ): Set<string> | null {
+  let url: URL;
   try {
-    const url = baseUrl ? new URL(subFrameUrl, baseUrl) : new URL(subFrameUrl);
-    const pathAndHash = url.pathname + url.hash;
-    const pathAndSearch = url.pathname + url.search;
-    const pathSearchAndHash = pathAndSearch + url.hash;
-    const pathNameWithoutTrailingSlash = url.pathname.replace(/\/$/, "");
-    const pathWithoutTrailingSlashAndHash = pathNameWithoutTrailingSlash + url.hash;
-    const pathWithoutTrailingSlashAndSearch = pathNameWithoutTrailingSlash + url.search;
-    const pathWithoutTrailingSlashSearchAndHash = pathWithoutTrailingSlashAndSearch + url.hash;
-
-    return new Set([
-      url.href,
-      url.href.replace(/\/$/, ""),
-      url.pathname,
-      pathAndHash,
-      pathAndSearch,
-      pathSearchAndHash,
-      pathNameWithoutTrailingSlash,
-      pathWithoutTrailingSlashAndHash,
-      pathWithoutTrailingSlashAndSearch,
-      pathWithoutTrailingSlashSearchAndHash,
-      url.hostname + url.pathname,
-      url.hostname + pathAndHash,
-      url.hostname + pathAndSearch,
-      url.hostname + pathSearchAndHash,
-      url.hostname + pathNameWithoutTrailingSlash,
-      url.hostname + pathWithoutTrailingSlashAndHash,
-      url.hostname + pathWithoutTrailingSlashAndSearch,
-      url.hostname + pathWithoutTrailingSlashSearchAndHash,
-      url.origin + url.pathname,
-      url.origin + pathAndHash,
-      url.origin + pathAndSearch,
-      url.origin + pathSearchAndHash,
-      url.origin + pathNameWithoutTrailingSlash,
-      url.origin + pathWithoutTrailingSlashAndHash,
-      url.origin + pathWithoutTrailingSlashAndSearch,
-      url.origin + pathWithoutTrailingSlashSearchAndHash,
-    ]);
+    url = baseUrl ? new URL(subFrameUrl, baseUrl) : new URL(subFrameUrl);
   } catch {
     return null;
   }
+
+  const pathAndHash = url.pathname + url.hash;
+  const pathAndSearch = url.pathname + url.search;
+  const pathSearchAndHash = pathAndSearch + url.hash;
+  const pathNameWithoutTrailingSlash = url.pathname.replace(/\/$/, "");
+  const pathWithoutTrailingSlashAndHash = pathNameWithoutTrailingSlash + url.hash;
+  const pathWithoutTrailingSlashAndSearch = pathNameWithoutTrailingSlash + url.search;
+  const pathWithoutTrailingSlashSearchAndHash = pathWithoutTrailingSlashAndSearch + url.hash;
+
+  return new Set([
+    url.href,
+    url.href.replace(/\/$/, ""),
+    url.pathname,
+    pathAndHash,
+    pathAndSearch,
+    pathSearchAndHash,
+    pathNameWithoutTrailingSlash,
+    pathWithoutTrailingSlashAndHash,
+    pathWithoutTrailingSlashAndSearch,
+    pathWithoutTrailingSlashSearchAndHash,
+    url.hostname + url.pathname,
+    url.hostname + pathAndHash,
+    url.hostname + pathAndSearch,
+    url.hostname + pathSearchAndHash,
+    url.hostname + pathNameWithoutTrailingSlash,
+    url.hostname + pathWithoutTrailingSlashAndHash,
+    url.hostname + pathWithoutTrailingSlashAndSearch,
+    url.hostname + pathWithoutTrailingSlashSearchAndHash,
+    url.origin + url.pathname,
+    url.origin + pathAndHash,
+    url.origin + pathAndSearch,
+    url.origin + pathSearchAndHash,
+    url.origin + pathNameWithoutTrailingSlash,
+    url.origin + pathWithoutTrailingSlashAndHash,
+    url.origin + pathWithoutTrailingSlashAndSearch,
+    url.origin + pathWithoutTrailingSlashSearchAndHash,
+  ]);
 }
