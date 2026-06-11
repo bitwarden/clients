@@ -7,7 +7,6 @@ import { AccessDecisionRequest } from "../services/requests/access-decision.requ
 import { AccessLeaseExtensionRequest } from "../services/requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "../services/requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "../services/requests/access-request-create.request";
-import { AccessRequestPatchRequest } from "../services/requests/access-request-patch.request";
 import { AccessRuleRequest } from "../services/requests/access-rule.request";
 
 import { AccessLeaseResponse } from "./responses/access-lease.response";
@@ -65,10 +64,6 @@ export abstract class PamApiService {
    * transient and re-fetch on every view.
    */
   abstract getLeasedCipher(cipherId: string): Promise<CipherResponse>;
-  abstract patchAccessRequest(
-    id: string,
-    request: AccessRequestPatchRequest,
-  ): Promise<AccessRequestDetailsResponse>;
   abstract cancelAccessRequest(id: string): Promise<void>;
   abstract requestLeaseExtension(
     request: AccessLeaseExtensionRequest,

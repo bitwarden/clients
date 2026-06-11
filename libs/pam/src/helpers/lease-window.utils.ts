@@ -9,12 +9,12 @@ export const MAX_LEASE_DURATION_MINUTES = MAX_LEASE_DURATION_SECONDS / 60;
 
 /** Preset durations offered by the duration picker on the automatic path. */
 export const LEASE_DURATION_PRESETS: { minutes: number; labelKey: string }[] = [
-  { minutes: 15, labelKey: "accessRequestDetailModalDuration15m" },
-  { minutes: 30, labelKey: "accessRequestDetailModalDuration30m" },
-  { minutes: 60, labelKey: "accessRequestDetailModalDuration1h" },
-  { minutes: 240, labelKey: "accessRequestDetailModalDuration4h" },
-  { minutes: 480, labelKey: "accessRequestDetailModalDuration8h" },
-  { minutes: 1440, labelKey: "accessRequestDetailModalDuration1d" },
+  { minutes: 15, labelKey: "requestAccessModalDuration15m" },
+  { minutes: 30, labelKey: "requestAccessModalDuration30m" },
+  { minutes: 60, labelKey: "requestAccessModalDuration1h" },
+  { minutes: 240, labelKey: "requestAccessModalDuration4h" },
+  { minutes: 480, labelKey: "requestAccessModalDuration8h" },
+  { minutes: 1440, labelKey: "requestAccessModalDuration1d" },
 ];
 
 /**

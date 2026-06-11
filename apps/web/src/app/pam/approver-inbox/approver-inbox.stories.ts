@@ -58,7 +58,6 @@ function row(
 
 function fakeApi(rows: AccessRequestDetailsResponse[]): PamApiService {
   return {
-    patchAccessRequest: () => Promise.reject(new Error("not used")),
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not used")),
     decideAccessRequest: (id: string, _request: AccessDecisionRequest) =>
