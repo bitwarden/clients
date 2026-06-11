@@ -304,6 +304,69 @@ describe("OrganizationWarningsService", () => {
     });
   });
 
+  describe("getScheduledPriceIncreaseWarning$", () => {
+    it("should return null when no scheduled price increase warning exists", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("should return null when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return the warning view model when a monthly price increase is scheduled", (done) => {
+      const effectiveDate = new Date("2026-07-15T02:00:00Z");
+      const warning = {
+        seatPrice: 6,
+        effectiveDate,
+        cadence: "monthly" as const,
+      };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        scheduledPriceIncrease: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          seatPrice: 6,
+          effectiveDate,
+          cadence: "monthly",
+        });
+        done();
+      });
+    });
+
+    it("should return the warning view model when an annual price increase is scheduled", (done) => {
+      const effectiveDate = new Date("2026-07-15T02:00:00Z");
+      const warning = {
+        seatPrice: 6,
+        effectiveDate,
+        cadence: "annually" as const,
+      };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        scheduledPriceIncrease: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          seatPrice: 6,
+          effectiveDate,
+          cadence: "annually",
+        });
+        done();
+      });
+    });
+  });
+
   describe("getTaxIdWarning$", () => {
     it("should return null when no tax ID warning exists", (done) => {
       organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);

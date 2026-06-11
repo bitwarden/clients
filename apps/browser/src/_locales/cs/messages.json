@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "Tato stránka neodpovídá Vašim uloženým přihlašovacím údajům. Před vyplněním přihlašovacích údajů se ujistěte, že se jedná o důvěryhodný web."
   },
+  "loginNeverMatchTitle": {
+    "message": "Přihlášení se neshoduje"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Tato stránka se neshoduje s vašimi uloženými přihlašovacími údaji. Ověřte si, zda jste na důvěryhodných stránkách před automatickým vyplňováním."
+  },
+  "uriMatchRule": {
+    "message": "Pravidlo shody URI"
+  },
+  "neverMatch": {
+    "message": "Nikdy se neshoduje"
+  },
   "loginHasNoSiteSaved": {
     "message": "Přihlášení nemá uloženo žádné weby"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bankovní účet"
+  },
+  "bankAccountDetails": {
+    "message": "Údaje o bankovním účtu"
   },
   "typeNote": {
     "message": "Poznámka"
@@ -4431,12 +4446,6 @@
     "message": "Automatické vyplnění při načítání stránky bylo nastaveno na výchozí nastavení.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Nelze automaticky vyplňovat"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Výchozí shoda je nastavena na \"Přesná shoda\". Aktuální web neodpovídá přesně uloženým přihlašovacím údajům pro tuto položku."
-  },
   "okay": {
     "message": "OK"
   },
@@ -6226,7 +6235,7 @@
     "message": "Další"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Drobečková navigace",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {

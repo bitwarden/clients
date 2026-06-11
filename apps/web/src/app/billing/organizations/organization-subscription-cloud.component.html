@@ -83,6 +83,9 @@
       </div>
     </ng-container>
 
+    <app-organization-scheduled-price-increase-warning [organization]="userOrg">
+    </app-organization-scheduled-price-increase-warning>
+
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-mt-5">
         <button

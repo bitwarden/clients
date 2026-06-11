@@ -5232,6 +5232,9 @@
   "reportGenerationFailed": {
     "message": "Při generování hlášení došlo k chybě. Zkuste to znovu."
   },
+  "reportLoadFailed": {
+    "message": "Při načítání hlášení došlo k chybě. Zkuste stránku aktualizovat nebo vygenerujte nové hlášení."
+  },
   "riskInsightsRunReport": {
     "message": "Spustit hlášení"
   },
@@ -5476,6 +5479,9 @@
   },
   "bankAccount": {
     "message": "Bankovní účet"
+  },
+  "bankAccountDetails": {
+    "message": "Údaje o bankovním účtu"
   },
   "amountX": {
     "message": "Částka $COUNT$",
@@ -7339,6 +7345,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "Odpověď na resetování hesla je prázdná"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Je vyžadováno nové heslo"
   },
   "trashCleanupWarning": {
     "message": "Položky, které byly v koši déle než 30 dní, budou automaticky smazány."
@@ -13146,7 +13155,7 @@
     "message": "Požadovaná akce: V platebních údajích chybí DIČ. Pokud DIČ není uvedeno, mohou být Vaše faktury zatíženy dodatečnou daní."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Drobečková navigace",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -14047,8 +14056,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zachovejte bezpečnost Vašich položek v trezoru silnou kontrolou slabých míst."
   },
-  "coachmarkStepIndicator": {
-    "message": "Krok $CURRENT$ z $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ z $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

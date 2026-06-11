@@ -48,7 +48,10 @@ export class SshAgentService implements OnDestroy {
   SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
 
-  private authorizedSshKeys: Record<string, Date> = {};
+  private static readonly LOCAL_HOST_KEY = "local";
+  // map of cipherId to set of authorized host keys.
+  // Local connections use LOCAL_HOST_KEY; forwarded connections use the remote host's fingerprint.
+  private authorizedKeys: Map<string, Set<string>> = new Map();
 
   private destroy$ = new Subject<void>();
 
@@ -165,6 +168,7 @@ export class SshAgentService implements OnDestroy {
           let application = message.processName as string;
           const namespace = message.namespace as string;
           const isAgentForwarding = message.isAgentForwarding as boolean;
+          const hostFingerprint = message.hostFingerprint as string | undefined;
           if (application == "") {
             application = this.i18nService.t("unknownApplication");
           }
@@ -182,7 +186,7 @@ export class SshAgentService implements OnDestroy {
               .catch((e) => this.logService.error("Failed to respond to SSH request", e));
           }
 
-          if (await this.needsAuthorization(cipherId, isAgentForwarding)) {
+          if (await this.needsAuthorization(cipherId, isAgentForwarding, hostFingerprint)) {
             ipc.platform.focusWindow();
             const cipher = ciphers.find((cipher) => cipher.id == cipherId);
             const dialogRef = ApproveSshRequestComponent.open(
@@ -194,7 +198,7 @@ export class SshAgentService implements OnDestroy {
             );
 
             if (await firstValueFrom(dialogRef.closed)) {
-              await this.rememberAuthorization(cipherId);
+              await this.rememberAuthorization(cipherId, isAgentForwarding, hostFingerprint);
               return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             } else {
               return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
@@ -215,11 +219,11 @@ export class SshAgentService implements OnDestroy {
     // skip(1) prevents this from firing on the initial account load.
     this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
       // Triggered when the user switches the active account.
-      // authorizedSshKeys is always reset so approval prompts reappear for the new session.
+      // authorizedKeys is always reset so approval prompts reappear for the new account.
       // In v1, the agent keystore is cleared immediately; in v2 the reactive block below
       // handles keystore updates when the switched-to account's vault status changes.
       next: (account) => {
-        this.authorizedSshKeys = {};
+        this.authorizedKeys = new Map();
         if (!useV2) {
           this.logService.info("Active account changed, clearing SSH keys");
           ipc.autofill.sshAgent
@@ -244,7 +248,7 @@ export class SshAgentService implements OnDestroy {
       // completes this observable via takeUntil. Happens on app quit or service teardown.
       complete: () => {
         this.logService.info("Active account observable completed, clearing SSH keys");
-        this.authorizedSshKeys = {};
+        this.authorizedKeys = new Map();
         if (useV2) {
           this.stopAgent().catch((e: unknown) =>
             this.logService.error("Failed to clear and stop SSH agent", e),
@@ -256,6 +260,16 @@ export class SshAgentService implements OnDestroy {
         }
       },
     });
+
+    // Clear remembered sign-approvals whenever the vault is not unlocked
+    this.authService.activeAccountStatus$
+      .pipe(
+        filter((status) => status !== AuthenticationStatus.Unlocked),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.authorizedKeys = new Map();
+      });
 
     // V1 only: periodic key refresh. V2 manages keys reactively — see block below.
     if (!useV2) {
@@ -383,24 +397,39 @@ export class SshAgentService implements OnDestroy {
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
   }
 
-  private async rememberAuthorization(cipherId: string): Promise<void> {
-    this.authorizedSshKeys[cipherId] = new Date();
+  private async rememberAuthorization(
+    cipherId: string,
+    isForwarded: boolean,
+    hostFingerprint?: string,
+  ): Promise<void> {
+    const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
+    if (!key) {
+      return;
+    }
+    const approved = this.authorizedKeys.get(cipherId) ?? new Set<string>();
+    approved.add(key);
+    this.authorizedKeys.set(cipherId, approved);
   }
 
-  private async needsAuthorization(cipherId: string, isForward: boolean): Promise<boolean> {
-    // Agent forwarding ALWAYS needs authorization because it is a remote machine
-    if (isForward) {
-      return true;
-    }
-
+  private async needsAuthorization(
+    cipherId: string,
+    isForwarded: boolean,
+    hostFingerprint?: string,
+  ): Promise<boolean> {
     const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
     switch (promptType) {
       case SshAgentPromptType.Never:
         return false;
       case SshAgentPromptType.Always:
         return true;
-      case SshAgentPromptType.RememberUntilLock:
-        return !(cipherId in this.authorizedSshKeys);
+      case SshAgentPromptType.RememberUntilLock: {
+        const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
+        // key will only ever be undefined for forwarded requests in the v1, re-prompt.
+        if (!key) {
+          return true;
+        }
+        return !(this.authorizedKeys.get(cipherId)?.has(key) ?? false);
+      }
     }
   }
 }
