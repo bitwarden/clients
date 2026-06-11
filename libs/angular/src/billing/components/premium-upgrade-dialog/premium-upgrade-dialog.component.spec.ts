@@ -196,7 +196,10 @@ describe("PremiumUpgradeDialogComponent", () => {
       });
 
       it("should launch web vault URL on self-host even when flag is enabled", async () => {
-        mockConfigService.getFeatureFlag.mockResolvedValue(true);
+        // Checkout flag on, QA bypass flag off: self-host must still fall back.
+        mockConfigService.getFeatureFlag.mockImplementation((flag: FeatureFlag) =>
+          Promise.resolve(flag === FeatureFlag.PM34515_BrowserDesktopCheckout),
+        );
         mockEnvironmentService.environment$ = of({
           getWebVaultUrl: () => "https://self-hosted.example.com",
           getRegion: () => Region.SelfHosted,
