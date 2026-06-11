@@ -21,6 +21,7 @@ import {
 } from "rxjs";
 
 import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -55,7 +56,6 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
 import { initializeClientManagedState } from "./client-managed-state";
-import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
