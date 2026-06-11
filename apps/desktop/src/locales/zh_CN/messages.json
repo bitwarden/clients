@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "图标服务器 URL"
   },
+  "sendUrl": {
+    "message": "Send 服务 URL"
+  },
   "environmentSaved": {
     "message": "环境 URL 已保存"
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "设置一个解锁方式以更改您的超时动作"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "会话超时时间由桌面应用统一管理"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ 未安装。从中导入密码之前，请先安装 $BROWSER$。",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "银行账户"
+  },
+  "bankAccountDetails": {
+    "message": "银行账户详细信息"
   },
   "bankName": {
     "message": "银行名称"
