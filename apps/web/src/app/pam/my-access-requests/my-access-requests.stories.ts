@@ -47,7 +47,6 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
 
 function pamApi(responses: AccessRequestDetailsResponse[]): PamApiService {
   return {
-    fetchGatedCipher: () => Promise.reject(new Error("not implemented")),
     patchAccessRequest: () => Promise.reject(new Error("not implemented")),
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not implemented")),

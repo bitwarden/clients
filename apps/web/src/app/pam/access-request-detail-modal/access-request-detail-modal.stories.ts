@@ -62,7 +62,6 @@ const i18nMock = () =>
 
 function pamApiStub(): PamApiService {
   return {
-    fetchGatedCipher: () => Promise.reject(new Error("not implemented")),
     patchAccessRequest: (_id: string) => Promise.resolve(makeRequest()),
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not implemented")),
