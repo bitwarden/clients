@@ -47,7 +47,7 @@
     <bit-form-field>
       <bit-label>{{ "pamAccessRuleMaxDuration" | i18n }}</bit-label>
       <select bitInput formControlName="maxLeaseDurationSeconds">
-        <option [ngValue]="0">{{ "pamAccessRuleMaxDurationNoCap" | i18n }}</option>
+        <option [ngValue]="noDurationCap">{{ "pamAccessRuleMaxDurationNoCap" | i18n }}</option>
         @for (opt of durationOptions; track opt.seconds) {
           <option [ngValue]="opt.seconds">{{ opt.labelKey | i18n }}</option>
         }

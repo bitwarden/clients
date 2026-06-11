@@ -8,6 +8,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -71,6 +72,9 @@ const DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
 
 const DEFAULT_DURATION_SECONDS = 60 * 60;
 
+/** The "no maximum" option in the max-duration picker; never constrains the default. */
+const NO_DURATION_CAP = 0;
+
 @Component({
   templateUrl: "./access-rule-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -101,6 +105,7 @@ export class AccessRuleDialogComponent implements OnInit {
 
   protected readonly editing = this.data.existing != null;
   protected readonly durationOptions = DURATION_OPTIONS;
+  protected readonly noDurationCap = NO_DURATION_CAP;
 
   private readonly ipAllowlistEditor = viewChild(IpAllowlistEditorComponent);
 
@@ -119,9 +124,9 @@ export class AccessRuleDialogComponent implements OnInit {
       ),
       [Validators.required],
     ],
-    // Hard ceiling on any single lease's duration. 0 (the first option) means
-    // "no cap"; otherwise the lease window is clamped to this at start.
-    maxLeaseDurationSeconds: [this.data.existing?.maxLeaseDurationSeconds ?? 0],
+    // Hard ceiling on any single lease's duration. NO_DURATION_CAP (the first
+    // option) means "no cap"; otherwise the lease window is clamped to this at start.
+    maxLeaseDurationSeconds: [this.data.existing?.maxLeaseDurationSeconds ?? NO_DURATION_CAP],
     singleActiveLease: [
       this.data.existing?.singleActiveLease ?? this.data.template?.singleActiveLease ?? false,
     ],
@@ -162,6 +167,33 @@ export class AccessRuleDialogComponent implements OnInit {
       .map((id) => byId.get(id))
       .filter((c): c is SelectItemView => c != null);
   });
+
+  constructor() {
+    this.coupleDurationBounds();
+  }
+
+  /**
+   * Keep the default duration at or below the max: when the user moves one picker
+   * past the other, drag the other along so the pair stays consistent. A max of
+   * {@link NO_DURATION_CAP} ("no maximum") never constrains the default. Mutations
+   * use `emitEvent: false` so the paired control updates without re-triggering this.
+   */
+  private coupleDurationBounds(): void {
+    const defaultControl = this.formGroup.controls.defaultLeaseDurationSeconds;
+    const maxControl = this.formGroup.controls.maxLeaseDurationSeconds;
+
+    defaultControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (maxControl.value !== NO_DURATION_CAP && value > maxControl.value) {
+        maxControl.setValue(value, { emitEvent: false });
+      }
+    });
+
+    maxControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (value !== NO_DURATION_CAP && value < defaultControl.value) {
+        defaultControl.setValue(value, { emitEvent: false });
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     try {
@@ -213,7 +245,7 @@ export class AccessRuleDialogComponent implements OnInit {
       collections: this.selectedCollectionIds(),
       defaultLeaseDurationSeconds: value.defaultLeaseDurationSeconds,
       maxLeaseDurationSeconds:
-        value.maxLeaseDurationSeconds === 0 ? null : value.maxLeaseDurationSeconds,
+        value.maxLeaseDurationSeconds === NO_DURATION_CAP ? null : value.maxLeaseDurationSeconds,
       singleActiveLease: value.singleActiveLease,
       enabled: value.enabled,
     });
