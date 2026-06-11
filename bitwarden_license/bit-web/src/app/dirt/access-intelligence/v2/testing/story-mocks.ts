@@ -43,7 +43,6 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     close: "Close",
     cancel: "Cancel",
     back: "Back",
-    all: "All",
 
     // --- Applications toolbar ---
     critical: (n: string | undefined) => `Critical (${n})`,
@@ -72,6 +71,8 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     criticalApplications: "Critical Applications",
     countOfCriticalApplications: (n: string | undefined) => `${n} critical application(s)`,
     countOfApplicationsAtRisk: (n: string | undefined) => `${n} application(s) at risk`,
+    noCriticalApplicationsMarkedYet:
+      "You haven't marked any critical applications yet. Review applications to get started.",
     onceYouMarkApplicationsCriticalTheyWillDisplayHere:
       "Once you mark applications critical they will display here",
     criticalApplicationsAreAtRisk: (n: string | undefined, total: string | undefined) =>
@@ -243,4 +244,14 @@ export class MockDialogService {
     return { closed: EMPTY };
   };
   openSimpleDialog = () => Promise.resolve(true);
+}
+
+/**
+ * Mock ConfigService for Storybook stories.
+ */
+export class MockConfigService {
+  getFeatureFlag$ = (flag: string) => {
+    action("ConfigService.getFeatureFlag$")(flag);
+    return of(true);
+  };
 }

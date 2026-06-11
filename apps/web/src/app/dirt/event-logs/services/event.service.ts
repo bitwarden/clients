@@ -259,6 +259,48 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientCopiedIban:
+        msg = this.i18nService.t("copiedIbanItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t("copiedIbanItemId", this.getShortId(ev.cipherId));
+        break;
+      case EventType.Cipher_ClientToggledIbanVisible:
+        msg = this.i18nService.t("viewedIbanItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t("viewedIbanItemId", this.getShortId(ev.cipherId));
+        break;
+      case EventType.Cipher_ClientCopiedSwiftCode:
+        msg = this.i18nService.t("copiedSwiftCodeItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedSwiftCodeItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledSwiftCodeVisible:
+        msg = this.i18nService.t("viewedSwiftCodeItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedSwiftCodeItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledNationalIdentificationNumberVisible:
+        msg = this.i18nService.t(
+          "viewedNationalIdentificationNumberItemId",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "viewedNationalIdentificationNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedNationalIdentificationNumber:
+        msg = this.i18nService.t(
+          "copiedNationalIdentificationNumberItemId",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "copiedNationalIdentificationNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
 
       // Collection
       case EventType.Collection_Created:
@@ -815,6 +857,24 @@ export class EventService {
         break;
       case EventType.Send_Created_File_WithPasswordProtection:
         msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
+        break;
+      case EventType.Send_Updated_Text:
+        msg = humanReadableMsg = this.i18nService.t("editedTextSend");
+        break;
+      case EventType.Send_Updated_File:
+        msg = humanReadableMsg = this.i18nService.t("editedFileSend");
+        break;
+      case EventType.Send_Deleted_Text:
+        msg = humanReadableMsg = this.i18nService.t("deletedTextSend");
+        break;
+      case EventType.Send_Deleted_File:
+        msg = humanReadableMsg = this.i18nService.t("deletedFileSend");
+        break;
+      case EventType.Send_Accessed_Text:
+        msg = humanReadableMsg = this.i18nService.t("accessedTextSend");
+        break;
+      case EventType.Send_Accessed_File:
+        msg = humanReadableMsg = this.i18nService.t("accessedFileSend");
         break;
 
       default:

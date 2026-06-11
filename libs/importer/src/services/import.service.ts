@@ -524,27 +524,38 @@ export class ImportService implements ImportServiceAbstraction {
       });
 
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
-        // Since ciphers can only have one folder (for now)
-        // we bail if any are a part of multiple Collections
-        if (
-          importResult.ciphers.some(
-            (_c, c_idx) =>
-              importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
-          )
-        ) {
-          throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
+        // For individual vault export files we preserve any existing folders
+        if (importResult.folders.length > 0) {
+          for (let i = 0; i < importResult.ciphers.length; i++) {
+            const cipherFolderIndex = importResult.folders.findIndex(
+              (f) => f.id === importResult.ciphers[i].folderId,
+            );
+            if (cipherFolderIndex !== -1) {
+              importResult.folderRelationships.push([i, cipherFolderIndex]);
+            }
+          }
+          // For organization vault export files we turn any collections into folders.
+          // Ciphers can only have one folder (for now) so bail if any have multiple collections
+        } else {
+          if (
+            importResult.ciphers.some(
+              (_c, c_idx) =>
+                importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
+            )
+          ) {
+            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
+          }
+          importResult.folders = importResult.collections.map((c) => {
+            const f = new FolderView();
+            f.name = c.name;
+            return f;
+          });
+          importResult.folderRelationships = importResult.collectionRelationships.map((c) => [
+            c[0],
+            c[1],
+          ]);
         }
-        importResult.folders = importResult.collections.map((c) => {
-          const f = new FolderView();
-          f.name = c.name;
-          return f;
-        });
-        // We use the collection relationships to create the folder relationships
-        importResult.folderRelationships = importResult.collectionRelationships.map((c) => [
-          c[0],
-          c[1],
-        ]);
-        // We then set the target collection to My Items...
+        // In either case set target collection to My Items...
         importResult.collections = [importTarget];
         // ...and set the collection relationships accordingly
         importResult.collectionRelationships = importResult.ciphers.map((_c, idx) => [idx, 0]);
