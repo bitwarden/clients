@@ -2,11 +2,13 @@ import {
   BehaviorSubject,
   concatMap,
   debounceTime,
+  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
   merge,
   Observable,
+  pairwise,
   ReplaySubject,
   skip,
   Subject,
@@ -368,12 +370,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     // Dump targeting rules' cached page details when Fill Assist setting is changed,
     // and signal content scripts to drop their own targeting-rules caches so the
     // next page-details collection re-evaluates which strategy to use (targeted vs
-    // heuristic).
+    // heuristic). Only act on a `true` -> `false` transition so service-worker cold
+    // starts (where the replayed initial value is `false`) don't broadcast.
     this.domainSettingsService.enableFillAssist$
       .pipe(
-        // ignore initial empty state
-        skip(1),
-        filter((enabled) => !enabled),
+        distinctUntilChanged(),
+        pairwise(),
+        filter(([previous, current]) => previous && !current),
       )
       .subscribe(() => {
         this.clearCachedTargetedPageDetails();

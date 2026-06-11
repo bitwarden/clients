@@ -442,10 +442,29 @@ describe("OverlayBackground", () => {
     }
 
     beforeEach(async () => {
-      // Initial state is false; flip to true so the subsequent toggle to
-      // false produces an actual state-change emission for the subscription
-      // to react to.
+      // Initial state is `false`; flip to `true` so the subsequent toggle to
+      // `false` produces a `true` -> `false` transition the subscription will act on.
       await domainSettingsService.setEnableFillAssist(true);
+    });
+
+    it("does not sweep or broadcast when the setting goes from default (false) to true", async () => {
+      // The outer `beforeEach` already toggled false→true. If the subscription
+      // weren't gated on a true→false transition, that flip would have swept
+      // the cache and broadcast to all tabs.
+      const tabsQuerySpy = jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 11 })]);
+      seedPageDetailsEntry(targetedTabId, 0, true);
+      tabsSendMessageSpy.mockClear();
+
+      await flushPromises();
+
+      expect(tabsQuerySpy).not.toHaveBeenCalled();
+      expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command: "clearTargetingRulesCache" }),
+      );
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeDefined();
     });
 
     it("removes cached page-detail entries that contain targeted fields", async () => {
