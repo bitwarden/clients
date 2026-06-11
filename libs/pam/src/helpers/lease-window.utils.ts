@@ -75,3 +75,29 @@ export function toDateString(date: Date): string {
 export function toTimeString(date: Date): string {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
+
+/**
+ * Seed values for a custom access window starting now and spanning
+ * `durationMinutes`. The end time is clamped to `23:59` on the start date when
+ * the window would cross midnight, so the default doesn't trip
+ * {@link endAfterStartValidator} on first paint (multi-day windows are tracked
+ * as a separate UX defect on the validator). Returns the three reactive-form
+ * control values (`customDate`, `customStart`, `customEnd`).
+ */
+export function defaultWindowFormValues(durationMinutes = 60): {
+  customDate: string;
+  customStart: string;
+  customEnd: string;
+} {
+  const now = new Date();
+  const end = new Date(now.getTime() + durationMinutes * 60_000);
+  const sameDay =
+    end.getFullYear() === now.getFullYear() &&
+    end.getMonth() === now.getMonth() &&
+    end.getDate() === now.getDate();
+  return {
+    customDate: toDateString(now),
+    customStart: toTimeString(now),
+    customEnd: sameDay ? toTimeString(end) : "23:59",
+  };
+}
