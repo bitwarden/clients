@@ -1105,19 +1105,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Routes targeted fields to the content script running in the iframe identified
-   * by `message.iframeSrc`. Looks up the matching frame via webNavigation and
-   * dispatches `applyTargetedFields` so the iframe's own content script can build
-   * its AutofillFields and report back with the correct sub-frame `frameId`.
+   * Routes targeted fields to the iframe identified by `message.iframeSrc`.
+   * Looks up the frame via webNavigation and dispatches `applyTargetedFields`
+   * to its content script.
    *
-   * Frame matching uses the URL variation set to tolerate normalization
-   * differences (trailing slashes, missing components, etc.) between the
-   * iframe's reported `src` and the URL `webNavigation` reports. Ambiguous
-   * matches (multiple frames matching the same variation) are dropped to
-   * avoid routing to the wrong frame; this mirrors the sub-frame offset
-   * resolution policy. Send failures (e.g. sandboxed iframes that refuse
-   * messages) are logged and otherwise ignored — the destination frame's
-   * content script self-gates on sandbox restrictions.
+   * Matching uses a URL variation set so normalization differences between
+   * the iframe's `src` and the URL webNavigation reports don't prevent a match.
+   * Ambiguous matches are dropped. Send failures are logged; the destination
+   * frame is expected to self-gate.
    *
    * @param tab - The tab the message originated from
    * @param message - The message containing `iframeSrc` and `iframeTargetedFields`
