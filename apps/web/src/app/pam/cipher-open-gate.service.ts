@@ -26,9 +26,11 @@ import {
  * approved (unactivated) request, opening just surfaces the partial view:
  * activation is always an explicit member action (CipherOpenAwaitingActivation),
  * so the cipher-lease banner inside the view owns the "Start access" button and
- * the open never mints the lease. With no request at all we surface the
- * request-access modal, and after it closes with a fresh automatic lease we
- * re-fetch the same way. The leased Cipher is never persisted to local state.
+ * the open never mints the lease. A pending request likewise surfaces the partial
+ * view, where the banner owns the "Cancel request" button. Only with no request at
+ * all do we surface the request-access modal, and after it closes with a fresh
+ * automatic lease we re-fetch the same way. The leased Cipher is never persisted to
+ * local state.
  */
 @Injectable({ providedIn: "root" })
 export class PamCipherOpenGate implements CipherOpenGate {
@@ -71,7 +73,14 @@ export class PamCipherOpenGate implements CipherOpenGate {
       return "open";
     }
 
-    // Pending request or nothing yet — drive the request-access flow.
+    if (state.pendingRequest != null) {
+      // A request is already awaiting approval: driving a fresh request flow would only hit the
+      // server's "already pending" rejection. Open the partial view instead; the cipher-lease
+      // banner renders the pending state and owns the "Cancel request" button.
+      return "open";
+    }
+
+    // No lease and no request yet — drive the request-access flow.
     const outcome = await this.requestAccessTrigger.requestAccess(cipher.id);
     if (outcome === "lease-created") {
       const afterLease = await this.leasedCipherFetcher.fetch(cipher.id);
