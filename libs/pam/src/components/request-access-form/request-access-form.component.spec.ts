@@ -40,17 +40,18 @@ function automaticEnvelope() {
   return new AccessRequestResultResponse({
     Object: "accessRequest",
     ApprovalMode: "automatic",
-    Lease: {
-      Object: "lease",
-      Id: "lease-1",
+    Request: {
+      Object: "leaseRequest",
+      Id: "req-1",
       CipherId: "cipher-1",
       CollectionId: "col-1",
       OrganizationId: "org-1",
-      Status: "active",
+      Status: "approved",
       NotBefore: "2026-06-04T12:00:00Z",
       NotAfter: "2026-06-04T13:00:00Z",
+      Reason: null,
+      CreationDate: "2026-06-04T12:00:00Z",
     },
-    Request: null,
   });
 }
 
@@ -250,6 +251,20 @@ describe("RequestAccessFormComponent", () => {
     it("maps 'already active' 400 to an info toast + submitted (no inline error)", async () => {
       pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse({ Message: "You already have active access to this item." }, 400),
+      );
+
+      await component["submit"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "info" }),
+      );
+      expect(submittedSpy).toHaveBeenCalled();
+      expect(component["serverError"]()).toBeNull();
+    });
+
+    it("maps 'already approved' 400 to an info toast + submitted (no inline error)", async () => {
+      pamApi.submitAccessRequest.mockRejectedValue(
+        new ErrorResponse({ Message: "You already have an approved request for this item." }, 400),
       );
 
       await component["submit"]();

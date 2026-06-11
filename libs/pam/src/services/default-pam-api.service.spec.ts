@@ -59,17 +59,18 @@ describe("DefaultPamApiService", () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
         ApprovalMode: "automatic",
-        Lease: {
-          Object: "lease",
-          Id: "lease-1",
+        Request: {
+          Object: "leaseRequest",
+          Id: "req-1",
           CipherId: "cipher-1",
           CollectionId: "col-1",
           OrganizationId: "org-1",
-          Status: "active",
+          Status: "approved",
           NotBefore: "2026-06-04T12:00:00Z",
           NotAfter: "2026-06-04T13:00:00Z",
+          Reason: "incident",
+          CreationDate: "2026-06-04T12:00:00Z",
         },
-        Request: null,
       });
       const body = new AccessRequestCreateRequest({ durationSeconds: 3600, reason: "incident" });
 
@@ -83,11 +84,10 @@ describe("DefaultPamApiService", () => {
         true,
       );
       expect(result.approvalMode).toBe("automatic");
-      expect(result.lease).not.toBeNull();
-      expect(result.lease?.id).toBe("lease-1");
-      expect(result.lease?.status).toBe("active");
-      expect(result.lease?.notAfter).toBe("2026-06-04T13:00:00Z");
-      expect(result.request).toBeNull();
+      expect(result.request).not.toBeNull();
+      expect(result.request?.id).toBe("req-1");
+      expect(result.request?.status).toBe("approved");
+      expect(result.request?.notAfter).toBe("2026-06-04T13:00:00Z");
     });
 
     it("POSTs /ciphers/{id}/lease with a window body on the human path", async () => {
@@ -124,7 +124,6 @@ describe("DefaultPamApiService", () => {
         true,
       );
       expect(result.approvalMode).toBe("human");
-      expect(result.lease).toBeNull();
       expect(result.request).not.toBeNull();
       expect(result.request?.id).toBe("req-1");
       expect(result.request?.status).toBe("pending");

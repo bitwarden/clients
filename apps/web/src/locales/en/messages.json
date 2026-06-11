@@ -14559,14 +14559,17 @@
   "requestAccessModalDismiss": {
     "message": "Cancel"
   },
-  "requestAccessModalLeaseCreatedSuccess": {
-    "message": "Access granted."
+  "requestAccessModalApprovedSuccess": {
+    "message": "Access approved — select Start access to begin."
   },
   "requestAccessModalRequestCreatedSuccess": {
     "message": "Request submitted — awaiting approval."
   },
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
   },
   "requestAccessModalAlreadyPending": {
     "message": "You already have a pending request for this item."
