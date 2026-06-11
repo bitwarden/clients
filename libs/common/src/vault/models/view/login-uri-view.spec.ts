@@ -198,12 +198,44 @@ describe("LoginUriView", () => {
           ).toBe(true);
         });
 
-        it("does not require port matching for regular domains", () => {
-          const uri = uriFactory(UriMatchStrategy.Domain, "https://example.com:8443");
+        it("matches schemeless saved localhost URI against scheme'd target with same port", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "localhost:3000");
+          expect(uri.matchesUri("http://localhost:3000/x", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+          expect(uri.matchesUri("http://localhost:3001", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+        });
+
+        it("matches schemeless saved IPv6 URI against scheme'd target with same port", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "[::1]:9001");
+          expect(uri.matchesUri("http://[::1]:9001/x", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+          expect(uri.matchesUri("http://[::1]:9696", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+        });
+
+        it("treats default ports as equivalent to omitted ports", () => {
+          const httpDefault = uriFactory(UriMatchStrategy.Domain, "http://10.0.0.5:80");
           expect(
-            uri.matchesUri("https://example.com/login", exampleUris.noEquivalentDomains()),
+            httpDefault.matchesUri("http://10.0.0.5/admin", exampleUris.noEquivalentDomains()),
+          ).toBe(true);
+
+          const httpsDefault = uriFactory(UriMatchStrategy.Domain, "https://10.0.0.5:443");
+          expect(
+            httpsDefault.matchesUri("https://10.0.0.5/admin", exampleUris.noEquivalentDomains()),
           ).toBe(true);
         });
+      });
+
+      it("does not require port matching for regular domains", () => {
+        const uri = uriFactory(UriMatchStrategy.Domain, "https://example.com:8443");
+        expect(
+          uri.matchesUri("https://example.com/login", exampleUris.noEquivalentDomains()),
+        ).toBe(true);
       });
     });
 

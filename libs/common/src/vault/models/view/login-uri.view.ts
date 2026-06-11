@@ -10,7 +10,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
 
 function isIpOrLocalhost(uriString: string | null | undefined): boolean {
-  if (Utils.isNullOrWhitespace(uriString)) {
+  if (uriString == null || Utils.isNullOrWhitespace(uriString)) {
     return false;
   }
 
@@ -29,11 +29,19 @@ function isIpOrLocalhost(uriString: string | null | undefined): boolean {
 }
 
 function getPort(uriString: string | null | undefined): string {
-  const url = Utils.getUrl(uriString);
-  if (url == null) {
+  if (uriString == null) {
     return "";
   }
-  return url.port ?? "";
+  const trimmed = uriString.trim();
+  if (trimmed === "") {
+    return "";
+  }
+  // Utils.getUrl returns null for schemeless inputs without a dot, which
+  // includes "localhost:3000" and "[::1]:9001". Prepend a default scheme so
+  // the URL parser can extract the port.
+  const normalized = trimmed.includes("://") ? trimmed : "http://" + trimmed;
+  const url = Utils.getUrl(normalized);
+  return url?.port ?? "";
 }
 
 export class LoginUriView implements View {
@@ -230,12 +238,8 @@ export class LoginUriView implements View {
       return !Utils.DomainMatchBlacklist.get(this.domain)!.has(domainUrlHost);
     }
 
-    // When the saved URI targets an IP address or localhost, require the port
-    // to match as well. Without this, distinct local services that share an
-    // IP/host but listen on different ports (e.g. a private LAN address with
-    // one service on :8080 and another on :9090) all collapse into the same
-    // "domain" and Bitwarden cannot distinguish between them for autofill
-    // suggestions.
+    // For IP/localhost hosts, also require port equality so different local
+    // services on the same host (e.g. :8080 vs :9090) are not collapsed.
     if (isIpOrLocalhost(this.uri) && isIpOrLocalhost(targetUri)) {
       return getPort(this.uri) === getPort(targetUri);
     }
