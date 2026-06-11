@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "发送提醒"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "您尚未标记任何关键应用程序。审查应用程序以开始使用。"
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "您将应用程序标记为关键后，它们将显示在这里。"
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "导入数据"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "如果您没有任何数据要导入，您可以创建一个",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "新的项目",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "新的登录",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " 。",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": "。您可能需要等待您的管理员确认您的组织成员资格。",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "导入出错"
   },
@@ -3670,6 +3653,69 @@
   "canceledSubscription": {
     "message": "订阅已取消"
   },
+  "churnOfferTitle": {
+    "message": "在您离开之前，请收下这份专属福利"
+  },
+  "churnOfferPreamble": {
+    "message": "如果您现在取消，访问权限将持续至"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": "不过，作为我们的老客户，我们想先为您提供一份专属福利。"
+  },
+  "churnOfferDiscountHeading": {
+    "message": "订阅立享 $DISCOUNT$ 折扣",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "为表达对您作为 Bitwarden 老客户的谢意，我们将为您接下来的 $DURATION$ 服务周期提供 $DISCOUNT$ 的折扣。",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "保留订阅并享 $DISCOUNT$ 折扣",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "取消订阅"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "一切就绪！"
+  },
+  "churnOfferSuccessBody": {
+    "message": "您的 $DISCOUNT$ 折扣已经在您接下来的 $DURATION$ 服务期中生效。",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "永不过期"
   },
@@ -3693,6 +3739,9 @@
   },
   "discount": {
     "message": "折扣"
+  },
+  "discountApplied": {
+    "message": "折扣码生效"
   },
   "discountExpiredOnPurchase": {
     "message": "折扣已过期。请检查您的购物车总金额，然后重试。"
@@ -6570,7 +6619,7 @@
     "message": "已信任的紧急联系人"
   },
   "noTrustedContacts": {
-    "message": "您尚未添加任何紧急联系人，请邀请可信任的联系人以开始使用。"
+    "message": "您尚未添加任何紧急联系人。邀请可信任的联系人以开始使用。"
   },
   "addEmergencyContact": {
     "message": "添加紧急联系人"
@@ -8311,6 +8360,9 @@
   },
   "iconsUrl": {
     "message": "图标服务器 URL"
+  },
+  "sendUrl": {
+    "message": "Send 服务 URL"
   },
   "environmentSaved": {
     "message": "环境 URL 已保存"
@@ -10184,9 +10236,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "创建账户"
-  },
   "createSecret": {
     "message": "创建机密"
   },
@@ -10209,7 +10258,44 @@
   "getStarted": {
     "message": "开始使用"
   },
+  "getStartedWithSecretsManager": {
+    "message": "开始使用 Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "完成以下步骤以开始管理您的团队的凭证"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "创建机器账户"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "按项目分类管理您的凭证"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "创建项目"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "从其他工具导入凭据"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "存储密码、证书和 API 密钥"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "创建凭证"
+  },
   "complete": {
+    "message": "完成 $COMPLETED$ / $TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
     "message": "完成 $COMPLETED$ / $TOTAL$",
     "placeholders": {
       "COMPLETED": {
@@ -10864,11 +10950,38 @@
     "message": "请参阅我们的帮助网站上的详细说明：",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
+  "getStartedWithYourVault": {
+    "message": "密码库快速入门"
+  },
+  "onboardingChecklistSubtitle": {
+    "message": "为确保您的个人数据安全，并充分发挥 Bitwarden 的最大效用，请完成以下步骤。"
+  },
+  "dismissThisChecklist": {
+    "message": "忽略此清单"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "创建帐户"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "导入密码"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
     "message": "安装浏览器扩展"
   },
-  "installBrowserExtensionDetails": {
-    "message": "使用扩展快速保存登录以及自动填充表单，而无需打开网页 App。"
+  "onboardingImportDataSubtitle": {
+    "message": "从其他密码管理器导入数据可为您节省时间。您也可以手动向密码库添加项目。"
+  },
+  "onboardingImportCta": {
+    "message": "导入密码"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "请将扩展程序固定到浏览器，以便更快捷地登录并无缝保存您的密码。"
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "安装扩展"
+  },
+  "completed": {
+    "message": "已完成"
   },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
@@ -12679,6 +12792,37 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "您的订阅价格将于 $DATE$ 上涨至每席位每月 $PRICE$。您的方案功能和现有折扣将保持不变。",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "您的订阅价格将于 $DATE$ 上涨至每席位每月 $PRICE$（按年计费）。您的方案功能和现有折扣将保持不变。",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "价格上涨通知"
   },
   "restartOrganizationSubscription": {
     "message": "组织订阅已重启"

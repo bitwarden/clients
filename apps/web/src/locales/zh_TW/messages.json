@@ -15,7 +15,7 @@
     "message": "高風險關鍵應用程式"
   },
   "criticalApplicationsAtRisk": {
-    "message": "Critical applications at risk"
+    "message": "面臨風險的關鍵應用程式"
   },
   "allCriticalApps": {
     "message": "所有關鍵應用程式"
@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "傳送提醒"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "一旦您標記應用程式為關鍵，它們將顯示在此。"
   },
@@ -209,40 +212,40 @@
     }
   },
   "yourDataIsInLetsPutItToWork": {
-    "message": "Your data is in. Let's put it to work."
+    "message": "您的資料已匯入，現在開始發揮它的價值。"
   },
   "takeAQuickTourOfAccessIntelligence": {
-    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+    "message": "快速導覽 Access Intelligence，了解如何將組織資料轉化為實際行動。"
   },
   "yourEntireOrgsSecurityInOneView": {
-    "message": "Your entire org's security, in one view"
+    "message": "在單一檢視中掌握整個組織的安全狀況"
   },
   "accessIntelligenceGivesYouSinglePlace": {
-    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+    "message": "Access Intelligence 提供單一平台，讓您查看所有面臨風險的應用程式、密碼與成員。"
   },
   "youSetThePrioritiesWeSurfaceTheRisks": {
-    "message": "You set the priorities. We surface the risks."
+    "message": "由您設定優先順序，我們為您揭露風險。"
   },
   "youMarkWhichAppsAreMostCritical": {
-    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+    "message": "您標示最關鍵的應用程式後，Access Intelligence 會自動找出最需要優先處理的高風險密碼。"
   },
   "trackImprovementsAcrossYourTeam": {
-    "message": "Track improvements across your team"
+    "message": "追蹤整個團隊的改善情況"
   },
   "membersAreAutomaticallyNotified": {
-    "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
+    "message": "成員會在 Bitwarden 擴充功能中自動收到高風險密碼通知，無需額外催促。"
   },
   "importYourOrgDataToGetStarted": {
-    "message": "Import your org data to get started"
+    "message": "匯入組織資料以開始使用"
   },
   "onceItHasTheVaultData": {
-    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+    "message": "取得保管庫資料後，Access Intelligence 即可提供完整的組織密碼健康狀況報告。"
   },
   "accessIntelligenceWelcomeTour": {
-    "message": "Access Intelligence welcome tour"
+    "message": "Access Intelligence 導覽介紹"
   },
   "startTour": {
-    "message": "Start tour"
+    "message": "開始導覽"
   },
   "noDataInOrgTitle": {
     "message": "找不到資料"
@@ -377,10 +380,10 @@
     "message": "這些成員可存取關鍵應用程式中的高風險項目。"
   },
   "membersWithAtRiskPwds": {
-    "message": "Members with at risk passwords"
+    "message": "使用有風險密碼的成員"
   },
   "membersWithAtRiskPasswordsAndForCriticalApplications": {
-    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "message": "$ATRISKAPPCOUNT$ 位成員在 $CRITICALAPPCOUNT$ 個關鍵應用程式中使用高風險密碼",
     "placeholders": {
       "atRiskAppCount": {
         "content": "$1",
@@ -423,7 +426,7 @@
     }
   },
   "ofCountTotal": {
-    "message": "of $TOTAL$ total",
+    "message": "共 $TOTAL$ 項",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -720,22 +723,22 @@
     "message": "性別"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "複製性別"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "出生地"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "國籍"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "複製國籍"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "護照類型"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "身分證字號"
   },
   "licenseNumber": {
     "message": "駕照號碼"
@@ -1086,16 +1089,16 @@
     "message": "銀行資料"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "護照"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "護照詳細資訊"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "護照已新增"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "旅行證件"
   },
   "folderSubtitle": {
     "message": "整理您的項目"
@@ -1385,7 +1388,7 @@
     "message": "複製地址"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "複製出生地"
   },
   "copyPhone": {
     "message": "複製電話"
@@ -1403,10 +1406,10 @@
     "message": "複製護照號碼"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "複製身分證字號"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "複製護照類型"
   },
   "copyFirstName": {
     "message": "複製名字"
@@ -1430,10 +1433,10 @@
     "message": "複製指紋"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "複製簽發機關／單位"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "複製簽發國家"
   },
   "copyName": {
     "message": "複製名稱"
@@ -1476,7 +1479,7 @@
     }
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "未輸入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
@@ -1531,10 +1534,10 @@
     "message": "取消全選"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "大量操作"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "已選取 $COUNT$ 個項目。大量操作列現已顯示於畫面底部。按下 $SHORTCUTBINDING$ 可將焦點切換至大量操作列。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1547,10 +1550,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "已清除選取項目"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "其他操作"
   },
   "launch": {
     "message": "前往"
@@ -2662,16 +2665,16 @@
     "message": "刪除您的帳戶是永久性的。並且無法復原。"
   },
   "deleteAccountOrganizationOwnerWarning": {
-    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+    "message": "您至少是一個組織的擁有者。刪除帳戶時，也會刪除所有由您單獨擁有的組織。"
   },
   "cannotDeleteAccountOrganizationOwnerDesc": {
-    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+    "message": "當您仍是組織擁有者時，無法刪除帳戶。請先轉移擁有權或刪除該組織。"
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "無法刪除帳號"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "由於您的帳號由一個機構持有，因此無法完成此操作。請聯絡您的機構管理員以獲取更多詳情。"
   },
   "accountDeleted": {
     "message": "帳戶已刪除"
@@ -2698,26 +2701,6 @@
   },
   "importData": {
     "message": "匯入資料"
-  },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "如果你沒有任何資料要匯入，你可以建立一個 ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "新項目",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "新增登入資訊",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": "。",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": "。你可能需要等待管理員確認你的組織會員資格。",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "匯入時發生錯誤"
@@ -3608,7 +3591,7 @@
     "message": "任何未付費訂閱都將透過您的付款方式收取費用。"
   },
   "paymentChargedWithTrialSpecificLength": {
-    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "message": "您的方案包含了 $TRIAL_LENGTH$ 天的免費試用。在試用期結束之前，不會從您的付款方式中扣款。您可以隨時取消。",
     "placeholders": {
       "trial_length": {
         "content": "$1",
@@ -3670,6 +3653,69 @@
   "canceledSubscription": {
     "message": "訂閱已取消"
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancel subscription"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "永不逾期"
   },
@@ -3693,6 +3739,9 @@
   },
   "discount": {
     "message": "折扣"
+  },
+  "discountApplied": {
+    "message": "Discount applied"
   },
   "discountExpiredOnPurchase": {
     "message": "折扣已過期。請檢查您的購物車總金額並再試一次。"
@@ -4042,7 +4091,7 @@
     }
   },
   "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
+    "message": "您的 $PLAN$ $TRIAL_LENGTH$ 天免費試用期，將會在 $TRIAL_LENGTH$ 天後轉換為付費訂閱。",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -4414,50 +4463,50 @@
     }
   },
   "createdTextSend": {
-    "message": "Created Text Send"
+    "message": "已建立文字 Send"
   },
   "createdTextSendWithEmailVerification": {
-    "message": "Created text Send with email verification",
+    "message": "已建立啟用電子郵件驗證的文字 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdTextSendWithPasswordProtection": {
-    "message": "Created text Send with password",
+    "message": "已建立受密碼保護的文字 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdFileSend": {
-    "message": "Created file Send",
+    "message": "已建立檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdFileSendWithEmailVerification": {
-    "message": "Created file Send with email verification",
+    "message": "已建立啟用電子郵件驗證的檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdFileSendWithPasswordProtection": {
-    "message": "Created file Send with password",
+    "message": "已建立受密碼保護的檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedTextSend": {
-    "message": "Edited text Send",
+    "message": "已編輯文字 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedFileSend": {
-    "message": "Edited file Send",
+    "message": "已編輯檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletedTextSend": {
-    "message": "Deleted text Send",
+    "message": "已刪除文字 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletedFileSend": {
-    "message": "Deleted file Send",
+    "message": "已刪除檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accessedTextSend": {
-    "message": "Accessed text Send",
+    "message": "已存取文字 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accessedFileSend": {
-    "message": "Accessed file Send",
+    "message": "已存取檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "movedItemIdToOrg": {
@@ -4602,7 +4651,7 @@
     }
   },
   "copiedPassportNumberItemId": {
-    "message": "Copied passport number for item $ID$.",
+    "message": "已複製項目 $ID$ 的護照號碼。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4611,7 +4660,7 @@
     }
   },
   "viewedPassportNumberItemId": {
-    "message": "Viewed passport number for item $ID$.",
+    "message": "已檢視項目 $ID$ 的護照號碼。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4638,7 +4687,7 @@
     }
   },
   "viewedIbanItemId": {
-    "message": "Viewed IBAN for item $ID$.",
+    "message": "已檢視項目 $ID$ 的 IBAN。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4647,7 +4696,7 @@
     }
   },
   "copiedIbanItemId": {
-    "message": "Copied IBAN for item $ID$.",
+    "message": "已複製項目 $ID$ 的 IBAN。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4656,7 +4705,7 @@
     }
   },
   "viewedSwiftCodeItemId": {
-    "message": "Viewed SWIFT code for item $ID$.",
+    "message": "已檢視項目 $ID$ 的 SWIFT 代碼。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4665,7 +4714,7 @@
     }
   },
   "copiedSwiftCodeItemId": {
-    "message": "Copied SWIFT code for item $ID$.",
+    "message": "已複製項目 $ID$ 的 SWIFT 代碼。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4674,7 +4723,7 @@
     }
   },
   "viewedNationalIdentificationNumberItemId": {
-    "message": "Viewed national identification number for item $ID$.",
+    "message": "已檢視項目 $ID$ 的身分證字號。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4683,7 +4732,7 @@
     }
   },
   "copiedNationalIdentificationNumberItemId": {
-    "message": "Copied national identification number for item $ID$.",
+    "message": "已複製項目 $ID$ 的身分證字號。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4815,7 +4864,7 @@
     "message": "一個或多個電子郵件屬於已被撤銷的成員。請恢復其存取權以重新邀請。"
   },
   "revocationReasonNotLogged": {
-    "message": "No reason logged"
+    "message": "未記錄原因"
   },
   "revocationReasonManual": {
     "message": "已由管理員撤銷"
@@ -4827,7 +4876,7 @@
     "message": "不符合單一組織政策"
   },
   "revocationReasonDeclinedItemTransfer": {
-    "message": "Declined item transfer to organization"
+    "message": "拒絕將項目移轉至組織"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "因不符合組織的雙重驗證政策，已撤銷 $ID$ 的組織存取權限。",
@@ -5233,7 +5282,7 @@
     "message": "產生報告時發生錯誤。請再試一次。"
   },
   "reportLoadFailed": {
-    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+    "message": "載入報告時發生錯誤。請重新整理頁面或重新產生報告。"
   },
   "riskInsightsRunReport": {
     "message": "執行報告"
@@ -5481,7 +5530,7 @@
     "message": "銀行帳戶"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "銀行帳戶詳細資訊"
   },
   "amountX": {
     "message": "金額 $COUNT$",
@@ -5798,22 +5847,22 @@
     "message": "重新產生邀請連結"
   },
   "invalidateInviteLink": {
-    "message": "Invalidate invite link"
+    "message": "使邀請連結失效"
   },
   "invalidateInviteLinkDesc": {
-    "message": "If you remove all domains, this invite link will no longer work for anyone."
+    "message": "若移除所有網域，此邀請連結將對任何人都失效。"
   },
   "invalidateLink": {
-    "message": "Invalidate link"
+    "message": "使連結失效"
   },
   "inviteLinkInvalidated": {
-    "message": "Invite link invalidated"
+    "message": "邀請連結已失效"
   },
   "mustEnterAtLeastOneDomain": {
-    "message": "Must enter at least 1 domain"
+    "message": "至少需輸入 1 個網域"
   },
   "deactivateLink": {
-    "message": "Deactivate link"
+    "message": "停用連結"
   },
   "inviteByLinkDesc": {
     "message": "透過連結邀請成員加入您的組織。若尚未指定角色，他們將以預設使用者身分加入。"
@@ -7347,7 +7396,7 @@
     "message": "重設密碼詳細資訊回應為 null"
   },
   "resetPasswordNewPasswordRequired": {
-    "message": "New password is required"
+    "message": "必須輸入新密碼"
   },
   "trashCleanupWarning": {
     "message": "垃圾桶中超過 30 天的項目將會被自動刪除。"
@@ -8311,6 +8360,9 @@
   },
   "iconsUrl": {
     "message": "圖示伺服器網址"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "環境網址已儲存"
@@ -10184,9 +10236,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "建立帳號"
-  },
   "createSecret": {
     "message": "建立機密"
   },
@@ -10209,8 +10258,45 @@
   "getStarted": {
     "message": "開始使用"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Get started with Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete these steps to start managing your team's secrets"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Create machine account"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize your secrets into projects"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Create project"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bring existing secrets in from another tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Store passwords, certificates, and API keys"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Create secret"
+  },
   "complete": {
     "message": "完成 $COMPLETED$ / $TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ of $TOTAL$ complete",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10950,38 @@
     "message": "請參閱我們說明網站上的詳細說明於",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "安裝瀏覽器擴充套件"
+  "getStartedWithYourVault": {
+    "message": "Get started with your vault"
   },
-  "installBrowserExtensionDetails": {
-    "message": "使用擴充功能可快速儲存登入資料並自動填入表單，無需開啟網頁應用程式。"
+  "onboardingChecklistSubtitle": {
+    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Dismiss this checklist"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Create your account"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Import your passwords"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Install the browser extension"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+  },
+  "onboardingImportCta": {
+    "message": "Import passwords"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Install extension"
+  },
+  "completed": {
+    "message": "Completed"
   },
   "projectAccessUpdated": {
     "message": "專案存取權限已更新"
@@ -11080,7 +11193,7 @@
     "message": "傳送變更密碼的通知"
   },
   "sendNotifications": {
-    "message": "Send notifications"
+    "message": "Send 通知"
   },
   "assignToCollections": {
     "message": "指派至集合"
@@ -12680,6 +12793,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
+  },
   "restartOrganizationSubscription": {
     "message": "已重新啟動組織訂閱"
   },
@@ -13121,7 +13265,7 @@
     }
   },
   "subscribeEnterpriseSubtitleSpecificTrialLength": {
-    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "message": "您的 $PLAN$ $TRIAL_LENGTH$ 天試用期將於今天開始。請立即新增付款方式，以便在試用期結束後繼續使用以下功能：",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -13155,7 +13299,7 @@
     "message": "需要採取動作：你的付款明細缺少稅務識別碼。若未新增，發票可能會包含額外稅額。"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "導覽路徑",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -13955,7 +14099,7 @@
     "message": "搜尋銀行帳戶"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "搜尋護照"
   },
   "copyAccountNumber": {
     "message": "複製帳號"
@@ -13970,13 +14114,13 @@
     "message": "複製 IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "複製帳戶名稱"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "複製分行代碼"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "複製 SWIFT 代碼"
   },
   "bankAccountTypeChecking": {
     "message": "支票帳戶"
@@ -14057,7 +14201,7 @@
     "message": "透過檢查報告中的漏洞來保持您的保管庫項目安全。"
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14070,7 +14214,7 @@
     }
   },
   "more": {
-    "message": "More"
+    "message": "更多"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的銀行帳戶需先完成驗證後，才能用於此次升級。請先驗證銀行帳戶或選擇其他付款方式。"
@@ -14124,19 +14268,19 @@
     "message": "略過連結"
   },
   "rotateAccountEncryptionKey": {
-    "message": "Rotate account encryption key"
+    "message": "輪換帳戶加密金鑰"
   },
   "rotateAccountEncryptionKeyDescription": {
-    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+    "message": "輪換帳戶加密金鑰會產生新的加密金鑰，並重新加密所有保管庫資料。若您認為帳戶可能已遭入侵，建議進行金鑰輪換。"
   },
   "rotateAccountEncryptionDialogDescription": {
-    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+    "message": "產生新的金鑰並重新加密所有保管庫資料。若您懷疑帳戶可能已遭入侵，建議執行此操作。"
   },
   "rotateAccountEncryptionCallout": {
-    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+    "message": "您將被登出並需要重新驗證身分。為避免資料損毀，請勿在程序完成前關閉瀏覽器。"
   },
   "accountEncryptionKeyRotated": {
-    "message": "Account encryption key rotated"
+    "message": "帳戶加密金鑰已輪換"
   },
   "callout": {
     "message": "提示區塊",
@@ -14147,7 +14291,7 @@
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
   },
   "searchDriversLicense": {
     "message": "搜尋駕照"

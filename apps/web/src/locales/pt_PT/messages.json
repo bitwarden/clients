@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Enviar lembretes"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Ainda não marcou nenhuma aplicação crítica. Reveja as aplicações para começar."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Depois de marcar as aplicações como críticas, estas serão apresentadas aqui."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Importar dados"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Se não tiver quaisquer dados para importar, pode criar um ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "novo item",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "nova credencial",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": ".",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " . Poderá ser necessário aguardar até que o administrador confirme a filiação da sua organização.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Erro de importação"
   },
@@ -3670,6 +3653,69 @@
   "canceledSubscription": {
     "message": "Subscrição cancelada"
   },
+  "churnOfferTitle": {
+    "message": "Oferta especial antes de se ir embora"
+  },
+  "churnOfferPreamble": {
+    "message": "Se cancelar agora, o seu acesso continuará até"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". Mas, como cliente de longa data, gostaríamos primeiro de lhe fazer uma oferta."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Obtenha $DISCOUNT$ de desconto na sua subscrição",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "Como agradecimento por ser um cliente de longa data do Bitwarden, gostaríamos de lhe oferecer um desconto de $DISCOUNT$ na sua próxima subscrição de $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Fique e obtenha $DISCOUNT$ de desconto",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancelar subscrição"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Tudo a postos!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "O seu desconto de $DISCOUNT$ foi aplicado à sua próxima subscrição de $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Nunca expira"
   },
@@ -3693,6 +3739,9 @@
   },
   "discount": {
     "message": "desconto"
+  },
+  "discountApplied": {
+    "message": "Desconto aplicado"
   },
   "discountExpiredOnPurchase": {
     "message": "O desconto expirou. Por favor, reveja o total do seu carrinho e tente novamente."
@@ -8312,6 +8361,9 @@
   "iconsUrl": {
     "message": "URL do servidor de ícones"
   },
+  "sendUrl": {
+    "message": "Enviar URL do servidor"
+  },
   "environmentSaved": {
     "message": "URLs de ambiente guardados"
   },
@@ -10184,9 +10236,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Criar uma conta"
-  },
   "createSecret": {
     "message": "Criar um segredo"
   },
@@ -10209,8 +10258,45 @@
   "getStarted": {
     "message": "Começar"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Comece a utilizar o Gestor de Segredos"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete estes passos para começar a gerir os segredos da sua equipa"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Criar conta automática"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize os seus segredos em projetos"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Criar projeto"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Importe segredos existentes de outra ferramenta"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Armazene palavras-passe, certificados e chaves de API"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Criar segredo"
+  },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ concluídos",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ de $TOTAL$ concluídos",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10950,38 @@
     "message": "Consulte as instruções detalhadas no nosso site de ajuda em",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Instalar a extensão do navegador"
+  "getStartedWithYourVault": {
+    "message": "Comece a utilizar o seu cofre"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação web."
+  "onboardingChecklistSubtitle": {
+    "message": "Complete estes passos para proteger os seus dados pessoais e tirar o máximo partido do Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Dispensar esta checklist"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Crie a sua conta"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Importe as suas palavras-passe"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Instale a extensão do navegador"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Poupe tempo ao importar dados de outro gestor de palavras-passe. Também pode adicionar itens ao seu cofre manualmente."
+  },
+  "onboardingImportCta": {
+    "message": "Importar palavras-passe"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Afixe a extensão no seu navegador. Permitirá iniciar sessão mais rapidamente e guardar as suas palavras-passe de forma simples e integrada."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Instalar extensão"
+  },
+  "completed": {
+    "message": "Concluído"
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -12679,6 +12792,37 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "O preço da sua subscrição aumentará para $PRICE$ por utilizador por mês a partir de $DATE$. As funcionalidades do seu plano e quaisquer descontos existentes manter-se-ão exatamente iguais.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "O preço da sua subscrição aumentará para $PRICE$ por utilizador por mês (faturado anualmente) a partir de $DATE$. As funcionalidades do seu plano e quaisquer descontos existentes manter-se-ão exatamente iguais.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Aviso de aumento de preço"
   },
   "restartOrganizationSubscription": {
     "message": "Subscrição da organização reiniciada"

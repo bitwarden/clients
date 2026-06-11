@@ -3,34 +3,34 @@
     "message": "Усе праграмы"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "Усе удзельнікі"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "Усе паролі"
   },
   "activity": {
-    "message": "Activity"
+    "message": "Дзейнасць"
   },
   "criticalAppsAtRisk": {
-    "message": "Critical apps at risk"
+    "message": "Крытычна важныя прыкладання, схільныя рызыцы"
   },
   "criticalApplicationsAtRisk": {
-    "message": "Critical applications at risk"
+    "message": "Крытычна важныя прыкладання, схільныя рызыцы"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "Усе крытычна важныя прыкладання"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Лагатып Bitwarden"
   },
   "criticalApplications": {
     "message": "Крытычныя праграмы"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Адсутнасць крытычных прыкладанняў, схільных рызыцы"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Крытычны ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -39,7 +39,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Не крытычны ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -48,34 +48,34 @@
     }
   },
   "criticalBadge": {
-    "message": "Critical"
+    "message": "Крытычны"
   },
   "accessIntelligence": {
     "message": "Кіраванне доступам"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "No applications match these filters"
+    "message": "Ні адно прыкладанне не адпавядае гэтым фільтрам"
   },
   "passwordRisk": {
     "message": "Рызыка пароля"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "Паролі"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Рызыка з цягам часу"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Паролі ў зоне рызыкі"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "У вас няма правоў на рэдагаванне гэтага элемента"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "Праглядзіце справаздачы аб бяспецы, каб выявіць і ліквідаваць рызыкі, звязаныя з уліковымі дадзенымі, перш чым яны ўзрастуць."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "Праверка лагінаў, схільных рызыцы"
   },
   "dataLastUpdated": {
     "message": "Апошняе абнаўленне даных: $DATE$",
@@ -87,7 +87,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "Вы яшчэ не стварылі справаздачу"
   },
   "notifiedMembers": {
     "message": "Апавешчаныя ўдзельнікі"
@@ -105,7 +105,7 @@
     "message": "Стварыць новы элемент запісу ўваходу"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$ поўны",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -114,7 +114,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "$COUNT$ з $TOTAL$ выкананых задач па забеспячэнні бяспекі",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -127,28 +127,31 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "Ход змены пароля"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "Прызначайце ўдзельнікам заданні для адсочвання прагрэсу"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "Пасля таго як вы праглядзіце прыкладання і адзначце іх як крытычна важныя, назначце сваім карыстальнікам задачы па змене пароляў."
   },
   "sendReminders": {
-    "message": "Send reminders"
+    "message": "Адпраўляць напамінкі"
+  },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Як толькі вы адзначыце прыкладання як крытычна важныя, яны будуць адлюстроўвацца тут."
   },
   "viewAtRiskMembers": {
-    "message": "View at-risk members"
+    "message": "Прагляд удзельнікаў, якія знаходзяцца ў групе рызыкі"
   },
   "viewAtRiskApplications": {
-    "message": "View at-risk applications"
+    "message": "Прагляд прыкладанняў, схільных рызыцы"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "message": "$COUNT$ з $TOTAL$ крытычна важныя прыкладання схільныя рызыцы з-за ўразлівых пароляў",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -161,10 +164,10 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "critical applications marked"
+    "message": "адзначаныя крытычныя прыкладання"
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$  крытычна важныя прыкладання",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -173,7 +176,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ applications at-risk",
+    "message": "$COUNT$ прыкладання, схільныя рызыцы",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -182,7 +185,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ паролі, схільныя рызыцы",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -191,7 +194,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "$COUNT$ новыя паролі схільныя рызыцы",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -209,52 +212,52 @@
     }
   },
   "yourDataIsInLetsPutItToWork": {
-    "message": "Your data is in. Let's put it to work."
+    "message": "Вашы дадзеныя ўведзеныя. Давайце прыступім да працы."
   },
   "takeAQuickTourOfAccessIntelligence": {
-    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+    "message": "Азнаёмцеся з раздзелам Доступ да інфармацыі і даведайцеся, як менавіта можна выкарыстоўваць дадзеныя вашай арганізацыі ў дзеянні."
   },
   "yourEntireOrgsSecurityInOneView": {
-    "message": "Your entire org's security, in one view"
+    "message": "Бяспека ўсёй вашай арганізацыі ў адным акне"
   },
   "accessIntelligenceGivesYouSinglePlace": {
-    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+    "message": "Сістэма Доступ да інфармацыі дазваляе вам у адным месцы праглядаць усе прыкладання, паролі і карыстальнікаў, якія падвяргаюцца рызыцы."
   },
   "youSetThePrioritiesWeSurfaceTheRisks": {
-    "message": "You set the priorities. We surface the risks."
+    "message": "Вы ўсталёўваеце прыярытэты. Мы выяўляем рызыкі."
   },
   "youMarkWhichAppsAreMostCritical": {
-    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+    "message": "Вы адзначаеце, якія прыкладанні найбольш важныя, і Доступ да інфармацыі аўтаматычна вызначае паролі, схільныя рызыцы, якія патрабуюць увагі ў першую чаргу."
   },
   "trackImprovementsAcrossYourTeam": {
-    "message": "Track improvements across your team"
+    "message": "Адсочвайце паляпшэння ў вашай камандзе"
   },
   "membersAreAutomaticallyNotified": {
-    "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
+    "message": "Карыстальнікі аўтаматычна атрымліваюць апавяшчэння аб рызыкоўных паролях у сваім асабістым кабінеце Bitwarden. Праверка Не патрабуецца."
   },
   "importYourOrgDataToGetStarted": {
-    "message": "Import your org data to get started"
+    "message": "Імпартуйце свае арганізацыйныя дадзеныя, каб пачаць працу"
   },
   "onceItHasTheVaultData": {
-    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+    "message": "Атрымаўшы дадзеныя сховішчы, Доступ да інфармацыі атрымае ўсё неабходнае для атрымання справаздачы аб працаздольнасці пароля вашай арганізацыі."
   },
   "accessIntelligenceWelcomeTour": {
-    "message": "Access Intelligence welcome tour"
+    "message": "Доступ да інфармацыі прывітальны тур"
   },
   "startTour": {
-    "message": "Start tour"
+    "message": "Пачаць тур"
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Дадзеныя не знойдзены"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Імпартуйце рэгістрацыйныя дадзеныя вашай арганізацыі, каб пачаць працу з Доступам да інфармацыі. Як толькі вы гэта зробіце, вы зможаце:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Пазначайце прыкладання як крытычна важныя"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "Гэта дапаможа вам у першую чаргу ліквідаваць рызыкі для вашых найбольш важных прыкладанняў."
   },
   "feature2Title": {
     "message": "Help members improve their security"
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Імпартаванне даных"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "If you don't have any data to import, you can create a ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "new item",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " instead.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Памылка імпартавання"
   },
@@ -3670,6 +3653,69 @@
   "canceledSubscription": {
     "message": "Падпіска была скасавана."
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancel subscription"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Неабмежаваны тэрмін дзеяння"
   },
@@ -3693,6 +3739,9 @@
   },
   "discount": {
     "message": "discount"
+  },
+  "discountApplied": {
+    "message": "Discount applied"
   },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
@@ -8312,6 +8361,9 @@
   "iconsUrl": {
     "message": "Icons server URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Environment URLs saved"
   },
@@ -10184,9 +10236,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Create an account"
-  },
   "createSecret": {
     "message": "Стварыць сакрэт"
   },
@@ -10209,8 +10258,45 @@
   "getStarted": {
     "message": "Пачатак працы"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Get started with Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete these steps to start managing your team's secrets"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Create machine account"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize your secrets into projects"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Create project"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bring existing secrets in from another tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Store passwords, certificates, and API keys"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Create secret"
+  },
   "complete": {
     "message": "Завершана $COMPLETED$/$TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ of $TOTAL$ complete",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10950,38 @@
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Install browser extension"
+  "getStartedWithYourVault": {
+    "message": "Get started with your vault"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+  "onboardingChecklistSubtitle": {
+    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Dismiss this checklist"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Create your account"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Import your passwords"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Install the browser extension"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+  },
+  "onboardingImportCta": {
+    "message": "Import passwords"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Install extension"
+  },
+  "completed": {
+    "message": "Completed"
   },
   "projectAccessUpdated": {
     "message": "Project access updated"
@@ -12679,6 +12792,37 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
   },
   "restartOrganizationSubscription": {
     "message": "Organization subscription restarted"
