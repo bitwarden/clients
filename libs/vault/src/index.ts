@@ -64,3 +64,4 @@ export {
   VaultItemDialogResult,
   VaultItemDialogMode,
 } from "./vault-item-dialog/vault-item-dialog.component";
+export * from "./vault-item-dialog/gated-cipher-reloader.token";

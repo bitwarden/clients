@@ -1,10 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Optional,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
+import { filter, firstValueFrom, from, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -58,6 +66,8 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+
+import { GATED_CIPHER_RELOADER, GatedCipherReloader } from "./gated-cipher-reloader.token";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -324,6 +334,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
+    @Optional()
+    @Inject(GATED_CIPHER_RELOADER)
+    private gatedCipherReloader: GatedCipherReloader | null,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -332,6 +345,56 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe();
+    this.revealGatedCipherWhenLeased();
+  }
+
+  /**
+   * A privileged-access (PAM) cipher opens with a partial-data copy and the
+   * lease banner. When a {@link GatedCipherReloader} is provided, watch for a
+   * lease to cover this cipher — minted when the member starts an approved
+   * request from the banner — and swap the partial cipher for the full,
+   * decryptable one in place, so the open dialog reveals the normal view
+   * without a reopen. Inert for non-gated ciphers and platforms without PAM.
+   */
+  private revealGatedCipherWhenLeased(): void {
+    const original = this.params.formConfig.originalCipher;
+    if (this.gatedCipherReloader == null || original?.partialData == null) {
+      return;
+    }
+    this.gatedCipherReloader
+      .fullCipher$(original.id)
+      .pipe(
+        filter((cipher): cipher is Cipher => cipher != null),
+        switchMap((cipher) => from(this.revealFullCipher(cipher))),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+
+  /**
+   * Swaps the partial cipher for the leased full cipher and refreshes the
+   * derived view state, mirroring the initial load in {@link ngOnInit}.
+   */
+  private async revealFullCipher(cipher: Cipher): Promise<void> {
+    const activeUserId = await firstValueFrom(this.userId$);
+    this.formConfig.originalCipher = cipher;
+    this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
+    this.collections = this.formConfig.collections.filter((c) =>
+      this.cipher.collectionIds?.includes(c.id),
+    );
+    this.organization = this.formConfig.organizations.find(
+      (o) => o.id === this.cipher.organizationId,
+    );
+    this.canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
+    );
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(
+        this.cipher,
+        this.params.isAdminConsoleAction,
+      ),
+    );
+    this.updateTitle();
   }
 
   async ngOnInit() {

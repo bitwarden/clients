@@ -26,6 +26,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -565,6 +566,29 @@ describe("VaultItemDialogComponent", () => {
         savedCipherView,
         component["params"].isAdminConsoleAction,
       );
+    });
+  });
+
+  describe("revealFullCipher (gated cipher revealed after a lease is minted)", () => {
+    it("swaps in the decrypted leased cipher and recomputes edit/delete permissions", async () => {
+      const leasedCipher = { id: "gated-1" } as Cipher;
+      const decrypted = {
+        id: "gated-1",
+        type: CipherType.Login,
+        collectionIds: [],
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(decrypted);
+      canEditCipherReturnValue$.next(true);
+      canDeleteCipherReturnValue$.next(true);
+
+      await component["revealFullCipher"](leasedCipher);
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(leasedCipher, "test-user-id");
+      expect(component["cipher"]).toBe(decrypted);
+      // The full cipher backs subsequent edit/attachment flows.
+      expect(component["formConfig"].originalCipher).toBe(leasedCipher);
+      expect(component["canEdit"]).toBe(true);
+      expect(component["canDelete"]).toBe(true);
     });
   });
 });
