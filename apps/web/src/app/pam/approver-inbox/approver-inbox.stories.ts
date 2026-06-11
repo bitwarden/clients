@@ -4,13 +4,18 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
+import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import { ApproverInboxComponent } from "./approver-inbox.component";
@@ -135,6 +140,18 @@ function decorators(rows: AccessRequestDetailsResponse[]) {
               pamInboxElapsedDays: "__$1__ d ago",
             }),
         },
+        // The page renders the shared <app-header> (product switcher + account
+        // menu) for the standard top bar. These stubs satisfy that dependency
+        // graph so the inbox displays under a realistic top bar in isolation.
+        { provide: ProductSwitcherService, useValue: { products$: of(undefined) } },
+        { provide: PlatformUtilsService, useValue: { isSelfHost: () => false } },
+        {
+          provide: VaultTimeoutSettingsService,
+          useValue: { availableVaultTimeoutActions$: () => of([]) },
+        },
+        { provide: LogoutService, useValue: { logout: async () => {} } },
+        { provide: LockService, useValue: { lock: async () => {} } },
+        { provide: AvatarService, useValue: { avatarColor$: of(null) } },
       ],
     }),
     applicationConfig({
