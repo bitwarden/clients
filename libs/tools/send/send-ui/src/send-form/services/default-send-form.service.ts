@@ -13,7 +13,6 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
 import { SendPolicyService } from "../../services/send-policy.service";
@@ -29,7 +28,6 @@ import { SendForm } from "../send-form-container";
 export class DefaultSendFormService implements SendFormService {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
-  private logService = inject(LogService);
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
   private sendApiService = inject(SendApiService);
@@ -112,6 +110,7 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
 
+    let sendView: SendView;
     try {
       const sendData = await this.sendService.encrypt(
         this.updatedSendView,
@@ -120,20 +119,19 @@ export class DefaultSendFormService implements SendFormService {
         null,
       );
       const newSend = await this.sendApiService.save(sendData);
-      const sendView = await this.decryptSend(newSend);
-      this._originalSendView.set(null);
-      this.updatedSendView = null;
-      this._submitting.set(false);
-      return sendView;
+      sendView = await this.decryptSend(newSend);
     } catch (err) {
-      this.logService.error(err);
-      this.toastService.showToast({
-        message: this.i18nService.t("saveSendEditsFailed"),
-        variant: "error",
-      });
+      // We surface any errors but make sure that the submitting
+      // status signal is set to false before we do
       this._submitting.set(false);
-      return;
+      throw err;
     }
+
+    this._originalSendView.set(null);
+    this.updatedSendView = null;
+    this._submitting.set(false);
+
+    return sendView;
   }
 
   sendFormHasEdits() {
