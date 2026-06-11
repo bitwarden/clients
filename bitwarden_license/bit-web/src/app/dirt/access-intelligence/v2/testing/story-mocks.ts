@@ -1,15 +1,30 @@
 import { signal } from "@angular/core";
+import { componentWrapperDecorator } from "@storybook/angular";
 import { BehaviorSubject, EMPTY, of } from "rxjs";
 import { action } from "storybook/actions";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import {
+  AccessIntelligenceDataService,
+  DrawerStateService,
+} from "@bitwarden/bit-common/dirt/access-intelligence";
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { TaskMetrics } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTask } from "@bitwarden/common/vault/tasks";
-import { I18nMockService } from "@bitwarden/components";
+import { DialogService, I18nMockService } from "@bitwarden/components";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
+import { TrendWidgetData } from "../../activity/trend-widget/trend-widget.component";
+import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+
+import { emptyTrendData } from "./story-fixtures";
 
 /**
  * Creates an I18nMockService pre-loaded with all keys used across Access Intelligence storybooks.
@@ -141,6 +156,29 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     newApplicationsReviewed: "New applications reviewed",
     errorSavingReviewStatus: "Error saving review status",
     pleaseTryAgain: "Please try again",
+
+    // --- Trend widget ---
+    riskOverTime: "Risk over time",
+    downloadChart: "Download chart",
+    applications: "Applications",
+    passwords: "Passwords",
+    members: "Members",
+    criticalAppsAtRisk: "Critical applications at risk",
+    passwordsAtRisk: "Passwords at risk",
+    membersAtRisk: "Members at risk",
+    allCriticalApps: "All critical applications",
+    allPasswords: "All passwords",
+    allMembers: "All members",
+    date: "Date",
+    downloadFailed: "Download failed",
+
+    // --- Period selector ---
+    timePeriod: "Time period",
+    pastMonth: "Past month",
+    past3Months: "Past 3 months",
+    past6Months: "Past 6 months",
+    pastYear: "Past year",
+    allTime: "All time",
   });
 }
 
@@ -254,4 +292,119 @@ export class MockConfigService {
     action("ConfigService.getFeatureFlag$")(flag);
     return of(true);
   };
+}
+
+/**
+ * Builds the theming, file-download, and chart-export providers that the
+ * rendered {@link TrendWidgetComponent} (and its chart) require. Shared by the
+ * trend widget's own stories and the activity-tab stories.
+ *
+ * Pass the `theme$` subject from {@link themeToolbarDecorator} to sync the chart
+ * with Storybook's light/dark toolbar toggle; defaults to a fixed light theme.
+ */
+export function buildChartThemeProviders(
+  theme$: BehaviorSubject<Theme> = new BehaviorSubject<Theme>(ThemeTypes.Light),
+) {
+  return [
+    {
+      provide: ThemeStateService,
+      useValue: { selectedTheme$: theme$ },
+    },
+    {
+      provide: SYSTEM_THEME_OBSERVABLE,
+      useValue: theme$,
+    },
+    {
+      provide: FileDownloadService,
+      useClass: MockFileDownloadService,
+    },
+    // ChartExportService is providedIn root, so it would otherwise resolve its
+    // FileDownloadService dependency from the root injector. Provide it here so
+    // it resolves the module-scoped mock above instead.
+    ChartExportService,
+  ];
+}
+
+/**
+ * Storybook decorator that syncs the given theme subject with the theme toolbar
+ * global, so a rendered chart re-themes when the user toggles light/dark.
+ * Pair the same subject with {@link buildChartThemeProviders}.
+ */
+export function themeToolbarDecorator(theme$: BehaviorSubject<Theme>) {
+  return componentWrapperDecorator(
+    (story) => story,
+    ({ globals }) => {
+      theme$.next(globals["theme"] === "dark" ? ThemeTypes.Dark : ThemeTypes.Light);
+      return {};
+    },
+  );
+}
+
+export type TrendMockOptions = {
+  flagEnabled?: boolean;
+  data?: TrendWidgetData;
+  loading?: boolean;
+  error?: string | null;
+};
+
+/**
+ * Builds the providers that drive the activity-tab trend chart in Storybook
+ * stories: the ConfigService feature flag, the RiskOverTimeService data source,
+ * and the theming + chart dependencies the rendered {@link TrendWidgetComponent}
+ * needs (via {@link buildChartThemeProviders}).
+ */
+export function buildTrendChartProviders({
+  flagEnabled = false,
+  data = emptyTrendData,
+  loading = false,
+  error = null,
+}: TrendMockOptions = {}) {
+  return [
+    {
+      provide: ConfigService,
+      useValue: {
+        getFeatureFlag$: () => of(flagEnabled),
+      },
+    },
+    {
+      provide: RiskOverTimeService,
+      useValue: {
+        riskOverTimeData$: new BehaviorSubject<TrendWidgetData>(data),
+        isLoading$: new BehaviorSubject<boolean>(loading),
+        error$: new BehaviorSubject<string | null>(error),
+        initialize: () => {},
+        setTimeframe: () => {},
+        setDataView: () => {},
+      },
+    },
+    ...buildChartThemeProviders(),
+  ];
+}
+
+export type ActivityTabMockOptions = {
+  /** Drives the data service loading state (used by the loading story). */
+  loading?: boolean;
+  /** Trend chart feature flag + data; see {@link buildTrendChartProviders}. */
+  trend?: TrendMockOptions;
+};
+
+/**
+ * Builds the full provider set for an activity-tab Storybook story: the data,
+ * drawer, security-tasks, and dialog mocks plus the trend chart providers.
+ * Pass the report to surface (or `null` with `{ loading: true }`).
+ */
+export function buildActivityTabProviders(
+  report: AccessReportView | null,
+  { loading = false, trend }: ActivityTabMockOptions = {},
+) {
+  return [
+    {
+      provide: AccessIntelligenceDataService,
+      useValue: new MockAccessIntelligenceDataService(report, loading),
+    },
+    { provide: DrawerStateService, useClass: MockDrawerStateService },
+    { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
+    { provide: DialogService, useClass: MockDialogService },
+    ...buildTrendChartProviders(trend),
+  ];
 }
