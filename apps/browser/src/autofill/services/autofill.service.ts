@@ -27,13 +27,11 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -95,7 +93,6 @@ export default class AutofillService implements AutofillServiceInterface {
     private scriptInjectorService: ScriptInjectorService,
     private accountService: AccountService,
     private authService: AuthService,
-    private configService: ConfigService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
@@ -423,18 +420,6 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   async getDefaultUriMatchStrategy(): Promise<UriMatchStrategySetting> {
     return await firstValueFrom(this.domainSettingsService.resolvedDefaultUriMatchStrategy$);
-  }
-
-  private async isFillAssistEnabled(): Promise<boolean> {
-    const fillAssistFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FillAssistTargetingRules,
-    );
-
-    if (!fillAssistFeatureEnabled) {
-      return false;
-    }
-
-    return await firstValueFrom(this.domainSettingsService.enableFillAssist$);
   }
 
   /**
@@ -791,7 +776,9 @@ export default class AutofillService implements AutofillServiceInterface {
     const pageHasTargetedFields = pageDetails.fields.some(({ targeted }) => targeted === true);
 
     if (pageHasTargetedFields) {
-      const fillAssistEnabled = await this.isFillAssistEnabled();
+      const fillAssistEnabled = await firstValueFrom(
+        this.domainSettingsService.resolvedEnableFillAssist$,
+      );
 
       // We could alternatively retrigger gathering page details with the
       // heuristic strategy, but this code path is mostly defensive and not

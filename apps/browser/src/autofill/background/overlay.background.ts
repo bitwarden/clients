@@ -367,12 +367,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
 
-    // Dump targeting rules' cached page details when Fill Assist setting is changed,
-    // and signal content scripts to drop their own targeting-rules caches so the
-    // next page-details collection re-evaluates which strategy to use (targeted vs
-    // heuristic). Only act on a `true` -> `false` transition so service-worker cold
-    // starts (where the replayed initial value is `false`) don't broadcast.
-    this.domainSettingsService.enableFillAssist$
+    // Dump targeting rules' cached page details when Fill Assist becomes
+    // disabled, and signal content scripts to drop their own targeting-rules
+    // caches so the next page-details collection re-evaluates which strategy
+    // to use (targeted vs heuristic). Only act on a `true` -> `false`
+    // transition so service-worker cold starts (where the replayed initial
+    // value is `false`) don't broadcast.
+    this.domainSettingsService.resolvedEnableFillAssist$
       .pipe(
         distinctUntilChanged(),
         pairwise(),

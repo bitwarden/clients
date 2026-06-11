@@ -113,9 +113,9 @@ describe("DefaultDomainSettingsService", () => {
     };
 
     beforeEach(() => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.FillAssistTargetingRules)
-        .mockResolvedValue(true);
+        .mockReturnValue(of(true));
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
@@ -636,7 +636,7 @@ describe("DefaultDomainSettingsService", () => {
 
     describe("handles state gates", () => {
       it("returns null when feature flag is disabled", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+        configService.getFeatureFlag$.mockReturnValue(of(false));
         await domainSettingsService.setEnableFillAssist(true);
         await setupRules(mockRules);
 
@@ -648,7 +648,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when fill assist setting is disabled", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        configService.getFeatureFlag$.mockReturnValue(of(true));
         await domainSettingsService.setEnableFillAssist(false);
         await domainSettingsService.setTargetingRules(mockRules);
 
@@ -660,7 +660,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no active account (logged out)", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        configService.getFeatureFlag$.mockReturnValue(of(true));
         await domainSettingsService.setEnableFillAssist(true);
         accountService.activeAccountSubject.next(null);
         await setupRules(mockRules);
@@ -673,7 +673,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no rules exist in state", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        configService.getFeatureFlag$.mockReturnValue(of(true));
         await domainSettingsService.setEnableFillAssist(true);
         await domainSettingsService.setTargetingRules({});
 

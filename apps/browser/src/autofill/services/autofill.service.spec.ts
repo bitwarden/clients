@@ -16,7 +16,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
-import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -178,7 +178,6 @@ describe("AutofillService", () => {
       scriptInjectorService,
       accountService,
       authService,
-      configService,
       userNotificationsSettings,
       messageListener,
       animationControlService,
@@ -1823,9 +1822,7 @@ describe("AutofillService", () => {
       });
 
       it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.FillAssistTargetingRules)
-          .mockResolvedValue(true);
+        configService.getFeatureFlag$.mockReturnValue(of(true));
         await domainSettingsService.setEnableFillAssist(true);
 
         await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
@@ -1838,9 +1835,7 @@ describe("AutofillService", () => {
       });
 
       it("abandons the fill (returns null) when the feature flag is disabled", async () => {
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.FillAssistTargetingRules)
-          .mockResolvedValue(false);
+        configService.getFeatureFlag$.mockReturnValue(of(false));
         await domainSettingsService.setEnableFillAssist(true);
 
         const result = await autofillService["generateFillScript"](
@@ -1854,9 +1849,7 @@ describe("AutofillService", () => {
       });
 
       it("abandons the fill (returns null) when the user setting is disabled", async () => {
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.FillAssistTargetingRules)
-          .mockResolvedValue(true);
+        configService.getFeatureFlag$.mockReturnValue(of(true));
         await domainSettingsService.setEnableFillAssist(false);
 
         const result = await autofillService["generateFillScript"](
