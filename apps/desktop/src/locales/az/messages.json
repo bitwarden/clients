@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "İkon server URL-si"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Mühit URL-ləri saxlanıldı."
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ quraşdırılmayıb. Lütfən parolları daxilə köçürməzdən əvvəl quraşdırın: $BROWSER$",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Bank hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Bank adı"

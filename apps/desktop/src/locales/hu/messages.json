@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Ikonok szerver webcím"
   },
+  "sendUrl": {
+    "message": "Send szerver webcím"
+  },
   "environmentSaved": {
     "message": "A környezeti webcímek mentésre kerültek."
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "A munkamenet időkifutást az asztali alkalmazás vezérli."
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ nincs telepítve. Telepítsük $BROWSER$ böngészőt, mielőtt jelszavakat importálunk abbóll.",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Bankszámla"
+  },
+  "bankAccountDetails": {
+    "message": "Bankszámla adatok"
   },
   "bankName": {
     "message": "Bank neve"

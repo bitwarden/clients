@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL servera ikon"
   },
+  "sendUrl": {
+    "message": "URL adresa pre Send"
+  },
   "environmentSaved": {
     "message": "URL adresy prostredia boli uložené"
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Časový limit relácie je ovládaný desktopovou aplikáciou"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "Prehliadač $BROWSER$ nie je nainštalovaný. Pred importom hesiel z prehliadača $BROWSER$ ho nainštalujte.",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Bankový účet"
+  },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
   },
   "bankName": {
     "message": "Názov banky"

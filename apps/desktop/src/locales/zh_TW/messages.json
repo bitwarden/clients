@@ -60,13 +60,13 @@
     "message": "護照"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "護照詳細資訊"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "護照已新增"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "旅行證件"
   },
   "folderSubtitle": {
     "message": "整理您的項目"
@@ -398,34 +398,34 @@
     "message": "複製性別"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "出生地"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "複製出生地"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "國籍"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "複製國籍"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "複製簽發國家"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "護照類型"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "複製護照類型"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "複製身分證字號"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "身分證字號"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "複製簽發機關／單位"
   },
   "licenseNumber": {
     "message": "許可證編號"
@@ -1226,7 +1226,7 @@
     "message": "沒有可列出的項目。"
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "未輸入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
@@ -1389,6 +1389,9 @@
   },
   "iconsUrl": {
     "message": "圖示伺服器 URL"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "已儲存環境網址"
@@ -1957,13 +1960,13 @@
     "message": "全選"
   },
   "selected": {
-    "message": "Selected"
+    "message": "已選擇"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "大量操作"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "已選取 $COUNT$ 個項目。大量操作列現已顯示於畫面底部。按下 $SHORTCUTBINDING$ 可將焦點切換至大量操作列。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1976,10 +1979,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "已清除選取項目"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "其他操作"
   },
   "zoomIn": {
     "message": "放大"
@@ -2303,10 +2306,10 @@
     "message": "刪除您的帳戶是永久性的。並且無法復原。"
   },
   "deleteAccountOrganizationOwnerWarning": {
-    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+    "message": "您至少是一個組織的擁有者。刪除帳戶時，也會刪除所有由您單獨擁有的組織。"
   },
   "cannotDeleteAccountOrganizationOwnerDesc": {
-    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+    "message": "當您仍是組織擁有者時，無法刪除帳戶。請先轉移擁有權或刪除該組織。"
   },
   "cannotDeleteAccount": {
     "message": "無法刪除帳號"
@@ -4747,7 +4750,7 @@
     "message": "無效的捷徑"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "導覽路徑",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ 尚未安裝。請先安裝 $BROWSER$ 後再從中匯入密碼。",
     "placeholders": {
@@ -5134,6 +5140,9 @@
   "bankAccount": {
     "message": "銀行帳戶"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "bankName": {
     "message": "銀行名稱"
   },
@@ -5172,7 +5181,7 @@
     "message": "搜尋銀行帳戶"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "搜尋護照"
   },
   "copyAccountNumber": {
     "message": "複製帳號"
@@ -5187,13 +5196,13 @@
     "message": "複製 IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "複製帳戶名稱"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "複製分行代碼"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "複製 SWIFT 代碼"
   },
   "copyFirstName": {
     "message": "複製名字"
@@ -5288,7 +5297,7 @@
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
   },
   "driversLicenseDetails": {
     "message": "駕照詳細資訊"

@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL poslužitelja ikona"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "URL-ovi okoline su spremljeni."
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "Preglednik $BROWSER$ nije instaliran. Instaliraj preglednik $BROWSER$ prije uvoza lozinki.",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Bankovni račun"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Naziv banke"

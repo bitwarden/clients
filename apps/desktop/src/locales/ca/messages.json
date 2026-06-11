@@ -12,7 +12,7 @@
     "message": "Preferits"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Trau dels preferits"
   },
   "types": {
     "message": "Tipus"
@@ -36,16 +36,16 @@
     "message": "Clau SSH"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Compte bancari"
   },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Targeta de crèdit o dèbit"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Informació personal"
   },
   "typeNoteSubtitle": {
     "message": "Important text"
@@ -57,7 +57,7 @@
     "message": "Banking details"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Passaport"
   },
   "passportDetails": {
     "message": "Passport details"
@@ -75,7 +75,7 @@
     "message": "Organize shared items"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Llicència"
   },
   "typeDriversLicenseSubtitle": {
     "message": "Drivers license or ID"
@@ -139,23 +139,23 @@
     "message": "Visualitza l'element"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Mostra Inici de sessió",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Mostra Targeta",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Mostra la Identitat",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Mostra nota",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Mostra clau SSH",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
@@ -175,11 +175,11 @@
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Targeta nova",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Identitat nova",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
@@ -291,11 +291,11 @@
     "message": "Text to share"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Text nou",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Fitxer nou",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
@@ -311,7 +311,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
-    "message": "New",
+    "message": "Nou",
     "description": "for adding new items"
   },
   "newUri": {
@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL del servidor d'icones"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "S'han guardat les URL de l'entorn."
   },
@@ -1520,7 +1523,7 @@
     "message": "Seguiu-nos"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sincronitza ara"
   },
   "changeMasterPass": {
     "message": "Canvia la contrasenya mestra"
@@ -2144,19 +2147,19 @@
     "message": "Exporta des de"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Exporta",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Exporta",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importa",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importa",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2396,7 +2399,7 @@
     "message": "Cerca a la paperera"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Cerca en arxiu"
   },
   "searchLogin": {
     "message": "Search login"
@@ -2423,7 +2426,7 @@
     "message": "Element suprimit definitivament"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Element arxivat restaurat"
   },
   "restoredItem": {
     "message": "Element restaurat"
@@ -3321,7 +3324,7 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "API token de $SERVICENAME$ invàlid: $ERRORMESSAGE$",
+    "message": "API token de $SERVICENAME$ no vàlid: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3379,7 +3382,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "Url de $SERVICENAME$ invàlid.",
+    "message": "Url de $SERVICENAME$ no vàlid.",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -3684,7 +3687,7 @@
     "message": "Cal aprovació del dispositiu"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Tria una opció d'aprovació a sota"
+    "message": "Tria una opció d'aprovació a continuació"
   },
   "rememberThisDevice": {
     "message": "Recorda aquest dispositiu"
@@ -3702,7 +3705,7 @@
     "message": "No s'ha pogut finalitzar l'inici de sessió"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "Cal iniciar sessió en un dispositiu de confiança o demanar al teu administrador que t'assigni una contrasenya."
+    "message": "Cal iniciar sessió en un dispositiu de confiança o demanar al teu administrador que t'assigne una contrasenya."
   },
   "region": {
     "message": "Regió"
@@ -3808,19 +3811,19 @@
     "message": "Confiar"
   },
   "doNotTrust": {
-    "message": "No hi confiïs"
+    "message": "No hi confies"
   },
   "organizationNotTrusted": {
     "message": "L'organització no és de confiança"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Per la seguretat del teu compte, confirma només si tens garantit l'accés a aquest usuari i la seva empremta coincideix amb el que es mostra al seu compte"
+    "message": "Per la seguretat del teu compte, confirma només si tens garantit l'accés a aquest usuari i l'empremta coincideix amb el que es mostra al compte"
   },
   "orgTrustWarning": {
-    "message": "Per la seguretat del teu compte, confirma només si ets un membre d'aquesta organització, tens un compte de recuperació activat i l'empremta de sota coincideix amb la de l'organització."
+    "message": "Per la seguretat del teu compte, confirma només si ets un membre d'aquesta organització, tens un compte de recuperació activat i l'empremta a continuació coincideix amb la de l'organització."
   },
   "orgTrustWarning1": {
-    "message": "Aquesta organització té una política d'Empresa que t'inscriurà com a compte de recuperació. La inscripció permetrà als administradors de l'organització canviar la teva contrasenya. Continua només si coneixes l'organització i la frase d'empremta digital mostrada a sota coincideix amb l'empremta de l'organització."
+    "message": "Aquesta organització té una política d'Empresa que t'inscriurà com a compte de recuperació. La inscripció permetrà als administradors de l'organització canviar la contrasenya. Continua només si coneixes l'organització i la frase d'empremta digital mostrada a continuació coincideix amb l'empremta de l'organització."
   },
   "trustUser": {
     "message": "Confia en l'usuari"
@@ -3986,7 +3989,7 @@
     "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Cal l'inici de sessió en dos passos de Duo al vostre compte. Seguiu els passos de sota per finalitzar l'inici de sessió."
+    "message": "Cal l'inici de sessió en dos passos de Duo al vostre compte. Seguiu els passos a continuació per finalitzar l'inici de sessió."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Seguiu els passos següents per finalitzar l'inici de sessió."
@@ -4279,7 +4282,7 @@
     "message": "No s'ha trobat cap port lliure per a l'inici de sessió sso."
   },
   "securePasswordGenerated": {
-    "message": "Contrasenya segura generada! No us oblideu d'actualitzar-vos la contrasenya al web."
+    "message": "Contrasenya segura generada! No oblideu d'actualitzar la contrasenya al web."
   },
   "useGeneratorHelpTextPartOne": {
     "message": "Feu servir el generador",
@@ -4773,24 +4776,24 @@
     "message": "Edit shortcut"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arxiu",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arxiu",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Recupera de l'arxiu"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arxivat"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Elements en l'arxiu"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "No hi ha cap element en l'arxiu"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -4799,7 +4802,7 @@
     "message": "Item archived"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Element recuperat de l'arxiu"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -4808,7 +4811,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Recupera de l'arxiu i guarda"
   },
   "restartPremium": {
     "message": "Restart Premium"
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5041,16 +5047,16 @@
     }
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "No hi ha cap element a la paperera"
   },
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "No hi ha cap element a la caixa forta"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "La caixa forta protegeix més que només les contrasenyes. Guarda ací de forma segura els inicis de sessió, els identificadors, les targetes i les notes."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Bank name"

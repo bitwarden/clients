@@ -57,16 +57,16 @@
     "message": "Dados bancários"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Passaporte"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Detalhes do passaporte"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Passaporte adicionado"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Documento de viagem"
   },
   "folderSubtitle": {
     "message": "Organize seus itens"
@@ -392,40 +392,40 @@
     "message": "Número do passaporte"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Sexo"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Copiar sexo"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Local de nascimento"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Copiar local de nascimento"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Nacionalidade"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Copiar nacionalidade"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "Copiar país de emissão"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Tipo do passaporte"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Copiar tipo do passaporte"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Copiar número de identificação nacional"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Número da carteira de identidade nacional"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "Copiar autoridade de emissão"
   },
   "licenseNumber": {
     "message": "Número da CNH"
@@ -1226,7 +1226,7 @@
     "message": "Não há itens para listar."
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "Nenhum valor digitado",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
@@ -1389,6 +1389,9 @@
   },
   "iconsUrl": {
     "message": "URL do servidor de ícones"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "URLs de ambiente salvas"
@@ -1957,13 +1960,13 @@
     "message": "Selecionar tudo"
   },
   "selected": {
-    "message": "Selected"
+    "message": "Selecionado"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Ações em massa"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ itens selecionados. A barra de ações em massa agora está disponível na parte de baixo da tela. Toque em $SHORTCUTBINDING$ para habilitar o foco na barra de ação em massa.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1976,10 +1979,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Seleção foi limpa"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Ações adicionais"
   },
   "zoomIn": {
     "message": "Ampliar"
@@ -2303,10 +2306,10 @@
     "message": "O apagamento da sua conta é permanente. Não pode ser desfeito."
   },
   "deleteAccountOrganizationOwnerWarning": {
-    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+    "message": "Você é o proprietário de pelo menos uma organização. Ao apagar sua conta, as organizações das quais você é o único proprietário também serão apagadas."
   },
   "cannotDeleteAccountOrganizationOwnerDesc": {
-    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+    "message": "Você não pode apagar sua conta enquanto é o proprietário de uma organização. Transfira a propriedade ou apague a organização primeira."
   },
   "cannotDeleteAccount": {
     "message": "Não é possível apagar a conta"
@@ -4747,7 +4750,7 @@
     "message": "Atalho inválido"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Trilha de navegação",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "O $BROWSER$ não está instalado. Instale o $BROWSER$ antes de importar senhas dele.",
     "placeholders": {
@@ -5111,7 +5117,7 @@
     "message": "Falha na verificação do usuário."
   },
   "more": {
-    "message": "More"
+    "message": "Mais"
   },
   "enterMonth": {
     "message": "Digite o mês."
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Conta bancária"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Nome do banco"
@@ -5172,7 +5181,7 @@
     "message": "Buscar nas contas bancárias"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "Buscar nos passaportes"
   },
   "copyAccountNumber": {
     "message": "Copiar número da conta"
@@ -5187,13 +5196,13 @@
     "message": "Copiar IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Copiar nome na conta"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Copiar número da agência"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Copiar código SWIFT"
   },
   "copyFirstName": {
     "message": "Copiar primeiro nome"
@@ -5208,7 +5217,7 @@
     "message": "Copiar número da CNH"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copiar número do passaporte"
   },
   "bankAccountTypeChecking": {
     "message": "Corrente"
@@ -5288,7 +5297,7 @@
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "Você não pode importar itens que fazem parte de várias coleções para Meus itens"
   },
   "driversLicenseDetails": {
     "message": "Detalhes da habilitação"

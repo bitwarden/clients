@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL сервера значков"
   },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
+  },
   "environmentSaved": {
     "message": "URL окружения сохранены"
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Тайм-аут сессии контролируется приложением для компьютера"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ не установлен. Пожалуйста, установите $BROWSER$ перед импортом паролей из него.",
     "placeholders": {
@@ -5134,6 +5140,9 @@
   "bankAccount": {
     "message": "Банковский счет"
   },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
+  },
   "bankName": {
     "message": "Название банка"
   },
@@ -5208,7 +5217,7 @@
     "message": "Скопировать номер водительского удостоверения"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Скопировать номер паспорта"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
