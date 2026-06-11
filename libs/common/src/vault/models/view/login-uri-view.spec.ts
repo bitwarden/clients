@@ -233,9 +233,9 @@ describe("LoginUriView", () => {
 
       it("does not require port matching for regular domains", () => {
         const uri = uriFactory(UriMatchStrategy.Domain, "https://example.com:8443");
-        expect(
-          uri.matchesUri("https://example.com/login", exampleUris.noEquivalentDomains()),
-        ).toBe(true);
+        expect(uri.matchesUri("https://example.com/login", exampleUris.noEquivalentDomains())).toBe(
+          true,
+        );
       });
     });
 
