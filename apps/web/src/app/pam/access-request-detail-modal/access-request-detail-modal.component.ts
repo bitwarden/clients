@@ -21,9 +21,8 @@ import {
   AccessRequestDetailsResponse,
   PamApiService,
   LEASE_DURATION_PRESETS,
+  defaultWindowFormValues,
   endAfterStartValidator,
-  toDateString,
-  toTimeString,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -120,21 +119,7 @@ export class AccessRequestDetailModalComponent implements OnInit {
   protected toggleCustomWindow(): void {
     const next = !this.showCustomWindow();
     if (next) {
-      const now = new Date();
-      const end = new Date(now.getTime() + (this.form.value.durationMinutes ?? 60) * 60000);
-      // Clamp end to 23:59 on the same calendar date so the cross-field validator
-      // doesn't flag a midnight-crossing default on first paint. (Multi-day windows
-      // are tracked as a separate UX defect on the validator.)
-      const sameDay =
-        end.getFullYear() === now.getFullYear() &&
-        end.getMonth() === now.getMonth() &&
-        end.getDate() === now.getDate();
-      const endTime = sameDay ? toTimeString(end) : "23:59";
-      this.form.patchValue({
-        customDate: toDateString(now),
-        customStart: toTimeString(now),
-        customEnd: endTime,
-      });
+      this.form.patchValue(defaultWindowFormValues(this.form.value.durationMinutes ?? 60));
     } else {
       // Clear the custom fields so a previously-invalid window doesn't keep the
       // form invalid after the user switches back to the preset duration.
