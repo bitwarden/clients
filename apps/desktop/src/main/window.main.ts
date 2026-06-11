@@ -55,7 +55,7 @@ export class WindowMain {
     private focusWindowCallback: () => Promise<void> | void = null,
   ) {}
 
-  init(): Promise<any> {
+  init(show: boolean = true): Promise<any> {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
@@ -195,7 +195,7 @@ export class WindowMain {
             }
           }
 
-          await this.createWindow();
+          await this.createWindow("full-app", show);
           resolve();
 
           if (this.argvCallback != null) {
@@ -274,7 +274,10 @@ export class WindowMain {
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
    * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
    */
-  async createWindow(template: "full-app" | "modal-app" = "full-app"): Promise<void> {
+  async createWindow(
+    template: "full-app" | "modal-app" = "full-app",
+    show: boolean = true,
+  ): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
@@ -333,7 +336,9 @@ export class WindowMain {
       this.win.maximize();
     }
 
-    this.win.show();
+    if (show) {
+      this.win.show();
+    }
 
     if (template === "full-app") {
       void this.win

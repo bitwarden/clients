@@ -17,6 +17,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClearClipboardDelaySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -339,28 +340,28 @@ export class SettingsDialogComponent implements OnInit {
 
     this.form.controls.clearClipboard.valueChanges
       .pipe(
-        concatMap(async () => this.saveClearClipboard()),
+        concatMap(async (value: ClearClipboardDelaySetting) => this.saveClearClipboard(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.sshAgentPromptBehavior.valueChanges
       .pipe(
-        concatMap(async () => this.saveSshAgentPromptBehavior()),
+        concatMap(async (value: SshAgentPromptType) => this.saveSshAgentPromptBehavior(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.theme.valueChanges
       .pipe(
-        concatMap(async () => this.saveTheme()),
+        concatMap(async (value: Theme) => this.saveTheme(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.locale.valueChanges
       .pipe(
-        concatMap(async () => this.saveLocale()),
+        concatMap(async (value: string) => this.saveLocale(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
@@ -534,12 +535,12 @@ export class SettingsDialogComponent implements OnInit {
     await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
-  protected async saveLocale() {
-    await this.i18nService.setLocale(this.form.value.locale);
+  private async saveLocale(newValue: string) {
+    await this.i18nService.setLocale(newValue);
   }
 
-  protected async saveTheme() {
-    await this.themeStateService.setSelectedTheme(this.form.value.theme);
+  private async saveTheme(newValue: Theme) {
+    await this.themeStateService.setSelectedTheme(newValue);
   }
 
   protected async saveMinOnCopyToClipboard() {
@@ -549,8 +550,8 @@ export class SettingsDialogComponent implements OnInit {
     );
   }
 
-  protected async saveClearClipboard() {
-    await this.autofillSettingsService.setClearClipboardDelay(this.form.value.clearClipboard);
+  private async saveClearClipboard(newValue: ClearClipboardDelaySetting) {
+    await this.autofillSettingsService.setClearClipboardDelay(newValue);
   }
 
   private showAutostartSetting(): boolean {
@@ -638,10 +639,8 @@ export class SettingsDialogComponent implements OnInit {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
   }
 
-  protected async saveSshAgentPromptBehavior() {
-    await this.desktopSettingsService.setSshAgentPromptBehavior(
-      this.form.value.sshAgentPromptBehavior,
-    );
+  private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
+    await this.desktopSettingsService.setSshAgentPromptBehavior(newValue);
   }
 
   protected async savePreventScreenshots() {

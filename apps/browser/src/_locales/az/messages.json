@@ -1826,7 +1826,19 @@
     "message": "Avto-doldurmanı təsdiqlə"
   },
   "confirmAutofillDesc": {
-    "message": "Bu sayt, saxlanılmış giriş məlumatlarınızla uyuşmur. Giriş məlumatlarınızı doldurmazdan əvvəl, güvənli sayt olduğuna əmin olun."
+    "message": "Bu sayt, saxlanılmış giriş məlumatlarınızla uyuşmur. Giriş məlumatlarınızı doldurmazdan əvvəl, saytın etibarlı olduğuna əmin olun."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Giriş məlumatları uyuşmur"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Bu sayt, saxlanılan giriş məlumatlarınızla uyuşmur. Avto-doldurmazdan əvvəl güvənilən bir saytda olduğunuzu doğrulayın."
+  },
+  "uriMatchRule": {
+    "message": "URI uyuşma qaydası"
+  },
+  "neverMatch": {
+    "message": "Heç vaxt uyuşmur"
   },
   "loginHasNoSiteSaved": {
     "message": "Girişdə heç bir sayt saxlanılmayıb"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Bank hesabı məlumatları"
   },
   "typeNote": {
     "message": "Not"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "\"Səhifə yüklənəndə avto-doldurma\" özəlliyi ilkin ayarı istifadə etmək üzrə ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Avto-doldurula bilmir"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "İlkin uyuşma 'Tam Uyuşur' olaraq ayarlanıb. Hazırkı veb sayt, bu element üçün saxlanılmış giriş məlumatları ilə tam uyuşmur."
   },
   "okay": {
     "message": "Oldu"

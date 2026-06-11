@@ -36,6 +36,48 @@ import { CheckboxModule } from "@bitwarden/components";
 
 <Canvas of={stories.Custom} />
 
-### Intermediate
+### Indeterminate
 
 <Canvas of={stories.Indeterminate} />
+
+## Using in a group
+
+Use `bit-form-control-group` when you have multiple related checkboxes that should be validated
+together as a single form field. The group binds to an array form control — each checkbox input's
+`[value]` is added to or removed from the array when checked.
+
+Choose checkboxes in a group when:
+
+- The user selects from a set of options that are saved via a form submit action
+- At least one selection should be required (`Validators.required` on the group control enforces
+  this)
+- The options are independent of each other (any combination is valid)
+
+NOTE: Use switches instead when each option should take effect immediately without a save action.
+
+```html
+<bit-form-control-group formControlName="features">
+  <bit-form-control-card>
+    <input type="checkbox" bitCheckbox [value]="'featureA'" />
+    <bit-label>Feature A</bit-label>
+  </bit-form-control-card>
+  <bit-form-control-card>
+    <input type="checkbox" bitCheckbox [value]="'featureB'" />
+    <bit-label>Feature B</bit-label>
+  </bit-form-control-card>
+</bit-form-control-group>
+```
+
+### Opting out of group selection (not recommended)
+
+Omitting `[value]` while nested inside a group renders the card as a standalone control — it manages
+its own checked state via `formControlName` and does not interact with the group's selection. In
+most cases, if a card doesn't need group selection, it should be placed outside the group entirely.
+
+### Group
+
+<Canvas of={stories.FormControlCardGroup} />
+
+### Group with validation
+
+<Canvas of={stories.FormControlCardGroupWithValidation} />

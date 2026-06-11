@@ -1823,10 +1823,22 @@
     "message": "Izslēgt automātisko aizpildi"
   },
   "confirmAutofill": {
-    "message": "Apstiprināt automātisko aizpildi"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Šī vietne neatbilst saglabātā pieteikšanās vienumam. Pirms pieteikšanās datu aizpildīšanas jāpārliecinās, ka tā ir uzticama."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Informācija par bankas kontu"
   },
   "typeNote": {
     "message": "Piezīme"
@@ -4431,12 +4446,6 @@
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Nevar automātiski aizpildīt"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Noklusējuma atbilstības noteikšana ir iestatīta uz “Pilnīga atbilstība”. Pašreizējā tīmekļvietne pilnībā neabilst saglabātajai pieteikšanās informācijai šajā vienumā."
-  },
   "okay": {
     "message": "Labi"
   },
@@ -6226,7 +6235,7 @@
     "message": "Nākamais"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ceļvedis",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
