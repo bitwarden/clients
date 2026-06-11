@@ -468,62 +468,6 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("getTargetedPageDetails cached-field fallback", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
-        .mockImplementation((command: string) => {
-          if (command === "getUrlAutofillTargetingRules") {
-            return Promise.resolve({
-              result: [
-                {
-                  fields: {
-                    username: ["iframe#nonexistent >>> #username"],
-                  },
-                },
-              ],
-            });
-          }
-          return Promise.resolve(undefined);
-        });
-      jest
-        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
-        .mockImplementationOnce(() => {
-          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
-        });
-    });
-
-    it("returns empty page details when no local fields match and autofillFieldElements is empty", async () => {
-      document.body.innerHTML = `<input type="text" id="username" />`;
-
-      const pageDetails = await collectAutofillContentService.getPageDetails();
-
-      expect(pageDetails.fields).toHaveLength(0);
-    });
-
-    it("returns cached page details from applyExternalTargetedFields when no local fields match", async () => {
-      document.body.innerHTML = `<input type="text" id="username" />`;
-
-      const targetedFields = [{ selector: "#username", fieldType: "username" }];
-      jest
-        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
-        .mockImplementation((command: string) => {
-          if (command === "getUrlAutofillTargetingRules") {
-            return Promise.resolve({
-              result: [{ fields: { username: ["iframe#nonexistent >>> #username"] } }],
-            });
-          }
-          return Promise.resolve(undefined);
-        });
-      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
-
-      const pageDetails = await collectAutofillContentService.getPageDetails();
-
-      expect(pageDetails.fields).toHaveLength(1);
-      expect(pageDetails.fields[0].opid).toBe("targeted_field_0_username");
-    });
-  });
-
   describe("getTargetedPageDetails (container resolution)", () => {
     const mockTargetingRules = (rules: FormContent[] | null) => {
       jest

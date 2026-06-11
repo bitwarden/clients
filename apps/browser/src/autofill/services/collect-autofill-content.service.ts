@@ -44,7 +44,7 @@ import { AutoFillConstants } from "./autofill-constants";
  * Per-field-type cap on how many DOM matches the targeted-collection pass
  * accepts from a selector array. Selector arrays are alternatives by default
  * (first match wins), but certain field types appear in pairs on the same
- * form — most notably `newPassword`, which is commonly mirrored by a
+ * form; most notably `newPassword`, which is commonly mirrored by a
  * "confirm new password" input on registration and password-update flows.
  */
 const MAX_MATCHES_BY_FIELD_TYPE: Readonly<Partial<Record<AutofillTargetingRuleType, number>>> =
@@ -282,16 +282,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    *
    * When a `container` resolves locally, fields belonging to that
    * `FormContent` are associated with the resolved form record via
-   * `field.form`. When it does not resolve (or is absent, or crosses an
-   * iframe boundary), fields are left unassociated — the targeted path is
-   * mutually exclusive with heuristics and does not fall back to native
+   * `field.form`. When it does not resolve (or is absent or crosses an
+   * `iframe` boundary), fields are left unassociated; the targeted path is
+   * mutually-exclusive with heuristics and does not fall back to native
    * `<input>.form` ancestry.
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const fields: AutofillField[] = [];
     const autofillFormsData: Record<string, AutofillForm> = {};
-    // Accumulates targets that live inside iframes, keyed by the iframe's URL.
-    // These are routed to the iframe's own content script instead of being
+    // Accumulates targets that live inside `iframe`s, indexed by the `iframe`'s `src`.
+    // These are routed to the `iframe`'s own content script instead of being
     // collected here, so the existing sub-frame offset infrastructure handles
     // their positioning correctly.
     const iframeTargets = new Map<
@@ -314,71 +314,20 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           continue;
         }
 
-        const typedFieldType = fieldType as AutofillTargetingRuleType;
-        const maxMatches = MAX_MATCHES_BY_FIELD_TYPE[typedFieldType] ?? DEFAULT_MAX_MATCHES;
-        // Dedupe by element identity in case two selectors in the array
-        // resolve to the same node.
-        const matchedElements = new Set<Element>();
-        let matchCount = 0;
-
-        for (const selector of selectorAlternatives) {
-          if (matchCount >= maxMatches) {
-            break;
-          }
-
-          if (typeof selector !== "string") {
-            continue;
-          }
-
-          // Check whether this selector crosses an iframe boundary before
-          // trying to resolve it locally.
-          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
-          if (iframeCrossing) {
-            const { iframeElement, innerSelector } = iframeCrossing;
-            const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
-            if (iframeSrc) {
-              if (!iframeTargets.has(iframeSrc)) {
-                iframeTargets.set(iframeSrc, []);
-              }
-              iframeTargets.get(iframeSrc)!.push({
-                selector: innerSelector,
-                fieldType: typedFieldType,
-              });
-            }
-            matchCount++;
-            continue;
-          }
-
-          // No iframe boundary — resolve locally (direct element or shadow DOM).
-          const matchedElement = this.domQueryService.queryDeepSelector(selector);
-          if (matchedElement) {
-            if (matchedElements.has(matchedElement)) {
-              continue;
-            }
-            matchedElements.add(matchedElement);
-
-            const fieldId = `targeted_field_${formIndex}_${fieldType}_${matchCount}`;
-            const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-            formFieldElement.opid = fieldId;
-
-            const autofillField = this.buildTargetedAutofillField(
-              formFieldElement,
-              typedFieldType,
-              fields.length,
-            );
-            autofillField.form = formOpid;
-
-            fields.push(autofillField);
-            this.cacheAutofillFieldElement(fields.length - 1, formFieldElement, autofillField);
-            matchCount++;
-          }
-        }
+        this.collectTargetedFieldsForType(
+          fieldType as AutofillTargetingRuleType,
+          selectorAlternatives,
+          formIndex,
+          formOpid,
+          fields,
+          iframeTargets,
+        );
       }
     }
 
-    // Route iframe-crossing selectors to their respective frames. Fire-and-
-    // forget: the iframe content scripts apply their fields asynchronously and
-    // re-send collectPageDetailsResponse with their own frameId.
+    // Route `iframe`-crossing selectors to their respective frames. The `iframe`
+    // content scripts apply their fields asynchronously and re-send
+    // "collectPageDetailsResponse" with their own `frameId`; no return here.
     for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
       void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
         iframeSrc,
@@ -386,32 +335,118 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       });
     }
 
-    // If this frame resolved no local targeted fields but already has fields cached
-    // from a prior applyExternalTargetedFields call, use those cached fields. This
-    // handles the case where an iframe's own getPageDetails() runs the targeting path
-    // (because targeting rules apply to the whole tab URL) but all selectors in the
-    // rules cross an iframe boundary that doesn't exist inside this frame — so the
-    // results are empty, and we must not overwrite the background's page-details entry
-    // with an empty payload.
-    if (!fields.length && this.autofillFieldElements.size > 0) {
-      this.domRecentlyMutated = false;
-      const cachedPageDetails = this.getFormattedPageDetails(
-        this.getFormattedAutofillFormsData(),
-        this.getFormattedAutofillFieldsData(),
-      );
-      this.setupOverlayListeners(cachedPageDetails);
-      return cachedPageDetails;
-    }
-
     this.domRecentlyMutated = false;
     /**
-     * @TODO check if need to utilize targeting rules for forms/submits within closed
+     * FIXME check if need to utilize targeting rules for forms/submits within closed
      * shadow roots as well, in order to detect cipher additions/updates
      */
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, fields);
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Processes a single field type's selector alternatives within a targeted form.
+   */
+  private collectTargetedFieldsForType(
+    fieldType: AutofillTargetingRuleType,
+    selectorAlternatives: NonNullable<FormContent["fields"]>[AutofillTargetingRuleType],
+    formIndex: number,
+    formOpid: string | null,
+    fields: AutofillField[],
+    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>,
+  ): void {
+    const maxMatches = MAX_MATCHES_BY_FIELD_TYPE[fieldType] ?? DEFAULT_MAX_MATCHES;
+    // Dedupe by element identity in case two selectors in the array
+    // resolve to the same node.
+    const matchedElements = new Set<Element>();
+    let matchCount = 0;
+
+    for (const selector of selectorAlternatives ?? []) {
+      if (matchCount >= maxMatches) {
+        break;
+      }
+
+      if (typeof selector !== "string") {
+        continue;
+      }
+
+      // Check whether this selector crosses an iframe boundary before
+      // trying to resolve it locally.
+      const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+
+      if (iframeCrossing) {
+        // Treats an outer-hop iframe match as a success signal; the inner
+        // selector's resolution happens asynchronously inside the iframe and
+        // may not actually produce a field. An iframe with no resolvable
+        // source (e.g. constructed but not yet navigated) is NOT counted,
+        // so a later alternative in the same selector array still gets a
+        // chance to resolve.
+        //
+        // FIXME replace with await-per-selector so the inner resolution is
+        // confirmed before the next selector is attempted.
+        if (this.routeSelectorToIframe(iframeCrossing, fieldType, iframeTargets)) {
+          matchCount++;
+        }
+
+        continue;
+      }
+
+      // No `iframe` boundary; resolve locally (direct element or shadow DOM).
+      const matchedElement = this.domQueryService.queryDeepSelector(selector);
+
+      if (!matchedElement || matchedElements.has(matchedElement)) {
+        continue;
+      }
+
+      matchedElements.add(matchedElement);
+
+      const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+      formFieldElement.opid = `targeted_field_${formIndex}_${fieldType}_${matchCount}`;
+
+      const autofillField = this.buildTargetedAutofillField(
+        formFieldElement,
+        fieldType,
+        fields.length,
+      );
+      autofillField.form = formOpid;
+
+      fields.push(autofillField);
+      this.cacheAutofillFieldElement(fields.length - 1, formFieldElement, autofillField);
+
+      matchCount++;
+    }
+  }
+
+  /**
+   * Records an `iframe`-crossing selector against its target `iframe`'s source URL.
+   * Returns `true` when the routing was recorded; `false` when the `iframe` lacks
+   * a resolvable source (constructed but not yet navigated, etc.) so the caller
+   * can decline to consume a match slot for it.
+   */
+  private routeSelectorToIframe(
+    iframeCrossing: { iframeElement: HTMLIFrameElement; innerSelector: string },
+    fieldType: AutofillTargetingRuleType,
+    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>,
+  ): boolean {
+    const { iframeElement, innerSelector } = iframeCrossing;
+    const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+
+    if (!iframeSrc) {
+      return false;
+    }
+
+    if (!iframeTargets.has(iframeSrc)) {
+      iframeTargets.set(iframeSrc, []);
+    }
+
+    iframeTargets.get(iframeSrc)!.push({
+      selector: innerSelector,
+      fieldType,
+    });
+
+    return true;
   }
 
   /**
