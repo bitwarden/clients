@@ -24,7 +24,7 @@
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
   },
   "kdbxCorruptOrOutdated": {
-    "message": "This KeePass database could not be read. It may be corrupted or in an unsupported format. Try re-exporting it from KeePass and importing again."
+    "message": "Data is not formatted correctly. Please check your import file and try again."
   },
   "kdbxFileTooLarge": {
     "message": "This KeePass database is too large to import."
