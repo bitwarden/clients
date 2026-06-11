@@ -56,59 +56,6 @@ export class PamMockStore {
   }
 
   /**
-   * For demo realism, lazily seed a pre-existing active lease for a fraction
-   * of gated ciphers on first open. Idempotent. The decision is deterministic
-   * per cipher id so a returning user lands on the same state. Real gating
-   * (which ciphers are gated at all) is driven by the server's `partialData`
-   * sync field; this method only runs for ciphers already known to be gated
-   * (i.e. `fetchGatedCipher` has been called for them).
-   */
-  ensureSeedLease(cipherId: string, userId: string): void {
-    this.currentUserId ??= userId;
-    if (!shouldSeedActiveLease(cipherId)) {
-      return;
-    }
-    if (this.leasesByCipher.has(cipherId)) {
-      return;
-    }
-    const now = new Date();
-    const notAfter = new Date(now.getTime() + PamMockConfig.DEFAULT_LEASE_DURATION_MS);
-    // A lease only exists because an approved request was activated; give the seed lease a
-    // real backing `activated` request so NoLeaseWithoutActivatedRequest and
-    // AtMostOneLeasePerActivatedRequest hold for seeded state too.
-    const requestId = this.mintId("req");
-    const leaseId = this.mintId("lease");
-    const request = buildAccessRequest({
-      id: requestId,
-      cipherId,
-      collectionId: this.collectionFor(cipherId),
-      organizationId: PamMockConfig.MOCK_ORG_ID,
-      requesterId: userId,
-      status: "activated",
-      requestedNotBefore: now,
-      requestedNotAfter: notAfter,
-      requestedTtlSeconds: Math.floor(PamMockConfig.DEFAULT_LEASE_DURATION_MS / 1000),
-      submittedAt: now,
-      resolvedAt: now,
-      producedLeaseId: leaseId,
-    });
-    this.requests.set(requestId, request);
-    const lease = buildLease({
-      id: leaseId,
-      requestId,
-      cipherId,
-      collectionId: this.collectionFor(cipherId),
-      organizationId: PamMockConfig.MOCK_ORG_ID,
-      requesterId: userId,
-      notBefore: now,
-      notAfter,
-      status: "active",
-    });
-    this.leases.set(lease.id, lease);
-    this.leasesByCipher.set(cipherId, lease);
-  }
-
-  /**
    * Ensures a pre-existing pending request exists for a cipher (simulating a
    * request submitted ~30 minutes ago in a prior session). Idempotent.
    */
@@ -785,19 +732,3 @@ export const PamMockBuilders = {
   buildAccessRequest,
   buildInboxAccessRequest,
 };
-
-// Deterministic predicate used by ensureSeedLease so a returning user sees the
-// same demo state. Seeds an active lease for roughly one in six gated ciphers
-// — enough to exercise the active-lease banner without dominating the demo.
-function shouldSeedActiveLease(cipherId: string): boolean {
-  return hash(cipherId) % 6 === 0;
-}
-
-function hash(value: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < value.length; i++) {
-    h ^= value.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return (h >>> 0) % 1000000;
-}

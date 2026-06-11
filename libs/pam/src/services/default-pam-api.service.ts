@@ -6,7 +6,6 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { AccessEventService } from "../abstractions/access-event.service";
-import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { CipherAccessState, PamApiService } from "../abstractions/pam-api.service";
 import { AccessLeaseResponse } from "../abstractions/responses/access-lease.response";
 import { AccessPreCheckResponse } from "../abstractions/responses/access-pre-check.response";
@@ -42,15 +41,6 @@ export class DefaultPamApiService implements PamApiService {
     private apiService: ApiService,
     private accessEvents: AccessEventService,
   ) {}
-
-  // TODO(PM-37264): implement the cipher-fetch transport. ApiService.send is
-  // unsuitable here because it rejects every non-200 via ErrorResponse (dropping
-  // the response body — so a 202 carrying a AccessRequest can't be reconstructed)
-  // and calls logoutCallback("invalidAccessToken") on any authenticated 403,
-  // which would log the user out on every "denied" verdict.
-  fetchGatedCipher(_id: string): Promise<GatedCipherFetchResult> {
-    return Promise.reject(new Error("fetchGatedCipher is not implemented yet; see PM-37264"));
-  }
 
   getCipherAccessState$(cipherId: string, _userId: string): Observable<CipherAccessState> {
     // Re-fetch on (a) initial subscription, (b) any lease event from the push

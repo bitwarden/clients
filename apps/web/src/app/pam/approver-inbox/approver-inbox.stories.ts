@@ -58,7 +58,6 @@ function row(
 
 function fakeApi(rows: AccessRequestDetailsResponse[]): PamApiService {
   return {
-    fetchGatedCipher: () => Promise.reject(new Error("not used")),
     patchAccessRequest: () => Promise.reject(new Error("not used")),
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not used")),

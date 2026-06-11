@@ -32,12 +32,6 @@ describe("DefaultPamApiService", () => {
     service = new DefaultPamApiService(apiService as unknown as ApiService, leaseEventService);
   });
 
-  describe("fetchGatedCipher", () => {
-    it("rejects with a clear error pointing at PM-37264", async () => {
-      await expect(service.fetchGatedCipher("cipher-1")).rejects.toThrow("PM-37264");
-    });
-  });
-
   describe("getAccessPreCheck", () => {
     it("GETs /ciphers/{id}/lease/pre-check and wraps the response", async () => {
       apiService.send.mockResolvedValue({

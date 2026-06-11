@@ -5,12 +5,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import {
   BulkRevokeResult,
   CipherAccessState,
   DefaultPamApiService,
-  GatedCipherFetchResult,
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
   AccessEventService,
@@ -106,47 +104,6 @@ export class MockPamApiService extends DefaultPamApiService {
       map(() => snapshot()),
       startWith(snapshot()),
     );
-  }
-
-  async fetchGatedCipher(id: string): Promise<GatedCipherFetchResult> {
-    const userId = this.store.currentUserId ?? "demo-user";
-    // Settle any lapsed leases/approved requests before deciding the open outcome.
-    this.store.sweepExpiries();
-    // Ciphers in the "active" bucket lazily seed their lease on first open, so a
-    // returning user lands straight on the active-lease banner. No-ops for the
-    // other buckets and is idempotent.
-    this.store.ensureSeedLease(id, userId);
-    const existingLease = this.store.leasesByCipher.get(id);
-    if (existingLease && existingLease.status === "active") {
-      return {
-        kind: "approved",
-        // The interceptor drops cipher and only forwards leaseId; a minimal
-        // stub satisfies the type without faking server-side decryption.
-        cipher: new CipherResponse({}),
-        leaseId: existingLease.id,
-      };
-    }
-    const ownRequests = [...this.store.requests.values()].filter(
-      (r) => r.cipherId === id && r.requesterId === userId,
-    );
-    // An approved-but-not-yet-activated request → offer to start the lease rather than
-    // creating a duplicate request (CipherOpenAwaitingActivation).
-    const approvedRequest = ownRequests.find(
-      (r) => r.status === "approved" && r.extensionOfLeaseId == null,
-    );
-    if (approvedRequest) {
-      return { kind: "awaiting_activation", request: approvedRequest };
-    }
-    // A request already in flight → return it rather than minting a second one.
-    const pending = ownRequests.find((r) => r.status === "pending");
-    if (pending) {
-      return { kind: "pending", request: pending };
-    }
-    // Otherwise create a fresh on-demand pending request and surface the Request
-    // Access modal. The user explicitly confirms via the modal — see
-    // `patchAccessRequest`, which kicks off the mock auto-decision on submit.
-    const request = this.store.createPendingRequest(id, userId);
-    return { kind: "pending", request };
   }
 
   async patchAccessRequest(

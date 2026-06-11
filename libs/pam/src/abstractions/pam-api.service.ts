@@ -10,7 +10,6 @@ import { AccessRequestCreateRequest } from "../services/requests/access-request-
 import { AccessRequestPatchRequest } from "../services/requests/access-request-patch.request";
 import { AccessRuleRequest } from "../services/requests/access-rule.request";
 
-import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
 import { AccessLeaseResponse } from "./responses/access-lease.response";
 import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
 import { AccessRequestDetailsResponse } from "./responses/access-request-details.response";
@@ -41,7 +40,6 @@ export abstract class PamApiService {
    * waiting for the server push channel.
    */
   abstract readonly mutations$: Observable<void>;
-  abstract fetchGatedCipher(id: string): Promise<GatedCipherFetchResult>;
   abstract getCipherAccessState$(cipherId: string, userId: string): Observable<CipherAccessState>;
   /**
    * Side-effect-free check that resolves which approval workflow (`automatic`

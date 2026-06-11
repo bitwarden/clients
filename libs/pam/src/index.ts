@@ -1,4 +1,3 @@
-export { GatedCipherFetchResult } from "./abstractions/gated-cipher-fetch-result";
 export {
   Approvers,
   AccessCondition,
