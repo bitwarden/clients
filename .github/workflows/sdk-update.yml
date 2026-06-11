@@ -1,5 +1,5 @@
 name: SDK Update
-run-name: "SDK ${{ inputs.run-mode || github.event.client_payload.run-mode }} - ${{ inputs.base-branch || github.event.client_payload.base-branch }} @ ${{ inputs.sdk-version || github.event.client_payload.sdk-version }}"
+run-name: "SDK ${{ inputs.run-mode || github.event.client_payload.run_mode }} - ${{ inputs.base-branch || github.event.client_payload.base_branch }} @ ${{ inputs.sdk-version || github.event.client_payload.sdk_version }}"
 
 on:
   repository_dispatch:
@@ -37,15 +37,15 @@ defaults:
 jobs:
   update:
     name: Update and PR
-    if: ${{ inputs.run-mode == 'Update' || github.event.client_payload.run-mode == 'Update' }}
+    if: ${{ inputs.run-mode == 'Update' || github.event.client_payload.run_mode == 'Update' }}
     runs-on: ubuntu-24.04
     permissions:
       id-token: write
     env:
-      RUN_MODE: ${{ inputs.run-mode || github.event.client_payload.run-mode }}
-      SDK_VERSION: ${{ inputs.sdk-version || github.event.client_payload.sdk-version }}
-      BASE_BRANCH: ${{ inputs.base-branch || github.event.client_payload.base-branch }}
-      TRIGGERING_RUN_ID: ${{ inputs.triggering-run-id || github.event.client_payload.triggering-run-id }}
+      RUN_MODE: ${{ inputs.run-mode || github.event.client_payload.run_mode }}
+      SDK_VERSION: ${{ inputs.sdk-version || github.event.client_payload.sdk_version }}
+      BASE_BRANCH: ${{ inputs.base-branch || github.event.client_payload.base_branch }}
+      TRIGGERING_RUN_ID: ${{ inputs.triggering-run-id || github.event.client_payload.triggering_run_id }}
 
     steps:
       - name: Log in to Azure
