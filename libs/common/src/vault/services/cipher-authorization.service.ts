@@ -1,4 +1,4 @@
-import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -181,7 +181,6 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           map((allCollections) => allCollections.some((collection) => collection.manage)),
         );
       }),
-      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 }

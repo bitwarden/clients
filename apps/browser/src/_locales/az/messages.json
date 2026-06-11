@@ -214,8 +214,13 @@
     "message": "Doldur",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Avto-doldurma"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Girişi avto-doldur"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Saxla"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Daşı"
@@ -1794,6 +1802,9 @@
   "iconsUrl": {
     "message": "İkon server URL-si"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Mühit URL-ləri saxlanıldı."
   },
@@ -1826,7 +1837,19 @@
     "message": "Avto-doldurmanı təsdiqlə"
   },
   "confirmAutofillDesc": {
-    "message": "Bu sayt, saxlanılmış giriş məlumatlarınızla uyuşmur. Giriş məlumatlarınızı doldurmazdan əvvəl, güvənli sayt olduğuna əmin olun."
+    "message": "Bu sayt, saxlanılmış giriş məlumatlarınızla uyuşmur. Giriş məlumatlarınızı doldurmazdan əvvəl, saytın etibarlı olduğuna əmin olun."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Giriş məlumatları uyuşmur"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Bu sayt, saxlanılan giriş məlumatlarınızla uyuşmur. Avto-doldurmazdan əvvəl güvənilən bir saytda olduğunuzu doğrulayın."
+  },
+  "uriMatchRule": {
+    "message": "URI uyuşma qaydası"
+  },
+  "neverMatch": {
+    "message": "Heç vaxt uyuşmur"
   },
   "loginHasNoSiteSaved": {
     "message": "Girişdə heç bir sayt saxlanılmayıb"
@@ -2228,6 +2251,9 @@
   },
   "bankAccount": {
     "message": "Bank hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Bank hesabı məlumatları"
   },
   "typeNote": {
     "message": "Not"
@@ -4431,12 +4457,6 @@
     "message": "\"Səhifə yüklənəndə avto-doldurma\" özəlliyi ilkin ayarı istifadə etmək üzrə ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Avto-doldurula bilmir"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "İlkin uyuşma 'Tam Uyuşur' olaraq ayarlanıb. Hazırkı veb sayt, bu element üçün saxlanılmış giriş məlumatları ilə tam uyuşmur."
-  },
   "okay": {
     "message": "Oldu"
   },
@@ -6491,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
   },
   "enterMonth": {
     "message": "Ayı daxil edin."

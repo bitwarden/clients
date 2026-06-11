@@ -214,8 +214,13 @@
     "message": "Preencher",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Preenchimento automático"
+  "autofillNoun": {
+    "message": "Preenchimento automático",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Preencher automaticamente",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Preencher automaticamente credencial"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Guardar"
+  },
+  "saveAndFill": {
+    "message": "Guardar e preencher"
   },
   "move": {
     "message": "Mover"
@@ -1794,6 +1802,9 @@
   "iconsUrl": {
     "message": "URL do servidor de ícones"
   },
+  "sendUrl": {
+    "message": "Enviar URL do servidor"
+  },
   "environmentSaved": {
     "message": "URLs de ambiente guardados"
   },
@@ -1827,6 +1838,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Este site não corresponde às suas credenciais guardadas. Antes de preencher as suas credenciais, certifique-se de que se trata de um site fiável."
+  },
+  "loginNeverMatchTitle": {
+    "message": "A credencial não corresponde"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Este site não corresponde às credenciais guardadas. Verifique se está num site fidedigno antes de preencher automaticamente."
+  },
+  "uriMatchRule": {
+    "message": "Regra de correspondência de URI"
+  },
+  "neverMatch": {
+    "message": "Nunca corresponder"
   },
   "loginHasNoSiteSaved": {
     "message": "A credencial não tem nenhum site associado"
@@ -2229,6 +2252,9 @@
   "bankAccount": {
     "message": "Conta bancária"
   },
+  "bankAccountDetails": {
+    "message": "Detalhes da conta bancária"
+  },
   "typeNote": {
     "message": "Nota"
   },
@@ -2457,13 +2483,13 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selected": {
-    "message": "Selected"
+    "message": "Selecionado(s)"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Ações em massa"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ item(ns) selecionado(s). A barra de ações em massa está agora disponível na parte inferior do ecrã. Prima $SHORTCUTBINDING$ para alternar o foco para a barra de ações em massa.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2476,10 +2502,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Seleção limpa"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Ações adicionais"
   },
   "checkPassword": {
     "message": "Verificar se a palavra-passe foi exposta."
@@ -4431,12 +4457,6 @@
     "message": "Preencher automaticamente ao carregar a página definido para utilizar a predefinição.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Não é possível preencher automaticamente"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "A correspondência padrão está definida como \"Correspondência exata\". O site atual não corresponde exatamente às credenciais guardadas para este item."
-  },
   "okay": {
     "message": "OK"
   },
@@ -6226,7 +6246,7 @@
     "message": "Seguinte"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Caminho de navegação",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6492,6 +6512,18 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "sharedUnlock": {
+    "message": "Desbloqueio partilhado"
+  },
+  "sharedUnlockDescription": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado por todas as aplicações neste dispositivo. A aplicação para computador é necessária para sincronizar entre diferentes navegadores."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden no Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com a aplicação para computador do Bitwarden."
+  },
   "enterMonth": {
     "message": "Introduza o mês."
   },
@@ -6563,13 +6595,13 @@
     "message": "Copiar IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Copiar nome do titular da conta"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Copiar número da agência"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Copiar código SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Conta à ordem"

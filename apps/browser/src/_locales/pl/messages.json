@@ -214,8 +214,13 @@
     "message": "Uzupełnij",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Autouzupełnianie"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Uzupełnij dane logowania"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Zapisz"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Przenieś"
@@ -1794,6 +1802,9 @@
   "iconsUrl": {
     "message": "Adres URL serwera ikon"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Adresy URL środowiska zostały zapisane"
   },
@@ -1823,10 +1834,22 @@
     "message": "Wyłącz autouzupełnianie"
   },
   "confirmAutofill": {
-    "message": "Potwierdź autouzupełnianie"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Dane logowania nie zawierają strony internetowej"
@@ -2228,6 +2251,9 @@
   },
   "bankAccount": {
     "message": "Konto bankowe"
+  },
+  "bankAccountDetails": {
+    "message": "Szczegóły konta bankowego"
   },
   "typeNote": {
     "message": "Notatka"
@@ -4431,12 +4457,6 @@
     "message": "Autouzupełnianie po załadowaniu strony zostało ustawione do domyślnych ustawień.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Nie można automatycznie wypełnić"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Domyślnie dopasowanie jest ustawione na „Dokładne dopasowanie”. Aktualna strona internetowa nie jest dokładnie taka sama jak zapisane dane logowania dla tego elementu."
-  },
   "okay": {
     "message": "Ok"
   },
@@ -6491,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Weryfikacja użytkownika nie powiodła się."
+  },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
   },
   "enterMonth": {
     "message": "Wpisz miesiąc."

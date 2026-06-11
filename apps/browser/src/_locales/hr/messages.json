@@ -214,8 +214,13 @@
     "message": "Ispuni",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Auto-ispuna"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Auto-ispuna prijave"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Spremi"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Premjesti"
@@ -1794,6 +1802,9 @@
   "iconsUrl": {
     "message": "URL poslužitelja ikona"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "URL-ovi okoline su spremljeni."
   },
@@ -1823,10 +1834,22 @@
     "message": "Isključi auto-ispunu"
   },
   "confirmAutofill": {
-    "message": "Potvrdi auto-ispunu"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "Ova stranica ne odgovara tvojim spremljenim podacima za prijavu. Prije nego što uneseš svoje podatke za prijavu, provjeri je li riječ o pouzdanoj stranici."
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Prijava nema spremljenu web stranicu"
@@ -2228,6 +2251,9 @@
   },
   "bankAccount": {
     "message": "Bankovni račun"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "Bilješka"
@@ -4431,12 +4457,6 @@
     "message": "Auto-ispuna kod učitavanja stranice koristi zadane postavke.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Nije moguća auto-ispuna"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Zadano podudaranje postavljeno je na „Točno podudaranje”. Trenutna web-stranica ne podudara se točno sa spremljenim podacima ove stavke za prijavu."
-  },
   "okay": {
     "message": "U redu"
   },
@@ -6491,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Nije uspjela provjera korisnika."
+  },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
   },
   "enterMonth": {
     "message": "Unesi mjesec."
