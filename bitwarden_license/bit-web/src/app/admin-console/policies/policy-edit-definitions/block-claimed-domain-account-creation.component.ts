@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
@@ -18,7 +17,6 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   priority = 60;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     name: "blockClaimedDomainAccountCreationTitleV2",
     description: "blockClaimedDomainAccountCreationDescV2",

@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -19,7 +18,6 @@ export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   priority = 50;
   component = RestrictedItemTypesPolicyComponent;
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     description: "restrictedItemTypePolicyDescV2",
   };

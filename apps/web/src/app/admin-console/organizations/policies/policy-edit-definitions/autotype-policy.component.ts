@@ -21,7 +21,6 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   priority = 70;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
   v2 = {
-    flag: FeatureFlag.PolicyDrawers,
     component: SimpleTogglePolicyComponent,
     name: "desktopAutotypePolicyTitleV2",
     description: "desktopAutotypePolicyDescV2",
