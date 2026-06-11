@@ -234,10 +234,6 @@ export class AutofillComponent implements OnInit {
       }
     }
 
-    if (this.defaultBrowserAutofillDisabled && this.canOverrideBrowserAutofillSetting) {
-      await this.dismissSpotlight();
-    }
-
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
     );
@@ -422,11 +418,6 @@ export class AutofillComponent implements OnInit {
     );
   }
 
-  async continueFromAutofillNudge() {
-    this.defaultBrowserAutofillDisabled = true;
-    await this.updateDefaultBrowserAutofillDisabled();
-  }
-
   async updateInlineMenuVisibility() {
     if (!this.enableInlineMenu) {
       this.enableInlineMenuOnIconSelect = false;
@@ -560,20 +551,10 @@ export class AutofillComponent implements OnInit {
       }
     }
 
-    const shouldDisableBrowserAutofill = this.defaultBrowserAutofillDisabled;
-
-    try {
-      await BrowserApi.updateDefaultBrowserAutofillSettings(!shouldDisableBrowserAutofill);
-      this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
-        this.defaultBrowserAutofillDisabled,
-      );
-
-      if (shouldDisableBrowserAutofill) {
-        await this.dismissSpotlight();
-      }
-    } catch {
-      this.defaultBrowserAutofillDisabled = !shouldDisableBrowserAutofill;
-    }
+    await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
+    this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
+      this.defaultBrowserAutofillDisabled,
+    );
   }
 
   private handleOverrideDialogAccept = async () => {
@@ -697,6 +678,10 @@ export class AutofillComponent implements OnInit {
     if (this.canOverrideBrowserAutofillSetting) {
       this.defaultBrowserAutofillDisabled = true;
       await this.updateDefaultBrowserAutofillDisabled();
+      await this.nudgesService.dismissNudge(
+        NudgeType.AutofillNudge,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }
