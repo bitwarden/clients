@@ -270,18 +270,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * first DOM match.
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
-    const targets: ResolveFieldTarget[] = [];
-    for (const form of forms) {
-      for (const [fieldType, selectorAlternatives] of Object.entries(form.fields)) {
-        if (!selectorAlternatives?.length) {
-          continue;
-        }
-        targets.push({
-          selectorAlternatives: selectorAlternatives as string[],
-          fieldType: fieldType as AutofillTargetingRuleType,
-        });
-      }
-    }
+    const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
+      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
+        .filter(([, alternatives]) => alternatives?.length)
+        .map(([fieldType, selectorAlternatives]) => ({ fieldType, selectorAlternatives })),
+    );
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
     this.routeIframeTargets(iframeTargets);
