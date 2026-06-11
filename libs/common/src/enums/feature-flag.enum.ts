@@ -51,16 +51,23 @@ export enum FeatureFlag {
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   SdkKeyRotation = "pm-30144-sdk-key-rotation",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
+  // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
+  // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
+  // get to use the feature.
+  SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
+  SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
+  BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
 
   /* Tools */
   SendControls = "pm-31885-send-controls",
+  Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
@@ -83,14 +90,19 @@ export enum FeatureFlag {
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
-  PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
+  PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
+  PM29968_FillAfterSave = "pm-29968-fill-after-save",
+  PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
+  PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
+  PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
 
   /* Platform */
+  FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
@@ -99,8 +111,7 @@ export enum FeatureFlag {
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
-  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
-  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
+  DesktopSettingsDialog = "desktop-ui-settings-dialog",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -141,6 +152,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
+  [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
@@ -163,11 +175,15 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
-  [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
+  [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
+  [FeatureFlag.PM29968_FillAfterSave]: FALSE,
+  [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
+  [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
+  [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,
@@ -188,6 +204,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.SdkKeyRotation]: FALSE,
+  [FeatureFlag.SharedUnlockPart1]: FALSE,
+  [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
@@ -196,8 +214,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
+  [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
+  [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
@@ -206,8 +226,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
+  [FeatureFlag.DesktopSettingsDialog]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

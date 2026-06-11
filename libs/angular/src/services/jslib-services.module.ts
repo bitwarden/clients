@@ -224,8 +224,6 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
-import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -265,7 +263,6 @@ import { SystemService } from "@bitwarden/common/platform/abstractions/system.se
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
-import { IpcSessionRepository } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -310,8 +307,10 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -414,6 +413,11 @@ import {
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  UserCryptoDialogService,
+  UserKeyRotationService,
+  UserKeyRotationServiceAbstraction,
+} from "@bitwarden/user-crypto-management";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -651,6 +655,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherSdkService,
     useClass: DefaultCipherSdkService,
     deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: UserKeyRotationServiceAbstraction,
+    useClass: UserKeyRotationService,
+    deps: [SdkService, LogService, UserCryptoDialogService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
@@ -926,9 +935,19 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SendApiServiceAbstraction,
+    provide: SendApiService,
     useClass: SendApiService,
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+  }),
+  safeProvider({
+    provide: SendSdkApiService,
+    useClass: SendSdkApiService,
+    deps: [SdkService, SendApiService, InternalSendService, AccountServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: SendApiServiceAbstraction,
+    useClass: SendApiServiceSelector,
+    deps: [ConfigService, SendApiService, SendSdkApiService],
   }),
   safeProvider({
     provide: KeyApiService,
@@ -967,6 +986,7 @@ const safeProviders: SafeProvider[] = [
       SecurityStateService,
       KdfConfigService,
       AccountCryptographicStateService,
+      V2UpgradeTokenStateService,
     ],
   }),
   safeProvider({
@@ -980,7 +1000,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       RegisterSdkService,
       AccountCryptographicStateService,
-      PinStateServiceAbstraction,
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
@@ -990,6 +1009,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       StateServiceAbstraction,
       BiometricStateService,
+      V2UpgradeTokenStateService,
     ],
   }),
   safeProvider({
@@ -1002,7 +1022,6 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultVaultTimeoutSettingsService,
     deps: [
       AccountServiceAbstraction,
-      PinStateServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       KeyService,
       TokenServiceAbstraction,
@@ -1171,8 +1190,6 @@ const safeProviders: SafeProvider[] = [
       WebPushConnectionService,
       AuthRequestAnsweringService,
       ConfigService,
-      InternalPolicyService,
-      InternalNewPolicyService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
     ],
@@ -1538,14 +1555,9 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: PinStateServiceAbstraction,
-    useClass: PinStateService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
     provide: PinServiceAbstraction,
     useClass: PinService,
-    deps: [EncryptService, LogService, KeyService, SdkService, PinStateServiceAbstraction],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: WebAuthnLoginPrfKeyServiceAbstraction,
@@ -2022,11 +2034,6 @@ const safeProviders: SafeProvider[] = [
     provide: NewDeviceVerificationComponentService,
     useClass: DefaultNewDeviceVerificationComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: IpcSessionRepository,
-    useClass: IpcSessionRepository,
-    deps: [StateProvider],
   }),
   safeProvider({
     provide: KeyConnectorApiService,

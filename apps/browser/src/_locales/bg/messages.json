@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Копиране на номера на паспорта"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Копиране на националния идентификационен номер"
+  },
   "copyFirstName": {
     "message": "Копиране на първото име"
   },
@@ -211,8 +214,13 @@
     "message": "Попълване",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автоматично дописване"
+  "autofillNoun": {
+    "message": "Автоматично попълване",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автоматично попълване",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Авт. попълване на данни за вход"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "Запазване"
+  },
+  "saveAndFill": {
+    "message": "Запазване и попълване"
   },
   "move": {
     "message": "Преместване"
@@ -1791,6 +1802,9 @@
   "iconsUrl": {
     "message": "Адрес на сървъра с иконки"
   },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
+  },
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
   },
@@ -1824,6 +1838,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Данните за вписване не съвпадат"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Този уеб сайт не съвпада с онзи, който е запазен в елемента за вписване. Уверете се, че се намирате в доверен уеб сайт, преди да попълните автоматично."
+  },
+  "uriMatchRule": {
+    "message": "Правило за разпознаване на адреса"
+  },
+  "neverMatch": {
+    "message": "Никога да не се търсят съвпадения"
   },
   "loginHasNoSiteSaved": {
     "message": "Елементът за вписване няма запазен уеб сайт"
@@ -2001,11 +2027,32 @@
   "brand": {
     "message": "Вид"
   },
+  "birthDay": {
+    "message": "Ден на раждане"
+  },
+  "birthMonth": {
+    "message": "Месец на раждане"
+  },
+  "birthYear": {
+    "message": "Година на раждане"
+  },
+  "expirationDay": {
+    "message": "Ден на изтичане"
+  },
   "expirationMonth": {
     "message": "Месец на изтичане"
   },
   "expirationYear": {
     "message": "Година на изтичане"
+  },
+  "issueDay": {
+    "message": "Ден на издаване"
+  },
+  "issueMonth": {
+    "message": "Месец на издаване"
+  },
+  "issueYear": {
+    "message": "Година на издаване"
   },
   "monthly": {
     "message": "месец"
@@ -2100,6 +2147,51 @@
   "passportNumber": {
     "message": "№ на паспорта"
   },
+  "dateOfBirth": {
+    "message": "Дата на раждане"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Копиране на пола"
+  },
+  "birthPlace": {
+    "message": "Място на раждане"
+  },
+  "copyBirthPlace": {
+    "message": "Копиране на мястото на раждане"
+  },
+  "nationality": {
+    "message": "Националност"
+  },
+  "copyNationality": {
+    "message": "Копиране на националността"
+  },
+  "issuingCountry": {
+    "message": "Страна издател"
+  },
+  "copyIssuingCountry": {
+    "message": "Копиране на страната издател"
+  },
+  "passportType": {
+    "message": "Вид на паспорта"
+  },
+  "copyPassportType": {
+    "message": "Копиране на вида на паспорта"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национален идентификационен номер"
+  },
+  "issuingAuthority": {
+    "message": "Институция издател"
+  },
+  "copyIssuingAuthority": {
+    "message": "Копиране на институцията/офиса издател"
+  },
+  "issueDate": {
+    "message": "Дата на издаване"
+  },
   "licenseNumber": {
     "message": "№ на лиценза"
   },
@@ -2160,6 +2252,9 @@
   "bankAccount": {
     "message": "Банкова сметка"
   },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
+  },
   "typeNote": {
     "message": "Бележка"
   },
@@ -2190,6 +2285,18 @@
   "typeBankAccountSubtitle": {
     "message": "Банкови данни"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Подробности за паспорта"
+  },
+  "passportAdded": {
+    "message": "Паспортът е добавен"
+  },
+  "typePassportSubtitle": {
+    "message": "Пътен документ"
+  },
   "typeDriversLicense": {
     "message": "Шофьорска книжка"
   },
@@ -2199,41 +2306,8 @@
   "driversLicenseDetails": {
     "message": "Подробности за лиценза"
   },
-  "dateOfBirth": {
-    "message": "Дата на раждане"
-  },
-  "birthMonth": {
-    "message": "Месец на раждане"
-  },
-  "birthDay": {
-    "message": "Ден на раждане"
-  },
-  "birthYear": {
-    "message": "Година на раждане"
-  },
-  "issuingCountry": {
-    "message": "Страна издател"
-  },
   "issuingState": {
     "message": "Щат/провинция издател"
-  },
-  "issuingAuthority": {
-    "message": "Институция издател"
-  },
-  "issueDate": {
-    "message": "Дата на издаване"
-  },
-  "issueMonth": {
-    "message": "Месец на издаване"
-  },
-  "issueDay": {
-    "message": "Ден на издаване"
-  },
-  "issueYear": {
-    "message": "Година на издаване"
-  },
-  "expirationDay": {
-    "message": "Ден на изтичане"
   },
   "licenseClass": {
     "message": "Клас на лиценза"
@@ -2407,6 +2481,31 @@
   "clear": {
     "message": "Изчистване",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Избрано"
+  },
+  "bulkActionsBar": {
+    "message": "Групови действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Избрани елементи $COUNT$. Лентата за групови действия е достъпна в дъното на екрана. Натиснете $SHORTCUTBINDING$, за да превключите фокуса към нея.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Изборът е изчистен"
+  },
+  "additionalActions": {
+    "message": "Допълнителни действия"
   },
   "checkPassword": {
     "message": "Проверка дали паролата е разкрита."
@@ -2896,18 +2995,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Удостоверяването чрез биометрични данни не може да бъде завършено. Опитайте да използвате главната си парола или се отпишете. Ако този проблем продължи да се случва, свържете се с поддръжката на Битуорден."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Правото не е дадено"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Разширението за браузъра не може да осигури потвърждаване с биометрични данни, когато липсва право за връзка със самостоятелното приложение. Пробвайте отново."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Необходимо е разрешение"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Това действие не може да бъде извършено в страничната лента, опитайте отново в изскачащ прозорец."
   },
   "personalOwnershipSubmitError": {
     "message": "Заради някоя политика за голяма организация не може да запазвате елементи в собствения си трезор. Променете собствеността да е на организация и изберете от наличните колекции."
@@ -4370,12 +4457,6 @@
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Автоматичното попълване не може да бъде извършено"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По подразбиране е зададена настройката „Точно съвпадение“. Текущият уеб сайт не съвпада точно със запазените данни за вход в този запис."
-  },
   "okay": {
     "message": "Добре"
   },
@@ -5060,6 +5141,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Няма въведена стойност",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Няма стойности за копиране"
@@ -6160,6 +6245,10 @@
   "next": {
     "message": "Следващо"
   },
+  "breadcrumbs": {
+    "message": "Пътечка",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6423,6 +6512,18 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "sharedUnlock": {
+    "message": "Споделено отключване"
+  },
+  "sharedUnlockDescription": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено между всички приложения на тази машина. Настолното приложение е необходимо, за да може да се осъществи синхронизация между различните браузъри."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено между трезорите по уеб на Битуорден в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено с настолното приложение на Битуорден."
+  },
   "enterMonth": {
     "message": "Въведете месец."
   },
@@ -6478,6 +6579,9 @@
   "searchBankAccount": {
     "message": "Търсене на банкова сметка"
   },
+  "searchPassport": {
+    "message": "Търсене в паспортите"
+  },
   "copyAccountNumber": {
     "message": "Копиране на номера на сметката"
   },
@@ -6489,6 +6593,15 @@
   },
   "copyIban": {
     "message": "Копиране на IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Копиране на името на титуляра"
+  },
+  "copyBranchNumber": {
+    "message": "Копиране на номера на клона"
+  },
+  "copySwiftCode": {
+    "message": "Копиране на кода SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Разплащателна"
@@ -6513,6 +6626,9 @@
   },
   "downloadFailed": {
     "message": "Неуспешно сваляне."
+  },
+  "more": {
+    "message": "Още"
   },
   "maxAccessCount": {
     "message": "Максимален брой достъпвания",
@@ -6557,5 +6673,8 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
   }
 }
