@@ -37,7 +37,12 @@ fn set_autostart_in_dir(
 
     let contents =
         desktop_file_contents(&format!("{} {}", config.exec_path, config.autostart_flag));
-    log_enable_result(write_desktop_file(autostart_dir, &target, &contents))
+    let result = write_desktop_file(autostart_dir, &target, &contents);
+    match result {
+        Ok(()) => info!(path = ?target, "[autostart] Enabled autostart"),
+        Err(e) => error!(path = ?target, error = ?e, "[autostart] Failed to enable autostart"),
+    }
+    result
 }
 
 /// Snap autostart: remove every `*.desktop` in `$SNAP_USER_DATA/.config/autostart` (clearing the
@@ -59,15 +64,13 @@ pub fn set_autostart_snap(
 
     let target = autostart_dir.join(DESKTOP_FILE_NAME);
     let contents = desktop_file_contents(&format!("{} {}", SNAP_COMMAND, config.autostart_flag));
-    log_enable_result(write_desktop_file(&autostart_dir, &target, &contents))
-}
-
-fn log_enable_result(result: Result<()>) -> Result<()> {
-    match &result {
-        Ok(()) => info!("[autostart] Successfully enabled autostart"),
-        Err(e) => error!(error = %e, "[autostart] Failed to enable autostart"),
+    let result = write_desktop_file(&autostart_dir, &target, &contents);
+    match result {
+        Ok(()) => info!(path = ?target, "[autostart] Enabled autostart for Snap"),
+        Err(e) => {
+            error!(path = ?target, error = ?e, "[autostart] Failed to enable autostart for Snap")
+        }
     }
-    result
 }
 
 fn desktop_file_contents(exec: &str) -> String {
