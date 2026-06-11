@@ -5,14 +5,16 @@ import { By } from "@angular/platform-browser";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { AccessRequestResultResponse, PamApiService } from "@bitwarden/pam";
+import { ToastService } from "@bitwarden/components";
 
+import { PamApiService } from "../../abstractions/pam-api.service";
 import {
-  RequestAccessModalComponent,
-  RequestAccessModalData,
-  RequestAccessModalResult,
-} from "./request-access-modal.component";
+  AccessApprovalMode,
+  AccessPreCheckResponse,
+} from "../../abstractions/responses/access-pre-check.response";
+import { AccessRequestResultResponse } from "../../abstractions/responses/access-request-result.response";
+
+import { RequestAccessFormComponent } from "./request-access-form.component";
 
 /**
  * Echoes the key as its translation, so missing keys don't crash the form-field
@@ -22,6 +24,17 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
+
+function preCheck(
+  approvalMode: AccessApprovalMode,
+  hasActiveLease = false,
+): AccessPreCheckResponse {
+  return new AccessPreCheckResponse({
+    CipherId: "cipher-1",
+    ApprovalMode: approvalMode,
+    HasActiveLease: hasActiveLease,
+  });
+}
 
 function automaticEnvelope() {
   return new AccessRequestResultResponse({
@@ -61,23 +74,23 @@ function humanEnvelope() {
   });
 }
 
-describe("RequestAccessModalComponent", () => {
-  let fixture: ComponentFixture<RequestAccessModalComponent>;
-  let component: RequestAccessModalComponent;
-  let pamApi: jest.Mocked<Pick<PamApiService, "submitAccessRequest">>;
-  let dialogRef: jest.Mocked<Pick<DialogRef<unknown>, "close">>;
+describe("RequestAccessFormComponent", () => {
+  let fixture: ComponentFixture<RequestAccessFormComponent>;
+  let component: RequestAccessFormComponent;
+  let pamApi: jest.Mocked<Pick<PamApiService, "getAccessPreCheck" | "submitAccessRequest">>;
   let toastService: jest.Mocked<Pick<ToastService, "showToast">>;
+  let submittedSpy: jest.Mock;
 
-  const setupComponent = (data: RequestAccessModalData) => {
-    pamApi = { submitAccessRequest: jest.fn() };
-    dialogRef = { close: jest.fn() };
+  const setupComponent = async (mode: AccessApprovalMode, hasActiveLease = false) => {
+    pamApi = {
+      getAccessPreCheck: jest.fn().mockResolvedValue(preCheck(mode, hasActiveLease)),
+      submitAccessRequest: jest.fn(),
+    };
     toastService = { showToast: jest.fn() };
 
     TestBed.configureTestingModule({
-      imports: [RequestAccessModalComponent, ReactiveFormsModule],
+      imports: [RequestAccessFormComponent, ReactiveFormsModule],
       providers: [
-        { provide: DIALOG_DATA, useValue: data },
-        { provide: DialogRef, useValue: dialogRef },
         { provide: PamApiService, useValue: pamApi },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: { error: jest.fn() } },
@@ -85,13 +98,19 @@ describe("RequestAccessModalComponent", () => {
       ],
     });
 
-    fixture = TestBed.createComponent(RequestAccessModalComponent);
+    fixture = TestBed.createComponent(RequestAccessFormComponent);
     component = fixture.componentInstance;
+    submittedSpy = jest.fn();
+    component.submitted.subscribe(submittedSpy);
+
+    fixture.componentRef.setInput("cipherId", "cipher-1");
     fixture.detectChanges();
+    await fixture.whenStable(); // flush getAccessPreCheck
+    fixture.detectChanges(); // render the resolved form
   };
 
   describe("automatic outcome", () => {
-    beforeEach(() => setupComponent({ cipherId: "cipher-1", outcome: "automatic" }));
+    beforeEach(() => setupComponent("automatic"));
 
     it("renders the duration picker (no date/time inputs)", () => {
       expect(
@@ -100,7 +119,7 @@ describe("RequestAccessModalComponent", () => {
       expect(fixture.debugElement.query(By.css("[data-testid='request-access-date']"))).toBeNull();
     });
 
-    it("submits with durationSeconds derived from durationMinutes", async () => {
+    it("submits with durationSeconds derived from durationMinutes and emits submitted", async () => {
       pamApi.submitAccessRequest.mockResolvedValue(automaticEnvelope());
       component["automaticForm"].patchValue({ durationMinutes: 240, reason: "  incident  " });
 
@@ -113,9 +132,7 @@ describe("RequestAccessModalComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
-      expect(dialogRef.close).toHaveBeenCalledWith(
-        expect.objectContaining({ kind: RequestAccessModalResult.LeaseCreated }),
-      );
+      expect(submittedSpy).toHaveBeenCalled();
     });
 
     it("omits reason when blank", async () => {
@@ -134,7 +151,7 @@ describe("RequestAccessModalComponent", () => {
   });
 
   describe("human outcome", () => {
-    beforeEach(() => setupComponent({ cipherId: "cipher-1", outcome: "human" }));
+    beforeEach(() => setupComponent("human"));
 
     it("renders the window pickers (no duration select)", () => {
       expect(
@@ -168,7 +185,7 @@ describe("RequestAccessModalComponent", () => {
       expect(component["customWindowEndBeforeStart"]).toBe(true);
     });
 
-    it("submits with start/end ISO strings and trimmed reason", async () => {
+    it("submits with start/end ISO strings and trimmed reason and emits submitted", async () => {
       pamApi.submitAccessRequest.mockResolvedValue(humanEnvelope());
       component["humanForm"].patchValue({
         customDate: "2026-06-05",
@@ -184,16 +201,53 @@ describe("RequestAccessModalComponent", () => {
       expect(body.end).toBeDefined();
       expect(body.reason).toBe("incident");
       expect(body.durationSeconds).toBeUndefined();
-      expect(dialogRef.close).toHaveBeenCalledWith(
-        expect.objectContaining({ kind: RequestAccessModalResult.RequestCreated }),
-      );
+      expect(submittedSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("pre-check shaping", () => {
+    it("emits submitted immediately (no form) when a lease already covers the cipher", async () => {
+      await setupComponent("automatic", true);
+
+      expect(submittedSpy).toHaveBeenCalled();
+      expect(
+        fixture.debugElement.query(By.css("[data-testid='request-access-submit']")),
+      ).toBeNull();
+    });
+
+    it("surfaces a generic error and renders no form when the pre-check fails", async () => {
+      pamApi = {
+        getAccessPreCheck: jest.fn().mockRejectedValue(new Error("offline")),
+        submitAccessRequest: jest.fn(),
+      };
+      toastService = { showToast: jest.fn() };
+      TestBed.configureTestingModule({
+        imports: [RequestAccessFormComponent, ReactiveFormsModule],
+        providers: [
+          { provide: PamApiService, useValue: pamApi },
+          { provide: ToastService, useValue: toastService },
+          { provide: LogService, useValue: { error: jest.fn() } },
+          { provide: I18nService, useValue: i18nFake },
+        ],
+      });
+      fixture = TestBed.createComponent(RequestAccessFormComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("cipherId", "cipher-1");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["serverError"]()).toBe("requestAccessModalGenericError");
+      expect(
+        fixture.debugElement.query(By.css("[data-testid='request-access-submit']")),
+      ).toBeNull();
     });
   });
 
   describe("error handling", () => {
-    beforeEach(() => setupComponent({ cipherId: "cipher-1", outcome: "automatic" }));
+    beforeEach(() => setupComponent("automatic"));
 
-    it("maps 'already active' 400 to AlreadyResolved close + info toast", async () => {
+    it("maps 'already active' 400 to an info toast + submitted (no inline error)", async () => {
       pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse({ Message: "You already have active access to this item." }, 400),
       );
@@ -203,24 +257,21 @@ describe("RequestAccessModalComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "info" }),
       );
-      expect(dialogRef.close).toHaveBeenCalledWith({
-        kind: RequestAccessModalResult.AlreadyResolved,
-      });
+      expect(submittedSpy).toHaveBeenCalled();
+      expect(component["serverError"]()).toBeNull();
     });
 
-    it("maps 'already pending' 400 to AlreadyResolved close + info toast", async () => {
+    it("maps 'already pending' 400 to submitted", async () => {
       pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse({ Message: "You already have a pending request for this item." }, 400),
       );
 
       await component["submit"]();
 
-      expect(dialogRef.close).toHaveBeenCalledWith({
-        kind: RequestAccessModalResult.AlreadyResolved,
-      });
+      expect(submittedSpy).toHaveBeenCalled();
     });
 
-    it("surfaces a 'duration exceeds max' 400 inline without closing", async () => {
+    it("surfaces a 'duration exceeds max' 400 inline without emitting submitted", async () => {
       pamApi.submitAccessRequest.mockRejectedValue(
         new ErrorResponse(
           { Message: "The requested duration exceeds the maximum of 86400 seconds." },
@@ -231,7 +282,7 @@ describe("RequestAccessModalComponent", () => {
       await component["submit"]();
       fixture.detectChanges();
 
-      expect(dialogRef.close).not.toHaveBeenCalled();
+      expect(submittedSpy).not.toHaveBeenCalled();
       expect(component["serverError"]()).toContain("86400");
     });
 
@@ -240,20 +291,8 @@ describe("RequestAccessModalComponent", () => {
 
       await component["submit"]();
 
-      expect(dialogRef.close).not.toHaveBeenCalled();
+      expect(submittedSpy).not.toHaveBeenCalled();
       expect(component["serverError"]()).toBe("requestAccessModalGenericError");
-    });
-  });
-
-  describe("dismiss", () => {
-    beforeEach(() => setupComponent({ cipherId: "cipher-1", outcome: "automatic" }));
-
-    it("closes with Dismissed and does not call the API", () => {
-      component["dismiss"]();
-      expect(pamApi.submitAccessRequest).not.toHaveBeenCalled();
-      expect(dialogRef.close).toHaveBeenCalledWith({
-        kind: RequestAccessModalResult.Dismissed,
-      });
     });
   });
 });

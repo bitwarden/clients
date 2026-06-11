@@ -26,16 +26,16 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CipherAccessState, PamApiService } from "../../abstractions/pam-api.service";
-import { RequestAccessTrigger } from "../../abstractions/request-access-trigger";
 import { formatRemaining } from "../../helpers/format-remaining";
 import { AccessLeaseExtensionRequest } from "../../services/requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "../../services/requests/access-lease-revoke.request";
+import { RequestAccessFormComponent } from "../request-access-form/request-access-form.component";
 
 @Component({
   selector: "app-cipher-lease-banner",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "cipher-lease-banner.component.html",
-  imports: [AsyncActionsModule, ButtonModule, I18nPipe],
+  imports: [AsyncActionsModule, ButtonModule, I18nPipe, RequestAccessFormComponent],
 })
 export class CipherLeaseBannerComponent implements OnInit {
   readonly cipherId = input.required<string>();
@@ -56,10 +56,12 @@ export class CipherLeaseBannerComponent implements OnInit {
   private readonly logService = inject(LogService);
   private readonly accountService = inject(AccountService);
   private readonly configService = inject(ConfigService);
-  private readonly requestAccessTrigger = inject(RequestAccessTrigger, { optional: true });
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,
   });
+
+  /** Whether the "Request access" entry point has folded out its inline form. */
+  protected readonly requestFormExpanded = signal(false);
 
   protected readonly state = toSignal(
     combineLatest([
@@ -78,14 +80,16 @@ export class CipherLeaseBannerComponent implements OnInit {
   /**
    * Show the "Request access" entry point when:
    * - the PAM feature flag is on,
-   * - a {@link RequestAccessTrigger} impl is provided by the host,
    * - the cipher is gated (has `partialData`),
    * - and there's no active lease / approved request / pending request yet.
+   *
+   * Clicking it folds out {@link RequestAccessFormComponent} inline (see
+   * {@link requestFormExpanded}) so the user can request access without leaving
+   * the partial cipher view.
    */
   protected readonly canRequestAccess = computed(
     () =>
       this.pamEnabled() &&
-      this.requestAccessTrigger != null &&
       this.partialData() != null &&
       !this.activeLease() &&
       !this.approvedRequest() &&
@@ -184,23 +188,18 @@ export class CipherLeaseBannerComponent implements OnInit {
     }
   };
 
-  readonly requestAccess = async () => {
-    const trigger = this.requestAccessTrigger;
-    if (!trigger) {
-      return;
-    }
-    try {
-      await trigger.requestAccess(this.cipherId());
-      // The trigger surfaces its own success/error toasts. State observed via
-      // getCipherAccessState$ re-emits when a new lease/request lands.
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
-  };
+  protected toggleRequestForm(): void {
+    this.requestFormExpanded.update((expanded) => !expanded);
+  }
+
+  /**
+   * The inline form created a lease or a pending request. Collapse the fold-out;
+   * the `getCipherAccessState$` stream re-emits and the banner moves to its next
+   * state (active lease → reveal in place, pending request → "Cancel request").
+   */
+  protected onRequestSubmitted(): void {
+    this.requestFormExpanded.set(false);
+  }
 
   readonly extendLease = async () => {
     const lease = this.activeLease();

@@ -1,5 +1,12 @@
-import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject, OnInit, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -7,24 +14,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   ButtonModule,
-  DIALOG_DATA,
-  DialogConfig,
-  DialogModule,
-  DialogRef,
-  DialogService,
   FormFieldModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  AccessApprovalMode,
-  AccessRequestCreateRequest,
-  AccessLeaseResponse,
-  AccessRequestResponse,
-  PamApiService,
-} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PamApiService } from "../../abstractions/pam-api.service";
+import { AccessApprovalMode } from "../../abstractions/responses/access-pre-check.response";
 import {
   LEASE_DURATION_PRESETS,
   MAX_LEASE_DURATION_MINUTES,
@@ -32,40 +29,13 @@ import {
   toDateString,
   toTimeString,
   windowWithinMaxDurationValidator,
-} from "../lease-window-form/lease-window.utils";
-
-export type RequestAccessModalData = {
-  cipherId: string;
-  /** `"active"` mirrors the pre-check hasActiveLease fold the trigger applies. */
-  outcome: AccessApprovalMode | "active";
-};
-
-export const RequestAccessModalResult = Object.freeze({
-  /** Automatic path: an active lease was issued for `[notBefore, notAfter]`. */
-  LeaseCreated: "lease-created",
-  /** Human path: a pending request was created for an approver. */
-  RequestCreated: "request-created",
-  /**
-   * Server reported the caller already has an active lease or a pending request.
-   * Caller should refresh banner state — reality already matches the user's intent.
-   */
-  AlreadyResolved: "already-resolved",
-  /** User dismissed the modal without submitting. */
-  Dismissed: "dismissed",
-} as const);
-export type RequestAccessModalResultKind =
-  (typeof RequestAccessModalResult)[keyof typeof RequestAccessModalResult];
-
-export type RequestAccessModalCloseResult =
-  | { kind: typeof RequestAccessModalResult.LeaseCreated; lease: AccessLeaseResponse }
-  | { kind: typeof RequestAccessModalResult.RequestCreated; request: AccessRequestResponse }
-  | { kind: typeof RequestAccessModalResult.AlreadyResolved }
-  | { kind: typeof RequestAccessModalResult.Dismissed };
+} from "../../helpers/lease-window.utils";
+import { AccessRequestCreateRequest } from "../../services/requests/access-request-create.request";
 
 /**
  * Server error catalog entries from the PAM lease-request endpoint. Used to
  * surface inline form errors and to detect the reconciliation cases (caller
- * already has access or a pending request) so the banner can refresh.
+ * already has access or a pending request) so the host banner can refresh.
  */
 const SERVER_ERROR_MESSAGES = Object.freeze({
   ReasonRequired: "A reason is required for items that need human approval.",
@@ -83,35 +53,39 @@ const SERVER_ERROR_MESSAGES = Object.freeze({
 } as const);
 
 /**
- * "Request access" modal opened from the cipher view banner when the user
- * explicitly asks to request a lease on a partial-data cipher. The outcome
- * (`automatic` | `human`) is resolved by `getAccessPreCheck` before opening, so
- * the form is pre-shaped: a duration picker for automatic, a start/end window
- * with required reason for human. Submitting calls `submitAccessRequest` against the
- * new server contract (PM-37044).
+ * Inline "Request access" form embedded in the cipher-lease banner's fold-out.
+ * On first render it resolves the approval workflow via `getAccessPreCheck`
+ * (side-effect-free) and shapes itself accordingly: a duration picker for
+ * automatic, a start/end window with required reason for human. Submitting posts
+ * to `submitAccessRequest` (PM-37044). It owns no dialog chrome — the host owns
+ * the surface and reacts to {@link submitted} / {@link cancelled}.
+ *
+ * On a successful submit (or on the reconciliation 400s where reality already
+ * matches intent) it emits {@link submitted}; the host collapses the fold-out
+ * and the `getCipherAccessState$` stream re-emits to drive the next banner
+ * state (active lease → reveal in place, pending request → "Cancel request").
  */
 @Component({
-  standalone: true,
-  selector: "app-request-access-modal",
+  selector: "app-request-access-form",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./request-access-modal.component.html",
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    DialogModule,
-    ButtonModule,
-    FormFieldModule,
-    TypographyModule,
-    I18nPipe,
-  ],
+  templateUrl: "./request-access-form.component.html",
+  imports: [ReactiveFormsModule, ButtonModule, FormFieldModule, TypographyModule, I18nPipe],
 })
-export class RequestAccessModalComponent implements OnInit {
+export class RequestAccessFormComponent implements OnInit {
+  readonly cipherId = input.required<string>();
+
+  /** A lease or pending request now exists — the host should collapse and refresh. */
+  readonly submitted = output<void>();
+
   private readonly pamApi = inject(PamApiService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly fb = inject(FormBuilder);
 
+  /** Approval workflow resolved by the pre-check; `null` until it lands or if it fails. */
+  protected readonly mode = signal<AccessApprovalMode | null>(null);
+  protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly serverError = signal<string | null>(null);
 
@@ -138,29 +112,27 @@ export class RequestAccessModalComponent implements OnInit {
     { validators: [endAfterStartValidator, windowWithinMaxDurationValidator] },
   );
 
-  constructor(
-    @Inject(DIALOG_DATA) protected readonly data: RequestAccessModalData,
-    private readonly dialogRef: DialogRef<RequestAccessModalCloseResult>,
-  ) {}
-
-  ngOnInit(): void {
-    if (this.data.outcome === "human") {
-      const now = new Date();
-      const end = new Date(now.getTime() + 60 * 60 * 1000);
-      const sameDay =
-        end.getFullYear() === now.getFullYear() &&
-        end.getMonth() === now.getMonth() &&
-        end.getDate() === now.getDate();
-      this.humanForm.patchValue({
-        customDate: toDateString(now),
-        customStart: toTimeString(now),
-        customEnd: sameDay ? toTimeString(end) : "23:59",
-      });
+  async ngOnInit(): Promise<void> {
+    try {
+      const preCheck = await this.pamApi.getAccessPreCheck(this.cipherId());
+      if (preCheck.hasActiveLease) {
+        // Reality already matches intent: a lease covers the cipher. Collapse and
+        // let the state stream reveal it — no request to make.
+        this.submitted.emit();
+        return;
+      }
+      if (preCheck.approvalMode === "human") {
+        this.seedDefaultWindow();
+      }
+      this.mode.set(preCheck.approvalMode);
+    } catch (e) {
+      // Pre-check 404s when the cipher isn't visible or PAM is off; without it we
+      // can't shape the form, so surface a generic error and offer to back out.
+      this.logService.error(e);
+      this.serverError.set(this.i18nService.t("requestAccessModalGenericError"));
+    } finally {
+      this.loading.set(false);
     }
-  }
-
-  protected get form() {
-    return this.data.outcome === "automatic" ? this.automaticForm : this.humanForm;
   }
 
   protected get customWindowEndBeforeStart(): boolean {
@@ -171,27 +143,28 @@ export class RequestAccessModalComponent implements OnInit {
     return this.humanForm.errors?.["customWindow"] === "exceedsMaxDuration";
   }
 
-  protected async submit(): Promise<void> {
-    if (this.form.invalid || this.submitting()) {
+  protected readonly submit = async (): Promise<void> => {
+    const mode = this.mode();
+    if (mode == null) {
+      return;
+    }
+    const form = mode === "automatic" ? this.automaticForm : this.humanForm;
+    if (form.invalid || this.submitting()) {
       return;
     }
     this.submitting.set(true);
     this.serverError.set(null);
 
     try {
-      const body =
-        this.data.outcome === "automatic" ? this.buildAutomaticBody() : this.buildHumanBody();
-      const response = await this.pamApi.submitAccessRequest(this.data.cipherId, body);
+      const body = mode === "automatic" ? this.buildAutomaticBody() : this.buildHumanBody();
+      const response = await this.pamApi.submitAccessRequest(this.cipherId(), body);
 
       if (response.approvalMode === "automatic" && response.lease) {
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("requestAccessModalLeaseCreatedSuccess"),
         });
-        void this.dialogRef.close({
-          kind: RequestAccessModalResult.LeaseCreated,
-          lease: response.lease,
-        });
+        this.submitted.emit();
         return;
       }
       if (response.approvalMode === "human" && response.request) {
@@ -199,10 +172,7 @@ export class RequestAccessModalComponent implements OnInit {
           variant: "success",
           message: this.i18nService.t("requestAccessModalRequestCreatedSuccess"),
         });
-        void this.dialogRef.close({
-          kind: RequestAccessModalResult.RequestCreated,
-          request: response.request,
-        });
+        this.submitted.emit();
         return;
       }
       // Envelope's outcome / lease / request fields disagreed — treat as a generic error.
@@ -212,10 +182,20 @@ export class RequestAccessModalComponent implements OnInit {
     } finally {
       this.submitting.set(false);
     }
-  }
+  };
 
-  protected dismiss(): void {
-    void this.dialogRef.close({ kind: RequestAccessModalResult.Dismissed });
+  private seedDefaultWindow(): void {
+    const now = new Date();
+    const end = new Date(now.getTime() + 60 * 60 * 1000);
+    const sameDay =
+      end.getFullYear() === now.getFullYear() &&
+      end.getMonth() === now.getMonth() &&
+      end.getDate() === now.getDate();
+    this.humanForm.patchValue({
+      customDate: toDateString(now),
+      customStart: toTimeString(now),
+      customEnd: sameDay ? toTimeString(end) : "23:59",
+    });
   }
 
   private buildAutomaticBody(): AccessRequestCreateRequest {
@@ -238,8 +218,8 @@ export class RequestAccessModalComponent implements OnInit {
   private handleRequestLeaseError(e: unknown): void {
     if (e instanceof ErrorResponse && e.statusCode === 400) {
       const msg = e.message ?? "";
-      // Reconciliation cases: reality already matches the user's intent.
-      // Close the modal and let the caller refresh banner state.
+      // Reconciliation cases: reality already matches the user's intent. Collapse
+      // the fold-out and let the host refresh banner state.
       if (
         msg === SERVER_ERROR_MESSAGES.AlreadyActive ||
         msg === SERVER_ERROR_MESSAGES.AlreadyPending
@@ -251,7 +231,7 @@ export class RequestAccessModalComponent implements OnInit {
               ? this.i18nService.t("requestAccessModalAlreadyActive")
               : this.i18nService.t("requestAccessModalAlreadyPending"),
         });
-        void this.dialogRef.close({ kind: RequestAccessModalResult.AlreadyResolved });
+        this.submitted.emit();
         return;
       }
 
@@ -287,16 +267,6 @@ export class RequestAccessModalComponent implements OnInit {
       default:
         return null;
     }
-  }
-
-  static open(
-    dialogService: DialogService,
-    data: RequestAccessModalData,
-  ): DialogRef<RequestAccessModalCloseResult> {
-    return dialogService.open<RequestAccessModalCloseResult, RequestAccessModalData>(
-      RequestAccessModalComponent,
-      { data } satisfies DialogConfig<RequestAccessModalData>,
-    );
   }
 }
 
