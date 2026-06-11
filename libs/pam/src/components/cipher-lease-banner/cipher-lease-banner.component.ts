@@ -191,7 +191,14 @@ export class CipherLeaseBannerComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
+    // Only advance the clock while an active lease is showing its countdown;
+    // otherwise the per-second tick just churns change detection on a banner
+    // that's also mounted for the (countdown-less) request-access entry point.
+    const intervalId = setInterval(() => {
+      if (this.activeLease()) {
+        this.nowMs.set(Date.now());
+      }
+    }, 1000);
     this.destroyRef.onDestroy(() => clearInterval(intervalId));
   }
 
