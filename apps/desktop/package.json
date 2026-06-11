@@ -19,6 +19,7 @@
     "@bitwarden/desktop-napi": "file:desktop_native/napi"
   },
   "scripts": {
+    "_comment": "BRE-2017 test - confirming build failure before fix",
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
     "build-native-macos": "cd desktop_native && ./autofill_provider/build.sh && node build.js cross-platform",
