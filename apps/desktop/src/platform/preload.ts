@@ -5,21 +5,21 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 
 import {
-  EncryptedMessageResponse,
-  LegacyMessageWrapper,
-  Message,
-  UnencryptedMessageResponse,
-} from "../models/native-messaging";
-import {
   allowBrowserintegrationOverride,
   isAppImage,
-  isDev,
   isFlatpak,
   isMacAppStore,
   isSnapStore,
   isWindowsPortable,
   isWindowsStore,
-} from "../utils";
+} from "../main/platform-utils.main";
+import {
+  EncryptedMessageResponse,
+  LegacyMessageWrapper,
+  Message,
+  UnencryptedMessageResponse,
+} from "../models/native-messaging";
+import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 

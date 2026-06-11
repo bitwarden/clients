@@ -2,7 +2,7 @@ import { ipcMain } from "electron";
 
 import { chromium_importer } from "@bitwarden/desktop-napi";
 
-import { isMacAppStore } from "../../../utils";
+import { isMacAppStore } from "../../platform-utils.main";
 
 export class ChromiumImporterService {
   constructor() {

@@ -18,15 +18,9 @@ import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import {
-  cleanUserAgent,
-  isDev,
-  isLinux,
-  isMac,
-  isMacAppStore,
-  isSnapStore,
-  isWindows,
-} from "../utils";
+import { cleanUserAgent, isDev } from "../utils";
+
+import { isLinux, isMac, isMacAppStore, isSnapStore, isWindows } from "./platform-utils.main";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;

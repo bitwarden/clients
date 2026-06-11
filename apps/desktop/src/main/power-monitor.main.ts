@@ -4,7 +4,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { powermonitors } from "@bitwarden/desktop-napi";
 
-import { isSnapStore } from "../utils";
+import { isSnapStore } from "./platform-utils.main";
 
 // tslint:disable-next-line
 const IdleLockSeconds = 5 * 60; // 5 minutes

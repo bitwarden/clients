@@ -4,7 +4,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherType } from "@bitwarden/sdk-internal";
 
-import { isMac, isMacAppStore } from "../../utils";
+import { isMac, isMacAppStore } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { FirstMenu } from "./menu.first";

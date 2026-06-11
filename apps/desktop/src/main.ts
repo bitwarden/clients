@@ -48,6 +48,7 @@ import { MainBiometricsService } from "./key-management/biometrics/main-biometri
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
+import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
@@ -69,7 +70,6 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
-import { isMacAppStore } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
