@@ -168,7 +168,7 @@
     "message": "पासपोर्ट नंबर कॉपी करें"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "राष्ट्रीय पहचान संख्या की प्रतिलिपि बनाएँ"
   },
   "copyFirstName": {
     "message": "Copy first name"
@@ -1828,6 +1828,18 @@
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
   },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
+  },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
   },
@@ -2228,6 +2240,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "typeNote": {
     "message": "नोट"
@@ -4430,12 +4445,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Cannot autofill"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "Okay"
