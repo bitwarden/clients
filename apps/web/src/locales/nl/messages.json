@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Herinneringen versturen"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Je hebt nog geen kritische applicaties gemarkeerd. Herzie applicaties om aan de slag te gaan."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Als je toepassingen als belangrijk markeert, verschijnen ze hier."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Gegevens importeren"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Als je geen gegevens om te importeren hebt, kun je een ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "nieuw item",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "nieuwe login",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " in plaats daarvan.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " in plaats daarvan. Je moet misschien wachten tot je beheerder je organisatielidmaatschap bevestigt.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Fout bij importeren"
   },
@@ -3670,6 +3653,69 @@
   "canceledSubscription": {
     "message": "Abonnement geannuleerd"
   },
+  "churnOfferTitle": {
+    "message": "Speciale aanbieding voordat je weggaat"
+  },
+  "churnOfferPreamble": {
+    "message": "Als je nu opzegt, blijft je toegang beschikbaar tot"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". Maar als trouwe klant, willen we je graag eerst iets aanbieden."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Krijg $DISCOUNT$ korting op je abonnement",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "Als dank voor je lange tijd als Bitwarden-klant, willen we je $DISCOUNT$ korting aanbieden op je volgende $DURATION$ service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Blijf en krijg $DISCOUNT$ korting",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Abonnement opzeggen"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Je bent helemaal klaar!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Je $DISCOUNT$ korting is toegepast op je volgende $DURATION$ service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Vervalt nooit"
   },
@@ -3693,6 +3739,9 @@
   },
   "discount": {
     "message": "korting"
+  },
+  "discountApplied": {
+    "message": "Korting toegepast"
   },
   "discountExpiredOnPurchase": {
     "message": "Korting verlopen. Controleer je winkelwagentotaal en probeer het opnieuw."
@@ -8312,6 +8361,9 @@
   "iconsUrl": {
     "message": "Pictogrammen server URL"
   },
+  "sendUrl": {
+    "message": "Server-URL Send"
+  },
   "environmentSaved": {
     "message": "Omgevings-URL's opgeslagen"
   },
@@ -10184,9 +10236,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Account aanmaken"
-  },
   "createSecret": {
     "message": "Geheim aanmaken"
   },
@@ -10209,8 +10258,45 @@
   "getStarted": {
     "message": "Aan de slag"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Aan de slag met Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Voltooi deze stappen om te beginnen met het beheren van de geheimen van je team"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Machine-account aanmaken"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organiseer je geheimen in projecten"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Project aanmaken"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bestaande geheimen inbrengen van een andere tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Wachtwoorden, certificaten en API-sleutels opslaan"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Geheim aanmaken"
+  },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ Compleet",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ van$TOTAL$ voltooid",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10950,38 @@
     "message": "Zie gedetailleerde instructies op onze hulp pagina hier",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Browserextensie installeren"
+  "getStartedWithYourVault": {
+    "message": "Aan de slag met je kluis"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Gebruik de extensie om snel logins en auto-invulformulieren op te slaan zonder de webapp te openen."
+  "onboardingChecklistSubtitle": {
+    "message": "Voltooi deze stappen om je persoonlijke gegevens te beveiligen en het meeste uit Bitwarden te halen"
+  },
+  "dismissThisChecklist": {
+    "message": "Deze checklist afsluiten"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Je account aanmaken"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Je wachtwoorden importeren"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "De browserextensie installeren"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Bespaar tijd door gegevens van een andere wachtwoordbeheerder te importeren. Je kunt handmatig items toevoegen aan je kluis."
+  },
+  "onboardingImportCta": {
+    "message": "Wachtwoorden importeren"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Pin de extensie aan je browser. Het helpt je met sneller inloggen en eenvoudig je wachtwoorden opslaan."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Extensie installeren"
+  },
+  "completed": {
+    "message": "Voltooid"
   },
   "projectAccessUpdated": {
     "message": "Projecttoegang bijgewerkt"
@@ -12679,6 +12792,37 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Je abonnementskosten stijgen naar $PRICE$ per zetel per maand op $DATE$. Je abonnementsfuncties en alle bestaande kortingen blijven exact hetzelfde.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Je abonnementskosten stijgen naar $PRICE$ per zetel per maand op $DATE$. Je abonnementsfuncties en alle bestaande kortingen blijven exact hetzelfde.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Prijsstijgingsattentie"
   },
   "restartOrganizationSubscription": {
     "message": "Organisatieabonnement hervat"
