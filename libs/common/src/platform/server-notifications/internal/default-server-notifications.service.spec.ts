@@ -5,9 +5,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
@@ -47,8 +44,6 @@ describe("NotificationsService", () => {
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
-  let policyService: MockProxy<InternalPolicyService>;
-  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
@@ -80,8 +75,6 @@ describe("NotificationsService", () => {
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
-    policyService = mock<InternalPolicyService>();
-    newPolicyService = mock<InternalNewPolicyService>();
     autoConfirmService = mock<AutomaticUserConfirmationService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
@@ -136,8 +129,6 @@ describe("NotificationsService", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
-      policyService,
-      newPolicyService,
       autoConfirmService,
       billingAccountProfileStateService,
     );
@@ -466,64 +457,17 @@ describe("NotificationsService", () => {
     });
 
     describe("NotificationType.SyncPolicy", () => {
-      it("should call policyService.syncPolicy with the policy from the notification", async () => {
-        const mockPolicy = {
-          id: "policy-id",
-          organizationId: "org-id",
-          type: PolicyType.TwoFactorAuthentication,
-          enabled: true,
-          data: { test: "data" },
-        };
-
-        policyService.syncPolicy.mockResolvedValue();
-
+      it("forces a full sync so the API path can deserialize the policy", async () => {
         const notification = new NotificationResponse({
           type: NotificationType.SyncPolicy,
-          payload: { policy: mockPolicy },
+          payload: {},
           contextId: "different-app-id",
         });
 
         await sut["processNotification"](notification, mockUser1);
 
-        expect(policyService.syncPolicy).toHaveBeenCalledTimes(1);
-        expect(policyService.syncPolicy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: mockPolicy.id,
-            organizationId: mockPolicy.organizationId,
-            type: mockPolicy.type,
-            enabled: mockPolicy.enabled,
-            data: mockPolicy.data,
-          }),
-        );
-      });
-
-      it("should handle SyncPolicy notification with minimal policy data", async () => {
-        const mockPolicy = {
-          id: "policy-id-2",
-          organizationId: "org-id-2",
-          type: PolicyType.RequireSso,
-          enabled: false,
-        };
-
-        policyService.syncPolicy.mockResolvedValue();
-
-        const notification = new NotificationResponse({
-          type: NotificationType.SyncPolicy,
-          payload: { policy: mockPolicy },
-          contextId: "different-app-id",
-        });
-
-        await sut["processNotification"](notification, mockUser1);
-
-        expect(policyService.syncPolicy).toHaveBeenCalledTimes(1);
-        expect(policyService.syncPolicy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: mockPolicy.id,
-            organizationId: mockPolicy.organizationId,
-            type: mockPolicy.type,
-            enabled: mockPolicy.enabled,
-          }),
-        );
+        expect(syncService.fullSync).toHaveBeenCalledTimes(1);
+        expect(syncService.fullSync).toHaveBeenCalledWith(true);
       });
     });
 

@@ -4,8 +4,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
@@ -38,8 +36,6 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
-  let policyService: MockProxy<InternalPolicyService>;
-  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
@@ -135,8 +131,6 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
 
-    policyService = mock<InternalPolicyService>();
-    newPolicyService = mock<InternalNewPolicyService>();
     autoConfirmService = mock<AutomaticUserConfirmationService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
@@ -153,8 +147,6 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
-      policyService,
-      newPolicyService,
       autoConfirmService,
       billingAccountProfileStateService,
     );
