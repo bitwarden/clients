@@ -29,6 +29,10 @@ const statusIndicators = [
     usage:
       "Indicates that the action is loading. Should only be used in nested components that require their own component-level loading state such as buttons.",
   },
+  {
+    id: "bwi-encrypted",
+    usage: "Indicates that the item is encrypted",
+  },
 ];
 
 const bitwardenObjects = [
