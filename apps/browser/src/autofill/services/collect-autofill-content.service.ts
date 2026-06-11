@@ -456,6 +456,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
         iframeSrc,
         iframeTargetedFields,
+      }).catch((error: unknown) => {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[CollectAutofillContent] Failed to route targeted fields for iframe ${iframeSrc}:`,
+          error,
+        );
       });
     }
   }
