@@ -203,35 +203,44 @@ export class DefaultSdkService implements SdkService {
       // Do not emit when multiple state values are written in quick succession
       debounceTime(20),
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
-      switchMap(([env, account, kdfParams, accountCryptographicState, userKey, orgKeys, v2UpgradeToken]) => {
-        // Create our own observable to be able to implement clean-up logic
-        return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
-          const createAndInitializeClient = async () => {
-            if (env == null) {
-              return undefined;
-            }
+      switchMap(
+        ([
+          env,
+          account,
+          kdfParams,
+          accountCryptographicState,
+          userKey,
+          orgKeys,
+          v2UpgradeToken,
+        ]) => {
+          // Create our own observable to be able to implement clean-up logic
+          return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
+            const createAndInitializeClient = async () => {
+              if (env == null) {
+                return undefined;
+              }
 
-            const settings = await this.toSettings(env);
-            const client = await this.sdkClientFactory.createSdkClient(
-              new JsTokenProvider(this.apiService, userId),
-              settings,
-            );
-            await this.initializeClient(userId, client);
+              const settings = await this.toSettings(env);
+              const client = await this.sdkClientFactory.createSdkClient(
+                new JsTokenProvider(this.apiService, userId),
+                settings,
+              );
+              await this.initializeClient(userId, client);
 
-            // Returns a locked SDK client, if any of these values are missing
-            if (kdfParams == null || accountCryptographicState == null || userKey == null) {
-              return client;
-            }
+              // Returns a locked SDK client, if any of these values are missing
+              if (kdfParams == null || accountCryptographicState == null || userKey == null) {
+                return client;
+              }
 
-            await this.initializeClientCrypto(
-              userId,
-              client,
-              account,
-              kdfParams.toSdkConfig(),
-              accountCryptographicState,
-              orgKeys,
-              v2UpgradeToken,
-            );
+              await this.initializeClientCrypto(
+                userId,
+                client,
+                account,
+                kdfParams.toSdkConfig(),
+                accountCryptographicState,
+                orgKeys,
+                v2UpgradeToken,
+              );
 
               return client;
             };
