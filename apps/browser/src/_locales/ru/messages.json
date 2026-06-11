@@ -214,8 +214,13 @@
     "message": "Заполнить",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автозаполнение"
+  "autofillNoun": {
+    "message": "Автозаполнение",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автозаполнение",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Автозаполнение логина"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Сохранить"
+  },
+  "saveAndFill": {
+    "message": "Сохранить и заполнить"
   },
   "move": {
     "message": "Переместить"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "URL сервера значков"
+  },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
   },
   "environmentSaved": {
     "message": "URL окружения сохранены"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "sharedUnlock": {
+    "message": "Совместная разблокировка"
+  },
+  "sharedUnlockDescription": {
+    "message": "Обеспечьте синхронизацию ваших приложений Bitwarden. Если эта функция включена, состояние разблокировки будет совместно использоваться всеми приложениями на этом компьютере. Для синхронизации между различными браузерами требуется приложение для компьютера."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано приложению Bitwarden."
   },
   "enterMonth": {
     "message": "Введите месяц."

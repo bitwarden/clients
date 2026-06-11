@@ -214,8 +214,13 @@
     "message": "Ausfüllen",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Auto-Ausfüllen"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Zugangsdaten automatisch ausfüllen"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Speichern"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Verschieben"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "URL des Icons-Servers"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "URLs der Umgebung gespeichert"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
+  },
+  "sharedUnlock": {
+    "message": "Entsperrstatus geteilt"
+  },
+  "sharedUnlockDescription": {
+    "message": "Synchronisiere deine Bitwarden-Apps. Wenn diese Option aktiviert ist, wird der Entsperrstatus mit allen Bitwarden-Anwendungen auf diesen Gerät geteilt. Für die Synchronisierung zwischen verschiedenen Browsern ist die Desktop-Anwendung erforderlich."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Synchronisiere deine Bitwarden-Apps. Wenn diese Option aktiviert ist, wird der Entsperrstatus mit dem Bitwarden-Webtresoren in Safari geteilt."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Synchronisiere deine Bitwarden-Apps. Wenn diese Option aktiviert ist, wird der Entsperrstatus mit der Bitwarden-Desktop-Anwendung geteilt."
   },
   "enterMonth": {
     "message": "Monat eingeben."
