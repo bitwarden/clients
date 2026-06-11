@@ -112,18 +112,20 @@ describe("PamCipherOpenGate", () => {
     expect(trigger.requestAccess).not.toHaveBeenCalled();
   });
 
-  it("falls through to the request flow when the snapshot only holds a pending request", async () => {
+  it("opens the partial view for a pending request — the banner owns the 'Cancel request' button", async () => {
     fetcher.fetch.mockResolvedValue(null);
     pamApiService.getCipherAccessState$.mockReturnValue(
       of({ pendingRequest: { id: "request-1" } as AccessRequestDetailsResponse }),
     );
-    trigger.requestAccess.mockResolvedValue("request-created");
 
     const verdict = await gate.check(partial, "user-1");
 
-    expect(verdict).toBe("handled");
+    // A request already awaits approval; driving a fresh request flow would only hit the server's
+    // "already pending" rejection. Open the partial view so the cipher-lease banner can offer cancel.
+    expect(verdict).toBe("open");
+    expect(trigger.requestAccess).not.toHaveBeenCalled();
     expect(pamApiService.activateLease).not.toHaveBeenCalled();
-    expect(trigger.requestAccess).toHaveBeenCalledWith("cipher-1");
+    expect(fetcher.fetch).toHaveBeenCalledTimes(1);
   });
 
   it("falls through to the request flow when the snapshot read fails", async () => {
