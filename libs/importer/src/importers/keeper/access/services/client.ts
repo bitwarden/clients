@@ -612,7 +612,12 @@ export class Client {
             previousCodeRejected = true;
             continue;
           }
-          return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
+          return await this.resumeOrRestartLogin(
+            currentLoginToken,
+            username,
+            deviceToken,
+            messageSessionUid,
+          );
         }
 
         if (typeof approvalResult === "object" && "messageType" in approvalResult) {
@@ -621,7 +626,12 @@ export class Client {
             const approvedByAdmin =
               message.message === "device_approved" && message.approved === true;
             if (message.command === "device_verified" || approvedByAdmin) {
-              return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
+              return await this.resumeOrRestartLogin(
+                currentLoginToken,
+                username,
+                deviceToken,
+                messageSessionUid,
+              );
             }
           }
         }
@@ -1108,6 +1118,29 @@ export class Client {
       StartLoginRequestSchema,
     );
     return fromBinary(LoginResponseSchema, responseBytes);
+  }
+
+  /**
+   * Resumes login with the existing login token, falling back to a fresh login
+   * if the token has expired. The login token has a server-side lifetime of a
+   * few minutes, so a user who approves the device after a long delay would
+   * otherwise hit "login_token_expired". The device is already approved at this
+   * point, so a fresh start_login proceeds straight past device approval.
+   */
+  private async resumeOrRestartLogin(
+    encryptedLoginToken: LoginToken,
+    username: string,
+    deviceToken: DeviceToken,
+    messageSessionUid: MessageSessionUid,
+  ): Promise<LoginResponse> {
+    try {
+      return await this.resumeLogin(encryptedLoginToken, deviceToken, messageSessionUid);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("login_token_expired")) {
+        return await this.startLogin(username, deviceToken, messageSessionUid);
+      }
+      throw error;
+    }
   }
 
   private async startLogin(
