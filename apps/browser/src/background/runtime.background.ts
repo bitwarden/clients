@@ -27,6 +27,10 @@ import {
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
+import {
+  getPendingDefaultPasswordManagerApply,
+  setPendingDefaultPasswordManagerApply,
+} from "../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
@@ -240,13 +244,13 @@ export default class RuntimeBackground {
       return;
     }
 
-    if (!(await BrowserApi.getPendingDefaultPasswordManagerApply())) {
+    if (!(await getPendingDefaultPasswordManagerApply())) {
       return;
     }
 
     try {
       await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await BrowserApi.setPendingDefaultPasswordManagerApply(false);
+      await setPendingDefaultPasswordManagerApply(false);
     } catch (error) {
       this.logService.error(error);
     }

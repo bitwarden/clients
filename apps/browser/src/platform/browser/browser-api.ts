@@ -840,55 +840,6 @@ export class BrowserApi {
     );
   }
 
-  private static readonly pendingDefaultPasswordManagerApplyKey =
-    "pendingDefaultPasswordManagerApply";
-
-  private static async getLocalStorageValue(storageKey: string): Promise<unknown> {
-    if (BrowserApi.isWebExtensionsApi) {
-      const items = await browser.storage.local.get(storageKey);
-      return items[storageKey];
-    }
-
-    return new Promise((resolve) =>
-      chrome.storage.local.get(storageKey, (result) => resolve(result?.[storageKey])),
-    );
-  }
-
-  private static async setLocalStorageValue(
-    storageKey: string,
-    storageValue: unknown | null,
-  ): Promise<void> {
-    if (BrowserApi.isWebExtensionsApi) {
-      if (storageValue == null) {
-        await browser.storage.local.remove(storageKey);
-      } else {
-        await browser.storage.local.set({ [storageKey]: storageValue });
-      }
-      return;
-    }
-
-    await new Promise<void>((resolve) => {
-      if (storageValue == null) {
-        chrome.storage.local.remove(storageKey, () => resolve());
-      } else {
-        chrome.storage.local.set({ [storageKey]: storageValue }, () => resolve());
-      }
-    });
-  }
-
-  static async getPendingDefaultPasswordManagerApply(): Promise<boolean> {
-    return Boolean(
-      await BrowserApi.getLocalStorageValue(BrowserApi.pendingDefaultPasswordManagerApplyKey),
-    );
-  }
-
-  static async setPendingDefaultPasswordManagerApply(isPending: boolean): Promise<void> {
-    await BrowserApi.setLocalStorageValue(
-      BrowserApi.pendingDefaultPasswordManagerApplyKey,
-      isPending ? true : null,
-    );
-  }
-
   static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {
     if (BrowserApi.isWebExtensionsApi) {
       return browser.runtime.getPlatformInfo();
@@ -1011,7 +962,7 @@ export class BrowserApi {
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
     if (BrowserApi.isFirefox) {
       if (BrowserApi.isWebExtensionsApi) {
-        await browser.privacy.services.passwordSavingEnabled.set({ value });
+        await browser.privacy?.services?.passwordSavingEnabled?.set({ value });
       } else {
         await chrome.privacy.services.passwordSavingEnabled.set({ value });
       }
