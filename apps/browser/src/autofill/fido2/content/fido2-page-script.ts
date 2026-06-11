@@ -89,7 +89,7 @@ import { Messenger } from "./messaging/messenger";
       return await browserCredentials.create(options);
     }
 
-    if (!isFeaturePolicyAllowed("publickey-credentials-create")) {
+    if (!isWebAuthnFeatureAllowed("publickey-credentials-create")) {
       throw buildPermissionsPolicyError("publickey-credentials-create");
     }
 
@@ -141,7 +141,7 @@ import { Messenger } from "./messaging/messenger";
       return await browserCredentials.get(options);
     }
 
-    if (!isFeaturePolicyAllowed("publickey-credentials-get")) {
+    if (!isWebAuthnFeatureAllowed("publickey-credentials-get")) {
       throw buildPermissionsPolicyError("publickey-credentials-get");
     }
 
@@ -229,25 +229,50 @@ import { Messenger } from "./messaging/messenger";
 
   /**
    * Checks whether the document's Permissions Policy allows the requested WebAuthn feature.
-   * Defaults to allowing the request when the FeaturePolicy API is unavailable (e.g. Safari),
-   * preserving existing functionality on browsers that do not expose the API.
+   *
+   * Prefers the standardized `document.permissionsPolicy` API; falls back to the older
+   * `document.featurePolicy`. No shipping browser exposes `permissionsPolicy` as of writing,
+   * but the WICG spec defines it as the standardized form, so we check it first for
+   * forward-compatibility.
+   *
+   * When neither API is available (Safari, default-config Firefox where the IDL is gated
+   * behind `dom.security.featurePolicy.webidl.enabled`), we fall back to a defense-in-depth
+   * check: deny when we're in a cross-origin iframe, since the spec default allowlist for
+   * `publickey-credentials-*` is `self`. This over-rejects iframes that legitimately received
+   * `allow=publickey-credentials-*` from their parent, which we can't introspect without the
+   * policy API.
    *
    * @param featureName Permissions Policy feature name, e.g. `publickey-credentials-get`.
    */
-  function isFeaturePolicyAllowed(featureName: string): boolean {
+  function isWebAuthnFeatureAllowed(featureName: string): boolean {
     try {
-      const featurePolicy = (
-        globalContext.document as Document & {
-          featurePolicy?: { allowsFeature(feature: string): boolean };
-        }
-      ).featurePolicy;
-
-      if (featurePolicy == null || typeof featurePolicy.allowsFeature !== "function") {
-        return true;
+      const policyHolder = globalContext.document as Document & {
+        permissionsPolicy?: { allowsFeature(feature: string): boolean };
+        featurePolicy?: { allowsFeature(feature: string): boolean };
+      };
+      const policy = policyHolder.permissionsPolicy ?? policyHolder.featurePolicy;
+      if (policy != null && typeof policy.allowsFeature === "function") {
+        return policy.allowsFeature(featureName);
       }
-
-      return featurePolicy.allowsFeature(featureName);
     } catch {
+      // Fall through to the defense-in-depth check.
+    }
+
+    return !isCrossOriginIframe();
+  }
+
+  /**
+   * Best-effort detection of whether this document is loaded in a cross-origin iframe.
+   * Used as a defense-in-depth fallback when the Permissions Policy JS API is unavailable.
+   */
+  function isCrossOriginIframe(): boolean {
+    try {
+      if (globalContext.self === globalContext.top) {
+        return false;
+      }
+      return globalContext.top?.location.origin !== globalContext.self.location.origin;
+    } catch {
+      // SecurityError reading top.location → top is a different origin.
       return true;
     }
   }
