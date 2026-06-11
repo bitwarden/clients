@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Send reminders"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Once you mark applications critical, they will display here."
   },
@@ -3562,11 +3565,17 @@
   "year": {
     "message": "year"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "yr"
   },
   "month": {
     "message": "month"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "mo.",
@@ -3650,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Subscription canceled"
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancel subscription"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Never expires"
   },
@@ -3673,6 +3763,9 @@
   },
   "discount": {
     "message": "discount"
+  },
+  "discountApplied": {
+    "message": "Discount applied"
   },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
@@ -4196,7 +4289,7 @@
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
   },
-  "inviteUserDescription":{
+  "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteMultipleEmailDesc": {
@@ -8292,6 +8385,9 @@
   "iconsUrl": {
     "message": "Icons server URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Environment URLs saved"
   },
@@ -8824,10 +8920,10 @@
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
-  "scimDescriptionV2":{
+  "scimDescriptionV2": {
     "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
   },
-  "scimLearnMore":{
+  "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
@@ -8897,7 +8993,7 @@
       }
     }
   },
-  "anotherIntegrationWithSameTypeExists":{
+  "anotherIntegrationWithSameTypeExists": {
     "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
     "placeholders": {
       "type": {
@@ -11525,7 +11621,7 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
-  "integrationConnectedSuccessfully":{
+  "integrationConnectedSuccessfully": {
     "message": "$INTEGRATION$ connected successfully.",
     "placeholders": {
       "integration": {
@@ -12721,6 +12817,37 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
   },
   "restartOrganizationSubscription": {
     "message": "Organization subscription restarted"
@@ -14126,12 +14253,76 @@
   "backToEditing": {
     "message": "Back to editing"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+  },
+  "singleOrgPrerequisite": {
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "enableBanner": {
+    "message": "Enable banner"
+  },
+  "createBannerMessage": {
+    "message": "Create banner message"
+  },
+  "header": {
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "You must enter a header to create a button."
+  },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

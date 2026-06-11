@@ -4,17 +4,13 @@
       <tr>
         <th bitCell class="tw-w-24 tw-whitespace-nowrap" colspan="2">
           <input
-            class="tw-mr-2"
             type="checkbox"
             bitCheckbox
-            id="checkAll"
             [disabled]="disabled || isEmpty"
             (change)="$event ? toggleAll() : null"
             [checked]="selection.hasValue() && isAllSelected"
+            [attr.aria-label]="'selectAll' | i18n"
           />
-          <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="checkAll">{{
-            "all" | i18n
-          }}</label>
         </th>
         <!-- Organization vault -->
         @if (showAdminActions) {

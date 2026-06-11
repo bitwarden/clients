@@ -214,8 +214,13 @@
     "message": "Preencher",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Preenchimento automático"
+  "autofillNoun": {
+    "message": "Preenchimento automático",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Preencher automaticamente",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Preencher automaticamente credencial"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Guardar"
+  },
+  "saveAndFill": {
+    "message": "Guardar e preencher"
   },
   "move": {
     "message": "Mover"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "URL do servidor de ícones"
+  },
+  "sendUrl": {
+    "message": "Enviar URL do servidor"
   },
   "environmentSaved": {
     "message": "URLs de ambiente guardados"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
+  },
+  "sharedUnlock": {
+    "message": "Desbloqueio partilhado"
+  },
+  "sharedUnlockDescription": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado por todas as aplicações neste dispositivo. A aplicação para computador é necessária para sincronizar entre diferentes navegadores."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden no Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com a aplicação para computador do Bitwarden."
   },
   "enterMonth": {
     "message": "Introduza o mês."

@@ -207,7 +207,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     const initialValues = {
       pin: await this.pinService.isPinSet(activeAccount.id),
       pinLockWithMasterPassword:
-        (await this.pinService.getPinLockType(activeAccount.id)) == "EPHEMERAL",
+        (await this.pinService.getPinLockType(activeAccount.id)) == "AfterFirstUnlock",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
@@ -275,7 +275,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
           const pin = await this.pinService.getPin(userId);
-          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
+          await this.pinService.setPin(
+            pin,
+            value ? "AfterFirstUnlock" : "BeforeFirstUnlock",
+            userId,
+          );
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -349,7 +353,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       );
       const userHasPinSet = await firstValueFrom(dialogRef.closed);
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
-      const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
+      const requireReprompt = (await this.pinService.getPinLockType(userId)) == "AfterFirstUnlock";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
       if (userHasPinSet) {
         this.toastService.showToast({
