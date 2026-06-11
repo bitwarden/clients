@@ -67,7 +67,7 @@ export default class RuntimeBackground {
       void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
     };
 
-    if (BrowserApi.isWebExtensionsApi) {
+    if (BrowserApi.isWebExtensionsApi && browser?.permissions?.onAdded) {
       browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
     } else if (chrome?.permissions?.onAdded) {
       chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
