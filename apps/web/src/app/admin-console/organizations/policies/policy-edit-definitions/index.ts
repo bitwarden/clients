@@ -17,3 +17,4 @@ export { SingleOrgPolicy } from "./single-org.component";
 export { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
 export { UriMatchDefaultPolicy } from "./uri-match-default.component";
 export { AutoConfirmPolicy } from "./auto-confirm-policy.component";
+export { OrganizationUserNotificationPolicy } from "./organization-user-notification-policy.component";
