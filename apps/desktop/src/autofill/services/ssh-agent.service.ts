@@ -98,11 +98,11 @@ export class SshAgentService implements OnDestroy {
         concatMap(async ([message, enabled]) => {
           if (!enabled) {
             await ipc.autofill.sshAgent.signRequestResponse(message.requestId as number, false);
+            return null;
           }
-          return { message, enabled };
+          return message;
         }),
-        filter(({ enabled }) => enabled),
-        map(({ message }) => message),
+        filter((message) => message != null),
         withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
         // This switchMap handles unlocking the vault if it is not unlocked:
         //   - If the vault is locked or logged out, we will wait for it to be unlocked:
@@ -215,51 +215,44 @@ export class SshAgentService implements OnDestroy {
       )
       .subscribe();
 
-    // Shared: reset sign-approval state on account switch; v1 also clears the agent keystore.
-    // skip(1) prevents this from firing on the initial account load.
-    this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
-      // Triggered when the user switches the active account.
-      // authorizedKeys is always reset so approval prompts reappear for the new account.
-      // In v1, the agent keystore is cleared immediately; in v2 the reactive block below
-      // handles keystore updates when the switched-to account's vault status changes.
-      next: (account) => {
-        this.authorizedKeys = new Map();
-        if (!useV2) {
-          this.logService.info("Active account changed, clearing SSH keys");
-          ipc.autofill.sshAgent
-            .clearKeys()
-            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
-        }
-      },
-      // Triggered by an unexpected error propagating from the account service observable
-      error: (e: unknown) => {
-        this.logService.error("Error in active account observable", e);
-        if (useV2) {
-          this.stopAgent().catch((e: unknown) =>
-            this.logService.error("Failed to clear and stop SSH agent", e),
-          );
-        } else {
-          ipc.autofill.sshAgent
-            .clearKeys()
-            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
-        }
-      },
-      // Triggered when the service is torn down: ngOnDestroy emits on destroy$, which
-      // completes this observable via takeUntil. Happens on app quit or service teardown.
-      complete: () => {
-        this.logService.info("Active account observable completed, clearing SSH keys");
-        this.authorizedKeys = new Map();
-        if (useV2) {
-          this.stopAgent().catch((e: unknown) =>
-            this.logService.error("Failed to clear and stop SSH agent", e),
-          );
-        } else {
-          ipc.autofill.sshAgent
-            .clearKeys()
-            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
-        }
-      },
-    });
+    // Reset sign-approval state on account switch.
+    // account switch is a vault-lock boundary and RememberUntilLock approvals must not survive
+    // it regardless of the user's current SSH-agent setting.
+    // v1 clears the agent keystore here; v2 handles it in the reactive block below.
+    this.accountService.activeAccount$
+      .pipe(
+        // Dedupe by id because activeAccount$ also re-emits when
+        // AccountInfo fields change (email/name/emailVerified/creationDate).
+        distinctUntilChanged((a, b) => a?.id === b?.id),
+        // prevents from triggering on the initial account load
+        skip(1),
+        withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
+        concatMap(async ([, enabled]) => {
+          this.logService.debug("Active account changed, resetting SSH sign approval state");
+          this.authorizedKeys = new Map();
+          // the V1 sshagent.clearkeys handler isn't registered in the main process
+          // until sshagent.init is called (which only happens when the feature is enabled).
+          if (enabled && !useV2) {
+            this.logService.info("Active account changed, clearing SSH keys");
+            try {
+              await ipc.autofill.sshAgent.clearKeys();
+            } catch (e) {
+              this.logService.error("Failed to clear SSH keys", e);
+            }
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        error: (e: unknown) => {
+          this.logService.error("Error in active account observable", e);
+          this.authorizedKeys = new Map();
+        },
+        // on completion the service is being torn down with the rest of the app and the main process will release agent state on exit.
+        complete: () => {
+          this.authorizedKeys = new Map();
+        },
+      });
 
     // Clear remembered sign-approvals whenever the vault is not unlocked
     this.authService.activeAccountStatus$
