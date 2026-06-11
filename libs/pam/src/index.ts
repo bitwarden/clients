@@ -48,7 +48,6 @@ export { AccessRuleRequest } from "./services/requests/access-rule.request";
 export { CipherLeaseBannerComponent } from "./components/cipher-lease-banner/cipher-lease-banner.component";
 
 export { GatedState } from "./helpers/gated-state";
-export { CollectionMembershipForLeasing, deriveGatedState } from "./helpers/derive-gated-state";
 export { AccessRequestForApproval, UserForApproval, canApprove } from "./helpers/can-approve";
 export {
   ConditionSummary,
