@@ -11,8 +11,12 @@ import {
 /**
  * Provides risk-over-time trend data for the {@link TrendWidgetComponent}.
  *
- * Call {@link initialize} once before use, then {@link setTimeframe} and {@link setDataView}
+ * Call {@link initialize} to set the active organization and default filters,
+ * then {@link setTimeframe} and {@link setDataView}
  * to update the active filter state.
+ *
+ * Calling {@link initialize} again (e.g. when the organization changes)
+ * cancels any in-flight fetch and reloads for the new organization.
  */
 export abstract class RiskOverTimeService {
   /** Emits the current trend data. Starts with an empty default until the first fetch completes. */

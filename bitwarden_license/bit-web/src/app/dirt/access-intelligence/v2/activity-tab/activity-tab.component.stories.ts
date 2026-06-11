@@ -3,10 +3,6 @@ import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import {
-  AccessIntelligenceDataService,
-  DrawerStateService,
-} from "@bitwarden/bit-common/dirt/access-intelligence";
-import {
   createApplication,
   createMemberRegistry,
   createReport,
@@ -14,16 +10,13 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { ToastService } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 import {
-  MockAccessIntelligenceDataService,
-  MockDialogService,
-  MockDrawerStateService,
-  MockSecurityTasksService,
-  MockToastService,
+  buildActivityTabProviders,
   createAccessIntelligenceI18nMock,
+  MockToastService,
+  populatedTrendData,
 } from "../testing";
 
 import { ActivityTabComponent } from "./activity-tab.component";
@@ -84,17 +77,7 @@ export const Default: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(report) },
     };
   },
 };
@@ -103,19 +86,9 @@ export const Default: Story = {
  * Loading state - Shows loading spinner while data is being fetched
  */
 export const Loading: Story = {
-  render: (args) => ({
+  render: () => ({
     props: { organizationId: orgId },
-    moduleMetadata: {
-      providers: [
-        {
-          provide: AccessIntelligenceDataService,
-          useValue: new MockAccessIntelligenceDataService(null, true),
-        },
-        { provide: DrawerStateService, useClass: MockDrawerStateService },
-        { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-        { provide: DialogService, useClass: MockDialogService },
-      ],
-    },
+    moduleMetadata: { providers: buildActivityTabProviders(null, { loading: true }) },
   }),
 };
 
@@ -133,17 +106,7 @@ export const EmptyState: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(emptyReport),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(emptyReport) },
     };
   },
 };
@@ -180,17 +143,7 @@ export const AllCaughtUp: Story = {
 
     return {
       props: { organizationId: orgId },
-      moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-        ],
-      },
+      moduleMetadata: { providers: buildActivityTabProviders(report) },
     };
   },
 };
@@ -231,16 +184,46 @@ export const NeedsReview: Story = {
 
     return {
       props: { organizationId: orgId },
+      moduleMetadata: { providers: buildActivityTabProviders(report) },
+    };
+  },
+};
+
+/**
+ * Trend Chart Enabled - Feature flag on, trend widget visible with populated data
+ */
+export const TrendChartEnabled: Story = {
+  // The trend chart derives its x-axis from the current date, so the rendered
+  // chart is non-deterministic. Snapshotting will be re-enabled in a follow-up that
+  // pins the chart's reference clock. Matches the trend-widget stories
+  // until the drifting date issue is resolved.
+  parameters: { chromatic: { disableSnapshot: true } },
+  render: () => {
+    const report = createRiskInsights({
+      organizationId: orgId,
+      reports: [
+        createReport("github.com", { u1: true, u2: false }, { c1: true }),
+        createReport("gitlab.com", { u3: true }, { c2: true }),
+      ],
+      applications: [
+        createApplication("github.com", true, new Date("2024-01-15")),
+        createApplication("gitlab.com", true, new Date("2024-01-20")),
+      ],
+      memberRegistry: createMemberRegistry([
+        { id: "u1", name: "Alice Smith", email: "alice@example.com" },
+        { id: "u2", name: "Bob Johnson", email: "bob@example.com" },
+        { id: "u3", name: "Charlie Davis", email: "charlie@example.com" },
+      ]),
+    });
+
+    report.recomputeSummary();
+
+    return {
+      props: { organizationId: orgId },
       moduleMetadata: {
-        providers: [
-          {
-            provide: AccessIntelligenceDataService,
-            useValue: new MockAccessIntelligenceDataService(report),
-          },
-          { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessSecurityTasksService, useClass: MockSecurityTasksService },
-          { provide: DialogService, useClass: MockDialogService },
-        ],
+        providers: buildActivityTabProviders(report, {
+          trend: { flagEnabled: true, data: populatedTrendData },
+        }),
       },
     };
   },
