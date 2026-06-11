@@ -18,9 +18,6 @@ pub struct AutostartConfig {
 }
 
 /// Enable or disable autostart on Linux.
-///
-/// Detection mirrors the renderer's `utils.ts`: a `container` env var means Flatpak (use the XDG
-/// background portal), a `SNAP_USER_DATA` env var means Snap, otherwise it's a plain Linux install.
 pub async fn set_autostart(enabled: bool, config: AutostartConfig) -> Result<()> {
     if std::env::var_os("container").is_some() {
         let params = if enabled {
