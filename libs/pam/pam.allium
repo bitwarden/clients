@@ -9,9 +9,9 @@
 --   - Access requests (member-submitted requests to open a gated cipher)
 --   - Approval as a single-use grant: an approved request is activated by the
 --     requester, at a time of their choosing, to start the lease
---   - Leases (time-bounded access grants, minted on activation)
+--   - AccessLeases (time-bounded access grants, minted on activation)
 --   - Approver inbox / decisioning
---   - Lease lifecycle (active, expired, revoked) and extension
+--   - AccessLease lifecycle (active, expired, revoked) and extension
 --   - Org-wide kill switch
 --   - Governance dashboard (read model)
 --
@@ -117,12 +117,12 @@ value ApproverScope {
 --     evaluated together at request-evaluation time to decide approve / deny /
 --     route-to-human. See the rule-evaluation rules.
 --
---   - Lease constraints (`single_active_lease`, `max_lease_duration`) do NOT gate
+--   - AccessLease constraints (`single_active_lease`, `max_lease_duration`) do NOT gate
 --     the decision — they shape the LEASE once approved, evaluated at lease start
 --     against state beyond the request (the active-lease set for the cipher, the clock).
 --     Many members can be approved and hold approved requests at once; these only
 --     limit how a lease may be formed when one is activated. This is why single_active_lease
---     is a field checked in StartLease, not a
+--     is a field checked in ActivateLease, not a
 --     Condition variant: it answers "can a lease exist now for this cipher?", not "approve this
 --     request?".
 entity AccessRule {
@@ -133,12 +133,12 @@ entity AccessRule {
     conditions: List<Condition>
     collections: Set<Collection>
     default_lease_duration: Duration?
-    -- Lease constraint: hard ceiling on the total duration of any single lease
+    -- AccessLease constraint: hard ceiling on the total duration of any single lease
     -- granted under this rule. When set, the lease window is clamped to at most
     -- this long at start, regardless of what the requester asked for. Null = no cap.
     max_lease_duration: Duration?
-    -- Lease constraint: when true, the rule asks for a per-cipher singleton — only
-    -- one Lease active at a time for a given cipher, across all granted users.
+    -- AccessLease constraint: when true, the rule asks for a per-cipher singleton — only
+    -- one AccessLease active at a time for a given cipher, across all granted users.
     -- Honored by the same union/OR logic as cipher gating: the singleton binds for a
     -- member only when EVERY collection through which they reach the cipher is
     -- governed by a single_active_lease rule. Any ungated or non-single_active_lease
@@ -185,8 +185,8 @@ entity AccessRequest {
 
     -- Resolution
     -- An approved request is a *single-use grant*: the approver has granted
-    -- access, but no Lease exists yet. The requester activates the approved
-    -- request (StartLease), which mints the Lease
+    -- access, but no AccessLease exists yet. The requester activates the approved
+    -- request (ActivateLease), which mints the AccessLease
     -- and moves the request to `activated`. An approved request left unactivated
     -- past its activatable_until bound transitions to `expired`. Single use: one
     -- approved request yields at most one lease.
@@ -201,9 +201,9 @@ entity AccessRequest {
     resolver: User? when status != pending
     resolver_comment: String? when status != pending
     -- The lease minted when this approved request was activated (at most one —
-    -- single use). Resolved from the inverse Lease.request reference, so it stays
+    -- single use). Resolved from the inverse AccessLease.request reference, so it stays
     -- correct for the request's whole life, whatever the lease's later status.
-    lease: Lease with request = this
+    lease: AccessLease with request = this
 
     -- Deadline by which an on-demand approved request must be activated (the lease
     -- started). Null until the request is resolved. For an on-demand approved
@@ -221,7 +221,7 @@ entity AccessRequest {
                        else: activation_deadline
 
     -- If this request is an extension of an existing lease, the parent lease.
-    extension_of: Lease?
+    extension_of: AccessLease?
 
     transitions status {
         pending -> approved
@@ -235,12 +235,12 @@ entity AccessRequest {
     }
 }
 
-entity Lease {
+entity AccessLease {
     request: AccessRequest
     rule: AccessRule
     cipher: Cipher
     collection: Collection
-    grantee: User
+    requester: User
 
     not_before: Timestamp
     not_after: Timestamp
@@ -276,7 +276,7 @@ entity LeasingFreeze {
 -- ----------------------------------------------------------------------------
 
 config {
-    -- Lease duration used when an access rule does not specify one.
+    -- AccessLease duration used when an access rule does not specify one.
     fallback_lease_duration: Duration = 1.hour
 
     -- How long after submission a pending request remains valid before being
@@ -331,7 +331,7 @@ rule CipherOpenWithActiveLease {
         (AccessRule where enabled and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
-    let active_leases = Lease where grantee = member
+    let active_leases = AccessLease where requester = member
                                  and cipher = cipher
                                  and status = active
                                  and now < not_after
@@ -355,7 +355,7 @@ rule CipherOpenRequiresAccessRequest {
     -- (automatic favoured over needs-approval). See GoverningRule.
     let gating_rule = GoverningRule(member, cipher)
     requires: gating_rule != null
-    let active_leases = Lease where grantee = member
+    let active_leases = AccessLease where requester = member
                                  and cipher = cipher
                                  and status = active
                                  and now < not_after
@@ -381,7 +381,7 @@ rule CipherOpenWithApprovedRequest {
     -- duplicate request: the partial view opens and the banner offers Start
     -- access (or shows the upcoming window when a scheduled start has not
     -- arrived). Activation stays an explicit member action — see the
-    -- MemberStartsLease section.
+    -- MemberActivatesLease section.
     when: OpenCipher(member, cipher)
     let member_memberships = CollectionMembership where member = member
                                                     and collection in cipher.collections
@@ -389,7 +389,7 @@ rule CipherOpenWithApprovedRequest {
         (AccessRule where enabled and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
-    let active_leases = Lease where grantee = member
+    let active_leases = AccessLease where requester = member
                                  and cipher = cipher
                                  and status = active
                                  and now < not_after
@@ -416,7 +416,7 @@ rule CipherOpenWithApprovedRequest {
         -- clock while denying access. Under this spec it cannot occur — access is
         -- never withheld after a lease is minted; if access would be denied (e.g.
         -- an ip_allowlist mismatch) the ACTIVATION itself fails atomically and
-        -- consumes nothing, because StartLease re-
+        -- consumes nothing, because ActivateLease re-
         -- check RuleAutomatedConditionsPass at start. The branch disappears once
         -- the implementation moves to explicit, condition-re-checking activation.
 }
@@ -451,7 +451,7 @@ rule MemberSubmitsAccessRequest {
     requires: memberships.count > 0
     let gating_rule = GoverningRule(member, cipher)
     requires: gating_rule != null
-    let active_leases = Lease where grantee = member
+    let active_leases = AccessLease where requester = member
                                  and cipher = cipher
                                  and status = active
                                  and now < not_after
@@ -498,11 +498,11 @@ rule MemberRequestsLeaseExtension {
     -- (ExtensionApprovedExtendsParentLease) rather than minting a new lease.
     when: MemberRequestsExtension(member, lease, not_before?, not_after, reason?)
     requires: lease.status = active
-    requires: lease.grantee = member
+    requires: lease.requester = member
     requires: not_after > lease.not_after
     let new_request_window = not_after - (not_before ?? now)
     ensures: AccessRequest.created(
-        requester: lease.grantee,
+        requester: lease.requester,
         cipher: lease.cipher,
         collection: lease.collection,
         rule: lease.rule,
@@ -552,7 +552,7 @@ rule AutoApproveWhenNoHumanApproval {
     @guidance
         -- The submit (POST) returns this already-approved request, so the UI
         -- can offer "Start access now" immediately rather than showing a
-        -- pending state. See StartLease.
+        -- pending state. See ActivateLease.
 }
 
 rule AutoDenyWhenAutomatedConditionsFail {
@@ -583,7 +583,7 @@ rule RouteToHumanApprovers {
 
 rule ApproverApprovesRequest {
     -- The approver approves the request. No lease yet — the requester activates it
-    -- (StartLease) when they actually need access.
+    -- (ActivateLease) when they actually need access.
     when: ApproverDecides(approver, request, verdict, comment?)
     requires: request.status = pending
     requires: request.rule.has_human_approval
@@ -644,7 +644,7 @@ rule ExtensionDeniedParentGone {
     ensures: request.resolver_comment = "The lease being extended has ended"
 }
 
--- An approved request is activated via MemberStartsLease. Activation is ALWAYS an
+-- An approved request is activated via MemberActivatesLease. Activation is ALWAYS an
 -- explicit member action — a Start click on MyAccessRequestsPage or the
 -- CipherViewBanner — never a side effect of opening the item, and never automatic:
 -- minting the lease requires the requester to be online to drive the client (this
@@ -652,7 +652,7 @@ rule ExtensionDeniedParentGone {
 -- window, rather than springing to life on its own when the window opens).
 --
 -- Two shapes, distinguished by whether the request named a scheduled start
--- (requested_not_before). Both run through ONE start rule (StartLease) and ONE
+-- (requested_not_before). Both run through ONE start rule (ActivateLease) and ONE
 -- unactivated-expiry rule (ApprovedRequestExpiresUnactivated): the shape
 -- difference is confined to the start-eligibility LOWER bound and the lease-END
 -- formula. The shared upper bound for both start eligibility and unactivated
@@ -677,7 +677,7 @@ rule ExtensionDeniedParentGone {
 -- they apply in place via ExtensionApprovedExtendsParentLease.
 --
 -- A failed activation NEVER consumes the approval. The request transitions to
--- `activated` ONLY in the same transition that mints the lease (StartLease). Any
+-- `activated` ONLY in the same transition that mints the lease (ActivateLease). Any
 -- rejected start — automated-condition mismatch, single_active_lease contention,
 -- leasing freeze, or a lapsed window/deadline — leaves the request `approved` and
 -- activatable for a retry up to activatable_until (the window end for scheduled,
@@ -685,15 +685,15 @@ rule ExtensionDeniedParentGone {
 -- pinned by the AtMostOneLeasePerActivatedRequest and NoLeaseWithoutActivatedRequest
 -- invariants; this prose does not restate it.
 --
--- Every activation attempt is audited, success or failure: StartLease emits
+-- Every activation attempt is audited, success or failure: ActivateLease emits
 -- LeaseActivationAudited(.., outcome: succeeded) alongside minting the lease,
 -- and LeaseActivationRejected emits the same event with outcome: rejected for any
 -- start that cannot proceed. (Audit-log *persistence* is out of scope — server-
 -- side, per the Excludes block — but the EVENT emission is in scope, mirroring the
 -- push-notification "models the event, not the wire format" pattern.)
 
-rule StartLease {
-    when: MemberStartsLease(member, request)
+rule ActivateLease {
+    when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
     requires: request.requester = member
@@ -717,12 +717,12 @@ rule StartLease {
     let cap_end = now + request.rule.max_lease_duration
     let end = if cap_end != null and requested_end > cap_end: cap_end
               else: requested_end
-    ensures: Lease.created(
+    ensures: AccessLease.created(
         request: request,
         rule: request.rule,
         cipher: request.cipher,
         collection: request.collection,
-        grantee: request.requester,
+        requester: request.requester,
         not_before: now,
         not_after: end,
         status: active
@@ -738,11 +738,11 @@ rule LeaseActivationRejected {
     -- condition no longer passes (e.g. ip_allowlist), single_active_lease
     -- contention (RuleAllowsLease is false), an org leasing freeze, or the
     -- request's activation window/deadline has lapsed. The disjunction is the
-    -- exact negation of StartLease's guards, so this rule and the start rule are
+    -- exact negation of ActivateLease's guards, so this rule and the start rule are
     -- mutually exclusive. Nothing is consumed: the request stays `approved` and
     -- activatable for a retry within its window/deadline (see the
     -- activation-section prose).
-    when: MemberStartsLease(member, request)
+    when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
     requires: request.requester = member
@@ -758,7 +758,7 @@ rule LeaseActivationRejected {
 }
 
 -- ----------------------------------------------------------------------------
--- Lease lifecycle: expiry, revocation, org-wide kill switch
+-- AccessLease lifecycle: expiry, revocation, org-wide kill switch
 -- ----------------------------------------------------------------------------
 
 -- Expiry and revocation are the two reasons a lease leaves `active`, and a
@@ -771,7 +771,7 @@ rule LeaseActivationRejected {
 -- arrive is the expiry one and the lease deterministically settles to
 -- `expired`. The two paths are mutually exclusive by construction.
 rule LeaseExpires {
-    when: lease: Lease.not_after <= now
+    when: lease: AccessLease.not_after <= now
     requires: lease.status = active
     ensures: LeaseSettles(lease: lease, revoked_by: null, reason: null)
 }
@@ -841,7 +841,7 @@ rule OrgAdminTriggersKillSwitch {
     -- explicitly unblocks. Surfaces in the governance dashboard.
     when: OrgKillSwitchActivated(admin, organization, block_new_leases)
     ensures:
-        for lease in Lease where rule.organization = organization and status = active:
+        for lease in AccessLease where rule.organization = organization and status = active:
             lease.status = revoked
             lease.revoked_at = now
             lease.revoked_by = admin
@@ -926,12 +926,12 @@ rule OrgAdminDeletesAccessRule {
 deferred EligibleApprovers    -- see: libs/pam/src/helpers/can-approve.ts
 
 -- `EligibleRevokers(lease)`: who may revoke an active lease. This is the lease's
--- own grantee (early end), plus EligibleApprovers for the lease's request, plus
+-- own requester (early end), plus EligibleApprovers for the lease's request, plus
 -- the lease's org admins. Org admins may revoke any single lease directly (from
 -- the governance dashboard) — they are not limited to the org-wide kill switch.
 --
 -- NOT YET IMPLEMENTED in full: the server today only authorizes collection-Manage
--- holders (RevokeLeaseCommand checks CanManageCollectionAsync); grantee
+-- holders (RevokeLeaseCommand checks CanManageCollectionAsync); requester
 -- self-revoke is intended design awaiting implementation (server: extend the
 -- revoke guard to allow lease.RequesterId = caller; client: ActiveLeasesPage).
 deferred EligibleRevokers     -- see: apps/web/src/app/pam/approver-inbox (ActiveLeasesPage planned, not yet built)
@@ -939,7 +939,7 @@ deferred EligibleRevokers     -- see: apps/web/src/app/pam/approver-inbox (Activ
 -- `RuleAutomatedConditionsPass(request)`: every non-human condition on the
 -- rule evaluates to true for this request (today: ip_allowlist matches the
 -- request's source IP). Evaluated at request evaluation (to decide approve / deny /
--- route-to-human) AND re-checked at lease start (StartLease): a mismatch at start
+-- route-to-human) AND re-checked at lease start (ActivateLease): a mismatch at start
 -- rejects the activation without consuming the approval.
 deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 
@@ -1002,7 +1002,7 @@ deferred SingleActiveLeaseApplies    -- see: server-side lease start / rule eval
 -- any other lease is already active for this cipher (across all users), so a second
 -- cannot start. When it does not hold — the member has at least one ungated or
 -- non-single_active_lease path — the member is unconstrained and this is always
--- true. Checked at lease start (StartLease) against the
+-- true. Checked at lease start (ActivateLease) against the
 -- member's current paths to the request's cipher, not at approval, since that is when
 -- the lease comes into being.
 --
@@ -1047,14 +1047,14 @@ surface CipherViewBanner {
     exposes:
         cipher.collections
         -- Caller's lease/request state for this cipher, surfaced for the badge.
-        Lease where grantee = viewer and cipher = cipher and status = active
+        AccessLease where requester = viewer and cipher = cipher and status = active
         AccessRequest where requester = viewer and cipher = cipher and status = pending
         -- Approved-but-unactivated request: banner offers "Start access".
         AccessRequest where requester = viewer and cipher = cipher and status = approved
 
     provides:
         OpenCipher(viewer, cipher)
-        MemberStartsLease(viewer, request)
+        MemberActivatesLease(viewer, request)
             when request.requester = viewer and request.cipher = cipher
                                              and request.status = approved
 }
@@ -1121,7 +1121,7 @@ surface MyAccessRequestsPage {
         -- Activate an approved request: start the lease when ready. Offered only
         -- while the window can still produce access — once requested_not_after
         -- passes, the server rejects activation, so the action is withheld.
-        MemberStartsLease(requester, request)
+        MemberActivatesLease(requester, request)
             when request.status = approved and request.requester = requester
              and (request.requested_not_after = null
                   or now <= request.requested_not_after)
@@ -1132,7 +1132,7 @@ surface ActiveLeasesPage {
     -- holders to end their own access early).
     --
     -- PLANNED — no component exists yet. This surface is intended design: it is
-    -- the only surface providing grantee self-revoke and MemberRequestsExtension,
+    -- the only surface providing requester self-revoke and MemberRequestsExtension,
     -- neither of which is reachable in the UI until it is built. Today the
     -- caller's active-lease data feeds only the nav slot and cipher badges.
     facing viewer: Member
@@ -1140,7 +1140,7 @@ surface ActiveLeasesPage {
     context viewer: Member
 
     exposes:
-        for l in Lease where grantee = viewer and status = active:
+        for l in AccessLease where requester = viewer and status = active:
             l.cipher
             l.collection
             l.not_before
@@ -1148,9 +1148,9 @@ surface ActiveLeasesPage {
 
     provides:
         ApproverRevokesLeaseAction(viewer, lease, reason)
-            when lease.grantee = viewer and lease.status = active
+            when lease.requester = viewer and lease.status = active
         MemberRequestsExtension(viewer, lease, not_before, not_after, reason)
-            when lease.grantee = viewer and lease.status = active
+            when lease.requester = viewer and lease.status = active
 }
 
 surface ApproverInbox {
@@ -1250,7 +1250,7 @@ surface GovernanceDashboard {
         AccessRule where organization = organization
                      and collections.count > 0
         AccessRequest where rule.organization = organization and status = pending
-        Lease where rule.organization = organization and status = active
+        AccessLease where rule.organization = organization and status = active
 
         -- Per-collection rows.
         for collection in Collection where organization = organization:
@@ -1258,7 +1258,7 @@ surface GovernanceDashboard {
             AccessRule where collections.contains(collection)
             CollectionMembership where collection = collection
             AccessRequest where collection = collection and status = pending
-            Lease where collection = collection and status = active
+            AccessLease where collection = collection and status = active
 
     provides:
         -- Admins may revoke any single active lease directly, without the
@@ -1275,7 +1275,7 @@ surface KillSwitchControl {
     context organization: Organization
 
     exposes:
-        Lease where rule.organization = organization and status = active
+        AccessLease where rule.organization = organization and status = active
         -- Present while new leases are blocked org-wide.
         LeasingFreeze where organization = organization
 
@@ -1297,13 +1297,13 @@ invariant AtMostOneLeasePerActivatedRequest {
     -- excluded — they activate by extending the parent in place and never mint
     -- a lease of their own.
     for request in AccessRequest where status = activated and extension_of = null:
-        (Lease where request = request).count = 1
+        (AccessLease where request = request).count = 1
 }
 
 invariant NoLeaseWithoutActivatedRequest {
     -- A lease exists only because its approved request was activated; the request
     -- stays `activated` for the rest of its life, whatever the lease's later status.
-    for lease in Lease:
+    for lease in AccessLease:
         lease.request.status = activated
 }
 
@@ -1314,25 +1314,25 @@ invariant SelfApprovalForbidden {
 }
 
 invariant RevokedLeasesHaveResolverFields {
-    for lease in Lease where status = revoked:
+    for lease in AccessLease where status = revoked:
         lease.revoked_at != null
         lease.revoked_by != null
 }
 
 invariant SingleActiveLeaseRespected {
     -- Per-cipher singleton, honored by union. Two distinct leases for the same
-    -- cipher cannot both be active when the singleton binds for both grantees (every
-    -- path each grantee has to the cipher is single_active_lease-governed). A grantee
+    -- cipher cannot both be active when the singleton binds for both requesters (every
+    -- path each requester has to the cipher is single_active_lease-governed). A requester
     -- with an ungated or non-single_active_lease path is unconstrained, so such a
     -- lease may legitimately coexist — a deliberate bypass, like RuleBypassableCiphers.
-    for a in Lease:
-        for b in Lease:
+    for a in AccessLease:
+        for b in AccessLease:
             a != b
                 and a.cipher = b.cipher
                 and a.status = active
                 and b.status = active
-                and SingleActiveLeaseApplies(a.grantee, a.cipher)
-            implies not SingleActiveLeaseApplies(b.grantee, b.cipher)
+                and SingleActiveLeaseApplies(a.requester, a.cipher)
+            implies not SingleActiveLeaseApplies(b.requester, b.cipher)
 }
 
 invariant AtMostOneLeasingFreezePerOrg {
@@ -1346,7 +1346,7 @@ invariant AtMostOneLeasingFreezePerOrg {
 -- ----------------------------------------------------------------------------
 
 
-open question "When an AccessRule is deleted while an associated Lease is still active, what happens to in-flight extension requests? Today the Lease keeps a reference to the deleted rule — implementation does not enforce referential cleanup."
+open question "When an AccessRule is deleted while an associated AccessLease is still active, what happens to in-flight extension requests? Today the AccessLease keeps a reference to the deleted rule — implementation does not enforce referential cleanup."
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
 
