@@ -329,6 +329,58 @@ describe("PremiumUpgradeDialogComponent", () => {
         expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledTimes(1);
       });
     });
+
+    describe("self-host QA bypass flag", () => {
+      // Resolves the two flags upgrade() reads, independently.
+      const mockFlags = (checkout: boolean, bypass: boolean) => {
+        mockConfigService.getFeatureFlag.mockImplementation((flag: FeatureFlag) =>
+          Promise.resolve(
+            flag === FeatureFlag.PM34515_BrowserDesktopCheckout
+              ? checkout
+              : flag === FeatureFlag.DebugDisableSelfHostPremiumCheck
+                ? bypass
+                : false,
+          ),
+        );
+      };
+
+      beforeEach(() => {
+        // Self-hosted region: isCloud() is false.
+        mockEnvironmentService.environment$ = of({
+          getWebVaultUrl: () => "https://self-hosted.example.com",
+          getRegion: () => Region.SelfHosted,
+          isCloud: () => false,
+        }) as any;
+        mockBillingApiService.createPremiumCheckoutSession.mockResolvedValue({
+          checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123",
+        } as any);
+      });
+
+      it("takes the Stripe checkout branch on self-host when checkout + bypass flags are both on", async () => {
+        mockFlags(true, true);
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledWith({
+          platform: "browser",
+        });
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+      });
+
+      it("falls back to web vault on self-host when bypass flag is on but checkout flag is off", async () => {
+        mockFlags(false, true);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://self-hosted.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+      });
+    });
   });
 
   it("should close dialog when close button clicked", () => {
