@@ -2,10 +2,8 @@ import { of, throwError } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { ToastService } from "@bitwarden/components";
 import {
   AccessRequestDetailsResponse,
   LeasedCipherFetcher,
@@ -20,8 +18,6 @@ describe("PamCipherOpenGate", () => {
   let fetcher: jest.Mocked<Pick<LeasedCipherFetcher, "fetch">>;
   let trigger: jest.Mocked<Pick<RequestAccessTrigger, "requestAccess">>;
   let pamApiService: jest.Mocked<Pick<PamApiService, "getCipherAccessState$" | "activateLease">>;
-  let toastService: jest.Mocked<Pick<ToastService, "showToast">>;
-  let i18nService: jest.Mocked<Pick<I18nService, "t">>;
   let logService: jest.Mocked<Pick<LogService, "error">>;
   let gate: PamCipherOpenGate;
 
@@ -33,16 +29,12 @@ describe("PamCipherOpenGate", () => {
       getCipherAccessState$: jest.fn().mockReturnValue(of({})),
       activateLease: jest.fn(),
     };
-    toastService = { showToast: jest.fn() };
-    i18nService = { t: jest.fn().mockImplementation((key: string) => key) };
     logService = { error: jest.fn() };
     gate = new PamCipherOpenGate(
       configService as unknown as ConfigService,
       fetcher as unknown as LeasedCipherFetcher,
       trigger as unknown as RequestAccessTrigger,
       pamApiService as unknown as PamApiService,
-      toastService as unknown as ToastService,
-      i18nService as unknown as I18nService,
       logService as unknown as LogService,
     );
   });
@@ -87,61 +79,28 @@ describe("PamCipherOpenGate", () => {
     expect(fetcher.fetch).toHaveBeenCalledWith("cipher-1");
     expect(pamApiService.getCipherAccessState$).not.toHaveBeenCalled();
     expect(trigger.requestAccess).not.toHaveBeenCalled();
-    // No activation happened, so no "access started" toast.
-    expect(toastService.showToast).not.toHaveBeenCalled();
   });
 
-  it("activates a startable approved request on open, toasts the start, and returns openWith — no modal", async () => {
-    const fresh = { id: "cipher-1" } as Cipher;
-    fetcher.fetch.mockResolvedValueOnce(null).mockResolvedValueOnce(fresh);
-    pamApiService.getCipherAccessState$.mockReturnValue(of({ approvedRequest: approvedRequest() }));
-    pamApiService.activateLease.mockResolvedValue(null!);
-
-    const verdict = await gate.check(partial, "user-1");
-
-    expect(verdict).toEqual({ kind: "openWith", cipher: fresh });
-    expect(pamApiService.activateLease).toHaveBeenCalledWith("request-1");
-    expect(fetcher.fetch).toHaveBeenCalledTimes(2);
-    expect(trigger.requestAccess).not.toHaveBeenCalled();
-    // Opening minted the lease — that must be visible, not silent.
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "success" }),
-    );
-  });
-
-  it("returns 'handled' when activation succeeds but the rule's conditions deny the handover", async () => {
+  it("opens the partial view for an approved request — never mints the lease; the banner owns the explicit start", async () => {
     fetcher.fetch.mockResolvedValue(null);
     pamApiService.getCipherAccessState$.mockReturnValue(of({ approvedRequest: approvedRequest() }));
-    pamApiService.activateLease.mockResolvedValue(null!);
 
     const verdict = await gate.check(partial, "user-1");
 
-    expect(verdict).toBe("handled");
-    expect(fetcher.fetch).toHaveBeenCalledTimes(2);
-    expect(trigger.requestAccess).not.toHaveBeenCalled();
-  });
-
-  it("toasts and returns 'handled' when activation is rejected — never falls through to the modal", async () => {
-    fetcher.fetch.mockResolvedValue(null);
-    pamApiService.getCipherAccessState$.mockReturnValue(of({ approvedRequest: approvedRequest() }));
-    pamApiService.activateLease.mockRejectedValue(new Error("window ended"));
-
-    const verdict = await gate.check(partial, "user-1");
-
-    expect(verdict).toBe("handled");
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error" }),
-    );
+    // Activation is an explicit member action (the cipher-lease banner's "Start access" button),
+    // never a side-effect of opening the item.
+    expect(verdict).toBe("open");
+    expect(pamApiService.activateLease).not.toHaveBeenCalled();
     expect(fetcher.fetch).toHaveBeenCalledTimes(1);
     expect(trigger.requestAccess).not.toHaveBeenCalled();
   });
 
-  it("opens the partial view for an approved request whose window hasn't started — no activation", async () => {
+  it("opens — never activates — even when the approved request's scheduled window is already open", async () => {
     fetcher.fetch.mockResolvedValue(null);
     pamApiService.getCipherAccessState$.mockReturnValue(
       of({
         approvedRequest: approvedRequest({
-          requestedNotBefore: new Date(Date.now() + 3_600_000).toISOString(),
+          requestedNotBefore: new Date(Date.now() - 3_600_000).toISOString(),
         }),
       }),
     );

@@ -8,11 +8,12 @@ import {
   RequestAccessTrigger,
 } from "@bitwarden/pam";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { CIPHER_VIEW_BANNER } from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
 
 import { CIPHER_OPEN_GATE } from "../vault/individual-vault/cipher-open-gate";
 
 import { PamCipherOpenGate } from "./cipher-open-gate.service";
+import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
 // DEMO ONLY: mock layer for the PAM API surface.
 import { MockAccessEventService } from "./mock/mock-access-event.service";
 import { MockPamApiService } from "./mock/mock-pam-api.service";
@@ -51,6 +52,11 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherLeaseBannerComponent,
+    }),
+    safeProvider({
+      provide: GATED_CIPHER_RELOADER,
+      useExisting: PamGatedCipherReloader,
+      deps: [],
     }),
     safeProvider({
       provide: RequestAccessTrigger,
