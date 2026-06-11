@@ -9,6 +9,9 @@ mod impl_direct_write;
 #[path = "impl_portal.rs"]
 mod impl_portal;
 
+const FLATPAK_COMMAND: &str = "bitwarden.sh";
+const PARAMETER_PASSTHROUGH: &str = "%U";
+
 /// Values supplied by the Electron main process that the autostart implementations need.
 pub struct AutostartConfig {
     /// Absolute path to the app executable (`app.getPath("exe")`).
@@ -21,7 +24,11 @@ pub struct AutostartConfig {
 pub async fn set_autostart(enabled: bool, config: AutostartConfig) -> Result<()> {
     if std::env::var_os("container").is_some() {
         let params = if enabled {
-            vec![config.autostart_flag]
+            vec![
+                FLATPAK_COMMAND.to_string(),
+                config.autostart_flag,
+                PARAMETER_PASSTHROUGH.to_string(),
+            ]
         } else {
             vec![]
         };
