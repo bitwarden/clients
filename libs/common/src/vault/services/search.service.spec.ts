@@ -1,5 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -27,12 +28,18 @@ describe("SearchService", () => {
   const mockI18nService = {
     locale$: mockLocale$.asObservable(),
   };
+  const smartSearchEnabled$ = new BehaviorSubject<boolean>(false);
+  const mockConfigService = {
+    getFeatureFlag$: jest.fn().mockReturnValue(smartSearchEnabled$.asObservable()),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    smartSearchEnabled$.next(false);
     service = new SearchService(
       mockLogService as unknown as LogService,
       mockI18nService as unknown as I18nService,
+      mockConfigService as unknown as ConfigService,
     );
   });
 
@@ -77,6 +84,23 @@ describe("SearchService", () => {
       const result = await service.searchCiphers(userId, null, "", ciphers);
 
       expect(result).toEqual(ciphers);
+    });
+  });
+
+  describe("searchCiphersBasic", () => {
+    it("requires the query words in order when smart search is disabled", () => {
+      const ciphers = [createCipherView("cipher-1", "Personal Login")];
+
+      expect(service.searchCiphersBasic(ciphers, "personal login")).toHaveLength(1);
+      // Out-of-order words do not form a contiguous substring with legacy search.
+      expect(service.searchCiphersBasic(ciphers, "login personal")).toHaveLength(0);
+    });
+
+    it("matches words in any order when smart search is enabled", () => {
+      smartSearchEnabled$.next(true);
+      const ciphers = [createCipherView("cipher-1", "Personal Login")];
+
+      expect(service.searchCiphersBasic(ciphers, "login personal")).toHaveLength(1);
     });
   });
 });

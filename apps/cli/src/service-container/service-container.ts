@@ -667,7 +667,7 @@ export class ServiceContainer {
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
-    this.searchService = new SearchService(this.logService, this.i18nService);
+    this.searchService = new SearchService(this.logService, this.i18nService, this.configService);
 
     this.providerService = new ProviderService(this.stateProvider);
 

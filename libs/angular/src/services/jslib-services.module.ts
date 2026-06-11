@@ -1109,7 +1109,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SearchServiceAbstraction,
     useClass: SearchService,
-    deps: [LogService, I18nServiceAbstraction],
+    deps: [LogService, I18nServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: WebPushNotificationsApiService,

@@ -1,5 +1,7 @@
 import { BehaviorSubject, Observable } from "rxjs";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
@@ -9,6 +11,7 @@ import { SearchService as SearchServiceAbstraction } from "../abstractions/searc
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 import { LunrSearchService } from "./lunr-search.service";
+import { SmartSearchService } from "./smart-search.service";
 
 // Time to wait before performing a search after the user stops typing.
 export const SearchTextDebounceInterval = 100; // milliseconds
@@ -25,18 +28,28 @@ export class SearchService implements SearchServiceAbstraction {
   isSendSearching$: Observable<boolean> = this._isSendSearching$.asObservable();
 
   private lunrSearchService: LunrSearchService;
+  private smartSearchService: SmartSearchService;
+
+  // Toggles token-based smart search. Resolved from the feature flag and kept in sync so that
+  // the synchronous `searchCiphersBasic` can delegate without an async flag lookup per search.
+  private smartSearchEnabled = false;
 
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     this.lunrSearchService = new LunrSearchService(this.logService);
+    this.smartSearchService = new SmartSearchService();
     this.i18nService.locale$.subscribe((locale) => {
       if (this.immediateSearchLocales.indexOf(locale) !== -1) {
         this.searchableMinLength = 1;
       } else {
         this.searchableMinLength = this.defaultSearchableMinLength;
       }
+    });
+    this.configService.getFeatureFlag$(FeatureFlag.SmartSearch).subscribe((enabled) => {
+      this.smartSearchEnabled = enabled;
     });
   }
 
@@ -95,6 +108,11 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
+    // When smart search is enabled, delegate to the token-based matcher.
+    if (this.smartSearchEnabled) {
+      return this.smartSearchService.searchCiphersBasic(ciphers, query);
+    }
+
     query = normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {

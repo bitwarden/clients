@@ -875,7 +875,6 @@ export default class MainBackground {
       this.apiService,
       this.configService,
     );
-    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
@@ -903,6 +902,8 @@ export default class MainBackground {
       this.stateProvider,
       this.authService,
     );
+
+    this.searchService = new SearchService(this.logService, this.i18nService, this.configService);
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
       this.apiService,
