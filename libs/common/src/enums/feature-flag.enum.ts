@@ -43,6 +43,7 @@ export enum FeatureFlag {
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
+  DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
 
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
@@ -182,6 +183,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
+  [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
 
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
