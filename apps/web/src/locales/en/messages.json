@@ -3565,11 +3565,17 @@
   "year": {
     "message": "year"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "yr"
   },
   "month": {
     "message": "month"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "mo.",
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
