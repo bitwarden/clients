@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { RouterTestingModule } from "@angular/router/testing";
@@ -13,6 +14,8 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { AccessLeaseStatus, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
+
+import { HeaderModule } from "../../layouts/header/header.module";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import {
@@ -102,7 +105,12 @@ describe("ApproverInboxComponent", () => {
         { provide: ApproverInboxBadgeService, useValue: badgeService },
         { provide: ServerNotificationsService, useValue: notificationsService },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(ApproverInboxComponent, {
+        remove: { imports: [HeaderModule] },
+        add: { schemas: [NO_ERRORS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ApproverInboxComponent);
   });

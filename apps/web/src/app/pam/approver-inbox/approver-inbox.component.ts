@@ -38,6 +38,8 @@ import {
   formatRemaining,
 } from "@bitwarden/pam";
 
+import { HeaderModule } from "../../layouts/header/header.module";
+
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import { ApproverInboxRowComponent } from "./approver-inbox-row.component";
 import { ApproverInboxService } from "./approver-inbox.service";
@@ -162,6 +164,7 @@ export function historyRelTimeFor(
     CommonModule,
     DatePipe,
     JslibModule,
+    HeaderModule,
     ApproverInboxRowComponent,
     ButtonModule,
     IconModule,

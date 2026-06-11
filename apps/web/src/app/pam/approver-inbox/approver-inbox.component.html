@@ -1,9 +1,8 @@
-<div class="tw-flex tw-flex-col tw-gap-4">
-  <header class="tw-flex tw-flex-col tw-gap-1">
-    <h1 bitTypography="h1" class="tw-m-0">{{ "pamInboxTitle" | i18n }}</h1>
-    <p class="tw-m-0 tw-text-muted">{{ "pamInboxSubtitle" | i18n }}</p>
-  </header>
+<app-header [title]="'pamInboxTitle' | i18n"></app-header>
 
+<p class="tw-m-0 tw--mt-6 tw-mb-4 tw-text-muted">{{ "pamInboxSubtitle" | i18n }}</p>
+
+<div class="tw-flex tw-flex-col tw-gap-4">
   @if (loading() && requests().length === 0) {
     <div class="tw-text-muted" data-testid="approver-inbox-loading">
       {{ "loading" | i18n }}
