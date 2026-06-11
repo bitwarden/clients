@@ -35,11 +35,13 @@ import { AccessRequestCreateRequest } from "../../services/requests/access-reque
 /**
  * Server error catalog entries from the PAM lease-request endpoint. Used to
  * surface inline form errors and to detect the reconciliation cases (caller
- * already has access or a pending request) so the host banner can refresh.
+ * already has access, an approved request, or a pending request) so the host
+ * banner can refresh.
  */
 const SERVER_ERROR_MESSAGES = Object.freeze({
   ReasonRequired: "A reason is required for items that need human approval.",
   AlreadyActive: "You already have active access to this item.",
+  AlreadyApproved: "You already have an approved request for this item.",
   AlreadyPending: "You already have a pending request for this item.",
   AutomaticGotWindow: "This item is approved automatically; provide a duration, not a window.",
   HumanGotDuration:
@@ -62,8 +64,9 @@ const SERVER_ERROR_MESSAGES = Object.freeze({
  *
  * On a successful submit (or on the reconciliation 400s where reality already
  * matches intent) it emits {@link submitted}; the host collapses the fold-out
- * and the `getCipherAccessState$` stream re-emits to drive the next banner
- * state (active lease → reveal in place, pending request → "Cancel request").
+ * and the `getCipherAccessState$` stream re-emits to drive the next banner state
+ * (active lease → reveal in place, approved request → "Start access", pending
+ * request → "Cancel request").
  */
 @Component({
   selector: "app-request-access-form",
@@ -74,7 +77,7 @@ const SERVER_ERROR_MESSAGES = Object.freeze({
 export class RequestAccessFormComponent implements OnInit {
   readonly cipherId = input.required<string>();
 
-  /** A lease or pending request now exists — the host should collapse and refresh. */
+  /** An approved or pending request now exists — the host should collapse and refresh. */
   readonly submitted = output<void>();
 
   private readonly pamApi = inject(PamApiService);
@@ -159,23 +162,23 @@ export class RequestAccessFormComponent implements OnInit {
       const body = mode === "automatic" ? this.buildAutomaticBody() : this.buildHumanBody();
       const response = await this.pamApi.submitAccessRequest(this.cipherId(), body);
 
-      if (response.approvalMode === "automatic" && response.lease) {
+      // Neither path mints a lease at submit: automatic returns an already-approved
+      // request the user activates via the banner's "Start access"; human returns a
+      // pending request awaiting an approver. Either way, emit so the host collapses
+      // and `getCipherAccessState$` re-emits to drive the next banner state.
+      if (response.request) {
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("requestAccessModalLeaseCreatedSuccess"),
+          message: this.i18nService.t(
+            response.approvalMode === "automatic"
+              ? "requestAccessModalApprovedSuccess"
+              : "requestAccessModalRequestCreatedSuccess",
+          ),
         });
         this.submitted.emit();
         return;
       }
-      if (response.approvalMode === "human" && response.request) {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("requestAccessModalRequestCreatedSuccess"),
-        });
-        this.submitted.emit();
-        return;
-      }
-      // Envelope's outcome / lease / request fields disagreed — treat as a generic error.
+      // Envelope carried no request — shouldn't happen on either path; treat as a generic error.
       this.serverError.set(this.i18nService.t("requestAccessModalGenericError"));
     } catch (e) {
       this.handleRequestLeaseError(e);
@@ -222,14 +225,12 @@ export class RequestAccessFormComponent implements OnInit {
       // the fold-out and let the host refresh banner state.
       if (
         msg === SERVER_ERROR_MESSAGES.AlreadyActive ||
+        msg === SERVER_ERROR_MESSAGES.AlreadyApproved ||
         msg === SERVER_ERROR_MESSAGES.AlreadyPending
       ) {
         this.toastService.showToast({
           variant: "info",
-          message:
-            msg === SERVER_ERROR_MESSAGES.AlreadyActive
-              ? this.i18nService.t("requestAccessModalAlreadyActive")
-              : this.i18nService.t("requestAccessModalAlreadyPending"),
+          message: this.i18nService.t(this.reconciliationToastKey(msg)),
         });
         this.submitted.emit();
         return;
@@ -266,6 +267,17 @@ export class RequestAccessFormComponent implements OnInit {
         return serverMessage;
       default:
         return null;
+    }
+  }
+
+  private reconciliationToastKey(serverMessage: string): string {
+    switch (serverMessage) {
+      case SERVER_ERROR_MESSAGES.AlreadyActive:
+        return "requestAccessModalAlreadyActive";
+      case SERVER_ERROR_MESSAGES.AlreadyApproved:
+        return "requestAccessModalAlreadyApproved";
+      default:
+        return "requestAccessModalAlreadyPending";
     }
   }
 }
