@@ -640,6 +640,16 @@ export default tseslint.config(
     },
   },
 
+  // Within a package, import sibling code via relative paths rather than the package's own
+  // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
+  // TODO: change to "error" once existing self-alias imports are converted (run `eslint --fix`).
+  {
+    files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
+    rules: {
+      "@bitwarden/platform/no-self-package-import": "warn",
+    },
+  },
+
   /// Team overrides
   {
     files: [
