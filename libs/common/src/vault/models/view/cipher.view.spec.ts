@@ -380,6 +380,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.favorite = true;
       cipherView.reprompt = CipherRepromptType.Password;
+      cipherView.archivedDate = new Date("2022-01-01T12:00:00.000Z");
 
       const field = new RealFieldView();
       field.name = "testField";
@@ -411,7 +412,7 @@ describe("CipherView", () => {
         username: "testuser",
         password: "testpass",
       });
-      expect(result.archivedDate).toBeUndefined();
+      expect(result.archivedDate).toBe("2022-01-01T12:00:00.000Z");
     });
 
     it("handles undefined organizationId and folderId", () => {
