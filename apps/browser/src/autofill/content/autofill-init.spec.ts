@@ -326,14 +326,14 @@ describe("AutofillInit", () => {
       });
 
       describe("clearTargetingRulesCache", () => {
-        let sendExtensionMessageSpy: jest.SpyInstance;
+        let collectPageDetailsSpy: jest.SpyInstance;
 
         beforeEach(() => {
           jest
             .spyOn(autofillInit["collectAutofillContentService"], "clearCachedTargetingRules")
             .mockImplementation();
-          sendExtensionMessageSpy = jest
-            .spyOn(autofillInit as any, "sendExtensionMessage")
+          collectPageDetailsSpy = jest
+            .spyOn(autofillInit as any, "collectPageDetails")
             .mockResolvedValue(undefined);
         });
 
@@ -345,10 +345,11 @@ describe("AutofillInit", () => {
           ).toHaveBeenCalled();
         });
 
-        it("triggers a fresh page-details collection so the background cache is repopulated", () => {
+        it("re-collects page details so the background cache is repopulated", () => {
           sendMockExtensionMessage({ command: "clearTargetingRulesCache" });
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("bgCollectPageDetails", {
+          expect(collectPageDetailsSpy).toHaveBeenCalledWith({
+            command: "collectPageDetails",
             sender: "autofillInit",
           });
         });

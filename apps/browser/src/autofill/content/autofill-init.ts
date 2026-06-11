@@ -182,15 +182,12 @@ class AutofillInit implements AutofillInitInterface {
   }
 
   /**
-   * Drops `pageDetails` built via Targeting Rules and init data collection
-   * with updated strategy.
-   *
-   * `sender: "autofillInit"` updates the cached page details without triggering
-   * an autofill (unlike `"autofiller"` or autofill-command senders).
+   * Drops cached targeting rules in this frame and re-collects page details so
+   * the background's `pageDetailsForTab` is repopulated with the new strategy.
    */
   private handleClearTargetingRulesCache(): void {
     this.collectAutofillContentService.clearCachedTargetingRules();
-    void this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" });
+    void this.collectPageDetails({ command: "collectPageDetails", sender: "autofillInit" });
   }
 
   /**
