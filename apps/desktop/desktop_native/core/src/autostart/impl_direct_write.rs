@@ -40,7 +40,7 @@ fn set_autostart_in_dir(
     let result = write_desktop_file(autostart_dir, &target, &contents);
     match result {
         Ok(()) => info!(path = ?target, "[autostart] Enabled autostart"),
-        Err(e) => error!(path = ?target, error = ?e, "[autostart] Failed to enable autostart"),
+        Err(ref e) => error!(path = ?target, error = ?e, "[autostart] Failed to enable autostart"),
     }
     result
 }
@@ -67,10 +67,11 @@ pub fn set_autostart_snap(
     let result = write_desktop_file(&autostart_dir, &target, &contents);
     match result {
         Ok(()) => info!(path = ?target, "[autostart] Enabled autostart for Snap"),
-        Err(e) => {
+        Err(ref e) => {
             error!(path = ?target, error = ?e, "[autostart] Failed to enable autostart for Snap")
         }
     }
+    result
 }
 
 fn desktop_file_contents(exec: &str) -> String {
