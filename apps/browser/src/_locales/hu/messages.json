@@ -214,8 +214,13 @@
     "message": "Kitöltés",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatikus kitöltés"
+  "autofillNoun": {
+    "message": "Automatikus kitöltés",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatikus kitöltés",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automatikus kitöltés bejelentkezés"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Mentés"
+  },
+  "saveAndFill": {
+    "message": "Mentés és kitöltés"
   },
   "move": {
     "message": "Áthelyezés"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "Ikonok szerver webcím"
+  },
+  "sendUrl": {
+    "message": "Send szerver webcím"
   },
   "environmentSaved": {
     "message": "A környezeti webcímek mentésre kerültek."
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "sharedUnlock": {
+    "message": "Megosztott feloldás"
+  },
+  "sharedUnlockDescription": {
+    "message": "Tartsuk szinkronban a Bitwarden alkalmazásainkat. Engedélyezve a feloldási állapot a gépen az összes alkalmazás megosztja. Az asztali alkalmazás szükséges a különböző böngészők közötti szinkronizáláshoz."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Tartsuk szinkronban a Bitwarden alkalmazásainkat. Engedélyezve a feloldási állapot megosztásra kerül a Bitwarden webes széfeivel a Safariban."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Tartsuk szinkronban a Bitwarden alkalmazásainkat. Engedélyezve a feloldási állapot megosztásra kerül a Bitwarden asztali alkalmazással."
   },
   "enterMonth": {
     "message": "A hónap megadása."
