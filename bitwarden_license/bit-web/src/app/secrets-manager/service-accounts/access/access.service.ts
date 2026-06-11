@@ -8,8 +8,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  DECRYPT_ERROR,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -36,6 +40,7 @@ export class AccessService {
     private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   async getAccessTokens(
@@ -143,7 +148,13 @@ export class AccessService {
       accessTokenResponses.map(async (s) => {
         const view = new AccessTokenView();
         view.id = s.id;
-        view.name = await this.encryptService.decryptString(new EncString(s.name), orgKey);
+        try {
+          const encString = new EncString(s.name);
+          view.name = await this.encryptService.decryptString(encString, orgKey);
+        } catch (error) {
+          this.logService.error("Error decrypting access token name", error);
+          view.name = DECRYPT_ERROR;
+        }
         view.scopes = s.scopes;
         view.expireAt = s.expireAt ? new Date(s.expireAt) : null;
         view.creationDate = new Date(s.creationDate);

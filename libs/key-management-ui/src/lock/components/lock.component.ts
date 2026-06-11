@@ -25,7 +25,6 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -152,7 +151,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   constructor(
     private accountService: AccountService,
-    private pinService: PinServiceAbstraction,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -559,7 +557,6 @@ export class LockComponent implements OnInit, OnDestroy {
     this.logService.mark("Vault unlocked");
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
-    await this.pinService.userUnlocked(this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device

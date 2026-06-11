@@ -90,6 +90,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   kdfIterations: number;
   kdfMemory: number | undefined;
   kdfParallelism: number | undefined;
+  masterPasswordSalt: string | undefined;
   resetPasswordKey: string;
   encryptedPrivateKey: string;
 
@@ -100,6 +101,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
     this.kdfIterations = this.getResponseProperty("KdfIterations");
     this.kdfMemory = this.getResponseProperty("KdfMemory");
     this.kdfParallelism = this.getResponseProperty("KdfParallelism");
+    this.masterPasswordSalt = this.getResponseProperty("MasterPasswordSalt");
     this.resetPasswordKey = this.getResponseProperty("ResetPasswordKey");
     this.encryptedPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
   }

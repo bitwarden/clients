@@ -186,7 +186,7 @@ describe("DefaultSdkService", () => {
           jest.useRealTimers();
         });
 
-        it("destroys the internal SDK client when the userKey is unset (i.e. lock or logout)", async () => {
+        it("emits a new locked client and frees the previous unlocked client when the userKey is unset", async () => {
           const userKey$ = new BehaviorSubject(
             new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
           );
@@ -196,6 +196,23 @@ describe("DefaultSdkService", () => {
           await userClientTracker.pauseUntilReceived(1);
 
           userKey$.next(undefined);
+          await userClientTracker.pauseUntilReceived(2);
+
+          expect(mockClient.free).toHaveBeenCalledTimes(1);
+          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
+          expect(userClientTracker.emissions[1]).toBeDefined();
+        });
+
+        it("completes the subscription and frees the internal SDK client when the environment is unset (logout)", async () => {
+          const env$ = new BehaviorSubject<Environment | undefined>(mock<Environment>());
+          environmentService.getEnvironment$
+            .calledWith(userId)
+            .mockReturnValue(env$ as BehaviorSubject<Environment>);
+
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
+
+          env$.next(undefined);
           await userClientTracker.expectCompletion();
 
           expect(mockClient.free).toHaveBeenCalledTimes(1);

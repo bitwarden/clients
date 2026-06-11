@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Ikonu servera URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Vides URL ir saglabāti."
   },
@@ -4747,7 +4750,7 @@
     "message": "Nederīgi īsinājumtaustiņi"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ceļvedis",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5134,6 +5140,9 @@
   "bankAccount": {
     "message": "Bank account"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "bankName": {
     "message": "Bank name"
   },
@@ -5187,13 +5196,13 @@
     "message": "Copy IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Ievietot kontā esošo vārdu starpliktuvē"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Ievietot starpliktuvē zara numuru"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Ievietot starpliktuvē SWIFT kodu"
   },
   "copyFirstName": {
     "message": "Copy first name"

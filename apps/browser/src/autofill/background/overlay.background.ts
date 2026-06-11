@@ -2855,6 +2855,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         await this.openAddEditVaultItemPopout(sender.tab, {
           cipherId: cipherView.id,
           cipherType: addNewCipherType ?? CipherType.Login,
+          fillAfterSave: true,
         });
       }
     } catch (error) {
