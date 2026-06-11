@@ -214,8 +214,13 @@
     "message": "ป้อน",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "ป้อนอัตโนมัติ"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "ป้อนข้อมูลเข้าสู่ระบบอัตโนมัติ"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "บันทึก"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "ย้าย"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "URL เซิร์ฟเวอร์ไอคอน"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "บันทึก URL สภาพแวดล้อมแล้ว"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
   },
   "enterMonth": {
     "message": "Enter month."

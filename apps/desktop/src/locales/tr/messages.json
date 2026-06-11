@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Simge sunucusu URL'si"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Ortam URL'leri kaydedildi"
   },
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Oturum zaman aşımını masaüstü uygulaması yönetiyor"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ kurulu değil. Lütfen parola içe aktar önce $BROWSER$ tarayıcısını kurun.",
     "placeholders": {
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Banka hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Banka hesap bilgileri"
   },
   "bankName": {
     "message": "Banka adı"

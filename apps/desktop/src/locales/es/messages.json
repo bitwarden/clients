@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL del servidor de iconos"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Las URLs del entorno han sido guardadas."
   },
@@ -4747,7 +4750,7 @@
     "message": "Atajo inválido"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Rutas de navegación",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4947,6 +4950,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Establezca un método de desbloquear para cambiar la acción de tiempo de espera"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ no está instalado. Por favor, instale $BROWSER$ antes de importar contraseñas desde ella.",
     "placeholders": {
@@ -5134,6 +5140,9 @@
   "bankAccount": {
     "message": "Cuenta bancaria"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "bankName": {
     "message": "Nombre del banco"
   },
@@ -5187,13 +5196,13 @@
     "message": "Copiar IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Copiar nombre en la cuenta"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Copiar número de sucursal"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Copiar código SWIFT"
   },
   "copyFirstName": {
     "message": "Copiar primer nombre"
