@@ -7,7 +7,6 @@ import {
   effect,
   input,
   signal,
-  untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { lastValueFrom } from "rxjs";
@@ -92,17 +91,13 @@ export class ActivityTabComponent {
     initialValue: null,
   });
 
-  // Guards against repeat initialization when either dependency signal re-emits.
-  // Read with `untracked` so the effect doesn't subscribe to its own write.
-  private readonly trendChartInitialized = signal(false);
-
   constructor() {
-    // Initialize the trend chart once the feature flag and organization id are available.
+    // Initialize the trend chart when the feature flag and organization id are available
+    // and re-initialize if the organization id changes (e.g., user switches orgs)
     effect(() => {
       const flag = this.trendChartEnabled();
       const orgId = this.organizationId();
-      if (flag && orgId && !untracked(() => this.trendChartInitialized())) {
-        this.trendChartInitialized.set(true);
+      if (flag && orgId) {
         this.riskOverTimeService.initialize(
           orgId,
           DEFAULT_TIME_PERIOD,
