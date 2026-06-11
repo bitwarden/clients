@@ -19,7 +19,7 @@
             }"
             [attr.data-testid]="field.value.name + '-entry'"
             cdkDrag
-            [cdkDragDisabled]="!canEdit(field.value.type) || fields.controls.length <= 1"
+            [cdkDragDisabled]="dragDisabled(field.value.type)"
             #customFieldRow
           >
             <!-- Text Field -->
