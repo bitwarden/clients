@@ -1,0 +1,38 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "importPartialErrorTitle" | i18n: data.errors.length }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ "importPartialErrorDescription" | i18n }}</p>
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "type" | i18n }}</th>
+          <th bitCell>{{ "items" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let r of rows$ | async">
+          <td bitCell>{{ r.type }}</td>
+          <td bitCell>{{ r.count }}</td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      *ngIf="data.canImport"
+      bitButton
+      buttonType="primary"
+      type="button"
+      (click)="continueImport()"
+    >
+      {{ "continue" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
