@@ -65,6 +65,38 @@ export class ChurnMitigationOfferDialogComponent {
     return this.params.offer.name;
   }
 
+  protected get durationDescription(): string {
+    const count = this.durationCount;
+    return count === 1 ? this.durationUnit : `${count} ${this.durationUnit}`;
+  }
+
+  protected get durationLength(): string {
+    return this.durationCount.toString();
+  }
+
+  protected get durationUnit(): string {
+    return this.i18nService.t(this.durationUnitKey);
+  }
+
+  /** Number of whole years or months the discount covers (years when divisible by 12). */
+  private get durationCount(): number {
+    const months = this.params.offer.durationInMonths;
+    if (months == null) {
+      return 1;
+    }
+    return months % 12 === 0 ? months / 12 : months;
+  }
+
+  /** i18n key for the duration unit, pluralized to match {@link durationCount}. */
+  private get durationUnitKey(): "year" | "years" | "month" | "months" {
+    const months = this.params.offer.durationInMonths;
+    const isYears = months == null || months % 12 === 0;
+    if (isYears) {
+      return this.durationCount === 1 ? "year" : "years";
+    }
+    return this.durationCount === 1 ? "month" : "months";
+  }
+
   readonly acceptOffer = async () => {
     this.loading.set(true);
     try {

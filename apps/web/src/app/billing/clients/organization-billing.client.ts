@@ -5,7 +5,7 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/organizations/warnings/types";
 
-type ChurnMitigationOfferDuration = "once" | "repeating" | "forever";
+type ChurnMitigationOfferDuration = "once" | "repeating";
 
 export class ChurnMitigationOfferResponseModel extends BaseResponse {
   couponId: string;
@@ -21,26 +21,6 @@ export class ChurnMitigationOfferResponseModel extends BaseResponse {
     this.duration = this.getResponseProperty("Duration");
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.name = this.getResponseProperty("Name");
-  }
-
-  get durationDescription(): string {
-    if (this.duration === "forever") {
-      return "forever";
-    }
-
-    if (this.durationInMonths === 12) {
-      return "year";
-    }
-
-    if (this.durationInMonths === 1) {
-      return "month";
-    }
-
-    if (this.durationInMonths != null) {
-      return `${this.durationInMonths} months`;
-    }
-
-    return "billing cycle";
   }
 }
 
