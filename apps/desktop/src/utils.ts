@@ -70,6 +70,30 @@ export function isWindowsPortable() {
 }
 
 /**
+ * Overrides the access token location
+ */
+export const EnvAccessTokenLocation = Object.freeze({
+  Disk: "DISK",
+  Default: "DEFAULT",
+} as const);
+export type EnvAccessTokenLocation =
+  (typeof EnvAccessTokenLocation)[keyof typeof EnvAccessTokenLocation];
+
+/**
+ * Reads the `ACCESS_TOKEN_LOCATION` env var. `DISK` forces the access token to be stored
+ * unencrypted on disk (bypassing the OS keyring); anything else (including unset) keeps the
+ * default keyring-backed secure storage.
+ *
+ * This is useful on systems where the keyring is unreliable (KDE/Kwallet) where the user
+ * otherwise experiences periodic logouts.
+ */
+export function accessTokenLocation(): EnvAccessTokenLocation {
+  return process.env.ACCESS_TOKEN_LOCATION?.toUpperCase() === EnvAccessTokenLocation.Disk
+    ? EnvAccessTokenLocation.Disk
+    : EnvAccessTokenLocation.Default;
+}
+
+/**
  * We block the browser integration on some unsupported platforms prevents
  * experimenting with the feature for QA. So this env var allows overriding
  * the block.
