@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "رابط خادم الأيقونات"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "تم حفظ عناوين URL للبيئة."
   },
@@ -4169,7 +4172,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "كشف تطابق URI هي الطريقة التي يحدد بها Bitwarden اقتراحات التعبئة التلقائية.",
+    "message": "كشف تطابق URI هي الطريقة التي يحدد بها Bitwarden اقتراحات الملء التلقائي.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -4509,7 +4512,7 @@
     "message": "قم بدمج المجلد بإضافة اسم المجلد الرئيسي متبوعاً بـ \"/\". مثال: إجتماعي/منتديات"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "إرسال المعلومات الحساسة بأمان",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
@@ -4540,7 +4543,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "وفّر وقتك مع التعبئة التلقائية"
+    "message": "وفّر وقتك مع الملء التلقائي"
   },
   "newLoginNudgeBodyOne": {
     "message": "أضف",
@@ -4793,7 +4796,7 @@
     "message": "لا توجد عناصر في الأرشيف"
   },
   "noItemsInArchiveDesc": {
-    "message": "ستظهر العناصر المؤرشفة هنا وستُستثنى من نتائج البحث العامة واقتراحات التعبئة التلقائية."
+    "message": "ستظهر العناصر المؤرشفة هنا وستُستثنى من نتائج البحث العامة واقتراحات الملء التلقائي."
   },
   "itemArchiveToast": {
     "message": "تمت أرشفة العنصر"
@@ -4805,7 +4808,7 @@
     "message": "أرشفة العنصر"
   },
   "archiveItemDialogContent": {
-    "message": "بعد الأرشفة، سيُستثنى هذا العنصر من نتائج البحث واقتراحات التعبئة التلقائية."
+    "message": "بعد الأرشفة، سيُستثنى هذا العنصر من نتائج البحث واقتراحات الملء التلقائي."
   },
   "unArchiveAndSave": {
     "message": "إلغاء الأرشفة والحفظ"
@@ -4946,6 +4949,9 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "حدد طريقة فتح القفل لتغيير إجراء انتهاء مهلة الجلسة."
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ غير مثبت. يرجى تثبيت $BROWSER$ قبل استيراد كلمات المرور منه.",
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "الحساب البنكي"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "اسم البَنك"

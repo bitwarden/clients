@@ -49,7 +49,7 @@ export class BitInputDirective implements AfterViewInit {
       "[&:is(input,select)]:tw-h-full",
       "[&:is(textarea)]:tw-h-auto",
       "[&:is(textarea)]:tw-min-h-[80px]",
-      ...(isReadonlyTextarea ? [] : ["tw-max-h-[50vh]", "tw-overflow-scroll"]),
+      ...(isReadonlyTextarea ? [] : ["tw-max-h-[50vh]", "tw-overflow-y-auto"]),
       "[&:is(textarea)]:tw-resize-none",
       "tw-px-1",
       "tw-placeholder-fg-body-subtle",
