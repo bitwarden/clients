@@ -26,7 +26,12 @@ export class LeasedCipherFetcher {
   async fetch(cipherId: string): Promise<Cipher | null> {
     try {
       const response = await this.pamApiService.getLeasedCipher(cipherId);
-      return new Cipher(new CipherData(response));
+      const cipher = new Cipher(new CipherData(response));
+      // Transient client marker: this cipher is served under an active lease, so it
+      // arrives with full data and no `partialData`. The cipher-lease banner gates
+      // its lease-state fetch on this once `partialData` is gone. See Cipher.leaseGated.
+      cipher.leaseGated = true;
+      return cipher;
     } catch (e) {
       if (e instanceof ErrorResponse && e.statusCode === 404) {
         return null;

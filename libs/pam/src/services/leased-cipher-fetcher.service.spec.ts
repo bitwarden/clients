@@ -26,6 +26,18 @@ describe("LeasedCipherFetcher", () => {
     expect(result!.id).toBe("cipher-1");
   });
 
+  it("stamps the transient leaseGated marker so the banner keeps fetching state after the reveal", async () => {
+    pamApi.getLeasedCipher.mockResolvedValue(
+      new CipherResponse({ Id: "cipher-1", Name: "n", Type: 1 }),
+    );
+
+    const result = await fetcher.fetch("cipher-1");
+
+    expect(result!.leaseGated).toBe(true);
+    // The full leased cipher carries no partialData; leaseGated is the only signal.
+    expect(result!.partialData).toBeUndefined();
+  });
+
   it("returns null on a 404 — caller falls through to the request-access flow", async () => {
     pamApi.getLeasedCipher.mockRejectedValue(new ErrorResponse(null, 404));
 

@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
@@ -93,8 +93,9 @@ describe("ApproverInboxComponent", () => {
     encryptService.decryptString.mockResolvedValue("decrypted");
 
     await TestBed.configureTestingModule({
-      imports: [ApproverInboxComponent, RouterTestingModule],
+      imports: [ApproverInboxComponent],
       providers: [
+        provideRouter([]),
         { provide: PamApiService, useValue: pamApiService },
         { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: keyService },

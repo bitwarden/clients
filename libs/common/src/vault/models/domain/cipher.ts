@@ -71,6 +71,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   key?: EncString;
   /** Raw JSON-string partial-data payload for PAM-gated rows; see CipherResponse. */
   partialData?: string;
+  /**
+   * Client-only, transient marker stamped by the PAM leased-cipher fetcher on a
+   * full cipher served under an active lease. Unlike `partialData` it is never
+   * sent by the server, persisted to `CipherData`, or round-tripped through JSON —
+   * it exists only so gating surfaces (the cipher-lease banner) can tell a leased
+   * cipher is PAM-governed once it's fully decrypted and `partialData` is gone.
+   * See LeasedCipherFetcher.
+   */
+  leaseGated?: boolean;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();

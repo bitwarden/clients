@@ -44,6 +44,8 @@ import {
   AccessCondition,
   AccessRuleRequest,
   AccessRuleResponse,
+  formatDurationShort,
+  formatRelativeTime,
   PamApiService,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -116,7 +118,7 @@ type StatusFilter = "enabled" | "disabled";
 
 type ConditionBadge = {
   icon: BitwardenIcon;
-  label: string;
+  labelKey: string;
 };
 
 /**
@@ -505,7 +507,9 @@ export class AccessRulesComponent {
           .sort((a, b) => a.localeCompare(b)),
         conditionBadges: this.conditionBadges(rule.conditions),
         accessWindow: this.accessWindow(rule),
-        lastModified: Number.isNaN(revisionDate) ? "" : this.relativeTime(revisionDate, now),
+        lastModified: Number.isNaN(revisionDate)
+          ? ""
+          : formatRelativeTime(revisionDate, now, this.relativeTimeFormat),
       };
     });
   }
@@ -515,17 +519,11 @@ export class AccessRulesComponent {
     const requiresApproval = conditions.some((c) => c.kind === "human_approval");
     badges.push(
       requiresApproval
-        ? {
-            icon: "bwi-users",
-            label: this.i18nService.t("pamAccessRuleConditionRequiresApproval"),
-          }
-        : { icon: "bwi-check", label: this.i18nService.t("pamAccessRuleConditionAutoApproved") },
+        ? { icon: "bwi-users", labelKey: "pamAccessRuleConditionRequiresApproval" }
+        : { icon: "bwi-check", labelKey: "pamAccessRuleConditionAutoApproved" },
     );
     if (conditions.some((c) => c.kind === "ip_allowlist")) {
-      badges.push({
-        icon: "bwi-globe",
-        label: this.i18nService.t("pamAccessRuleConditionIpRestricted"),
-      });
+      badges.push({ icon: "bwi-globe", labelKey: "pamAccessRuleConditionIpRestricted" });
     }
     return badges;
   }
@@ -540,26 +538,6 @@ export class AccessRulesComponent {
       return `${formatDurationShort(def)}–${formatDurationShort(max)}`;
     }
     return formatDurationShort(def);
-  }
-
-  private relativeTime(epochMs: number, now: number): string {
-    let duration = (epochMs - now) / 1000;
-    const divisions: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
-      { amount: 60, unit: "second" },
-      { amount: 60, unit: "minute" },
-      { amount: 24, unit: "hour" },
-      { amount: 7, unit: "day" },
-      { amount: 4.34524, unit: "week" },
-      { amount: 12, unit: "month" },
-      { amount: Number.POSITIVE_INFINITY, unit: "year" },
-    ];
-    for (const division of divisions) {
-      if (Math.abs(duration) < division.amount) {
-        return this.relativeTimeFormat.format(Math.round(duration), division.unit);
-      }
-      duration /= division.amount;
-    }
-    return "";
   }
 
   private toRequest(rule: AccessRuleResponse, enabled: boolean): AccessRuleRequest {
@@ -673,18 +651,4 @@ export class AccessRulesComponent {
       this.loading.set(false);
     }
   }
-}
-
-/** Compact lease-duration label, e.g. `15m`, `1h`, `4h`, `1d`. */
-function formatDurationShort(seconds: number): string {
-  if (seconds % 86400 === 0) {
-    return `${seconds / 86400}d`;
-  }
-  if (seconds % 3600 === 0) {
-    return `${seconds / 3600}h`;
-  }
-  if (seconds % 60 === 0) {
-    return `${seconds / 60}m`;
-  }
-  return `${seconds}s`;
 }

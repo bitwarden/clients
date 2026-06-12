@@ -7,7 +7,11 @@ import { AbstractControl, ValidationErrors } from "@angular/forms";
 export const MAX_LEASE_DURATION_SECONDS = 86_400;
 export const MAX_LEASE_DURATION_MINUTES = MAX_LEASE_DURATION_SECONDS / 60;
 
-/** Preset durations offered by the duration picker on the automatic path. */
+/**
+ * Preset durations offered by the duration picker on the automatic request path
+ * (the cipher lease banner). Expressed in minutes to match that form's
+ * `durationMinutes` control.
+ */
 export const LEASE_DURATION_PRESETS: { minutes: number; labelKey: string }[] = [
   { minutes: 15, labelKey: "requestAccessModalDuration15m" },
   { minutes: 30, labelKey: "requestAccessModalDuration30m" },
@@ -16,6 +20,58 @@ export const LEASE_DURATION_PRESETS: { minutes: number; labelKey: string }[] = [
   { minutes: 480, labelKey: "requestAccessModalDuration8h" },
   { minutes: 1440, labelKey: "requestAccessModalDuration1d" },
 ];
+
+/**
+ * Preset durations offered by the access-rule dialog's default/max lease
+ * pickers. A distinct list from {@link LEASE_DURATION_PRESETS}: expressed in
+ * seconds (to match the rule's `*LeaseDurationSeconds` controls) and offering a
+ * wider range, since an administrator configuring a rule can grant longer
+ * windows than a self-service request.
+ */
+export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
+  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
+  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
+  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
+  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
+  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration24h" },
+  { seconds: 7 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration7d" },
+];
+
+/** Default lease duration (1h) for a new access rule with no stored value. */
+export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
+
+/**
+ * Snap an arbitrary stored duration to the nearest entry in
+ * {@link ACCESS_RULE_DURATION_PRESETS}, so a value persisted outside the preset
+ * set still renders against an option. Falls back to
+ * {@link DEFAULT_ACCESS_RULE_DURATION_SECONDS} when no value is stored.
+ */
+export function snapToNearestAccessRuleDuration(seconds: number | null | undefined): number {
+  if (seconds == null) {
+    return DEFAULT_ACCESS_RULE_DURATION_SECONDS;
+  }
+  if (ACCESS_RULE_DURATION_PRESETS.some((o) => o.seconds === seconds)) {
+    return seconds;
+  }
+  return ACCESS_RULE_DURATION_PRESETS.reduce((nearest, opt) =>
+    Math.abs(opt.seconds - seconds) < Math.abs(nearest.seconds - seconds) ? opt : nearest,
+  ).seconds;
+}
+
+/** Compact lease-duration label, e.g. `15m`, `1h`, `4h`, `1d`. */
+export function formatDurationShort(seconds: number): string {
+  if (seconds % 86400 === 0) {
+    return `${seconds / 86400}d`;
+  }
+  if (seconds % 3600 === 0) {
+    return `${seconds / 3600}h`;
+  }
+  if (seconds % 60 === 0) {
+    return `${seconds / 60}m`;
+  }
+  return `${seconds}s`;
+}
 
 /**
  * Cross-field validator: when a custom window (date + start time + end time)

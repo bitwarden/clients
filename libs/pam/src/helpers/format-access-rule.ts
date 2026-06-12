@@ -37,3 +37,34 @@ export function summarizeConditions(conditions: AccessCondition[]): ConditionSum
   }
   return conditions.map(formatCondition);
 }
+
+/**
+ * Terse, chip-style i18n key for a single condition — the compact register used
+ * by the collection callout, distinct from {@link formatCondition}'s verbose
+ * labels ("Approval" vs "Human approval"). Caller resolves the key.
+ */
+export function summarizeConditionShort(condition: AccessCondition): string {
+  switch (condition.kind) {
+    case "human_approval":
+      return "pamAccessRuleSummaryHumanApproval";
+    case "ip_allowlist":
+      return "pamAccessRuleSummaryIpAllowlist";
+  }
+}
+
+/**
+ * Ordered list of terse summary keys for a rule's conditions plus its
+ * single-active-lease flag, in render order. An otherwise-empty summary
+ * collapses to a single `pamAccessRuleSummaryNoConditions` entry. Callers
+ * resolve and join the keys for display.
+ */
+export function summarizeRuleConditions(
+  conditions: AccessCondition[],
+  singleActiveLease: boolean,
+): string[] {
+  const keys = conditions.map(summarizeConditionShort);
+  if (singleActiveLease) {
+    keys.push("pamAccessRuleSummarySingleActiveLease");
+  }
+  return keys.length === 0 ? ["pamAccessRuleSummaryNoConditions"] : keys;
+}

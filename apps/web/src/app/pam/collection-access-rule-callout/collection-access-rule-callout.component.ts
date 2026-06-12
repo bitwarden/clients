@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
-import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/pam";
+import { AccessRuleResponse, PamApiService, summarizeRuleConditions } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
@@ -73,31 +73,16 @@ export class CollectionAccessRuleCalloutComponent {
    */
   protected readonly summary = computed(() => {
     const rule = this.rules()[0];
-    return rule == null ? "" : this.summarize(rule.conditions, rule.singleActiveLease);
+    if (rule == null) {
+      return "";
+    }
+    return summarizeRuleConditions(rule.conditions, rule.singleActiveLease)
+      .map((key) => this.i18nService.t(key))
+      .join(" + ");
   });
 
   /** Close the host collection dialog when navigating to the access-rules page. */
   protected closeDialog(): void {
     void this.dialogRef?.close();
-  }
-
-  private summarize(conditions: AccessCondition[], singleActiveLease: boolean): string {
-    const parts = conditions.map((c) => this.summarizeOne(c));
-    if (singleActiveLease) {
-      parts.push(this.i18nService.t("pamAccessRuleSummarySingleActiveLease"));
-    }
-    if (parts.length === 0) {
-      return this.i18nService.t("pamAccessRuleSummaryNoConditions");
-    }
-    return parts.join(" + ");
-  }
-
-  private summarizeOne(condition: AccessCondition): string {
-    switch (condition.kind) {
-      case "human_approval":
-        return this.i18nService.t("pamAccessRuleSummaryHumanApproval");
-      case "ip_allowlist":
-        return this.i18nService.t("pamAccessRuleSummaryIpAllowlist");
-    }
   }
 }

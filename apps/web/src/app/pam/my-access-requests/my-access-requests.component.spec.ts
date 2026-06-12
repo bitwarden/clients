@@ -13,7 +13,7 @@ import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from
 import {
   MyAccessRequestsComponent,
   RECENT_WINDOW_DAYS,
-  resolveResolverDisplayName,
+  resolveResolver,
   statusBadgeVariant,
   statusLabelKey,
 } from "./my-access-requests.component";
@@ -308,26 +308,25 @@ describe("statusLabelKey", () => {
   });
 });
 
-describe("resolveResolverDisplayName", () => {
-  const i18nMock = new I18nMockService({
-    pamResolverAccessRule: "Access rule",
-  }) as unknown as I18nService;
-
-  it("returns null for pending requests", () => {
-    expect(
-      resolveResolverDisplayName({ status: "pending", approverId: null }, i18nMock),
-    ).toBeNull();
+describe("resolveResolver", () => {
+  it("returns no resolver for pending requests", () => {
+    expect(resolveResolver({ status: "pending", approverId: null })).toEqual({
+      resolverLabelKey: null,
+      resolverName: null,
+    });
   });
 
-  it("returns the access-rule label when there is no resolver user", () => {
-    expect(resolveResolverDisplayName({ status: "expired", approverId: null }, i18nMock)).toBe(
-      "Access rule",
-    );
+  it("returns the access-rule label key when there is no resolver user", () => {
+    expect(resolveResolver({ status: "expired", approverId: null })).toEqual({
+      resolverLabelKey: "pamResolverAccessRule",
+      resolverName: null,
+    });
   });
 
   it("falls back to the raw user id when a human resolved the request", () => {
-    expect(resolveResolverDisplayName({ status: "approved", approverId: "user-7" }, i18nMock)).toBe(
-      "user-7",
-    );
+    expect(resolveResolver({ status: "approved", approverId: "user-7" })).toEqual({
+      resolverLabelKey: null,
+      resolverName: "user-7",
+    });
   });
 });

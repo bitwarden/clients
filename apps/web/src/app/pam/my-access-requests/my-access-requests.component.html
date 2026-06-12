@@ -118,7 +118,13 @@
                     {{ statusLabelKey(row.status) | i18n }}
                   </span>
                 </td>
-                <td bitCell>{{ row.resolverDisplayName }}</td>
+                <td bitCell>
+                  @if (row.resolverLabelKey) {
+                    {{ row.resolverLabelKey | i18n }}
+                  } @else {
+                    {{ row.resolverName }}
+                  }
+                </td>
                 <td bitCell>
                   @if (row.approverComment) {
                     {{ row.approverComment }}

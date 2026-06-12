@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { distinctUntilChanged, from, map, Observable, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,11 +20,9 @@ import { GatedCipherReloader } from "@bitwarden/vault";
  */
 @Injectable({ providedIn: "root" })
 export class PamGatedCipherReloader implements GatedCipherReloader {
-  constructor(
-    private readonly pamApiService: PamApiService,
-    private readonly leasedCipherFetcher: LeasedCipherFetcher,
-    private readonly accountService: AccountService,
-  ) {}
+  private readonly pamApiService = inject(PamApiService);
+  private readonly leasedCipherFetcher = inject(LeasedCipherFetcher);
+  private readonly accountService = inject(AccountService);
 
   fullCipher$(cipherId: string): Observable<Cipher | null> {
     return getUserId(this.accountService.activeAccount$).pipe(

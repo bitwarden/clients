@@ -78,6 +78,15 @@ export class CipherView implements View, InitializerMetadata {
   partialData?: string;
 
   /**
+   * Client-only, transient companion to `partialData`: set when this view came
+   * from a cipher served under an active PAM lease (full data, so `partialData`
+   * is absent). The SDK round trip drops it, so the encryption service re-attaches
+   * it from the source Cipher. Lets the cipher-lease banner keep rendering its
+   * lease state once a lease lands and `partialData` is gone.
+   */
+  leaseGated?: boolean;
+
+  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
@@ -107,6 +116,7 @@ export class CipherView implements View, InitializerMetadata {
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     this.key = c.key;
     this.partialData = c.partialData;
+    this.leaseGated = c.leaseGated;
   }
 
   private get item(): ItemView | undefined {

@@ -66,8 +66,7 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-
-import { GATED_CIPHER_RELOADER, GatedCipherReloader } from "./gated-cipher-reloader.token";
+import { GATED_CIPHER_RELOADER, GatedCipherReloader } from "../tokens/gated-cipher-reloader.token";
 
 export type VaultItemDialogMode = "view" | "form";
 

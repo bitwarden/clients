@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 
@@ -42,18 +42,15 @@ export type KillSwitchDialogResult =
 })
 export class KillSwitchDialogComponent {
   private readonly dialogRef = inject(DialogRef<KillSwitchDialogResult>);
+  private readonly params = inject<KillSwitchDialogParams>(DIALOG_DATA);
 
-  readonly organizationName: string;
+  readonly organizationName = this.params.organizationName;
 
   protected readonly confirmControl = new FormControl("", { nonNullable: true });
 
   private readonly typedValue = toSignal(this.confirmControl.valueChanges, { initialValue: "" });
 
   protected readonly confirmMatches = computed(() => this.typedValue() === this.organizationName);
-
-  constructor(@Inject(DIALOG_DATA) readonly params: KillSwitchDialogParams) {
-    this.organizationName = params.organizationName;
-  }
 
   protected cancel(): void {
     void this.dialogRef.close(KillSwitchDialogResult.Canceled);

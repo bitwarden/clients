@@ -162,8 +162,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           // PAM gated ciphers carry a client-only `partialData` marker that the SDK
           // round trip drops. Re-attach it from the source cipher so gating surfaces
-          // (e.g. the cipher-lease banner) see it on the decrypted view.
+          // (e.g. the cipher-lease banner) see it on the decrypted view. The
+          // transient `leaseGated` marker (full cipher served under an active lease)
+          // is dropped the same way; re-attach it too.
           clientCipherView.partialData = cipher.partialData;
+          clientCipherView.leaseGated = cipher.leaseGated;
 
           // Decrypt Fido2 credentials if available
           if (

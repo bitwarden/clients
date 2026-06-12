@@ -3,7 +3,11 @@
     <ng-container
       *ngComponentOutlet="
         bannerComponent;
-        inputs: { cipherId: cipher().id, partialData: cipher().partialData }
+        inputs: {
+          cipherId: cipher().id,
+          partialData: cipher().partialData,
+          leaseGated: cipher().leaseGated,
+        }
       "
     />
   }

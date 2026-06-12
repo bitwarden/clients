@@ -1,5 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
@@ -71,7 +71,7 @@ function fakeApi(rows: AccessRequestDetailsResponse[]): PamApiService {
 function decorators(rows: AccessRequestDetailsResponse[]) {
   return [
     moduleMetadata({
-      imports: [I18nPipe, RouterTestingModule],
+      imports: [I18nPipe],
       providers: [
         { provide: PamApiService, useValue: fakeApi(rows) },
         {
@@ -153,7 +153,7 @@ function decorators(rows: AccessRequestDetailsResponse[]) {
       ],
     }),
     applicationConfig({
-      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+      providers: [importProvidersFrom(PreloadedEnglishI18nModule), provideRouter([])],
     }),
   ];
 }
