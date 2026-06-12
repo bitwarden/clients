@@ -21,22 +21,24 @@
             {{ "pamMyRequestsPendingEmpty" | i18n }}
           </p>
         } @else {
-          <bit-table>
+          <bit-table [dataSource]="pendingDataSource">
             <ng-container header>
               <tr>
-                <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+                <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
                 <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
-                <th bitCell>{{ "pamColumnSubmitted" | i18n }}</th>
+                <th bitCell bitSortable="submittedAt" default="desc">
+                  {{ "pamColumnSubmitted" | i18n }}
+                </th>
                 <th bitCell>{{ "pamColumnApprovers" | i18n }}</th>
                 <th bitCell class="tw-w-32">
                   <span class="tw-sr-only">{{ "actions" | i18n }}</span>
                 </th>
               </tr>
             </ng-container>
-            <ng-template body>
+            <ng-template body let-rows$>
               <tr
                 bitRow
-                *ngFor="let row of pendingRows()"
+                *ngFor="let row of rows$ | async"
                 [attr.data-testid]="'my-requests-pending-row-' + row.id"
               >
                 <td bitCell>{{ row.cipherName ?? row.cipherId }}</td>
@@ -85,23 +87,25 @@
             {{ "pamMyRequestsRecentEmpty" | i18n }}
           </p>
         } @else {
-          <bit-table>
+          <bit-table [dataSource]="recentDataSource">
             <ng-container header>
               <tr>
-                <th bitCell>{{ "pamColumnItem" | i18n }}</th>
-                <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
+                <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+                <th bitCell bitSortable="status">{{ "pamColumnStatus" | i18n }}</th>
                 <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
                 <th bitCell>{{ "pamColumnComment" | i18n }}</th>
-                <th bitCell>{{ "pamColumnResolved" | i18n }}</th>
+                <th bitCell bitSortable="resolvedAt" default="desc">
+                  {{ "pamColumnResolved" | i18n }}
+                </th>
                 <th bitCell class="tw-w-40">
                   <span class="tw-sr-only">{{ "actions" | i18n }}</span>
                 </th>
               </tr>
             </ng-container>
-            <ng-template body>
+            <ng-template body let-rows$>
               <tr
                 bitRow
-                *ngFor="let row of recentRows()"
+                *ngFor="let row of rows$ | async"
                 [attr.data-testid]="'my-requests-recent-row-' + row.id"
               >
                 <td bitCell>{{ row.cipherName ?? row.cipherId }}</td>

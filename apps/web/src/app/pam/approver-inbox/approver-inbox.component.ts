@@ -1,10 +1,11 @@
-import { CommonModule, DatePipe } from "@angular/common";
+import { AsyncPipe, DatePipe, NgFor } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -22,6 +23,7 @@ import {
   ButtonModule,
   IconModule,
   NoItemsModule,
+  TableDataSource,
   TableModule,
   ToastService,
   ToggleGroupModule,
@@ -161,8 +163,9 @@ export function historyRelTimeFor(
   templateUrl: "./approver-inbox.component.html",
   providers: [ApproverInboxService],
   imports: [
-    CommonModule,
+    AsyncPipe,
     DatePipe,
+    NgFor,
     I18nPipe,
     HeaderModule,
     ApproverInboxRowComponent,
@@ -250,6 +253,19 @@ export class ApproverInboxComponent implements OnInit {
     }
     return this.flatHistory().filter((row) => row.bucket === filter);
   });
+
+  /**
+   * Renders the filtered history through a data source, consistent with the other PAM tables.
+   * Bucket ordering and filtering already live in the computeds above, so the data source only
+   * holds the rows to render.
+   */
+  protected readonly historyDataSource = new TableDataSource<FlatHistoryRow>();
+
+  constructor() {
+    effect(() => {
+      this.historyDataSource.data = this.filteredHistory();
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     await this.refresh();
