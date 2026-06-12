@@ -1,3 +1,4 @@
+import { currentlyInSandboxedIframe } from "../../../autofill/utils";
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
 import { MessageTypes } from "./messaging/message";
@@ -17,6 +18,15 @@ import { Messenger } from "./messaging/messenger";
         globalContext.document.location.hostname === "localhost"));
 
   if (!shouldExecuteContentScript) {
+    return;
+  }
+
+  // Match the fido2 content script's sandbox bail. Without this, the page-script
+  // override would still hijack navigator.credentials.{create,get} in frames where
+  // the content script has already returned early — leaving requests with no other
+  // end of the messenger to receive them. Bailing here lets the native browser API
+  // handle WebAuthn in those frames instead.
+  if (currentlyInSandboxedIframe()) {
     return;
   }
 

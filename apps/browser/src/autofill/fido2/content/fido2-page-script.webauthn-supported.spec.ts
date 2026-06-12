@@ -42,6 +42,9 @@ jest.mock("./messaging/messenger", () => {
   };
 });
 jest.mock("../utils/webauthn-utils");
+jest.mock("../../../autofill/utils", () => ({
+  currentlyInSandboxedIframe: jest.fn(() => false),
+}));
 
 describe("Fido2 page script with native WebAuthn support", () => {
   (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
@@ -239,6 +242,18 @@ describe("Fido2 page script with native WebAuthn support", () => {
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("./fido2-content-script");
+
+      expect(Messenger.forDOMCommunication).not.toHaveBeenCalled();
+    });
+
+    it("skips initializing when running inside a sandboxed iframe (matches content-script bail)", () => {
+      jest.spyOn(Messenger, "forDOMCommunication");
+
+      const utils = jest.requireMock("../../../autofill/utils");
+      (utils.currentlyInSandboxedIframe as jest.Mock).mockReturnValueOnce(true);
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-page-script");
 
       expect(Messenger.forDOMCommunication).not.toHaveBeenCalled();
     });
