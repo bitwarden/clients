@@ -132,7 +132,7 @@ describe("V2KeyRotationMigration", () => {
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
-      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
     });
 
     it("returns 'noMigrationNeeded' when user key is already v2", async () => {
@@ -177,7 +177,7 @@ describe("V2KeyRotationMigration", () => {
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
-      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
     });
 
     it("returns 'noMigrationNeeded' when user has granted emergency access", async () => {
@@ -187,7 +187,7 @@ describe("V2KeyRotationMigration", () => {
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
-      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
     });
 
     it("returns 'noMigrationNeeded' when user has a corrupted/missing private key", async () => {
