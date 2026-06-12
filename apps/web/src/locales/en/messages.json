@@ -4487,83 +4487,144 @@
     }
   },
   "createdTextSend": {
-    "message": "Created Text Send"
+    "message": "Created text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "createdTextSendWithEmailVerification": {
-    "message": "Created text Send with email verification",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Created text Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "createdTextSendWithPasswordProtection": {
-    "message": "Created text Send with password",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Created text Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "createdFileSend": {
-    "message": "Created file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Created file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "createdFileSendWithEmailVerification": {
-    "message": "Created file Send with email verification",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Created file Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "createdFileSendWithPasswordProtection": {
-    "message": "Created file Send with password",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Created file Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "editedTextSend": {
-    "message": "Edited text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Edited text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "editedFileSend": {
-    "message": "Edited file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Edited file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "deletedTextSend": {
-    "message": "Deleted text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Deleted text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "deletedFileSend": {
-    "message": "Deleted file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Deleted file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " abc12345"
+      }
+    }
   },
   "accessedTextSend": {
-    "message": "Accessed text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": "3f2a1c9e-7b40-4d2a-9c11-abc123def456"
+      },
+      "id": {
+        "content": "$2",
+        "example": "1a2b3c4d"
+      }
+    }
   },
   "accessedFileSend": {
-    "message": "Accessed file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": "3f2a1c9e-7b40-4d2a-9c11-abc123def456"
+      },
+      "id": {
+        "content": "$2",
+        "example": "1a2b3c4d"
+      }
+    }
   },
-  "accessedTextSendFromClaimedDomain": {
-    "message": "Text Send accessed from a claimed domain",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "sendAccessExternal": {
+    "message": "External"
   },
-  "accessedFileSendFromClaimedDomain": {
-    "message": "File Send accessed from a claimed domain",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "accessedTextSendFromExternalDomain": {
-    "message": "Text Send accessed from an external domain",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "accessedFileSendFromExternalDomain": {
-    "message": "File Send accessed from an external domain",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "createdTextSendWithEmailVerificationFromClaimedDomain": {
-    "message": "Created text Send (email verification, recipients in claimed domain)",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "createdFileSendWithEmailVerificationFromClaimedDomain": {
-    "message": "Created file Send (email verification, recipients in claimed domain)",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "createdTextSendWithEmailVerificationFromExternalDomain": {
-    "message": "Created text Send (email verification, one or more recipients in external domain)",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "createdFileSendWithEmailVerificationFromExternalDomain": {
-    "message": "Created file Send (email verification, one or more recipients in external domain)",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "sendAccessExternalDomain": {
+    "message": "External ($DOMAIN$ domain)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "Moved item $ID$ to an organization.",

@@ -841,71 +841,103 @@ export class EventService {
         break;
       // Send
       case EventType.Send_Created_Text:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSend");
+        msg = this.i18nService.t("createdTextSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSend",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_Text_WithEmailVerification:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithEmailVerification");
+        msg = this.i18nService.t(
+          "createdTextSendWithEmailVerification",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithEmailVerification",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_Text_WithPasswordProtection:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithPasswordProtection");
+        msg = this.i18nService.t(
+          "createdTextSendWithPasswordProtection",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithPasswordProtection",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSend");
+        msg = this.i18nService.t("createdFileSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSend",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File_WithEmailVerification:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithEmailVerification");
+        msg = this.i18nService.t(
+          "createdFileSendWithEmailVerification",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithEmailVerification",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File_WithPasswordProtection:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
+        msg = this.i18nService.t(
+          "createdFileSendWithPasswordProtection",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithPasswordProtection",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Updated_Text:
-        msg = humanReadableMsg = this.i18nService.t("editedTextSend");
+        msg = this.i18nService.t("editedTextSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedTextSend", this.formatSendIdText(ev, options));
         break;
       case EventType.Send_Updated_File:
-        msg = humanReadableMsg = this.i18nService.t("editedFileSend");
+        msg = this.i18nService.t("editedFileSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedFileSend", this.formatSendIdText(ev, options));
         break;
       case EventType.Send_Deleted_Text:
-        msg = humanReadableMsg = this.i18nService.t("deletedTextSend");
+        msg = this.i18nService.t("deletedTextSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedTextSend",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Deleted_File:
-        msg = humanReadableMsg = this.i18nService.t("deletedFileSend");
+        msg = this.i18nService.t("deletedFileSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedFileSend",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Accessed_Text:
-        msg = humanReadableMsg = this.i18nService.t("accessedTextSend");
+        msg = this.i18nService.t(
+          "accessedTextSend",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedTextSend",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
         break;
       case EventType.Send_Accessed_File:
-        msg = humanReadableMsg = this.i18nService.t("accessedFileSend");
-        break;
-      case EventType.Send_Accessed_Text_FromClaimedDomain:
-        msg = humanReadableMsg = this.i18nService.t("accessedTextSendFromClaimedDomain");
-        break;
-      case EventType.Send_Accessed_File_FromClaimedDomain:
-        msg = humanReadableMsg = this.i18nService.t("accessedFileSendFromClaimedDomain");
-        break;
-      case EventType.Send_Accessed_Text_FromExternalDomain:
-        msg = humanReadableMsg = this.i18nService.t("accessedTextSendFromExternalDomain");
-        break;
-      case EventType.Send_Accessed_File_FromExternalDomain:
-        msg = humanReadableMsg = this.i18nService.t("accessedFileSendFromExternalDomain");
-        break;
-      case EventType.Send_Created_Text_WithEmailVerification_FromClaimedDomain:
-        msg = humanReadableMsg = this.i18nService.t(
-          "createdTextSendWithEmailVerificationFromClaimedDomain",
+        msg = this.i18nService.t(
+          "accessedFileSend",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev),
         );
-        break;
-      case EventType.Send_Created_File_WithEmailVerification_FromClaimedDomain:
-        msg = humanReadableMsg = this.i18nService.t(
-          "createdFileSendWithEmailVerificationFromClaimedDomain",
-        );
-        break;
-      case EventType.Send_Created_Text_WithEmailVerification_FromExternalDomain:
-        msg = humanReadableMsg = this.i18nService.t(
-          "createdTextSendWithEmailVerificationFromExternalDomain",
-        );
-        break;
-      case EventType.Send_Created_File_WithEmailVerification_FromExternalDomain:
-        msg = humanReadableMsg = this.i18nService.t(
-          "createdFileSendWithEmailVerificationFromExternalDomain",
+        humanReadableMsg = this.i18nService.t(
+          "accessedFileSend",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
         );
         break;
 
@@ -1140,6 +1172,39 @@ export class EventService {
     return a;
   }
 
+  // Builds an interactive id anchor handled by the event-log containers via click delegation (see the
+  // organization-events and entity-events components). No href: the container reads the data attribute
+  // and either opens/navigates (table) or re-parameterizes the dialog in place.
+  private makeInteractiveId(dataAttr: string, fullId: string): string {
+    const a = document.createElement("a");
+    a.title = this.i18nService.t("view");
+    a.setAttribute("role", "button");
+    a.setAttribute("tabindex", "0");
+    a.setAttribute(dataAttr, fullId);
+    a.innerHTML = "<code>" + this.getShortId(fullId) + "</code>";
+    return a.outerHTML;
+  }
+
+  // The accessed Send, rendered clickable. Returns a leading-space token (so it slots in after "…Send")
+  // or "" when hidden (inside a Send-scoped dialog).
+  private formatSendId(ev: EventResponse, options: EventOptions): string {
+    if (options.hideSendId || ev.sendId == null) {
+      return "";
+    }
+    return " " + this.makeInteractiveId("data-event-send-id", ev.sendId);
+  }
+
+  // The on-screen message uses formatSendId's clickable HTML link; the exported event log can't
+  // contain HTML, so its plain-text version uses this short id instead.
+  private formatSendIdText(ev: EventResponse, options: EventOptions): string {
+    return options.hideSendId || ev.sendId == null ? "" : " " + this.getShortId(ev.sendId);
+  }
+
+  // The Send creator, rendered clickable (navigates to the member in the table, re-parameterizes in a dialog).
+  private formatSendCreatorId(ev: EventResponse): string {
+    return this.makeInteractiveId("data-event-user-id", ev.userId);
+  }
+
   private getShortId(id: string) {
     return id?.substring(0, 8);
   }
@@ -1183,4 +1248,6 @@ export class EventInfo {
 export class EventOptions {
   cipherInfo = true;
   disableLink = false;
+  // Set when rendering inside a Send-scoped dialog, where repeating the Send id on every row is redundant.
+  hideSendId = false;
 }

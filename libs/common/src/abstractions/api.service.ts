@@ -392,6 +392,13 @@ export abstract class ApiService {
     end: string,
     token: string,
   ): Promise<ListResponse<EventResponse>>;
+  abstract getEventsSend(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
   abstract getEventsServiceAccount(
     orgId: string,
     id: string,

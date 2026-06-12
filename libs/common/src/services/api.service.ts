@@ -1066,6 +1066,28 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
+  async getEventsSend(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organizations/" + orgId + "/sends/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
   async getEventsServiceAccount(
     orgId: string,
     id: string,

@@ -3,7 +3,7 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -20,7 +20,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { EventSystemUser, EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
+import {
+  EventSystemUser,
+  EventResponse,
+  EventType,
+  EventView,
+} from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -37,6 +42,7 @@ import { SharedModule } from "../../../../shared";
 import { EventExportService } from "../../../../tools/event-export";
 import { EventService } from "../../services/event.service";
 import { BaseEventsComponent } from "../base-events/base-events.component";
+import { openEntityEventsDialog } from "../entity-events/entity-events.component";
 import { placeholderEvents } from "../placeholder-events";
 
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
@@ -81,6 +87,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private dialogService: DialogService,
     private configService: ConfigService,
     protected activeRoute: ActivatedRoute,
+    private router: Router,
   ) {
     super(
       eventService,
@@ -132,7 +139,13 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     );
     response.data.forEach((u) => {
       const name = this.userNamePipe.transform(u);
-      this.orgUsersUserIdMap.set(u.userId, { name: name, email: u.email });
+      // Store the organization user id too, so event-log links keyed on a platform user id can
+      // navigate to (and open the events dialog for) the corresponding member.
+      this.orgUsersUserIdMap.set(u.userId, {
+        name: name,
+        email: u.email,
+        organizationUserId: u.id,
+      });
     });
 
     if (this.organization.providerId != null) {
@@ -217,7 +230,81 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       };
     }
 
+    // Send access events show the accessor in the Member column, never the Send creator. Resolve
+    // strictly from actingUserId (set only when the accessor is a confirmed member); otherwise fall
+    // back to the claimed domain, then a generic "External" label.
+    if (r.type === EventType.Send_Accessed_Text || r.type === EventType.Send_Accessed_File) {
+      if (r.actingUserId != null && this.orgUsersUserIdMap.has(r.actingUserId)) {
+        return this.orgUsersUserIdMap.get(r.actingUserId);
+      }
+      if (r.domainName) {
+        return { name: this.i18nService.t("sendAccessExternalDomain", r.domainName), email: "" };
+      }
+      return { name: this.i18nService.t("sendAccessExternal"), email: "" };
+    }
+
     return null;
+  }
+
+  /** True when the Member-column name on a Send access row resolves to a member we can link to. */
+  protected isSendAccessMemberLink(e: EventView): boolean {
+    return (
+      (e.type === EventType.Send_Accessed_Text || e.type === EventType.Send_Accessed_File) &&
+      e.userId != null &&
+      this.orgUsersUserIdMap.get(e.userId)?.organizationUserId != null
+    );
+  }
+
+  /** Delegated handler for interactive ids embedded in the event message (Send id, creator user id). */
+  protected onEventMessageClick(event: Event) {
+    const target = event.target as HTMLElement;
+
+    const sendAnchor = target?.closest("[data-event-send-id]");
+    if (sendAnchor) {
+      event.preventDefault();
+      this.openSendEventsDialog(sendAnchor.getAttribute("data-event-send-id"));
+      return;
+    }
+
+    const userAnchor = target?.closest("[data-event-user-id]");
+    if (userAnchor) {
+      event.preventDefault();
+      void this.navigateToMember(userAnchor.getAttribute("data-event-user-id"));
+    }
+  }
+
+  /** Member-column name click on a Send access row. */
+  protected memberNameClicked(event: Event, platformUserId: string) {
+    event.preventDefault();
+    void this.navigateToMember(platformUserId);
+  }
+
+  private openSendEventsDialog(sendId: string) {
+    if (sendId == null) {
+      return;
+    }
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        entity: "send",
+        entityId: sendId,
+        organizationId: this.organizationId,
+        name: this.i18nService.t("send") + " " + this.getShortId(sendId),
+        showUser: true,
+      },
+    });
+  }
+
+  private async navigateToMember(platformUserId: string) {
+    const organizationUserId =
+      platformUserId != null
+        ? this.orgUsersUserIdMap.get(platformUserId)?.organizationUserId
+        : null;
+    if (organizationUserId == null) {
+      return;
+    }
+    await this.router.navigate(["/organizations", this.organizationId, "members"], {
+      queryParams: { search: this.getShortId(organizationUserId), viewEvents: organizationUserId },
+    });
   }
 
   private getShortId(id: string) {

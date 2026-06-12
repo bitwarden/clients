@@ -10,7 +10,7 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
+import { EventResponse, EventType, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -24,10 +24,10 @@ import {
 } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
-import { EventService } from "../../services/event.service";
+import { EventOptions, EventService } from "../../services/event.service";
 
 export interface EntityEventsDialogParams {
-  entity: "user" | "cipher" | "secret" | "project" | "service-account";
+  entity: "user" | "cipher" | "secret" | "project" | "service-account" | "send";
   entityId: string;
 
   organizationId?: string;
@@ -54,9 +54,11 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   private orgUsersUserIdMap = new Map<string, any>();
   private orgUsersIdMap = new Map<string, any>();
 
-  get name() {
-    return this.params.name;
-  }
+  // These are editable fields (not read-only getters) on purpose: clicking a Send or member ID in
+  // an event row reloads the dialog to show that item's events, instead of opening a new dialog.
+  protected entity: EntityEventsDialogParams["entity"];
+  protected entityId: string;
+  protected name: string;
 
   get showUser() {
     return this.params.showUser ?? false;
@@ -80,12 +82,59 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.entity = this.params.entity;
+    this.entityId = this.params.entityId;
+    this.name = this.params.name;
+
     const defaultDates = this.eventService.getDefaultDateFilters();
     this.filterFormGroup.setValue({
       start: defaultDates[0],
       end: defaultDates[1],
     });
     await this.load();
+  }
+
+  /**
+   * Re-parameterizes the dialog in place to show a different entity's events (no stacked dialogs).
+   */
+  private async switchEntity(
+    entity: EntityEventsDialogParams["entity"],
+    entityId: string,
+    name: string,
+  ) {
+    this.entity = entity;
+    this.entityId = entityId;
+    this.name = name;
+    this.continuationToken = null;
+    this.dataSource.data = [];
+    this.loading = true;
+    await this.load();
+  }
+
+  protected onEventMessageClick(event: Event) {
+    const target = event.target as HTMLElement;
+
+    const sendAnchor = target?.closest("[data-event-send-id]");
+    if (sendAnchor) {
+      event.preventDefault();
+      const sendId = sendAnchor.getAttribute("data-event-send-id");
+      void this.switchEntity(
+        "send",
+        sendId,
+        this.i18nService.t("send") + " " + sendId?.substring(0, 8),
+      );
+      return;
+    }
+
+    const userAnchor = target?.closest("[data-event-user-id]");
+    if (userAnchor) {
+      event.preventDefault();
+      const platformUserId = userAnchor.getAttribute("data-event-user-id");
+      const member = platformUserId != null ? this.orgUsersUserIdMap.get(platformUserId) : null;
+      if (member?.organizationUserId != null) {
+        void this.switchEntity("user", member.organizationUserId, member.name);
+      }
+    }
   }
 
   async ngOnDestroy() {
@@ -112,7 +161,11 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
         response.data.forEach((u) => {
           const name = this.userNamePipe.transform(u);
           this.orgUsersIdMap.set(u.id, { name: name, email: u.email });
-          this.orgUsersUserIdMap.set(u.userId, { name: name, email: u.email });
+          this.orgUsersUserIdMap.set(u.userId, {
+            name: name,
+            email: u.email,
+            organizationUserId: u.id,
+          });
         });
       }
       await this.loadEvents(true);
@@ -151,64 +204,73 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     }
 
     let response: ListResponse<EventResponse>;
-    if (this.params.entity === "user" && this.params.providerId) {
+    if (this.entity === "user" && this.params.providerId) {
       response = await this.apiService.getEventsProviderUser(
         this.params.providerId,
-        this.params.entityId,
+        this.entityId,
         dates[0],
         dates[1],
         clearExisting ? null : this.continuationToken,
       );
-    } else if (this.params.entity === "user") {
+    } else if (this.entity === "user") {
       response = await this.apiService.getEventsOrganizationUser(
         this.params.organizationId,
-        this.params.entityId,
+        this.entityId,
         dates[0],
         dates[1],
         clearExisting ? null : this.continuationToken,
       );
-    } else if (this.params.entity === "secret") {
+    } else if (this.entity === "send") {
+      response = await this.apiService.getEventsSend(
+        this.params.organizationId,
+        this.entityId,
+        dates[0],
+        dates[1],
+        clearExisting ? null : this.continuationToken,
+      );
+    } else if (this.entity === "secret") {
       response = await this.apiService.getEventsSecret(
         this.params.organizationId,
-        this.params.entityId,
+        this.entityId,
         dates[0],
         dates[1],
         clearExisting ? null : this.continuationToken,
       );
-    } else if (this.params.entity === "service-account") {
+    } else if (this.entity === "service-account") {
       response = await this.apiService.getEventsServiceAccount(
         this.params.organizationId,
-        this.params.entityId,
+        this.entityId,
         dates[0],
         dates[1],
         clearExisting ? null : this.continuationToken,
       );
-    } else if (this.params.entity === "project") {
+    } else if (this.entity === "project") {
       response = await this.apiService.getEventsProject(
         this.params.organizationId,
-        this.params.entityId,
+        this.entityId,
         dates[0],
         dates[1],
         clearExisting ? null : this.continuationToken,
       );
     } else {
       response = await this.apiService.getEventsCipher(
-        this.params.entityId,
+        this.entityId,
         dates[0],
         dates[1],
         clearExisting ? null : this.continuationToken,
       );
     }
 
+    // A Send-scoped dialog is already titled with the Send id, so omit the (repeated) id from each row.
+    const options = new EventOptions();
+    options.hideSendId = this.entity === "send";
+
     this.continuationToken = response.continuationToken;
     const events: EventView[] = await Promise.all(
       response.data.map(async (r) => {
         const userId = r.actingUserId == null ? r.userId : r.actingUserId;
-        const eventInfo = await this.eventService.getEventInfo(r);
-        const user =
-          this.showUser && userId != null && this.orgUsersUserIdMap.has(userId)
-            ? this.orgUsersUserIdMap.get(userId)
-            : null;
+        const eventInfo = await this.eventService.getEventInfo(r, options);
+        const user = this.showUser ? this.resolveMember(r, userId) : null;
 
         return new EventView({
           message: eventInfo.message,
@@ -233,6 +295,26 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     } else {
       this.dataSource.data = events;
     }
+  }
+
+  // Send access rows show the accessor (a confirmed member, the claimed domain, or "External"),
+  // never the Send creator; all other rows resolve the acting member from the org user map.
+  private resolveMember(r: EventResponse, userId: string) {
+    if (r.type === EventType.Send_Accessed_Text || r.type === EventType.Send_Accessed_File) {
+      if (r.actingUserId != null && this.orgUsersUserIdMap.has(r.actingUserId)) {
+        return this.orgUsersUserIdMap.get(r.actingUserId);
+      }
+      if (r.domainName) {
+        return { name: this.i18nService.t("sendAccessExternalDomain", r.domainName), email: "" };
+      }
+      return { name: this.i18nService.t("sendAccessExternal"), email: "" };
+    }
+
+    if (userId != null && this.orgUsersUserIdMap.has(userId)) {
+      return this.orgUsersUserIdMap.get(userId);
+    }
+
+    return null;
   }
 }
 
