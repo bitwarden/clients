@@ -3,7 +3,7 @@
     <span bitDialogTitle>{{ "churnOfferSuccessTitle" | i18n }}</span>
     <ng-container bitDialogContent>
       <p bitTypography="body1" class="tw-text-muted">
-        {{ "churnOfferSuccessBody" | i18n: discountLabel : params.offer.durationDescription }}
+        {{ "churnOfferSuccessBody" | i18n: discountLabel : durationDescription }}
       </p>
       <bit-card class="tw-bg-bg-secondary tw-shadow-none">
         <dl class="tw-grid tw-grid-cols-2 tw-gap-y-2 tw-m-0">
@@ -23,7 +23,7 @@
             {{ "discountApplied" | i18n }}
           </dt>
           <dd bitTypography="body1" class="tw-font-medium tw-m-0 tw-text-right">
-            {{ discountLabel }} {{ "for" | i18n }} {{ params.offer.durationDescription }}
+            {{ "churnOfferDiscountSummary" | i18n: discountLabel : durationLength : durationUnit }}
           </dd>
           @if (params.nextChargeDate) {
             <dt bitTypography="body1" class="tw-font-normal tw-text-fg-body-subtle">
@@ -68,7 +68,7 @@
             {{ "churnOfferDiscountHeading" | i18n: discountLabel }}
           </p>
           <span bitTypography="body1" class="tw-text-fg-white tw-font-normal">
-            {{ "churnOfferDiscountBody" | i18n: discountLabel : params.offer.durationDescription }}
+            {{ "churnOfferDiscountBody" | i18n: discountLabel : durationDescription }}
           </span>
         </div>
       </bit-card>

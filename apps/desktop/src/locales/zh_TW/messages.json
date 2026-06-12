@@ -1827,6 +1827,15 @@
     "message": "複製安全代碼",
     "description": "Copy credit card security code (CVV)"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "cardNumber": {
     "message": "信用卡號碼"
   },
@@ -5257,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未儲存的變更。確定要離開嗎？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "儲存 Send 變更失敗",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {

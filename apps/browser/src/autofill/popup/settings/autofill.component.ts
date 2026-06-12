@@ -75,6 +75,8 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
+import { FillAssistPopoverComponent } from "./fill-assist-popover/fill-assist-popover.component";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -85,6 +87,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     CardComponent,
     CheckboxModule,
     CommonModule,
+    FillAssistPopoverComponent,
     FormFieldModule,
     FormsModule,
     IconButtonModule,
