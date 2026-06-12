@@ -13,7 +13,6 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { debounceTime, filter, map, merge } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -37,6 +36,7 @@ import {
   canApprove,
   formatRemaining,
 } from "@bitwarden/pam";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -163,7 +163,7 @@ export function historyRelTimeFor(
   imports: [
     CommonModule,
     DatePipe,
-    JslibModule,
+    I18nPipe,
     HeaderModule,
     ApproverInboxRowComponent,
     ButtonModule,

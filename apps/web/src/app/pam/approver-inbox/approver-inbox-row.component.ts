@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   ButtonModule,
   CardComponent,
@@ -13,6 +12,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessDecisionVerdict } from "@bitwarden/pam";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Render a single pending lease request and capture an approve/deny decision.
@@ -29,7 +29,7 @@ import { AccessRequestDetailsResponse, AccessDecisionVerdict } from "@bitwarden/
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    JslibModule,
+    I18nPipe,
     ButtonModule,
     CardComponent,
     FormFieldModule,
