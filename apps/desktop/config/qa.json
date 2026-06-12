@@ -1,0 +1,30 @@
+{
+  "urls": {
+    "icons": "https://icons.qa.bitwarden.pw",
+    "notifications": "https://notifications.qa.bitwarden.pw",
+    "scim": "https://scim.qa.bitwarden.pw"
+  },
+  "dev": {
+    "proxyApi": "https://api.qa.bitwarden.pw",
+    "proxyIdentity": "https://identity.qa.bitwarden.pw",
+    "proxyEvents": "https://events.qa.bitwarden.pw",
+    "proxyNotifications": "https://notifications.qa.bitwarden.pw"
+  },
+  "additionalRegions": [
+    {
+      "key": "USQA",
+      "domain": "qa.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.qa.bitwarden.pw"
+      }
+    },
+    {
+      "key": "EUQA",
+      "domain": "euqa.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.euqa.bitwarden.pw"
+      }
+    }
+  ],
+  "flags": {}
+}
