@@ -1,5 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, Inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, Inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import {
   ButtonModule,
@@ -8,6 +10,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -26,28 +29,30 @@ export type KillSwitchDialogResult =
 @Component({
   selector: "app-pam-kill-switch-dialog",
   templateUrl: "./kill-switch-dialog.component.html",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonModule, DialogModule, TypographyModule, I18nPipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    FormFieldModule,
+    TypographyModule,
+    I18nPipe,
+  ],
 })
 export class KillSwitchDialogComponent {
   private readonly dialogRef = inject(DialogRef<KillSwitchDialogResult>);
 
   readonly organizationName: string;
 
-  protected readonly typedValue = signal("");
+  protected readonly confirmControl = new FormControl("", { nonNullable: true });
+
+  private readonly typedValue = toSignal(this.confirmControl.valueChanges, { initialValue: "" });
+
+  protected readonly confirmMatches = computed(() => this.typedValue() === this.organizationName);
 
   constructor(@Inject(DIALOG_DATA) readonly params: KillSwitchDialogParams) {
     this.organizationName = params.organizationName;
-  }
-
-  protected onInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.typedValue.set(value);
-  }
-
-  protected confirmMatches(): boolean {
-    return this.typedValue() === this.organizationName;
   }
 
   protected cancel(): void {

@@ -72,7 +72,6 @@ export type MyRequestRow = {
  * pagination are explicit non-goals.
  */
 @Component({
-  standalone: true,
   selector: "app-pam-my-access-requests",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./my-access-requests.component.html",

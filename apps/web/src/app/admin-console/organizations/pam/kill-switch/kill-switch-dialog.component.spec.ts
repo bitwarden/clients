@@ -39,19 +39,19 @@ describe("KillSwitchDialogComponent", () => {
   }
 
   function getInput(fixture: ComponentFixture<KillSwitchDialogComponent>): HTMLInputElement {
-    return fixture.nativeElement.querySelector("[data-testid='kill-switch-confirm-input']");
+    return fixture.nativeElement.querySelector("#kill-switch-dialog_input_confirm-org-name");
   }
 
   function getConfirmButton(
     fixture: ComponentFixture<KillSwitchDialogComponent>,
   ): HTMLButtonElement {
-    return fixture.nativeElement.querySelector("[data-testid='kill-switch-confirm-button']");
+    return fixture.nativeElement.querySelector("#kill-switch-dialog_button_confirm");
   }
 
   function getCancelButton(
     fixture: ComponentFixture<KillSwitchDialogComponent>,
   ): HTMLButtonElement {
-    return fixture.nativeElement.querySelector("[data-testid='kill-switch-cancel-button']");
+    return fixture.nativeElement.querySelector("#kill-switch-dialog_button_cancel");
   }
 
   describe("confirm button state", () => {

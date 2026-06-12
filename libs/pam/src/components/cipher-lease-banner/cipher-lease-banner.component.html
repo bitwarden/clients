@@ -6,10 +6,24 @@
       "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel()
     }}</span>
     <span class="tw-flex tw-items-center tw-gap-2">
-      <button type="button" bitButton buttonType="secondary" size="small" [bitAction]="extendLease">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        [bitAction]="extendLease"
+        id="cipher-lease-banner_button_extend-lease"
+      >
         {{ "pamExtendLeaseButton" | i18n }}
       </button>
-      <button type="button" bitButton buttonType="danger" size="small" [bitAction]="endLease">
+      <button
+        type="button"
+        bitButton
+        buttonType="danger"
+        size="small"
+        [bitAction]="endLease"
+        id="cipher-lease-banner_button_end-lease"
+      >
         {{ "pamEndLeaseButton" | i18n }}
       </button>
     </span>
@@ -19,7 +33,14 @@
     class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
   >
     <span class="tw-text-sm tw-font-medium">{{ "pamApprovedRequestBannerTitle" | i18n }}</span>
-    <button type="button" bitButton buttonType="primary" size="small" [bitAction]="activateLease">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      size="small"
+      [bitAction]="activateLease"
+      id="cipher-lease-banner_button_start-lease"
+    >
       {{ "pamStartLeaseButton" | i18n }}
     </button>
   </div>
@@ -34,6 +55,7 @@
       buttonType="secondary"
       size="small"
       [bitAction]="cancelAccessRequest"
+      id="cipher-lease-banner_button_cancel-request"
     >
       {{ "pendingStateCancelRequest" | i18n }}
     </button>
@@ -76,8 +98,8 @@
               <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
               <select
                 bitInput
+                id="cipher-lease-banner_select_duration"
                 formControlName="durationMinutes"
-                data-testid="request-access-duration"
               >
                 @for (opt of durationOptions; track opt.minutes) {
                   <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
@@ -90,9 +112,9 @@
               <input
                 bitInput
                 type="text"
+                id="cipher-lease-banner_input_reason"
                 formControlName="reason"
                 [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
-                data-testid="request-access-reason"
               />
               <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
             </bit-form-field>
@@ -104,8 +126,8 @@
               <input
                 bitInput
                 type="date"
+                id="cipher-lease-banner_input_custom-date"
                 formControlName="customDate"
-                data-testid="request-access-date"
               />
             </bit-form-field>
 
@@ -115,8 +137,8 @@
                 <input
                   bitInput
                   type="time"
+                  id="cipher-lease-banner_input_custom-start"
                   formControlName="customStart"
-                  data-testid="request-access-start"
                 />
               </bit-form-field>
               <bit-form-field>
@@ -124,8 +146,8 @@
                 <input
                   bitInput
                   type="time"
+                  id="cipher-lease-banner_input_custom-end"
                   formControlName="customEnd"
-                  data-testid="request-access-end"
                 />
               </bit-form-field>
             </div>
@@ -149,9 +171,9 @@
               <input
                 bitInput
                 type="text"
+                id="cipher-lease-banner_input_reason"
                 formControlName="reason"
                 [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
-                data-testid="request-access-reason"
               />
               <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
             </bit-form-field>
@@ -175,7 +197,6 @@
             [disabled]="submittingRequest()"
             [loading]="submittingRequest()"
             (click)="submitRequest()"
-            data-testid="request-access-submit"
             id="cipher-lease-banner_button_request-access-submit"
           >
             {{ "pamRequestAccessButton" | i18n }}

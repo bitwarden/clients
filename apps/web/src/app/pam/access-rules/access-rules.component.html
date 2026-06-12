@@ -1,6 +1,12 @@
 <app-header [title]="'pamAccessRules' | i18n">
   @if (!loading() && rules().length > 0) {
-    <button type="button" bitButton buttonType="primary" [bitAction]="openCreate">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="openCreate"
+      id="access-rules_button_new"
+    >
       {{ "pamAccessRuleNew" | i18n }}
     </button>
   }
@@ -223,7 +229,13 @@
         <div class="tw-flex-1 tw-border-t tw-border-secondary-300"></div>
       </div>
 
-      <button type="button" bitButton buttonType="primary" [bitAction]="openCreate">
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="openCreate"
+        id="access-rules_button_add"
+      >
         {{ "pamAccessRuleAdd" | i18n }}
       </button>
     </div>
