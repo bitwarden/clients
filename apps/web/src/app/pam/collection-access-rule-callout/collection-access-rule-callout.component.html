@@ -1,20 +1,23 @@
 @if (rules().length > 0) {
   <bit-callout type="info" [title]="'pamCollectionAccessRuleCalloutTitle' | i18n">
-    <div class="tw-flex tw-items-baseline tw-justify-between tw-gap-4">
-      <span>
-        {{ "pamCollectionAccessRuleCalloutBody" | i18n }}
-        @for (rule of rules(); track rule.id; let last = $last) {
-          <span class="tw-font-bold">{{ rule.name }}</span>{{ last ? "" : ", " }}
-        }
-      </span>
-      <a
-        bitLink
-        linkType="primary"
-        class="tw-shrink-0 tw-whitespace-nowrap"
-        [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules']"
-      >
-        {{ "pamCollectionAccessRuleManageLink" | i18n }}
-      </a>
-    </div>
+    <p class="tw-mb-2">{{ "pamCollectionAccessRuleCalloutBody" | i18n }}</p>
+    <ul class="tw-mb-2 tw-ps-4">
+      @for (rule of rules(); track rule.id) {
+        <li>
+          <span class="tw-font-bold">{{ rule.name }}</span> &mdash;
+          <pam-access-rule-summary
+            [conditions]="rule.conditions"
+            [singleActiveLease]="rule.singleActiveLease"
+          />
+        </li>
+      }
+    </ul>
+    <a
+      bitLink
+      linkType="primary"
+      [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules']"
+    >
+      {{ "pamCollectionAccessRuleManageLink" | i18n }}
+    </a>
   </bit-callout>
 }

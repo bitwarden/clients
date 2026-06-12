@@ -136,6 +136,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     const text = fixture.nativeElement.textContent;
     expect(callout(fixture)).not.toBeNull();
     expect(text).toContain("VPN access");
+    expect(text).toContain("IP restriction");
     expect(text).not.toContain("Enabled elsewhere");
     expect(text).not.toContain("Disabled here");
   });
