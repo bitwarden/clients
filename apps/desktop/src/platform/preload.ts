@@ -12,6 +12,8 @@ import {
   isSnapStore,
   isWindowsPortable,
   isWindowsStore,
+  EnvAccessTokenLocation,
+  accessTokenLocation,
 } from "../main/platform-utils.main";
 import {
   EncryptedMessageResponse,
@@ -19,7 +21,7 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { isDev, EnvAccessTokenLocation, accessTokenLocation } from "../utils";
+import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 

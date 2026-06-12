@@ -24,30 +24,6 @@ export function isDev() {
 }
 
 /**
- * Overrides the access token location
- */
-export const EnvAccessTokenLocation = Object.freeze({
-  Disk: "DISK",
-  Default: "DEFAULT",
-} as const);
-export type EnvAccessTokenLocation =
-  (typeof EnvAccessTokenLocation)[keyof typeof EnvAccessTokenLocation];
-
-/**
- * Reads the `ACCESS_TOKEN_LOCATION` env var. `DISK` forces the access token to be stored
- * unencrypted on disk (bypassing the OS keyring); anything else (including unset) keeps the
- * default keyring-backed secure storage.
- *
- * This is useful on systems where the keyring is unreliable (KDE/Kwallet) where the user
- * otherwise experiences periodic logouts.
- */
-export function accessTokenLocation(): EnvAccessTokenLocation {
-  return process.env.ACCESS_TOKEN_LOCATION?.toUpperCase() === EnvAccessTokenLocation.Disk
-    ? EnvAccessTokenLocation.Disk
-    : EnvAccessTokenLocation.Default;
-}
-
-/**
  * Sanitize user agent so external resources used by the app can't built data on our users.
  */
 export function cleanUserAgent(userAgent: string): string {
