@@ -921,11 +921,11 @@ export default class AutofillService implements AutofillServiceInterface {
     if (fieldType === AutofillTargetingRuleTypes.username) {
       return cipher.login?.username ?? null;
     }
-    if (
-      fieldType === AutofillTargetingRuleTypes.password ||
-      fieldType === AutofillTargetingRuleTypes.newPassword
-    ) {
+    if (fieldType === AutofillTargetingRuleTypes.password) {
       return cipher.login?.password ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.newPassword) {
+      return null;
     }
 
     // Card fields
