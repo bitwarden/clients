@@ -58,6 +58,7 @@ import {
 import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
+import { CollectionAccessRuleCalloutComponent } from "../../../../../pam/collection-access-rule-callout/collection-access-rule-callout.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
 import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
@@ -90,7 +91,14 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 @Component({
   selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe, Vfo1I18nPipe],
+  imports: [
+    SharedModule,
+    AccessSelectorModule,
+    SelectModule,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
+    CollectionAccessRuleCalloutComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollectionDialogComponent implements OnInit {
