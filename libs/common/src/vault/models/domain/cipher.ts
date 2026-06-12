@@ -98,7 +98,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
-    this.partialData = obj.partialData;
+    this.partialData = obj.partialData ?? undefined;
 
     switch (this.type) {
       case CipherType.Login:
