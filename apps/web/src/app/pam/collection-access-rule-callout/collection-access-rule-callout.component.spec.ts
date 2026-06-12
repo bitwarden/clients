@@ -142,14 +142,16 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(text).not.toContain("Disabled here");
   });
 
-  it("links to the organization's access-rules page", async () => {
-    listAccessRules.mockResolvedValue({ data: [rule({ name: "VPN access" })] });
+  it("deep-links to the specific rule on the organization's access-rules page", async () => {
+    listAccessRules.mockResolvedValue({ data: [rule({ id: "rule-42", name: "VPN access" })] });
 
     const fixture = await create();
 
     const link = fixture.debugElement.query(By.css("a[bitLink]"))
       .nativeElement as HTMLAnchorElement;
-    expect(link.getAttribute("href")).toBe("/organizations/org-1/pam/access-rules");
+    expect(link.getAttribute("href")).toBe(
+      "/organizations/org-1/pam/access-rules?accessRuleId=rule-42",
+    );
   });
 
   it("closes the dialog when the rule name link is clicked", async () => {
