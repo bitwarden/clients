@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -51,9 +52,9 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
 }
 
 describe("MyAccessRequestsComponent", () => {
-  let pamApi: jest.Mocked<PamApiService>;
+  let pamApi: MockProxy<PamApiService>;
   let configFlag$: BehaviorSubject<boolean>;
-  let toast: jest.Mocked<Pick<ToastService, "showToast">>;
+  let toast: MockProxy<ToastService>;
 
   const i18n = new I18nMockService({
     loading: "Loading…",
@@ -90,16 +91,11 @@ describe("MyAccessRequestsComponent", () => {
   });
 
   beforeEach(async () => {
-    pamApi = {
-      cancelAccessRequest: jest.fn(),
-      requestLeaseExtension: jest.fn(),
-      decideAccessRequest: jest.fn(),
-      revokeAccessLease: jest.fn(),
-      listMyAccessRequests: jest.fn().mockResolvedValue([]),
-    } as unknown as jest.Mocked<PamApiService>;
+    pamApi = mock<PamApiService>();
+    pamApi.listMyAccessRequests.mockResolvedValue([]);
 
     configFlag$ = new BehaviorSubject<boolean>(true);
-    toast = { showToast: jest.fn() };
+    toast = mock<ToastService>();
 
     await TestBed.configureTestingModule({
       imports: [MyAccessRequestsComponent, NoopAnimationsModule],
