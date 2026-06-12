@@ -1190,8 +1190,6 @@ const safeProviders: SafeProvider[] = [
       WebPushConnectionService,
       AuthRequestAnsweringService,
       ConfigService,
-      InternalPolicyService,
-      InternalNewPolicyService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
     ],

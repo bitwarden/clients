@@ -214,8 +214,13 @@
     "message": "Vyplnit",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatické vyplňování"
+  "autofillNoun": {
+    "message": "Automatické vyplňování",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatické vyplňování",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automaticky vyplnit přihlášení"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Uložit"
+  },
+  "saveAndFill": {
+    "message": "Uložit a vyplnit"
   },
   "move": {
     "message": "Přesunout"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "URL serveru ikon"
+  },
+  "sendUrl": {
+    "message": "Odeslat URL serveru"
   },
   "environmentSaved": {
     "message": "URL adresy vlastního prostředí byly uloženy"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
+  },
+  "sharedUnlock": {
+    "message": "Sdílené odemknutí"
+  },
+  "sharedUnlockDescription": {
+    "message": "Udržujte své aplikace Bitwarden synchronizované. Pokud je povoleno, odemknutí bude sdíleno všemi aplikacemi na tomto počítači. Pro synchronizaci mezi různými prohlížeči je vyžadována desktopová aplikace."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Udržujte své aplikace Bitwarden synchronizované. Pokud je povoleno, odemknutí bude sdíleno s webovými trezory Bitwarden v Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Udržujte své aplikace Bitwarden synchronizované. Pokud je povoleno, odemknutí bude sdíleno s desktopovou aplikací Bitwarden."
   },
   "enterMonth": {
     "message": "Zadejte měsíc."
