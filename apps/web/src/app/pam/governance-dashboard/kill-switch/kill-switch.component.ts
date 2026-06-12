@@ -51,15 +51,15 @@ export type KillSwitchState =
   ],
 })
 export class KillSwitchComponent implements OnInit {
+  readonly organizationId = input.required<string>();
+  readonly organizationName = input.required<string>();
+
   private readonly pamApiService = inject(PamApiService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly configService = inject(ConfigService);
-
-  readonly organizationId = input.required<string>();
-  readonly organizationName = input.required<string>();
 
   protected readonly killSwitchEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
@@ -74,6 +74,24 @@ export class KillSwitchComponent implements OnInit {
   protected readonly isFrozen = signal(false);
   /** True while the unblock request is in flight. */
   protected readonly unblocking = signal(false);
+
+  protected readonly isSuccess = computed(() => this.state().kind === "success");
+  protected readonly isPartial = computed(() => this.state().kind === "partial");
+
+  protected readonly successCount = computed(() => {
+    const s = this.state();
+    return s.kind === "success" ? s.revokedCount : 0;
+  });
+
+  protected readonly partialRevokedCount = computed(() => {
+    const s = this.state();
+    return s.kind === "partial" ? s.revokedCount : 0;
+  });
+
+  protected readonly partialFailedCount = computed(() => {
+    const s = this.state();
+    return s.kind === "partial" ? s.failedCount : 0;
+  });
 
   async ngOnInit(): Promise<void> {
     await this.refreshFreezeState();
@@ -107,24 +125,6 @@ export class KillSwitchComponent implements OnInit {
       this.unblocking.set(false);
     }
   }
-
-  protected readonly isSuccess = computed(() => this.state().kind === "success");
-  protected readonly isPartial = computed(() => this.state().kind === "partial");
-
-  protected readonly successCount = computed(() => {
-    const s = this.state();
-    return s.kind === "success" ? s.revokedCount : 0;
-  });
-
-  protected readonly partialRevokedCount = computed(() => {
-    const s = this.state();
-    return s.kind === "partial" ? s.revokedCount : 0;
-  });
-
-  protected readonly partialFailedCount = computed(() => {
-    const s = this.state();
-    return s.kind === "partial" ? s.failedCount : 0;
-  });
 
   protected async openKillSwitchDialog(): Promise<void> {
     const ref = KillSwitchDialogComponent.open(this.dialogService, {

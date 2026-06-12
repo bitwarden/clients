@@ -83,6 +83,8 @@ const NO_DURATION_CAP = 0;
   ],
 })
 export class AccessRuleDialogComponent implements OnInit {
+  private readonly ipAllowlistEditor = viewChild(IpAllowlistEditorComponent);
+
   protected readonly data = inject<AccessRuleDialogData>(DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
   private readonly pamApi = inject(PamApiService);
@@ -95,8 +97,6 @@ export class AccessRuleDialogComponent implements OnInit {
   protected readonly editing = this.data.existing != null;
   protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
   protected readonly noDurationCap = NO_DURATION_CAP;
-
-  private readonly ipAllowlistEditor = viewChild(IpAllowlistEditorComponent);
 
   protected readonly initialCidrs = findCidrs(this.data.existing?.conditions ?? []);
 
@@ -147,6 +147,26 @@ export class AccessRuleDialogComponent implements OnInit {
     this.coupleDurationBounds();
   }
 
+  async ngOnInit(): Promise<void> {
+    try {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const collections = await firstValueFrom(
+        this.collectionAdminService.collectionAdminViews$(this.data.organizationId, userId),
+      );
+      this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
+
+      // Map the rule's stored collection IDs onto the now-loaded options so the
+      // chips render with real names rather than raw UUIDs.
+      const optionsById = new Map(this.collectionOptions().map((c) => [c.id, c]));
+      const selected = (this.data.existing?.collections ?? [])
+        .map((id) => optionsById.get(id))
+        .filter((c): c is SelectItemView => c != null);
+      this.formGroup.controls.collections.setValue(selected);
+    } finally {
+      this.collectionsLoading.set(false);
+    }
+  }
+
   /**
    * Keep the default duration at or below the max: when the user moves one picker
    * past the other, drag the other along so the pair stays consistent. A max of
@@ -168,26 +188,6 @@ export class AccessRuleDialogComponent implements OnInit {
         defaultControl.setValue(value, { emitEvent: false });
       }
     });
-  }
-
-  async ngOnInit(): Promise<void> {
-    try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const collections = await firstValueFrom(
-        this.collectionAdminService.collectionAdminViews$(this.data.organizationId, userId),
-      );
-      this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
-
-      // Map the rule's stored collection IDs onto the now-loaded options so the
-      // chips render with real names rather than raw UUIDs.
-      const optionsById = new Map(this.collectionOptions().map((c) => [c.id, c]));
-      const selected = (this.data.existing?.collections ?? [])
-        .map((id) => optionsById.get(id))
-        .filter((c): c is SelectItemView => c != null);
-      this.formGroup.controls.collections.setValue(selected);
-    } finally {
-      this.collectionsLoading.set(false);
-    }
   }
 
   protected readonly submit = async (): Promise<void> => {

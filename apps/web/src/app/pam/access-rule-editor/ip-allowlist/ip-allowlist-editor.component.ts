@@ -78,9 +78,6 @@ function atLeastOneNonEmptyCidrValidator(): ValidatorFn {
   ],
 })
 export class IpAllowlistEditorComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly i18n = inject(I18nService);
-
   /** Initial CIDR list supplied by the parent on load. */
   readonly cidrs = input<string[]>([]);
 
@@ -93,21 +90,13 @@ export class IpAllowlistEditorComponent implements OnInit {
    */
   readonly cidrsChange = output<string[]>();
 
+  private readonly fb = inject(FormBuilder);
+  private readonly i18n = inject(I18nService);
+
   protected readonly cidrArray = this.fb.array<string>(
     [],
     [noDuplicateCidrsValidator(), atLeastOneNonEmptyCidrValidator()],
   );
-
-  get currentCidrs(): string[] {
-    return (this.cidrArray.controls as FormControl<string>[]).map((c) => c.value.trim());
-  }
-
-  /** Returns `true` when the form is valid and ready to submit. */
-  validate(): boolean {
-    this.cidrArray.markAllAsTouched();
-    this.cidrArray.updateValueAndValidity();
-    return this.cidrArray.valid;
-  }
 
   ngOnInit(): void {
     const initial = this.cidrs();
@@ -118,6 +107,17 @@ export class IpAllowlistEditorComponent implements OnInit {
     } else {
       this.appendRow("");
     }
+  }
+
+  get currentCidrs(): string[] {
+    return (this.cidrArray.controls as FormControl<string>[]).map((c) => c.value.trim());
+  }
+
+  /** Returns `true` when the form is valid and ready to submit. */
+  validate(): boolean {
+    this.cidrArray.markAllAsTouched();
+    this.cidrArray.updateValueAndValidity();
+    return this.cidrArray.valid;
   }
 
   protected addRow(): void {

@@ -180,18 +180,6 @@ export function historyRelTimeFor(
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApproverInboxComponent implements OnInit {
-  private readonly inbox = inject(ApproverInboxService);
-  private readonly badgeService = inject(ApproverInboxBadgeService);
-  private readonly accountService = inject(AccountService);
-  private readonly toastService = inject(ToastService);
-  private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
-  private readonly notificationsService = inject(ServerNotificationsService);
-  private readonly pamApiService = inject(PamApiService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  protected readonly rows = viewChildren(ApproverInboxRowComponent);
-
   /**
    * Server filters by Manage. The two empty states differ in copy:
    * - true (default): "No requests waiting."
@@ -202,6 +190,18 @@ export class ApproverInboxComponent implements OnInit {
    * an upcoming ticket will resolve it from collection metadata.
    */
   readonly hasManagerCollections = input<boolean>(true);
+
+  protected readonly rows = viewChildren(ApproverInboxRowComponent);
+
+  private readonly inbox = inject(ApproverInboxService);
+  private readonly badgeService = inject(ApproverInboxBadgeService);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
+  private readonly notificationsService = inject(ServerNotificationsService);
+  private readonly pamApiService = inject(PamApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUserId = toSignal(
     this.accountService.activeAccount$.pipe(map((a) => a?.id ?? null)),
@@ -260,6 +260,9 @@ export class ApproverInboxComponent implements OnInit {
    * holds the rows to render.
    */
   protected readonly historyDataSource = new TableDataSource<FlatHistoryRow>();
+
+  /** IDs of leases currently being revoked (prevents double-click). */
+  protected readonly revoking = signal<Set<string>>(new Set());
 
   constructor() {
     effect(() => {
@@ -336,9 +339,6 @@ export class ApproverInboxComponent implements OnInit {
       });
     }
   }
-
-  /** IDs of leases currently being revoked (prevents double-click). */
-  protected readonly revoking = signal<Set<string>>(new Set());
 
   protected async onRevoke(item: AccessRequestDetailsResponse): Promise<void> {
     if (!item.producedLeaseId) {
