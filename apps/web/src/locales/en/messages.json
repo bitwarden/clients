@@ -14278,13 +14278,10 @@
     "message": "No conditions — anyone with collection access can lease."
   },
   "pamCollectionAccessRuleCalloutTitle": {
-    "message": "Access rule active"
+    "message": "Access rule"
   },
   "pamCollectionAccessRuleCalloutBody": {
-    "message": "Access to items in this collection is controlled by:"
-  },
-  "pamCollectionAccessRuleManageLink": {
-    "message": "Manage access rules"
+    "message": "Access to items here is controlled by"
   },
   "pamAccessRuleLeaseSettingsHeading": {
     "message": "Lease settings"

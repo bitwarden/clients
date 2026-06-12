@@ -1,23 +1,19 @@
-@if (rules().length > 0) {
+@if (rules()[0]; as rule) {
   <bit-callout type="info" [title]="'pamCollectionAccessRuleCalloutTitle' | i18n">
-    <p class="tw-mb-2">{{ "pamCollectionAccessRuleCalloutBody" | i18n }}</p>
-    <ul class="tw-mb-2 tw-ps-4">
-      @for (rule of rules(); track rule.id) {
-        <li>
-          <span class="tw-font-bold">{{ rule.name }}</span> &mdash;
-          <pam-access-rule-summary
-            [conditions]="rule.conditions"
-            [singleActiveLease]="rule.singleActiveLease"
-          />
-        </li>
-      }
-    </ul>
+    <span>{{ "pamCollectionAccessRuleCalloutBody" | i18n }}</span>
     <a
       bitLink
       linkType="primary"
+      class="tw-ms-1"
       [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules']"
+      (click)="closeDialog()"
+      >{{ rule.name }}</a
     >
-      {{ "pamCollectionAccessRuleManageLink" | i18n }}
-    </a>
+    <span class="tw-ms-1 tw-text-muted">&middot;</span>
+    <pam-access-rule-summary
+      class="tw-ms-1"
+      [conditions]="rule.conditions"
+      [singleActiveLease]="rule.singleActiveLease"
+    />
   </bit-callout>
 }

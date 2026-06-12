@@ -7,7 +7,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { CalloutModule, LinkModule } from "@bitwarden/components";
+import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -15,11 +15,12 @@ import { AccessRuleSummaryComponent } from "../access-rules/access-rule-summary.
 
 /**
  * PAM slot for the collection edit dialog. Given the collection being edited,
- * surfaces a callout naming the enabled access rule(s) that govern it, with a
- * link to manage them. Renders nothing when the PAM feature flag is off, the
- * dialog is creating a new collection (no `collectionId`), or no enabled rule
- * targets the collection — so the host dialog can mount it unconditionally with
- * a single tag and carry no PAM-specific logic.
+ * surfaces a callout naming the enabled access rule that governs it; the rule
+ * name links through to the access-rules page. Renders nothing when the PAM
+ * feature flag is off, the dialog is creating a new collection (no
+ * `collectionId`), or no enabled rule targets the collection — so the host
+ * dialog can mount it unconditionally with a single tag and carry no
+ * PAM-specific logic.
  */
 @Component({
   selector: "pam-collection-access-rule-callout",
@@ -34,6 +35,7 @@ export class CollectionAccessRuleCalloutComponent {
   private readonly configService = inject(ConfigService);
   private readonly pamApiService = inject(PamApiService);
   private readonly logService = inject(LogService);
+  private readonly dialogRef = inject(DialogRef, { optional: true });
 
   /**
    * Enabled access rules targeting this collection. Empty whenever the feature
@@ -64,4 +66,9 @@ export class CollectionAccessRuleCalloutComponent {
     ),
     { initialValue: [] as AccessRuleResponse[] },
   );
+
+  /** Close the host collection dialog when navigating to the access-rules page. */
+  protected closeDialog(): void {
+    void this.dialogRef?.close();
+  }
 }
