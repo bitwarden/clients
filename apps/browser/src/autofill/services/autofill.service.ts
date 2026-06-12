@@ -884,6 +884,8 @@ export default class AutofillService implements AutofillServiceInterface {
   ): Promise<AutofillScript | null> {
     const fillScript = new AutofillScript();
     const cipher = options.cipher;
+    const isPasswordGeneration =
+      options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
 
     fillScript.savedUrls =
       cipher.login?.uris
@@ -898,7 +900,14 @@ export default class AutofillService implements AutofillServiceInterface {
         continue;
       }
 
-      const value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      // Password-generation flow synthesizes a Login cipher whose `password`
+      // carries the generated value. The standard newPassword → null policy
+      // would suppress that fill, so override it here.
+      const value =
+        isPasswordGeneration && field.fieldQualifier === AutofillTargetingRuleTypes.newPassword
+          ? (cipher.login?.password ?? null)
+          : this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+
       if (!value) {
         continue;
       }
