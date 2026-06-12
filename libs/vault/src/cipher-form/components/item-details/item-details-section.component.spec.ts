@@ -131,12 +131,13 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should throw an error if no organizations are available for ownership and organization data ownership is enabled", async () => {
+    it("should initialize with a null organizationId when no organizations are available for ownership and organization data ownership is enabled", async () => {
       component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [];
-      await expect(component.ngOnInit()).rejects.toThrow(
-        "No organizations available for ownership.",
-      );
+
+      await expect(component.ngOnInit()).resolves.not.toThrow();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
     });
 
     it("should initialize form with default values if no originalCipher is provided", fakeAsync(async () => {

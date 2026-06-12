@@ -74,7 +74,10 @@ describe("CipherFormComponent", () => {
 
   describe("submit", () => {
     beforeEach(() => {
-      component.config = { mode: "edit" } as CipherFormConfig;
+      component.config = {
+        mode: "edit",
+        organizationDataOwnershipDisabled: true,
+      } as CipherFormConfig;
 
       component["updatedCipherView"] = new CipherView();
       component["updatedCipherView"].archivedDate = new Date();
@@ -92,6 +95,29 @@ describe("CipherFormComponent", () => {
 
       expect(component["updatedCipherView"]?.archivedDate).toBeNull();
       expect(mockCipherArchiveService.userCanArchive$).toHaveBeenCalledWith("user-id");
+    });
+
+    it("shows an error toast and aborts when the policy applies but there are no eligible orgs", async () => {
+      component.config = {
+        mode: "add",
+        organizationDataOwnershipDisabled: false,
+        organizations: [],
+      } as unknown as CipherFormConfig;
+
+      const toastService = TestBed.inject(ToastService);
+      const showToast = jest.spyOn(toastService, "showToast");
+      mockAddEditFormService.saveCipher = jest.fn();
+      const cipherSavedSpy = jest.fn();
+      component.cipherSaved.subscribe(cipherSavedSpy);
+
+      await component.submit();
+
+      expect(showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "cannotSaveItemNoConfirmedOrgs",
+      });
+      expect(mockAddEditFormService.saveCipher).not.toHaveBeenCalled();
+      expect(cipherSavedSpy).not.toHaveBeenCalled();
     });
   });
 
