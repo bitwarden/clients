@@ -116,7 +116,7 @@ export class SponsoringOrgRowComponent {
     );
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("emailSent"),
     });
   }
@@ -158,7 +158,7 @@ export class SponsoringOrgRowComponent {
     await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg().id);
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("reclaimedFreePlan"),
     });
     this.sponsorshipRemoved.emit();
