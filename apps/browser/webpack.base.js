@@ -143,6 +143,8 @@ module.exports.buildConfig = function buildConfig(params) {
     new webpack.EnvironmentPlugin({
       FLAGS: envConfig.flags,
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
+      ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
+      NODE_ENV: process.env.NODE_ENV === "production" ? "production" : "development",
     }),
   ];
 
