@@ -13,6 +13,7 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 40;
   component = TwoFactorAuthenticationPolicyComponent;
+  hideCancelButton = true;
 }
 
 @Component({

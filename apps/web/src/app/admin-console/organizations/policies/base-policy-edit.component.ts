@@ -89,6 +89,11 @@ export abstract class BasePolicyEditDefinition {
   warningKey?: string;
 
   /**
+   * When true, the cancel button is hidden in the drawer footer.
+   */
+  hideCancelButton?: boolean;
+
+  /**
    * Optional drawer-specific configuration for this policy.
    * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
    * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
@@ -108,6 +113,8 @@ export abstract class BasePolicyEditDefinition {
     prerequisiteLinkHref?: string;
     /** i18n key for the text of {@link prerequisiteLinkHref}. */
     prerequisiteLinkTextKey?: string;
+    /** i18n key for the switch label. Defaults to "turnOn" when not set. */
+    labelKey?: string;
   };
 
   /**

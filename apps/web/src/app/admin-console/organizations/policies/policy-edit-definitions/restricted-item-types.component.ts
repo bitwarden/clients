@@ -17,9 +17,11 @@ export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 50;
   component = RestrictedItemTypesPolicyComponent;
+  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "restrictedItemTypePolicyDescV2",
+    labelKey: "enablePolicy",
   };
 }
 

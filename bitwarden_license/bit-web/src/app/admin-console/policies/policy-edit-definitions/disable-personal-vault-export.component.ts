@@ -15,6 +15,7 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.DataControl;
   priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
+  hideCancelButton = true;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

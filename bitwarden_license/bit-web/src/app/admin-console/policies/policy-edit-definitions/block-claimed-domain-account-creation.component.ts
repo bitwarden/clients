@@ -16,6 +16,7 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   category = PolicyCategory.Authentication;
   priority = 60;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
+  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "blockClaimedDomainAccountCreationTitleV2",
@@ -23,6 +24,7 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
     prerequisiteKey: "blockClaimedDomainAccountCreationPrerequisiteV2",
     prerequisiteLinkHref: "https://bitwarden.com/help/claimed-domains/",
     prerequisiteLinkTextKey: "blockClaimedDomainAccountCreationLearnMoreV2",
+    labelKey: "enablePolicy",
   };
 }
 

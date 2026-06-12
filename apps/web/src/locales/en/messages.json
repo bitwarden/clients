@@ -6407,6 +6407,9 @@
   "requireSso": {
     "message": "Require single sign-on authentication"
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
   "requireSsoPolicyDesc": {
     "message": "Require members to log in with the Enterprise single sign-on method."
   },

@@ -20,10 +20,12 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   category = PolicyCategory.VaultManagement;
   priority = 70;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
+  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "desktopAutotypePolicyTitleV2",
     description: "desktopAutotypePolicyDescV2",
+    labelKey: "enablePolicy",
   };
 
   display$(organization: Organization, configService: ConfigService) {

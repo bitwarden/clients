@@ -18,10 +18,12 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 60;
   component = FreeFamiliesSponsorshipPolicyComponent;
+  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "freeFamiliesSponsorshipPolicyTitleV2",
     description: "freeFamiliesSponsorshipPolicyDescV2",
+    labelKey: "enablePolicy",
   };
 }
 

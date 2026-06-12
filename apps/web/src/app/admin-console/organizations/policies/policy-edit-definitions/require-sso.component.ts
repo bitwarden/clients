@@ -16,6 +16,11 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 30;
   component = RequireSsoPolicyComponent;
+  hideCancelButton = true;
+  v2 = {
+    component: RequireSsoPolicyComponent,
+    name: "requireSsoPolicyTitle",
+  };
 
   display$(organization: Organization, configService: ConfigService) {
     return of(organization.useSso);
