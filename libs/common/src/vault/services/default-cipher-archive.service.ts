@@ -76,7 +76,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
 
     await this.cipherService.upsert(responseDataArray, userId);
-    return response.data[0];
+    return responseDataArray[0];
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
@@ -90,6 +90,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
 
     await this.cipherService.upsert(responseDataArray, userId);
-    return response.data[0];
+    return responseDataArray[0];
   }
 }
