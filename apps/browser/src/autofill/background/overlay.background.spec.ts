@@ -2993,6 +2993,75 @@ describe("OverlayBackground", () => {
 
         expect(BrowserApi.getAllFrameDetails).not.toHaveBeenCalled();
       });
+
+      it("matches a frame whose URL drops a trailing slash present in iframeSrc", async () => {
+        jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 7,
+            url: "https://example.com/iframe",
+          }),
+        ]);
+
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe/",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          tab,
+          { command: "applyTargetedFields", iframeTargetedFields },
+          { frameId: 7 },
+        );
+      });
+
+      it("does not send when multiple frames match the same iframeSrc (ambiguous)", async () => {
+        jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 5,
+            url: "https://example.com/iframe",
+          }),
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 8,
+            url: "https://example.com/iframe",
+          }),
+        ]);
+
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          tab,
+          expect.objectContaining({ command: "applyTargetedFields" }),
+          expect.anything(),
+        );
+      });
+
+      it("does not throw when tabSendMessage rejects (e.g. sandboxed iframe)", async () => {
+        tabsSendMessageSpy.mockRejectedValueOnce(new Error("Could not establish connection"));
+
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+
+        await expect(flushPromises()).resolves.not.toThrow();
+      });
     });
   });
 

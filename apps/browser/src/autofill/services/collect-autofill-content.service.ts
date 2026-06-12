@@ -37,6 +37,11 @@ import { DomElementVisibilityService } from "./abstractions/dom-element-visibili
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { AutoFillConstants } from "./autofill-constants";
 
+type ResolveFieldTarget = {
+  selectorAlternatives: string[];
+  fieldType: AutofillTargetingRuleType;
+};
+
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly getAttributeBoolean = getAttributeBoolean;
@@ -265,77 +270,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * first DOM match.
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
-    const fields: AutofillField[] = [];
-    // Accumulates targets that live inside iframes, keyed by the iframe's URL.
-    // These are routed to the iframe's own content script instead of being
-    // collected here, so the existing sub-frame offset infrastructure handles
-    // their positioning correctly.
-    const iframeTargets = new Map<
-      string,
-      { selector: string; fieldType: AutofillTargetingRuleType }[]
-    >();
+    const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
+      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
+        .filter(([, alternatives]) => alternatives?.length)
+        .map(([fieldType, selectorAlternatives]) => ({ fieldType, selectorAlternatives })),
+    );
 
-    for (let formIndex = 0; formIndex < forms.length; formIndex++) {
-      const form = forms[formIndex];
-
-      for (const [fieldType, selectorAlternatives] of Object.entries(form.fields)) {
-        if (!selectorAlternatives?.length) {
-          continue;
-        }
-
-        for (const selector of selectorAlternatives) {
-          if (typeof selector !== "string") {
-            continue;
-          }
-
-          // Check whether this selector crosses an iframe boundary before
-          // trying to resolve it locally.
-          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
-          if (iframeCrossing) {
-            const { iframeElement, innerSelector } = iframeCrossing;
-            const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
-            if (iframeSrc) {
-              if (!iframeTargets.has(iframeSrc)) {
-                iframeTargets.set(iframeSrc, []);
-              }
-              iframeTargets.get(iframeSrc)!.push({
-                selector: innerSelector,
-                fieldType: fieldType as AutofillTargetingRuleType,
-              });
-            }
-            break;
-          }
-
-          // No iframe boundary — resolve locally (direct element or shadow DOM).
-          const matchedElement = this.domQueryService.queryDeepSelector(selector);
-          if (matchedElement) {
-            const fieldId = `targeted_field_${formIndex}_${fieldType}`;
-            const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-            formFieldElement.opid = fieldId;
-
-            const autofillField = this.buildTargetedAutofillField(
-              formFieldElement,
-              fieldType as AutofillTargetingRuleType,
-              fields.length,
-            );
-
-            fields.push(autofillField);
-            this.cacheAutofillFieldElement(fields.length - 1, formFieldElement, autofillField);
-            break;
-          }
-        }
-      }
-    }
-
-    // Route iframe-crossing selectors to their respective frames. Fire-and-
-    // forget: the iframe content scripts apply their fields asynchronously and
-    // re-send collectPageDetailsResponse with their own frameId.
-    for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
-      void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
-        iframeSrc,
-        iframeTargetedFields,
-      });
-    }
+    const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
+    this.routeIframeTargets(iframeTargets);
 
     // If this frame resolved no local targeted fields but already has fields cached
     // from a prior applyExternalTargetedFields call, use those cached fields. This
@@ -344,7 +286,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // rules cross an iframe boundary that doesn't exist inside this frame — so the
     // results are empty, and we must not overwrite the background's page-details entry
     // with an empty payload.
-    if (!fields.length && this.autofillFieldElements.size > 0) {
+    if (!localFields.length && this.autofillFieldElements.size > 0) {
       this.domRecentlyMutated = false;
       const cachedPageDetails = this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
@@ -359,7 +301,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
      * @TODO check if need to utilize targeting rules for forms/submits within closed
      * shadow roots as well, in order to detect cipher additions/updates
      */
-    const pageDetails = this.getFormattedPageDetails({}, fields);
+    const pageDetails = this.getFormattedPageDetails({}, localFields);
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
@@ -367,50 +309,154 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Applies externally-provided targeting rules to this frame. Called when the
-   * background dispatches `applyTargetedFields` after the top-level frame
-   * determined that a targeting rule's selector crosses into this iframe.
-   * Builds synthetic AutofillFields for the given selectors and re-sends
-   * collectPageDetailsResponse so the background updates its frame records.
+   * background dispatches `applyTargetedFields` after a parent frame's
+   * targeting rule selector crossed into this iframe. Resolves each selector
+   * locally if possible; if a routed selector itself crosses another iframe
+   * (multi-hop chain), re-routes via the background to the next frame.
+   * Re-sends collectPageDetailsResponse so the background updates its frame
+   * records.
    *
    * @param targetedFields - Selector/fieldType pairs resolved to this frame
    */
   async applyExternalTargetedFields(
     targetedFields: { selector: string; fieldType: string }[],
   ): Promise<void> {
-    const fields: AutofillField[] = [];
+    const targets: ResolveFieldTarget[] = targetedFields.map((t) => ({
+      selectorAlternatives: [t.selector],
+      fieldType: t.fieldType as AutofillTargetingRuleType,
+    }));
 
-    for (let i = 0; i < targetedFields.length; i++) {
-      const { selector, fieldType } = targetedFields[i];
-      const matchedElement = this.domQueryService.queryDeepSelector(selector);
-      if (!matchedElement) {
-        continue;
-      }
+    const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
+    this.routeIframeTargets(iframeTargets);
 
-      const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-      const fieldId = `targeted_field_${i}_${fieldType}`;
-      formFieldElement.opid = fieldId;
-
-      const autofillField = this.buildTargetedAutofillField(
-        formFieldElement,
-        fieldType as AutofillTargetingRuleType,
-        i,
+    // Symmetric to getTargetedPageDetails: if we resolved no local fields but
+    // already have cached fields from a prior applyExternalTargetedFields call,
+    // re-broadcast those instead of clobbering with an empty payload.
+    if (!localFields.length && this.autofillFieldElements.size > 0) {
+      this.domRecentlyMutated = false;
+      const cachedPageDetails = this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
       );
-      fields.push(autofillField);
-      this.cacheAutofillFieldElement(i, formFieldElement, autofillField);
+      void this.sendExtensionMessage("collectPageDetailsResponse", {
+        details: cachedPageDetails,
+        sender: "autofillInit",
+      });
+      return;
     }
 
-    if (!fields.length) {
+    if (!localFields.length) {
       return;
     }
 
     this.domRecentlyMutated = false;
-    const pageDetails = this.getFormattedPageDetails({}, fields);
+    const pageDetails = this.getFormattedPageDetails({}, localFields);
     this.setupOverlayListeners(pageDetails);
 
     void this.sendExtensionMessage("collectPageDetailsResponse", {
       details: pageDetails,
       sender: "autofillInit",
     });
+  }
+
+  /**
+   * Resolves a flat list of field targets against the current frame's DOM.
+   * For each target, tries each selector alternative in order until one resolves
+   * locally or crosses into an iframe. Iframe-crossing selectors are
+   * accumulated into `iframeTargets` keyed by the iframe's URL so the caller
+   * can route them onward via the background.
+   *
+   * Termination guarantee: when invoked recursively across frames, each hop
+   * strips at least one `>>>` segment from the routed selector, so a selector
+   * with N segments terminates after at most N-1 hops.
+   */
+  private resolveTargetedFields(targets: ResolveFieldTarget[]): {
+    localFields: AutofillField[];
+    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>;
+  } {
+    const localFields: AutofillField[] = [];
+    // Accumulates targets that live inside iframes, keyed by the iframe's URL.
+    // These are routed to the iframe's own content script instead of being
+    // collected here, so the existing sub-frame offset infrastructure handles
+    // their positioning correctly.
+    const iframeTargets = new Map<
+      string,
+      { selector: string; fieldType: AutofillTargetingRuleType }[]
+    >();
+
+    for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
+      const { selectorAlternatives, fieldType } = targets[targetIndex];
+      if (!selectorAlternatives?.length) {
+        continue;
+      }
+
+      for (const selector of selectorAlternatives) {
+        if (typeof selector !== "string") {
+          continue;
+        }
+
+        // Check whether this selector crosses an iframe boundary before
+        // trying to resolve it locally.
+        const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+        if (iframeCrossing) {
+          const { iframeElement, innerSelector } = iframeCrossing;
+          const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+          // Empty src (srcdoc, about:blank) is deferred — see routing/scope notes.
+          if (iframeSrc) {
+            if (!iframeTargets.has(iframeSrc)) {
+              iframeTargets.set(iframeSrc, []);
+            }
+            iframeTargets.get(iframeSrc)!.push({
+              selector: innerSelector,
+              fieldType,
+            });
+          }
+          break;
+        }
+
+        // No iframe boundary — resolve locally (direct element or shadow DOM).
+        const matchedElement = this.domQueryService.queryDeepSelector(selector);
+        if (matchedElement) {
+          const fieldId = `targeted_field_${targetIndex}_${fieldType}`;
+          const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+          formFieldElement.opid = fieldId;
+
+          const autofillField = this.buildTargetedAutofillField(
+            formFieldElement,
+            fieldType,
+            localFields.length,
+          );
+          localFields.push(autofillField);
+          this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+          break;
+        }
+      }
+    }
+
+    return { localFields, iframeTargets };
+  }
+
+  /**
+   * Fire-and-forget dispatch of accumulated iframe-crossing selectors to the
+   * background, which routes each batch to the matching frame's content script.
+   * The receiving frame's `applyExternalTargetedFields` will resolve locally
+   * or re-route onward, enabling multi-hop chains.
+   */
+  private routeIframeTargets(
+    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>,
+  ): void {
+    for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
+      void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
+        iframeSrc,
+        iframeTargetedFields,
+      }).catch((error: unknown) => {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[CollectAutofillContent] Failed to route targeted fields for iframe ${iframeSrc}:`,
+          error,
+        );
+      });
+    }
   }
 
   /**
