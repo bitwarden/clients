@@ -13199,7 +13199,7 @@
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
   },
-  "revokeSponsorshipAcceptedWithPriceConfirmation": {
+  "revokeActiveSponsorshipConfirmation": {
     "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
     "placeholders": {
       "email": {
