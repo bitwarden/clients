@@ -65,17 +65,31 @@ describe("OrganizationWarningsService", () => {
       year: "numeric",
     });
 
+  const activeAccount: Account = {
+    id: "user-id-123" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: undefined,
+    creationDate: undefined,
+  };
+
   beforeEach(() => {
+    accountService = mock<AccountService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
+    logService = mock<LogService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationBillingClient = mock<OrganizationBillingClient>();
     platformUtilsService = mock<PlatformUtilsService>();
     router = mock<Router>();
+    stateProvider = mock<StateProvider>();
 
     (openChangePlanDialog as jest.Mock).mockReset();
 
     platformUtilsService.isSelfHost.mockReturnValue(false);
+    accountService.activeAccount$ = of(activeAccount);
+    stateProvider.getUserState$.mockReturnValue(of(null));
+    stateProvider.setUserState.mockResolvedValue([activeAccount.id, null]);
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {

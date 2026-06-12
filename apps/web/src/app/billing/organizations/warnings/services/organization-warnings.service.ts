@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import {
   BehaviorSubject,
   filter,
+  firstValueFrom,
   from,
   lastValueFrom,
   map,
@@ -262,6 +263,19 @@ export class OrganizationWarningsService {
     this.getWarning$(organization, (response) => response.freeTrial).pipe(
       filter((warning) => warning !== null),
       switchMap(async () => {
+        const account = await firstValueFrom(this.accountService.activeAccount$);
+        if (!account) {
+          return;
+        }
+
+        const dismissedOrgs = await firstValueFrom(
+          this.stateProvider.getUserState$(TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY, account.id),
+        );
+        // dismissedOrgs is null when no dismissals have been stored yet
+        if (dismissedOrgs?.[organization.id]) {
+          return;
+        }
+
         const organizationSubscriptionResponse = await this.organizationApiService.getSubscription(
           organization.id,
         );
@@ -273,9 +287,27 @@ export class OrganizationWarningsService {
             productTierType: organization?.productTierType,
           },
         });
+
         const result = await lastValueFrom(dialogRef.closed);
-        if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
-          this.refreshFreeTrialWarningTrigger.next();
+
+        switch (result) {
+          case TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED: {
+            this.refreshFreeTrialWarningTrigger.next();
+            break;
+          }
+          default: {
+            // Covers CLOSED, X button, ESC, and clicking outside (all emit undefined)
+            try {
+              await this.stateProvider.setUserState(
+                TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+                { ...(dismissedOrgs ?? {}), [organization.id]: true },
+                account.id,
+              );
+            } catch (error) {
+              this.logService.error("Failed to save trial payment modal dismissal state:", error);
+            }
+            break;
+          }
         }
       }),
     );
