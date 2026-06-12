@@ -11,7 +11,7 @@ const manifest = require("./webpack/manifest");
 const AngularCheckPlugin = require("./webpack/angular-check");
 
 module.exports.getEnv = function getEnv(params) {
-  const ENV = params.env || (process.env.ENV = process.env.NODE_ENV);
+  const ENV = params.env || process.env.ENV || process.env.NODE_ENV;
   const manifestVersion = process.env.MANIFEST_VERSION == 3 ? 3 : 2;
   const browser = process.env.BROWSER ?? "chrome";
 
