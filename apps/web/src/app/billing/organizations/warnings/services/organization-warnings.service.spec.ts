@@ -89,7 +89,7 @@ describe("OrganizationWarningsService", () => {
     platformUtilsService.isSelfHost.mockReturnValue(false);
     accountService.activeAccount$ = of(activeAccount);
     stateProvider.getUserState$.mockReturnValue(of(null));
-    stateProvider.setUserState.mockResolvedValue([activeAccount.id, null]);
+    stateProvider.getUser.mockReturnValue({ update: jest.fn().mockResolvedValue(undefined) } as any);
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
@@ -825,10 +825,9 @@ describe("OrganizationWarningsService", () => {
 
       service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
         complete: () => {
-          expect(stateProvider.setUserState).toHaveBeenCalledWith(
-            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
-            expect.objectContaining({ [organization.id]: true }),
+          expect(stateProvider.getUser).toHaveBeenCalledWith(
             activeAccount.id,
+            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
           );
           done();
         },
@@ -850,10 +849,9 @@ describe("OrganizationWarningsService", () => {
 
       service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
         complete: () => {
-          expect(stateProvider.setUserState).toHaveBeenCalledWith(
-            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
-            expect.objectContaining({ [organization.id]: true }),
+          expect(stateProvider.getUser).toHaveBeenCalledWith(
             activeAccount.id,
+            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
           );
           done();
         },
@@ -875,7 +873,7 @@ describe("OrganizationWarningsService", () => {
 
       service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
         complete: () => {
-          expect(stateProvider.setUserState).not.toHaveBeenCalled();
+          expect(stateProvider.getUser).not.toHaveBeenCalled();
           done();
         },
       });
