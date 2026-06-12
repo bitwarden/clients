@@ -422,6 +422,134 @@ describe("OverlayBackground", () => {
     });
   });
 
+  describe("when enableFillAssist is turned off", () => {
+    const targetedTabId = 1;
+    const heuristicTabId = 2;
+
+    function seedPageDetailsEntry(tabId: number, frameId: number, isTargeted: boolean) {
+      const field = createAutofillFieldMock(isTargeted ? { targeted: true } : {});
+      const entry = {
+        frameId,
+        tab: createChromeTabMock({ id: tabId }),
+        details: createAutofillPageDetailsMock({ fields: [field] }),
+      };
+      const existing = pageDetailsForTabSpy[tabId];
+      if (existing) {
+        existing.set(frameId, entry);
+      } else {
+        pageDetailsForTabSpy[tabId] = new Map([[frameId, entry]]);
+      }
+    }
+
+    beforeEach(async () => {
+      // Initial state is `false`; flip to `true` so the subsequent toggle to
+      // `false` produces a `true` -> `false` transition the subscription will act on.
+      await domainSettingsService.setEnableFillAssist(true);
+    });
+
+    it("does not sweep or broadcast when the setting goes from default (false) to true", async () => {
+      // The outer `beforeEach` already toggled false→true. If the subscription
+      // weren't gated on a true→false transition, that flip would have swept
+      // the cache and broadcast to all tabs.
+      const tabsQuerySpy = jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 11 })]);
+      seedPageDetailsEntry(targetedTabId, 0, true);
+      tabsSendMessageSpy.mockClear();
+
+      await flushPromises();
+
+      expect(tabsQuerySpy).not.toHaveBeenCalled();
+      expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command: "clearTargetingRulesCache" }),
+      );
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeDefined();
+    });
+
+    it("removes cached page-detail entries that contain targeted fields", async () => {
+      seedPageDetailsEntry(targetedTabId, 0, true);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeUndefined();
+    });
+
+    it("leaves cached page-detail entries without targeted fields intact", async () => {
+      seedPageDetailsEntry(heuristicTabId, 0, false);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[heuristicTabId]).toBeDefined();
+      expect(pageDetailsForTabSpy[heuristicTabId].size).toBe(1);
+    });
+
+    it("removes only the targeted frame from a tab that mixes targeted and heuristic frames", async () => {
+      const mixedTabId = 3;
+      seedPageDetailsEntry(mixedTabId, 0, true);
+      seedPageDetailsEntry(mixedTabId, 1, false);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[mixedTabId]).toBeDefined();
+      expect(pageDetailsForTabSpy[mixedTabId].has(0)).toBe(false);
+      expect(pageDetailsForTabSpy[mixedTabId].has(1)).toBe(true);
+    });
+
+    it("does not sweep the cache when the setting transitions to true", async () => {
+      // Flip back to false first so transitioning to true is an actual change.
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+      seedPageDetailsEntry(targetedTabId, 0, true);
+
+      await domainSettingsService.setEnableFillAssist(true);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeDefined();
+      expect(pageDetailsForTabSpy[targetedTabId].size).toBe(1);
+    });
+
+    it("broadcasts a targeting-rules cache invalidation message to every tab", async () => {
+      const tabs = [
+        createChromeTabMock({ id: 11 }),
+        createChromeTabMock({ id: 12 }),
+        createChromeTabMock({ id: 13 }),
+      ];
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue(tabs);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      for (const tab of tabs) {
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(tab, {
+          command: "clearTargetingRulesCache",
+        });
+      }
+    });
+
+    it("does not broadcast when the setting transitions to true", async () => {
+      const tabsQuerySpy = jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 11 })]);
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+      tabsQuerySpy.mockClear();
+      tabsSendMessageSpy.mockClear();
+
+      await domainSettingsService.setEnableFillAssist(true);
+      await flushPromises();
+
+      expect(tabsQuerySpy).not.toHaveBeenCalled();
+      expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command: "clearTargetingRulesCache" }),
+      );
+    });
+  });
+
   describe("re-positioning the inline menu within sub frames", () => {
     const tabId = 1;
     const topFrameId = 0;

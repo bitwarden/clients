@@ -30,6 +30,7 @@ describe("DefaultDomainSettingsService", () => {
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
   let environmentService: MockProxy<EnvironmentService>;
   let authService: MockProxy<AuthService>;
+  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
 
   const mockEquivalentDomains = [
     ["example.com", "exampleapp.com", "example.co.uk", "ejemplo.es"],
@@ -45,6 +46,11 @@ describe("DefaultDomainSettingsService", () => {
 
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
+    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$
+      .calledWith(FeatureFlag.FillAssistTargetingRules)
+      .mockReturnValue(fillAssistFeatureFlagMock$);
 
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
@@ -113,9 +119,7 @@ describe("DefaultDomainSettingsService", () => {
     };
 
     beforeEach(() => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.FillAssistTargetingRules)
-        .mockResolvedValue(true);
+      fillAssistFeatureFlagMock$.next(true);
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
@@ -636,7 +640,7 @@ describe("DefaultDomainSettingsService", () => {
 
     describe("handles state gates", () => {
       it("returns null when feature flag is disabled", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+        fillAssistFeatureFlagMock$.next(false);
         await domainSettingsService.setEnableFillAssist(true);
         await setupRules(mockRules);
 
@@ -648,7 +652,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when fill assist setting is disabled", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(false);
         await domainSettingsService.setTargetingRules(mockRules);
 
@@ -660,7 +664,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no active account (logged out)", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
         accountService.activeAccountSubject.next(null);
         await setupRules(mockRules);
@@ -673,7 +677,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no rules exist in state", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
         await domainSettingsService.setTargetingRules({});
 

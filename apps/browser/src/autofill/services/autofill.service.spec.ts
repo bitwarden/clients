@@ -111,10 +111,12 @@ describe("AutofillService", () => {
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
+  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
@@ -178,7 +180,6 @@ describe("AutofillService", () => {
       scriptInjectorService,
       accountService,
       authService,
-      configService,
       userNotificationsSettings,
       messageListener,
       animationControlService,
@@ -1799,6 +1800,69 @@ describe("AutofillService", () => {
       );
 
       expect(value).toBeNull();
+    });
+
+    describe("when the page details contain targeted fields from targeting rules", () => {
+      let targetedPageDetail: AutofillPageDetails;
+      let generateTargetedFillScriptSpy: jest.SpyInstance;
+      let generateLoginFillScriptSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        const targetedField = createAutofillFieldMock({
+          opid: "targeted_field_0_username",
+          htmlID: "username",
+          fieldQualifier: "username",
+          targeted: true,
+        });
+        targetedPageDetail = createAutofillPageDetailsMock({ fields: [targetedField] });
+        generateTargetedFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateTargetedFillScript")
+          .mockReturnValue(new AutofillScript());
+        generateLoginFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateLoginFillScript")
+          .mockReturnValue(new AutofillScript());
+      });
+
+      it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
+        fillAssistFeatureFlagMock$.next(true);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
+
+        expect(generateTargetedFillScriptSpy).toHaveBeenCalledWith(
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the feature flag is disabled", async () => {
+        fillAssistFeatureFlagMock$.next(false);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the user setting is disabled", async () => {
+        fillAssistFeatureFlagMock$.next(true);
+        await domainSettingsService.setEnableFillAssist(false);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
     });
   });
 
