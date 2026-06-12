@@ -134,7 +134,7 @@ export class SponsoringOrgRowComponent {
     const sponsoringOrg = this.sponsoringOrg();
     const content = sponsoringOrg.familySponsorshipValidUntil
       ? this.i18nService.t(
-          "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship",
+          "revokeActiveSponsorshipConfirmation",
           sponsoringOrg.familySponsorshipFriendlyName,
           formattedPrice,
           formatDate(sponsoringOrg.familySponsorshipValidUntil, "MM/dd/yyyy", this.locale()),
