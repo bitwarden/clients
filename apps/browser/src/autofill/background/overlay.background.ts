@@ -2314,8 +2314,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const hasNewPassword = !!loginData.newPassword;
 
     return (
-      (this.shouldShowInlineMenuAccountCreation() && hasAnyPassword) ||
-      (this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) && hasNewPassword)
+      (hasAnyPassword && this.shouldShowInlineMenuAccountCreation()) ||
+      (hasNewPassword && this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration))
     );
   }
 
