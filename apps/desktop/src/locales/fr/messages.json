@@ -1827,6 +1827,15 @@
     "message": "Copier le code de sécurité",
     "description": "Copy credit card security code (CVV)"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "cardNumber": {
     "message": "numéro de carte"
   },
@@ -5257,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "L'enregistrement des modifications du Send a échoué",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {

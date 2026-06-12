@@ -1391,7 +1391,7 @@
     "message": "Simge sunucusu URL'si"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send sunucusu URL'si"
   },
   "environmentSaved": {
     "message": "Ortam URL'leri kaydedildi"
@@ -1826,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Güvenlik kodunu kopyala",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kart numarası"
@@ -5257,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send'de kaydedilmemiş düzenlemeler var. Çıkmak istediğinizden emin misiniz?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Send düzenlemeleri kaydedilemedi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {

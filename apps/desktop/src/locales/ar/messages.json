@@ -1827,6 +1827,15 @@
     "message": "نسخ رمز الأمان",
     "description": "Copy credit card security code (CVV)"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "cardNumber": {
     "message": "رقم البطاقة"
   },
@@ -4122,7 +4131,7 @@
     "message": "مطلوب المصادقة متعددة العوامل من LastPass"
   },
   "lastPassMFADesc": {
-    "message": "أدخل رمز المرور الخاص بك لمرة واحدة من تطبيق المصادقة الخاص بك"
+    "message": "أدخل رمز المرور لمرة واحدة من تطبيق المصادقة الخاص بك"
   },
   "lastPassOOBDesc": {
     "message": "الموافقة على طلب تسجيل الدخول في تطبيق المصادقة الخاص بك أو إدخال رمز مرور لمرة واحدة."
@@ -5257,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "يحتوي Send على تعديلات غير محفوظة. هل أنت متأكد من المغادرة؟",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "فشل حفظ تعديلات Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
