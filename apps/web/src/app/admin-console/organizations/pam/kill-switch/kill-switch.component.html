@@ -48,22 +48,22 @@
           [loading]="unblocking()"
           [disabled]="unblocking()"
           (click)="unblockNewLeases()"
-          data-testid="kill-switch-unblock-button"
+          id="kill-switch_button_unblock"
         >
           {{ "killSwitchUnblockButtonLabel" | i18n }}
         </button>
       </bit-callout>
     }
 
-    <label class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+    <bit-form-control>
       <input
         type="checkbox"
-        [checked]="blockNewLeases()"
-        (change)="toggleBlockNewLeases($event)"
-        data-testid="kill-switch-block-new-leases"
+        bitCheckbox
+        id="kill-switch_checkbox_block-new-leases"
+        [formControl]="blockNewLeases"
       />
-      <span bitTypography="body2">{{ "killSwitchBlockNewLeasesLabel" | i18n }}</span>
-    </label>
+      <bit-label>{{ "killSwitchBlockNewLeasesLabel" | i18n }}</bit-label>
+    </bit-form-control>
 
     <button
       type="button"
@@ -72,7 +72,7 @@
       [loading]="submitting()"
       [disabled]="submitting()"
       (click)="openKillSwitchDialog()"
-      data-testid="kill-switch-button"
+      id="kill-switch_button_open-dialog"
     >
       {{ "killSwitchButtonLabel" | i18n }}
     </button>

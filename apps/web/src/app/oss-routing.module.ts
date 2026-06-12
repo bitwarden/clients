@@ -641,6 +641,7 @@ const routes: Routes = [
         // Top-level placement under /vault is provisional; IA owner may relocate
         // post-launch. Tracked in the PM-37267 tech breakdown.
         data: { titleId: "pamMyRequestsPageTitle" } satisfies RouteDataProperties,
+        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
         loadComponent: () =>
           import("./pam/my-access-requests/my-access-requests.component").then(
             (m) => m.MyAccessRequestsComponent,

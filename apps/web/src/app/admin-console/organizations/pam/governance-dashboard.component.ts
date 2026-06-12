@@ -63,7 +63,6 @@ type DashboardStatus = "loading" | "ready" | "empty" | "error";
 @Component({
   selector: "app-pam-governance-dashboard",
   templateUrl: "./governance-dashboard.component.html",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,

@@ -5,19 +5,29 @@
 
   <ng-container bitDialogContent>
     <bit-form-control class="tw-mb-4">
-      <input type="checkbox" bitCheckbox formControlName="enabled" />
+      <input
+        type="checkbox"
+        bitCheckbox
+        id="access-rule-dialog_checkbox_enabled"
+        formControlName="enabled"
+      />
       <bit-label>{{ "pamAccessRuleEnabled" | i18n }}</bit-label>
       <bit-hint>{{ "pamAccessRuleEnabledHint" | i18n }}</bit-hint>
     </bit-form-control>
 
     <bit-form-field>
       <bit-label>{{ "pamAccessRuleName" | i18n }}</bit-label>
-      <input bitInput type="text" formControlName="name" />
+      <input bitInput type="text" id="access-rule-dialog_input_name" formControlName="name" />
     </bit-form-field>
 
     <bit-form-field>
       <bit-label>{{ "pamAccessRuleDescription" | i18n }}</bit-label>
-      <textarea bitInput formControlName="description" rows="2"></textarea>
+      <textarea
+        bitInput
+        id="access-rule-dialog_textarea_description"
+        formControlName="description"
+        rows="2"
+      ></textarea>
     </bit-form-field>
 
     <bit-form-field>
@@ -35,7 +45,11 @@
 
     <bit-form-field>
       <bit-label>{{ "pamAccessRuleDefaultDuration" | i18n }}</bit-label>
-      <select bitInput formControlName="defaultLeaseDurationSeconds">
+      <select
+        bitInput
+        id="access-rule-dialog_select_default-duration"
+        formControlName="defaultLeaseDurationSeconds"
+      >
         @for (opt of durationOptions; track opt.seconds) {
           <option [ngValue]="opt.seconds">{{ opt.labelKey | i18n }}</option>
         }
@@ -44,7 +58,11 @@
 
     <bit-form-field>
       <bit-label>{{ "pamAccessRuleMaxDuration" | i18n }}</bit-label>
-      <select bitInput formControlName="maxLeaseDurationSeconds">
+      <select
+        bitInput
+        id="access-rule-dialog_select_max-duration"
+        formControlName="maxLeaseDurationSeconds"
+      >
         <option [ngValue]="noDurationCap">{{ "pamAccessRuleMaxDurationNoCap" | i18n }}</option>
         @for (opt of durationOptions; track opt.seconds) {
           <option [ngValue]="opt.seconds">{{ opt.labelKey | i18n }}</option>
@@ -54,7 +72,12 @@
     </bit-form-field>
 
     <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="singleActiveLease" />
+      <input
+        type="checkbox"
+        bitCheckbox
+        id="access-rule-dialog_checkbox_single-active-lease"
+        formControlName="singleActiveLease"
+      />
       <bit-label>{{ "pamAccessRuleSingleActiveLease" | i18n }}</bit-label>
       <bit-hint>{{ "pamAccessRuleSingleActiveLeaseHint" | i18n }}</bit-hint>
     </bit-form-control>
@@ -65,7 +88,12 @@
     </p>
 
     <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="humanApprovalEnabled" />
+      <input
+        type="checkbox"
+        bitCheckbox
+        id="access-rule-dialog_checkbox_human-approval"
+        formControlName="humanApprovalEnabled"
+      />
       <bit-label>{{ "pamAccessRuleConditionHumanApproval" | i18n }}</bit-label>
     </bit-form-control>
 
@@ -77,7 +105,12 @@
     }
 
     <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="ipAllowlistEnabled" />
+      <input
+        type="checkbox"
+        bitCheckbox
+        id="access-rule-dialog_checkbox_ip-allowlist"
+        formControlName="ipAllowlistEnabled"
+      />
       <bit-label>{{ "pamAccessRuleConditionIpAllowlist" | i18n }}</bit-label>
     </bit-form-control>
 
@@ -100,10 +133,22 @@
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button type="submit" bitButton buttonType="primary" bitFormButton>
+    <button
+      type="submit"
+      bitButton
+      buttonType="primary"
+      bitFormButton
+      id="access-rule-dialog_button_save"
+    >
       {{ "save" | i18n }}
     </button>
-    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+      id="access-rule-dialog_button_cancel"
+    >
       {{ "cancel" | i18n }}
     </button>
   </ng-container>

@@ -14,7 +14,6 @@ import { GatedState, formatRemaining } from "@bitwarden/pam";
 
 @Component({
   selector: "app-cipher-lease-badge",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, TooltipDirective],
   templateUrl: "./cipher-lease-badge.component.html",

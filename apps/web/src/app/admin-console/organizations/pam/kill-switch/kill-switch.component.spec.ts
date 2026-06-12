@@ -83,7 +83,7 @@ describe("KillSwitchComponent", () => {
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-        "[data-testid='kill-switch-button']",
+        "#kill-switch_button_open-dialog",
       );
       button.click();
       await fixture.whenStable();
@@ -100,7 +100,7 @@ describe("KillSwitchComponent", () => {
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-        "[data-testid='kill-switch-button']",
+        "#kill-switch_button_open-dialog",
       );
       button.click();
       await fixture.whenStable();
@@ -118,7 +118,7 @@ describe("KillSwitchComponent", () => {
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-        "[data-testid='kill-switch-button']",
+        "#kill-switch_button_open-dialog",
       );
       button.click();
       await fixture.whenStable();
@@ -149,7 +149,7 @@ describe("KillSwitchComponent", () => {
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-        "[data-testid='kill-switch-button']",
+        "#kill-switch_button_open-dialog",
       );
       button.click();
       await fixture.whenStable();
@@ -171,7 +171,7 @@ describe("KillSwitchComponent", () => {
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-        "[data-testid='kill-switch-button']",
+        "#kill-switch_button_open-dialog",
       );
       button.click();
       await fixture.whenStable();

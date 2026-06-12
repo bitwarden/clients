@@ -126,7 +126,7 @@ describe("CipherLeaseBannerComponent", () => {
   };
 
   const submitButton = () =>
-    fixture.debugElement.query(By.css("[data-testid='request-access-submit']"));
+    fixture.debugElement.query(By.css("#cipher-lease-banner_button_request-access-submit"));
 
   afterEach(() => fixture?.destroy());
 
@@ -162,6 +162,21 @@ describe("CipherLeaseBannerComponent", () => {
     });
   });
 
+  describe("feature flag gating", () => {
+    it("does not query the lease-state endpoint when the PAM flag is off", () => {
+      setup({}, false);
+
+      expect(pamApi.getCipherAccessState$).not.toHaveBeenCalled();
+      expect(component["canRequestAccess"]()).toBe(false);
+    });
+
+    it("queries the lease-state endpoint when the PAM flag is on", () => {
+      setup();
+
+      expect(pamApi.getCipherAccessState$).toHaveBeenCalledWith("cipher-1", "user-1");
+    });
+  });
+
   describe("automatic outcome", () => {
     beforeEach(() => setup());
 
@@ -169,9 +184,11 @@ describe("CipherLeaseBannerComponent", () => {
       await expandForm();
 
       expect(
-        fixture.debugElement.query(By.css("[data-testid='request-access-duration']")),
+        fixture.debugElement.query(By.css("#cipher-lease-banner_select_duration")),
       ).toBeTruthy();
-      expect(fixture.debugElement.query(By.css("[data-testid='request-access-date']"))).toBeNull();
+      expect(
+        fixture.debugElement.query(By.css("#cipher-lease-banner_input_custom-date")),
+      ).toBeNull();
     });
 
     it("submits with durationSeconds derived from durationMinutes and collapses on success", async () => {
@@ -215,11 +232,9 @@ describe("CipherLeaseBannerComponent", () => {
       await expandForm();
 
       expect(
-        fixture.debugElement.query(By.css("[data-testid='request-access-date']")),
+        fixture.debugElement.query(By.css("#cipher-lease-banner_input_custom-date")),
       ).toBeTruthy();
-      expect(
-        fixture.debugElement.query(By.css("[data-testid='request-access-duration']")),
-      ).toBeNull();
+      expect(fixture.debugElement.query(By.css("#cipher-lease-banner_select_duration"))).toBeNull();
     });
 
     it("requires a non-blank reason", async () => {

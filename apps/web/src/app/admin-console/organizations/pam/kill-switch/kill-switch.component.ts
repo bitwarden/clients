@@ -9,6 +9,7 @@ import {
   signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -18,7 +19,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import {
   ButtonModule,
   CalloutModule,
+  CheckboxModule,
   DialogService,
+  FormControlModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -35,9 +38,17 @@ export type KillSwitchState =
 @Component({
   selector: "app-pam-kill-switch",
   templateUrl: "./kill-switch.component.html",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonModule, CalloutModule, TypographyModule, I18nPipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    CalloutModule,
+    CheckboxModule,
+    FormControlModule,
+    TypographyModule,
+    I18nPipe,
+  ],
 })
 export class KillSwitchComponent implements OnInit {
   private readonly pamApiService = inject(PamApiService);
@@ -58,7 +69,7 @@ export class KillSwitchComponent implements OnInit {
   protected readonly state = signal<KillSwitchState>({ kind: "idle" });
   protected readonly submitting = signal(false);
   /** Whether the kill switch should also engage an org-wide leasing freeze. */
-  protected readonly blockNewLeases = signal(false);
+  protected readonly blockNewLeases = new FormControl(false, { nonNullable: true });
   /** Whether the org is currently under a leasing freeze (LeasingFreeze present). */
   protected readonly isFrozen = signal(false);
   /** True while the unblock request is in flight. */
@@ -74,10 +85,6 @@ export class KillSwitchComponent implements OnInit {
     } catch (e) {
       this.logService.error(e);
     }
-  }
-
-  protected toggleBlockNewLeases(event: Event): void {
-    this.blockNewLeases.set((event.target as HTMLInputElement).checked);
   }
 
   protected async unblockNewLeases(): Promise<void> {
@@ -138,7 +145,7 @@ export class KillSwitchComponent implements OnInit {
     try {
       const result: BulkRevokeResult = await this.pamApiService.bulkRevokeLeases(
         this.organizationId(),
-        this.blockNewLeases(),
+        this.blockNewLeases.value,
       );
 
       if (result.kind === "ok") {

@@ -31,7 +31,6 @@ type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
  */
 @Component({
   selector: "app-vault-row-lease-badge",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CipherLeaseBadgeComponent],
   template: `
