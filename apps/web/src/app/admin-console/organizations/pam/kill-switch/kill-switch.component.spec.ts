@@ -19,13 +19,7 @@ describe("KillSwitchComponent", () => {
   let logService: MockProxy<LogService>;
   let configService: MockProxy<ConfigService>;
 
-  async function setup(
-    opts: {
-      killSwitchEnabled?: boolean;
-      organizationId?: string;
-      organizationName?: string;
-    } = {},
-  ): Promise<ComponentFixture<KillSwitchComponent>> {
+  beforeEach(async () => {
     pamApiService = mock<PamApiService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -36,8 +30,6 @@ describe("KillSwitchComponent", () => {
     i18nService.t.mockImplementation((key: string, ...args: unknown[]) =>
       args.length > 0 ? `${key}:${args.join(",")}` : key,
     );
-
-    configService.getFeatureFlag$.mockReturnValue(of(opts.killSwitchEnabled ?? false));
 
     await TestBed.configureTestingModule({
       imports: [KillSwitchComponent],
@@ -50,6 +42,16 @@ describe("KillSwitchComponent", () => {
         { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
+  });
+
+  async function setup(
+    opts: {
+      killSwitchEnabled?: boolean;
+      organizationId?: string;
+      organizationName?: string;
+    } = {},
+  ): Promise<ComponentFixture<KillSwitchComponent>> {
+    configService.getFeatureFlag$.mockReturnValue(of(opts.killSwitchEnabled ?? false));
 
     const fixture = TestBed.createComponent(KillSwitchComponent);
     fixture.componentRef.setInput("organizationId", opts.organizationId ?? "org-1");

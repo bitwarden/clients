@@ -44,6 +44,7 @@ module.exports = {
     "<rootDir>/libs/logging-angular/jest.config.js",
     "<rootDir>/libs/messaging/jest.config.js",
     "<rootDir>/libs/node/jest.config.js",
+    "<rootDir>/libs/pam/jest.config.js",
     "<rootDir>/libs/platform/jest.config.js",
     "<rootDir>/libs/serialization/jest.config.js",
     "<rootDir>/libs/state-test-utils/jest.config.js",
