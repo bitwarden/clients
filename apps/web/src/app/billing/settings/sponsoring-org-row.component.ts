@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule, CurrencyPipe, formatDate } from "@angular/common";
-import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { ChangeDetectionStrategy, Component, computed, input, output, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -25,70 +23,79 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, I18nPipe, TableModule, IconButtonModule, MenuModule, IconModule],
   providers: [CurrencyPipe],
 })
-export class SponsoringOrgRowComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() sponsoringOrg: Organization = null;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() isSelfHosted = false;
+export class SponsoringOrgRowComponent {
+  private i18nService = inject(I18nService);
+  private logService = inject(LogService);
+  private dialogService = inject(DialogService);
+  private toastService = inject(ToastService);
+  private policyService = inject(PolicyService);
+  private accountService = inject(AccountService);
+  private organizationSponsorshipApiService = inject(OrganizationSponsorshipApiServiceAbstraction);
+  private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
+  private currencyPipe = inject(CurrencyPipe);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() sponsorshipRemoved = new EventEmitter();
+  readonly sponsoringOrg = input.required<Organization>();
+  readonly isSelfHosted = input(false);
+  readonly sponsorshipRemoved = output();
 
-  statusMessage = "loading";
-  statusClass: "tw-text-success" | "tw-text-danger" = "tw-text-success";
-  isFreeFamilyPolicyEnabled$: Observable<boolean>;
-  private locale = "";
+  private readonly locale = toSignal(this.i18nService.locale$, { initialValue: "" });
 
-  constructor(
-    private apiService: ApiService,
-    private i18nService: I18nService,
-    private logService: LogService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
-    private policyService: PolicyService,
-    private accountService: AccountService,
-    private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
-    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
-    private currencyPipe: CurrencyPipe,
-  ) {}
+  protected readonly isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
+    ),
+    map(
+      (policies) =>
+        Array.isArray(policies) &&
+        policies.some(
+          (policy) => policy.organizationId === this.sponsoringOrg().id && policy.enabled,
+        ),
+    ),
+  );
 
-  async ngOnInit() {
-    this.locale = await firstValueFrom(this.i18nService.locale$);
+  /**
+   * Possible statuses (in priority order):
+   * - RevokeWhenExpired: marked for deletion while an active sponsorship exists — revokes at expiry
+   * - RequestRemoved: marked for deletion before the offer was accepted
+   * - Active: families subscription is actively paid for by this org
+   * - Sent: self-hosted, synced at least once, awaiting valid-until from the sponsored org
+   * - Requested: cloud offer sent but not yet accepted; or self-hosted not yet synced
+   */
+  protected readonly statusMessage = computed(() => {
+    const {
+      familySponsorshipToDelete: toBeDeleted,
+      familySponsorshipValidUntil: validUntilDate,
+      familySponsorshipLastSyncDate: lastSyncDate,
+    } = this.sponsoringOrg();
+    const locale = this.locale();
 
-    this.setStatus(
-      this.isSelfHosted,
-      this.sponsoringOrg.familySponsorshipToDelete,
-      this.sponsoringOrg.familySponsorshipValidUntil,
-      this.sponsoringOrg.familySponsorshipLastSyncDate,
-    );
+    // Pending deletion (either actively sponsoring and marked for deletion, or sponsorship offer sent but then marked for deletion before being accepted)
+    if (toBeDeleted) {
+      return validUntilDate
+        ? this.i18nService.t("revokeWhenExpired", formatDate(validUntilDate, "MM/dd/yyyy", locale))
+        : this.i18nService.t("requestRemoved");
+    }
+    // Actively sponsoring someone
+    if (validUntilDate) return this.i18nService.t("active");
+    // Cloud: offer sent but not yet accepted. Self-hosted: synced at least once but no valid-until yet.
+    if (!this.isSelfHosted() || lastSyncDate) return this.i18nService.t("sent");
+    // Self-hosted only: sponsorship offered but the install hasn't synced yet to pick it up
+    return this.i18nService.t("requested");
+  });
 
-    this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
-      ),
-      map(
-        (policies) =>
-          Array.isArray(policies) &&
-          policies.some(
-            (policy) => policy.organizationId === this.sponsoringOrg.id && policy.enabled,
-          ),
-      ),
-    );
-  }
+  protected readonly statusClass = computed<"tw-text-success" | "tw-text-danger">(() =>
+    this.sponsoringOrg().familySponsorshipToDelete ? "tw-text-danger" : "tw-text-success",
+  );
 
-  async revokeSponsorship() {
+  protected async revokeSponsorship() {
     try {
       await this.doRevokeSponsorship();
     } catch (e) {
@@ -148,54 +155,5 @@ export class SponsoringOrgRowComponent implements OnInit {
       message: this.i18nService.t("reclaimedFreePlan"),
     });
     this.sponsorshipRemoved.emit();
-  }
-
-  private setStatus(
-    selfHosted: boolean,
-    toDelete?: boolean,
-    validUntil?: Date,
-    lastSyncDate?: Date,
-  ) {
-    /*
-     * Possible Statuses:
-     * Requested (self-hosted only)
-     * Sent
-     * Active
-     * RequestRevoke
-     * RevokeWhenExpired
-     */
-
-    if (toDelete && validUntil) {
-      // They want to delete but there is a valid until date which means there is an active sponsorship
-      this.statusMessage = this.i18nService.t(
-        "revokeWhenExpired",
-        formatDate(validUntil, "MM/dd/yyyy", this.locale),
-      );
-      this.statusClass = "tw-text-danger";
-    } else if (toDelete) {
-      // They want to delete and we don't have a valid until date so we can
-      // this should only happen on a self-hosted install
-      this.statusMessage = this.i18nService.t("requestRemoved");
-      this.statusClass = "tw-text-danger";
-    } else if (validUntil) {
-      // They don't want to delete and they have a valid until date
-      // that means they are actively sponsoring someone
-      this.statusMessage = this.i18nService.t("active");
-      this.statusClass = "tw-text-success";
-    } else if (selfHosted && lastSyncDate) {
-      // We are on a self-hosted install and it has been synced but we have not gotten
-      // a valid until date so we can't know if they are actively sponsoring someone
-      this.statusMessage = this.i18nService.t("sent");
-      this.statusClass = "tw-text-success";
-    } else if (!selfHosted) {
-      // We are in cloud and all other status checks have been false therefore we have
-      // sent the request but it hasn't been accepted yet
-      this.statusMessage = this.i18nService.t("sent");
-      this.statusClass = "tw-text-success";
-    } else {
-      // We are on a self-hosted install and we have not synced yet
-      this.statusMessage = this.i18nService.t("requested");
-      this.statusClass = "tw-text-success";
-    }
   }
 }
