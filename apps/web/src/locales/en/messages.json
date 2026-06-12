@@ -14692,7 +14692,7 @@
     "message": "New leases are blocked"
   },
   "killSwitchFrozenMessage": {
-    "message": "No approved ticket can be redeemed into a lease in this organization until you unblock."
+    "message": "No access request can be activated into a lease in this organization until you unblock."
   },
   "killSwitchUnblockButtonLabel": {
     "message": "Unblock new leases"
@@ -15041,7 +15041,7 @@
     "message": "Could not start access. The slot may be taken or new leases may be blocked; try again."
   },
   "pamActivateWithin": {
-    "message": "Redeem within $REMAINING$",
+    "message": "Activate within $REMAINING$",
     "placeholders": {
       "remaining": {
         "content": "$1",
