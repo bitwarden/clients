@@ -14281,7 +14281,7 @@
     "message": "Access rule active"
   },
   "pamCollectionAccessRuleCalloutBody": {
-    "message": "Access to items in this collection is controlled by"
+    "message": "Access to items in this collection is controlled by:"
   },
   "pamCollectionAccessRuleManageLink": {
     "message": "Manage access rules"
@@ -15008,7 +15008,7 @@
     "message": "Your access request is awaiting approval"
   },
   "pamRequestAccessBannerTitle": {
-    "message": "This item requires a lease. Request access to view it."
+    "message": "This item requires a lease. Request access to view or edit it."
   },
   "pamRequestAccessButton": {
     "message": "Request access"

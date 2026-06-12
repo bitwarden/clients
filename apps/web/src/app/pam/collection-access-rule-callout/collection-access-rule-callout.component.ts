@@ -11,6 +11,8 @@ import { CalloutModule, LinkModule } from "@bitwarden/components";
 import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AccessRuleSummaryComponent } from "../access-rules/access-rule-summary.component";
+
 /**
  * PAM slot for the collection edit dialog. Given the collection being edited,
  * surfaces a callout naming the enabled access rule(s) that govern it, with a
@@ -23,7 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "pam-collection-access-rule-callout",
   templateUrl: "./collection-access-rule-callout.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, CalloutModule, LinkModule, I18nPipe],
+  imports: [RouterLink, CalloutModule, LinkModule, I18nPipe, AccessRuleSummaryComponent],
 })
 export class CollectionAccessRuleCalloutComponent {
   readonly organizationId = input<OrganizationId | undefined>(undefined);

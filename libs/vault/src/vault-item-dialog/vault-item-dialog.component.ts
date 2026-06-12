@@ -263,8 +263,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
+  /**
+   * True when the cipher arrived as partial data — PAM-gated with no active
+   * lease, so the server suppressed its sensitive fields. Such a cipher can't be
+   * edited (saving would clobber the suppressed fields) until a lease reveals it.
+   */
+  protected get isPartialData() {
+    return this.cipher?.partialData != null;
+  }
+
   protected get showEdit() {
-    return this.showCipherView && !this.isTrashFilter && !this.showRestore;
+    // Hide Edit for a partial-data cipher: the lease banner owns "Request access"
+    // until a lease delivers the full cipher.
+    return this.showCipherView && !this.isTrashFilter && !this.showRestore && !this.isPartialData;
   }
 
   protected get showCipherView() {
@@ -430,8 +441,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         ),
       );
 
-      // If user cannot edit and dialog opened in form mode, force to view mode
-      if (!this.canEdit && this.formConfig.mode !== "partial-edit" && this.params.mode === "form") {
+      // Force a form-mode open back to view when the cipher can't be edited —
+      // either the user lacks edit permission (disableEdit) or it's partial-data
+      // (blocked regardless of permission). Routes direct-edit attempts (row Edit
+      // menu, ?action=edit deep link, refresh) to the read-only view + lease banner.
+      const cannotEdit = this.disableEdit || this.isPartialData;
+      if (cannotEdit && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();

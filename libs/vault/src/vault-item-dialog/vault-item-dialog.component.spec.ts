@@ -217,6 +217,25 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("showEdit", () => {
+    beforeEach(() => {
+      component.setTestParams({ mode: "view" });
+      component["showRestore"] = false;
+    });
+
+    it("returns true for a full cipher in view mode", () => {
+      component.setTestCipher({ id: "c1", isDeleted: false } as any);
+
+      expect(component["showEdit"]).toBe(true);
+    });
+
+    it("returns false for a partial-data (PAM-gated, unleased) cipher", () => {
+      component.setTestCipher({ id: "c1", isDeleted: false, partialData: "{}" } as any);
+
+      expect(component["showEdit"]).toBe(false);
+    });
+  });
+
   describe("submitButtonText$", () => {
     it("returns 'unArchiveAndSave' when user has no premium and cipher is archived", async () => {
       Object.defineProperty(component, "userHasPremium$", {
@@ -589,6 +608,46 @@ describe("VaultItemDialogComponent", () => {
       expect(component["formConfig"].originalCipher).toBe(leasedCipher);
       expect(component["canEdit"]).toBe(true);
       expect(component["canDelete"]).toBe(true);
+    });
+  });
+
+  describe("ngOnInit edit gating for partial-data ciphers", () => {
+    it("forces a partial-data cipher opened in form mode back to view, even with edit permission", async () => {
+      const partialCipher = {
+        id: "gated-1",
+        type: CipherType.Login,
+        collectionIds: [],
+        partialData: '{"Name":"AWS root"}',
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(partialCipher);
+      // A manage/edit user passes the permission check — gating must still apply.
+      canEditCipherReturnValue$.next(true);
+      component.setTestFormConfig({ mode: "edit", originalCipher: { id: "gated-1" } as any });
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+
+      await component.ngOnInit();
+
+      expect(component["params"].mode).toBe("view");
+      expect(component["loadForm"]).toBe(false);
+    });
+
+    it("keeps a full cipher in form mode for a user who can edit", async () => {
+      const fullCipher = {
+        id: "full-1",
+        type: CipherType.Login,
+        collectionIds: [],
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(fullCipher);
+      canEditCipherReturnValue$.next(true);
+      component.setTestFormConfig({ mode: "edit", originalCipher: { id: "full-1" } as any });
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+
+      await component.ngOnInit();
+
+      expect(component["params"].mode).toBe("form");
+      expect(component["loadForm"]).toBe(true);
     });
   });
 });
