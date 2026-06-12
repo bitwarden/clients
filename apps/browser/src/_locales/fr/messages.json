@@ -214,8 +214,13 @@
     "message": "Remplir",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Saisie automatique"
+  "autofillNoun": {
+    "message": "Saisie automatique",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Saisie automatique",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Saisie automatique de l'identifiant"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Enregistrer"
+  },
+  "saveAndFill": {
+    "message": "Enregistrer et remplir"
   },
   "move": {
     "message": "Déplacer"
@@ -1177,13 +1185,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Paramètres du presse-papier mis à jour"
+    "message": "Paramètre du presse-papiers mis à jour"
   },
   "clipboardSettingUpdatedMessage": {
     "message": "Le délai d'expiration de votre presse-papier est défini à la valeur par défaut, qui a été mis à jour sur 5 minutes pour une sécurité accrue."
   },
   "jumpToSetting": {
-    "message": "Allez aux paramètres"
+    "message": "Allez au paramètre"
   },
   "notificationAddDesc": {
     "message": "Est-ce que Bitwarden doit se souvenir de ce mot de passe pour vous ?"
@@ -1793,6 +1801,9 @@
   },
   "iconsUrl": {
     "message": "URL du serveur d’icônes"
+  },
+  "sendUrl": {
+    "message": "URL du serveur Send"
   },
   "environmentSaved": {
     "message": "Les URL d'environnement ont été enregistrées"
@@ -6500,6 +6511,18 @@
   },
   "userVerificationFailed": {
     "message": "Échec de la vérification d'utilisateur."
+  },
+  "sharedUnlock": {
+    "message": "Déverrouillage partagé"
+  },
+  "sharedUnlockDescription": {
+    "message": "Gardez vos applications Bitwarden synchronisées. Une fois activé, l'état déverrouillé sera partagé avec toutes les applications sur cette machine. Afin de synchroniser entre les différents navigateurs, l'application de bureau Bitwarden est nécessaire."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Gardez vos applications Bitwarden synchronisées. Une fois activé, l'état déverrouillé sera partagé avec les coffres web Bitwarden dans Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Gardez vos applications Bitwarden synchronisées. Une fois activé, l'état déverrouillé sera partagé avec l'application de bureau Bitwarden."
   },
   "enterMonth": {
     "message": "Entrez le mois."

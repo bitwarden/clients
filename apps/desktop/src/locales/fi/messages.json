@@ -324,7 +324,7 @@
     "message": "Salasana"
   },
   "passphrase": {
-    "message": "Salauslause"
+    "message": "Salalause"
   },
   "editItem": {
     "message": "Muokkaa kohdetta"
@@ -386,7 +386,7 @@
     "message": "Yritys"
   },
   "ssn": {
-    "message": "Henkilötunnus"
+    "message": "Sosiaaliturvatunnus"
   },
   "passportNumber": {
     "message": "Passin numero"
@@ -419,10 +419,10 @@
     "message": "Copy passport type"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Kopioi henkilötunnus"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Henkilötunnus"
   },
   "copyIssuingAuthority": {
     "message": "Copy issuing authority / office"
@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Kuvakepalvelimen URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Palvelinympäristön URL-osoitteet tallennettiin"
   },
@@ -2242,7 +2245,7 @@
     "message": "Heikko pääsalasana"
   },
   "weakMasterPasswordDesc": {
-    "message": "Valitsemasi pääsalasana on heikko. Sinun tulisi käyttää vahvaa pääsalasanaa (tai salauslausetta) suojataksesi Bitwarden-tilisi kunnolla. Haluatko varmasti käyttää tätä pääsalasanaa?"
+    "message": "Valitsemasi pääsalasana on heikko. Sinun tulisi käyttää vahvaa pääsalasanaa (tai salalausetta) suojataksesi Bitwarden-tilisi kunnolla. Haluatko varmasti käyttää tätä pääsalasanaa?"
   },
   "pin": {
     "message": "PIN",
@@ -3177,7 +3180,7 @@
     "message": "Password generated"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Salalause luotiin"
   },
   "usernameGenerated": {
     "message": "Username generated"
@@ -3242,7 +3245,7 @@
     "message": "Käytä tätä salasanaa"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Käytä tätä salalausetta"
   },
   "useThisUsername": {
     "message": "Käytä tätä käyttäjätunnusta"
@@ -4898,7 +4901,7 @@
     "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Istunnon aikakatkaisu"
   },
   "browserAccessDenied": {
     "message": "Either an invalid browser directory was selected, or access was denied"
@@ -4942,10 +4945,13 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On restart"
+    "message": "Kun käynnistetään uudelleen"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
@@ -5133,6 +5139,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Bank name"
