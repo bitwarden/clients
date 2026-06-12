@@ -46,6 +46,18 @@ const format = (date: Date) =>
     year: "numeric",
   });
 
+type TrialPaymentModalDismissedOrgs = Partial<Record<OrganizationId, boolean>>;
+
+export const TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY =
+  new UserKeyDefinition<TrialPaymentModalDismissedOrgs>(
+    BILLING_DISK_LOCAL,
+    "trialPaymentModalDismissedOrgs",
+    {
+      deserializer: (value) => value,
+      clearOn: [], // Do not clear dismissed modals
+    },
+  );
+
 @Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
   private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
