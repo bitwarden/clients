@@ -89,10 +89,6 @@ import { Messenger } from "./messaging/messenger";
       return await browserCredentials.create(options);
     }
 
-    if (!isWebAuthnFeatureAllowed("publickey-credentials-create")) {
-      throw buildPermissionsPolicyError("publickey-credentials-create");
-    }
-
     const authenticatorAttachmentIsPlatform =
       options?.publicKey?.authenticatorSelection?.authenticatorAttachment === "platform";
 
@@ -139,10 +135,6 @@ import { Messenger } from "./messaging/messenger";
   ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.get(options);
-    }
-
-    if (!isWebAuthnFeatureAllowed("publickey-credentials-get")) {
-      throw buildPermissionsPolicyError("publickey-credentials-get");
     }
 
     const abortSignal = options?.signal || new AbortController().signal;
@@ -225,67 +217,6 @@ import { Messenger } from "./messaging/messenger";
     options?: CredentialCreationOptions | CredentialRequestOptions,
   ): options is CredentialCreationOptions | CredentialRequestOptions {
     return options != null && "publicKey" in options;
-  }
-
-  /**
-   * Checks whether the document's Permissions Policy allows the requested WebAuthn feature.
-   *
-   * Prefers the standardized `document.permissionsPolicy` API; falls back to the older
-   * `document.featurePolicy`. No shipping browser exposes `permissionsPolicy` as of writing,
-   * but the WICG spec defines it as the standardized form, so we check it first for
-   * forward-compatibility.
-   *
-   * When neither API is available (Safari, default-config Firefox where the IDL is gated
-   * behind `dom.security.featurePolicy.webidl.enabled`), we fall back to a defense-in-depth
-   * check: deny when we're in a cross-origin iframe, since the spec default allowlist for
-   * `publickey-credentials-*` is `self`. This over-rejects iframes that legitimately received
-   * `allow=publickey-credentials-*` from their parent, which we can't introspect without the
-   * policy API.
-   *
-   * @param featureName Permissions Policy feature name, e.g. `publickey-credentials-get`.
-   */
-  function isWebAuthnFeatureAllowed(featureName: string): boolean {
-    try {
-      const policyHolder = globalContext.document as Document & {
-        permissionsPolicy?: { allowsFeature(feature: string): boolean };
-        featurePolicy?: { allowsFeature(feature: string): boolean };
-      };
-      const policy = policyHolder.permissionsPolicy ?? policyHolder.featurePolicy;
-      if (policy != null && typeof policy.allowsFeature === "function") {
-        return policy.allowsFeature(featureName);
-      }
-    } catch {
-      // Fall through to the defense-in-depth check.
-    }
-
-    return !isCrossOriginIframe();
-  }
-
-  /**
-   * Best-effort detection of whether this document is loaded in a cross-origin iframe.
-   * Used as a defense-in-depth fallback when the Permissions Policy JS API is unavailable.
-   */
-  function isCrossOriginIframe(): boolean {
-    try {
-      if (globalContext.self === globalContext.top) {
-        return false;
-      }
-      return globalContext.top?.location.origin !== globalContext.self.location.origin;
-    } catch {
-      // SecurityError reading top.location → top is a different origin.
-      return true;
-    }
-  }
-
-  /**
-   * Builds a DOMException that mirrors the error the browser raises when a Permissions
-   * Policy denies a WebAuthn ceremony.
-   */
-  function buildPermissionsPolicyError(featureName: string): DOMException {
-    return new DOMException(
-      `The '${featureName}' feature is not enabled in this document. Permissions Policy may be used to delegate Web Authentication capabilities to cross-origin child frames.`,
-      "NotAllowedError",
-    );
   }
 
   /**
