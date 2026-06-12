@@ -7,6 +7,7 @@ import {
   OnInit,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
 import {
@@ -57,7 +58,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -113,6 +116,13 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  BulkDeleteDialogResult,
+  BulkMoveDialogResult,
+  openBulkMoveDialog,
+  VaultBatchBarService,
+  VaultBatchActionComponent,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -123,19 +133,14 @@ import {
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
+import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import {
-  BulkMoveDialogResult,
-  openBulkMoveDialog,
-} from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
+import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { CIPHER_OPEN_GATE, CipherOpenGate } from "./cipher-open-gate";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
@@ -167,6 +172,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    VaultBatchActionComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -174,6 +180,9 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     DefaultCipherFormConfigService,
     WebVaultPromptService,
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
+    VaultBatchBarService,
+    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -211,6 +220,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   protected showAddCipherBtn: boolean = false;
+
+  protected readonly vaultBatchBarFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
 
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
@@ -332,6 +346,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
+    private vaultBatchBarService: VaultBatchBarService<C>,
+    private configService: ConfigService,
     @Inject(CIPHER_OPEN_GATE) private cipherOpenGate: CipherOpenGate,
   ) {}
 
@@ -626,6 +642,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       );
 
     void this.webVaultPromptService.conditionallyPromptUser();
+
+    this.vaultBatchBarService.completed$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([allCollections, hasCiphers]) =>
+        this.vaultBatchBarService.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      );
   }
 
   ngOnDestroy() {
@@ -1213,6 +1239,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.collectionService.delete([collection.id as CollectionId], activeUserId);
+      // Deleting collections will alter the underlying ciphers, perform a full sync
+      // to ensure the vault has the most up to date cipher data.
+      await this.syncService.fullSync(true);
 
       this.toastService.showToast({
         variant: "success",

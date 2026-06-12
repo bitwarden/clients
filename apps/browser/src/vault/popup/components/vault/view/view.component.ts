@@ -23,8 +23,6 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -124,11 +122,6 @@ export class ViewComponent {
   senderTabId?: number;
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
-  //feature flag
-  private readonly pm30521FeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM30521_AutofillButtonViewLoginScreen),
-  );
-
   private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
@@ -153,7 +146,6 @@ export class ViewComponent {
     private archiveService: CipherArchiveService,
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
-    private configService: ConfigService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
   ) {
     this.subscribeToParams();
@@ -338,11 +330,6 @@ export class ViewComponent {
   }
 
   showAutofillButton(): boolean {
-    //feature flag
-    if (!this.pm30521FeatureFlag()) {
-      return false;
-    }
-
     if (!this.autofillAllowed()) {
       return false;
     }
@@ -355,13 +342,6 @@ export class ViewComponent {
   }
 
   async doAutofill() {
-    //feature flag
-    if (
-      !(await this.configService.getFeatureFlag(FeatureFlag.PM30521_AutofillButtonViewLoginScreen))
-    ) {
-      return;
-    }
-
     //for non login types that are still auto-fillable
     if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
       await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
