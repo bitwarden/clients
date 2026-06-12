@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -29,7 +28,6 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
     PopOutComponent,
     PopupHeaderComponent,
     PasswordHistoryViewComponent,
-    NgIf,
   ],
 })
 export class PasswordHistoryComponent implements OnInit {

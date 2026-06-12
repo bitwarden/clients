@@ -21,6 +21,7 @@ import { InternalOrganizationServiceAbstraction } from "../../admin-console/abst
 import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
+import { OrganizationUserStatusType } from "../../admin-console/enums";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
@@ -38,6 +39,7 @@ import {
   MasterPasswordUnlockData,
 } from "../../key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -80,6 +82,7 @@ describe("DefaultSyncService", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let v2UpgradeTokenStateService: MockProxy<V2UpgradeTokenStateService>;
 
   let sut: DefaultSyncService;
 
@@ -113,6 +116,7 @@ describe("DefaultSyncService", () => {
     securityStateService = mock();
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
+    v2UpgradeTokenStateService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -143,6 +147,7 @@ describe("DefaultSyncService", () => {
       securityStateService,
       kdfConfigService,
       accountCryptographicStateService,
+      v2UpgradeTokenStateService,
     );
   });
 
@@ -444,6 +449,42 @@ describe("DefaultSyncService", () => {
 
         expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
       });
+
+      it("should persist the V2 upgrade token when present on the user decryption response", async () => {
+        const wrappedUserKey1 = "mockWrappedUserKey1";
+        const wrappedUserKey2 = "mockWrappedUserKey2";
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          UserDecryption: {
+            V2UpgradeToken: {
+              WrappedUserKey1: wrappedUserKey1,
+              WrappedUserKey2: wrappedUserKey2,
+            },
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(v2UpgradeTokenStateService.setV2UpgradeToken).toHaveBeenCalledWith(
+          { wrapped_user_key_1: wrappedUserKey1, wrapped_user_key_2: wrappedUserKey2 },
+          user1,
+        );
+        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).not.toHaveBeenCalled();
+      });
+
+      it("should clear the V2 upgrade token when the response omits it", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          UserDecryption: {},
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).toHaveBeenCalledWith(user1);
+        expect(v2UpgradeTokenStateService.setV2UpgradeToken).not.toHaveBeenCalled();
+      });
     });
 
     describe("mutate 'last update time'", () => {
@@ -626,6 +667,92 @@ describe("DefaultSyncService", () => {
 
         expect(newPolicyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+    });
+
+    describe("organization sync", () => {
+      it("syncs organizations from profile.organizations when organizationsNew is absent", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            Organizations: [{ Id: "org1", Status: OrganizationUserStatusType.Confirmed }],
+            ProviderOrganizations: [] as any[],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            org1: expect.objectContaining({
+              id: "org1",
+              status: OrganizationUserStatusType.Confirmed,
+              isMember: true,
+              isProviderUser: false,
+            }),
+          },
+          user1,
+        );
+      });
+
+      it("prefers organizationsNew over organizations when both are present", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            Organizations: [{ Id: "old-org", Status: OrganizationUserStatusType.Confirmed }],
+            OrganizationsNew: [{ Id: "new-org", Status: OrganizationUserStatusType.Accepted }],
+            ProviderOrganizations: [] as any[],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            "new-org": expect.objectContaining({
+              id: "new-org",
+              status: OrganizationUserStatusType.Accepted,
+              isMember: true,
+              isProviderUser: false,
+            }),
+          },
+          user1,
+        );
+      });
+
+      it("merges provider organizations regardless of source", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            Organizations: [] as any[],
+            OrganizationsNew: [{ Id: "org1", Status: OrganizationUserStatusType.Accepted }],
+            ProviderOrganizations: [
+              { Id: "provider-org", Status: OrganizationUserStatusType.Confirmed },
+            ],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            org1: expect.objectContaining({
+              id: "org1",
+              status: OrganizationUserStatusType.Accepted,
+              isMember: true,
+              isProviderUser: false,
+            }),
+            "provider-org": expect.objectContaining({
+              id: "provider-org",
+              isMember: false,
+              isProviderUser: true,
+            }),
+          },
           user1,
         );
       });

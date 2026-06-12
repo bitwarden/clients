@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Banki adatok"
   },
+  "typePassport": {
+    "message": "Útlevél"
+  },
+  "passportDetails": {
+    "message": "Útlevél adatok"
+  },
+  "passportAdded": {
+    "message": "Az útlevél hozzáadásra került."
+  },
+  "typePassportSubtitle": {
+    "message": "Utazási dokumentum"
+  },
   "folderSubtitle": {
     "message": "Elemek szervezése"
   },
   "collectionSubtitle": {
     "message": "Megosztott elemek szervezése"
+  },
+  "typeDriversLicense": {
+    "message": "Licensz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Jogosítvány szám vagy azonosító"
   },
   "chooseItemToAdd": {
     "message": "Válasszuk ki a hozzáadandó elemet"
@@ -144,7 +162,7 @@
     "message": "Bankszámla megtekintése",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Licensz megtekintése",
     "description": "Header for view license item type"
   },
@@ -208,7 +226,7 @@
     "message": "Bankszámla szerkesztése",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Licensz szerkesztése",
     "description": "Header for edit license item type"
   },
@@ -372,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Útlevélszám"
+  },
+  "sex": {
+    "message": "Nem"
+  },
+  "copySex": {
+    "message": "Nem másolása"
+  },
+  "birthPlace": {
+    "message": "Születési hely"
+  },
+  "copyBirthPlace": {
+    "message": "Születési hely másolása"
+  },
+  "nationality": {
+    "message": "Állampolgárság"
+  },
+  "copyNationality": {
+    "message": "Állampolgárság másolása"
+  },
+  "copyIssuingCountry": {
+    "message": "Kiállító ország másolása"
+  },
+  "passportType": {
+    "message": "Útlevél típus"
+  },
+  "copyPassportType": {
+    "message": "Útlevél típus másolása"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Nemzeti azonosító szám másolása"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nemzeti azonosító szám"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kiállító hatóság/hivatal másolása"
   },
   "licenseNumber": {
     "message": "Vezetői engedély száma"
@@ -1171,6 +1225,10 @@
   "noItemsInList": {
     "message": "Nincsenek megjeleníthető elemek."
   },
+  "noValueEntered": {
+    "message": "Nincs megadva érték.",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Ellenőrző kód elküldése a saját email címre"
   },
@@ -1331,6 +1389,9 @@
   },
   "iconsUrl": {
     "message": "Ikonok szerver webcím"
+  },
+  "sendUrl": {
+    "message": "Send szerver webcím"
   },
   "environmentSaved": {
     "message": "A környezeti webcímek mentésre kerültek."
@@ -1755,12 +1816,25 @@
     "message": "Szám másolása",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Név másolása",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Email cím másolása"
   },
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kártya szám"
@@ -1893,6 +1967,31 @@
   },
   "selectAll": {
     "message": "Összes kijelölése"
+  },
+  "selected": {
+    "message": "Kiválasztva"
+  },
+  "bulkActionsBar": {
+    "message": "Tömeges műveletek"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ elem lett kiválasztva. A tömeges műveletek sáv mostantól elérhető a képernyő alján. Nyomjuk meg $SHORTCUTBINDING$ gombot, hogy a fókuszt a tömeges művelet sávra váltsuk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "A kiválasztás kiürítésre került."
+  },
+  "additionalActions": {
+    "message": "Kiegészítő műveletek"
   },
   "zoomIn": {
     "message": "Nagyítás"
@@ -2215,6 +2314,12 @@
   "deleteAccountWarning": {
     "message": "A fiók véglegesen törlésre kerül. A művelet nem vonható vissza."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Legalább egy szervezet tulajdonosa vagyunk. A fiók törlése minden olyan szervezetet is töröl, amelynek mi vagyunk az egyedüli tulajdonosa."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Nem törölhetjük a fiókot, amíg egy szervezet tulajdonosa vagyunk. Először adjuk át a tulajdonjogot vagy töröljük a szervezetet."
+  },
   "cannotDeleteAccount": {
     "message": "A fiók nem törölhető."
   },
@@ -2525,15 +2630,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "A böngésző integrációt egyelőre csak a Windows Store verzió támogatja."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Sajnos a böngésző integrációját a linux verzió jelenleg nem támogatja."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Ellenőrzés kérése a böngésző integrációhoz"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Engedélyezzünk további biztonsági réteget ujjlenyomat kifejezés-hitelesítés kérésével az asztal és a böngésző közötti kapcsolat létrehozásakor. Ha engedélyezve van, ez minden egyes kapcsolat létrehozásakor felhasználói beavatkozást és ellenőrzést igényel."
-  },
   "enableHardwareAcceleration": {
     "message": "Hardver gyorsítás használata"
   },
@@ -2542,12 +2638,6 @@
   },
   "approve": {
     "message": "Jóváhagyás"
-  },
-  "verifyBrowserTitle": {
-    "message": "Böngésző kapcsolat ellenőrzése"
-  },
-  "verifyBrowserDesc": {
-    "message": "Ellenőrizzük, hogy a bemutatott ujjlenyomat megegyezik a böngésző kiterjesztésében megjelenített ujjlenyomattal."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ szeretne csaklakozni a Bitwardenhez.",
@@ -4120,6 +4210,22 @@
   "troubleshooting": {
     "message": "Hibaelhárítás"
   },
+  "downloadDiagnosticReport": {
+    "message": "Diagnosztikai jelentés letöltése"
+  },
+  "experiencingAnIssue": {
+    "message": "Problémát tapasztalunk?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Töltsük le, majd osszuk meg a diagnosztikai jelentést:"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden támogatás",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Letöltés"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "A hardveres gyorsítás letiltása és újraindítás"
   },
@@ -4652,6 +4758,10 @@
   "invalidShortcut": {
     "message": "Invalid shortcut"
   },
+  "breadcrumbs": {
+    "message": "Morzsamenük",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "További morzsamenük",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4849,6 +4959,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "A munkamenet időkifutást az asztali alkalmazás vezérli."
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ nincs telepítve. Telepítsük $BROWSER$ böngészőt, mielőtt jelszavakat importálunk abbóll.",
     "placeholders": {
@@ -5012,8 +5125,32 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "more": {
+    "message": "Továbbiak"
+  },
+  "enterMonth": {
+    "message": "A hónap megadása."
+  },
+  "enterDay": {
+    "message": "A nap megadása."
+  },
+  "enterYear": {
+    "message": "Az év megadása."
+  },
+  "invalidDay": {
+    "message": "Érvényes napot adjunk meg."
+  },
+  "invalidYear": {
+    "message": "Érvényes évet adjunk meg."
+  },
+  "searchDriversLicense": {
+    "message": "Licenszek keresése"
+  },
   "bankAccount": {
     "message": "Bankszámla"
+  },
+  "bankAccountDetails": {
+    "message": "Bankszámla adatok"
   },
   "bankName": {
     "message": "Bank neve"
@@ -5052,6 +5189,9 @@
   "searchBankAccount": {
     "message": "Bankfiók keresése"
   },
+  "searchPassport": {
+    "message": "Útlevelek keresése"
+  },
   "copyAccountNumber": {
     "message": "Számlaszám másolása"
   },
@@ -5063,6 +5203,30 @@
   },
   "copyIban": {
     "message": "IBAN másolása"
+  },
+  "copyNameOnAccount": {
+    "message": "Számlatulajdonos név másolása"
+  },
+  "copyBranchNumber": {
+    "message": "Fiókszám másolása"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT kód másolása"
+  },
+  "copyFirstName": {
+    "message": "Személynév másolása"
+  },
+  "copyMiddleName": {
+    "message": "Középső név másolása"
+  },
+  "copyLastName": {
+    "message": "Családnév másolása"
+  },
+  "copyLicenseNumber": {
+    "message": "Licensz szám másolása"
+  },
+  "copyPassportNumber": {
+    "message": "Útlevélszám másolása"
   },
   "bankAccountTypeChecking": {
     "message": "Ellenőrzés"
@@ -5104,10 +5268,6 @@
     "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "A Send elem szerkesztések mentése nem sikerült.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "viewTextSendHeader": {
     "message": "Szöveg megtekintése"
   },
@@ -5140,5 +5300,50 @@
   "progressBar": {
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."
+  },
+  "driversLicenseDetails": {
+    "message": "Licensz részletek"
+  },
+  "dateOfBirth": {
+    "message": "Születési dátum"
+  },
+  "birthMonth": {
+    "message": "Születési hónap"
+  },
+  "birthDay": {
+    "message": "Születési nap"
+  },
+  "birthYear": {
+    "message": "Születési év"
+  },
+  "issuingCountry": {
+    "message": "Kiállító ország"
+  },
+  "issuingState": {
+    "message": "Kiállító állam/tartomány"
+  },
+  "issueDate": {
+    "message": "Kiállítási dátum"
+  },
+  "issueMonth": {
+    "message": "Kiállítási hónap"
+  },
+  "issueDay": {
+    "message": "Kiállítási nap"
+  },
+  "issueYear": {
+    "message": "Kiállítási év"
+  },
+  "expirationDay": {
+    "message": "Lejárati dátum"
+  },
+  "issuingAuthority": {
+    "message": "Kiállító hatóság"
+  },
+  "licenseClass": {
+    "message": "Licensz osztály"
   }
 }

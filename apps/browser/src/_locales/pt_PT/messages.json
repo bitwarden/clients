@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "Copiar número do passaporte"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copiar número do cartão de cidadão"
+  },
+  "copyFirstName": {
+    "message": "Copiar nome próprio"
+  },
+  "copyMiddleName": {
+    "message": "Copiar nome do meio"
+  },
+  "copyLastName": {
+    "message": "Copiar apelido"
+  },
   "copyLicenseNumber": {
     "message": "Copiar número da carta de condução"
   },
@@ -202,8 +214,13 @@
     "message": "Preencher",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Preenchimento automático"
+  "autofillNoun": {
+    "message": "Preenchimento automático",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Preencher automaticamente",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Preencher automaticamente credencial"
@@ -375,6 +392,9 @@
   },
   "save": {
     "message": "Guardar"
+  },
+  "saveAndFill": {
+    "message": "Guardar e preencher"
   },
   "move": {
     "message": "Mover"
@@ -707,6 +727,22 @@
   },
   "rateExtension": {
     "message": "Classificar a extensão"
+  },
+  "troubleshooting": {
+    "message": "Resolução de problemas"
+  },
+  "experiencingAnIssue": {
+    "message": "Está a ter algum problema?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Transfira e partilhe o relatório de diagnóstico com o"
+  },
+  "bitwardenSupport": {
+    "message": "suporte do Bitwarden⁠",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Transferir"
   },
   "browserNotSupportClipboard": {
     "message": "O seu navegador web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
@@ -1313,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Utilizar assistência de preenchimento"
   },
+  "turnOnFillAssist": {
+    "message": "Ativar assistência de preenchimento"
+  },
+  "enableFillAssistDescription": {
+    "message": "A assistência de preenchimento melhora a precisão do preenchimento automático em sites suportados através da utilização de regras específicas para cada site. Não são recolhidos nem guardados quaisquer dados quando utiliza esta funcionalidade."
+  },
+  "aboutFillAssist": {
+    "message": "Sobre a assistência de preenchimento"
+  },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
   },
@@ -1766,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL do servidor de ícones"
   },
+  "sendUrl": {
+    "message": "Enviar URL do servidor"
+  },
   "environmentSaved": {
     "message": "URLs de ambiente guardados"
   },
@@ -1799,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Este site não corresponde às suas credenciais guardadas. Antes de preencher as suas credenciais, certifique-se de que se trata de um site fiável."
+  },
+  "loginNeverMatchTitle": {
+    "message": "A credencial não corresponde"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Este site não corresponde às credenciais guardadas. Verifique se está num site fidedigno antes de preencher automaticamente."
+  },
+  "uriMatchRule": {
+    "message": "Regra de correspondência de URI"
+  },
+  "neverMatch": {
+    "message": "Nunca corresponder"
   },
   "loginHasNoSiteSaved": {
     "message": "A credencial não tem nenhum site associado"
@@ -1976,11 +2036,32 @@
   "brand": {
     "message": "Marca"
   },
+  "birthDay": {
+    "message": "Dia de nascimento"
+  },
+  "birthMonth": {
+    "message": "Mês de nascimento"
+  },
+  "birthYear": {
+    "message": "Ano de nascimento"
+  },
+  "expirationDay": {
+    "message": "Dia de validade"
+  },
   "expirationMonth": {
     "message": "Mês de validade"
   },
   "expirationYear": {
     "message": "Ano de validade"
+  },
+  "issueDay": {
+    "message": "Dia de emissão"
+  },
+  "issueMonth": {
+    "message": "Mês de emissão"
+  },
+  "issueYear": {
+    "message": "Ano de emissão"
   },
   "monthly": {
     "message": "mês"
@@ -2075,6 +2156,51 @@
   "passportNumber": {
     "message": "Número do passaporte"
   },
+  "dateOfBirth": {
+    "message": "Data de nascimento"
+  },
+  "sex": {
+    "message": "Género"
+  },
+  "copySex": {
+    "message": "Copiar género"
+  },
+  "birthPlace": {
+    "message": "Local de nascimento"
+  },
+  "copyBirthPlace": {
+    "message": "Copiar local de nascimento"
+  },
+  "nationality": {
+    "message": "Nacionalidade"
+  },
+  "copyNationality": {
+    "message": "Copiar nacionalidade"
+  },
+  "issuingCountry": {
+    "message": "País de emissão"
+  },
+  "copyIssuingCountry": {
+    "message": "Copiar país de emissão"
+  },
+  "passportType": {
+    "message": "Tipo de passaporte"
+  },
+  "copyPassportType": {
+    "message": "Copiar tipo de passaporte"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Número do cartão de cidadão"
+  },
+  "issuingAuthority": {
+    "message": "Autoridade emissora"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copiar autoridade / entidade emissora"
+  },
+  "issueDate": {
+    "message": "Data de emissão"
+  },
   "licenseNumber": {
     "message": "Número da carta de condução"
   },
@@ -2135,6 +2261,9 @@
   "bankAccount": {
     "message": "Conta bancária"
   },
+  "bankAccountDetails": {
+    "message": "Detalhes da conta bancária"
+  },
   "typeNote": {
     "message": "Nota"
   },
@@ -2164,6 +2293,33 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Dados bancários"
+  },
+  "typePassport": {
+    "message": "Passaporte"
+  },
+  "passportDetails": {
+    "message": "Detalhes do passaporte"
+  },
+  "passportAdded": {
+    "message": "Passaporte adicionado"
+  },
+  "typePassportSubtitle": {
+    "message": "Documento de viagem"
+  },
+  "typeDriversLicense": {
+    "message": "Carta de condução"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Carta de condução ou CC"
+  },
+  "driversLicenseDetails": {
+    "message": "Detalhes da carta de condução"
+  },
+  "issuingState": {
+    "message": "Estado / província de emissão"
+  },
+  "licenseClass": {
+    "message": "Categoria da carta de condução"
   },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
@@ -2229,8 +2385,8 @@
     "message": "Editar conta bancária",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Editar licença",
+  "editItemHeaderLicense": {
+    "message": "Editar carta de condução",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2425,8 @@
     "message": "Ver conta bancária",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Ver licença",
+  "viewItemHeaderLicense": {
+    "message": "Ver carta de condução",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -2334,6 +2490,31 @@
   "clear": {
     "message": "Limpar",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selecionado(s)"
+  },
+  "bulkActionsBar": {
+    "message": "Ações em massa"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(ns) selecionado(s). A barra de ações em massa está agora disponível na parte inferior do ecrã. Prima $SHORTCUTBINDING$ para alternar o foco para a barra de ações em massa.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Seleção limpa"
+  },
+  "additionalActions": {
+    "message": "Ações adicionais"
   },
   "checkPassword": {
     "message": "Verificar se a palavra-passe foi exposta."
@@ -2469,13 +2650,13 @@
     "message": "A palavra-passe mestra que escolheu é fraca. Deve utilizar uma palavra-passe mestra forte (ou uma frase de acesso) para proteger adequadamente a sua conta Bitwarden. Tem a certeza de que pretende utilizar esta palavra-passe mestra?"
   },
   "rotateAccountEncKey": {
-    "message": "Regenerar também a chave de encriptação da minha conta"
+    "message": "Rotacionar também a chave de encriptação da minha conta"
   },
   "rotateEncKeyTitle": {
-    "message": "Regenerar chave de encriptação"
+    "message": "Rotacionar chave de encriptação"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Tem a certeza de que pretende regenerar a chave de encriptação da sua conta?"
+    "message": "Tem a certeza de que pretende rotacionar a chave de encriptação da sua conta?"
   },
   "updateEncryptionKeyWarning": {
     "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
@@ -2484,10 +2665,10 @@
     "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+    "message": "Existem anexos antigos no seu cofre que precisam de ser corrigidos antes de poder rotacionar a chave de encriptação da sua conta."
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impacto da regeneração da sua chave de encriptação"
+    "message": "Impacto da rotação da sua chave de encriptação"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Uma ou mais políticas da organização exigem que a palavra-passe mestra cumpra os seguintes requisitos:"
@@ -2823,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "A biometria não pode ser concluída, considere a possibilidade de utilizar uma palavra-passe mestra ou terminar a sessão. Se o problema persistir, contacte a assistência do Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Autorização não concedida"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Sem autorização para comunicar com a aplicação para computador do Bitwarden, não podemos fornecer dados biométricos na extensão do navegador. Por favor, tente novamente."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Erro no pedido de autorização"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Esta ação não pode ser realizada na barra lateral. Por favor, repita a ação no pop-up ou no popout."
   },
   "personalOwnershipSubmitError": {
     "message": "Devido a uma política empresarial, está impedido de guardar itens no seu cofre pessoal. Altere a opção Propriedade para uma organização e escolha entre as coleções disponíveis."
@@ -4297,12 +4466,6 @@
     "message": "Preencher automaticamente ao carregar a página definido para utilizar a predefinição.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Não é possível preencher automaticamente"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "A correspondência padrão está definida como \"Correspondência exata\". O site atual não corresponde exatamente às credenciais guardadas para este item."
-  },
   "okay": {
     "message": "OK"
   },
@@ -4987,6 +5150,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Nenhum valor introduzido",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Não existem valores para copiar"
@@ -6087,6 +6254,10 @@
   "next": {
     "message": "Seguinte"
   },
+  "breadcrumbs": {
+    "message": "Caminho de navegação",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6350,6 +6521,36 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "sharedUnlock": {
+    "message": "Desbloqueio partilhado"
+  },
+  "sharedUnlockDescription": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado por todas as aplicações neste dispositivo. A aplicação para computador é necessária para sincronizar entre diferentes navegadores."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden no Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com a aplicação para computador do Bitwarden."
+  },
+  "enterMonth": {
+    "message": "Introduza o mês."
+  },
+  "enterDay": {
+    "message": "Introduza o dia."
+  },
+  "enterYear": {
+    "message": "Introduza o ano."
+  },
+  "invalidDay": {
+    "message": "Introduza um dia válido."
+  },
+  "invalidYear": {
+    "message": "Introduza um ano válido."
+  },
+  "searchDriversLicense": {
+    "message": "Pesquisar cartas de condução"
+  },
   "bankName": {
     "message": "Nome do banco"
   },
@@ -6387,6 +6588,9 @@
   "searchBankAccount": {
     "message": "Pesquisar conta bancária"
   },
+  "searchPassport": {
+    "message": "Pesquisar passaportes"
+  },
   "copyAccountNumber": {
     "message": "Copiar número da conta"
   },
@@ -6398,6 +6602,15 @@
   },
   "copyIban": {
     "message": "Copiar IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copiar nome do titular da conta"
+  },
+  "copyBranchNumber": {
+    "message": "Copiar número da agência"
+  },
+  "copySwiftCode": {
+    "message": "Copiar código SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Conta à ordem"
@@ -6420,14 +6633,11 @@
   "bankAccountTypeOther": {
     "message": "Outro"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Guarde os seus dados bancários em segurança"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Guarde as informações da sua conta bancária para as poder aceder de forma fácil e segura em todos os seus dispositivos."
-  },
   "downloadFailed": {
     "message": "Falha na transferência."
+  },
+  "more": {
+    "message": "Mais"
   },
   "maxAccessCount": {
     "message": "Número máximo de acessos",
@@ -6466,11 +6676,10 @@
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Falha ao guardar as alterações do Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "A sua organização requer a visibilidade do e-mail. Desmarque “Ocultar o seu e-mail dos utilizadores” para guardar."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   }
 }
