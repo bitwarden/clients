@@ -241,6 +241,17 @@ describe("LoginDecryptionOptionsComponent", () => {
       await component.ngOnInit();
     });
 
+    it("does not throw when getAutoEnrollStatus fails while loading new user data", async () => {
+      // Regression: the failure previously resolved to undefined and the component dereferenced
+      // `.id`, throwing a TypeError. The error must be surfaced and ngOnInit must not reject.
+      // See ticket #870106.
+      organizationApiService.getAutoEnrollStatus.mockRejectedValue(new Error("Request failed"));
+
+      await expect(component.ngOnInit()).resolves.toBeUndefined();
+
+      expect(validationService.showError).toHaveBeenCalled();
+    });
+
     it("should use SDK v2 registration when feature flag is enabled", async () => {
       // Arrange
       configService.getFeatureFlag.mockResolvedValue(true);

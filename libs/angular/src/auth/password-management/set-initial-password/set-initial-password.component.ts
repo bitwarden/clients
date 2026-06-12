@@ -71,6 +71,7 @@ export class SetInitialPasswordComponent implements OnInit {
   protected email?: string;
   protected forceSetPasswordReason?: ForceSetPasswordReason;
   protected initializing = true;
+  protected loadError = false;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
   protected orgId?: string;
   protected orgSsoIdentifier?: string;
@@ -111,7 +112,19 @@ export class SetInitialPasswordComponent implements OnInit {
     this.email = activeAccount?.email;
 
     await this.establishUserType();
-    await this.getOrgInfo();
+
+    try {
+      await this.getOrgInfo();
+    } catch (e) {
+      // Org info (orgId / reset-password policy) is required to set the initial password for org
+      // users. If it can't be loaded, surface an error state instead of rendering a form that would
+      // later fail with an opaque "orgId is falsy" assertion at submit time. See ticket #870106.
+      this.loadError = true;
+      this.logService.error(
+        "Failed to load organization info for the set initial password flow.",
+        e,
+      );
+    }
 
     this.initializing = false;
   }
@@ -264,12 +277,15 @@ export class SetInitialPasswordComponent implements OnInit {
         this.resetPasswordAutoEnroll = autoEnrollStatus.resetPasswordEnabled;
         this.masterPasswordPolicyOptions =
           await this.policyApiService.getMasterPasswordPolicyOptsForOrgUser(this.orgId);
-      } catch {
+      } catch (e) {
         this.toastService.showToast({
           variant: "error",
           title: "",
           message: this.i18nService.t("errorOccurred"),
         });
+        // Re-throw so ngOnInit puts the page into an error state rather than rendering a form
+        // that cannot succeed without orgId. See ticket #870106.
+        throw e;
       }
     }
   }
