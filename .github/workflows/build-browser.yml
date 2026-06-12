@@ -375,13 +375,15 @@ jobs:
 
 
   # Standalone job (not part of the build matrix): builds the dev-signed, QA-region Chrome
-  # extension for QA side-loading. Uses a fresh checkout + npm ci rather than the build-source relay.
+  # extension for QA side-loading. Consumes the commercial build-source relay (the same sanitized
+  # source snapshot the production commercial build uses) for consistency with the other build jobs.
   build-qa:
     name: Build QA dev extension - chrome - commercial license
     runs-on: ubuntu-22.04
     needs:
       - setup
       - locales-test
+      - build-source
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -404,19 +406,29 @@ jobs:
           node --version
           npm --version
 
+      - name: Download browser source
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: bit-browser-source-${{ env._BUILD_NUMBER }}.zip
+
+      - name: Unzip browser source artifact
+        run: |
+          unzip browser-source.zip
+          rm browser-source.zip
+
       - name: NPM setup
         run: npm ci
-        working-directory: ./
+        working-directory: browser-source/
 
       - name: Build and package QA dev extension
         run: npm run package:bit:qa:dev:chrome
-        working-directory: apps/browser
+        working-directory: browser-source/apps/browser
 
       - name: Upload QA dev extension artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: bit-dev-chrome-MV3-QA-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/bit-dev-chrome-QA.zip
+          path: browser-source/apps/browser/dist/bit-dev-chrome-QA.zip
           if-no-files-found: error
 
 
