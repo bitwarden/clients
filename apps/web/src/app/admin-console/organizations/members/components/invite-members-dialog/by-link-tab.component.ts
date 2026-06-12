@@ -116,7 +116,11 @@ export class ByLinkTabComponent {
       }
     });
 
-    // Reset the hint once the user edits the autopopulated value.
+    this.resetHintOnEdit();
+  }
+
+  /** Resets the autopopulation hint as soon as the user manually edits the domain field. */
+  private resetHintOnEdit(): void {
     this.form.controls.domains.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.isFilledFromClaimedDomains.set(false));
