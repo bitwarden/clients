@@ -1139,9 +1139,7 @@ export class ServiceContainer {
       this.biometricStateService,
       this.platformUtilsService,
       new CliUserKeyRotationService(),
-      this.organizationService,
       this.cipherService,
-      this.apiService,
       this.sdkService,
     );
   }
