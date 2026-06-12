@@ -97,7 +97,7 @@ describe("SponsoringOrgRowComponent", () => {
         await (component as any).revokeSponsorship();
 
         expect(mockI18nService.t).toHaveBeenCalledWith(
-          "revokeActiveSponsorshipConfirmation",
+          "revokeSponsorshipAcceptedWithPriceConfirmation",
           "friend@example.com",
           "$40",
           expect.any(String),
@@ -117,7 +117,7 @@ describe("SponsoringOrgRowComponent", () => {
         await (component as any).revokeSponsorship();
 
         expect(mockI18nService.t).toHaveBeenCalledWith(
-          "revokeActiveSponsorshipConfirmation",
+          "revokeSponsorshipAcceptedWithPriceConfirmation",
           expect.any(String),
           "$40.50",
           expect.any(String),
@@ -130,7 +130,7 @@ describe("SponsoringOrgRowComponent", () => {
         await (component as any).revokeSponsorship();
 
         expect(mockI18nService.t).toHaveBeenCalledWith(
-          "revokeActiveSponsorshipConfirmation",
+          "revokeSponsorshipAcceptedWithPriceConfirmation",
           expect.any(String),
           "$0",
           expect.any(String),

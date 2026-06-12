@@ -12658,7 +12658,7 @@
       }
     }
   },
-  "revokeActiveSponsorshipConfirmation": {
+  "revokeSponsorshipAcceptedWithPriceConfirmation": {
     "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $PRICE$ + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
     "placeholders": {
       "email": {
@@ -13199,7 +13199,7 @@
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
   },
-  "revokeActiveSponsorshipConfirmation": {
+  "revokeSponsorshipAcceptedWithPriceConfirmation": {
     "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
     "placeholders": {
       "email": {
