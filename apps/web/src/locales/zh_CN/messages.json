@@ -3565,11 +3565,17 @@
   "year": {
     "message": "年"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "年"
   },
   "month": {
     "message": "月"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "月",
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -7405,7 +7429,7 @@
     "message": "回收站中超过一定时间的项目将被自动删除。"
   },
   "passwordPrompt": {
-    "message": "主密码重新提示"
+    "message": "主密码二次验证"
   },
   "passwordConfirmation": {
     "message": "确认主密码"
@@ -10960,22 +10984,22 @@
     "message": "忽略此清单"
   },
   "onboardingCreateYourAccountTitle": {
-    "message": "创建帐户"
+    "message": "创建您的账户"
   },
   "onboardingImportYourPasswordsTitle": {
-    "message": "导入密码"
+    "message": "导入您的密码"
   },
   "onboardingInstallTheBrowserExtensionTitle": {
     "message": "安装浏览器扩展"
   },
   "onboardingImportDataSubtitle": {
-    "message": "从其他密码管理器导入数据可为您节省时间。您也可以手动向密码库添加项目。"
+    "message": "从其他密码管理器导入数据以节省时间。您也可以手动将项目添加到您的密码库。"
   },
   "onboardingImportCta": {
     "message": "导入密码"
   },
   "onboardingInstallExtensionSubtitle": {
-    "message": "请将扩展程序固定到浏览器，以便更快捷地登录并无缝保存您的密码。"
+    "message": "将扩展固定到浏览器，以便更快捷地登录并无缝保存您的密码。"
   },
   "onboardingInstallExtensionCta": {
     "message": "安装扩展"
@@ -12117,7 +12141,7 @@
     "message": "进一步了解匹配检测"
   },
   "learnMoreAboutMasterPasswordReprompt": {
-    "message": "进一步了解主密码重新提示"
+    "message": "进一步了解主密码二次验证"
   },
   "learnMoreAboutSearchingYourVault": {
     "message": "进一步了解关于搜索密码库"
@@ -12794,7 +12818,7 @@
     }
   },
   "scheduledPriceIncreaseWarningMonthly": {
-    "message": "您的订阅价格将于 $DATE$ 上涨至每席位每月 $PRICE$。您的方案功能和现有折扣将保持不变。",
+    "message": "您的订阅价格将于 $DATE$ 上涨至每席位 $PRICE$ /月。您的方案包含的功能和所有现有折扣将保持不变。",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -12808,7 +12832,7 @@
     "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
   },
   "scheduledPriceIncreaseWarningAnnually": {
-    "message": "您的订阅价格将于 $DATE$ 上涨至每席位每月 $PRICE$（按年计费）。您的方案功能和现有折扣将保持不变。",
+    "message": "您的订阅价格将于 $DATE$ 上涨至每席位 $PRICE$ /月（按年计费）。您的方案包含的功能和所有现有折扣将保持不变。",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "返回继续编辑"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+  },
+  "singleOrgPrerequisite": {
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "enableBanner": {
+    "message": "Enable banner"
+  },
+  "createBannerMessage": {
+    "message": "Create banner message"
+  },
+  "header": {
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "You must enter a header to create a button."
+  },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "保存 Send 的编辑内容失败",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

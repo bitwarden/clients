@@ -139,7 +139,7 @@
     "message": "Erinnerungen senden"
   },
   "noCriticalApplicationsMarkedYet": {
-    "message": "You haven't marked any critical applications yet. Review applications to get started."
+    "message": "Du hast noch keine kritischen Anwendungen markiert. Überprüfe Anwendungen, um loszulegen."
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Sobald du Anwendungen als kritisch markierst, werden sie hier angezeigt."
@@ -3565,11 +3565,17 @@
   "year": {
     "message": "Jahr"
   },
+  "years": {
+    "message": "Jahre"
+  },
   "yr": {
     "message": "Jahr"
   },
   "month": {
     "message": "Monat"
+  },
+  "months": {
+    "message": "Monate"
   },
   "monthAbbr": {
     "message": "Monat",
@@ -3654,16 +3660,16 @@
     "message": "Das Abonnement wurde gekündigt."
   },
   "churnOfferTitle": {
-    "message": "Special offer before you go"
+    "message": "Sonderangebot bevor du gehst"
   },
   "churnOfferPreamble": {
-    "message": "If you cancel now, your access continues until"
+    "message": "Wenn du jetzt kündigst, bleibt dein Zugang bestehen bis zum"
   },
   "churnOfferPreambleSuffix": {
-    "message": ". But as a long-time customer, we'd like to offer you something first."
+    "message": ". Da du jedoch ein langjähriger Kunde bist, möchten wir dir zunächst etwas anbieten."
   },
   "churnOfferDiscountHeading": {
-    "message": "Get $DISCOUNT$ off your subscription",
+    "message": "Erhalte $DISCOUNT$ Rabatt auf dein Abonnement",
     "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
     "placeholders": {
       "discount": {
@@ -3673,7 +3679,7 @@
     }
   },
   "churnOfferDiscountBody": {
-    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "message": "Als Dankeschön dafür, dass du schon so lange Bitwarden-Kunde bist, möchten wir dir einen Rabatt in Höhe von $DISCOUNT$ für eine Dauer von $DURATION$ anbieten.",
     "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3687,7 +3693,7 @@
     }
   },
   "churnOfferAccept": {
-    "message": "Stay and get $DISCOUNT$ off",
+    "message": "Bleib bei uns und erhalte $DISCOUNT$ Rabatt",
     "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
     "placeholders": {
       "discount": {
@@ -3697,13 +3703,13 @@
     }
   },
   "churnOfferDecline": {
-    "message": "Cancel subscription"
+    "message": "Abonnement kündigen"
   },
   "churnOfferSuccessTitle": {
-    "message": "You're all set!"
+    "message": "Du bist bereit!"
   },
   "churnOfferSuccessBody": {
-    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "message": "Dein Rabatt in Höhe von $DISCOUNT$ wurde für die Dauer von $DURATION$ angerechnet.",
     "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ Rabatt für $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -3741,7 +3765,7 @@
     "message": "Rabatt"
   },
   "discountApplied": {
-    "message": "Discount applied"
+    "message": "Rabatt angewendet"
   },
   "discountExpiredOnPurchase": {
     "message": "Rabatt abgelaufen. Bitte überprüfe den Warenkorb und versuche es erneut."
@@ -8362,7 +8386,7 @@
     "message": "URL des Icons-Servers"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Server-URL senden"
   },
   "environmentSaved": {
     "message": "URLs der Umgebung gespeichert"
@@ -10259,28 +10283,28 @@
     "message": "Loslegen"
   },
   "getStartedWithSecretsManager": {
-    "message": "Get started with Secrets Manager"
+    "message": "Erste Schritte mit dem Secrets Manager"
   },
   "smOnboardingChecklistSubtitle": {
-    "message": "Complete these steps to start managing your team's secrets"
+    "message": "Befolge diese Schritte, um mit der Verwaltung der Geheimnisse deines Teams zu beginnen"
   },
   "smOnboardingCreateMachineAccountCta": {
-    "message": "Create machine account"
+    "message": "Gerätekonto erstellen"
   },
   "smOnboardingCreateProjectSubtitle": {
-    "message": "Organize your secrets into projects"
+    "message": "Organisiere deine Geheimnisse in Projekten"
   },
   "smOnboardingCreateProjectCta": {
-    "message": "Create project"
+    "message": "Projekt erstellen"
   },
   "smOnboardingImportSecretsSubtitle": {
-    "message": "Bring existing secrets in from another tool"
+    "message": "Bestehende Geheimnisse aus einer anderen Anwendung importieren"
   },
   "smOnboardingCreateSecretSubtitle": {
-    "message": "Store passwords, certificates, and API keys"
+    "message": "Passwörter, Zertifikate und API-Schlüssel speichern"
   },
   "smOnboardingCreateSecretCta": {
-    "message": "Create secret"
+    "message": "Geheimnis erstellen"
   },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ abgeschlossen",
@@ -10296,7 +10320,7 @@
     }
   },
   "onboardingTasksComplete": {
-    "message": "$COMPLETED$ of $TOTAL$ complete",
+    "message": "$COMPLETED$ von $TOTAL$ abgeschlossen",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10951,37 +10975,37 @@
     "description": "This is followed a by a hyperlink to the help website."
   },
   "getStartedWithYourVault": {
-    "message": "Get started with your vault"
+    "message": "Erste Schritte mit deinem Tresor"
   },
   "onboardingChecklistSubtitle": {
-    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+    "message": "Befolge diese Schritte, um deine persönlichen Daten zu schützen und Bitwarden optimal zu nutzen"
   },
   "dismissThisChecklist": {
-    "message": "Dismiss this checklist"
+    "message": "Diese Checkliste schließen"
   },
   "onboardingCreateYourAccountTitle": {
-    "message": "Create your account"
+    "message": "Dein Konto erstellen"
   },
   "onboardingImportYourPasswordsTitle": {
-    "message": "Import your passwords"
+    "message": "Passwörter importieren"
   },
   "onboardingInstallTheBrowserExtensionTitle": {
-    "message": "Install the browser extension"
+    "message": "Browser-Erweiterung installieren"
   },
   "onboardingImportDataSubtitle": {
-    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+    "message": "Spar Zeit, indem du Daten aus einem anderen Passwort-Manager importierst. Du kannst Einträge auch manuell zu deinem Tresor hinzufügen."
   },
   "onboardingImportCta": {
-    "message": "Import passwords"
+    "message": "Passwörter importieren"
   },
   "onboardingInstallExtensionSubtitle": {
-    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+    "message": "Füge die Erweiterung zu deinem Browser hinzu. So kannst du dich schneller anmelden und deine Passwörter problemlos speichern."
   },
   "onboardingInstallExtensionCta": {
-    "message": "Install extension"
+    "message": "Erweiterung installieren"
   },
   "completed": {
-    "message": "Completed"
+    "message": "Abgeschlossen"
   },
   "projectAccessUpdated": {
     "message": "Projektzugriff aktualisiert"
@@ -12794,7 +12818,7 @@
     }
   },
   "scheduledPriceIncreaseWarningMonthly": {
-    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "message": "Dein Abonnementpreis erhöht sich ab dem $DATE$ auf $PRICE$ pro Benutzerplatz und Monat. Die Funktionen deines Tarifs und alle bestehenden Rabatte bleiben unverändert.",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -12808,7 +12832,7 @@
     "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
   },
   "scheduledPriceIncreaseWarningAnnually": {
-    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "message": "Dein Abonnementpreis erhöht sich ab dem $DATE$ auf $PRICE$ pro Benutzerplatz und Monat (jährliche Abrechnung). Die Funktionen deines Tarifs und alle bestehenden Rabatte bleiben unverändert.",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -12822,7 +12846,7 @@
     "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
   },
   "priceIncreaseNotice": {
-    "message": "Price increase notice"
+    "message": "Preisänderungsmitteilung"
   },
   "restartOrganizationSubscription": {
     "message": "Organisations-Abonnement neu gestartet"
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "Zurück zur Bearbeitung"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Tresor-Banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Erstelle und veröffentliche ein individuelles Banner, das alle Mitglieder der Organisation nach der Anmeldung auf ihrer Tresor-Seite sehen."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Die Richtlinie für einzelne Organisationen muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
+  },
+  "enableBanner": {
+    "message": "Banner aktivieren"
+  },
+  "createBannerMessage": {
+    "message": "Eine Banner-Meldung erstellen"
+  },
+  "header": {
+    "message": "Überschrift"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximal $COUNT$ Zeichen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Gib eine $NAME$ unter $COUNT$ Zeichen ein.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Erstelle einen $NAME$ mit unter $COUNT$ Zeichen.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Du musst eine Überschrift eingeben, um einen Button zu erstellen."
+  },
+  "enterADescription": {
+    "message": "Gib eine Beschreibung ein."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Nach jeder Anmeldung anzeigen"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Die Benutzer sehen die Meldung nach jeder Anmeldung, auch wenn sie sie schließen."
+  },
   "sendHasUnsavedEdits": {
     "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

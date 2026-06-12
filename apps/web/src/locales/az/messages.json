@@ -139,7 +139,7 @@
     "message": "Xatırlatma göndər"
   },
   "noCriticalApplicationsMarkedYet": {
-    "message": "You haven't marked any critical applications yet. Review applications to get started."
+    "message": "Hələ heç bir tətbiqi kritik olaraq işarələməmisiniz. Başlamaq üçün tətbiqləri incələyin."
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Tətbiqləri kritik olaraq işarələsəniz, onlar burada nümayiş olunacaq."
@@ -3565,10 +3565,16 @@
   "year": {
     "message": "il"
   },
+  "years": {
+    "message": "il"
+  },
   "yr": {
     "message": "il"
   },
   "month": {
+    "message": "ay"
+  },
+  "months": {
     "message": "ay"
   },
   "monthAbbr": {
@@ -3654,16 +3660,16 @@
     "message": "Abunəliyiniz ləğv edildi."
   },
   "churnOfferTitle": {
-    "message": "Special offer before you go"
+    "message": "Getməzdən əvvəl xüsusi təklif"
   },
   "churnOfferPreamble": {
-    "message": "If you cancel now, your access continues until"
+    "message": "İndi ləğv etsəniz, erişiminiz bu müddətə qədər davam edəcək"
   },
   "churnOfferPreambleSuffix": {
-    "message": ". But as a long-time customer, we'd like to offer you something first."
+    "message": ". Ancaq uzun müddətdir ki müştərimiz olduğunuz üçün, sizə təklifimiz var."
   },
   "churnOfferDiscountHeading": {
-    "message": "Get $DISCOUNT$ off your subscription",
+    "message": "Abunəliyiniz üçün $DISCOUNT$ endirim qazanın",
     "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
     "placeholders": {
       "discount": {
@@ -3673,7 +3679,7 @@
     }
   },
   "churnOfferDiscountBody": {
-    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "message": "Uzun müddətdir ki Bitwarden müştərisi olduğunuz üçün sizə təşəkkür olaraq, növbəti $DURATION$ müddətdə sizə göstərilən xidmət üçün $DISCOUNT$ endirim təklif etmək istərdik.",
     "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3687,7 +3693,7 @@
     }
   },
   "churnOfferAccept": {
-    "message": "Stay and get $DISCOUNT$ off",
+    "message": "Qal və $DISCOUNT$ endirimi əldə et",
     "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
     "placeholders": {
       "discount": {
@@ -3697,13 +3703,13 @@
     }
   },
   "churnOfferDecline": {
-    "message": "Cancel subscription"
+    "message": "Abunəlikdən imtina"
   },
   "churnOfferSuccessTitle": {
-    "message": "You're all set!"
+    "message": "Artıq hazırsınız!"
   },
   "churnOfferSuccessBody": {
-    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "message": "$DISCOUNT$ endiriminiz, növbəti $DURATION$ müddətinə tətbiq olundu.",
     "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$LENGTH$ $DURATION$ üçün $DISCOUNT$ endirim",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -3741,7 +3765,7 @@
     "message": "endirim"
   },
   "discountApplied": {
-    "message": "Discount applied"
+    "message": "Endirim tətbiq olundu"
   },
   "discountExpiredOnPurchase": {
     "message": "Endirimin müddəti bitdi. Lütfən səbətin cəmini yoxlayıb yenidən sınayın."
@@ -7396,7 +7420,7 @@
     "message": "\"Parol təfsilatlarını sıfırla\" cavabı boşdur"
   },
   "resetPasswordNewPasswordRequired": {
-    "message": "New password is required"
+    "message": "Yeni parol tələb olunur"
   },
   "trashCleanupWarning": {
     "message": "Tullantı qutusunda 30 gündən çox qalan elementlər avtomatik silinəcək."
@@ -8362,7 +8386,7 @@
     "message": "İkon server URL-si"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send server URL-si"
   },
   "environmentSaved": {
     "message": "Mühit URL-ləri saxlanıldı"
@@ -10259,28 +10283,28 @@
     "message": "Başla"
   },
   "getStartedWithSecretsManager": {
-    "message": "Get started with Secrets Manager"
+    "message": "\"Sirr Meneceri\"ni istifadə etməyə başlayın"
   },
   "smOnboardingChecklistSubtitle": {
-    "message": "Complete these steps to start managing your team's secrets"
+    "message": "Komandanızın sirrlərini idarə etməyə başlamaq üçün bu addımları tamamlayın"
   },
   "smOnboardingCreateMachineAccountCta": {
-    "message": "Create machine account"
+    "message": "Maşın hesabı yarat"
   },
   "smOnboardingCreateProjectSubtitle": {
-    "message": "Organize your secrets into projects"
+    "message": "Sirrlərinizi layihə halında təşkil edin"
   },
   "smOnboardingCreateProjectCta": {
-    "message": "Create project"
+    "message": "Layihə yarat"
   },
   "smOnboardingImportSecretsSubtitle": {
-    "message": "Bring existing secrets in from another tool"
+    "message": "Başqa bir alətdən mövcud sirrləri gətir"
   },
   "smOnboardingCreateSecretSubtitle": {
-    "message": "Store passwords, certificates, and API keys"
+    "message": "Parolları, sertifikatları və API açarları saxla"
   },
   "smOnboardingCreateSecretCta": {
-    "message": "Create secret"
+    "message": "Sirr yarat"
   },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ tamamlandı",
@@ -10296,7 +10320,7 @@
     }
   },
   "onboardingTasksComplete": {
-    "message": "$COMPLETED$ of $TOTAL$ complete",
+    "message": "$COMPLETED$/$TOTAL$ tamamlandı",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10951,37 +10975,37 @@
     "description": "This is followed a by a hyperlink to the help website."
   },
   "getStartedWithYourVault": {
-    "message": "Get started with your vault"
+    "message": "Seyfinizi istifadə etməyə başlayın"
   },
   "onboardingChecklistSubtitle": {
-    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+    "message": "Fərdi verilərinizi qorumaq və Bitwarden-dən maksimum faydalanmaq üçün bu addımları tamamlayın"
   },
   "dismissThisChecklist": {
-    "message": "Dismiss this checklist"
+    "message": "Bu siyahını bağla"
   },
   "onboardingCreateYourAccountTitle": {
-    "message": "Create your account"
+    "message": "Hesab yaradın"
   },
   "onboardingImportYourPasswordsTitle": {
-    "message": "Import your passwords"
+    "message": "Parollarınızı daxilə köçürün"
   },
   "onboardingInstallTheBrowserExtensionTitle": {
-    "message": "Install the browser extension"
+    "message": "Brauzer uzantısını quraşdır"
   },
   "onboardingImportDataSubtitle": {
-    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+    "message": "Başqa parol menecerindən veriləri daxilə köçürərək vaxta qənaət edə bilərsiniz. Elementləri seyfinizə manual olaraq əlavə edə bilərsiniz."
   },
   "onboardingImportCta": {
-    "message": "Import passwords"
+    "message": "Parolları daxilə köçür"
   },
   "onboardingInstallExtensionSubtitle": {
-    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+    "message": "Uzantını brauzerinizə sancın. Beləcə, hesabınıza daha tez daxil ola və parollarınızı asanlıqla saxlaya bilərsiniz."
   },
   "onboardingInstallExtensionCta": {
-    "message": "Install extension"
+    "message": "Uzantını quraşdır"
   },
   "completed": {
-    "message": "Completed"
+    "message": "Tamamlandı"
   },
   "projectAccessUpdated": {
     "message": "Layihəyə erişim güncəlləndi"
@@ -12794,7 +12818,7 @@
     }
   },
   "scheduledPriceIncreaseWarningMonthly": {
-    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "message": "Abunəliyinizin qiyməti, $DATE$ tarixində bir nəfər üçün aylıq $PRICE$ qiymətində artır. Planınızın özəllikləri və mövcud endirimlərinizi olduğu kimi qalacaq.",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -12808,7 +12832,7 @@
     "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
   },
   "scheduledPriceIncreaseWarningAnnually": {
-    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "message": "Abunəliyinizin qiyməti, $DATE$ tarixində bir nəfər üçün aylıq $PRICE$ qiymətində (illik faktura) artır. Planınızın özəllikləri və mövcud endirimlərinizi olduğu kimi qalacaq.",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -12822,7 +12846,7 @@
     "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
   },
   "priceIncreaseNotice": {
-    "message": "Price increase notice"
+    "message": "Qiymət artımı bildirişi"
   },
   "restartOrganizationSubscription": {
     "message": "Təşkilat abunəliyi yenidən başladıldı"
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "Düzəlişə qayıt"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Seyf banneri"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Təşkilat üzvlərinin giriş etdikdən sonra öz seyf səhifələrində görəcəyi özəlləşdirilmiş bir banner yaradın və nümayiş etdirin."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat siyasəti işə salınmalıdır."
+  },
+  "enableBanner": {
+    "message": "Banneri fəallaşdır"
+  },
+  "createBannerMessage": {
+    "message": "Banner mesajı yarat"
+  },
+  "header": {
+    "message": "Başlıq"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maksimum $COUNT$ xarakter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "$COUNT$ xarakter uzunluğunda $NAME$ daxil edin.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "$COUNT$ xarakter uzunluğunda $NAME$ yaradın.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Düymə yaratmaq üçün bir başlıq daxil etməlisiniz."
+  },
+  "enterADescription": {
+    "message": "Bir açıqlama daxil et."
+  },
+  "button": {
+    "message": "Düymə"
+  },
+  "showAfterEveryLogin": {
+    "message": "Hər girişdən sonra göstər"
+  },
+  "seeMessageEveryLogin": {
+    "message": "İstifadəçilər, bunu bağlasalar belə, hər girişdən sonra mesajı görəcəklər."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send-də saxlanılmamış düzəlişlər var. Tərk etmək istədiyinizə əminsiniz?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Send düzəlişlərini saxlama uğursuz oldu",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

@@ -3565,11 +3565,17 @@
   "year": {
     "message": "rok"
   },
+  "years": {
+    "message": "let"
+  },
   "yr": {
     "message": "r"
   },
   "month": {
     "message": "měsíc"
+  },
+  "months": {
+    "message": "měsíců"
   },
   "monthAbbr": {
     "message": "měs.",
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "Sleva $DISCOUNT$ na $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "Zpět k úpravám"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Banner trezoru"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Vytvořte a spustte vlastní banner, který po přihlášení uvidí všichni členové organizace."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
+  },
+  "enableBanner": {
+    "message": "Povolit banner"
+  },
+  "createBannerMessage": {
+    "message": "Vytvořit zprávu banneru"
+  },
+  "header": {
+    "message": "Záhlaví"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximálně $COUNT$ znaků",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Zadejte $NAME$, který má pod $COUNT$ znaků.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Vytvořte $NAME$, který má pod $COUNT$ znaků.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Musíte zadat záhlaví pro vytvoření tlačítka."
+  },
+  "enterADescription": {
+    "message": "Zadejte popis."
+  },
+  "button": {
+    "message": "Tlačítko"
+  },
+  "showAfterEveryLogin": {
+    "message": "Zobrazit po každém přihlášení"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Uživatelé uvidí zprávu po každém přihlášení, i když ji odmítnou."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Ukládání úprav Send selhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

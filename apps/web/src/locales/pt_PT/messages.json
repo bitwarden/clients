@@ -3565,11 +3565,17 @@
   "year": {
     "message": "ano"
   },
+  "years": {
+    "message": "anos"
+  },
   "yr": {
     "message": "ano"
   },
   "month": {
     "message": "mês"
+  },
+  "months": {
+    "message": "meses"
   },
   "monthAbbr": {
     "message": "m.",
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ de desconto por $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -6387,7 +6411,7 @@
     "message": "Pré-requisito"
   },
   "requireSsoPolicyReq": {
-    "message": "A política empresarial da organização única deve ser ativada antes de ativar esta política."
+    "message": "A política empresarial de organização única tem de estar ativada antes de ativar esta política."
   },
   "requireSsoPolicyReqError": {
     "message": "Política de organização única não definida."
@@ -7378,7 +7402,7 @@
     "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam automaticamente antes de os administradores poderem recuperar as suas contas. O registo automático ativará a recuperação de contas para novos membros."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "A política empresarial de organização única deve ser ativada antes de ativar esta política."
+    "message": "A política empresarial de organização única tem de estar ativada antes de ativar esta política."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "Voltar à edição"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Banner do cofre"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Crie e apresente um banner personalizado que todos os membros da organização verão na página do respetivo cofre após iniciarem sessão."
+  },
+  "singleOrgPrerequisite": {
+    "message": "A política de organização única tem de estar ativada antes de ativar esta política."
+  },
+  "enableBanner": {
+    "message": "Ativar banner"
+  },
+  "createBannerMessage": {
+    "message": "Criar mensagem de banner"
+  },
+  "header": {
+    "message": "Cabeçalho"
+  },
+  "maximumOfXCharacters": {
+    "message": "Máximo de $COUNT$ caracteres",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Introduza uma $NAME$ com menos de $COUNT$ caracteres.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Crie um $NAME$ com menos de $COUNT$ caracteres.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Tem de introduzir um cabeçalho para criar um botão."
+  },
+  "enterADescription": {
+    "message": "Introduza uma descrição."
+  },
+  "button": {
+    "message": "Botão"
+  },
+  "showAfterEveryLogin": {
+    "message": "Mostrar após cada início de sessão"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Os utilizadores verão a mensagem após cada início de sessão, mesmo que a fechem."
+  },
   "sendHasUnsavedEdits": {
     "message": "O Send tem alterações não guardadas. Tem a certeza de que pretende sair?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Falha ao guardar as alterações do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
