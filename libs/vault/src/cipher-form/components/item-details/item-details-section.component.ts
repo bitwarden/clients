@@ -219,10 +219,6 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
-      throw new Error("No organizations available for ownership.");
-    }
-
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
     if (prefillCipher) {
