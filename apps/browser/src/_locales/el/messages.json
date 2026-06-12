@@ -214,8 +214,13 @@
     "message": "Συμπλήρωση",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Αυτόματη συμπλήρωση"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Αυτόματη συμπλήρωση σύνδεσης"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Αποθήκευση"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Μετακίνηση"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Χρήση υποβοήθησης συμπλήρωσης"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Εμφάνιση επιλογών μενού περιβάλλοντος"
   },
@@ -1793,6 +1810,9 @@
   },
   "iconsUrl": {
     "message": "URL διακομιστή εικονιδίων"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "Τα URL περιβάλλοντος έχουν αποθηκευτεί"
@@ -6501,6 +6521,18 @@
   "userVerificationFailed": {
     "message": "Η επαλήθευση χρήστη απέτυχε."
   },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -6643,10 +6675,6 @@
   "progressBar": {
     "message": "Γραμμή προόδου",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."

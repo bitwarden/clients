@@ -5,11 +5,7 @@
   <bit-card>
     @for (login of loginUris; track $index; let last = $last) {
       <ng-container>
-        <bit-form-field
-          [disableMargin]="last"
-          [disableReadOnlyBorder]="last"
-          data-testid="autofill-view-list"
-        >
+        <bit-form-field [disableMargin]="last" data-testid="autofill-view-list">
           <bit-label>
             {{ "website" | i18n }}
           </bit-label>
