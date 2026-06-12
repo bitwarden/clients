@@ -1,10 +1,12 @@
 import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
 
+
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 import { SshAgentService } from "./ssh-agent.service";
@@ -223,6 +225,8 @@ describe("SshAgentService", () => {
     const stopBefore = mockStop.mock.calls.length;
     const replaceBefore = mockReplace.mock.calls.length;
 
+    // Simulate locked vault: the real cipherViews$ emits null when locked.
+    cipherViewsSubject.next(null);
     // user-2 is locked by default in authStatusPerUser
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
@@ -435,6 +439,7 @@ describe("SshAgentService – sign request authorization", () => {
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
           signRequestResponse: mockSignRequestResponse,
+          listRequestResponse: jest.fn().mockResolvedValue(undefined),
           lock: jest.fn().mockResolvedValue(undefined),
         },
       },
@@ -651,5 +656,120 @@ describe("SshAgentService – sign request authorization", () => {
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+});
+
+describe("SshAgentService – list keys request", () => {
+  const LIST_REQUEST_ID = 42;
+
+  let service: SshAgentService;
+  let listKeysRequestSubject: Subject<Record<string, unknown>>;
+  let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
+  let accountSubject: BehaviorSubject<{ id: UserId } | null>;
+  let mockListRequestResponse: jest.Mock;
+  let mockReplace: jest.Mock;
+  let mockFocusWindow: jest.Mock;
+  let mockShowToast: jest.Mock;
+
+  beforeEach(async () => {
+    listKeysRequestSubject = new Subject();
+    authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
+    accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
+    mockListRequestResponse = jest.fn().mockResolvedValue(undefined);
+    mockReplace = jest.fn().mockResolvedValue(undefined);
+    mockFocusWindow = jest.fn();
+    mockShowToast = jest.fn();
+
+    (global as any).ipc = {
+      autofill: {
+        sshAgent: {
+          isLoaded: jest.fn().mockResolvedValue(false),
+          init: jest.fn().mockResolvedValue(undefined),
+          replace: mockReplace,
+          stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: jest.fn().mockResolvedValue(undefined),
+          listRequestResponse: mockListRequestResponse,
+          lock: jest.fn().mockResolvedValue(undefined),
+        },
+      },
+      platform: { focusWindow: mockFocusWindow },
+    };
+
+    service = new SshAgentService(
+      {
+        cipherViews$: jest.fn().mockReturnValue(of([])),
+        getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
+      } as any,
+      { info: jest.fn(), error: jest.fn() } as any,
+      { open: jest.fn() } as any,
+      {
+        messages$: jest
+          .fn()
+          .mockImplementation((def: { command: string }) =>
+            def.command === SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST
+              ? listKeysRequestSubject.asObservable()
+              : EMPTY,
+          ),
+      } as any,
+      {
+        activeAccountStatus$: authStatusSubject.asObservable(),
+        authStatusFor$: jest.fn().mockReturnValue(authStatusSubject.asObservable()),
+      } as any,
+      { showToast: mockShowToast } as any,
+      { t: jest.fn().mockReturnValue("") } as any,
+      {
+        sshAgentEnabled$: of(true),
+        sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
+      } as any,
+      { activeAccount$: accountSubject.asObservable() } as any,
+      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+    );
+
+    await service.init();
+  });
+
+  afterEach(() => {
+    service.ngOnDestroy();
+    jest.clearAllMocks();
+  });
+
+  function sendListRequest() {
+    listKeysRequestSubject.next({ requestId: LIST_REQUEST_ID });
+  }
+
+  it("when vault is unlocked, replaces keys and sends listRequestResponse(true)", async () => {
+    sendListRequest();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([
+      { name: "My Key", privateKey: "pem", cipherId: "c1" },
+    ]);
+    expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
+  });
+
+  it("when vault is locked, focuses window and shows toast", async () => {
+    authStatusSubject.next(AuthenticationStatus.Locked);
+    await flush();
+
+    sendListRequest();
+    await flush();
+
+    expect(mockFocusWindow).toHaveBeenCalled();
+    expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "info" }));
+  });
+
+  it("when vault is locked then unlocks, replaces keys and sends listRequestResponse(true)", async () => {
+    authStatusSubject.next(AuthenticationStatus.Locked);
+    await flush();
+
+    sendListRequest();
+    await flush();
+
+    // Vault unlocks — pipeline should continue
+    authStatusSubject.next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalled();
+    expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
   });
 });
