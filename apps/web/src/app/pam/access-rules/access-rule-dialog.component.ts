@@ -9,7 +9,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -80,7 +80,6 @@ const NO_DURATION_CAP = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    FormsModule,
     ReactiveFormsModule,
     AsyncActionsModule,
     ButtonModule,
@@ -117,6 +116,7 @@ export class AccessRuleDialogComponent implements OnInit {
       [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)],
     ],
     description: [this.data.existing?.description ?? ""],
+    collections: [[] as SelectItemView[]],
     defaultLeaseDurationSeconds: [
       normalizeDuration(
         this.data.existing?.defaultLeaseDurationSeconds ??
@@ -143,9 +143,6 @@ export class AccessRuleDialogComponent implements OnInit {
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
   protected readonly collectionsLoading = signal(true);
-  protected readonly selectedCollectionIds = signal<string[]>(
-    this.data.existing?.collections ?? [],
-  );
 
   protected readonly collectionOptions = computed<SelectItemView[]>(() =>
     this.allCollections().map((c) => ({
@@ -155,18 +152,6 @@ export class AccessRuleDialogComponent implements OnInit {
       icon: "bwi-collection-shared",
     })),
   );
-
-  protected readonly selectedCollectionItems = computed<SelectItemView[]>(() => {
-    // Hold off rendering chips until the option list has loaded — otherwise the
-    // chips render with raw UUIDs as labels until the async fetch resolves.
-    if (this.collectionsLoading()) {
-      return [];
-    }
-    const byId = new Map(this.collectionOptions().map((c) => [c.id, c]));
-    return this.selectedCollectionIds()
-      .map((id) => byId.get(id))
-      .filter((c): c is SelectItemView => c != null);
-  });
 
   constructor() {
     this.coupleDurationBounds();
@@ -202,13 +187,17 @@ export class AccessRuleDialogComponent implements OnInit {
         this.collectionAdminService.collectionAdminViews$(this.data.organizationId, userId),
       );
       this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
+
+      // Map the rule's stored collection IDs onto the now-loaded options so the
+      // chips render with real names rather than raw UUIDs.
+      const optionsById = new Map(this.collectionOptions().map((c) => [c.id, c]));
+      const selected = (this.data.existing?.collections ?? [])
+        .map((id) => optionsById.get(id))
+        .filter((c): c is SelectItemView => c != null);
+      this.formGroup.controls.collections.setValue(selected);
     } finally {
       this.collectionsLoading.set(false);
     }
-  }
-
-  protected onCollectionsChange(items: SelectItemView[] | null): void {
-    this.selectedCollectionIds.set((items ?? []).map((i) => i.id));
   }
 
   protected readonly submit = async (): Promise<void> => {
@@ -242,7 +231,7 @@ export class AccessRuleDialogComponent implements OnInit {
       name: value.name,
       description: value.description.length === 0 ? null : value.description,
       conditions,
-      collections: this.selectedCollectionIds(),
+      collections: value.collections.map((i) => i.id),
       defaultLeaseDurationSeconds: value.defaultLeaseDurationSeconds,
       maxLeaseDurationSeconds:
         value.maxLeaseDurationSeconds === NO_DURATION_CAP ? null : value.maxLeaseDurationSeconds,

@@ -5,6 +5,7 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from "@angular/core";
@@ -22,6 +23,7 @@ import {
   NoItemsModule,
   SectionComponent,
   SectionHeaderComponent,
+  TableDataSource,
   TableModule,
   ToastService,
   TypographyModule,
@@ -124,11 +126,26 @@ export class MyAccessRequestsComponent implements OnInit {
     () => this.pendingRows().length > 0 || this.recentRows().length > 0,
   );
 
+  /**
+   * Each table renders from its own data source so `bit-table` can sort the rows.
+   * The filtered/sliced signals above are the input; the connected stream the
+   * templates iterate is the sorted output.
+   */
+  protected readonly pendingDataSource = new TableDataSource<MyRequestRow>();
+  protected readonly recentDataSource = new TableDataSource<MyRequestRow>();
+
   constructor() {
     this.configService
       .getFeatureFlag$(FeatureFlag.Pam)
       .pipe(takeUntilDestroyed())
       .subscribe((enabled) => this.showPam.set(enabled));
+
+    effect(() => {
+      this.pendingDataSource.data = this.pendingRows();
+    });
+    effect(() => {
+      this.recentDataSource.data = this.recentRows();
+    });
   }
 
   async ngOnInit(): Promise<void> {

@@ -5,8 +5,8 @@ import { of } from "rxjs";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { PamApiService } from "@bitwarden/pam";
+import { DIALOG_DATA, DialogRef, SelectItemView, ToastService } from "@bitwarden/components";
+import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRuleDialogComponent, AccessRuleDialogData } from "./access-rule-dialog.component";
 
@@ -84,5 +84,81 @@ describe("AccessRuleDialogComponent — default/max duration coupling", () => {
 
     expect(controls().maxLeaseDurationSeconds.value).toBe(ONE_HOUR);
     expect(controls().defaultLeaseDurationSeconds.value).toBe(ONE_HOUR);
+  });
+});
+
+describe("AccessRuleDialogComponent — collection selection", () => {
+  let component: AccessRuleDialogComponent;
+  let pamApi: { createAccessRule: jest.Mock; updateAccessRule: jest.Mock };
+
+  // The org's collections, as returned by the admin-console service.
+  const ORG_COLLECTIONS = [
+    { id: "col-1", name: "Engineering" },
+    { id: "col-2", name: "Design" },
+    { id: "col-3", name: "Finance" },
+  ];
+
+  const setup = (data: AccessRuleDialogData) => {
+    pamApi = {
+      createAccessRule: jest.fn().mockResolvedValue(undefined),
+      updateAccessRule: jest.fn().mockResolvedValue(undefined),
+    };
+
+    TestBed.configureTestingModule({
+      imports: [AccessRuleDialogComponent, ReactiveFormsModule],
+      providers: [
+        { provide: DIALOG_DATA, useValue: data },
+        { provide: DialogRef, useValue: { close: jest.fn() } },
+        { provide: PamApiService, useValue: pamApi },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
+        },
+      ],
+    });
+
+    component = TestBed.createComponent(AccessRuleDialogComponent).componentInstance;
+  };
+
+  const controls = () => component["formGroup"].controls;
+
+  it("seeds the collections control by mapping an existing rule's IDs onto loaded options", async () => {
+    setup({
+      organizationId: "org-1",
+      existing: {
+        id: "rule-1",
+        collections: ["col-1", "col-3"],
+        conditions: [],
+      } as unknown as AccessRuleResponse,
+    });
+
+    await component.ngOnInit();
+
+    expect(controls().collections.value.map((i) => i.id)).toEqual(["col-1", "col-3"]);
+    // Chips show real names, not raw UUIDs.
+    expect(controls().collections.value.map((i) => i.labelName)).toEqual([
+      "Engineering",
+      "Finance",
+    ]);
+  });
+
+  it("submits the IDs of the collections held in the form control", async () => {
+    setup({ organizationId: "org-1" });
+    await component.ngOnInit();
+
+    controls().name.setValue("Production access");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+
+    await component["submit"]();
+
+    expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
+    const [orgId, request] = pamApi.createAccessRule.mock.calls[0];
+    expect(orgId).toBe("org-1");
+    expect(request.collections).toEqual(["col-2"]);
   });
 });

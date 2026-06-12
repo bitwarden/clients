@@ -24,12 +24,10 @@
       <bit-label>{{ "pamAccessRuleCollectionsAdd" | i18n }}</bit-label>
       <bit-multi-select
         class="tw-w-full"
+        formControlName="collections"
         [baseItems]="collectionOptions()"
         [removeSelectedItems]="false"
         [loading]="collectionsLoading()"
-        [ngModel]="selectedCollectionItems()"
-        [ngModelOptions]="{ standalone: true }"
-        (ngModelChange)="onCollectionsChange($event)"
       />
     </bit-form-field>
 
