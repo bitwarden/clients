@@ -11,7 +11,7 @@ import { Router } from "@angular/router";
  * the deep-linked id is a separate ApproverInbox feature not yet wired.
  */
 @Component({
-  selector: "pam-access-request-route",
+  selector: "app-pam-access-request-route",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

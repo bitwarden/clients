@@ -18,10 +18,10 @@
   </span>
   <div bitDialogContent>
     @if (editMode) {
-      <pam-collection-access-rule-callout
+      <app-pam-collection-access-rule-callout
         [organizationId]="organizationSelected.value"
         [collectionId]="collectionId"
-      ></pam-collection-access-rule-callout>
+      ></app-pam-collection-access-rule-callout>
     }
     @if (loading()) {
       <ng-container #spinner>

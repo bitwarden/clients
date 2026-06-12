@@ -8,7 +8,7 @@
   </p>
 
   @if (organizationId() && organizationName()) {
-    <div class="tw-mb-4" data-testid="pam-kill-switch-slot">
+    <div class="tw-mb-4">
       <app-pam-kill-switch
         [organizationId]="organizationId()!"
         [organizationName]="organizationName()!"
@@ -67,11 +67,7 @@
                 <span [title]="row.collectionName">{{ row.collectionName }}</span>
               </td>
               <td bitCell>
-                <span
-                  class="tw-text-sm"
-                  [bitTooltip]="'pamAccessRuleSummaryTooltip' | i18n"
-                  data-testid="rule-summary"
-                >
+                <span class="tw-text-sm" [bitTooltip]="'pamAccessRuleSummaryTooltip' | i18n">
                   {{ renderRule(row) }}
                 </span>
               </td>

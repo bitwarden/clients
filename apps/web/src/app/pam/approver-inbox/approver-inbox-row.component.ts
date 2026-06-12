@@ -23,7 +23,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
  */
 
 @Component({
-  selector: "pam-approver-inbox-row",
+  selector: "app-pam-approver-inbox-row",
   templateUrl: "./approver-inbox-row.component.html",
   imports: [
     CommonModule,

@@ -13,7 +13,7 @@ import { IconComponent, TooltipDirective } from "@bitwarden/components";
 import { GatedState, formatRemaining } from "@bitwarden/pam";
 
 @Component({
-  selector: "app-cipher-lease-badge",
+  selector: "app-pam-cipher-lease-badge",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, TooltipDirective],
   templateUrl: "./cipher-lease-badge.component.html",

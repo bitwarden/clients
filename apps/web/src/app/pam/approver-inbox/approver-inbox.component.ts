@@ -159,7 +159,7 @@ export function historyRelTimeFor(
  */
 
 @Component({
-  selector: "pam-approver-inbox",
+  selector: "app-pam-approver-inbox",
   templateUrl: "./approver-inbox.component.html",
   providers: [ApproverInboxService],
   imports: [

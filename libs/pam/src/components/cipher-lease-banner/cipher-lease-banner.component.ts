@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -76,7 +76,7 @@ const SERVER_ERROR_MESSAGES = Object.freeze({
  * data fetching — the form is just inputs + submit.
  */
 @Component({
-  selector: "app-cipher-lease-banner",
+  selector: "pam-cipher-lease-banner",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "cipher-lease-banner.component.html",
   imports: [
@@ -148,8 +148,19 @@ export class CipherLeaseBannerComponent implements OnInit {
     combineLatest([
       toObservable(this.cipherId),
       getUserId(this.accountService.activeAccount$),
+      toObservable(this.pamEnabled),
     ]).pipe(
-      switchMap(([cipherId, userId]) => this.pamApiService.getCipherAccessState$(cipherId, userId)),
+      switchMap(([cipherId, userId, pamEnabled]) =>
+        // Don't touch the PAM lease-state endpoint unless the flag is on for this
+        // user. Otherwise every cipher open in a non-PAM org fires
+        // GET /ciphers/{id}/lease/state and leans on a server 404 to stay inert.
+        // (We can't also gate on `partialData`: a cipher under an active lease is
+        // delivered fully decrypted with no `partialData`, yet still needs this
+        // stream to drive the countdown / extend / end controls.)
+        pamEnabled
+          ? this.pamApiService.getCipherAccessState$(cipherId, userId)
+          : of({ lease: {} } as CipherAccessState),
+      ),
     ),
     { initialValue: { lease: {} } as CipherAccessState },
   );

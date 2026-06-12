@@ -64,7 +64,7 @@ function atLeastOneNonEmptyCidrValidator(): ValidatorFn {
  * save and reads the value via {@link currentCidrs}.
  */
 @Component({
-  selector: "pam-ip-allowlist-editor",
+  selector: "app-pam-ip-allowlist-editor",
   templateUrl: "./ip-allowlist-editor.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [

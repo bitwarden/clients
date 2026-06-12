@@ -153,15 +153,11 @@
             </div>
 
             @if (customWindowEndBeforeStart) {
-              <p
-                bitTypography="helper"
-                class="tw-text-danger"
-                data-testid="window-end-before-start"
-              >
+              <p bitTypography="helper" class="tw-text-danger">
                 {{ "requestAccessModalEndBeforeStart" | i18n }}
               </p>
             } @else if (customWindowExceedsMax) {
-              <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
+              <p bitTypography="helper" class="tw-text-danger">
                 {{ "requestAccessModalWindowExceedsMax" | i18n }}
               </p>
             }
@@ -182,7 +178,7 @@
       }
 
       @if (requestError(); as err) {
-        <p bitTypography="helper" class="tw-mb-0 tw-mt-3 tw-text-danger" data-testid="server-error">
+        <p bitTypography="helper" class="tw-mb-0 tw-mt-3 tw-text-danger">
           {{ err }}
         </p>
       }
