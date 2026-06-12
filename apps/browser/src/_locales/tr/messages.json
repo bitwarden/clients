@@ -394,7 +394,7 @@
     "message": "Kaydet"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Kaydet ve doldur"
   },
   "move": {
     "message": "Taşı"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Doldurma yardımcısını kullan"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
   },
@@ -1803,7 +1812,7 @@
     "message": "Simge sunucusu URL'si"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send sunucusu URL'si"
   },
   "environmentSaved": {
     "message": "Ortam URL'leri kaydedildi"
@@ -6666,10 +6675,6 @@
   "progressBar": {
     "message": "İlerleme çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "saveSendEditsFailed": {
-    "message": "Send düzenlemeleri kaydedilemedi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
     "message": "Kuruluşunuz e-postanızın görünmesini zorunlu tutuyor. Kaydetmek için \"Bu adresi gizle\" işaretini kaldırın."

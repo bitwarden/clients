@@ -215,11 +215,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Avto-doldur",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Avto-doldur",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -394,7 +394,7 @@
     "message": "Saxla"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Saxla və doldur"
   },
   "move": {
     "message": "Daşı"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Doldurma köməyini istifadə et"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Konteks menyu seçimlərini göstər"
   },
@@ -1803,7 +1812,7 @@
     "message": "İkon server URL-si"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send server URL-si"
   },
   "environmentSaved": {
     "message": "Mühit URL-ləri saxlanıldı."
@@ -6666,10 +6675,6 @@
   "progressBar": {
     "message": "İrəliləyiş çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "saveSendEditsFailed": {
-    "message": "Send düzəlişlərini saxlama uğursuz oldu",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
     "message": "Təşkilatınızın e-poçtun görünməsini tələb edir. Saxlamaq üçün \"E-poçtunuzu baxanlardan gizlədin\" seçimini ləğv edin."

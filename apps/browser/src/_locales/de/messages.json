@@ -215,11 +215,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Auto-Ausfüllen",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Auto-Ausfüllen",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -394,7 +394,7 @@
     "message": "Speichern"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Speichern und ausfüllen"
   },
   "move": {
     "message": "Verschieben"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Auto-Ausfüllen verwenden"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
   },
@@ -1803,7 +1812,7 @@
     "message": "URL des Icons-Servers"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Server-URL senden"
   },
   "environmentSaved": {
     "message": "URLs der Umgebung gespeichert"
@@ -6666,10 +6675,6 @@
   "progressBar": {
     "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "saveSendEditsFailed": {
-    "message": "Speichern der Send-Änderungen fehlgeschlagen",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
     "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
