@@ -3565,11 +3565,17 @@
   "year": {
     "message": "година"
   },
+  "years": {
+    "message": "години"
+  },
   "yr": {
     "message": "година"
   },
   "month": {
     "message": "месец"
+  },
+  "months": {
+    "message": "месеца"
   },
   "monthAbbr": {
     "message": "мес.",
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ отстъпка за $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "Назад към редактирането"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Изображение за трезора"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Създайте и добавете персонализирано изображение, което всички членове на организацията да виждат в трезорите си след вписване."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Политиката за единствена организация трябва да бъде включена преди активирането на тази политика."
+  },
+  "enableBanner": {
+    "message": "Включване на изображението"
+  },
+  "createBannerMessage": {
+    "message": "Създаване на съобщение за изображението"
+  },
+  "header": {
+    "message": "Заглавка"
+  },
+  "maximumOfXCharacters": {
+    "message": "Най-много $COUNT$ знака",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Въведете $NAME$ с дължина под $COUNT$ знака.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Създайте $NAME$ с дължина не-повече от $COUNT$ знака.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Трябва да въведете заглавка, за да създадете бутон."
+  },
+  "enterADescription": {
+    "message": "Въведете описание."
+  },
+  "button": {
+    "message": "Бутон"
+  },
+  "showAfterEveryLogin": {
+    "message": "Показване след всяко вписване"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Потребителите ще виждат това съобщение след като се впишат, дори да го отхвърлят."
+  },
   "sendHasUnsavedEdits": {
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
