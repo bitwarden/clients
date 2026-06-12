@@ -522,6 +522,146 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("getTargetedPageDetails iframe routing", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
+        .mockImplementationOnce(() => {
+          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
+        });
+    });
+
+    const mockTargetingRules = (selector: string) =>
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [{ fields: { username: [selector] } }],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+    it("routes via routeTargetedFieldsToFrame using iframe.src when contentDocument is null (cross-origin)", async () => {
+      document.body.innerHTML = `<iframe id="cross-iframe"></iframe>`;
+      const iframe = document.getElementById("cross-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://other.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = mockTargetingRules("iframe#cross-iframe >>> #username");
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeSrc: "https://other.example.com/login",
+          iframeTargetedFields: expect.arrayContaining([
+            expect.objectContaining({ fieldType: "username" }),
+          ]),
+        }),
+      );
+    });
+
+    it("does not route when iframe.src is empty (srcdoc / about:blank fail-soft)", async () => {
+      document.body.innerHTML = `<iframe id="srcdoc-iframe"></iframe>`;
+      const iframe = document.getElementById("srcdoc-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", { value: "", configurable: true });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = mockTargetingRules("iframe#srcdoc-iframe >>> #username");
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).not.toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.anything(),
+      );
+    });
+
+    it("prefers contentDocument.location.href over iframe.src when both are available", async () => {
+      document.body.innerHTML = `<iframe id="same-iframe"></iframe>`;
+      const iframe = document.getElementById("same-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://stale.example.com/page",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", {
+        value: { location: { href: "https://current.example.com/page" } },
+        configurable: true,
+      });
+
+      const sendMessageSpy = mockTargetingRules("iframe#same-iframe >>> #username");
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeSrc: "https://current.example.com/page",
+        }),
+      );
+    });
+  });
+
+  describe("applyExternalTargetedFields recursion", () => {
+    it("re-routes via routeTargetedFieldsToFrame when received selector itself crosses another iframe", async () => {
+      document.body.innerHTML = `<iframe id="inner-iframe"></iframe>`;
+      const iframe = document.getElementById("inner-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://leaf.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "sendExtensionMessage",
+      );
+
+      const targetedFields = [
+        { selector: "iframe#inner-iframe >>> #username", fieldType: "username" },
+      ];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeSrc: "https://leaf.example.com/login",
+          iframeTargetedFields: expect.arrayContaining([
+            expect.objectContaining({ fieldType: "username" }),
+          ]),
+        }),
+      );
+    });
+
+    it("does not send collectPageDetailsResponse when all selectors route onward and no fields are cached", async () => {
+      document.body.innerHTML = `<iframe id="inner-iframe"></iframe>`;
+      const iframe = document.getElementById("inner-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://leaf.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const targetedFields = [
+        { selector: "iframe#inner-iframe >>> #username", fieldType: "username" },
+      ];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "collectPageDetailsResponse" }),
+        expect.any(Function),
+      );
+    });
+  });
+
   describe("getAutofillFieldElementByOpid", () => {
     it("returns the element with the opid property value matching the passed value", () => {
       const textInput = document.querySelector('input[type="text"]') as FormElementWithAttribute;
