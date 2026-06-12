@@ -120,7 +120,7 @@ import { Messenger } from "./messaging/messenger";
         return await browserCredentials.create(options);
       }
 
-      throw error;
+      throw rehydrateDOMException(error);
     }
   }
 
@@ -209,7 +209,7 @@ import { Messenger } from "./messaging/messenger";
         return await browserCredentials.get(options);
       }
 
-      throw error;
+      throw rehydrateDOMException(error);
     }
   }
 
@@ -217,6 +217,27 @@ import { Messenger } from "./messaging/messenger";
     options?: CredentialCreationOptions | CredentialRequestOptions,
   ): options is CredentialCreationOptions | CredentialRequestOptions {
     return options != null && "publicKey" in options;
+  }
+
+  /**
+   * Errors thrown from the content-script messenger handler cross the page/isolated
+   * world boundary as JSON, which strips DOMException's prototype. Reconstruct a
+   * real DOMException so callers that check `instanceof DOMException` or `.code`
+   * see what the native browser API would throw. Scoped to `NotAllowedError` —
+   * the only DOMException name our gate produces.
+   */
+  function rehydrateDOMException(error: unknown): unknown {
+    if (
+      error != null &&
+      typeof error === "object" &&
+      "name" in error &&
+      (error as { name: unknown }).name === "NotAllowedError" &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      return new DOMException((error as { message: string }).message, "NotAllowedError");
+    }
+    return error;
   }
 
   /**
