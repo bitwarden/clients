@@ -31,15 +31,17 @@ import { I18nPipe } from "@bitwarden/ui-common";
   providers: [CurrencyPipe],
 })
 export class SponsoringOrgRowComponent {
-  private i18nService = inject(I18nService);
-  private logService = inject(LogService);
-  private dialogService = inject(DialogService);
-  private toastService = inject(ToastService);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
-  private organizationSponsorshipApiService = inject(OrganizationSponsorshipApiServiceAbstraction);
-  private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
-  private currencyPipe = inject(CurrencyPipe);
+  private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly policyService = inject(PolicyService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationSponsorshipApiService = inject(
+    OrganizationSponsorshipApiServiceAbstraction,
+  );
+  private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
+  private readonly currencyPipe = inject(CurrencyPipe);
 
   readonly sponsoringOrg = input.required<Organization>();
   readonly isSelfHosted = input(false);
@@ -84,9 +86,13 @@ export class SponsoringOrgRowComponent {
         : this.i18nService.t("requestRemoved");
     }
     // Actively sponsoring someone
-    if (validUntilDate) return this.i18nService.t("active");
+    if (validUntilDate) {
+      return this.i18nService.t("active");
+    }
     // Cloud: offer sent but not yet accepted. Self-hosted: synced at least once but no valid-until yet.
-    if (!this.isSelfHosted() || lastSyncDate) return this.i18nService.t("sent");
+    if (!this.isSelfHosted() || lastSyncDate) {
+      return this.i18nService.t("sent");
+    }
     // Self-hosted only: sponsorship offered but the install hasn't synced yet to pick it up
     return this.i18nService.t("requested");
   });
