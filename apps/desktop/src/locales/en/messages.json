@@ -5345,5 +5345,8 @@
   },
   "licenseClass": {
     "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
