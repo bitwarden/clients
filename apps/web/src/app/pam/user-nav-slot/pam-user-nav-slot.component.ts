@@ -2,10 +2,10 @@ import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BadgeModule, NavigationModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badge.service";
 
@@ -19,7 +19,7 @@ import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badg
 @Component({
   selector: "pam-user-nav-slot",
   templateUrl: "./pam-user-nav-slot.component.html",
-  imports: [AsyncPipe, BadgeModule, JslibModule, NavigationModule],
+  imports: [AsyncPipe, BadgeModule, I18nPipe, NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PamUserNavSlotComponent {

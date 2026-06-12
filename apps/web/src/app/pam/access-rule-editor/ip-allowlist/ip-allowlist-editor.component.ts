@@ -10,7 +10,6 @@ import {
   ValidatorFn,
 } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncActionsModule,
@@ -18,6 +17,7 @@ import {
   FormFieldModule,
   IconButtonModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { cidrValidator } from "./cidr.validator";
 
@@ -70,7 +70,7 @@ function atLeastOneNonEmptyCidrValidator(): ValidatorFn {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    JslibModule,
+    I18nPipe,
     AsyncActionsModule,
     ButtonModule,
     FormFieldModule,

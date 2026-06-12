@@ -3,7 +3,6 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -13,6 +12,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
@@ -71,7 +71,7 @@ function fakeApi(rows: AccessRequestDetailsResponse[]): PamApiService {
 function decorators(rows: AccessRequestDetailsResponse[]) {
   return [
     moduleMetadata({
-      imports: [JslibModule, RouterTestingModule],
+      imports: [I18nPipe, RouterTestingModule],
       providers: [
         { provide: PamApiService, useValue: fakeApi(rows) },
         {
