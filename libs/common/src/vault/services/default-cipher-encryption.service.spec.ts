@@ -566,18 +566,6 @@ describe("DefaultCipherEncryptionService", () => {
       expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
       expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
     });
-
-    it("should throw EmptyError when SDK is not available", async () => {
-      sdkService.userClient$ = jest.fn().mockReturnValue(of(null)) as any;
-
-      await expect(
-        cipherEncryptionService.decryptManyLegacy([cipherObj], userId),
-      ).rejects.toThrow();
-
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to decrypt ciphers"),
-      );
-    });
   });
 
   describe("decryptManyWithFailures", () => {

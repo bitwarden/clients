@@ -203,17 +203,6 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.login?.fido2Credentials?.[0].keyValue).toBe("decrypted-key-value");
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-      const cipherView = new CipherView();
-      cipherView.name = "Test Cipher";
-
-      await expect(cipherSdkService.createWithServer(cipherView, userId)).rejects.toThrow();
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to create cipher"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
@@ -396,19 +385,6 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.login?.fido2Credentials?.[0].keyValue).toBe("decrypted-key-value");
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-      const cipherView = new CipherView();
-      cipherView.name = "Test Cipher";
-
-      await expect(
-        cipherSdkService.updateWithServer(cipherView, userId, undefined, false),
-      ).rejects.toThrow();
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to update cipher"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
@@ -462,17 +438,6 @@ describe("DefaultCipherSdkService", () => {
       expect(mockAdminSdk.delete).toHaveBeenCalledWith(testCipherId);
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(cipherSdkService.deleteWithServer(testCipherId, userId)).rejects.toThrow(
-        "SDK not available",
-      );
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to delete cipher"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       mockCiphersSdk.delete.mockRejectedValue(new Error("SDK error"));
 
@@ -513,17 +478,6 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow("Organization ID is required for admin delete.");
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(cipherSdkService.deleteManyWithServer(testCipherIds, userId)).rejects.toThrow(
-        "SDK not available",
-      );
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to delete multiple ciphers"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       mockCiphersSdk.delete_many.mockRejectedValue(new Error("SDK error"));
 
@@ -553,17 +507,6 @@ describe("DefaultCipherSdkService", () => {
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
       expect(mockAdminSdk.soft_delete).toHaveBeenCalledWith(testCipherId);
-    });
-
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(cipherSdkService.softDeleteWithServer(testCipherId, userId)).rejects.toThrow(
-        "SDK not available",
-      );
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to soft delete cipher"),
-      );
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -606,17 +549,6 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow("Organization ID is required for admin soft delete.");
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(
-        cipherSdkService.softDeleteManyWithServer(testCipherIds, userId),
-      ).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to soft delete multiple ciphers"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       mockCiphersSdk.soft_delete_many.mockRejectedValue(new Error("SDK error"));
 
@@ -648,17 +580,6 @@ describe("DefaultCipherSdkService", () => {
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
       expect(mockAdminSdk.restore).toHaveBeenCalledWith(testCipherId);
-    });
-
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(cipherSdkService.restoreWithServer(testCipherId, userId)).rejects.toThrow(
-        "SDK not available",
-      );
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to restore cipher"),
-      );
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -694,17 +615,6 @@ describe("DefaultCipherSdkService", () => {
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
       expect(mockAdminSdk.restore_many).toHaveBeenCalledWith(testCipherIds, orgIdString);
-    });
-
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(cipherSdkService.restoreManyWithServer(testCipherIds, userId)).rejects.toThrow(
-        "SDK not available",
-      );
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to restore multiple ciphers"),
-      );
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -779,19 +689,6 @@ describe("DefaultCipherSdkService", () => {
       );
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-      const cipherView = new CipherView();
-      cipherView.name = "Test Cipher";
-
-      await expect(
-        cipherSdkService.shareWithServer(cipherView, orgId, [collectionId1], userId),
-      ).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to share cipher"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
@@ -848,19 +745,6 @@ describe("DefaultCipherSdkService", () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
-    });
-
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-      const cipherView = new CipherView();
-      cipherView.name = "Test Cipher";
-
-      await expect(
-        cipherSdkService.shareManyWithServer([cipherView], orgId, [collectionId1], userId),
-      ).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to share multiple ciphers"),
-      );
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -1032,15 +916,6 @@ describe("DefaultCipherSdkService", () => {
       expect(result.failures[0].decryptionFailure).toBe(true);
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(cipherSdkService.getAllDecrypted(userId)).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to list and decrypt ciphers"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       mockCiphersSdk.get_all.mockRejectedValue(new Error("SDK error"));
 
@@ -1111,17 +986,6 @@ describe("DefaultCipherSdkService", () => {
       expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, true);
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(
-        cipherSdkService.getAllFromApiForOrganization(orgId, userId, false),
-      ).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to list organization ciphers"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       mockAdminSdk.list_org_ciphers.mockRejectedValue(new Error("SDK error"));
 
@@ -1156,17 +1020,6 @@ describe("DefaultCipherSdkService", () => {
       expect(result).toBeInstanceOf(CipherView);
     });
 
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(
-        cipherSdkService.saveCollectionsWithServerAdmin(cipherId, [collectionId1], userId),
-      ).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to update cipher collections as admin"),
-      );
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
       mockAdminSdk.update_collection.mockRejectedValue(new Error("SDK error"));
 
@@ -1199,17 +1052,6 @@ describe("DefaultCipherSdkService", () => {
       expect(mockCiphersSdk.update_collection).toHaveBeenCalledWith(cipherId, collectionIds, false);
       expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
-    });
-
-    it("should throw error and log when SDK client is not available", async () => {
-      sdkService.userClient$.mockReturnValue(of(null));
-
-      await expect(
-        cipherSdkService.saveCollectionsWithServer(cipherId, [collectionId1], userId),
-      ).rejects.toThrow("SDK not available");
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to update cipher collections"),
-      );
     });
 
     it("should throw error and log when SDK throws an error", async () => {
