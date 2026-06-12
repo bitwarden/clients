@@ -11,6 +11,8 @@ import {
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
 import {
+  EnvAccessTokenLocation,
+  accessTokenLocation,
   allowBrowserintegrationOverride,
   isAppImage,
   isDev,
@@ -115,6 +117,7 @@ export default {
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   isWindowsPortable: isWindowsPortable(),
+  forceDiskAccessTokenStorage: accessTokenLocation() === EnvAccessTokenLocation.Disk,
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
