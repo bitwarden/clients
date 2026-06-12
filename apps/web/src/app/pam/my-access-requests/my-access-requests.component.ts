@@ -57,7 +57,10 @@ export type MyRequestRow = {
   requestedNotBefore: Date | null;
   requestedNotAfter: Date | null;
   requestedTtlSeconds: number;
-  resolverDisplayName: string | null;
+  /** i18n key for a system / access-rule resolver; null when a human resolved. */
+  resolverLabelKey: string | null;
+  /** Raw display name when a human resolved; null otherwise (PM-37267 follow-up). */
+  resolverName: string | null;
   approverComment: string | null;
   /** Deadline to activate an approved on-demand request; null for other states. */
   activationDeadline: Date | null;
@@ -157,7 +160,7 @@ export class MyAccessRequestsComponent implements OnInit {
     this.loading.set(true);
     try {
       const responses = await this.pamApi.listMyAccessRequests();
-      this.rows.set(responses.map((r) => toRow(r, this.i18nService)));
+      this.rows.set(responses.map((r) => toRow(r)));
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
@@ -193,7 +196,7 @@ export class MyAccessRequestsComponent implements OnInit {
               ...r,
               status: "cancelled" as AccessRequestStatus,
               resolvedAt: now,
-              resolverDisplayName: this.i18nService.t("pamResolverAccessRule"),
+              ...resolveResolver({ status: "cancelled", approverId: null }),
             }
           : r,
       ),
@@ -318,27 +321,31 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 }
 
 /**
- * Build the resolver display label.
+ * Resolve who actioned a request.
  *
  * The API surfaces `approverId = null` for system / access-rule decisions and a
  * user id for human decisions. Mapping the id → display name needs another data
  * source we don't have wired up yet (PM-37267 follow-up). Until then, surface the
  * raw id as a fallback so the page is still functional.
+ *
+ * Returns an i18n key for system decisions (translated in the template) and a raw
+ * name for human decisions, keeping localization out of the row model.
+ *
+ * Exported for tests.
  */
-export function resolveResolverDisplayName(
+export function resolveResolver(
   response: Pick<AccessRequestDetailsResponse, "status" | "approverId">,
-  i18n: I18nService,
-): string | null {
+): Pick<MyRequestRow, "resolverLabelKey" | "resolverName"> {
   if (response.status === "pending") {
-    return null;
+    return { resolverLabelKey: null, resolverName: null };
   }
   if (response.approverId == null) {
-    return i18n.t("pamResolverAccessRule");
+    return { resolverLabelKey: "pamResolverAccessRule", resolverName: null };
   }
-  return response.approverId;
+  return { resolverLabelKey: null, resolverName: response.approverId };
 }
 
-function toRow(response: AccessRequestDetailsResponse, i18n: I18nService): MyRequestRow {
+function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
   return {
     id: response.id,
     cipherId: response.cipherId,
@@ -351,7 +358,7 @@ function toRow(response: AccessRequestDetailsResponse, i18n: I18nService): MyReq
     requestedNotAfter:
       response.requestedNotAfter == null ? null : new Date(response.requestedNotAfter),
     requestedTtlSeconds: response.requestedTtlSeconds,
-    resolverDisplayName: resolveResolverDisplayName(response, i18n),
+    ...resolveResolver(response),
     approverComment: response.approverComment,
     activationDeadline:
       response.activationDeadline == null ? null : new Date(response.activationDeadline),

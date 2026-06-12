@@ -1,4 +1,9 @@
-import { formatCondition, summarizeConditions } from "./format-access-rule";
+import {
+  formatCondition,
+  summarizeConditions,
+  summarizeConditionShort,
+  summarizeRuleConditions,
+} from "./format-access-rule";
 
 describe("formatCondition", () => {
   it("returns pamAccessRuleHumanApproval for human_approval", () => {
@@ -36,5 +41,45 @@ describe("summarizeConditions", () => {
       { key: "pamAccessRuleHumanApproval" },
       { key: "pamAccessRuleIpAllowlist", params: { count: 1 } },
     ]);
+  });
+});
+
+describe("summarizeConditionShort", () => {
+  it("returns the terse approval key for human_approval", () => {
+    expect(summarizeConditionShort({ kind: "human_approval" })).toBe(
+      "pamAccessRuleSummaryHumanApproval",
+    );
+  });
+
+  it("returns the terse IP key for ip_allowlist (ignores cidr count)", () => {
+    expect(summarizeConditionShort({ kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] })).toBe(
+      "pamAccessRuleSummaryIpAllowlist",
+    );
+  });
+});
+
+describe("summarizeRuleConditions", () => {
+  it("collapses an empty, non-single-lease rule to the no-conditions key", () => {
+    expect(summarizeRuleConditions([], false)).toEqual(["pamAccessRuleSummaryNoConditions"]);
+  });
+
+  it("lists condition keys in order", () => {
+    expect(
+      summarizeRuleConditions(
+        [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
+        false,
+      ),
+    ).toEqual(["pamAccessRuleSummaryHumanApproval", "pamAccessRuleSummaryIpAllowlist"]);
+  });
+
+  it("appends the single-active-lease key after the conditions", () => {
+    expect(summarizeRuleConditions([{ kind: "human_approval" }], true)).toEqual([
+      "pamAccessRuleSummaryHumanApproval",
+      "pamAccessRuleSummarySingleActiveLease",
+    ]);
+  });
+
+  it("returns just the single-active-lease key when there are no conditions", () => {
+    expect(summarizeRuleConditions([], true)).toEqual(["pamAccessRuleSummarySingleActiveLease"]);
   });
 });

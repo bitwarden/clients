@@ -37,12 +37,13 @@ import {
   LinkComponent,
 } from "@bitwarden/components";
 
+import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
+
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
 import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
-import { CIPHER_VIEW_BANNER } from "./cipher-view-banner.token";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
 import { DriversLicenseViewComponent } from "./drivers-license-sections/drivers-license-view.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";

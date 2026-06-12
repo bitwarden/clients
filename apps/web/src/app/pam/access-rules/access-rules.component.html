@@ -102,8 +102,10 @@
           </td>
           <td bitCell>
             <div class="tw-flex tw-flex-wrap tw-gap-1">
-              @for (badge of r.conditionBadges; track badge.label) {
-                <span bitBadge variant="subtle" [startIcon]="badge.icon">{{ badge.label }}</span>
+              @for (badge of r.conditionBadges; track badge.labelKey) {
+                <span bitBadge variant="subtle" [startIcon]="badge.icon">{{
+                  badge.labelKey | i18n
+                }}</span>
               }
             </div>
           </td>

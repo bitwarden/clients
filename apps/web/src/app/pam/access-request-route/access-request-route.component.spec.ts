@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter, Router } from "@angular/router";
 
 import { AccessRequestRouteComponent } from "./access-request-route.component";
 
@@ -10,7 +9,8 @@ describe("AccessRequestRouteComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccessRequestRouteComponent, RouterTestingModule],
+      imports: [AccessRequestRouteComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     router = TestBed.inject(Router);

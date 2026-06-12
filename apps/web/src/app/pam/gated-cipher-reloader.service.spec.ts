@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -27,11 +28,17 @@ describe("PamGatedCipherReloader", () => {
     pamApiService = { getCipherAccessState$: jest.fn().mockReturnValue(state$) };
     fetcher = { fetch: jest.fn() };
     const accountService = { activeAccount$: of({ id: "user-1" }) } as unknown as AccountService;
-    reloader = new PamGatedCipherReloader(
-      pamApiService as unknown as PamApiService,
-      fetcher as unknown as LeasedCipherFetcher,
-      accountService,
-    );
+
+    TestBed.configureTestingModule({
+      providers: [
+        PamGatedCipherReloader,
+        { provide: PamApiService, useValue: pamApiService },
+        { provide: LeasedCipherFetcher, useValue: fetcher },
+        { provide: AccountService, useValue: accountService },
+      ],
+    });
+
+    reloader = TestBed.inject(PamGatedCipherReloader);
   });
 
   it("emits null and never fetches while no active lease covers the cipher", async () => {

@@ -11,7 +11,7 @@ import {
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessRequestDetailsResponse, AccessDecisionVerdict } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, AccessDecisionVerdict, elapsedKey } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
@@ -138,31 +138,4 @@ export class ApproverInboxRowComponent {
   resetAfterFailure(): void {
     this.submitting.set(false);
   }
-}
-
-/**
- * Compute a coarse, i18n-key-friendly elapsed-time bucket. Returning a key
- * (rather than formatted text) keeps localization in the template.
- *
- * Exported for testing.
- */
-export function elapsedKey(submittedAt: string, now: Date): { key: string; value: number } {
-  const submittedMs = Date.parse(submittedAt);
-  if (Number.isNaN(submittedMs)) {
-    return { key: "pamInboxElapsedJustNow", value: 0 };
-  }
-  const diffMs = Math.max(0, now.getTime() - submittedMs);
-  const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 1) {
-    return { key: "pamInboxElapsedJustNow", value: 0 };
-  }
-  if (minutes < 60) {
-    return { key: "pamInboxElapsedMinutes", value: minutes };
-  }
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return { key: "pamInboxElapsedHours", value: hours };
-  }
-  const days = Math.floor(hours / 24);
-  return { key: "pamInboxElapsedDays", value: days };
 }

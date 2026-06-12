@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -25,10 +25,8 @@ import {
  */
 @Injectable({ providedIn: "root" })
 export class PamCipherOpenGate implements CipherOpenGate {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly leasedCipherFetcher: LeasedCipherFetcher,
-  ) {}
+  private readonly configService = inject(ConfigService);
+  private readonly leasedCipherFetcher = inject(LeasedCipherFetcher);
 
   async check(cipher: GatedCipherLike, userId: string): Promise<CipherOpenVerdict> {
     if (cipher.partialData == null) {

@@ -88,6 +88,7 @@ describe("CipherLeaseBannerComponent", () => {
     flagOn = true,
     getAccessPreCheck: () => Promise<AccessPreCheckResponse> = () =>
       Promise.resolve(preCheck("automatic")),
+    inputs: { partialData?: string; leaseGated?: boolean } = { partialData: '{"Name":"n"}' },
   ) => {
     pamApi = {
       getCipherAccessState$: jest.fn().mockReturnValue(of(state)),
@@ -115,7 +116,8 @@ describe("CipherLeaseBannerComponent", () => {
     fixture = TestBed.createComponent(CipherLeaseBannerComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("cipherId", "cipher-1");
-    fixture.componentRef.setInput("partialData", '{"Name":"n"}');
+    fixture.componentRef.setInput("partialData", inputs.partialData);
+    fixture.componentRef.setInput("leaseGated", inputs.leaseGated ?? false);
     fixture.detectChanges();
   };
 
@@ -162,7 +164,7 @@ describe("CipherLeaseBannerComponent", () => {
     });
   });
 
-  describe("feature flag gating", () => {
+  describe("lease-state fetch gating", () => {
     it("does not query the lease-state endpoint when the PAM flag is off", () => {
       setup({}, false);
 
@@ -170,8 +172,20 @@ describe("CipherLeaseBannerComponent", () => {
       expect(component["canRequestAccess"]()).toBe(false);
     });
 
-    it("queries the lease-state endpoint when the PAM flag is on", () => {
+    it("queries the lease-state endpoint for a gated cipher (partialData present)", () => {
       setup();
+
+      expect(pamApi.getCipherAccessState$).toHaveBeenCalledWith("cipher-1", "user-1");
+    });
+
+    it("does not query for a non-PAM cipher (no partialData, not leased)", () => {
+      setup({}, true, undefined, { partialData: undefined, leaseGated: false });
+
+      expect(pamApi.getCipherAccessState$).not.toHaveBeenCalled();
+    });
+
+    it("queries for a cipher served under an active lease (leaseGated, no partialData)", () => {
+      setup({}, true, undefined, { partialData: undefined, leaseGated: true });
 
       expect(pamApi.getCipherAccessState$).toHaveBeenCalledWith("cipher-1", "user-1");
     });

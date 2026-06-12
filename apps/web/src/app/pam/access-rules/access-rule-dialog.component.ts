@@ -36,7 +36,9 @@ import {
   AccessRuleRequest,
   AccessRuleResponse,
   AccessCondition,
+  ACCESS_RULE_DURATION_PRESETS,
   PamApiService,
+  snapToNearestAccessRuleDuration,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -59,18 +61,6 @@ export type AccessRuleDialogData = {
 export type AccessRuleDialogResult = "saved";
 
 const NAME_MAX_LENGTH = 256;
-
-const DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
-  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration24h" },
-  { seconds: 7 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration7d" },
-];
-
-const DEFAULT_DURATION_SECONDS = 60 * 60;
 
 /** The "no maximum" option in the max-duration picker; never constrains the default. */
 const NO_DURATION_CAP = 0;
@@ -103,7 +93,7 @@ export class AccessRuleDialogComponent implements OnInit {
   private readonly collectionAdminService = inject(CollectionAdminService);
 
   protected readonly editing = this.data.existing != null;
-  protected readonly durationOptions = DURATION_OPTIONS;
+  protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
   protected readonly noDurationCap = NO_DURATION_CAP;
 
   private readonly ipAllowlistEditor = viewChild(IpAllowlistEditorComponent);
@@ -118,7 +108,7 @@ export class AccessRuleDialogComponent implements OnInit {
     description: [this.data.existing?.description ?? ""],
     collections: [[] as SelectItemView[]],
     defaultLeaseDurationSeconds: [
-      normalizeDuration(
+      snapToNearestAccessRuleDuration(
         this.data.existing?.defaultLeaseDurationSeconds ??
           this.data.template?.defaultLeaseDurationSeconds,
       ),
@@ -287,17 +277,4 @@ function findCidrs(conditions: AccessCondition[]): string[] {
     (c): c is Extract<AccessCondition, { kind: "ip_allowlist" }> => c.kind === "ip_allowlist",
   );
   return ip?.cidrs ?? [];
-}
-
-/** Snap an arbitrary stored duration to the nearest preset, so the dropdown can render it. */
-function normalizeDuration(seconds: number | null | undefined): number {
-  if (seconds == null) {
-    return DEFAULT_DURATION_SECONDS;
-  }
-  if (DURATION_OPTIONS.some((o) => o.seconds === seconds)) {
-    return seconds;
-  }
-  return DURATION_OPTIONS.reduce((nearest, opt) =>
-    Math.abs(opt.seconds - seconds) < Math.abs(nearest.seconds - seconds) ? opt : nearest,
-  ).seconds;
 }

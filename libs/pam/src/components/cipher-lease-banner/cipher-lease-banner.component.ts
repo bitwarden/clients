@@ -97,6 +97,13 @@ export class CipherLeaseBannerComponent implements OnInit {
    * approved request / pending request exists.
    */
   readonly partialData = input<string | undefined>(undefined);
+  /**
+   * Client-only marker set when this cipher is served under an active lease — full
+   * data, so `partialData` is absent. Together with `partialData` it tells the
+   * banner the cipher is PAM-governed and worth a lease-state fetch, so an active
+   * lease still drives the countdown / extend / end controls after the reveal.
+   */
+  readonly leaseGated = input<boolean>(false);
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly nowMs = signal(Date.now());
@@ -111,6 +118,16 @@ export class CipherLeaseBannerComponent implements OnInit {
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,
   });
+
+  /**
+   * Whether a lease-state fetch is worthwhile for this cipher: the PAM flag is on
+   * AND the cipher is PAM-governed — either still gated (`partialData` present) or
+   * served under an active lease (`leaseGated`). Gates the `state` stream so a
+   * non-PAM cipher open never fires `GET /ciphers/{id}/lease/state`.
+   */
+  private readonly leaseStateRelevant = computed(
+    () => this.pamEnabled() && (this.partialData() != null || this.leaseGated()),
+  );
 
   /** Whether the "Request access" entry point has folded out its inline form. */
   protected readonly requestFormExpanded = signal(false);
@@ -148,16 +165,15 @@ export class CipherLeaseBannerComponent implements OnInit {
     combineLatest([
       toObservable(this.cipherId),
       getUserId(this.accountService.activeAccount$),
-      toObservable(this.pamEnabled),
+      toObservable(this.leaseStateRelevant),
     ]).pipe(
-      switchMap(([cipherId, userId, pamEnabled]) =>
-        // Don't touch the PAM lease-state endpoint unless the flag is on for this
-        // user. Otherwise every cipher open in a non-PAM org fires
-        // GET /ciphers/{id}/lease/state and leans on a server 404 to stay inert.
-        // (We can't also gate on `partialData`: a cipher under an active lease is
-        // delivered fully decrypted with no `partialData`, yet still needs this
-        // stream to drive the countdown / extend / end controls.)
-        pamEnabled
+      switchMap(([cipherId, userId, relevant]) =>
+        // Only hit GET /ciphers/{id}/lease/state for PAM-governed ciphers (see
+        // leaseStateRelevant). A non-PAM cipher open used to fire the call and lean
+        // on a server 404 to stay inert; gating on partialData || leaseGated also
+        // keeps the active-lease countdown / extend / end controls working after
+        // the reveal swaps in the full cipher (partialData gone, leaseGated set).
+        relevant
           ? this.pamApiService.getCipherAccessState$(cipherId, userId)
           : of({ lease: {} } as CipherAccessState),
       ),

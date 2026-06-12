@@ -1,3 +1,5 @@
+import { TestBed } from "@angular/core/testing";
+
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -13,10 +15,16 @@ describe("PamCipherOpenGate", () => {
   beforeEach(() => {
     configService = { getFeatureFlag: jest.fn().mockResolvedValue(true) };
     fetcher = { fetch: jest.fn() };
-    gate = new PamCipherOpenGate(
-      configService as unknown as ConfigService,
-      fetcher as unknown as LeasedCipherFetcher,
-    );
+
+    TestBed.configureTestingModule({
+      providers: [
+        PamCipherOpenGate,
+        { provide: ConfigService, useValue: configService },
+        { provide: LeasedCipherFetcher, useValue: fetcher },
+      ],
+    });
+
+    gate = TestBed.inject(PamCipherOpenGate);
   });
 
   const partial = { id: "cipher-1", partialData: '{"Name":"n"}' };
