@@ -30,12 +30,12 @@ type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
  * approvals, denials, and lease expiries pushed by the API.
  */
 @Component({
-  selector: "app-vault-row-lease-badge",
+  selector: "app-pam-vault-row-lease-badge",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CipherLeaseBadgeComponent],
   template: `
     @if (badge(); as b) {
-      <app-cipher-lease-badge [state]="b.state" [leaseExpiresAt]="b.expiresAt" />
+      <app-pam-cipher-lease-badge [state]="b.state" [leaseExpiresAt]="b.expiresAt" />
     }
   `,
 })

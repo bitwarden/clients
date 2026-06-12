@@ -34,11 +34,7 @@
     }
 
     @if (isFrozen()) {
-      <bit-callout
-        type="warning"
-        [title]="'killSwitchFrozenTitle' | i18n"
-        data-testid="kill-switch-frozen-callout"
-      >
+      <bit-callout type="warning" [title]="'killSwitchFrozenTitle' | i18n">
         <p bitTypography="body2" class="tw-mb-2">{{ "killSwitchFrozenMessage" | i18n }}</p>
         <button
           type="button"

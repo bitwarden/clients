@@ -17,7 +17,7 @@ import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badg
  * layout can plug PAM in with a single tag and no PAM-specific symbols.
  */
 @Component({
-  selector: "pam-user-nav-slot",
+  selector: "app-pam-user-nav-slot",
   templateUrl: "./pam-user-nav-slot.component.html",
   imports: [AsyncPipe, BadgeModule, I18nPipe, NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

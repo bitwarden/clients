@@ -11,11 +11,11 @@
     </ng-container>
   </span>
   <div bitDialogContent>
-    <pam-collection-access-rule-callout
+    <app-pam-collection-access-rule-callout
       *ngIf="editMode"
       [organizationId]="organizationSelected.value"
       [collectionId]="collectionId"
-    ></pam-collection-access-rule-callout>
+    ></app-pam-collection-access-rule-callout>
     <ng-container *ngIf="loading" #spinner>
       <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
     </ng-container>

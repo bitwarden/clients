@@ -64,7 +64,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
   };
 
   const badgeEl = (fixture: ComponentFixture<VaultRowLeaseBadgeComponent>): HTMLElement | null =>
-    fixture.nativeElement.querySelector("app-cipher-lease-badge");
+    fixture.nativeElement.querySelector("app-pam-cipher-lease-badge");
 
   it("renders nothing when the Pam feature flag is OFF", () => {
     pamFlag$.next(false);

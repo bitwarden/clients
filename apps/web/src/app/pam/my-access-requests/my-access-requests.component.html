@@ -1,7 +1,7 @@
 @if (showPam()) {
   <bit-container>
     @if (loading()) {
-      <p bitTypography="body1" class="tw-text-muted" data-testid="my-requests-loading">
+      <p bitTypography="body1" class="tw-text-muted">
         {{ "loading" | i18n }}
       </p>
     } @else if (!hasAnyRows()) {

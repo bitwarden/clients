@@ -32,7 +32,7 @@ import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
 // Stub the PAM-owned badge so the row spec stays free of PAM dependencies.
 @Component({
-  selector: "app-vault-row-lease-badge",
+  selector: "app-pam-vault-row-lease-badge",
   standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,

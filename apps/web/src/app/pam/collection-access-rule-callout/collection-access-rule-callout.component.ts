@@ -22,7 +22,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
  * PAM-specific logic.
  */
 @Component({
-  selector: "pam-collection-access-rule-callout",
+  selector: "app-pam-collection-access-rule-callout",
   templateUrl: "./collection-access-rule-callout.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CalloutModule, LinkModule, I18nPipe],

@@ -8,7 +8,7 @@
   <!-- Header: cipher name + elapsed time -->
   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4">
     <div class="tw-min-w-0">
-      <p bitTypography="body1" class="tw-mb-0 tw-font-semibold" data-testid="approver-inbox-cipher">
+      <p bitTypography="body1" class="tw-mb-0 tw-font-semibold">
         {{ req.cipherName }}
         <a
           [routerLink]="['/vault']"
@@ -19,17 +19,13 @@
           ><bit-icon name="bwi-arrow-right" class="tw-text-xs tw-font-normal"></bit-icon
         ></a>
       </p>
-      <p
-        bitTypography="helper"
-        class="tw-mb-0 tw-text-muted"
-        data-testid="approver-inbox-collection"
-      >
+      <p bitTypography="helper" class="tw-mb-0 tw-text-muted">
         {{ "pamInboxInCollection" | i18n: req.collectionName }}
       </p>
     </div>
     <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-1 tw-text-xs tw-text-muted">
       <bit-icon name="bwi-clock" [fixedWidth]="true"></bit-icon>
-      <span data-testid="approver-inbox-elapsed">{{ elapsed.key | i18n: elapsed.value }}</span>
+      <span>{{ elapsed.key | i18n: elapsed.value }}</span>
     </span>
   </div>
 
@@ -41,7 +37,7 @@
       <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted">
         {{ "pamInboxRequester" | i18n }}
       </span>
-      <p class="tw-mb-0 tw-text-main" data-testid="approver-inbox-requester">
+      <p class="tw-mb-0 tw-text-main">
         {{ req.requesterName || req.requesterEmail }}
         @if (req.requesterName) {
           <span class="tw-text-muted">&nbsp;&lt;{{ req.requesterEmail }}&gt;</span>
@@ -54,11 +50,7 @@
       </span>
       @let dur = durationLabel();
       @let start = relativeStart();
-      <p
-        class="tw-mb-0 tw-text-main"
-        data-testid="approver-inbox-window"
-        [bitTooltip]="exactWindow()"
-      >
+      <p class="tw-mb-0 tw-text-main" [bitTooltip]="exactWindow()">
         <span>{{ dur.key | i18n: dur.value }}</span>
         <span class="tw-text-muted">&nbsp;·&nbsp;{{ start.key | i18n: start.value }}</span>
       </p>
@@ -67,7 +59,7 @@
       <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-muted">
         {{ "pamInboxReason" | i18n }}
       </span>
-      <p class="tw-mb-0 tw-text-main" data-testid="approver-inbox-reason">
+      <p class="tw-mb-0 tw-text-main">
         @if (reasonText(); as reason) {
           {{ reason }}
         } @else {
@@ -113,7 +105,6 @@
         class="tw-flex-1 tw-resize-none tw-text-sm"
         [formControl]="commentControl"
         [placeholder]="'pamInboxCommentPlaceholder' | i18n"
-        data-testid="approver-inbox-comment"
       ></textarea>
       <div class="tw-flex tw-shrink-0 tw-gap-2">
         <button
@@ -136,7 +127,6 @@
           type="button"
           buttonType="secondary"
           [disabled]="submitting()"
-          data-testid="approver-inbox-cancel"
           (click)="cancelDecision()"
         >
           {{ "cancel" | i18n }}
