@@ -63,11 +63,18 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       return "noMigrationNeeded";
     }
 
-    // Currently only supported for users with a master password
-    if (!(await this.masterPasswordService.userHasMasterPassword(userId))) {
+    // Sync first so a rotation already performed on another client is reflected
+    // here before we prompt the user.
+    await this.syncService.fullSync(false);
+
+    if (!(await this.userKeyIsV1(userId))) {
+      this.logService.info(
+        `[V2KeyRotationMigration] After syncing, user ${userId} is already on v2. Skipping.`,
+      );
       return "noMigrationNeeded";
     }
 
+    // -- Temporary blocks that will be resolved before release:
     // Currently not supported for users that have account recovery enabled
     if (await this.userEnrolledInAccountRecovery(userId)) {
       this.logService.info(
@@ -84,18 +91,12 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       return "noMigrationNeeded";
     }
 
-    // Sync first so a rotation already performed on another client is reflected
-    // here before we prompt the user.
-    await this.syncService.fullSync(false);
-
-    if (!(await this.userKeyIsV1(userId))) {
-      this.logService.info(
-        `[V2KeyRotationMigration] After syncing, user ${userId} is already on v2. Skipping.`,
-      );
+    if (!(await this.masterPasswordService.userHasMasterPassword(userId))) {
+      // KC / TDE not supported in initial PR
       return "noMigrationNeeded";
+    } else {
+      return "needsMigrationWithMasterPassword";
     }
-
-    return "needsMigrationWithMasterPassword";
   }
 
   async runMigrations(userId: UserId, masterPassword: string | null): Promise<void> {

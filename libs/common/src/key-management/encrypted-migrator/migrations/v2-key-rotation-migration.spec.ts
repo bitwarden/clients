@@ -47,7 +47,7 @@ describe("V2KeyRotationMigration", () => {
   const makeAttachment = (hasEncryptedKey: boolean): AttachmentView => {
     const a = new AttachmentView();
     a.encryptedKey = hasEncryptedKey
-      ? new EncString("0.abc|def|ghi")
+      ? new EncString("2.abc|def|ghi")
       : (undefined as unknown as EncString);
     return a;
   };
