@@ -815,9 +815,9 @@ describe("OrganizationWarningsService", () => {
         freeTrial: { remainingTrialDays: 2 },
       } as OrganizationWarningsResponse);
 
-      organizationApiService.getSubscription.mockResolvedValue(
-        { id: "sub-123" } as OrganizationSubscriptionResponse,
-      );
+      organizationApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
 
       jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
         closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.CLOSED),
@@ -840,9 +840,9 @@ describe("OrganizationWarningsService", () => {
         freeTrial: { remainingTrialDays: 2 },
       } as OrganizationWarningsResponse);
 
-      organizationApiService.getSubscription.mockResolvedValue(
-        { id: "sub-123" } as OrganizationSubscriptionResponse,
-      );
+      organizationApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
 
       jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
         closed: of(undefined),
@@ -865,9 +865,9 @@ describe("OrganizationWarningsService", () => {
         freeTrial: { remainingTrialDays: 2 },
       } as OrganizationWarningsResponse);
 
-      organizationApiService.getSubscription.mockResolvedValue(
-        { id: "sub-123" } as OrganizationSubscriptionResponse,
-      );
+      organizationApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
 
       jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
         closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED),
