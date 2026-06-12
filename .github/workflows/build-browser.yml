@@ -374,6 +374,52 @@ jobs:
           if-no-files-found: error
 
 
+  # Standalone job (not part of the build matrix): builds the dev-signed, QA-region Chrome
+  # extension for QA side-loading. Uses a fresh checkout + npm ci rather than the build-source relay.
+  build-qa:
+    name: Build QA dev extension - chrome - commercial license
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - locales-test
+    env:
+      _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+
+      - name: NPM setup
+        run: npm ci
+        working-directory: ./
+
+      - name: Build and package QA dev extension
+        run: npm run package:bit:qa:dev:chrome
+        working-directory: apps/browser
+
+      - name: Upload QA dev extension artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: bit-dev-chrome-MV3-QA-${{ env._BUILD_NUMBER }}.zip
+          path: apps/browser/dist/bit-dev-chrome-QA.zip
+          if-no-files-found: error
+
+
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
     runs-on: macos-15
