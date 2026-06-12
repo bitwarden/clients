@@ -1,3 +1,4 @@
+import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -17,18 +18,17 @@ import { AccessRuleRequest } from "./requests/access-rule.request";
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("DefaultPamApiService", () => {
-  let apiService: jest.Mocked<Pick<ApiService, "send">>;
+  let apiService: MockProxy<ApiService>;
   let accessEvents: Subject<AccessEvent>;
   let service: DefaultPamApiService;
 
   beforeEach(() => {
-    apiService = { send: jest.fn() } as jest.Mocked<Pick<ApiService, "send">>;
+    apiService = mock<ApiService>();
     accessEvents = new Subject<AccessEvent>();
-    const leaseEventService: AccessEventService = {
-      events$: () => accessEvents.asObservable(),
-      allEvents$: () => accessEvents.asObservable(),
-    } as AccessEventService;
-    service = new DefaultPamApiService(apiService as unknown as ApiService, leaseEventService);
+    const leaseEventService = mock<AccessEventService>();
+    leaseEventService.events$.mockReturnValue(accessEvents.asObservable());
+    leaseEventService.allEvents$.mockReturnValue(accessEvents.asObservable());
+    service = new DefaultPamApiService(apiService, leaseEventService);
   });
 
   describe("getAccessPreCheck", () => {

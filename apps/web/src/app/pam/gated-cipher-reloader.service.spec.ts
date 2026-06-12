@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject, of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -13,8 +14,8 @@ import {
 import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
 
 describe("PamGatedCipherReloader", () => {
-  let pamApiService: jest.Mocked<Pick<PamApiService, "getCipherAccessState$">>;
-  let fetcher: jest.Mocked<Pick<LeasedCipherFetcher, "fetch">>;
+  let pamApiService: MockProxy<PamApiService>;
+  let fetcher: MockProxy<LeasedCipherFetcher>;
   let state$: BehaviorSubject<CipherAccessState>;
   let reloader: PamGatedCipherReloader;
 
@@ -25,9 +26,13 @@ describe("PamGatedCipherReloader", () => {
 
   beforeEach(() => {
     state$ = new BehaviorSubject<CipherAccessState>({});
-    pamApiService = { getCipherAccessState$: jest.fn().mockReturnValue(state$) };
-    fetcher = { fetch: jest.fn() };
-    const accountService = { activeAccount$: of({ id: "user-1" }) } as unknown as AccountService;
+    pamApiService = mock<PamApiService>();
+    pamApiService.getCipherAccessState$.mockReturnValue(state$);
+    fetcher = mock<LeasedCipherFetcher>();
+    const accountService = mock<AccountService>();
+    (accountService as unknown as { activeAccount$: Observable<unknown> }).activeAccount$ = of({
+      id: "user-1",
+    });
 
     TestBed.configureTestingModule({
       providers: [

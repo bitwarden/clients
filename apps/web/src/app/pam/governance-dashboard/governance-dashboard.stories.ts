@@ -15,7 +15,7 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
-import { PreloadedEnglishI18nModule } from "../../../core/tests";
+import { PreloadedEnglishI18nModule } from "../../core/tests";
 
 import { GovernanceDashboardComponent } from "./governance-dashboard.component";
 

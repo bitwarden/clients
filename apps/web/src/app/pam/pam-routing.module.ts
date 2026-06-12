@@ -5,10 +5,10 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import { canAccessOrgAdmin } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
-import { organizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
-import { GovernanceDashboardComponent } from "../../admin-console/organizations/pam/governance-dashboard.component";
+import { organizationPermissionsGuard } from "../admin-console/organizations/guards/org-permissions.guard";
 
-import { AccessRulesComponent } from "./access-rules.component";
+import { AccessRulesComponent } from "./access-rules/access-rules.component";
+import { GovernanceDashboardComponent } from "./governance-dashboard/governance-dashboard.component";
 
 const routes: Routes = [
   {
@@ -40,4 +40,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AccessRulesRoutingModule {}
+export class PamRoutingModule {}

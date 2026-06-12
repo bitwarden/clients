@@ -1,3 +1,5 @@
+import { mock, MockProxy } from "jest-mock-extended";
+
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
@@ -6,12 +8,12 @@ import { PamApiService } from "../abstractions/pam-api.service";
 import { LeasedCipherFetcher } from "./leased-cipher-fetcher.service";
 
 describe("LeasedCipherFetcher", () => {
-  let pamApi: jest.Mocked<Pick<PamApiService, "getLeasedCipher">>;
+  let pamApi: MockProxy<PamApiService>;
   let fetcher: LeasedCipherFetcher;
 
   beforeEach(() => {
-    pamApi = { getLeasedCipher: jest.fn() };
-    fetcher = new LeasedCipherFetcher(pamApi as unknown as PamApiService);
+    pamApi = mock<PamApiService>();
+    fetcher = new LeasedCipherFetcher(pamApi);
   });
 
   it("returns the leased cipher as a domain object on success", async () => {

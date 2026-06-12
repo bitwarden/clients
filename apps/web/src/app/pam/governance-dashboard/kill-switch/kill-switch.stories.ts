@@ -8,7 +8,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 import { BulkRevokeResult, PamApiService } from "@bitwarden/pam";
 
-import { PreloadedEnglishI18nModule } from "../../../../core/tests";
+import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { KillSwitchDialogResult } from "./kill-switch-dialog.component";
 import { KillSwitchComponent } from "./kill-switch.component";

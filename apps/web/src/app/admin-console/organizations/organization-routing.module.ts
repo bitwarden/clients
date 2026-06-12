@@ -73,10 +73,7 @@ const routes: Routes = [
       },
       {
         path: "pam",
-        loadChildren: () =>
-          import("../../pam/access-rules/access-rules-routing.module").then(
-            (m) => m.AccessRulesRoutingModule,
-          ),
+        loadChildren: () => import("../../pam/pam-routing.module").then((m) => m.PamRoutingModule),
       },
     ],
   },

@@ -1,3 +1,4 @@
+import { mock } from "jest-mock-extended";
 import { Observable, Subject } from "rxjs";
 
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
@@ -10,12 +11,13 @@ import { DefaultAccessEventService } from "./default-access-event.service";
 type Tuple = readonly [NotificationResponse, UserId];
 
 function pushNotification(payload: Record<string, unknown> | null): NotificationResponse {
-  // The real NotificationResponse parses payloads via `getResponseProperty`;
-  // for these tests we only care about the shape this service reads, so we
-  // bypass the constructor's switch statement by injecting payload directly.
-  const response = new NotificationResponse({});
-  (response as unknown as { payload: unknown }).payload = payload;
-  return response;
+  // The service reads only `notification.payload`. The real constructor can't
+  // produce a raw leasing payload anyway — leasing has no allocated
+  // NotificationType, so the constructor's switch leaves `payload` undefined —
+  // so we mock the response and supply just the field under test.
+  const notification = mock<NotificationResponse>();
+  notification.payload = payload;
+  return notification;
 }
 
 const USER: UserId = "user-1" as UserId;
