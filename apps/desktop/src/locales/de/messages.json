@@ -1391,7 +1391,7 @@
     "message": "URL des Icons-Servers"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Server-URL senden"
   },
   "environmentSaved": {
     "message": "URLs der Umgebung gespeichert"
@@ -1826,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Sicherheitscode kopieren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "Kartennummer"
@@ -4951,7 +4960,7 @@
     "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Session timeout is controlled by the desktop app"
+    "message": "Das Sitzungs-Timeout wird von der Desktop-Anwendung gesteuert"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ ist nicht installiert. Bitte installiere $BROWSER$, bevor du Passwörter daraus importierst.",
@@ -5141,7 +5150,7 @@
     "message": "Bankkonto"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "Bankverbindung"
   },
   "bankName": {
     "message": "Bankname"
@@ -5257,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {

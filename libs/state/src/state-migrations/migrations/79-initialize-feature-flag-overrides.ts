@@ -14,7 +14,7 @@ export const FEATURE_FLAG_OVERRIDES_KEY: KeyDefinitionLike = {
 export class InitializeFeatureFlagOverridesMigrator extends Migrator<78, 79> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const overrides = await helper.getFromGlobal<object>(FEATURE_FLAG_OVERRIDES_KEY);
-    if (overrides == null) {
+    if (overrides == null || Object.keys(overrides).length === 0) {
       await helper.setToGlobal(FEATURE_FLAG_OVERRIDES_KEY, {});
     }
   }
