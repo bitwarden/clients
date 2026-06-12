@@ -52,6 +52,7 @@ import {
 } from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
+import { CollectionAccessRuleCalloutComponent } from "../../../../../pam/collection-access-rule-callout/collection-access-rule-callout.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
 import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
@@ -122,7 +123,7 @@ export enum CollectionDialogAction {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, CollectionAccessRuleCalloutComponent],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
