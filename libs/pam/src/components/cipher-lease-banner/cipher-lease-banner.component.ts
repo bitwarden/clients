@@ -106,7 +106,6 @@ export class CipherLeaseBannerComponent implements OnInit {
   readonly leaseGated = input<boolean>(false);
 
   private readonly destroyRef = inject(DestroyRef);
-  private readonly nowMs = signal(Date.now());
   private readonly pamApiService = inject(PamApiService);
   private readonly toastService = inject(ToastService);
   private readonly dialogService = inject(DialogService);
@@ -115,6 +114,8 @@ export class CipherLeaseBannerComponent implements OnInit {
   private readonly accountService = inject(AccountService);
   private readonly configService = inject(ConfigService);
   private readonly fb = inject(FormBuilder);
+
+  private readonly nowMs = signal(Date.now());
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,
   });
@@ -302,6 +303,40 @@ export class CipherLeaseBannerComponent implements OnInit {
     }
   };
 
+  readonly extendLease = async () => {
+    const lease = this.activeLease();
+    if (!lease) {
+      return;
+    }
+    const currentNotAfter = new Date(lease.notAfter);
+    const newNotAfter = new Date(currentNotAfter.getTime() + 60 * 60 * 1000);
+    try {
+      const response = await this.pamApiService.requestLeaseExtension(
+        new AccessLeaseExtensionRequest({
+          leaseId: lease.id,
+          notBefore: currentNotAfter,
+          notAfter: newNotAfter,
+        }),
+      );
+      // `getCipherAccessState$` is the source of truth for the eventual outcome;
+      // surface a status-appropriate toast and let the next stream emission
+      // update the visible countdown.
+      const approved = response.status === "approved";
+      this.toastService.showToast({
+        variant: approved ? "success" : "info",
+        message: this.i18nService.t(
+          approved ? "pamExtendLeaseSuccess" : "pamExtendLeasePendingMessage",
+        ),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  };
+
   protected get customWindowEndBeforeStart(): boolean {
     return this.humanForm.errors?.["customWindow"] === "endBeforeStart";
   }
@@ -389,40 +424,6 @@ export class CipherLeaseBannerComponent implements OnInit {
       this.submittingRequest.set(false);
     }
   }
-
-  readonly extendLease = async () => {
-    const lease = this.activeLease();
-    if (!lease) {
-      return;
-    }
-    const currentNotAfter = new Date(lease.notAfter);
-    const newNotAfter = new Date(currentNotAfter.getTime() + 60 * 60 * 1000);
-    try {
-      const response = await this.pamApiService.requestLeaseExtension(
-        new AccessLeaseExtensionRequest({
-          leaseId: lease.id,
-          notBefore: currentNotAfter,
-          notAfter: newNotAfter,
-        }),
-      );
-      // `getCipherAccessState$` is the source of truth for the eventual outcome;
-      // surface a status-appropriate toast and let the next stream emission
-      // update the visible countdown.
-      const approved = response.status === "approved";
-      this.toastService.showToast({
-        variant: approved ? "success" : "info",
-        message: this.i18nService.t(
-          approved ? "pamExtendLeaseSuccess" : "pamExtendLeasePendingMessage",
-        ),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
-  };
 
   private buildAutomaticBody(): AccessRequestCreateRequest {
     const { durationMinutes, reason } = this.automaticForm.getRawValue();

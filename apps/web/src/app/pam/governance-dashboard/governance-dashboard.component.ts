@@ -79,14 +79,6 @@ type DashboardStatus = "loading" | "ready" | "empty" | "error";
   ],
 })
 export class GovernanceDashboardComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly pamApiService = inject(PamApiService);
-  private readonly organizationService = inject(OrganizationService);
-  private readonly accountService = inject(AccountService);
-  private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
-  private readonly destroyRef = inject(DestroyRef);
-
   /**
    * Optional summary injected by Storybook / tests instead of fetching from
    * the API. When provided, the component skips the network call entirely.
@@ -95,6 +87,14 @@ export class GovernanceDashboardComponent implements OnInit {
 
   /** Optional org name for Storybook / tests. When provided, the component skips the org-service lookup. */
   readonly organizationNameOverride = input<string | null>(null);
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly pamApiService = inject(PamApiService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
+  private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly status = signal<DashboardStatus>("loading");
   protected readonly summary = signal<OrganizationGovernanceSummaryResponse | null>(null);

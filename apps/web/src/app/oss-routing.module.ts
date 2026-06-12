@@ -84,8 +84,6 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
-import { AccessRequestRouteComponent } from "./pam/access-request-route/access-request-route.component";
-import { ApproverInboxComponent } from "./pam/approver-inbox/approver-inbox.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
@@ -679,15 +677,21 @@ const routes: Routes = [
       },
       {
         path: "pam/approver-inbox",
-        component: ApproverInboxComponent,
         data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
         canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
+        loadComponent: () =>
+          import("./pam/approver-inbox/approver-inbox.component").then(
+            (m) => m.ApproverInboxComponent,
+          ),
       },
       {
         path: "leasing/requests/:id",
-        component: AccessRequestRouteComponent,
         data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
         canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
+        loadComponent: () =>
+          import("./pam/access-request-route/access-request-route.component").then(
+            (m) => m.AccessRequestRouteComponent,
+          ),
       },
       {
         path: "sm-landing",
