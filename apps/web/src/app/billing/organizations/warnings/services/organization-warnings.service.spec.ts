@@ -791,5 +791,94 @@ describe("OrganizationWarningsService", () => {
         },
       });
     });
+
+    it("should not open dialog when already dismissed for the organization", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      stateProvider.getUserState$.mockReturnValue(of({ [organization.id]: true }));
+
+      const openSpy = jest.spyOn(TrialPaymentDialogComponent, "open");
+      openSpy.mockClear();
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(openSpy).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("should persist dismissal when dialog is closed without submitting", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue(
+        { id: "sub-123" } as OrganizationSubscriptionResponse,
+      );
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.CLOSED),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(stateProvider.setUserState).toHaveBeenCalledWith(
+            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+            expect.objectContaining({ [organization.id]: true }),
+            activeAccount.id,
+          );
+          done();
+        },
+      });
+    });
+
+    it("should persist dismissal when dialog is dismissed via X button or outside click", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue(
+        { id: "sub-123" } as OrganizationSubscriptionResponse,
+      );
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(undefined),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(stateProvider.setUserState).toHaveBeenCalledWith(
+            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+            expect.objectContaining({ [organization.id]: true }),
+            activeAccount.id,
+          );
+          done();
+        },
+      });
+    });
+
+    it("should not persist dismissal when dialog is submitted", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue(
+        { id: "sub-123" } as OrganizationSubscriptionResponse,
+      );
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(stateProvider.setUserState).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
   });
 });
