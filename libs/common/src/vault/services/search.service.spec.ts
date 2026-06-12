@@ -79,4 +79,26 @@ describe("SearchService", () => {
       expect(result).toEqual(ciphers);
     });
   });
+
+  describe("searchCiphersBasic", () => {
+    describe("diacritic normalization", () => {
+      it("matches a cipher name containing diacritics when searching without diacritics", () => {
+        const ciphers = [createCipherView("cipher-1", "Café Login")];
+
+        expect(service.searchCiphersBasic(ciphers, "cafe")).toHaveLength(1);
+      });
+
+      it("matches a cipher name without diacritics when searching with diacritics", () => {
+        const ciphers = [createCipherView("cipher-1", "Cafe Login")];
+
+        expect(service.searchCiphersBasic(ciphers, "café")).toHaveLength(1);
+      });
+
+      it("matches a cipher name when both name and query contain diacritics", () => {
+        const ciphers = [createCipherView("cipher-1", "Ré Login")];
+
+        expect(service.searchCiphersBasic(ciphers, "ré")).toHaveLength(1);
+      });
+    });
+  });
 });
