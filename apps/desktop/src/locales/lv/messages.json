@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Ikonu servera URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Vides URL ir saglabāti."
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Ievietot drošības kodu starpliktuvē",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kartes numurs"
@@ -4747,7 +4759,7 @@
     "message": "Nederīgi īsinājumtaustiņi"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ceļvedis",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4947,6 +4959,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5134,6 +5149,9 @@
   "bankAccount": {
     "message": "Bank account"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "bankName": {
     "message": "Bank name"
   },
@@ -5187,13 +5205,13 @@
     "message": "Copy IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Ievietot kontā esošo vārdu starpliktuvē"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Ievietot starpliktuvē zara numuru"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Ievietot starpliktuvē SWIFT kodu"
   },
   "copyFirstName": {
     "message": "Copy first name"
@@ -5248,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {

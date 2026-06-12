@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Адрес на сървъра с иконки"
   },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
+  },
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "номер на карта"
@@ -4747,7 +4759,7 @@
     "message": "Неправилна комбинация"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Пътечка",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4947,6 +4959,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Времето на давност на сесията се управлява от настолното приложение"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ не е инсталиран. Моля, инсталирайте $BROWSER$ преди да внасяте паролите от него.",
     "placeholders": {
@@ -5134,6 +5149,9 @@
   "bankAccount": {
     "message": "Банкова сметка"
   },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
+  },
   "bankName": {
     "message": "Име на банката"
   },
@@ -5248,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {

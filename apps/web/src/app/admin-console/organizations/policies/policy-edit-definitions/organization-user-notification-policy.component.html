@@ -1,0 +1,49 @@
+@if (!singleOrgEnabled()) {
+  <bit-callout type="info" [title]="'prerequisite' | i18n">{{
+    "singleOrgPrerequisite" | i18n
+  }}</bit-callout>
+}
+
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "enableBanner" | i18n }}</bit-label>
+</bit-form-control>
+
+<ng-container [formGroup]="data">
+  <h3 bitTypography="h3" class="tw-mt-4">{{ "createBannerMessage" | i18n }}</h3>
+
+  <bit-form-field>
+    <bit-label>{{ "header" | i18n }}</bit-label>
+    <input type="text" bitInput formControlName="header" />
+    <bit-hint>{{ "maximumOfXCharacters" | i18n: 40 }}</bit-hint>
+  </bit-form-field>
+
+  <bit-form-field>
+    <bit-label>{{ "description" | i18n }}</bit-label>
+    <textarea bitInput required formControlName="description" rows="3"></textarea>
+    <bit-hint>{{ "maximumOfXCharacters" | i18n: 250 }}</bit-hint>
+  </bit-form-field>
+
+  <bit-form-field>
+    <bit-label
+      >{{ "button" | i18n }}
+      <bit-icon
+        name="bwi-question-circle"
+        [bitTooltip]="'organizationUserNotificationPolicyButtonTooltip' | i18n"
+      />
+    </bit-label>
+    <input type="text" bitInput formControlName="buttonText" />
+    <bit-hint>{{ "maximumOfXCharacters" | i18n: 20 }}</bit-hint>
+  </bit-form-field>
+
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      formControlName="showAfterEveryLogin"
+      id="showAfterEveryLogin"
+    />
+    <bit-label>{{ "showAfterEveryLogin" | i18n }}</bit-label>
+    <bit-hint>{{ "seeMessageEveryLogin" | i18n }}</bit-hint>
+  </bit-form-control>
+</ng-container>

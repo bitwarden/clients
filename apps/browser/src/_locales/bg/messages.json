@@ -214,8 +214,13 @@
     "message": "Попълване",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автоматично дописване"
+  "autofillNoun": {
+    "message": "Автоматично попълване",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автоматично попълване",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Авт. попълване на данни за вход"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Запазване"
+  },
+  "saveAndFill": {
+    "message": "Запазване и попълване"
   },
   "move": {
     "message": "Преместване"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Използване на асистираното попълване"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
   },
@@ -1794,6 +1811,9 @@
   "iconsUrl": {
     "message": "Адрес на сървъра с иконки"
   },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
+  },
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
   },
@@ -1827,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Данните за вписване не съвпадат"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Този уеб сайт не съвпада с онзи, който е запазен в елемента за вписване. Уверете се, че се намирате в доверен уеб сайт, преди да попълните автоматично."
+  },
+  "uriMatchRule": {
+    "message": "Правило за разпознаване на адреса"
+  },
+  "neverMatch": {
+    "message": "Никога да не се търсят съвпадения"
   },
   "loginHasNoSiteSaved": {
     "message": "Елементът за вписване няма запазен уеб сайт"
@@ -2228,6 +2260,9 @@
   },
   "bankAccount": {
     "message": "Банкова сметка"
+  },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
   },
   "typeNote": {
     "message": "Бележка"
@@ -4431,12 +4466,6 @@
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "Автоматичното попълване не може да бъде извършено"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По подразбиране е зададена настройката „Точно съвпадение“. Текущият уеб сайт не съвпада точно със запазените данни за вход в този запис."
-  },
   "okay": {
     "message": "Добре"
   },
@@ -6226,7 +6255,7 @@
     "message": "Следващо"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Пътечка",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6492,6 +6521,18 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "sharedUnlock": {
+    "message": "Споделено отключване"
+  },
+  "sharedUnlockDescription": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено между всички приложения на тази машина. Настолното приложение е необходимо, за да може да се осъществи синхронизация между различните браузъри."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено между трезорите по уеб на Битуорден в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено с настолното приложение на Битуорден."
+  },
   "enterMonth": {
     "message": "Въведете месец."
   },
@@ -6634,10 +6675,6 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "saveSendEditsFailed": {
-    "message": "Запазването на промените по Изпращането беше неуспешно",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
     "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
