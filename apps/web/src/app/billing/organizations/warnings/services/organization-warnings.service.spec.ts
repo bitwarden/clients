@@ -13,17 +13,24 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services/organization-warnings.service";
+import {
+  OrganizationWarningsService,
+  TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+} from "@bitwarden/web-vault/app/billing/organizations/warnings/services/organization-warnings.service";
 import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/organizations/warnings/types";
 import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
@@ -34,12 +41,15 @@ import { TaxIdWarningTypes } from "@bitwarden/web-vault/app/billing/warnings/typ
 
 describe("OrganizationWarningsService", () => {
   let service: OrganizationWarningsService;
+  let accountService: MockProxy<AccountService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
+  let logService: MockProxy<LogService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationBillingClient: MockProxy<OrganizationBillingClient>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let router: MockProxy<Router>;
+  let stateProvider: MockProxy<StateProvider>;
 
   const organization = {
     id: "org-id-123",
@@ -99,12 +109,15 @@ describe("OrganizationWarningsService", () => {
     TestBed.configureTestingModule({
       providers: [
         OrganizationWarningsService,
+        { provide: AccountService, useValue: accountService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
+        { provide: LogService, useValue: logService },
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: OrganizationBillingClient, useValue: organizationBillingClient },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: Router, useValue: router },
+        { provide: StateProvider, useValue: stateProvider },
       ],
     });
 

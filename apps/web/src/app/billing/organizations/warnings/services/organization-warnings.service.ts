@@ -17,10 +17,13 @@ import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import { BILLING_DISK_LOCAL, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
@@ -61,6 +64,9 @@ export class OrganizationWarningsService {
     private organizationBillingClient: OrganizationBillingClient,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private accountService: AccountService,
+    private logService: LogService,
+    private stateProvider: StateProvider,
   ) {}
 
   getFreeTrialWarning$ = (
