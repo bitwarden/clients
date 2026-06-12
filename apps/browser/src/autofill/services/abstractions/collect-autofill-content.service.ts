@@ -21,6 +21,7 @@ interface CollectAutofillContentService {
   applyExternalTargetedFields(
     targetedFields: { selector: string; fieldType: string }[],
   ): Promise<void>;
+  clearCachedTargetingRules(): void;
   destroy(): void;
 }
 

@@ -24,9 +24,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
@@ -58,9 +55,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
@@ -96,9 +90,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           if (asAdmin) {
             await ref.value.vault().ciphers().admin().delete(asUuid(id));
@@ -123,9 +114,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           if (asAdmin) {
             if (orgId == null) {
@@ -158,9 +146,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           if (asAdmin) {
             await ref.value.vault().ciphers().admin().soft_delete(asUuid(id));
@@ -185,9 +170,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           if (asAdmin) {
             if (orgId == null) {
@@ -220,9 +202,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           if (asAdmin) {
             await ref.value.vault().ciphers().admin().restore(asUuid(id));
@@ -242,9 +221,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
 
           // No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
@@ -283,9 +259,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
@@ -317,9 +290,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
@@ -376,9 +346,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
@@ -415,9 +382,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
 
           const result = await ref.value
@@ -527,9 +491,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
           const result = await sdkCiphersClient.admin().update_collection(
@@ -554,9 +515,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
           const result = await sdkCiphersClient.update_collection(

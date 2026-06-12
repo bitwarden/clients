@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL servera ikon"
   },
+  "sendUrl": {
+    "message": "URL adresa pre Send"
+  },
   "environmentSaved": {
     "message": "URL adresy prostredia boli uložené"
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Kopírovať bezpečnostný kód",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "číslo karty"
@@ -4947,6 +4959,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Časový limit relácie je ovládaný desktopovou aplikáciou"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "Prehliadač $BROWSER$ nie je nainštalovaný. Pred importom hesiel z prehliadača $BROWSER$ ho nainštalujte.",
     "placeholders": {
@@ -5134,6 +5149,9 @@
   "bankAccount": {
     "message": "Bankový účet"
   },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
+  },
   "bankName": {
     "message": "Názov banky"
   },
@@ -5248,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "V Sende sú neuložené úpravy. Naozaj chcete odísť?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Uloženie úprav Sendu zlyhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
