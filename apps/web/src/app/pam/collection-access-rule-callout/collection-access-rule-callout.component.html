@@ -6,6 +6,7 @@
       linkType="primary"
       class="tw-ms-1"
       [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules']"
+      [queryParams]="{ accessRuleId: rule.id }"
       (click)="closeDialog()"
       >{{ rule.name }}</a
     >

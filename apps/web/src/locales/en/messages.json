@@ -14225,6 +14225,9 @@
   "pamAccessRuleDisableSuccess": {
     "message": "Access rule disabled."
   },
+  "pamAccessRuleNotFound": {
+    "message": "Access rule not found."
+  },
   "pamAccessRuleLastEditedBy": {
     "message": "Last edited by"
   },
