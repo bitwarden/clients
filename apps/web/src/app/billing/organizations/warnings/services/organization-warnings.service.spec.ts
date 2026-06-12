@@ -89,7 +89,9 @@ describe("OrganizationWarningsService", () => {
     platformUtilsService.isSelfHost.mockReturnValue(false);
     accountService.activeAccount$ = of(activeAccount);
     stateProvider.getUserState$.mockReturnValue(of(null));
-    stateProvider.getUser.mockReturnValue({ update: jest.fn().mockResolvedValue(undefined) } as any);
+    stateProvider.getUser.mockReturnValue({
+      update: jest.fn().mockResolvedValue(undefined),
+    } as any);
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
