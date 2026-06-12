@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Odeslat připomenutí"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Zatím jste neoznačili žádné kritické aplikace. Chcete-li začít, zkontrolujte aplikace."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Importovat data"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Pokud nemáte žádná data k importu, můžete místo toho vytvořit ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "novou položku",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "nové přihlášení",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": ".",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": ". Možná budete muset počkat, než Váš správce potvrdí členství ve Vaší organizaci.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Chyba importu"
   },
@@ -3670,6 +3653,69 @@
   "canceledSubscription": {
     "message": "Předplatné bylo zrušeno"
   },
+  "churnOfferTitle": {
+    "message": "Speciální nabídka než odejdete"
+  },
+  "churnOfferPreamble": {
+    "message": "Pokud nyní zrušíte, Váš přístup pokračuje až do"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". Ale jako dlouholetému zákazníkovi bychom Vám rádi něco nejdříve nabídli."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Získejte $DISCOUNT$ z předplatného",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "Jako poděkování za to, že jste dlouhodobým zákazníkem Bitwarden, bychom Vám rádi nabídli slevu $DISCOUNT$ na $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Neodcházejte a získejte slevu $DISCOUNT$",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Zrušit předplatné"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Vše je nastaveno!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Vaše sleva $DISCOUNT$ byla použita na $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Nikdy nevyprší"
   },
@@ -3693,6 +3739,9 @@
   },
   "discount": {
     "message": "sleva"
+  },
+  "discountApplied": {
+    "message": "Sleva byla uplatněna"
   },
   "discountExpiredOnPurchase": {
     "message": "Sleva vypršela. Zkontrolujte celý košík a zkuste to znovu."
@@ -8312,6 +8361,9 @@
   "iconsUrl": {
     "message": "URL serveru ikon"
   },
+  "sendUrl": {
+    "message": "Odeslat URL serveru"
+  },
   "environmentSaved": {
     "message": "URL adresy prostředí uloženy"
   },
@@ -10184,9 +10236,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Vytvořit účet"
-  },
   "createSecret": {
     "message": "Vytvořit tajný klíč"
   },
@@ -10209,8 +10258,45 @@
   "getStarted": {
     "message": "Začínáme"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Začínáme se Správcem tajných klíčů"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Dokončete tyto kroky a začněte spravovat tajné klíče Vašeho týmu"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Vytvořit strojový účet"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organizovat tajné klíče do projektů"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Vytvořit projekt"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Přeneste existující tajné klíče z jiného nástroje"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Ukládejta hesla, certifikáty a API klíče"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Vytvořit tajný klíč"
+  },
   "complete": {
     "message": "Dokončeno $COMPLETED$/$TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "Dokončeno $COMPLETED$ z $TOTAL$",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10950,38 @@
     "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
+  "getStartedWithYourVault": {
+    "message": "Začněte s Vaším trezorem"
+  },
+  "onboardingChecklistSubtitle": {
+    "message": "Dokončete tyto kroky pro zabezpečení Vašich osobních údajů a získejte co nejvíce z Bitwardenu"
+  },
+  "dismissThisChecklist": {
+    "message": "Zavřít tento kontrolní seznam"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Vytvořte si účet"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Importujte svá hesla"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
     "message": "Nainstalovat rozšíření prohlížeče"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Použijte rozšíření pro rychlé ukládání přihlašovacích údajů a automatického vyplňování formulářů bez otevření webové aplikace."
+  "onboardingImportDataSubtitle": {
+    "message": "Ušetřete čas importem dat z jiného správce hesel. Položky můžete do trezoru přidat ručně."
+  },
+  "onboardingImportCta": {
+    "message": "Importovat hesla"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Připněte rozšíření do Vašeho prohlížeče. Umožní Vám se přihlásit rychleji a bezproblémově ukládat hesla."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Nainstalovat rozšíření"
+  },
+  "completed": {
+    "message": "Dokončeno"
   },
   "projectAccessUpdated": {
     "message": "Přístup k projektu byl aktualizován"
@@ -12679,6 +12792,37 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Vaše předplatné se zvýší na $PRICE$ za jednoho uživatele měsíčně dne $DATE$. Vaše funkce a všechny stávající slevy zůstanou naprosto stejné.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Vaše předplatné se zvýší na $PRICE$ za jednoho uživatele měsíčně (účtováno ročně) dne $DATE$. Vaše funkce a všechny stávající slevy zůstanou naprosto stejné.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Informace ke zvýšení ceny"
   },
   "restartOrganizationSubscription": {
     "message": "Předplatné organizace bylo restartováno"
