@@ -81,6 +81,29 @@ describe("SearchService", () => {
   });
 
   describe("searchCiphersBasic", () => {
+    describe("multi-word queries", () => {
+      it("matches a cipher when terms appear non-contiguously in the name", () => {
+        const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
+
+        expect(service.searchCiphersBasic(ciphers, "dog vehicle")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "jump stream")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "dog stream")).toHaveLength(1);
+      });
+
+      it("matches a cipher when at least one term is found (OR logic)", () => {
+        const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
+
+        expect(service.searchCiphersBasic(ciphers, "dog foobar")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "dog.jump foobar")).toHaveLength(1);
+      });
+
+      it("returns no results when no term matches", () => {
+        const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
+
+        expect(service.searchCiphersBasic(ciphers, "foo bar")).toHaveLength(0);
+      });
+    });
+
     describe("diacritic normalization", () => {
       it("matches a cipher name containing diacritics when searching without diacritics", () => {
         const ciphers = [createCipherView("cipher-1", "Café Login")];

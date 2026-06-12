@@ -95,32 +95,34 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
-    query = normalizeSearchQuery(query.trim().toLowerCase());
+    const terms = normalizeSearchQuery(query.trim().toLowerCase()).split(/\s+/).filter(Boolean);
+
     return ciphers.filter((c) => {
-      if (c.name != null && normalizeSearchQuery(c.name.toLowerCase()).indexOf(query) > -1) {
-        return true;
-      }
-      if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
-        return true;
-      }
-      const subtitle = CipherViewLikeUtils.subtitle(c);
-      if (subtitle != null && normalizeSearchQuery(subtitle.toLowerCase()).indexOf(query) > -1) {
-        return true;
-      }
+      return terms.some((term) => {
+        if (c.name != null && normalizeSearchQuery(c.name.toLowerCase()).indexOf(term) > -1) {
+          return true;
+        }
+        if (term.length >= 8 && uuidAsString(c.id).startsWith(term)) {
+          return true;
+        }
+        const subtitle = CipherViewLikeUtils.subtitle(c);
+        if (subtitle != null && normalizeSearchQuery(subtitle.toLowerCase()).indexOf(term) > -1) {
+          return true;
+        }
 
-      const login = CipherViewLikeUtils.getLogin(c);
-
-      if (
-        login &&
-        login.uris?.length &&
-        login.uris?.some(
-          (loginUri) =>
-            loginUri?.uri && normalizeSearchQuery(loginUri.uri.toLowerCase()).indexOf(query) > -1,
-        )
-      ) {
-        return true;
-      }
-      return false;
+        const login = CipherViewLikeUtils.getLogin(c);
+        if (
+          login &&
+          login.uris?.length &&
+          login.uris?.some(
+            (loginUri) =>
+              loginUri?.uri && normalizeSearchQuery(loginUri.uri.toLowerCase()).indexOf(term) > -1,
+          )
+        ) {
+          return true;
+        }
+        return false;
+      });
     });
   }
 
