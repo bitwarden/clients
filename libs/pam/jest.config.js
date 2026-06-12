@@ -8,6 +8,7 @@ const sharedConfig = require("../../libs/shared/jest.config.angular");
 module.exports = {
   ...sharedConfig,
   displayName: "libs/pam tests",
+  coverageDirectory: "../../coverage/libs/pam",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
   moduleNameMapper: pathsToModuleNameMapper(
     // lets us use @bitwarden/common/spec in tests

@@ -1,23 +1,35 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
+// bit-dialog subscribes to IntersectionObserver, which jsdom does not provide.
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 import { KillSwitchDialogComponent, KillSwitchDialogResult } from "./kill-switch-dialog.component";
 
 describe("KillSwitchDialogComponent", () => {
   let dialogRef: MockProxy<DialogRef<KillSwitchDialogResult>>;
+  let i18nService: MockProxy<I18nService>;
 
   async function setup(
     organizationName = "Acme Corp",
   ): Promise<ComponentFixture<KillSwitchDialogComponent>> {
     dialogRef = mock<DialogRef<KillSwitchDialogResult>>();
+    i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((key: string) => key);
 
     await TestBed.configureTestingModule({
       imports: [KillSwitchDialogComponent],
       providers: [
         { provide: DIALOG_DATA, useValue: { organizationName } },
         { provide: DialogRef, useValue: dialogRef },
+        { provide: I18nService, useValue: i18nService },
       ],
     }).compileComponents();
 
@@ -43,10 +55,11 @@ describe("KillSwitchDialogComponent", () => {
   }
 
   describe("confirm button state", () => {
+    // bitButton reflects its disabled state via `aria-disabled`, not the native `disabled` property.
     it("is disabled when the input is empty", async () => {
       const fixture = await setup();
       const button = getConfirmButton(fixture);
-      expect(button.disabled).toBe(true);
+      expect(button.getAttribute("aria-disabled")).toBe("true");
     });
 
     it("is disabled when the typed value does not match the org name (case-sensitive)", async () => {
@@ -56,9 +69,10 @@ describe("KillSwitchDialogComponent", () => {
       input.value = "acme corp";
       input.dispatchEvent(new Event("input"));
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const button = getConfirmButton(fixture);
-      expect(button.disabled).toBe(true);
+      expect(button.getAttribute("aria-disabled")).toBe("true");
     });
 
     it("is disabled when the typed value is a prefix of the org name", async () => {
@@ -68,9 +82,10 @@ describe("KillSwitchDialogComponent", () => {
       input.value = "Acme";
       input.dispatchEvent(new Event("input"));
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const button = getConfirmButton(fixture);
-      expect(button.disabled).toBe(true);
+      expect(button.getAttribute("aria-disabled")).toBe("true");
     });
 
     it("is enabled when the typed value exactly matches the org name (case-sensitive)", async () => {
@@ -80,9 +95,10 @@ describe("KillSwitchDialogComponent", () => {
       input.value = "Acme Corp";
       input.dispatchEvent(new Event("input"));
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const button = getConfirmButton(fixture);
-      expect(button.disabled).toBe(false);
+      expect(button.getAttribute("aria-disabled")).not.toBe("true");
     });
   });
 
