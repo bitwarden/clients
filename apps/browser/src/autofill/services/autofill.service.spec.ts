@@ -111,10 +111,12 @@ describe("AutofillService", () => {
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
+  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
@@ -1822,7 +1824,7 @@ describe("AutofillService", () => {
       });
 
       it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
 
         await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
@@ -1835,7 +1837,7 @@ describe("AutofillService", () => {
       });
 
       it("abandons the fill (returns null) when the feature flag is disabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(false));
+        fillAssistFeatureFlagMock$.next(false);
         await domainSettingsService.setEnableFillAssist(true);
 
         const result = await autofillService["generateFillScript"](
@@ -1849,7 +1851,7 @@ describe("AutofillService", () => {
       });
 
       it("abandons the fill (returns null) when the user setting is disabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(false);
 
         const result = await autofillService["generateFillScript"](

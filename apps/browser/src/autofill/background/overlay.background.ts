@@ -2,7 +2,6 @@ import {
   BehaviorSubject,
   concatMap,
   debounceTime,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
@@ -375,7 +374,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     // value is `false`) don't broadcast.
     this.domainSettingsService.resolvedEnableFillAssist$
       .pipe(
-        distinctUntilChanged(),
         pairwise(),
         filter(([previous, current]) => previous && !current),
       )

@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import {
   combineLatest,
-  defer,
   distinctUntilChanged,
   firstValueFrom,
   map,
@@ -229,17 +228,13 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
     this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
 
-    // `defer` ensures each subscriber gets a fresh `getFeatureFlag$` call,
-    // so tests that mutate the config mock after service construction see
-    // the updated value.
-    this.resolvedEnableFillAssist$ = defer(() =>
-      combineLatest([
-        this.enableFillAssist$,
-        this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
-      ]),
-    ).pipe(
+    this.resolvedEnableFillAssist$ = combineLatest([
+      this.enableFillAssist$,
+      this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
+    ]).pipe(
       map(([userSetting, featureFlag]) => userSetting && featureFlag),
       distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.targetingRules$ = this.environmentService.environment$.pipe(
