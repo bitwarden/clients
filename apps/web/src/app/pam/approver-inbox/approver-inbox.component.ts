@@ -282,7 +282,6 @@ export class ApproverInboxComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("pamInboxLoadFailed"),
       });
     }
@@ -307,7 +306,6 @@ export class ApproverInboxComponent implements OnInit {
       );
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t(
           event.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
         ),
@@ -318,7 +316,6 @@ export class ApproverInboxComponent implements OnInit {
       row?.resetAfterFailure();
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("pamInboxDecisionFailed"),
       });
     }
@@ -337,14 +334,12 @@ export class ApproverInboxComponent implements OnInit {
       await this.inbox.revokeAccessLease(leaseId);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("pamInboxRevokedToast"),
       });
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("pamInboxRevokeFailed"),
       });
     } finally {

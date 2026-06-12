@@ -182,6 +182,8 @@ export function sortInbox<
     if (submittedDelta !== 0) {
       return submittedDelta;
     }
-    return a.collectionName.localeCompare(b.collectionName, undefined, { sensitivity: "base" });
+    return (a.collectionName ?? "").localeCompare(b.collectionName ?? "", undefined, {
+      sensitivity: "base",
+    });
   });
 }

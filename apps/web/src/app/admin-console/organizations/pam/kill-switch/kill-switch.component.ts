@@ -87,7 +87,6 @@ export class KillSwitchComponent implements OnInit {
       await this.refreshFreezeState();
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("killSwitchUnblockSuccessMessage"),
       });
     } catch (e) {
