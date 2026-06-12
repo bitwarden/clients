@@ -296,13 +296,13 @@ export class OrganizationWarningsService {
             break;
           }
           default: {
-            // Covers CLOSED, X button, ESC, and clicking outside (all emit undefined)
+            // Covers CLOSED, X button, ESC, and clicking outside (all emit undefined).
+            // Uses .update() to read current state at write time, preventing stale overwrites
+            // if multiple tabs dismiss different orgs concurrently.
             try {
-              await this.stateProvider.setUserState(
-                TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
-                { ...(dismissedOrgs ?? {}), [organization.id]: true },
-                account.id,
-              );
+              await this.stateProvider
+                .getUser(account.id, TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY)
+                .update((current) => ({ ...(current ?? {}), [organization.id]: true }));
             } catch (error) {
               this.logService.error("Failed to save trial payment modal dismissal state:", error);
             }
