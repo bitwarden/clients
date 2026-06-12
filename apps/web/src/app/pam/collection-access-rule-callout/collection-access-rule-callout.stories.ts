@@ -51,10 +51,8 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              pamCollectionAccessRuleCalloutTitle: "Access rule active",
-              pamCollectionAccessRuleCalloutBody:
-                "Access to items in this collection is controlled by:",
-              pamCollectionAccessRuleManageLink: "Manage access rules",
+              pamCollectionAccessRuleCalloutTitle: "Access rule",
+              pamCollectionAccessRuleCalloutBody: "Access to items here is controlled by",
               pamAccessRuleSummaryHumanApproval: "Approval",
               pamAccessRuleSummaryIpAllowlist: "IP restriction",
               pamAccessRuleSummarySingleActiveLease: "Single user access",
@@ -70,7 +68,7 @@ export default {
 
 type Story = StoryObj<CollectionAccessRuleCalloutComponent>;
 
-export const SingleRule: Story = {
+export const Default: Story = {
   decorators: [
     moduleMetadata({
       providers: [
@@ -85,7 +83,7 @@ export const SingleRule: Story = {
   ],
 };
 
-export const MultipleRules: Story = {
+export const MultipleConditions: Story = {
   decorators: [
     moduleMetadata({
       providers: [
@@ -96,7 +94,6 @@ export const MultipleRules: Story = {
               { kind: "human_approval" },
               { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
             ]),
-            rule("b", "Break-glass access", []),
           ]),
         },
       ],

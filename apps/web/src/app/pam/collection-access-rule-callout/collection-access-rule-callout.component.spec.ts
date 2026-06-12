@@ -7,7 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { I18nMockService } from "@bitwarden/components";
+import { DialogRef, I18nMockService } from "@bitwarden/components";
 import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
@@ -36,11 +36,13 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   let pamEnabled: boolean;
   let listAccessRules: jest.Mock;
   let logError: jest.Mock;
+  let dialogClose: jest.Mock;
 
   beforeEach(async () => {
     pamEnabled = true;
     listAccessRules = jest.fn().mockResolvedValue({ data: [] });
     logError = jest.fn();
+    dialogClose = jest.fn();
 
     await TestBed.configureTestingModule({
       imports: [CollectionAccessRuleCalloutComponent],
@@ -49,13 +51,12 @@ describe("CollectionAccessRuleCalloutComponent", () => {
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(pamEnabled) } },
         { provide: PamApiService, useValue: { listAccessRules } },
         { provide: LogService, useValue: { error: logError } },
+        { provide: DialogRef, useValue: { close: dialogClose } },
         {
           provide: I18nService,
           useValue: new I18nMockService({
-            pamCollectionAccessRuleCalloutTitle: "Access rule active",
-            pamCollectionAccessRuleCalloutBody:
-              "Access to items in this collection is controlled by:",
-            pamCollectionAccessRuleManageLink: "Manage access rules",
+            pamCollectionAccessRuleCalloutTitle: "Access rule",
+            pamCollectionAccessRuleCalloutBody: "Access to items here is controlled by",
             pamAccessRuleSummaryHumanApproval: "Approval",
             pamAccessRuleSummaryIpAllowlist: "IP restriction",
             pamAccessRuleSummarySingleActiveLease: "Single user access",
@@ -117,7 +118,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(callout(fixture)).toBeNull();
   });
 
-  it("renders a callout listing each enabled rule targeting the collection", async () => {
+  it("renders a callout naming the enabled rule targeting the collection", async () => {
     listAccessRules.mockResolvedValue({
       data: [
         rule({
@@ -149,6 +150,18 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     const link = fixture.debugElement.query(By.css("a[bitLink]"))
       .nativeElement as HTMLAnchorElement;
     expect(link.getAttribute("href")).toBe("/organizations/org-1/pam/access-rules");
+  });
+
+  it("closes the dialog when the rule name link is clicked", async () => {
+    listAccessRules.mockResolvedValue({ data: [rule({ name: "VPN access" })] });
+
+    const fixture = await create();
+
+    // Use a non-primary click so routerLink no-ops but the (click) handler still fires.
+    const link = fixture.debugElement.query(By.css("a[bitLink]"));
+    link.triggerEventHandler("click", new MouseEvent("click", { button: 1 }));
+
+    expect(dialogClose).toHaveBeenCalled();
   });
 
   it("degrades to nothing and logs when the fetch fails", async () => {
