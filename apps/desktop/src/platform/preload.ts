@@ -19,7 +19,7 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { isDev } from "../utils";
+import { isDev, EnvAccessTokenLocation, accessTokenLocation } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -115,6 +115,7 @@ export default {
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   isWindowsPortable: isWindowsPortable(),
+  forceDiskAccessTokenStorage: accessTokenLocation() === EnvAccessTokenLocation.Disk,
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),

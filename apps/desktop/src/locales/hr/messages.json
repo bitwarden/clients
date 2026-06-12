@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL poslužitelja ikona"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "URL-ovi okoline su spremljeni."
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Kopiraj kontrolni broj",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "broj kartice"
@@ -4947,6 +4959,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "Preglednik $BROWSER$ nije instaliran. Instaliraj preglednik $BROWSER$ prije uvoza lozinki.",
     "placeholders": {
@@ -5134,6 +5149,9 @@
   "bankAccount": {
     "message": "Bankovni račun"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "bankName": {
     "message": "Naziv banke"
   },
@@ -5248,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send ima nespremljenih promjena. Sigurno želiš napustiti?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Spremanje promjena Send-a nije uspjelo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
