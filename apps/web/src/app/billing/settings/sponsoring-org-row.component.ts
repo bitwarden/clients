@@ -103,10 +103,10 @@ export class SponsoringOrgRowComponent {
     }
   }
 
-  async resendEmail() {
+  protected async resendEmail() {
     await this.organizationSponsorshipApiService.postResendSponsorshipOffer(
-      this.sponsoringOrg.id,
-      this.sponsoringOrg.familySponsorshipFriendlyName,
+      this.sponsoringOrg().id,
+      this.sponsoringOrg().familySponsorshipFriendlyName,
     );
     this.toastService.showToast({
       variant: "success",
@@ -125,16 +125,17 @@ export class SponsoringOrgRowComponent {
     const formattedPrice =
       this.currencyPipe.transform(annualPrice, "USD", "symbol", digitsInfo) ?? `$${annualPrice}`;
 
-    const content = this.sponsoringOrg.familySponsorshipValidUntil
+    const sponsoringOrg = this.sponsoringOrg();
+    const content = sponsoringOrg.familySponsorshipValidUntil
       ? this.i18nService.t(
           "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship",
-          this.sponsoringOrg.familySponsorshipFriendlyName,
+          sponsoringOrg.familySponsorshipFriendlyName,
           formattedPrice,
-          formatDate(this.sponsoringOrg.familySponsorshipValidUntil, "MM/dd/yyyy", this.locale),
+          formatDate(sponsoringOrg.familySponsorshipValidUntil, "MM/dd/yyyy", this.locale()),
         )
       : this.i18nService.t(
           "updatedRevokeSponsorshipConfirmationForSentSponsorship",
-          this.sponsoringOrg.familySponsorshipFriendlyName,
+          sponsoringOrg.familySponsorshipFriendlyName,
         );
 
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -148,7 +149,7 @@ export class SponsoringOrgRowComponent {
       return;
     }
 
-    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg().id);
     this.toastService.showToast({
       variant: "success",
       title: null,
