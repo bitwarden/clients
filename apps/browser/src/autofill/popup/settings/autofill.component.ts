@@ -219,13 +219,8 @@ export class AutofillComponent implements OnInit {
     };
 
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
-    this.disablePasswordManagerURI =
-      DisablePasswordManagerUris[
-        this.browserClientVendor as keyof typeof DisablePasswordManagerUris
-      ] ?? DisablePasswordManagerUris.Unknown;
-    this.browserShortcutsURI =
-      BrowserShortcutsUris[this.browserClientVendor as keyof typeof BrowserShortcutsUris] ??
-      BrowserShortcutsUris.Unknown;
+    this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
+    this.browserShortcutsURI = BrowserShortcutsUris[this.browserClientVendor];
     this.browserClientIsUnknown = this.browserClientVendor === BrowserClientVendors.Unknown;
   }
 
@@ -484,7 +479,7 @@ export class AutofillComponent implements OnInit {
     event.preventDefault();
 
     // If the destination is a password management settings page, ask the user to confirm before proceeding
-    if (uri === this.disablePasswordManagerURI) {
+    if (uri === DisablePasswordManagerUris[this.browserClientVendor]) {
       await this.dialogService.openSimpleDialog({
         ...(uri === DisablePasswordManagerUris.Unknown
           ? {
@@ -507,7 +502,7 @@ export class AutofillComponent implements OnInit {
     }
 
     // If the destination is a browser shortcut settings page, ask the user to confirm before proceeding
-    if (uri === this.browserShortcutsURI) {
+    if (uri === BrowserShortcutsUris[this.browserClientVendor]) {
       await this.dialogService.openSimpleDialog({
         ...(uri === BrowserShortcutsUris.Unknown
           ? {
