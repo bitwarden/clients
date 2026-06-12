@@ -7,7 +7,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { TypographyDirective } from "@bitwarden/components";
+import { TypographyModule } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -75,7 +75,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [I18nPipe, TypographyDirective, SimpleTogglePolicyComponent],
+      imports: [I18nPipe, TypographyModule, SimpleTogglePolicyComponent],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },

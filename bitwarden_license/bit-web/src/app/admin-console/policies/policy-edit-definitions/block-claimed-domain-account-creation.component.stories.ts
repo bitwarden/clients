@@ -11,7 +11,7 @@ import {
   BadgeComponent,
   CalloutComponent,
   LinkComponent,
-  TypographyDirective,
+  TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -100,7 +100,7 @@ export default {
     moduleMetadata({
       imports: [
         I18nPipe,
-        TypographyDirective,
+        TypographyModule,
         BadgeComponent,
         CalloutComponent,
         LinkComponent,
