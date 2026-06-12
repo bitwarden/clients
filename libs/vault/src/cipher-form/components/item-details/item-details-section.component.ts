@@ -209,7 +209,12 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.allowPersonalOwnership ? null : this.organizations[0].id;
+    // Default to personal ownership if permitted or if there are no other alternatives
+    // (in which case the top level component will show an error toast on submit)
+    if (this.allowPersonalOwnership || this.organizations.length === 0) {
+      return null;
+    }
+    return this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -218,10 +223,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     );
 
     this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
-      throw new Error("No organizations available for ownership.");
-    }
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 

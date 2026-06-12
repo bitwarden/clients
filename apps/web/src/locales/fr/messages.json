@@ -3565,10 +3565,16 @@
   "year": {
     "message": "an"
   },
+  "years": {
+    "message": "années"
+  },
   "yr": {
     "message": "an"
   },
   "month": {
+    "message": "mois"
+  },
+  "months": {
     "message": "mois"
   },
   "monthAbbr": {
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ de réduction pour $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -14228,12 +14252,76 @@
   "backToEditing": {
     "message": "Retour à l’édition"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Bannière du coffre"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Créez et lancez une bannière personnalisée que tous les membres de l'organisation voient sur leur page de coffre après s'être connectés."
+  },
+  "singleOrgPrerequisite": {
+    "message": "La politique d'organisation unique doit être activée avant d'activer cette politique."
+  },
+  "enableBanner": {
+    "message": "Activer la bannière"
+  },
+  "createBannerMessage": {
+    "message": "Créer un message de bannière"
+  },
+  "header": {
+    "message": "En-tête"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum de $COUNT$ caractères",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Entrez un $NAME$ de moins de $COUNT$ caractères.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Créer un $NAME$ qui a moins de $COUNT$ caractères.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Vous devez entrer un en-tête pour créer un bouton."
+  },
+  "enterADescription": {
+    "message": "Entrez une description."
+  },
+  "button": {
+    "message": "Bouton"
+  },
+  "showAfterEveryLogin": {
+    "message": "Afficher après chaque connexion"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Les utilisateurs verront le message après chaque connexion, même s'ils le ferment."
+  },
   "sendHasUnsavedEdits": {
     "message": "Sends a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "L'enregistrement des modifications du Send a échoué",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

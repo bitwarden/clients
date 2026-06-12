@@ -3,6 +3,7 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
+  AutofillTargetingRuleTypes,
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
@@ -1176,6 +1177,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
     // which are distinct from the heuristic AutofillFieldQualifierType values.
     const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
+
+    if (qualifier === AutofillTargetingRuleTypes.newPassword) {
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      return;
+    }
 
     if (loginQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Login;
