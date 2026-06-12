@@ -20,8 +20,10 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   component = RequireSsoPolicyComponent;
   v2 = {
     component: SimpleTogglePolicyComponent,
+    name: "requireSsoPolicyTitle",
     description: "requireSsoPolicyDescV2",
     prerequisiteKey: "requireSsoPolicyReqV2",
+    hideCancelButton: true,
   };
 
   display$(organization: Organization, configService: ConfigService) {

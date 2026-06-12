@@ -6413,6 +6413,9 @@
   "requireSsoPolicyDesc": {
     "message": "Require members to log in with the Enterprise single sign-on method."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
   "requireSsoPolicyDescV2": {
     "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
   },

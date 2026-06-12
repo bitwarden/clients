@@ -19,6 +19,7 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "twoStepLoginPolicyDescV2",
+    hideCancelButton: true,
   };
 }
 
