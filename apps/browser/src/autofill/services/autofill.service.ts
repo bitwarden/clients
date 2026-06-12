@@ -32,7 +32,6 @@ import {
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -94,7 +93,6 @@ export default class AutofillService implements AutofillServiceInterface {
     private scriptInjectorService: ScriptInjectorService,
     private accountService: AccountService,
     private authService: AuthService,
-    private configService: ConfigService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
@@ -775,8 +773,20 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Check if page details contain targeted fields from targeting rules
     // This operation is mutually-exclusive from heuristic data-gathering
-    const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
-    if (hasTargetedFields) {
+    const pageHasTargetedFields = pageDetails.fields.some(({ targeted }) => targeted === true);
+
+    if (pageHasTargetedFields) {
+      const fillAssistEnabled = await firstValueFrom(
+        this.domainSettingsService.resolvedEnableFillAssist$,
+      );
+
+      // We could alternatively retrigger gathering page details with the
+      // heuristic strategy, but this code path is mostly defensive and not
+      // expected to be hit often, since the entrypoints for this workflow
+      // are also expected to be gated.
+      if (!fillAssistEnabled) {
+        return null;
+      }
       return this.generateTargetedFillScript(pageDetails, options);
     }
 
