@@ -86,6 +86,7 @@
     "open": "8.4.2",
     "papaparse": "5.5.3",
     "proper-lockfile": "4.1.2",
+    "proxy-from-env": "2.1.0",
     "rxjs": "7.8.1",
     "semver": "7.7.3",
     "tldts": "7.4.2",
