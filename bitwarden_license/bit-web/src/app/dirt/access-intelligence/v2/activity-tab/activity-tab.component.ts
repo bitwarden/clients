@@ -1,4 +1,13 @@
-import { Component, inject, ChangeDetectionStrategy, computed, input, signal } from "@angular/core";
+import { NgClass } from "@angular/common";
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  computed,
+  effect,
+  input,
+  signal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { lastValueFrom } from "rxjs";
 
@@ -7,11 +16,22 @@ import {
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/access-intelligence";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ActivityCardComponent } from "../../activity/activity-card.component";
+import {
+  DEFAULT_TIME_PERIOD,
+  TimePeriod,
+} from "../../activity/period-selector/period-selector.types";
+import {
+  TrendWidgetComponent,
+  TrendWidgetViewType,
+} from "../../activity/trend-widget/trend-widget.component";
+import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 
 import { NewApplicationsDialogV2Component } from "./new-applications-dialog-v2/new-applications-dialog-v2.component";
@@ -32,16 +52,20 @@ import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/pas
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./activity-tab.component.html",
   imports: [
+    NgClass,
+    I18nPipe,
     ReportLoadingComponent,
-    SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricV2Component,
+    TrendWidgetComponent,
   ],
 })
 export class ActivityTabComponent {
   private readonly accessIntelligenceService = inject(AccessIntelligenceDataService);
   private readonly drawerStateService = inject(DrawerStateService);
   private readonly dialogService = inject(DialogService);
+  private readonly configService = inject(ConfigService);
+  private readonly riskOverTimeService = inject(RiskOverTimeService);
 
   readonly organizationId = input.required<OrganizationId>();
 
@@ -53,6 +77,35 @@ export class ActivityTabComponent {
   });
 
   protected readonly extendPasswordChangeWidget = signal(false);
+
+  protected readonly trendChartEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceTrendChart),
+    { initialValue: false },
+  );
+
+  protected readonly riskOverTimeData = toSignal(this.riskOverTimeService.riskOverTimeData$);
+  protected readonly isRiskOverTimeLoading = toSignal(this.riskOverTimeService.isLoading$, {
+    initialValue: false,
+  });
+  protected readonly riskOverTimeError = toSignal(this.riskOverTimeService.error$, {
+    initialValue: null,
+  });
+
+  constructor() {
+    // Initialize the trend chart when the feature flag and organization id are available
+    // and re-initialize if the organization id changes (e.g., user switches orgs)
+    effect(() => {
+      const flag = this.trendChartEnabled();
+      const orgId = this.organizationId();
+      if (flag && orgId) {
+        this.riskOverTimeService.initialize(
+          orgId,
+          DEFAULT_TIME_PERIOD,
+          TrendWidgetViewType.Applications,
+        );
+      }
+    });
+  }
 
   protected readonly totalCriticalAppsAtRiskMemberCount = computed(() => {
     const report = this.report();
@@ -165,5 +218,13 @@ export class ActivityTabComponent {
    */
   protected readonly setExtendPasswordWidget = (hasProgressBar: boolean) => {
     this.extendPasswordChangeWidget.set(hasProgressBar);
+  };
+
+  protected readonly onTimespanChanged = (timeframe: TimePeriod) => {
+    this.riskOverTimeService.setTimeframe(timeframe);
+  };
+
+  protected readonly onViewChanged = (dataView: TrendWidgetViewType) => {
+    this.riskOverTimeService.setDataView(dataView);
   };
 }

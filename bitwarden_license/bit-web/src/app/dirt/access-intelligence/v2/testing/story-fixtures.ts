@@ -2,7 +2,36 @@ import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelli
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { TimePeriod } from "../../activity/period-selector/period-selector.types";
+import {
+  TrendWidgetData,
+  TrendWidgetViewType,
+} from "../../activity/trend-widget/trend-widget.component";
 import { DrawerMemberData } from "../models/drawer-content-data.types";
+
+/**
+ * Empty trend-chart dataset.
+ */
+export const emptyTrendData: TrendWidgetData = {
+  timeframe: TimePeriod.PastMonth,
+  dataView: TrendWidgetViewType.Applications,
+  dataPoints: [],
+};
+
+/**
+ * Populated trend-chart dataset with deterministic timestamps for stories.
+ */
+export const populatedTrendData: TrendWidgetData = {
+  timeframe: TimePeriod.PastMonth,
+  dataView: TrendWidgetViewType.Applications,
+  dataPoints: [
+    { timestamp: "2026-05-01", atRisk: 3, total: 12 },
+    { timestamp: "2026-05-08", atRisk: 4, total: 14 },
+    { timestamp: "2026-05-15", atRisk: 2, total: 15 },
+    { timestamp: "2026-05-22", atRisk: 5, total: 17 },
+    { timestamp: "2026-05-29", atRisk: 3, total: 18 },
+  ],
+};
 
 /**
  * Creates a mock cipher for Storybook stories

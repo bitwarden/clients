@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL serveru ikon"
   },
+  "sendUrl": {
+    "message": "Odeslat URL serveru"
+  },
   "environmentSaved": {
     "message": "URL adresy vlastního prostředí byly uloženy"
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Kopírovat bezpečnostní kód",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "číslo karty"
@@ -4947,6 +4959,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metodu odemknutí, abyste změnili akci při vypršení časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Časový limit relace je ovládán desktopovou aplikací"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ není nainstalován. Nainstalujte $BROWSER$ před importem hesel.",
     "placeholders": {
@@ -5134,6 +5149,9 @@
   "bankAccount": {
     "message": "Bankovní účet"
   },
+  "bankAccountDetails": {
+    "message": "Údaje o bankovním účtu"
+  },
   "bankName": {
     "message": "Názov banky"
   },
@@ -5248,10 +5266,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Ukládání úprav Send selhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
