@@ -1,17 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { catchError, combineLatest, from, map, of, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
+import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { AccessRuleSummaryComponent } from "../access-rules/access-rule-summary.component";
 
 /**
  * PAM slot for the collection edit dialog. Given the collection being edited,
@@ -26,7 +25,7 @@ import { AccessRuleSummaryComponent } from "../access-rules/access-rule-summary.
   selector: "pam-collection-access-rule-callout",
   templateUrl: "./collection-access-rule-callout.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, CalloutModule, LinkModule, I18nPipe, AccessRuleSummaryComponent],
+  imports: [RouterLink, CalloutModule, LinkModule, I18nPipe],
 })
 export class CollectionAccessRuleCalloutComponent {
   readonly organizationId = input<OrganizationId | undefined>(undefined);
@@ -35,6 +34,7 @@ export class CollectionAccessRuleCalloutComponent {
   private readonly configService = inject(ConfigService);
   private readonly pamApiService = inject(PamApiService);
   private readonly logService = inject(LogService);
+  private readonly i18nService = inject(I18nService);
   private readonly dialogRef = inject(DialogRef, { optional: true });
 
   /**
@@ -67,8 +67,37 @@ export class CollectionAccessRuleCalloutComponent {
     { initialValue: [] as AccessRuleResponse[] },
   );
 
+  /**
+   * Plain-language summary of the governing rule's conditions, e.g.
+   * "Approval + IP restriction + Single user access". Empty when no rule renders.
+   */
+  protected readonly summary = computed(() => {
+    const rule = this.rules()[0];
+    return rule == null ? "" : this.summarize(rule.conditions, rule.singleActiveLease);
+  });
+
   /** Close the host collection dialog when navigating to the access-rules page. */
   protected closeDialog(): void {
     void this.dialogRef?.close();
+  }
+
+  private summarize(conditions: AccessCondition[], singleActiveLease: boolean): string {
+    const parts = conditions.map((c) => this.summarizeOne(c));
+    if (singleActiveLease) {
+      parts.push(this.i18nService.t("pamAccessRuleSummarySingleActiveLease"));
+    }
+    if (parts.length === 0) {
+      return this.i18nService.t("pamAccessRuleSummaryNoConditions");
+    }
+    return parts.join(" + ");
+  }
+
+  private summarizeOne(condition: AccessCondition): string {
+    switch (condition.kind) {
+      case "human_approval":
+        return this.i18nService.t("pamAccessRuleSummaryHumanApproval");
+      case "ip_allowlist":
+        return this.i18nService.t("pamAccessRuleSummaryIpAllowlist");
+    }
   }
 }

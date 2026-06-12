@@ -10,10 +10,6 @@
       >{{ rule.name }}</a
     >
     <span class="tw-ms-1 tw-text-muted">&middot;</span>
-    <pam-access-rule-summary
-      class="tw-ms-1"
-      [conditions]="rule.conditions"
-      [singleActiveLease]="rule.singleActiveLease"
-    />
+    <span class="tw-ms-1 tw-text-muted">{{ summary() }}</span>
   </bit-callout>
 }

@@ -10,85 +10,130 @@
 
 @if (!loading()) {
   @if (rules().length > 0) {
-    <bit-table>
+    <div class="tw-mb-4 tw-flex tw-items-center tw-gap-3">
+      <bit-search
+        class="tw-grow tw-max-w-md"
+        [placeholder]="'pamSearchRules' | i18n"
+        [formControl]="searchControl"
+      ></bit-search>
+      <bit-chip-filter
+        [placeholderText]="'status' | i18n"
+        placeholderIcon="bwi-filter"
+        [options]="statusOptions"
+        [formControl]="statusControl"
+      ></bit-chip-filter>
+      <bit-chip-filter
+        [placeholderText]="'pamAccessRuleCollectionsColumn' | i18n"
+        placeholderIcon="bwi-collection-shared"
+        [options]="collectionOptions()"
+        [formControl]="collectionControl"
+      ></bit-chip-filter>
+    </div>
+
+    <bit-table [dataSource]="dataSource">
       <ng-container header>
         <tr>
           <th bitCell class="tw-w-0">
-            <span class="tw-sr-only">{{ "status" | i18n }}</span>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="access-rules_checkbox_select-all"
+              [checked]="allSelected()"
+              [indeterminate]="someSelected()"
+              (change)="toggleAll()"
+            />
+            <label for="access-rules_checkbox_select-all" class="tw-sr-only">{{
+              "selectAll" | i18n
+            }}</label>
           </th>
-          <th bitCell>{{ "pamAccessRuleName" | i18n }}</th>
-          <th bitCell>{{ "pamAccessRuleSummaryHeader" | i18n }}</th>
-          <th bitCell>{{ "pamAccessRuleCollectionsColumn" | i18n }}</th>
-          <th bitCell>{{ "lastEdited" | i18n }}</th>
-          <th bitCell>{{ "pamAccessRuleLastEditedBy" | i18n }}</th>
+          <th bitCell bitSortable="name">{{ "pamAccessRuleName" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleAppliesTo" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleConditionsColumn" | i18n }}</th>
+          <th bitCell>{{ "pamAccessWindow" | i18n }}</th>
+          <th bitCell bitSortable="status">{{ "status" | i18n }}</th>
+          <th bitCell bitSortable="revisionDate" default="desc">
+            {{ "pamAccessRuleLastModified" | i18n }}
+          </th>
           <th bitCell class="tw-w-0"></th>
         </tr>
       </ng-container>
       <ng-template body>
-        @for (r of rules(); track r.id) {
+        @for (r of processedRows(); track r.id) {
           <tr bitRow>
             <td bitCell>
-              @if (r.enabled) {
-                <i
-                  class="bwi bwi-check-circle tw-text-success"
-                  aria-hidden="true"
-                  [title]="'enabled' | i18n"
-                ></i>
-                <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
-              } @else {
-                <i
-                  class="bwi bwi-circle tw-text-muted"
-                  aria-hidden="true"
-                  [title]="'disabled' | i18n"
-                ></i>
-                <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
+              <input
+                type="checkbox"
+                bitCheckbox
+                [id]="'access-rules_checkbox_' + r.id"
+                [checked]="isSelected(r.id)"
+                (change)="toggleRow(r.id)"
+              />
+              <label [for]="'access-rules_checkbox_' + r.id" class="tw-sr-only">{{ r.name }}</label>
+            </td>
+            <td bitCell>
+              <button
+                type="button"
+                bitLink
+                linkType="primary"
+                class="tw-font-bold"
+                (click)="openEdit(r.rule)"
+              >
+                {{ r.name }}
+              </button>
+              @if (r.rule.description) {
+                <div class="tw-text-sm tw-text-muted">{{ r.rule.description }}</div>
               }
             </td>
             <td bitCell>
-              <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
-                {{ r.name }}
-              </button>
-              @if (r.description) {
-                <div class="tw-text-sm tw-text-muted">
-                  {{ r.description }}
+              @if (r.collectionNames.length === 0) {
+                <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
+              } @else {
+                <div class="tw-flex tw-flex-wrap tw-gap-1">
+                  @for (name of r.collectionNames; track $index) {
+                    <span bitBadge variant="primary">{{ name }}</span>
+                  }
                 </div>
               }
             </td>
             <td bitCell>
-              <pam-access-rule-summary
-                [conditions]="r.conditions"
-                [singleActiveLease]="r.singleActiveLease"
-              />
+              <div class="tw-flex tw-flex-wrap tw-gap-1">
+                @for (badge of r.conditionBadges; track badge.label) {
+                  <span bitBadge variant="subtle" [startIcon]="badge.icon">{{ badge.label }}</span>
+                }
+              </div>
             </td>
             <td bitCell>
-              @let names = collectionNamesByRule().get(r.id) ?? [];
-              @if (names.length === 0) {
-                <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
-              } @else {
-                {{ names.join(", ") }}
-              }
-            </td>
-            <td bitCell>{{ r.revisionDate | date: "mediumDate" }}</td>
-            <td bitCell>
-              @if (r.lastEditedByName) {
-                {{ r.lastEditedByName }}
+              @if (r.accessWindow) {
+                <span bitBadge variant="subtle" startIcon="bwi-clock">{{ r.accessWindow }}</span>
               } @else {
                 <span class="tw-text-muted">—</span>
               }
             </td>
             <td bitCell>
+              @if (r.enabled) {
+                <span bitBadge variant="success">{{ "pamAccessRuleEnabled" | i18n }}</span>
+              } @else {
+                <span bitBadge variant="subtle">{{ "disabled" | i18n }}</span>
+              }
+            </td>
+            <td bitCell>
+              <span class="tw-text-muted" [title]="r.rule.revisionDate | date: 'medium'">{{
+                r.lastModified
+              }}</span>
+            </td>
+            <td bitCell>
               <button
                 type="button"
-                bitIconButton="bwi-ellipsis-v"
+                bitIconButton="bwi-ellipsis-h"
                 [bitMenuTriggerFor]="rowMenu"
                 label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #rowMenu>
-                <button type="button" bitMenuItem (click)="openEdit(r)">
+                <button type="button" bitMenuItem (click)="openEdit(r.rule)">
                   <i class="bwi bwi-pencil-square tw-text-muted" aria-hidden="true"></i>
                   {{ "edit" | i18n }}
                 </button>
-                <button type="button" bitMenuItem (click)="toggleEnabled(r)">
+                <button type="button" bitMenuItem (click)="toggleEnabled(r.rule)">
                   @if (r.enabled) {
                     <i class="bwi bwi-ban tw-text-muted" aria-hidden="true"></i>
                     {{ "pamAccessRuleDisable" | i18n }}
@@ -97,16 +142,36 @@
                     {{ "pamAccessRuleEnable" | i18n }}
                   }
                 </button>
-                <button type="button" bitMenuItem (click)="remove(r)">
+                <button type="button" bitMenuItem (click)="remove(r.rule)">
                   <i class="bwi bwi-trash tw-text-danger" aria-hidden="true"></i>
                   <span class="tw-text-danger">{{ "delete" | i18n }}</span>
                 </button>
               </bit-menu>
             </td>
           </tr>
+        } @empty {
+          <tr bitRow>
+            <td bitCell colspan="8" class="tw-py-6 tw-text-center tw-text-muted">
+              {{ "pamAccessRulesNoResults" | i18n }}
+            </td>
+          </tr>
         }
       </ng-template>
     </bit-table>
+
+    <bit-bulk-actions-bar [selectedCount]="selectedCount()" (clear)="clearSelection()">
+      <bit-bulk-action
+        [action]="bulkEnable"
+        icon="bwi-check-circle"
+        [label]="'pamAccessRuleBulkEnable' | i18n"
+      />
+      <bit-bulk-action
+        [action]="bulkDisable"
+        icon="bwi-circle"
+        [label]="'pamAccessRuleBulkDisable' | i18n"
+      />
+      <bit-bulk-action [action]="bulkDelete" icon="bwi-trash" [label]="'delete' | i18n" />
+    </bit-bulk-actions-bar>
   } @else {
     <div class="tw-flex tw-flex-col tw-items-center tw-gap-6 tw-py-10">
       <div class="tw-max-w-md tw-text-center">

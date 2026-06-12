@@ -14421,6 +14421,80 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
+  "pamSearchRules": {
+    "message": "Search rules"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Applies to"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Conditions"
+  },
+  "pamAccessWindow": {
+    "message": "Access window"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Last modified"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Auto-approved"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Requires approval"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP restricted"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "No access rules match your filters."
+  },
+  "pamAccessRulesShowing": {
+    "message": "Showing $START$ to $END$ of $TOTAL$",
+    "placeholders": {
+      "start": { "content": "$1", "example": "1" },
+      "end": { "content": "$2", "example": "20" },
+      "total": { "content": "$3", "example": "57" }
+    }
+  },
+  "pamAccessRulesPerPage": {
+    "message": "$COUNT$ per page",
+    "placeholders": {
+      "count": { "content": "$1", "example": "20" }
+    }
+  },
+  "pamAccessRulesOfPages": {
+    "message": "of $COUNT$ pages",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" }
+    }
+  },
+  "pamPreviousPage": {
+    "message": "Previous page"
+  },
+  "pamNextPage": {
+    "message": "Next page"
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Enable"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Disable"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Access rules updated."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Access rules deleted."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Delete access rules?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" }
+    }
+  },
   "pamInboxNav": {
     "message": "Access requests"
   },
