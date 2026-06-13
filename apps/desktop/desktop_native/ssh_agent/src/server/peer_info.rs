@@ -42,21 +42,61 @@ impl PeerInfo {
     }
 }
 
-/// macOS-specific peer-info resolution via `libproc::proc_pid::pidpath`
-/// (the BSD `proc_pidpath(2)` syscall). This avoids the `task_for_pid`
-/// entitlement that `sysinfo::Process::name()` ends up needing on macOS,
-/// so it can still resolve the caller when `sysinfo` cannot (notably
-/// inside the Mac App Store sandbox).
+/// macOS-specific peer-info resolution via the `proc_pidpath(2)` call from
+/// the system `libproc` library. This avoids the `task_for_pid` entitlement
+/// that `sysinfo::Process::name()` ends up needing on macOS, so it can still
+/// resolve the caller when `sysinfo` cannot (notably inside the Mac App Store
+/// sandbox).
 #[cfg(target_os = "macos")]
 fn peer_info_from_libproc(pid: u32) -> Result<PeerInfo, String> {
     let pid_i32 = i32::try_from(pid).map_err(|_| format!("peer pid {pid} exceeds i32 range"))?;
-    let path = libproc::proc_pid::pidpath(pid_i32)
-        .map_err(|e| format!("proc_pidpath({pid_i32}) failed: {e}"))?;
+    let path = pid_executable_path(pid_i32)?;
     let process_name = basename_or_path(&path);
     if process_name.is_empty() {
         return Err("Process name is empty".to_string());
     }
     Ok(PeerInfo { pid, process_name })
+}
+
+/// Safe wrapper over `proc_pidpath(2)` (declared in the macOS `<libproc.h>`
+/// system header). Returns the absolute executable path of `pid`, or an error
+/// string describing the failure. Requires no entitlement.
+#[cfg(target_os = "macos")]
+fn pid_executable_path(pid: i32) -> Result<String, String> {
+    // PROC_PIDPATHINFO_MAXSIZE from <sys/proc_info.h> is 4 * PATH_MAX.
+    let mut buf = vec![0u8; 4 * (libc::PATH_MAX as usize)];
+    // SAFETY: `proc_pidpath` writes at most `buf.len()` bytes into `buf` and
+    // returns the number of bytes written (<= 0 on failure). `buf` is a
+    // uniquely-owned, correctly-sized allocation that outlives the call, and
+    // its true length is passed as the buffer size, so the call cannot write
+    // out of bounds.
+    let written = unsafe {
+        libc::proc_pidpath(
+            pid,
+            buf.as_mut_ptr().cast::<libc::c_void>(),
+            buf.len() as u32,
+        )
+    };
+    if written <= 0 {
+        return Err(format!(
+            "proc_pidpath({pid}) failed: {}",
+            std::io::Error::last_os_error()
+        ));
+    }
+    let written = written as usize;
+    debug_assert!(
+        written <= buf.len(),
+        "proc_pidpath wrote {written} bytes into a {}-byte buffer",
+        buf.len()
+    );
+    buf.truncate(written);
+    // Some XNU versions historically counted the trailing NUL in the returned
+    // length; trim at the first NUL so the resolved path is clean regardless of
+    // the kernel's terminator convention (paths never contain an interior NUL).
+    if let Some(nul) = buf.iter().position(|&b| b == 0) {
+        buf.truncate(nul);
+    }
+    String::from_utf8(buf).map_err(|e| format!("proc_pidpath({pid}) returned non-UTF-8: {e}"))
 }
 
 fn peer_info_from_sysinfo(pid: u32) -> Result<PeerInfo, String> {
