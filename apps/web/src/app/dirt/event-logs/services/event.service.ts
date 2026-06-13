@@ -841,101 +841,107 @@ export class EventService {
         break;
       // Send
       case EventType.Send_Created_Text:
-        msg = this.i18nService.t("createdTextSend", this.formatSendId(ev, options));
+        msg = this.i18nService.t("createdTextSendV2", this.formatSendId(ev, options));
         humanReadableMsg = this.i18nService.t(
-          "createdTextSend",
+          "createdTextSendV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Created_Text_WithEmailVerification:
         msg = this.i18nService.t(
-          "createdTextSendWithEmailVerification",
+          "createdTextSendWithEmailVerificationV2",
           this.formatSendId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "createdTextSendWithEmailVerification",
+          "createdTextSendWithEmailVerificationV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Created_Text_WithPasswordProtection:
         msg = this.i18nService.t(
-          "createdTextSendWithPasswordProtection",
+          "createdTextSendWithPasswordProtectionV2",
           this.formatSendId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "createdTextSendWithPasswordProtection",
+          "createdTextSendWithPasswordProtectionV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Created_File:
-        msg = this.i18nService.t("createdFileSend", this.formatSendId(ev, options));
+        msg = this.i18nService.t("createdFileSendV2", this.formatSendId(ev, options));
         humanReadableMsg = this.i18nService.t(
-          "createdFileSend",
+          "createdFileSendV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Created_File_WithEmailVerification:
         msg = this.i18nService.t(
-          "createdFileSendWithEmailVerification",
+          "createdFileSendWithEmailVerificationV2",
           this.formatSendId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "createdFileSendWithEmailVerification",
+          "createdFileSendWithEmailVerificationV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Created_File_WithPasswordProtection:
         msg = this.i18nService.t(
-          "createdFileSendWithPasswordProtection",
+          "createdFileSendWithPasswordProtectionV2",
           this.formatSendId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "createdFileSendWithPasswordProtection",
+          "createdFileSendWithPasswordProtectionV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Updated_Text:
-        msg = this.i18nService.t("editedTextSend", this.formatSendId(ev, options));
-        humanReadableMsg = this.i18nService.t("editedTextSend", this.formatSendIdText(ev, options));
+        msg = this.i18nService.t("editedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Updated_File:
-        msg = this.i18nService.t("editedFileSend", this.formatSendId(ev, options));
-        humanReadableMsg = this.i18nService.t("editedFileSend", this.formatSendIdText(ev, options));
+        msg = this.i18nService.t("editedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Deleted_Text:
-        msg = this.i18nService.t("deletedTextSend", this.formatSendId(ev, options));
+        msg = this.i18nService.t("deletedTextSendV2", this.formatSendId(ev, options));
         humanReadableMsg = this.i18nService.t(
-          "deletedTextSend",
+          "deletedTextSendV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Deleted_File:
-        msg = this.i18nService.t("deletedFileSend", this.formatSendId(ev, options));
+        msg = this.i18nService.t("deletedFileSendV2", this.formatSendId(ev, options));
         humanReadableMsg = this.i18nService.t(
-          "deletedFileSend",
+          "deletedFileSendV2",
           this.formatSendIdText(ev, options),
         );
         break;
       case EventType.Send_Accessed_Text:
         msg = this.i18nService.t(
-          "accessedTextSend",
+          "accessedTextSendV2",
           this.formatSendId(ev, options),
           this.formatSendCreatorId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "accessedTextSend",
+          "accessedTextSendV2",
           this.formatSendIdText(ev, options),
           this.getShortId(ev.userId),
         );
         break;
       case EventType.Send_Accessed_File:
         msg = this.i18nService.t(
-          "accessedFileSend",
+          "accessedFileSendV2",
           this.formatSendId(ev, options),
           this.formatSendCreatorId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "accessedFileSend",
+          "accessedFileSendV2",
           this.formatSendIdText(ev, options),
           this.getShortId(ev.userId),
         );

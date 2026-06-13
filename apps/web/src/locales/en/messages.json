@@ -4486,7 +4486,7 @@
       }
     }
   },
-  "createdTextSend": {
+  "createdTextSendV2": {
     "message": "Created text Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4496,7 +4496,7 @@
       }
     }
   },
-  "createdTextSendWithEmailVerification": {
+  "createdTextSendWithEmailVerificationV2": {
     "message": "Created text Send$SENDID$ with email verification",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4506,7 +4506,7 @@
       }
     }
   },
-  "createdTextSendWithPasswordProtection": {
+  "createdTextSendWithPasswordProtectionV2": {
     "message": "Created text Send$SENDID$ with password",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4516,7 +4516,7 @@
       }
     }
   },
-  "createdFileSend": {
+  "createdFileSendV2": {
     "message": "Created file Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4526,7 +4526,7 @@
       }
     }
   },
-  "createdFileSendWithEmailVerification": {
+  "createdFileSendWithEmailVerificationV2": {
     "message": "Created file Send$SENDID$ with email verification",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4536,7 +4536,7 @@
       }
     }
   },
-  "createdFileSendWithPasswordProtection": {
+  "createdFileSendWithPasswordProtectionV2": {
     "message": "Created file Send$SENDID$ with password",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4546,7 +4546,7 @@
       }
     }
   },
-  "editedTextSend": {
+  "editedTextSendV2": {
     "message": "Edited text Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4556,7 +4556,7 @@
       }
     }
   },
-  "editedFileSend": {
+  "editedFileSendV2": {
     "message": "Edited file Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4566,7 +4566,7 @@
       }
     }
   },
-  "deletedTextSend": {
+  "deletedTextSendV2": {
     "message": "Deleted text Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4576,7 +4576,7 @@
       }
     }
   },
-  "deletedFileSend": {
+  "deletedFileSendV2": {
     "message": "Deleted file Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4586,7 +4586,7 @@
       }
     }
   },
-  "accessedTextSend": {
+  "accessedTextSendV2": {
     "message": "Accessed a text Send$SENDID$ created by $ID$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
@@ -4600,7 +4600,7 @@
       }
     }
   },
-  "accessedFileSend": {
+  "accessedFileSendV2": {
     "message": "Accessed a file Send$SENDID$ created by $ID$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
