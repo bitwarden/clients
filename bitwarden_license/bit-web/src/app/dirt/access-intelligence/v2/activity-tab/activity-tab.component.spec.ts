@@ -20,7 +20,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-
 import {
   DEFAULT_TIME_PERIOD,
   TimePeriod,
