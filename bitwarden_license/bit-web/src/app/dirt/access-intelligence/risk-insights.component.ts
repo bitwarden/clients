@@ -269,6 +269,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         filter(
           ([reportStatus, step]) =>
             reportStatus === ReportStatus.Error ||
+            reportStatus === ReportStatus.LoadError ||
             (reportStatus === ReportStatus.Complete && step === null),
         ),
         distinctUntilChanged(
@@ -277,9 +278,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([status]) => {
-        if (status === ReportStatus.Error) {
+        if (status === ReportStatus.Error || status === ReportStatus.LoadError) {
           this.toastService.showToast({
-            message: this.i18nService.t("reportGenerationFailed"),
+            message: this.i18nService.t(
+              status === ReportStatus.LoadError ? "reportLoadFailed" : "reportGenerationFailed",
+            ),
             variant: "error",
           });
         } else if (this.mustBeginPostImportTour()) {

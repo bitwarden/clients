@@ -65,7 +65,9 @@
         "
         [metricDescription]="
           totalCriticalAppsCount === 0
-            ? ('onceYouMarkApplicationsCriticalTheyWillDisplayHere' | i18n)
+            ? newApplicationsCount > 0
+              ? ('noCriticalApplicationsMarkedYet' | i18n)
+              : ('onceYouMarkApplicationsCriticalTheyWillDisplayHere' | i18n)
             : ('criticalApplicationsAreAtRisk'
               | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
         "
