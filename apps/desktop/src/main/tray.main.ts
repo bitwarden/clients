@@ -2,7 +2,15 @@
 // @ts-strict-ignore
 import * as path from "path";
 
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  MenuItemConstructorOptions,
+  nativeImage,
+  nativeTheme,
+  Tray,
+} from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -39,7 +47,14 @@ export class TrayMain {
         path.join(__dirname, "/images/icon-highlight.png"),
       );
     } else {
-      this.icon = path.join(__dirname, "/images/icon.png");
+      this.icon = this.getLinuxIcon();
+
+      nativeTheme.on("updated", () => {
+        this.icon = this.getLinuxIcon();
+        if (this.tray != null) {
+          this.tray.setImage(this.icon);
+        }
+      });
     }
   }
 
@@ -181,6 +196,11 @@ export class TrayMain {
 
   private isLinux() {
     return process.platform === "linux";
+  }
+
+  private getLinuxIcon(): string {
+    const iconName = nativeTheme.shouldUseDarkColors ? "icon-light" : "icon-dark";
+    return path.join(__dirname, `/images/${iconName}.png`);
   }
 
   private async toggleWindow() {
