@@ -3060,6 +3060,353 @@ describe("CollectAutofillContentService", () => {
         jest.useRealTimers();
       });
     });
+
+    describe("unresolved shadow host retries (late hydration)", () => {
+      const buildMutation = (added: Node[]): MutationRecord =>
+        ({
+          type: "childList",
+          addedNodes: added as unknown as NodeList,
+          attributeName: null,
+          attributeNamespace: null,
+          nextSibling: null,
+          oldValue: null,
+          previousSibling: null,
+          removedNodes: document.querySelectorAll("nonexistent"),
+          target: document.body,
+        }) as MutationRecord;
+
+      const flushMicrotasks = async () => {
+        for (let i = 0; i < 5; i++) {
+          await Promise.resolve();
+        }
+      };
+
+      beforeEach(() => {
+        jest.useFakeTimers();
+        collectAutofillContentService["currentLocationHref"] = window.location.href;
+        domQueryService["knownShadowRoots"].clear();
+        domQueryService["pageContainsShadowDom"] = false;
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it("re-scans a custom element that attaches its shadow root after the candidate window", () => {
+        // Defined-but-lazy proxy (Stencil-style): exercises the polling path.
+        customElements.define("lazy-login", class extends HTMLElement {});
+        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+        const lazyHost = document.createElement("lazy-login");
+        document.body.appendChild(lazyHost);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([lazyHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+
+        // First check ran before hydration: nothing found, host tracked for re-scan.
+        expect(checkSpy).toHaveLastReturnedWith(false);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(lazyHost)).toBe(true);
+        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).not.toBeNull();
+
+        // Lazy hydration: attachShadow emits no mutation records.
+        const shadowRoot = lazyHost.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        jest.advanceTimersByTime(500);
+
+        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+
+        document.body.removeChild(lazyHost);
+      });
+
+      it("re-scans a nested host that hydrates inside an already-registered root", () => {
+        customElements.define("sign-in-form", class extends HTMLElement {});
+        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+        const outerHost = document.createElement("global-login");
+        const outerRoot = outerHost.attachShadow({ mode: "open" });
+        domQueryService["knownShadowRoots"].add(outerRoot);
+        const innerHost = document.createElement("sign-in-form");
+        outerRoot.appendChild(innerHost);
+        document.body.appendChild(outerHost);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([outerHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+
+        expect(checkSpy).toHaveLastReturnedWith(false);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(innerHost)).toBe(true);
+
+        const innerRoot = innerHost.attachShadow({ mode: "open" });
+        innerRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        jest.advanceTimersByTime(500);
+
+        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+
+        document.body.removeChild(outerHost);
+      });
+
+      it("stops re-scanning a host that never hydrates and tombstones it", () => {
+        // Icon-library case: tag defined, renders light DOM, never attaches a root.
+        customElements.define("inert-widget", class extends HTMLElement {});
+        const inertHost = document.createElement("inert-widget");
+        document.body.appendChild(inertHost);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([inertHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(inertHost)).toBe(true);
+
+        // Backoff retries continue until the first scan past the 30s lifetime.
+        jest.advanceTimersByTime(32000);
+
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
+        expect(collectAutofillContentService["expiredShadowHostCandidates"].has(inertHost)).toBe(
+          true,
+        );
+
+        // A later candidate window cannot resurrect a tombstoned host.
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([inertHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+
+        document.body.removeChild(inertHost);
+      });
+
+      it("parks an undefined-tag host scan-free and enrolls it when the definition lands", async () => {
+        const lazyHost = document.createElement("late-defined-login");
+        document.body.appendChild(lazyHost);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([lazyHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+
+        // Undefined tag: no polling budget; parked on the whenDefined hook instead.
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+        expect(
+          collectAutofillContentService["hostsAwaitingDefinition"].get("late-defined-login"),
+        ).toEqual(new Set([lazyHost]));
+
+        customElements.define(
+          "late-defined-login",
+          class extends HTMLElement {
+            constructor() {
+              super();
+              this.attachShadow({ mode: "open" });
+            }
+          },
+        );
+        await flushMicrotasks();
+
+        // Definition landed: parked host enrolled with a fresh budget at base delay.
+        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(lazyHost)).toBe(true);
+
+        jest.advanceTimersByTime(500);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+
+        document.body.removeChild(lazyHost);
+      });
+
+      it("does not expire a parked host while its definition is still loading", async () => {
+        const slowHost = document.createElement("slow-network-login");
+        document.body.appendChild(slowHost);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([slowHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+
+        // Far past the polling budget window: parked hosts pay no scans, never expire.
+        jest.advanceTimersByTime(30000);
+        expect(
+          collectAutofillContentService["hostsAwaitingDefinition"].get("slow-network-login"),
+        ).toEqual(new Set([slowHost]));
+        expect(collectAutofillContentService["expiredShadowHostCandidates"].has(slowHost)).toBe(
+          false,
+        );
+
+        customElements.define(
+          "slow-network-login",
+          class extends HTMLElement {
+            constructor() {
+              super();
+              this.attachShadow({ mode: "open" });
+            }
+          },
+        );
+        await flushMicrotasks();
+        jest.advanceTimersByTime(500);
+
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
+
+        document.body.removeChild(slowHost);
+      });
+
+      it("enrolls pre-existing un-hydrated hosts during collection and recovers without any mutations", async () => {
+        customElements.define("preexisting-login", class extends HTMLElement {});
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: unknown) =>
+            Promise.resolve(
+              command === "getUrlAutofillTargetingRules" ? { result: null } : undefined,
+            ),
+          );
+        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+        const host = document.createElement("preexisting-login");
+        document.body.appendChild(host);
+
+        // No mutation events: the host predates observer attachment (the SPA
+        // rendered before the first collection ran).
+        const pageDetailsPromise = collectAutofillContentService.getPageDetails();
+        await jest.advanceTimersByTimeAsync(200);
+        await pageDetailsPromise;
+
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(host)).toBe(true);
+
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        // Cover the next backoff retry regardless of rounds consumed so far.
+        await jest.advanceTimersByTimeAsync(2000);
+
+        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+
+        document.body.removeChild(host);
+      });
+
+      it("enrolls a parked host when :defined flips even though this realm's whenDefined never fires", () => {
+        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+        const host = document.createElement("isolated-world-widget");
+        document.body.appendChild(host);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([host])]);
+        jest.advanceTimersByTime(500);
+        expect(
+          collectAutofillContentService["hostsAwaitingDefinition"].get("isolated-world-widget"),
+        ).toEqual(new Set([host]));
+
+        // Page-world define: invisible to this realm's registry, but the shared
+        // element's :defined state flips and the upgrade attaches the root.
+        jest.spyOn(host, "matches").mockImplementation((selector) => selector === ":defined");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        // Parked-only sweep runs at the retry cap cadence.
+        jest.advanceTimersByTime(8000);
+
+        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+
+        document.body.removeChild(host);
+      });
+
+      it("restarts the backoff only for new unresolved work, not already-tracked hosts", () => {
+        customElements.define("backoff-a", class extends HTMLElement {});
+        customElements.define("backoff-b", class extends HTMLElement {});
+        const hostA = document.createElement("backoff-a");
+        document.body.appendChild(hostA);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([hostA])]);
+        jest.advanceTimersByTime(500);
+        expect(collectAutofillContentService["unresolvedShadowHostRetryRound"]).toBe(1);
+
+        // Retry with no new hosts: backoff climbs instead of resetting.
+        jest.advanceTimersByTime(500);
+        expect(collectAutofillContentService["unresolvedShadowHostRetryRound"]).toBe(2);
+
+        const hostB = document.createElement("backoff-b");
+        document.body.appendChild(hostB);
+        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([hostB])]);
+        jest.advanceTimersByTime(500);
+        expect(collectAutofillContentService["unresolvedShadowHostRetryRound"]).toBe(1);
+
+        document.body.removeChild(hostA);
+        document.body.removeChild(hostB);
+      });
+
+      it("bypasses a cached empty result on explicit collection", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = true;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(domQueryService.refreshShadowDomStateForUserRequest).toHaveBeenCalled();
+        expect(collectAutofillContentService["noFieldsFound"]).toBe(false);
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      });
+
+      it("serves the populated cache on explicit collection when nothing is unresolved", () => {
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+      });
+
+      it("forces a fresh query on explicit collection while shadow hosts are unresolved", () => {
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["unresolvedShadowHosts"].set(
+          document.createElement("pending-host"),
+          3,
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+
+        collectAutofillContentService["unresolvedShadowHosts"].clear();
+      });
+
+      it("rotates overflow hosts into tracking as earlier hosts expire", () => {
+        customElements.define("inert-rotation-widget", class extends HTMLElement {});
+        const cap = collectAutofillContentService["unresolvedShadowHostTrackingCap"];
+        const hosts = Array.from({ length: cap + 6 }, () =>
+          document.createElement("inert-rotation-widget"),
+        );
+        for (const host of hosts) {
+          document.body.appendChild(host);
+        }
+
+        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation(hosts)]);
+        jest.advanceTimersByTime(500);
+
+        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(cap);
+        expect(collectAutofillContentService["unresolvedShadowHostOverflow"].length).toBe(6);
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(hosts[cap + 5])).toBe(
+          false,
+        );
+
+        // The first cohort tombstones past its 30s lifetime; the queue drains into freed slots.
+        jest.advanceTimersByTime(32000);
+
+        expect(collectAutofillContentService["unresolvedShadowHosts"].has(hosts[cap + 5])).toBe(
+          true,
+        );
+        expect(collectAutofillContentService["unresolvedShadowHostOverflow"].length).toBe(0);
+
+        for (const host of hosts) {
+          document.body.removeChild(host);
+        }
+      });
+    });
   });
 
   describe("requirePageDetailsUpdate", () => {

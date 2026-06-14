@@ -5,10 +5,12 @@ export interface DomQueryService {
     treeWalkerFilter: CallableFunction,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
+    unresolvedHostSink?: Set<Element>,
   ): T[];
   updatePageContainsShadowDom(): boolean;
+  refreshShadowDomStateForUserRequest(): void;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
-  checkForNewShadowRoots(addedElements?: Element[]): boolean;
+  checkForNewShadowRoots(addedElements?: Element[], unresolvedHostSink?: Set<Element>): boolean;
   resetObservedShadowRoots(): void;
   purgeDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;
