@@ -53,6 +53,39 @@ describe("Protonpass Json Importer", () => {
     expect(noteCipher.notes).toEqual("Secure note contents.");
   });
 
+  it("should parse note custom fields", async () => {
+    const protonData = JSON.parse(JSON.stringify(testData));
+    const noteItem = Object.values(protonData.vaults)[0].items[1];
+    noteItem.data.extraFields = [
+      {
+        fieldName: "note text field",
+        type: "text",
+        data: {
+          content: "note text value",
+        },
+      },
+      {
+        fieldName: "note hidden field",
+        type: "hidden",
+        data: {
+          content: "note hidden value",
+        },
+      },
+    ];
+
+    const result = await importer.parse(JSON.stringify(protonData));
+
+    const noteCipher = result.ciphers[1];
+    expect(noteCipher.type).toEqual(CipherType.SecureNote);
+    expect(noteCipher.fields.length).toEqual(2);
+    expect(noteCipher.fields.at(0).name).toEqual("note text field");
+    expect(noteCipher.fields.at(0).value).toEqual("note text value");
+    expect(noteCipher.fields.at(0).type).toEqual(FieldType.Text);
+    expect(noteCipher.fields.at(1).name).toEqual("note hidden field");
+    expect(noteCipher.fields.at(1).value).toEqual("note hidden value");
+    expect(noteCipher.fields.at(1).type).toEqual(FieldType.Hidden);
+  });
+
   it("should parse credit card data", async () => {
     const testDataJson = JSON.stringify(testData);
 
@@ -72,6 +105,40 @@ describe("Protonpass Json Importer", () => {
     expect(creditCardCipher.fields.at(0).name).toEqual("PIN");
     expect(creditCardCipher.fields.at(0).value).toEqual("1234");
     expect(creditCardCipher.fields.at(0).type).toEqual(FieldType.Hidden);
+  });
+
+  it("should parse credit card custom fields", async () => {
+    const protonData = JSON.parse(JSON.stringify(testData));
+    const creditCardItem = Object.values(protonData.vaults)[0].items[2];
+    creditCardItem.data.extraFields = [
+      {
+        fieldName: "card text field",
+        type: "text",
+        data: {
+          content: "card text value",
+        },
+      },
+      {
+        fieldName: "card hidden field",
+        type: "hidden",
+        data: {
+          content: "card hidden value",
+        },
+      },
+    ];
+
+    const result = await importer.parse(JSON.stringify(protonData));
+
+    const creditCardCipher = result.ciphers[2];
+    expect(creditCardCipher.type).toEqual(CipherType.Card);
+    expect(creditCardCipher.fields.length).toEqual(3);
+    expect(creditCardCipher.fields.at(0).name).toEqual("PIN");
+    expect(creditCardCipher.fields.at(1).name).toEqual("card text field");
+    expect(creditCardCipher.fields.at(1).value).toEqual("card text value");
+    expect(creditCardCipher.fields.at(1).type).toEqual(FieldType.Text);
+    expect(creditCardCipher.fields.at(2).name).toEqual("card hidden field");
+    expect(creditCardCipher.fields.at(2).value).toEqual("card hidden value");
+    expect(creditCardCipher.fields.at(2).type).toEqual(FieldType.Hidden);
   });
 
   it("should create folders if not part of an organization", async () => {
