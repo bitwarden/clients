@@ -120,7 +120,7 @@ export declare namespace biometrics_v2 {
   }
   export function authenticate(biometricLockSystem: BiometricLockSystem, hwnd: Buffer, message: string): Promise<boolean>
   export function authenticateAvailable(biometricLockSystem: BiometricLockSystem): Promise<boolean>
-  export function enrollPersistent(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function enrollPersistent(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer, hwnd: Buffer): Promise<void>
   export function hasPersistent(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
   export function initBiometricSystem(): BiometricLockSystem
   export function provideKey(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>

@@ -38,10 +38,11 @@ pub mod biometrics_v2 {
         biometric_lock_system: &BiometricLockSystem,
         user_id: String,
         key: napi::bindgen_prelude::Buffer,
+        hwnd: napi::bindgen_prelude::Buffer,
     ) -> napi::Result<()> {
         Ok(biometric_lock_system
             .inner
-            .enroll_persistent(&user_id, &key)
+            .enroll_persistent(&user_id, &key, &hwnd)
             .await?)
     }
 

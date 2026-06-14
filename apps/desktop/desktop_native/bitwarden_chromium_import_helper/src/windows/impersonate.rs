@@ -2,10 +2,10 @@ use anyhow::{anyhow, Result};
 use sysinfo::System;
 use tracing::debug;
 use windows::{
-    core::BOOL,
+    core::{BOOL, NTSTATUS},
     Wdk::System::SystemServices::SE_DEBUG_PRIVILEGE,
     Win32::{
-        Foundation::{CloseHandle, HANDLE, NTSTATUS, STATUS_SUCCESS},
+        Foundation::{CloseHandle, HANDLE, STATUS_SUCCESS},
         Security::{
             self, DuplicateToken, ImpersonateLoggedOnUser, RevertToSelf, TOKEN_DUPLICATE,
             TOKEN_QUERY,

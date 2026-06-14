@@ -20,10 +20,12 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   }
 
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    const hwnd = this.windowMain.win.getNativeWindowHandle();
     await biometrics_v2.enrollPersistent(
       this.biometricsSystem,
       userId,
       Buffer.from(key.toEncoded().buffer),
+      hwnd,
     );
   }
 

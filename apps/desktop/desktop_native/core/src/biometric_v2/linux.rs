@@ -53,7 +53,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         polkit_is_bitwarden_policy_available().await
     }
 
-    async fn enroll_persistent(&self, _user_id: &str, _key: &[u8]) -> Result<()> {
+    async fn enroll_persistent(&self, _user_id: &str, _key: &[u8], _hwnd: &[u8]) -> Result<()> {
         // Not implemented
         Ok(())
     }

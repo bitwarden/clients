@@ -224,7 +224,7 @@ mod tests {
 
     use itertools::Itertools;
     use serial_test::serial;
-    use windows::Win32::Foundation::WIN32_ERROR;
+    use windows_core::WIN32_ERROR;
 
     use super::*;
     use crate::windowing::MockErrorOperations;

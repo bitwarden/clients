@@ -73,6 +73,7 @@ serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
     "Foundation",
+    "Foundation_Metadata",
     "Security_Credentials_UI",
     "Security_Cryptography",
     "Storage_Streams",
@@ -83,6 +84,8 @@ windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
     "Win32_System_Pipes",
+    "Win32_System_Threading",
+    "UI",
 ], optional = true }
 windows-future = { workspace = true }
 

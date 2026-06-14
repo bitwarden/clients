@@ -22,6 +22,7 @@ tracing-subscriber = { workspace = true }
 windows = { workspace = true, features = [
     "Wdk_System_SystemServices",
     "Win32_System_Pipes",
+    "Win32_System_Threading",
 ] }
 
 [build-dependencies]
