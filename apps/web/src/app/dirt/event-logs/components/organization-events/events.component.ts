@@ -192,6 +192,20 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   }
 
   protected getUserName(r: EventResponse, userId: string) {
+    // Send access events show the accessor in the Member column, never the Send creator. This must run
+    // before the userId lookup below: EventView.userId coalesces to the creator for external accesses,
+    // which would otherwise show the creator's name instead of "External". Resolve strictly from
+    // actingUserId (a confirmed member), else the claimed domain, else a generic "External" label.
+    if (r.type === EventType.Send_Accessed_Text || r.type === EventType.Send_Accessed_File) {
+      if (r.actingUserId != null && this.orgUsersUserIdMap.has(r.actingUserId)) {
+        return this.orgUsersUserIdMap.get(r.actingUserId);
+      }
+      if (r.domainName) {
+        return { name: this.i18nService.t("sendAccessExternalDomain", r.domainName), email: "" };
+      }
+      return { name: this.i18nService.t("sendAccessExternal"), email: "" };
+    }
+
     if (r.installationId != null) {
       return {
         name: `Installation: ${r.installationId}`,
@@ -230,28 +244,17 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       };
     }
 
-    // Send access events show the accessor in the Member column, never the Send creator. Resolve
-    // strictly from actingUserId (set only when the accessor is a confirmed member); otherwise fall
-    // back to the claimed domain, then a generic "External" label.
-    if (r.type === EventType.Send_Accessed_Text || r.type === EventType.Send_Accessed_File) {
-      if (r.actingUserId != null && this.orgUsersUserIdMap.has(r.actingUserId)) {
-        return this.orgUsersUserIdMap.get(r.actingUserId);
-      }
-      if (r.domainName) {
-        return { name: this.i18nService.t("sendAccessExternalDomain", r.domainName), email: "" };
-      }
-      return { name: this.i18nService.t("sendAccessExternal"), email: "" };
-    }
-
     return null;
   }
 
   /** True when the Member-column name on a Send access row resolves to a member we can link to. */
   protected isSendAccessMemberLink(e: EventView): boolean {
+    // Link only when the ACCESSOR is a confirmed member. Use actingUserId, not e.userId: the latter
+    // coalesces to the Send creator for external accesses, which would wrongly link the "External" label.
     return (
       (e.type === EventType.Send_Accessed_Text || e.type === EventType.Send_Accessed_File) &&
-      e.userId != null &&
-      this.orgUsersUserIdMap.get(e.userId)?.organizationUserId != null
+      e.actingUserId != null &&
+      this.orgUsersUserIdMap.get(e.actingUserId)?.organizationUserId != null
     );
   }
 

@@ -199,6 +199,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
           appIcon: eventInfo.appIcon,
           appName: eventInfo.appName,
           userId: userId,
+          actingUserId: r.actingUserId,
           userName: userName,
           userEmail: user != null ? user.email : "",
           date: r.date,

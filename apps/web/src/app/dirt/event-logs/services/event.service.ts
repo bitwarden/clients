@@ -1181,13 +1181,17 @@ export class EventService {
   // Builds an interactive id anchor handled by the event-log containers via click delegation (see the
   // organization-events and entity-events components). No href: the container reads the data attribute
   // and either opens/navigates (table) or re-parameterizes the dialog in place.
-  private makeInteractiveId(dataAttr: string, fullId: string): string {
+  private makeInteractiveId(dataAttr: string, fullId: string, ariaLabel: string): string {
     const a = document.createElement("a");
     a.title = this.i18nService.t("view");
     a.setAttribute("role", "button");
     a.setAttribute("tabindex", "0");
+    a.setAttribute("aria-label", ariaLabel);
     a.setAttribute(dataAttr, fullId);
-    a.innerHTML = "<code>" + this.getShortId(fullId) + "</code>";
+    // Build the <code> via textContent (not innerHTML) so the id can never be interpreted as markup.
+    const code = document.createElement("code");
+    code.textContent = this.getShortId(fullId);
+    a.appendChild(code);
     return a.outerHTML;
   }
 
@@ -1197,7 +1201,14 @@ export class EventService {
     if (options.hideSendId || ev.sendId == null) {
       return "";
     }
-    return " " + this.makeInteractiveId("data-event-send-id", ev.sendId);
+    return (
+      " " +
+      this.makeInteractiveId(
+        "data-event-send-id",
+        ev.sendId,
+        this.i18nService.t("viewSendEvents", this.getShortId(ev.sendId)),
+      )
+    );
   }
 
   // The on-screen message uses formatSendId's clickable HTML link; the exported event log can't
@@ -1208,7 +1219,14 @@ export class EventService {
 
   // The Send creator, rendered clickable (navigates to the member in the table, re-parameterizes in a dialog).
   private formatSendCreatorId(ev: EventResponse): string {
-    return this.makeInteractiveId("data-event-user-id", ev.userId);
+    if (ev.userId == null) {
+      return "";
+    }
+    return this.makeInteractiveId(
+      "data-event-user-id",
+      ev.userId,
+      this.i18nService.t("viewMemberEvents", this.getShortId(ev.userId)),
+    );
   }
 
   private getShortId(id: string) {

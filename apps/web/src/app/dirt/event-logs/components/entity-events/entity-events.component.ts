@@ -59,6 +59,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   protected entity: EntityEventsDialogParams["entity"];
   protected entityId: string;
   protected name: string;
+  private providerId?: string;
 
   get showUser() {
     return this.params.showUser ?? false;
@@ -85,6 +86,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     this.entity = this.params.entity;
     this.entityId = this.params.entityId;
     this.name = this.params.name;
+    this.providerId = this.params.providerId;
 
     const defaultDates = this.eventService.getDefaultDateFilters();
     this.filterFormGroup.setValue({
@@ -105,6 +107,8 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     this.entity = entity;
     this.entityId = entityId;
     this.name = name;
+    // this ensures a member click resolves via the organization-user endpoint, not the provider-user one
+    this.providerId = undefined;
     this.continuationToken = null;
     this.dataSource.data = [];
     this.loading = true;
@@ -204,9 +208,9 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     }
 
     let response: ListResponse<EventResponse>;
-    if (this.entity === "user" && this.params.providerId) {
+    if (this.entity === "user" && this.providerId) {
       response = await this.apiService.getEventsProviderUser(
-        this.params.providerId,
+        this.providerId,
         this.entityId,
         dates[0],
         dates[1],
@@ -261,7 +265,6 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
       );
     }
 
-    // A Send-scoped dialog is already titled with the Send id, so omit the (repeated) id from each row.
     const options = new EventOptions();
     options.hideSendId = this.entity === "send";
 
@@ -278,6 +281,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
           appIcon: eventInfo.appIcon,
           appName: eventInfo.appName,
           userId: userId,
+          actingUserId: r.actingUserId,
           userName: user != null ? user.name : this.showUser ? this.i18nService.t("unknown") : null,
           userEmail: user != null ? user.email : this.showUser ? "" : null,
           date: r.date,

@@ -111,7 +111,7 @@
                   <a
                     href="#"
                     title="{{ e.userEmail }}"
-                    (click)="memberNameClicked($event, e.userId)"
+                    (click)="memberNameClicked($event, e.actingUserId)"
                     >{{ e.userName }}</a
                   >
                 } @else {
@@ -123,6 +123,7 @@
                 [innerHTML]="e.message"
                 (click)="onEventMessageClick($event)"
                 (keydown.enter)="onEventMessageClick($event)"
+                (keydown.space)="onEventMessageClick($event)"
               ></td>
             </tr>
           }

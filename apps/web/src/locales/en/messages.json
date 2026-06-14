@@ -4492,7 +4492,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4502,7 +4502,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4512,7 +4512,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4522,7 +4522,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4532,7 +4532,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4542,7 +4542,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4552,7 +4552,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4562,7 +4562,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4572,7 +4572,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4582,7 +4582,7 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": " abc12345"
+        "example": " <a><code>abc12345</code></a>"
       }
     }
   },
@@ -4592,11 +4592,11 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": "3f2a1c9e-7b40-4d2a-9c11-abc123def456"
+        "example": " <a><code>abc12345</code></a>"
       },
       "id": {
         "content": "$2",
-        "example": "1a2b3c4d"
+        "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
   },
@@ -4606,11 +4606,11 @@
     "placeholders": {
       "sendid": {
         "content": "$1",
-        "example": "3f2a1c9e-7b40-4d2a-9c11-abc123def456"
+        "example": " <a><code>abc12345</code></a>"
       },
       "id": {
         "content": "$2",
-        "example": "1a2b3c4d"
+        "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
   },
@@ -4623,6 +4623,26 @@
       "domain": {
         "content": "$1",
         "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "View Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "View member $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
       }
     }
   },

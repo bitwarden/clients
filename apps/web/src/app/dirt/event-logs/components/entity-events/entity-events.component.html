@@ -67,6 +67,7 @@
             [innerHTML]="r.message"
             (click)="onEventMessageClick($event)"
             (keydown.enter)="onEventMessageClick($event)"
+            (keydown.space)="onEventMessageClick($event)"
           ></td>
         </tr>
       </ng-template>
