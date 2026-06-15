@@ -9,12 +9,7 @@ use std::{
 
 use anyhow::Result;
 use futures::{SinkExt, StreamExt, TryFutureExt};
-// Non-Unix uses interprocess local sockets
-#[cfg(not(unix))]
 use interprocess::local_socket::{tokio::prelude::*, GenericFilePath, ListenerOptions};
-// Unix uses tokio's UnixListener to access peer credentials
-#[cfg(unix)]
-use tokio::net::UnixListener;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     sync::{broadcast, mpsc},
@@ -90,53 +85,28 @@ impl Server {
                 std::fs::remove_file(path)?;
             }
 
+            let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
+            let opts = ListenerOptions::new().name(name);
+            let Ok(listener) = opts.create_tokio() else {
+                info!("Failed to create IPC listener for path: {}", path.display());
+                continue;
+            };
+
             let client_to_server_send = client_to_server_send.clone();
             let server_to_clients_recv = server_to_clients_recv.resubscribe();
             let cancel_token = cancel_token.clone();
             let client_senders = client_senders.clone();
-
-            // Unix uses tokio's UnixListener so we can read peer credentials and identify the
-            // connecting application. Other platforms fall back to interprocess local sockets.
-            #[cfg(unix)]
-            {
-                let listener = match UnixListener::bind(path) {
-                    Ok(listener) => listener,
-                    Err(e) => {
-                        info!(
-                            "Failed to create IPC listener for path {}: {e}",
-                            path.display()
-                        );
-                        continue;
-                    }
-                };
-                tokio::spawn(listen_incoming_unix(
-                    listener,
-                    client_to_server_send,
-                    server_to_clients_recv,
-                    cancel_token,
-                    client_senders,
-                ));
-            }
-
-            #[cfg(not(unix))]
-            {
-                let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
-                let opts = ListenerOptions::new().name(name);
-                let Ok(listener) = opts.create_tokio() else {
-                    info!("Failed to create IPC listener for path: {}", path.display());
-                    continue;
-                };
-                tokio::spawn(listen_incoming_non_unix(
-                    listener,
-                    client_to_server_send,
-                    server_to_clients_recv,
-                    cancel_token,
-                    client_senders,
-                ));
-            }
+            tokio::spawn(listen_incoming(
+                listener,
+                client_to_server_send,
+                server_to_clients_recv,
+                cancel_token,
+                client_senders,
+            ));
         }
 
-        // Create the server. The connection listeners were already spawned above, one per path.
+        // Create the server and start listening for incoming connections
+        // in a separate task to avoid blocking the current task
         let server = Server {
             paths,
             cancel_token: cancel_token.clone(),
@@ -186,91 +156,8 @@ impl Drop for Server {
     }
 }
 
-#[cfg(unix)]
-async fn listen_incoming_unix(
-    listener: UnixListener,
-    client_to_server_send: mpsc::Sender<Message>,
-    server_to_clients_recv: broadcast::Receiver<String>,
-    cancel_token: CancellationToken,
-    client_senders: ClientSenders,
-) {
-    // We use a simple incrementing ID for each client
-    let mut next_client_id = 1_u32;
-
-    loop {
-        use crate::ssh_agent::peerinfo::gather::get_peer_info;
-
-        tokio::select! {
-            _ = cancel_token.cancelled() => {
-                info!("IPC server cancelled.");
-                break;
-            },
-
-            // A new client connection has been established
-            msg = listener.accept() => {
-                match msg {
-                    Ok((client_stream, _addr)) => {
-                        let client_id = next_client_id;
-                        next_client_id += 1;
-
-                        // Try to log peer credentials
-                        match client_stream.peer_cred() {
-                            Ok(peer) => {
-                                if let Some(pid) = peer.pid() {
-                                    let peer_info = match get_peer_info(pid as u32) {
-                                        Ok(info) => info,
-                                        Err(_) => crate::ssh_agent::peerinfo::models::PeerInfo::unknown(),
-                                    };
-                                    info!(client_id, pid, uid = peer.uid(), gid = peer.gid(), peer_info = ?peer_info, "IPC client connected (peer credentials)");
-                                    match (peer_info.exe_hash(), option_env!("PROXY_HASH")) {
-                                        (Some(exe_hash), Some(proxy_hash)) if exe_hash == proxy_hash => {
-                                            info!(client_id, "Client is identified as a trusted proxy application.");
-                                        },
-                                        (Some(_), Some(_)) => {
-                                            info!(client_id, "Client is identified as an untrusted proxy application.");
-                                        },
-                                        _ => {
-                                            info!(client_id, "Unable to identify client.");
-                                        }
-                                    }
-                                } else {
-                                    info!(client_id, uid = peer.uid(), gid = peer.gid(), "IPC client connected (peer credentials, no pid)");
-                                }
-                            },
-                            Err(e) => {
-                                error!(client_id, error = %e, "Failed to get peer credentials");
-                            }
-                        }
-
-                        let future = handle_connection(
-                            client_stream,
-                            client_to_server_send.clone(),
-                            // We resubscribe to the receiver here so this task can have it's own copy
-                            // Note that this copy will only receive messages sent after this point,
-                            // but that is okay, realistically we don't want any messages before we get a chance
-                            // to send the connected message to the client, which is done inside [`handle_connection`]
-                            server_to_clients_recv.resubscribe(),
-                            cancel_token.clone(),
-                            client_id,
-                            client_senders.clone(),
-                        );
-                        tokio::spawn(future.map_err(|e| {
-                            error!(error = %e, "Error handling connection")
-                        }));
-                    },
-                    Err(e) => {
-                        error!(error = %e, "Error accepting connection");
-                        break;
-                    },
-                }
-            }
-        }
-    }
-}
-
-#[cfg(not(unix))]
-async fn listen_incoming_non_unix(
-    listener: interprocess::local_socket::LocalSocketListener,
+async fn listen_incoming(
+    listener: LocalSocketListener,
     client_to_server_send: mpsc::Sender<Message>,
     server_to_clients_recv: broadcast::Receiver<String>,
     cancel_token: CancellationToken,
