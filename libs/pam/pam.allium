@@ -1283,8 +1283,9 @@ surface AccessRulesAdminPage {
 
 surface GovernanceDashboard {
     -- Per-collection summary table for org admins: rule, members requiring a
-    -- lease, pending counts, active counts, last activity. See
-    -- governance-dashboard.component.
+    -- lease, pending counts, active counts, last activity. Also the scope-wide
+    -- active and recently-ended lease lists (GET /leases/active, /leases/history).
+    -- See governance-dashboard.component.
     facing admin: OrgAdmin
 
     context organization: Organization
@@ -1294,7 +1295,14 @@ surface GovernanceDashboard {
         AccessRule where organization = organization
                      and collections.count > 0
         AccessRequest where rule.organization = organization and status = pending
+        -- All active leases in scope, surfaced by GET /leases/active.
         AccessLease where rule.organization = organization and status = active
+        -- All recently-ended leases (expired or revoked) in scope, within the shared
+        -- history window — surfaced by GET /leases/history. A lease's end is its
+        -- revoked_at (revoked) or its not_after (expired).
+        AccessLease where rule.organization = organization
+                     and ((status = revoked and revoked_at >= now - config.history_window)
+                          or (status = expired and not_after >= now - config.history_window))
 
         -- Per-collection rows.
         for collection in Collection where organization = organization:
