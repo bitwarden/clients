@@ -1,27 +1,13 @@
 /**
- * Lifecycle events delivered to credential-leasing requesters over the server
- * push channel.
+ * DEMO ONLY — the kinds the in-process PAM mock store fires as it simulates a
+ * request/lease lifecycle, so the cipher banner and "My requests" page re-render
+ * on every transition.
  *
- * v0 covers only the two terminal verdicts a requester needs to react to in
- * real time:
- *
- * - `approved` — the request was approved into an activatable approved request; the
- *   consumer should re-fetch to pick up the approved request (the push payload
- *   deliberately does not carry vault data). No lease exists yet.
- * - `denied` — the request was denied; the consumer can flip UI to the
- *   denial state without a follow-up fetch.
- * - `activated` — an approved request was activated and a {@link AccessLeaseResponse}
- *   was minted; the consumer should re-fetch to pick up the active lease.
- * - `expired` — the request lapsed (pending decision deadline, or an
- *   unactivated approved request's activation window) or its lease reached `not_after`.
- * - `revoked` — the lease was ended early (by its grantee, an approver, or the
- *   org-wide kill switch).
- * - `cancelled` — the requester withdrew a still-pending request.
- *
- * The server push contract (PM-37262) covers only `approved` / `denied` today;
- * the remaining kinds are emitted by the in-process mock so that the cipher
- * banner re-renders on every state transition. {@link DefaultAccessEventService}
- * maps unknown wire kinds to `null`, so adding kinds here is forward-compatible.
+ * In production there is no per-kind wire contract: the server fires a single
+ * {@link NotificationType.RefreshAccessRequest} push carrying no vault data, and
+ * {@link DefaultAccessEventService} surfaces it as a bare "re-fetch your access
+ * state" tick (`accessChanged$`). These kinds are not produced by any server
+ * code; they exist only to drive the mock.
  */
 export const AccessEventKind = Object.freeze({
   Approved: "approved",

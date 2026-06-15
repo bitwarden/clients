@@ -1,8 +1,10 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import {
   CipherLeaseBannerComponent,
   DefaultPamApiService,
   AccessEventService,
+  DefaultAccessEventService,
   LeasedCipherFetcherService,
   PamApiService,
 } from "@bitwarden/pam";
@@ -39,8 +41,14 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: AccessEventService,
-      useExisting: MockAccessEventService,
-      deps: [],
+      useFactory: (
+        notificationsService: ServerNotificationsService,
+        mock: MockAccessEventService,
+      ) =>
+        PamMockConfig.isEnabled()
+          ? mock
+          : new DefaultAccessEventService(notificationsService.notifications$),
+      deps: [ServerNotificationsService, MockAccessEventService],
     }),
     safeProvider({
       provide: CIPHER_OPEN_GATE,

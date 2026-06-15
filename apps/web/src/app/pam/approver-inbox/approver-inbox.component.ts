@@ -140,15 +140,22 @@ export class ApproverInboxComponent implements OnInit {
 
     await this.refresh();
 
-    // Keep an open inbox fresh when a lease changes elsewhere, so a lease that ends drops out of the
-    // Active group and its (now-stale) Revoke button disappears without a manual refresh:
-    // - a RefreshApproverInbox push fires when another approver or the requester ends a lease, and
-    // - mutations$ fires for changes made in this same client (e.g. the requester ending their lease
-    //   from the cipher banner, or cancelling/activating from the My requests tab).
+    // Keep both tabs fresh when state changes elsewhere, so a lease that ends drops out of the Active
+    // group (its now-stale Revoke button disappears) and the "My requests" tab reflects a decision
+    // without a manual refresh:
+    // - RefreshApproverInbox fires to this user as an approver (a request they manage changed), and
+    // - RefreshAccessRequest fires to this user as a requester (one of their own requests/leases changed
+    //   — decided, activated, revoked, extended, or cancelled), and
+    // - mutations$ fires for changes made in this same client (e.g. ending a lease from the cipher
+    //   banner, or cancelling/activating from the My requests tab).
     // Debounced to coalesce bursts (several leases ending at once).
     merge(
       this.notificationsService.notifications$.pipe(
-        filter(([notification]) => notification.type === NotificationType.RefreshApproverInbox),
+        filter(
+          ([notification]) =>
+            notification.type === NotificationType.RefreshApproverInbox ||
+            notification.type === NotificationType.RefreshAccessRequest,
+        ),
       ),
       this.pamApiService.mutations$,
     )
