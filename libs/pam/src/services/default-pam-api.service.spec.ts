@@ -252,14 +252,14 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("cancelAccessRequest", () => {
-    it("DELETEs /leasing/requests/{id} without expecting a response body", async () => {
+    it("POSTs /access-requests/{id}/revoke without expecting a response body", async () => {
       apiService.send.mockResolvedValue(undefined);
 
       await service.cancelAccessRequest("req-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
-        "DELETE",
-        "/leasing/requests/req-1",
+        "POST",
+        "/access-requests/req-1/revoke",
         null,
         true,
         false,
@@ -268,19 +268,18 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("requestLeaseExtension", () => {
-    it("POSTs /leasing/requests/extension and wraps the response", async () => {
+    it("POSTs /leases/{id}/extend and wraps the response", async () => {
       apiService.send.mockResolvedValue({ Id: "req-2", Status: "approved" });
       const req = new AccessLeaseExtensionRequest({
-        leaseId: "lease-1",
         durationSeconds: 3600,
         reason: "more time",
       });
 
-      const result = await service.requestLeaseExtension(req);
+      const result = await service.requestLeaseExtension("lease-1", req);
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/leasing/requests/extension",
+        "/leases/lease-1/extend",
         req,
         true,
         true,
@@ -290,7 +289,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("decideAccessRequest", () => {
-    it("POSTs /leasing/requests/{id}/decision and wraps the response", async () => {
+    it("POSTs /access-requests/{id}/decision and wraps the response", async () => {
       apiService.send.mockResolvedValue({ Id: "req-1", Status: "approved" });
       const req = new AccessDecisionRequest({ verdict: "approve" });
 
@@ -298,7 +297,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/leasing/requests/req-1/decision",
+        "/access-requests/req-1/decision",
         req,
         true,
         true,
@@ -308,7 +307,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("activateLease", () => {
-    it("POSTs /leasing/requests/{requestId}/activate with no body and wraps the response", async () => {
+    it("POSTs /access-requests/{requestId}/activate with no body and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Id: "lease-1",
         RequestId: "req-1",
@@ -324,7 +323,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/leasing/requests/req-1/activate",
+        "/access-requests/req-1/activate",
         null,
         true,
         true,
@@ -336,7 +335,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("revokeAccessLease", () => {
-    it("POSTs /leasing/leases/{id}/revoke without expecting a response body", async () => {
+    it("POSTs /leases/{id}/revoke without expecting a response body", async () => {
       apiService.send.mockResolvedValue(undefined);
       const req = new AccessLeaseRevokeRequest({ reason: "rule violation" });
 
@@ -344,7 +343,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/leasing/leases/lease-1/revoke",
+        "/leases/lease-1/revoke",
         req,
         true,
         false,
@@ -649,7 +648,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("listMyAccessRequests", () => {
-    it("GETs /leasing/requests/mine and unwraps a ListResponse envelope", async () => {
+    it("GETs /access-requests/mine and unwraps a ListResponse envelope", async () => {
       apiService.send.mockResolvedValue({
         Data: [
           {
@@ -669,7 +668,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
-        "/leasing/requests/mine",
+        "/access-requests/mine",
         null,
         true,
         true,
@@ -681,7 +680,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("listActiveLeases", () => {
-    it("GETs /leasing/leases/mine/active and unwraps a ListResponse envelope", async () => {
+    it("GETs /leases/mine and unwraps a ListResponse envelope", async () => {
       apiService.send.mockResolvedValue({
         Data: [
           {
@@ -700,13 +699,7 @@ describe("DefaultPamApiService", () => {
 
       const result = await service.listActiveLeases();
 
-      expect(apiService.send).toHaveBeenCalledWith(
-        "GET",
-        "/leasing/leases/mine/active",
-        null,
-        true,
-        true,
-      );
+      expect(apiService.send).toHaveBeenCalledWith("GET", "/leases/mine", null, true, true);
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe("lease-1");
       expect(result[0].status).toBe("active");

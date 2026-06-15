@@ -14,7 +14,7 @@ import { AccessRequestStatus } from "./access-request.response";
  * with the owning org's key before pushing rows to subscribers. No other
  * cipher field is exposed.
  *
- * The decision endpoint (`POST /leasing/requests/{id}/decision`) returns this
+ * The decision endpoint (`POST /access-requests/{id}/decision`) returns this
  * shape but only `status`, `resolvedAt`, and `approverComment` are guaranteed
  * to be populated; denormalized display fields and `producedLeaseId` come back
  * null.

@@ -446,8 +446,8 @@ export class CipherLeaseBannerComponent implements OnInit {
     try {
       const { durationMinutes, reason } = this.extendForm.getRawValue();
       await this.pamApiService.requestLeaseExtension(
+        lease.id,
         new AccessLeaseExtensionRequest({
-          leaseId: lease.id,
           durationSeconds: durationMinutes * 60,
           reason: reason.trim(),
         }),

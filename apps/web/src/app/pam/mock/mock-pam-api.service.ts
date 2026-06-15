@@ -129,9 +129,10 @@ export class MockPamApiService extends DefaultPamApiService {
   }
 
   async requestLeaseExtension(
+    leaseId: string,
     request: AccessLeaseExtensionRequest,
   ): Promise<AccessRequestDetailsResponse> {
-    const parent = this.requireLease(request.leaseId);
+    const parent = this.requireLease(leaseId);
     const userId = this.store.currentUserId ?? parent.requesterId;
     // Extensions are always auto-approved: record a child request pointing at the parent lease, carrying the new
     // window ([current end .. current end + duration]) through, then approve it immediately so the parent's end is

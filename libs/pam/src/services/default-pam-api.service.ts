@@ -96,22 +96,22 @@ export class DefaultPamApiService implements PamApiService {
   }
 
   async listInboxRequests(): Promise<AccessRequestDetailsResponse[]> {
-    const r = await this.send("GET", "/leasing/inbox/requests", null, true);
+    const r = await this.send("GET", "/access-requests/inbox", null, true);
     return new ListResponse(r, AccessRequestDetailsResponse).data;
   }
 
   async listInboxHistory(): Promise<AccessRequestDetailsResponse[]> {
-    const r = await this.send("GET", "/leasing/inbox/history", null, true);
+    const r = await this.send("GET", "/access-requests/history", null, true);
     return new ListResponse(r, AccessRequestDetailsResponse).data;
   }
 
   async listMyAccessRequests(): Promise<AccessRequestDetailsResponse[]> {
-    const r = await this.send("GET", "/leasing/requests/mine", null, true);
+    const r = await this.send("GET", "/access-requests/mine", null, true);
     return new ListResponse(r, AccessRequestDetailsResponse).data;
   }
 
   async listActiveLeases(): Promise<AccessLeaseResponse[]> {
-    const r = await this.send("GET", "/leasing/leases/mine/active", null, true);
+    const r = await this.send("GET", "/leases/mine", null, true);
     return new ListResponse(r, AccessLeaseResponse).data;
   }
 
@@ -132,15 +132,16 @@ export class DefaultPamApiService implements PamApiService {
   }
 
   async cancelAccessRequest(id: string): Promise<void> {
-    await this.send("DELETE", `/leasing/requests/${id}`, null, false);
+    await this.send("POST", `/access-requests/${id}/revoke`, null, false);
     this.localRefresh$.next();
   }
 
   async requestLeaseExtension(
+    leaseId: string,
     request: AccessLeaseExtensionRequest,
   ): Promise<AccessRequestDetailsResponse> {
     const response = new AccessRequestDetailsResponse(
-      await this.send("POST", "/leasing/requests/extension", request, true),
+      await this.send("POST", `/leases/${leaseId}/extend`, request, true),
     );
     this.localRefresh$.next();
     return response;
@@ -151,7 +152,7 @@ export class DefaultPamApiService implements PamApiService {
     request: AccessDecisionRequest,
   ): Promise<AccessRequestDetailsResponse> {
     const response = new AccessRequestDetailsResponse(
-      await this.send("POST", `/leasing/requests/${id}/decision`, request, true),
+      await this.send("POST", `/access-requests/${id}/decision`, request, true),
     );
     this.localRefresh$.next();
     return response;
@@ -159,14 +160,14 @@ export class DefaultPamApiService implements PamApiService {
 
   async activateLease(requestId: string): Promise<AccessLeaseResponse> {
     const response = new AccessLeaseResponse(
-      await this.send("POST", `/leasing/requests/${requestId}/activate`, null, true),
+      await this.send("POST", `/access-requests/${requestId}/activate`, null, true),
     );
     this.localRefresh$.next();
     return response;
   }
 
   async revokeAccessLease(id: string, request: AccessLeaseRevokeRequest): Promise<void> {
-    await this.send("POST", `/leasing/leases/${id}/revoke`, request, false);
+    await this.send("POST", `/leases/${id}/revoke`, request, false);
     this.localRefresh$.next();
   }
 
