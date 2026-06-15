@@ -98,61 +98,76 @@ export class IpcMainService extends IpcService {
           return;
         }
 
-        // Forward to renderer process
-        if (ipcMessage.message.destination === "DesktopRenderer") {
-          this.windowMain.win?.webContents.send("ipc.onMessage", {
-            type: "forwarded-bitwarden-ipc-message",
-            message: ipcMessage.message,
-            originalSource: { BrowserBackground: { id: { Id: nativeMessage.clientId } } } as Source,
-          } satisfies ForwardedIpcMessage);
-          return;
-        }
+        try {
+          // Forward to renderer process
+          if (ipcMessage.message.destination === "DesktopRenderer") {
+            this.windowMain.win?.webContents.send("ipc.onMessage", {
+              type: "forwarded-bitwarden-ipc-message",
+              message: ipcMessage.message,
+              originalSource: {
+                BrowserBackground: { id: { Id: nativeMessage.clientId } },
+              } as Source,
+            } satisfies ForwardedIpcMessage);
+            return;
+          }
 
-        if (ipcMessage.message.destination !== "DesktopMain") {
-          return;
-        }
+          if (ipcMessage.message.destination !== "DesktopMain") {
+            return;
+          }
 
-        this.communicationBackend?.receive(
-          new IncomingMessage(
-            new Uint8Array(ipcMessage.message.payload),
-            ipcMessage.message.destination,
-            { BrowserBackground: { id: { Id: nativeMessage.clientId } } } as Source,
-            ipcMessage.message.topic,
-          ),
-        );
+          this.communicationBackend?.receive(
+            new IncomingMessage(
+              new Uint8Array(ipcMessage.message.payload),
+              ipcMessage.message.destination,
+              { BrowserBackground: { id: { Id: nativeMessage.clientId } } } as Source,
+              ipcMessage.message.topic,
+            ),
+          );
+        } catch (e) {
+          // A throw here (e.g. backend.receive or webContents.send) must not tear down
+          // the subscription, which would break IPC for all subsequent messages.
+          this.logService.error("[IPC] Failed to process native message", e);
+        }
       });
 
       // Handle messages from renderer process
       ipcMain.on("ipc.send", async (_event, message: IpcMessage) => {
-        if (message.message.destination === "DesktopMain") {
-          this.communicationBackend?.receive(
-            new IncomingMessage(
-              new Uint8Array(message.message.payload),
-              message.message.destination,
-              "DesktopRenderer" as Source,
-              message.message.topic,
-            ),
-          );
-          return;
-        }
+        try {
+          if (message.message.destination === "DesktopMain") {
+            this.communicationBackend?.receive(
+              new IncomingMessage(
+                new Uint8Array(message.message.payload),
+                message.message.destination,
+                "DesktopRenderer" as Source,
+                message.message.topic,
+              ),
+            );
+            return;
+          }
 
-        // Forward to native messaging
-        if (
-          typeof message.message.destination === "object" &&
-          "BrowserBackground" in message.message.destination
-        ) {
-          const forwardedMessage = {
-            type: "forwarded-bitwarden-ipc-message",
-            message: {
-              destination: message.message.destination,
-              payload: [...message.message.payload],
-              topic: message.message.topic,
-            },
-            originalSource: "DesktopRenderer" as Source,
-          } satisfies ForwardedIpcMessage;
+          // Forward to native messaging
+          if (
+            typeof message.message.destination === "object" &&
+            "BrowserBackground" in message.message.destination
+          ) {
+            const forwardedMessage = {
+              type: "forwarded-bitwarden-ipc-message",
+              message: {
+                destination: message.message.destination,
+                payload: [...message.message.payload],
+                topic: message.message.topic,
+              },
+              originalSource: "DesktopRenderer" as Source,
+            } satisfies ForwardedIpcMessage;
 
-          const clientId = extractClientId(message.message.destination.BrowserBackground);
-          this.nativeMessaging.sendTo(clientId, forwardedMessage);
+            const clientId = extractClientId(message.message.destination.BrowserBackground);
+            this.nativeMessaging.sendTo(clientId, forwardedMessage);
+          }
+        } catch (e) {
+          // The listener is async and ipcMain.on does not await it, so a throw here
+          // (e.g. extractClientId on an unresolvable host, or sendTo on a disconnected
+          // client) would surface as an unhandled promise rejection.
+          this.logService.error("[IPC] Failed to handle renderer message", e);
         }
       });
 

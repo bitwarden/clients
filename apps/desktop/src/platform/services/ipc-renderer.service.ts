@@ -8,6 +8,7 @@ import {
   IpcMessage,
   IpcService,
   isForwardedIpcMessage,
+  isIpcMessage,
 } from "@bitwarden/common/platform/ipc";
 import {
   IncomingMessage,
@@ -55,6 +56,12 @@ export class IpcRendererService extends IpcService {
       });
 
       ipc.platform.ipcService.onMessage((message: ForwardedIpcMessage | IpcMessage) => {
+        // The sender is the trusted main process, but guard for consistency with the
+        // other transport backends and as defense-in-depth against malformed input.
+        if (!isIpcMessage(message) && !isForwardedIpcMessage(message)) {
+          return;
+        }
+
         this.communicationBackend?.receive(
           new IncomingMessage(
             new Uint8Array(message.message.payload),
