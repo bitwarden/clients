@@ -20,10 +20,10 @@ export class CipherAccessStateResponse extends BaseResponse {
   activeLease: AccessLeaseResponse | null;
   pendingRequest: AccessRequestDetailsResponse | null;
   approvedRequest: AccessRequestDetailsResponse | null;
-  /** Whether the active lease's governing rule permits extending it. */
+  /** Whether the active lease can still be extended (the rule opts in and it has not been extended yet). */
   extensionsAllowed: boolean;
-  /** How many extensions remain for the active lease (0 when none remain or there is no active lease). */
-  extensionsRemaining: number;
+  /** Longest a single extension of the active lease may run, in seconds; 0 when none / no active lease. */
+  maxExtensionDurationSeconds: number;
 
   constructor(response: unknown) {
     super(response);
@@ -37,7 +37,8 @@ export class CipherAccessStateResponse extends BaseResponse {
     this.approvedRequest =
       approvedRequest != null ? new AccessRequestDetailsResponse(approvedRequest) : null;
     this.extensionsAllowed = Boolean(this.getResponseProperty("ExtensionsAllowed"));
-    const extensionsRemaining = this.getResponseProperty("ExtensionsRemaining");
-    this.extensionsRemaining = typeof extensionsRemaining === "number" ? extensionsRemaining : 0;
+    const maxExtensionDurationSeconds = this.getResponseProperty("MaxExtensionDurationSeconds");
+    this.maxExtensionDurationSeconds =
+      typeof maxExtensionDurationSeconds === "number" ? maxExtensionDurationSeconds : 0;
   }
 }

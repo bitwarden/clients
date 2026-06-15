@@ -31,7 +31,7 @@
         <bit-form-field>
           <bit-label>{{ "pamExtendLeaseDuration" | i18n }}</bit-label>
           <select bitInput formControlName="durationMinutes" data-testid="extend-lease-duration">
-            @for (opt of extendDurationOptions; track opt.minutes) {
+            @for (opt of extendDurationOptions(); track opt.minutes) {
               <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
             }
           </select>

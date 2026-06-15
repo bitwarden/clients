@@ -20,8 +20,8 @@ import {
 
 import { PamMockStore } from "./pam-mock-store";
 
-/** DEMO ONLY — fixed per-lease extension cap surfaced in the cipher access-state snapshot. */
-const MOCK_MAX_EXTENSIONS = 3;
+/** DEMO ONLY — fixed maximum extension length (seconds) surfaced in the cipher access-state snapshot. */
+const MOCK_MAX_EXTENSION_DURATION_SECONDS = 4 * 60 * 60;
 
 /**
  * DEMO ONLY — extends `DefaultPamApiService` and overrides the lease/request
@@ -92,16 +92,15 @@ export class MockPamApiService extends DefaultPamApiService {
         (r) => r.cipherId === cipherId && r.status === "approved" && r.extensionOfLeaseId == null,
       );
       const isActive = activeLease?.status === "active";
-      // Demo: any active lease is extendable, capped at a fixed maximum less the extensions already applied.
-      const extensionsUsed = isActive
-        ? requests.filter((r) => r.extensionOfLeaseId === activeLease!.id).length
-        : 0;
+      // Demo: an active lease is extendable once (until an extension is recorded), up to a fixed maximum length.
+      const alreadyExtended =
+        isActive && requests.some((r) => r.extensionOfLeaseId === activeLease!.id);
       return {
         activeLease: isActive ? activeLease : undefined,
         pendingRequest,
         approvedRequest,
-        extensionsAllowed: isActive,
-        extensionsRemaining: isActive ? Math.max(0, MOCK_MAX_EXTENSIONS - extensionsUsed) : 0,
+        extensionsAllowed: isActive && !alreadyExtended,
+        maxExtensionDurationSeconds: isActive ? MOCK_MAX_EXTENSION_DURATION_SECONDS : 0,
       };
     };
 
