@@ -4359,6 +4359,9 @@
   "adminDesc": {
     "message": "Manage organization access, all collections, members, reporting, and security settings"
   },
+  "adminRoleDesc": {
+    "message": "Manage all collections, members, reporting, and security settings"
+  },
   "user": {
     "message": "User"
   },
