@@ -321,7 +321,7 @@ export class SshAgentService implements OnDestroy {
                 catchError((error: unknown) => {
                   if (error instanceof TimeoutError) {
                     return from(ipc.autofill.sshAgent.listRequestResponse(requestId, false)).pipe(
-                      map(() => EMPTY),
+                      switchMap(() => EMPTY),
                     );
                   }
                   throw error;

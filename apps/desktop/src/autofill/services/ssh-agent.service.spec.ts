@@ -1,6 +1,5 @@
 import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
 
-
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -771,5 +770,39 @@ describe("SshAgentService – list keys request", () => {
 
     expect(mockReplace).toHaveBeenCalled();
     expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
+  });
+
+  it("when unlock times out, sends listRequestResponse(false) exactly once and does not replace keys", async () => {
+    jest.useFakeTimers();
+
+    try {
+      authStatusSubject.next(AuthenticationStatus.Locked);
+
+      // Drain the microtask queue so the reactive keys pipeline fully settles after the
+      // status change (it re-subscribes to cipherViews$ and may call replace).
+      for (let i = 0; i < 10; i++) {await Promise.resolve();}
+
+      // Clear mocks so assertions only capture what the timeout path does.
+      mockReplace.mockClear();
+      mockListRequestResponse.mockClear();
+
+      // Reduce timeout so the timer fires quickly under fake timers.
+      (service as any).SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 50;
+
+      sendListRequest();
+
+      // Advance past the 50ms timeout so RxJS fires the TimeoutError synchronously.
+      jest.advanceTimersByTime(100);
+
+      // Drain microtasks: the catchError calls the IPC mock (a resolved promise),
+      // then switchMap(() => EMPTY) completes the inner observable.
+      for (let i = 0; i < 5; i++) {await Promise.resolve();}
+
+      expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, false);
+      expect(mockListRequestResponse).toHaveBeenCalledTimes(1);
+      expect(mockReplace).not.toHaveBeenCalled();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });
