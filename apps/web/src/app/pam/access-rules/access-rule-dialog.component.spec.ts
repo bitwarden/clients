@@ -174,10 +174,9 @@ describe("AccessRuleDialogComponent — collection selection", () => {
 
     expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
     const [, request] = pamApi.createAccessRule.mock.calls[0];
-    // A lone condition collapses to a single leaf in the request tree.
-    expect(request.conditions).toEqual({
-      kind: "ip_allowlist",
-      cidrs: ["10.0.0.0/8", "192.168.0.0/16"],
-    });
+    // The condition is sent as a flat array of conditions.
+    expect(request.conditions).toEqual([
+      { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
+    ]);
   });
 });

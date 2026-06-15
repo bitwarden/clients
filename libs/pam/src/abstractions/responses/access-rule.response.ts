@@ -1,11 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-import {
-  AccessCondition,
-  parseAccessConditions,
-  parseConditionTree,
-  treeToConditions,
-} from "../access-rule";
+import { AccessCondition, parseAccessConditions } from "../access-rule";
 
 export class AccessRuleResponse extends BaseResponse {
   id: string;
@@ -33,15 +28,8 @@ export class AccessRuleResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Name");
     this.description = this.getResponseProperty("Description") ?? null;
-    // The server's `conditions` carries the canonical AccessCondition tree;
-    // the mock may serve a flat list. Reconstruct the UI's flat list either way.
-    const rawConditions = this.getResponseProperty("Conditions");
-    if (Array.isArray(rawConditions)) {
-      this.conditions = parseAccessConditions(rawConditions);
-    } else {
-      const tree = parseConditionTree(rawConditions);
-      this.conditions = tree ? treeToConditions(tree) : [];
-    }
+    // The server's `Conditions` is a flat array of conditions.
+    this.conditions = parseAccessConditions(this.getResponseProperty("Conditions"));
     const collections = this.getResponseProperty("Collections");
     this.collections = Array.isArray(collections) ? collections.map(String) : [];
     const duration = this.getResponseProperty("DefaultLeaseDurationSeconds");

@@ -383,7 +383,7 @@ describe("DefaultPamApiService", () => {
       expect(result.data[0].conditions[0].kind).toBe("human_approval");
     });
 
-    it("derives conditions from a tree-shaped `Conditions` on list items", async () => {
+    it("parses a multi-condition `Conditions` array on list items", async () => {
       apiService.send.mockResolvedValue({
         Data: [
           {
@@ -391,13 +391,10 @@ describe("DefaultPamApiService", () => {
             OrganizationId: "org-1",
             Name: "Approval + IP",
             Description: null,
-            Conditions: {
-              kind: "all_of",
-              conditions: [
-                { kind: "human_approval" },
-                { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
-              ],
-            },
+            Conditions: [
+              { kind: "human_approval" },
+              { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
+            ],
             CreationDate: "2026-05-25T00:00:00Z",
             RevisionDate: "2026-05-25T00:00:00Z",
           },
@@ -439,14 +436,14 @@ describe("DefaultPamApiService", () => {
       expect(result.conditions[0].kind).toBe("human_approval");
     });
 
-    it("derives conditions from a bare `Conditions` leaf", async () => {
-      // Mirrors the real server response: a camelCase `conditions` tree.
+    it("parses a single-condition `Conditions` array", async () => {
+      // Mirrors the real server response: a camelCase `conditions` array.
       apiService.send.mockResolvedValue({
         id: "pol-1",
         organizationId: "org-1",
         name: "Test",
         description: null,
-        conditions: { kind: "human_approval" },
+        conditions: [{ kind: "human_approval" }],
         creationDate: "2026-06-08T08:49:30.7166667Z",
         revisionDate: "2026-06-08T17:50:25.84Z",
         object: "accessRule",
@@ -457,13 +454,13 @@ describe("DefaultPamApiService", () => {
       expect(result.conditions).toEqual([{ kind: "human_approval" }]);
     });
 
-    it("derives ip_allowlist cidrs from the `Conditions` tree", async () => {
+    it("derives ip_allowlist cidrs from the `Conditions` array", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "IP restricted",
         Description: null,
-        Conditions: { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
+        Conditions: [{ kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] }],
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
       });
@@ -475,16 +472,13 @@ describe("DefaultPamApiService", () => {
       ]);
     });
 
-    it("flattens an `all_of` `Conditions` tree into multiple conditions", async () => {
+    it("parses a multi-condition `Conditions` array", async () => {
       apiService.send.mockResolvedValue({
         Id: "pol-1",
         OrganizationId: "org-1",
         Name: "Approval + IP",
         Description: null,
-        Conditions: {
-          kind: "all_of",
-          conditions: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
-        },
+        Conditions: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
         CreationDate: "2026-05-25T00:00:00Z",
         RevisionDate: "2026-05-25T00:00:00Z",
       });
