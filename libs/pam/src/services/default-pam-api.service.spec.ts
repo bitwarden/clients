@@ -269,10 +269,11 @@ describe("DefaultPamApiService", () => {
 
   describe("requestLeaseExtension", () => {
     it("POSTs /leasing/requests/extension and wraps the response", async () => {
-      apiService.send.mockResolvedValue({ Id: "req-2", Status: "pending" });
+      apiService.send.mockResolvedValue({ Id: "req-2", Status: "approved" });
       const req = new AccessLeaseExtensionRequest({
         leaseId: "lease-1",
-        notAfter: new Date("2026-01-01T02:00:00Z"),
+        durationSeconds: 3600,
+        reason: "more time",
       });
 
       const result = await service.requestLeaseExtension(req);

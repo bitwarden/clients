@@ -19,6 +19,9 @@ export class AccessRuleResponse extends BaseResponse {
   maxLeaseDurationSeconds: number | null;
   singleActiveLease: boolean;
   enabled: boolean;
+  allowsExtensions: boolean;
+  /** Maximum number of times a single lease may be extended. Null when extensions are not allowed. */
+  maxExtensions: number | null;
   creationDate: string;
   revisionDate: string;
   lastEditedByUserId: string | null;
@@ -48,6 +51,9 @@ export class AccessRuleResponse extends BaseResponse {
     this.singleActiveLease = Boolean(this.getResponseProperty("SingleActiveLease"));
     const enabled = this.getResponseProperty("Enabled");
     this.enabled = enabled == null ? true : Boolean(enabled);
+    this.allowsExtensions = Boolean(this.getResponseProperty("AllowsExtensions"));
+    const maxExtensions = this.getResponseProperty("MaxExtensions");
+    this.maxExtensions = typeof maxExtensions === "number" ? maxExtensions : null;
     this.creationDate = this.getResponseProperty("CreationDate");
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.lastEditedByUserId = this.getResponseProperty("LastEditedByUserId") ?? null;

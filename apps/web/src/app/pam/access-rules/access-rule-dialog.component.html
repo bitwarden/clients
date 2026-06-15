@@ -82,6 +82,20 @@
       <bit-hint>{{ "pamAccessRuleSingleActiveLeaseHint" | i18n }}</bit-hint>
     </bit-form-control>
 
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="allowsExtensions" />
+      <bit-label>{{ "pamAccessRuleAllowExtensions" | i18n }}</bit-label>
+      <bit-hint>{{ "pamAccessRuleAllowExtensionsHint" | i18n }}</bit-hint>
+    </bit-form-control>
+
+    @if (formGroup.controls.allowsExtensions.value) {
+      <bit-form-field class="tw-ml-7">
+        <bit-label>{{ "pamAccessRuleMaxExtensions" | i18n }}</bit-label>
+        <input bitInput type="number" min="1" step="1" formControlName="maxExtensions" />
+        <bit-hint>{{ "pamAccessRuleMaxExtensionsHint" | i18n }}</bit-hint>
+      </bit-form-field>
+    }
+
     <h4 bitTypography="h5" class="tw-mt-6">{{ "pamAccessRuleConditionsHeading" | i18n }}</h4>
     <p bitTypography="body2" class="tw-text-muted">
       {{ "pamAccessRuleConditionsHint" | i18n }}

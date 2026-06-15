@@ -58,6 +58,8 @@ export class DefaultPamApiService implements PamApiService {
         activeLease: snapshot.activeLease ?? undefined,
         pendingRequest: snapshot.pendingRequest ?? undefined,
         approvedRequest: snapshot.approvedRequest ?? undefined,
+        extensionsAllowed: snapshot.extensionsAllowed,
+        extensionsRemaining: snapshot.extensionsRemaining,
       };
     } catch (e) {
       // 404 = cipher not gated / PAM flag off (spec §2). The banner should

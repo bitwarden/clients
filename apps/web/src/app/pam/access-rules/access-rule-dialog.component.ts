@@ -65,6 +65,9 @@ const NAME_MAX_LENGTH = 256;
 /** The "no maximum" option in the max-duration picker; never constrains the default. */
 const NO_DURATION_CAP = 0;
 
+/** Default number of extensions offered when a rule first enables them. */
+const DEFAULT_MAX_EXTENSIONS = 1;
+
 @Component({
   templateUrl: "./access-rule-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -121,6 +124,12 @@ export class AccessRuleDialogComponent implements OnInit {
       this.data.existing?.singleActiveLease ?? this.data.template?.singleActiveLease ?? false,
     ],
     enabled: [this.data.existing?.enabled ?? true],
+    allowsExtensions: [this.data.existing?.allowsExtensions ?? false],
+    // Only meaningful when allowsExtensions is on; the server requires a positive value in that case.
+    maxExtensions: [
+      this.data.existing?.maxExtensions ?? DEFAULT_MAX_EXTENSIONS,
+      [Validators.min(1)],
+    ],
     humanApprovalEnabled: [
       hasKind(this.data.existing?.conditions, "human_approval") ||
         (this.data.template?.humanApprovalEnabled ?? false),
@@ -227,6 +236,8 @@ export class AccessRuleDialogComponent implements OnInit {
         value.maxLeaseDurationSeconds === NO_DURATION_CAP ? null : value.maxLeaseDurationSeconds,
       singleActiveLease: value.singleActiveLease,
       enabled: value.enabled,
+      allowsExtensions: value.allowsExtensions,
+      maxExtensions: value.allowsExtensions ? value.maxExtensions : null,
     });
 
     try {

@@ -21,6 +21,15 @@ export const LEASE_DURATION_PRESETS: { minutes: number; labelKey: string }[] = [
   { minutes: 1440, labelKey: "requestAccessModalDuration1d" },
 ];
 
+/** Preset extension durations offered by the lease-extension picker (30m–8h). */
+export const LEASE_EXTENSION_DURATION_PRESETS: { minutes: number; labelKey: string }[] = [
+  { minutes: 30, labelKey: "requestAccessModalDuration30m" },
+  { minutes: 60, labelKey: "requestAccessModalDuration1h" },
+  { minutes: 120, labelKey: "pamExtendLeaseDuration2h" },
+  { minutes: 240, labelKey: "requestAccessModalDuration4h" },
+  { minutes: 480, labelKey: "requestAccessModalDuration8h" },
+];
+
 /**
  * Preset durations offered by the access-rule dialog's default/max lease
  * pickers. A distinct list from {@link LEASE_DURATION_PRESETS}: expressed in
