@@ -57,7 +57,7 @@ export class MultiStepPolicyEditDialogComponent
     { read: ViewContainerRef },
   );
 
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly multiStepDestroyRef = inject(DestroyRef);
   private readonly configService = inject(ConfigService);
   private readonly authService = inject(AuthService);
   private readonly accountService2 = inject(AccountService);
@@ -159,7 +159,7 @@ export class MultiStepPolicyEditDialogComponent
             .authStatusFor$(account.id)
             .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.multiStepDestroyRef),
       )
       .subscribe(() => {
         this.discardGuardEnabled.set(false);
