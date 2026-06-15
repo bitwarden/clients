@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 ou plusieurs courriels sont invalides"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "La liste de destinataires ne peut pas dépasser 2 500 caractères. Supprimez un ou plusieurs destinataires pour continuer."
+  },
   "tooManyEmails": {
     "message": "Vous ne pouvez soumettre que jusqu'à $COUNT$ courriels à la fois",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Copier"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Impossible d'enregistrer l'élément. Vous devez être confirmé à l'organisation pour enregistrer des éléments."
   }
 }

@@ -3566,7 +3566,7 @@
     "message": "年"
   },
   "years": {
-    "message": "years"
+    "message": "年"
   },
   "yr": {
     "message": "年"
@@ -3575,7 +3575,7 @@
     "message": "月"
   },
   "months": {
-    "message": "months"
+    "message": "个月"
   },
   "monthAbbr": {
     "message": "月",
@@ -3660,16 +3660,16 @@
     "message": "订阅已取消"
   },
   "churnOfferTitle": {
-    "message": "在您离开之前，请收下这份专属福利"
+    "message": "离开前的专属优惠"
   },
   "churnOfferPreamble": {
-    "message": "如果您现在取消，访问权限将持续至"
+    "message": "如果您现在取消，您的访问权限将持续至"
   },
   "churnOfferPreambleSuffix": {
-    "message": "不过，作为我们的老客户，我们想先为您提供一份专属福利。"
+    "message": "。作为长期客户，我们愿先为您提供一些优惠。"
   },
   "churnOfferDiscountHeading": {
-    "message": "订阅立享 $DISCOUNT$ 折扣",
+    "message": "订阅立享 $DISCOUNT$ 减免",
     "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
     "placeholders": {
       "discount": {
@@ -3679,7 +3679,7 @@
     }
   },
   "churnOfferDiscountBody": {
-    "message": "为表达对您作为 Bitwarden 老客户的谢意，我们将为您接下来的 $DURATION$ 服务周期提供 $DISCOUNT$ 的折扣。",
+    "message": "作为对 Bitwarden 长期客户的感谢，我们愿为您的下一次 $DURATION$ 服务提供 $DISCOUNT$ 的折扣。",
     "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3693,7 +3693,7 @@
     }
   },
   "churnOfferAccept": {
-    "message": "保留订阅并享 $DISCOUNT$ 折扣",
+    "message": "保留订阅立享 $DISCOUNT$ 减免",
     "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
     "placeholders": {
       "discount": {
@@ -3709,7 +3709,7 @@
     "message": "一切就绪！"
   },
   "churnOfferSuccessBody": {
-    "message": "您的 $DISCOUNT$ 折扣已经在您接下来的 $DURATION$ 服务期中生效。",
+    "message": "您的 $DISCOUNT$ 折扣已应用到您的下一次 $DURATION$ 服务。",
     "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3723,7 +3723,7 @@
     }
   },
   "churnOfferDiscountSummary": {
-    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "message": "$LENGTH$ $DURATION$ 享 $DISCOUNT$ 减免",
     "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
     "placeholders": {
       "discount": {
@@ -3765,7 +3765,7 @@
     "message": "折扣"
   },
   "discountApplied": {
-    "message": "折扣码生效"
+    "message": "折扣已生效"
   },
   "discountExpiredOnPurchase": {
     "message": "折扣已过期。请检查您的购物车总金额，然后重试。"
@@ -8386,7 +8386,7 @@
     "message": "图标服务器 URL"
   },
   "sendUrl": {
-    "message": "Send 服务 URL"
+    "message": "Send 服务器 URL"
   },
   "environmentSaved": {
     "message": "环境 URL 已保存"
@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "一个或多个电子邮箱无效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "电子邮件收件人列表不能超过 2,500 个字符。请移除一个或多个收件人后继续。"
+  },
   "tooManyEmails": {
     "message": "您一次最多只能提交 $COUNT$ 个电子邮箱",
     "placeholders": {
@@ -9123,10 +9126,10 @@
     "message": "启用"
   },
   "on": {
-    "message": "开启"
+    "message": "已开启"
   },
   "off": {
-    "message": "关闭"
+    "message": "已关闭"
   },
   "connected": {
     "message": "已连接"
@@ -10286,25 +10289,25 @@
     "message": "开始使用 Secrets Manager"
   },
   "smOnboardingChecklistSubtitle": {
-    "message": "完成以下步骤以开始管理您的团队的凭证"
+    "message": "完成这些步骤以开始管理您的团队的机密"
   },
   "smOnboardingCreateMachineAccountCta": {
     "message": "创建机器账户"
   },
   "smOnboardingCreateProjectSubtitle": {
-    "message": "按项目分类管理您的凭证"
+    "message": "将您的机密整理到工程中"
   },
   "smOnboardingCreateProjectCta": {
-    "message": "创建项目"
+    "message": "创建工程"
   },
   "smOnboardingImportSecretsSubtitle": {
-    "message": "从其他工具导入凭据"
+    "message": "从其他工具导入现有机密"
   },
   "smOnboardingCreateSecretSubtitle": {
     "message": "存储密码、证书和 API 密钥"
   },
   "smOnboardingCreateSecretCta": {
-    "message": "创建凭证"
+    "message": "创建机密"
   },
   "complete": {
     "message": "完成 $COMPLETED$ / $TOTAL$",
@@ -10872,7 +10875,7 @@
     "message": "已经有账户了吗？"
   },
   "toggleSideNavigation": {
-    "message": "切换侧边导航"
+    "message": "切换侧边导航栏"
   },
   "skipToContent": {
     "message": "跳转到内容"
@@ -10975,10 +10978,10 @@
     "description": "This is followed a by a hyperlink to the help website."
   },
   "getStartedWithYourVault": {
-    "message": "密码库快速入门"
+    "message": "开始使用您的密码库"
   },
   "onboardingChecklistSubtitle": {
-    "message": "为确保您的个人数据安全，并充分发挥 Bitwarden 的最大效用，请完成以下步骤。"
+    "message": "完成这些步骤以保护您的个人数据，并充分发挥 Bitwarden 的价值"
   },
   "dismissThisChecklist": {
     "message": "忽略此清单"
@@ -11877,7 +11880,7 @@
     "message": "组织席位"
   },
   "providerDiscount": {
-    "message": "$AMOUNT$ 折扣",
+    "message": "$AMOUNT$% 折扣",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -11971,16 +11974,16 @@
     "message": "（无群组）"
   },
   "memberAccessReportTwoFactorEnabledTrue": {
-    "message": "开启"
+    "message": "已开启"
   },
   "memberAccessReportTwoFactorEnabledFalse": {
-    "message": "关闭"
+    "message": "已关闭"
   },
   "memberAccessReportAuthenticationEnabledTrue": {
-    "message": "开启"
+    "message": "已开启"
   },
   "memberAccessReportAuthenticationEnabledFalse": {
-    "message": "关闭"
+    "message": "已关闭"
   },
   "memberAccessReportLoadError": {
     "message": "成员访问报告加载失败。这可能是由于组织规模过大或网络问题导致的。请重试，如果问题持续存在，请联系支持人员。"
@@ -14253,25 +14256,25 @@
     "message": "返回继续编辑"
   },
   "organizationUserNotificationPolicyTitle": {
-    "message": "Vault banner"
+    "message": "密码库通知横幅"
   },
   "organizationUserNotificationPolicyDesc": {
-    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+    "message": "创建并发布自定义通知横幅，所有组织成员在登录后都会在其密码库页面看到该通知横幅。"
   },
   "singleOrgPrerequisite": {
-    "message": "The single organization policy must be turned on before activating this policy."
+    "message": "必须先启用「单一组织」策略，然后才能激活此策略。"
   },
   "enableBanner": {
-    "message": "Enable banner"
+    "message": "启用通知横幅"
   },
   "createBannerMessage": {
-    "message": "Create banner message"
+    "message": "创建通知横幅消息"
   },
   "header": {
-    "message": "Header"
+    "message": "标题"
   },
   "maximumOfXCharacters": {
-    "message": "Maximum of $COUNT$ characters",
+    "message": "最多 $COUNT$ 个字符",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14280,7 +14283,7 @@
     }
   },
   "tooManyCharacters": {
-    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "message": "输入一个少于 $COUNT$ 个字符的 $NAME$。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -14293,7 +14296,7 @@
     }
   },
   "tooManyCharactersAlt": {
-    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "message": "创建一个少于 $COUNT$ 个字符的 $NAME$。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -14306,19 +14309,19 @@
     }
   },
   "organizationUserNotificationPolicyButtonTooltip": {
-    "message": "You must enter a header to create a button."
+    "message": "必须输入标题才能创建按钮。"
   },
   "enterADescription": {
-    "message": "Enter a description."
+    "message": "输入描述。"
   },
   "button": {
-    "message": "Button"
+    "message": "按钮"
   },
   "showAfterEveryLogin": {
-    "message": "Show after every login"
+    "message": "每次登录后显示"
   },
   "seeMessageEveryLogin": {
-    "message": "Users will see the message after every login even if they dismiss it."
+    "message": "即使已被忽略，每次登录后该消息仍会向用户显示。"
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
@@ -14350,7 +14353,7 @@
     "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
   },
   "sideNavigation": {
-    "message": "侧边导航"
+    "message": "侧边导航栏"
   },
   "skipLink": {
     "message": "跳过链接"
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "复制"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   }
 }
