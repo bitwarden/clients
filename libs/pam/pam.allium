@@ -198,8 +198,8 @@ entity AccessRequest {
     expired_at: Timestamp? when status = expired
     -- The approver, or null for a system / access-rule auto-decision. Persists
     -- once set — through activation and unactivated expiry — for the audit trail.
-    resolver: User? when status != pending
-    resolver_comment: String? when status != pending
+    approver: User? when status != pending
+    approver_comment: String? when status != pending
     -- The lease minted when this approved request was activated (at most one —
     -- single use). Resolved from the inverse AccessLease.request reference, so it stays
     -- correct for the request's whole life, whatever the lease's later status.
@@ -489,10 +489,10 @@ rule MemberCancelsOwnRequest {
     requires: request.requester = member
     ensures: request.status = cancelled
     ensures: request.resolved_at = now
-    -- No decision was made; resolver fields are present (status != pending) but
+    -- No decision was made; approver fields are present (status != pending) but
     -- empty.
-    ensures: request.resolver = null
-    ensures: request.resolver_comment = null
+    ensures: request.approver = null
+    ensures: request.approver_comment = null
 }
 
 rule MemberRequestsLeaseExtension {
@@ -552,7 +552,7 @@ rule AutoApproveWhenNoHumanApproval {
     requires: RuleAutomatedConditionsPass(request)
     ensures: request.status = approved
     ensures: request.resolved_at = now
-    ensures: request.resolver = null
+    ensures: request.approver = null
     @guidance
         -- The submit (POST) returns this already-approved request, so the UI
         -- can offer "Start access now" immediately rather than showing a
@@ -567,8 +567,8 @@ rule AutoDenyWhenAutomatedConditionsFail {
     requires: not RuleAutomatedConditionsPass(request)
     ensures: request.status = denied
     ensures: request.resolved_at = now
-    ensures: request.resolver = null
-    ensures: request.resolver_comment = "Outside access-rule window"
+    ensures: request.approver = null
+    ensures: request.approver_comment = "Outside access-rule window"
 }
 
 rule RouteToHumanApprovers {
@@ -598,8 +598,8 @@ rule ApproverApprovesRequest {
     requires: approver != request.requester
     ensures: request.status = approved
     ensures: request.resolved_at = now
-    ensures: request.resolver = approver
-    ensures: request.resolver_comment = comment
+    ensures: request.approver = approver
+    ensures: request.approver_comment = comment
 }
 
 rule ApproverDeniesRequest {
@@ -611,15 +611,15 @@ rule ApproverDeniesRequest {
     requires: approver != request.requester
     ensures: request.status = denied
     ensures: request.resolved_at = now
-    ensures: request.resolver = approver
-    ensures: request.resolver_comment = comment
+    ensures: request.approver = approver
+    ensures: request.approver_comment = comment
 }
 
 rule ApproverRetractsRequest {
     -- A managing approver retracts a not-yet-activated request — still pending, or
     -- approved but not yet activated (status = approved implies no lease). Recorded as
     -- a denial BY the approver so the audit trail names them, distinct from a member's
-    -- own cancellation (MemberCancelsOwnRequest), which records no resolver. No comment
+    -- own cancellation (MemberCancelsOwnRequest), which records no approver. No comment
     -- is captured: this is a retraction, not a considered decision. An activated request
     -- (one that produced a lease) is out of scope — that access is governed by the lease
     -- and ended via ApproverRevokesLease. Distinct from ApproverDecides, which only acts
@@ -630,8 +630,8 @@ rule ApproverRetractsRequest {
     requires: approver != request.requester
     ensures: request.status = denied
     ensures: request.resolved_at = now
-    ensures: request.resolver = approver
-    ensures: request.resolver_comment = null
+    ensures: request.approver = approver
+    ensures: request.approver_comment = null
 }
 
 -- ----------------------------------------------------------------------------
@@ -664,7 +664,7 @@ rule ExtensionDeniedParentGone {
     let parent = request.extension_of
     requires: parent.status != active
     ensures: request.status = denied
-    ensures: request.resolver_comment = "The lease being extended has ended"
+    ensures: request.approver_comment = "The lease being extended has ended"
 }
 
 -- An approved request is activated via MemberActivatesLease. Activation is ALWAYS an
@@ -806,9 +806,9 @@ rule PendingRequestExpires {
     ensures: request.status = expired
     ensures: request.resolved_at = now
     ensures: request.expired_at = now
-    -- No decision was made; resolver fields are present but empty.
-    ensures: request.resolver = null
-    ensures: request.resolver_comment = null
+    -- No decision was made; approver fields are present but empty.
+    ensures: request.approver = null
+    ensures: request.approver_comment = null
 }
 
 rule ApprovedRequestExpiresUnactivated {
@@ -816,7 +816,7 @@ rule ApprovedRequestExpiresUnactivated {
     -- longer startable — at its activatable_until bound, whatever its shape. For
     -- an on-demand request that is the activation deadline; for a scheduled
     -- request it is the window end (activation was only available inside the
-    -- window). resolved_at and resolver keep the approval record; the lease was
+    -- window). resolved_at and approver keep the approval record; the lease was
     -- never minted.
     when: request: AccessRequest.activatable_until <= now
     requires: request.status = approved
@@ -1130,7 +1130,7 @@ surface MyAccessRequestsPage {
             r.status
             r.submitted_at
             r.resolved_at
-            r.resolver_comment
+            r.approver_comment
             r.requested_not_before
             r.requested_not_after
 
@@ -1217,7 +1217,7 @@ surface ApproverInbox {
             r.requester
             r.status
             r.resolved_at
-            r.resolver_comment
+            r.approver_comment
             r.lease
 
     provides:
@@ -1353,8 +1353,8 @@ invariant NoLeaseWithoutActivatedRequest {
 
 invariant SelfApprovalForbidden {
     for request in AccessRequest where status in {approved, activated, denied}
-                                    and resolver != null:
-        request.resolver != request.requester
+                                    and approver != null:
+        request.approver != request.requester
 }
 
 invariant RevokedLeasesHaveResolverFields {
