@@ -18,6 +18,8 @@ function makeRow(
     requesterId: string;
     organizationId: string;
     cipherName: string;
+    requestedNotAfter: string;
+    expiredAt: string;
   }> = {},
 ): AccessRequestDetailsResponse {
   return new AccessRequestDetailsResponse({
@@ -28,6 +30,8 @@ function makeRow(
     RequesterUserId: overrides.requesterId ?? "user-2",
     Status: "pending",
     RequestedTtlSeconds: 3600,
+    RequestedNotAfter: overrides.requestedNotAfter,
+    ExpiredAt: overrides.expiredAt,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",
     CipherName: overrides.cipherName ?? "2.encrypted-cipher-name",
     CollectionName: overrides.collectionName ?? "Production",
@@ -138,6 +142,22 @@ describe("ApproverInboxService", () => {
       const rows = await firstValueFrom(service.requests$);
       expect(rows[0].cipherName).toBe("[error: cannot decrypt]");
       expect(rows[0].collectionName).toBe("[error: cannot decrypt]");
+    });
+
+    it("excludes timed-out requests from the actionable list", async () => {
+      // Same cipher requested twice by the same user: one still live, one whose
+      // window has lapsed. Only the live request should remain in the inbox.
+      pamApiService.listInboxRequests.mockResolvedValue([
+        makeRow({ id: "live", requestedNotAfter: "2999-01-01T00:00:00Z" }),
+        makeRow({ id: "timed-out", requestedNotAfter: "2000-01-01T00:00:00Z" }),
+        makeRow({ id: "open-ended" }),
+        makeRow({ id: "lapsed", expiredAt: "2000-01-01T00:00:00Z" }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.requests$);
+      expect(rows.map((r) => r.id).sort()).toEqual(["live", "open-ended"]);
     });
 
     it("captures load errors and rethrows", async () => {

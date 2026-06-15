@@ -147,6 +147,19 @@ describe("ApproverInboxBadgeService", () => {
     expect(emitted).toEqual([0, 2, 0]);
   });
 
+  it("counts only actionable requests, excluding timed-out and lapsed ones", async () => {
+    listInboxRequests.mockResolvedValue([
+      { id: "live", requestedNotAfter: null, expiredAt: null },
+      { id: "future-window", requestedNotAfter: "2999-01-01T00:00:00Z", expiredAt: null },
+      { id: "timed-out", requestedNotAfter: "2000-01-01T00:00:00Z", expiredAt: null },
+      { id: "lapsed", requestedNotAfter: null, expiredAt: "2000-01-01T00:00:00Z" },
+    ] as AccessRequestDetailsResponse[]);
+    pamFlag$.next(true);
+    await flushMicrotasks();
+
+    expect(emitted).toEqual([0, 2]);
+  });
+
   it("keeps the previous count when a fetch fails", async () => {
     resolveRows(2);
     pamFlag$.next(true);

@@ -19,6 +19,8 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
+import { isActionableInboxRequest } from "./inbox-request-filter";
+
 /**
  * Loads pending lease requests for the approver inbox, applies the
  * inbox sort (oldest first, then collection name), and manages optimistic
@@ -59,12 +61,18 @@ export class ApproverInboxService {
         this.pamApiService.listInboxRequests(),
         this.pamApiService.listInboxHistory(),
       ]);
+      // Drop requests that have timed out (server-marked lapsed, or their
+      // requested window has fully elapsed). They belong in history, not the
+      // "needs approval" list — keeping them here would strand a stale duplicate
+      // for the same cipher that can never be acted on.
+      const now = new Date();
+      const actionable = rows.filter((row) => isActionableInboxRequest(row, now));
       const orgKeys = await this.snapshotOrgKeys();
       await Promise.all([
-        this.decryptDisplayNames(rows, orgKeys),
+        this.decryptDisplayNames(actionable, orgKeys),
         this.decryptDisplayNames(history, orgKeys),
       ]);
-      this._requests$.next(sortInbox(rows));
+      this._requests$.next(sortInbox(actionable));
       this._history$.next(history);
     } catch (e) {
       this._loadError$.next(e);
