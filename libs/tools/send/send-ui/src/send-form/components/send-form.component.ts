@@ -135,7 +135,7 @@ export class SendFormComponent implements AfterViewInit {
   submit = async () => {
     const sendView = await this.sendFormService.submitSendForm();
 
-    // Send form had errors or otherwise failed to submit
+    // Send form had errors
     if (!sendView) {
       return;
     }

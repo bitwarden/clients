@@ -4,6 +4,7 @@ export interface Option<T> {
   icon?: string;
   value: T | null;
   label?: string;
+  description?: string;
   disabled?: boolean;
 }
 

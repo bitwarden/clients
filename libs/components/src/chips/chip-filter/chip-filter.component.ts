@@ -163,7 +163,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
       // to avoid re-focusing when the menu state changes. We only want to focus during
       // submenu navigation, not on initial open/close.
       if (items.length > 0 && trigger?.isOpen) {
-        currentMenu?.keyManager?.setFirstItemActive();
+        currentMenu?.keyManager()?.setFirstItemActive();
       }
     });
   }

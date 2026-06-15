@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable, switchMap, shareReplay } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  Observable,
+  switchMap,
+  shareReplay,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
@@ -131,10 +139,16 @@ export abstract class DomainSettingsService {
 
   /**
    * User-controlled setting for whether or not fill assist targeting rules
-   * should be used
+   * should be used. Bare setting state, distinguished from the resolved state
+   * `resolvedEnableFillAssist$`
    */
   enableFillAssist$: Observable<boolean>;
   setEnableFillAssist: (newValue: boolean) => Promise<void>;
+
+  /**
+   * Resolved (concerning user setting and feature-flag) state for enabling fill assist
+   */
+  resolvedEnableFillAssist$: Observable<boolean>;
 
   /**
    * Observable of all cached autofill targeting rules, keyed by normalized URL
@@ -179,6 +193,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   private enableFillAssistState: GlobalState<boolean>;
   readonly enableFillAssist$: Observable<boolean>;
+  readonly resolvedEnableFillAssist$: Observable<boolean>;
 
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
 
@@ -212,6 +227,15 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
     this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
     this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
+
+    this.resolvedEnableFillAssist$ = combineLatest([
+      this.enableFillAssist$,
+      this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
+    ]).pipe(
+      map(([userSetting, featureFlag]) => userSetting && featureFlag),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
     this.targetingRules$ = this.environmentService.environment$.pipe(
       switchMap((env) =>
@@ -302,15 +326,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   }
 
   async getTargetingRulesForUrl(url: URL["href"]): Promise<FormContent[] | null> {
-    const fillAssistFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FillAssistTargetingRules,
-    );
-    if (!fillAssistFeatureEnabled) {
-      return null;
-    }
-
-    const enableFillAssist = await firstValueFrom(this.enableFillAssist$);
-    if (!enableFillAssist) {
+    const fillAssistEnabled = await firstValueFrom(this.resolvedEnableFillAssist$);
+    if (!fillAssistEnabled) {
       return null;
     }
 
