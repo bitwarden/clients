@@ -105,11 +105,11 @@ describe("SearchService", () => {
         expect(service.searchCiphersBasic(ciphers, "dog stream")).toHaveLength(1);
       });
 
-      it("matches a cipher when at least one term is found (OR logic)", () => {
+      it("requires all terms to match (AND logic)", () => {
         const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
 
-        expect(service.searchCiphersBasic(ciphers, "dog foobar")).toHaveLength(1);
-        expect(service.searchCiphersBasic(ciphers, "dog.jump foobar")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "dog foobar")).toHaveLength(0);
+        expect(service.searchCiphersBasic(ciphers, "dog.jump foobar")).toHaveLength(0);
       });
 
       it("returns no results when no term matches", () => {

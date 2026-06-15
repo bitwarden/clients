@@ -120,7 +120,7 @@ export class SearchService implements SearchServiceAbstraction {
     const terms = normalizeSearchQuery(query.trim().toLowerCase()).split(/\s+/).filter(Boolean);
 
     return ciphers.filter((c) => {
-      return terms.some((term) => {
+      return terms.every((term) => {
         if (c.name != null && normalizeSearchQuery(c.name.toLowerCase()).indexOf(term) > -1) {
           return true;
         }
