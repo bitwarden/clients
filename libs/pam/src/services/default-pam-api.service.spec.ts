@@ -705,4 +705,58 @@ describe("DefaultPamApiService", () => {
       expect(result[0].status).toBe("active");
     });
   });
+
+  describe("listManagedActiveLeases", () => {
+    it("GETs /leases/active and unwraps a ListResponse envelope", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "lease-1",
+            RequestId: "req-1",
+            CipherId: "cipher-1",
+            CollectionId: "col-1",
+            GranteeUserId: "user-1",
+            NotBefore: "2026-06-04T12:00:00Z",
+            NotAfter: "2026-06-04T13:00:00Z",
+            Status: "active",
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listManagedActiveLeases();
+
+      expect(apiService.send).toHaveBeenCalledWith("GET", "/leases/active", null, true, true);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("lease-1");
+      expect(result[0].status).toBe("active");
+    });
+  });
+
+  describe("listManagedLeaseHistory", () => {
+    it("GETs /leases/history and unwraps a ListResponse envelope", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "lease-9",
+            RequestId: "req-9",
+            CipherId: "cipher-9",
+            CollectionId: "col-9",
+            GranteeUserId: "user-9",
+            NotBefore: "2026-06-01T12:00:00Z",
+            NotAfter: "2026-06-01T13:00:00Z",
+            Status: "revoked",
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listManagedLeaseHistory();
+
+      expect(apiService.send).toHaveBeenCalledWith("GET", "/leases/history", null, true, true);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("lease-9");
+      expect(result[0].status).toBe("revoked");
+    });
+  });
 });

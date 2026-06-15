@@ -115,6 +115,16 @@ export class DefaultPamApiService implements PamApiService {
     return new ListResponse(r, AccessLeaseResponse).data;
   }
 
+  async listManagedActiveLeases(): Promise<AccessLeaseResponse[]> {
+    const r = await this.send("GET", "/leases/active", null, true);
+    return new ListResponse(r, AccessLeaseResponse).data;
+  }
+
+  async listManagedLeaseHistory(): Promise<AccessLeaseResponse[]> {
+    const r = await this.send("GET", "/leases/history", null, true);
+    return new ListResponse(r, AccessLeaseResponse).data;
+  }
+
   getGovernanceSummary(_organizationId: string): Promise<OrganizationGovernanceSummaryResponse> {
     return Promise.reject(new Error("getGovernanceSummary is not implemented yet"));
   }

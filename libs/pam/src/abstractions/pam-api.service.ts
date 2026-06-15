@@ -91,6 +91,17 @@ export abstract class PamApiService {
   abstract listInboxHistory(): Promise<AccessRequestDetailsResponse[]>;
   abstract listMyAccessRequests(): Promise<AccessRequestDetailsResponse[]>;
   abstract listActiveLeases(): Promise<AccessLeaseResponse[]>;
+  /**
+   * Governance read: every currently-active lease on the collections the caller can Manage — all members' active
+   * access in the caller's scope, not just their own ({@link listActiveLeases}). Scope is resolved the same way as
+   * the approver inbox. Powers the governance dashboard.
+   */
+  abstract listManagedActiveLeases(): Promise<AccessLeaseResponse[]>;
+  /**
+   * Governance read: the ended leases (expired or revoked) on the collections the caller can Manage, within the
+   * shared history window.
+   */
+  abstract listManagedLeaseHistory(): Promise<AccessLeaseResponse[]>;
 
   abstract getGovernanceSummary(
     organizationId: string,
