@@ -1347,16 +1347,16 @@
     "message": "Weitere Optionen"
   },
   "enableFillAssist": {
-    "message": "Auto-Ausfüllen verwenden"
+    "message": "Ausfüllhilfe verwenden"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "Ausfüllhilfe einschalten"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "Die Ausfüllhilfe verbessert die Genauigkeit von Auto-Ausfüllen auf unterstützten Websites durch die Anwendung Website-spezifischer Regeln. Bei der Nutzung dieser Funktion werden keine Daten erfasst oder gespeichert."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "Über die Ausfüllhilfe"
   },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Mindestens 1 E-Mail-Adresse ist ungültig"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Die E-Mail-Adressen-Empfängerliste darf 2.500 Zeichen nicht überschreiten. Entferne einen oder mehrere Empfänger, um fortzufahren."
+  },
   "inputTrimValidator": {
     "message": "Die Eingabe darf nicht nur Leerzeichen enthalten.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Eintrag konnte nicht gespeichert werden. Du musst von der Organisation bestätigt werden, um Einträge zu speichern."
   }
 }

@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "一或多個電子郵件地址無效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "tooManyEmails": {
     "message": "您一次最多只能送出 $COUNT$ 組電子郵件地址",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "複製"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

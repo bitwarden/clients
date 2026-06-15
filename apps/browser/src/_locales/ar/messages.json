@@ -1350,13 +1350,13 @@
     "message": "استخدام مساعدة الملء"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "تفعيل المساعدة في الملء"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "تعمل ميزة المساعدة في الملء على تحسين دقة الملء التلقائي في المواقع المدعومة بواسطة استخدام قواعد خاصة بكل موقع. ولا يتم جمع أو حفظ أي بيانات عند استخدام هذه الميزة."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "حول المساعدة في الملء"
   },
   "enableContextMenuItem": {
     "message": "إظهار خيارات قائمة السياق"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "بريد إلكتروني واحد أو أكثر غير صالح"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "لا يمكن أن تتجاوز قائمة مستلمي البريد الإلكتروني 2,500 حرف. احذف مستلماً واحداً أو أكثر للمتابعة."
+  },
   "inputTrimValidator": {
     "message": "يجب ألا يحتوي الإدخال على مسافات فقط.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5379,13 +5382,13 @@
     "message": "فلاتر"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "تصفية الخزنة"
   },
   "filterApplied": {
-    "message": "One filter applied"
+    "message": "تم تطبيق خيار تصفية واحد"
   },
   "filterAppliedPlural": {
-    "message": "$COUNT$ filters applied",
+    "message": "تم تطبيق $COUNT$ من خيارات التصفية",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5457,7 +5460,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "($VALUE$) الافتراضي",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5503,7 +5506,7 @@
     }
   },
   "showAnimations": {
-    "message": "Show animations"
+    "message": "إظهار التأثيرات الحركية"
   },
   "addAccount": {
     "message": "إضافة حساب"
@@ -5578,7 +5581,7 @@
     "message": "تعديل الحقل"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "تعديل $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5617,7 +5620,7 @@
     "message": "أعد ترتيب URL. استخدم مفتاح السهم لتحريك العنصر لأعلى أو لأسفل."
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "تم نقل $LABEL$ للأعلى، الموضع $INDEX$ من $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5695,7 +5698,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "تم نقل $LABEL$ للأسفل، الموضع $INDEX$ من $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5724,7 +5727,7 @@
     "message": "إجراءات الحساب"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Show number of login autofill suggestions on extension icon"
+    "message": "إظهار عدد اقتراحات الملء التلقائي لبيانات تسجيل الدخول على أيقونة الإضافة"
   },
   "accountAccessRequested": {
     "message": "تم طلب الوصول إلى الحساب"
@@ -5739,7 +5742,7 @@
     }
   },
   "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+    "message": "إظهار إجراءات النسخ السريع في الخزنة"
   },
   "systemDefault": {
     "message": "الإعدادات الافتراضية للنظام"
@@ -5748,10 +5751,10 @@
     "message": "تم تطبيق متطلبات سياسة المؤسسة على"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "المفتاح الخاص"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "المفتاح العام"
   },
   "sshFingerprint": {
     "message": "بصمة الإصبع"
@@ -5778,13 +5781,13 @@
     "message": "الحد الأدنى لـمدة انتهاء الجلسة المخصصة هو دقيقة واحدة."
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "تم حفظ الملف في الجهاز. يمكنك إدارته من تنزيلات جهازك."
   },
   "showCharacterCount": {
-    "message": "Show character count"
+    "message": "إظهار عدد الأحرف"
   },
   "hideCharacterCount": {
-    "message": "Hide character count"
+    "message": "إخفاء عدد الأحرف"
   },
   "itemsInTrash": {
     "message": "عناصر في سلة المهملات"
@@ -5796,16 +5799,16 @@
     "message": "العناصر التي تحذفها ستظهر هنا و ستُحذف نهائياً بعد 30 يوماً"
   },
   "trashWarning": {
-    "message": "Items that have been in trash more than 30 days will automatically be deleted"
+    "message": "سيتم حذف العناصر الموجودة في سلة المهملات منذ أكثر من 30 يوماً تلقائياً"
   },
   "restore": {
     "message": "إستعادة"
   },
   "deleteForever": {
-    "message": "Delete forever"
+    "message": "الحذف نهائياً"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "ليس لديك الصلاحية لتعديل هذا العنصر"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "فتح القفل البيومتري غير متاح لأن فتح القفل بالـ PIN أو كلمة المرور مطلوب أولاً."
@@ -5820,7 +5823,7 @@
     "message": "فتح القفل البيومتري غير متاح بسبب خطأ في إعداد ملفات النظام."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "فتح القفل بالمصادقة البيومترية غير متاح لأن تطبيق Bitwarden لسطح المكتب مغلق."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
     "message": "فتح القفل البيومتري غير متاح لأنه لم يتم تفعيله لـ $EMAIL$ في تطبيق Bitwarden لسطح المكتب.",
@@ -5838,27 +5841,27 @@
     "message": "فتح الخزنة الخاصة بك في ثوان"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "يمكنك تخصيص إعدادات فتح القفل ومهلة انتهاء الجلسة للوصول إلى خزنتك بشكل أسرع."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "\nتم تعيين PIN لفتح القفل"
   },
   "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
+    "message": "تم تعيين فتح القفل بالمصادقة البيومترية"
   },
   "authenticating": {
-    "message": "Authenticating"
+    "message": "جارٍ المصادقة"
   },
   "fillGeneratedPassword": {
-    "message": "Fill generated password",
+    "message": "ملء كلمة المرور المولّدة",
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "تمت إعادة توليد كلمة المرور",
     "description": "Notification message for when a password has been regenerated"
   },
   "saveToBitwarden": {
-    "message": "Save to Bitwarden",
+    "message": "الحفظ في Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5866,11 +5869,11 @@
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
-    "message": "Tilde",
+    "message": "التلدة",
     "description": "Represents the ~ key in screen reader content as a readable word"
   },
   "backtickCharacterDescriptor": {
-    "message": "Backtick",
+    "message": "علامة التنصيص المائلة",
     "description": "Represents the ` key in screen reader content as a readable word"
   },
   "exclamationCharacterDescriptor": {
@@ -5878,107 +5881,107 @@
     "description": "Represents the ! key in screen reader content as a readable word"
   },
   "atSignCharacterDescriptor": {
-    "message": "At sign",
+    "message": "علامة آت",
     "description": "Represents the @ key in screen reader content as a readable word"
   },
   "hashSignCharacterDescriptor": {
-    "message": "Hash sign",
+    "message": "علامة المربع",
     "description": "Represents the # key in screen reader content as a readable word"
   },
   "dollarSignCharacterDescriptor": {
-    "message": "Dollar sign",
+    "message": "علامة الدولار",
     "description": "Represents the $ key in screen reader content as a readable word"
   },
   "percentSignCharacterDescriptor": {
-    "message": "Percent sign",
+    "message": "علامة النسبة المئوية",
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
-    "message": "Caret",
+    "message": "علامة الإقحام",
     "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "ampersandCharacterDescriptor": {
-    "message": "Ampersand",
+    "message": "علامة العطف",
     "description": "Represents the & key in screen reader content as a readable word"
   },
   "asteriskCharacterDescriptor": {
-    "message": "Asterisk",
+    "message": "علامة النجمة",
     "description": "Represents the * key in screen reader content as a readable word"
   },
   "parenLeftCharacterDescriptor": {
-    "message": "Left parenthesis",
+    "message": "قوس أيسر",
     "description": "Represents the ( key in screen reader content as a readable word"
   },
   "parenRightCharacterDescriptor": {
-    "message": "Right parenthesis",
+    "message": "قوس أيمن",
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "شرطة سفلية",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "شرطة",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
-    "message": "Plus",
+    "message": "علامة الجمع",
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "علامة يساوي",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "قوس معقوف أيسر",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "قوس معقوف أيمن",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "قوس مربع أيسر",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "قوس مربع أيمن",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
-    "message": "Pipe",
+    "message": "شريط عمودي",
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
-    "message": "Back slash",
+    "message": "شرطة مائلة عكسية",
     "description": "Represents the back slash key in screen reader content as a readable word"
   },
   "colonCharacterDescriptor": {
-    "message": "Colon",
+    "message": "نقطتان",
     "description": "Represents the : key in screen reader content as a readable word"
   },
   "semicolonCharacterDescriptor": {
-    "message": "Semicolon",
+    "message": "فاصلة منقوطة",
     "description": "Represents the ; key in screen reader content as a readable word"
   },
   "doubleQuoteCharacterDescriptor": {
-    "message": "Double quote",
+    "message": "علامة تنصيص مزدوجة",
     "description": "Represents the double quote key in screen reader content as a readable word"
   },
   "singleQuoteCharacterDescriptor": {
-    "message": "Single quote",
+    "message": "علامة تنصيص مفردة",
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "Less than",
+    "message": "أصغر من",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "Greater than",
+    "message": "أكبر من",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
-    "message": "Comma",
+    "message": "فاصلة",
     "description": "Represents the , key in screen reader content as a readable word"
   },
   "periodCharacterDescriptor": {
@@ -5986,11 +5989,11 @@
     "description": "Represents the . key in screen reader content as a readable word"
   },
   "questionCharacterDescriptor": {
-    "message": "Question mark",
+    "message": "علامة استفهام",
     "description": "Represents the ? key in screen reader content as a readable word"
   },
   "forwardSlashCharacterDescriptor": {
-    "message": "Forward slash",
+    "message": "شرطة مائلة",
     "description": "Represents the / key in screen reader content as a readable word"
   },
   "lowercaseAriaLabel": {
@@ -6003,25 +6006,25 @@
     "message": "كلمة المرور المولدة"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "الوضع المضغوط"
   },
   "beta": {
     "message": "Beta"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "عرض الإضافة"
   },
   "wide": {
-    "message": "Wide"
+    "message": "عريض"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "عريض جداً"
   },
   "narrow": {
     "message": "ضيق"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "كلمة المرور التي أدخلتها غير صحيحة."
   },
   "importSshKey": {
     "message": "استيراد"
@@ -6039,7 +6042,7 @@
     "message": "مفتاح SSH غير صالح"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "نوع مفتاح SSH غير مدعوم"
   },
   "importSshKeyFromClipboard": {
     "message": "استيراد المفتاح من الحافظة"
@@ -6060,7 +6063,7 @@
     "message": "الرجاء تحديث تطبيق سطح المكتب الخاص بك"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "لاستخدام فتح القفل بالمصادقة البيومترية، يرجى تحديث تطبيق سطح المكتب، أو تعطيل فتح القفل ببصمة الإصبع في إعدادات سطح المكتب."
   },
   "changeAtRiskPassword": {
     "message": "تغيير كلمة المرور المعرضة للخطر"
@@ -6087,37 +6090,37 @@
     "message": "مرحبا بكم في Bitwarden"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "الأمان، أولوية قصوى"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "احفظ بيانات حسابك، البطاقات، والهويات في خزنتك الآمنة. يعتمد Bitwarden على تشفير شامل بمعرفة صفرية لحماية بياناتك المهمة."
   },
   "quickLogin": {
     "message": "تسجيل دخول سريع وسهل"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "فعِّل فتح القفل بالمصادقة البيومترية والملء التلقائي لتسجيل الدخول إلى حساباتك دون كتابة حرف واحد."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "حسّن تجرِبة تسجيل الدخول لديك"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "استخدم المولد لإنشاء كلمات مرور قوية وفريدة و حفظها لجميع حساباتك."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "بياناتك، وقتما وأينما احتجتها"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "احفظ عدداً غير محدود من كلمات المرور على أجهزة غير محدودة مع تطبيقات Bitwarden للجوال والمتصفح وسطح المكتب."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "إشعار واحد"
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "استيراد كلمات المرور الحالية"
   },
   "emptyVaultNudgeBody": {
-    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+    "message": "استخدم أداة الاستيراد لنقل بيانات حساباتك بسرعة إلى Bitwarden دون إضافتها يدوياً."
   },
   "emptyVaultNudgeButton": {
     "message": "إستيراد الآن"
@@ -6126,30 +6129,30 @@
     "message": "مرحبا بك في خزنتك!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "تم اكتشاف محاولة تصيد احتيالي"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "الموقع الذي تحاول زيارته معروف بأنه ضار و يشكل خطراً أمنياً.\n"
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "إغلاق هذا التبويب"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "المتابعة إلى هذا الموقع (غير موصى به)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "تم العثور على هذا الموقع ف ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": "، وهي قائمة مفتوحة المصدر للمواقع التصيدية المعروفة المستخدمة لسرقة المعلومات الشخصية والحساسة.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "معرفة المزيد حول كشف التصيد الاحتيالي"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "محمي بواسطة $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -6158,13 +6161,13 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "املأ عناصر الصفحة الحالية تلقائياً"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "أضف العناصر إلى المفضلة لسهولة الوصول إليها"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "ابحث في خزنتك عن شيء آخر"
   },
   "newLoginNudgeTitle": {
     "message": "وفّر وقتك مع التعبئة التلقائية"
@@ -6239,10 +6242,10 @@
     "message": "سيستخدم Bitwarden عناوين URI المحفوظة لتسجيل الدخول لتحديد الأيقونة المناسبة أو رابط تغيير كلمة المرور لتحسين تجربتك. لا يتم جمع أي معلومات أو حفظها عند استخدام هذه الخدمة."
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "ليس لديك صلاحيات لعرض هذه الصفحة. جرّب تسجيل الدخول بحساب آخر."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly غير مدعوم في متصفحك أو غير مفعّل. يلزم WebAssembly لاستخدام تطبيق Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
@@ -6266,7 +6269,7 @@
     "message": "تأكيد نطاق Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "أحسنت! لقد أمّنت بيانات حساباتك المعرضة للخطر!"
   },
   "upgradeNow": {
     "message": "اشترك الآن"
@@ -6293,22 +6296,22 @@
     "message": "الترقية إلى Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "استفد من ميزات الأمان المتقدمة"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "يمنحك اشتراك Premium مزيداً من الأدوات للحفاظ على أمانك والتحكم في حسابك"
   },
   "explorePremium": {
     "message": "استكشاف الإصدار Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "جاري تحميل الخزنة"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "تم تحميل الخزنة"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "هذا الإعداد معطّل بموجب سياسة منظمتك.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
@@ -6379,7 +6382,7 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Your organization has set the default session timeout to Immediately."
+    "message": "حددت منظمتك مهلة انتهاء الجلسة الافتراضية على \"فوراً\"."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
     "message": "حددت مؤسستك مدة انتهاء الجلسة الافتراضية عند قفل النظام."
@@ -6407,7 +6410,7 @@
     "message": "حدد طريقة فتح القفل لتغيير إجراء انتهاء مهلة الجلسة"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "تتم إدارته بواسطة تطبيق Bitwarden لسطح المكتب. افتح تطبيق سطح المكتب للتعديل."
   },
   "percentageCompleted": {
     "message": "$PERCENT$ مكتمل",
@@ -6479,13 +6482,13 @@
     "message": "نتائج البحث"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "ملء تلقائي مبسّط"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "عند النقر على عنصر الملء التلقائي المقترح، سيتم ملء البيانات بدلاً من الانتقال إلى التفاصيل. لا يزال بإمكانك عرض هذه العناصر من قائمة \"المزيد\"."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "فتح نافذة الملء التلقائي المبسّط"
   },
   "resizeSideNavigation": {
     "message": "تغيير حجم شريط التنقل الجانبي"
@@ -6522,16 +6525,16 @@
     "message": "فشل التحقق من هوية المستخدم."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "فتح القفل المشترك"
   },
   "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+    "message": "حافظ على مزامنة تطبيقات Bitwarden لديك. عند التفعيل، ستتم مشاركة حالة فتح القفل بين جميع التطبيقات على هذا الجهاز. يلزم استخدام تطبيق سطح المكتب للمزامنة بين المتصفحات المختلفة."
   },
   "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+    "message": "حافظ على مزامنة تطبيقات Bitwarden لديك. عند التفعيل، ستتم مشاركة حالة فتح القفل مع خزنات Bitwarden على الويب في Safari."
   },
   "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+    "message": "حافظ على مزامنة تطبيقات Bitwarden لديك. عند التفعيل، ستتم مشاركة حالة فتح القفل مع تطبيق Bitwarden لسطح المكتب."
   },
   "enterMonth": {
     "message": "أدخل الشهر."
@@ -6561,10 +6564,10 @@
     "message": "نوع الحساب"
   },
   "bankAccountTypeCompany": {
-    "message": "Company (business)"
+    "message": "شركة (تجاري)"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual (personal)"
+    "message": "فرد (شخصي)"
   },
   "accountNumber": {
     "message": "رَقم الحساب"
@@ -6634,13 +6637,13 @@
     "message": "أخرى"
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "فشل في التنزيل."
   },
   "more": {
     "message": "المزيد"
   },
   "maxAccessCount": {
-    "message": "Maximum access count",
+    "message": "الحد الأقصى لعدد مرات الوصول",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideMyEmail": {
@@ -6677,9 +6680,12 @@
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "تشترط منظمتك إظهار البريد الإلكتروني. ألغِ تحديد \"إخفاء بريدك الإلكتروني عن المشاهدين\" للحفظ."
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "لا يمكنك استيراد عناصر إلى \"عناصري\" إذا كانت ضمن مجموعات متعددة"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "تعذّر حفظ العنصر. يجب تأكيد عضويتك في المنظمة لحفظ العناصر."
   }
 }
