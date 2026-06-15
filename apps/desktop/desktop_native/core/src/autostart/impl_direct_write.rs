@@ -2,7 +2,7 @@
 //!
 //! On Snap the autostart Exec uses the bare `bitwarden` command (the snap package name from
 //! `electron-builder.json`), not the unpacked `exec_path`, because the exec path is different
-//! since the snap sandbox has a filsystem namespace.
+//! since the snap sandbox has a filesystem namespace.
 
 use std::{fs, path::Path};
 
@@ -33,6 +33,13 @@ fn set_autostart_in_dir(
 
     if !enabled {
         return remove_file(&target);
+    }
+
+    if !Path::new(&config.exec_path).is_absolute() {
+        return Err(anyhow!(
+            "exec_path must be an absolute path: {}",
+            config.exec_path
+        ));
     }
 
     let contents =
@@ -170,6 +177,21 @@ mod tests {
         assert!(target.exists());
 
         set_autostart_in_dir(false, &config(), &dir.path).unwrap();
+        assert!(!target.exists());
+    }
+
+    #[test]
+    fn linux_enable_rejects_relative_exec_path() {
+        let dir = TempDir::new();
+        let target = dir.path.join("bitwarden.desktop");
+        let cfg = AutostartConfig {
+            exec_path: "bitwarden".to_string(),
+            autostart_flag: "--autostart".to_string(),
+        };
+
+        let result = set_autostart_in_dir(true, &cfg, &dir.path);
+
+        assert!(result.is_err());
         assert!(!target.exists());
     }
 

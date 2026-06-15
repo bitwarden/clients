@@ -130,7 +130,9 @@ export class MessagingMain {
           execPath: app.getPath("exe"),
           autostartFlag: AUTOSTART_FLAG,
         })
-        .catch((e) => {});
+        .catch((e) => {
+          this.main.logService.error("Error setting autostart", e);
+        });
     } else {
       app.setLoginItemSettings({ openAtLogin: enabled, args: enabled ? [AUTOSTART_FLAG] : [] });
     }
