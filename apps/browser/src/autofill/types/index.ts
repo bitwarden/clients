@@ -57,4 +57,5 @@ export type FormElementWithAttribute = FormFieldElement & Record<string, string 
 export type AutofillCipherTypeId =
   | typeof CipherType.Login
   | typeof CipherType.Card
-  | typeof CipherType.Identity;
+  | typeof CipherType.Identity
+  | typeof CipherType.SshKey;

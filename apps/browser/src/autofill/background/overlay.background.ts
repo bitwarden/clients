@@ -116,7 +116,12 @@ import {
   PasswordGenerateRequestSource,
 } from "./abstractions/overlay.background";
 
-const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
+// Non-login cipher types that are fetched and cached for the inline menu regardless of URL match.
+const cardAndIdentityCipherType: CipherType[] = [
+  CipherType.Card,
+  CipherType.Identity,
+  CipherType.SshKey,
+];
 
 export class OverlayBackground implements OverlayBackgroundInterface {
   // Assigned as members so jest.spyOn can intercept them in tests
@@ -188,6 +193,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       ),
     getInlineMenuCardsVisibility: () => this.getInlineMenuCardsVisibility(),
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
+    getInlineMenuSshKeysVisibility: () => this.getInlineMenuSshKeysVisibility(),
     closeAutofillInlineMenu: ({ message, sender }) =>
       void this.withSenderTab(sender, () => this.closeInlineMenu(sender, message)),
     checkAutofillInlineMenuFocused: ({ sender }) =>
@@ -579,6 +585,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
         CipherType.Card,
         CipherType.Identity,
+        CipherType.SshKey,
       ])
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
@@ -736,6 +743,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
             continue;
           }
           break;
+
+        case CipherType.SshKey:
+          if (areKeyValuesNull(cipher.sshKey, ["publicKey"])) {
+            continue;
+          }
+          break;
       }
       if (!this.focusedFieldMatchesFillType(cipher.type)) {
         continue;
@@ -884,6 +897,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (cipher.type === CipherType.Card) {
       inlineMenuData.card = cipher.card.subTitle;
+      return inlineMenuData;
+    }
+
+    if (cipher.type === CipherType.SshKey) {
+      inlineMenuData.sshKey = cipher.sshKey?.keyFingerprint;
       return inlineMenuData;
     }
 
@@ -1940,20 +1958,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return {};
     }
 
-    let elementOffset = height * 0.37;
-    if (height >= 35) {
-      elementOffset = height >= 50 ? height * 0.47 : height * 0.42;
+    // Cap the height used for sizing the button so tall fields (e.g. textareas for SSH public
+    // keys) don't scale the icon up. Single-line inputs are at or under this cap and unaffected.
+    const sizingHeight = Math.min(height, 64);
+
+    let elementOffset = sizingHeight * 0.37;
+    if (sizingHeight >= 35) {
+      elementOffset = sizingHeight >= 50 ? sizingHeight * 0.47 : sizingHeight * 0.42;
     }
 
     const fieldPaddingRight = parseInt(paddingRight ?? "", 10);
     const fieldPaddingLeft = parseInt(paddingLeft ?? "", 10);
-    const elementHeight = height - elementOffset;
+    const elementHeight = sizingHeight - elementOffset;
 
     const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
     const elementLeftPosition =
       fieldPaddingRight > fieldPaddingLeft
-        ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
-        : subFrameLeftOffset + left + width - height + elementOffset / 2;
+        ? subFrameLeftOffset + left + width - sizingHeight - (fieldPaddingRight - elementOffset + 2)
+        : subFrameLeftOffset + left + width - sizingHeight + elementOffset / 2;
 
     const button = {
       top: Math.round(elementTopPosition),
@@ -2472,6 +2494,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async getInlineMenuIdentitiesVisibility(): Promise<boolean> {
     return await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$);
+  }
+
+  /**
+   * Gets the inline menu's visibility setting for SSH keys from the settings service.
+   */
+  private async getInlineMenuSshKeysVisibility(): Promise<boolean> {
+    return await firstValueFrom(this.autofillSettingsService.showInlineMenuSshKeys$);
   }
 
   /**

@@ -1007,6 +1007,48 @@ export class IdentityAutoFillConstants {
   };
 }
 
+export class SshKeyAutoFillConstants {
+  /** Field attributes scanned to gather matching keywords. */
+  static readonly SshKeyAttributes: string[] = [
+    "autoCompleteType",
+    "htmlName",
+    "htmlID",
+    "htmlClass",
+    "label-tag",
+    "label-left",
+    "label-top",
+    "placeholder",
+    "title",
+  ];
+
+  /**
+   * Algorithm prefixes that appear in the public key value or the field placeholder
+   * (e.g. GitHub/GitLab "Begins with 'ssh-rsa', 'ecdsa-sha2-nistp256'..."). This is the
+   * strongest signal that a field is an SSH public key field.
+   */
+  static readonly PublicKeyAlgorithmPrefixes: string[] = [
+    "ssh-rsa",
+    "ssh-ed25519",
+    "ssh-dss",
+    "ecdsa-sha2-",
+    "sk-ssh-ed25519",
+    "sk-ecdsa-sha2-",
+  ];
+
+  static readonly PublicKeyFieldNames: string[] = [
+    "key",
+    "public-key",
+    "publickey",
+    "ssh-key",
+    "sshkey",
+  ];
+
+  static readonly TitleFieldNames: string[] = ["title", "label", "name", "description"];
+
+  /** Data attribute GitLab places on its public key textarea. */
+  static readonly SupportedAlgorithmsAttribute = "data-supported-algorithms";
+}
+
 export const SubmitLoginButtonNames: string[] = [
   "login",
   "signin",

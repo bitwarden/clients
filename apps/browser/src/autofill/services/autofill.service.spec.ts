@@ -47,6 +47,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -930,6 +931,33 @@ describe("AutofillService", () => {
       await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalled();
+      expect(chrome.tabs.sendMessage).toHaveBeenCalled();
+      expect(eventCollectionService.collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientAutofilled,
+        autofillOptions.cipher.id,
+      );
+    });
+
+    it("will autofill SSH key data for a page", async () => {
+      autofillOptions.cipher.type = CipherType.SshKey;
+      autofillOptions.cipher.sshKey = mock<SshKeyView>({
+        publicKey: "ssh-ed25519 AAAApublickey",
+      });
+      autofillOptions.pageDetails[0].details.fields = [
+        createAutofillFieldMock({
+          opid: "ssh-public-key",
+          form: "validFormId",
+          elementNumber: 2,
+          tagName: "textarea",
+          placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+        }),
+      ];
+      jest.spyOn(autofillService as any, "generateSshKeyFillScript");
+      jest.spyOn(eventCollectionService, "collect");
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      expect(autofillService["generateSshKeyFillScript"]).toHaveBeenCalled();
       expect(chrome.tabs.sendMessage).toHaveBeenCalled();
       expect(eventCollectionService.collect).toHaveBeenCalledWith(
         EventType.Cipher_ClientAutofilled,
@@ -4231,6 +4259,149 @@ describe("AutofillService", () => {
           });
         });
       }
+    });
+  });
+
+  describe("generateSshKeyFillScript", () => {
+    let fillScript: AutofillScript;
+    let pageDetails: AutofillPageDetails;
+    let filledFields: { [id: string]: AutofillField };
+    let options: GenerateFillScriptOptions;
+
+    beforeEach(() => {
+      fillScript = createAutofillScriptMock({ script: [] });
+      pageDetails = createAutofillPageDetailsMock();
+      pageDetails.fields = [];
+      filledFields = {};
+      options = createGenerateFillScriptOptionsMock();
+      options.cipher.name = "My SSH key";
+      options.cipher.sshKey = mock<SshKeyView>({
+        publicKey: "ssh-ed25519 AAAApublickey comment",
+        privateKey: "private",
+        keyFingerprint: "SHA256:fingerprint",
+      });
+    });
+
+    it("returns null if an SSH key is not found within the cipher", () => {
+      options.cipher.sshKey = null;
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value).toBeNull();
+    });
+
+    it("fills the public key into a GitHub-shaped key textarea and the name into the title", () => {
+      const publicKeyField = createAutofillFieldMock({
+        opid: "public-key",
+        htmlName: "ssh_key[key]",
+        htmlID: "ssh_key_key",
+        tagName: "textarea",
+        placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+        "label-tag": "Key",
+      });
+      const titleField = createAutofillFieldMock({
+        opid: "title",
+        htmlName: "ssh_key[title]",
+        htmlID: "ssh_key_title",
+        tagName: "input",
+        type: "text",
+        placeholder: "",
+        "label-tag": "Title",
+      });
+      pageDetails.fields = [publicKeyField, titleField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toContainEqual([
+        "fill_by_opid",
+        publicKeyField.opid,
+        "ssh-ed25519 AAAApublickey comment",
+      ]);
+      expect(value.script).toContainEqual(["fill_by_opid", titleField.opid, "My SSH key"]);
+    });
+
+    it("matches a GitLab-shaped textarea via the data-supported-algorithms attribute", () => {
+      const publicKeyField = createAutofillFieldMock({
+        opid: "public-key",
+        htmlName: "key[key]",
+        htmlID: "key_key",
+        tagName: "textarea",
+        placeholder: "",
+        "label-tag": "Key",
+        dataSetValues: 'supportedAlgorithms: ["ssh-rsa","ssh-ed25519"]',
+      });
+      pageDetails.fields = [publicKeyField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toContainEqual([
+        "fill_by_opid",
+        publicKeyField.opid,
+        "ssh-ed25519 AAAApublickey comment",
+      ]);
+    });
+
+    it("does not fill the title when no public key field is present on the page", () => {
+      const titleField = createAutofillFieldMock({
+        opid: "title",
+        htmlName: "ssh_key[title]",
+        tagName: "input",
+        type: "text",
+        placeholder: "",
+        "label-tag": "Title",
+      });
+      pageDetails.fields = [titleField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toStrictEqual([]);
+    });
+
+    it("does not fill single-line key inputs such as api_key", () => {
+      const apiKeyField = createAutofillFieldMock({
+        opid: "api-key",
+        htmlName: "api_key",
+        htmlID: "api_key",
+        tagName: "input",
+        type: "text",
+        placeholder: "",
+        "label-tag": "API key",
+        "label-left": "",
+        "label-right": "",
+        "label-top": "",
+        "label-aria": "",
+        title: "",
+      });
+      pageDetails.fields = [apiKeyField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toStrictEqual([]);
     });
   });
 

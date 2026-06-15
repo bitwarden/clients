@@ -335,7 +335,7 @@ export class ViewComponent {
     }
 
     const validAutofillType = (
-      [CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]
+      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
     ).includes(CipherViewLikeUtils.getType(this.cipher));
 
     return validAutofillType && !(this.cipher.isArchived || this.cipher.isDeleted);

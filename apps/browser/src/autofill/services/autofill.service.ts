@@ -70,6 +70,7 @@ import {
   CardExpiryDateFormat,
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
+  SshKeyAutoFillConstants,
 } from "./autofill-constants";
 
 export default class AutofillService implements AutofillServiceInterface {
@@ -865,6 +866,9 @@ export default class AutofillService implements AutofillServiceInterface {
           filledFields,
           options,
         );
+        break;
+      case CipherType.SshKey:
+        result = this.generateSshKeyFillScript(fillScript, pageDetails, filledFields, options);
         break;
       default:
         return null;
@@ -1883,6 +1887,163 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fillScript;
+  }
+
+  /**
+   * Generates the autofill script for an SSH key cipher. Fills the SSH public key into the
+   * key field (a textarea on "add SSH key" forms such as GitHub and GitLab) and the cipher
+   * name into the title field. The title is only filled when a public key field is present on
+   * the page, to avoid matching generic "title"/"name" inputs on unrelated forms.
+   *
+   * @param fillScript - The autofill script to add to
+   * @param pageDetails - The collected page details
+   * @param filledFields - The fields that have already been filled
+   * @param options - The fill script generation options
+   */
+  private generateSshKeyFillScript(
+    fillScript: AutofillScript,
+    pageDetails: AutofillPageDetails,
+    filledFields: { [id: string]: AutofillField },
+    options: GenerateFillScriptOptions,
+  ): AutofillScript | null {
+    const sshKey = options.cipher.sshKey;
+    if (!sshKey) {
+      return null;
+    }
+
+    const hasPublicKeyField = pageDetails.fields.some((field) => this.isSshPublicKeyField(field));
+
+    let publicKeyFilled = false;
+    let titleFilled = false;
+    for (let fieldsIndex = 0; fieldsIndex < pageDetails.fields.length; fieldsIndex++) {
+      const field = pageDetails.fields[fieldsIndex];
+      if (this.excludeFieldFromSshKeyFill(field)) {
+        continue;
+      }
+
+      if (!publicKeyFilled && this.isSshPublicKeyField(field)) {
+        publicKeyFilled = true;
+        this.makeScriptActionWithValue(fillScript, sshKey.publicKey, field, filledFields);
+        continue;
+      }
+
+      if (hasPublicKeyField && !titleFilled && this.isSshTitleField(field)) {
+        titleFilled = true;
+        this.makeScriptActionWithValue(fillScript, options.cipher.name, field, filledFields);
+        continue;
+      }
+    }
+
+    return fillScript;
+  }
+
+  /**
+   * Identifies if the current field should be excluded from triggering autofill of the SSH
+   * key cipher. Unlike the identity check, textareas are NOT excluded since the SSH public
+   * key field is itself a textarea.
+   *
+   * @param field - The field to check
+   */
+  private excludeFieldFromSshKeyFill(field: AutofillField): boolean {
+    return (
+      AutofillService.isExcludedFieldType(field, [
+        "password",
+        ...AutoFillConstants.ExcludedAutofillTypes,
+      ]) || !field.viewable
+    );
+  }
+
+  /**
+   * Gathers all unique keyword identifiers from a field that can be used to determine which
+   * SSH key value should be filled.
+   *
+   * @param field - The field to gather keywords from
+   */
+  private getSshKeyAutofillFieldKeywords(field: AutofillField): string[] {
+    const keywords: Set<string> = new Set();
+    for (let index = 0; index < SshKeyAutoFillConstants.SshKeyAttributes.length; index++) {
+      const attribute = SshKeyAutoFillConstants.SshKeyAttributes[index];
+      const value = field[attribute];
+      if (value != null && typeof value === "string") {
+        keywords.add(
+          value
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9]+/g, ""),
+        );
+      }
+    }
+
+    return Array.from(keywords);
+  }
+
+  /**
+   * Identifies if a field is the SSH public key field. Requires a textarea (the shape used by
+   * GitHub/GitLab) combined with a strong SSH signal: an algorithm prefix in the placeholder
+   * or value (e.g. "ssh-rsa"), GitLab's `data-supported-algorithms` attribute, or a "key"
+   * keyword. Requiring the textarea avoids matching single-line inputs such as `api_key`.
+   *
+   * @param field - The field to check
+   */
+  private isSshPublicKeyField(field: AutofillField): boolean {
+    if (field.tagName !== "textarea") {
+      return false;
+    }
+
+    if (this.sshFieldHasAlgorithmSignal(field)) {
+      return true;
+    }
+
+    const keywords = this.getSshKeyAutofillFieldKeywords(field);
+    return keywords.some((keyword) =>
+      AutofillService.isFieldMatch(keyword, SshKeyAutoFillConstants.PublicKeyFieldNames),
+    );
+  }
+
+  /**
+   * Identifies if a field exposes an SSH algorithm signal, either an algorithm prefix in the
+   * placeholder/value/labels or the `data-supported-algorithms` attribute.
+   *
+   * @param field - The field to check
+   */
+  private sshFieldHasAlgorithmSignal(field: AutofillField): boolean {
+    const haystack = [
+      field.placeholder,
+      field.value,
+      field.dataSetValues,
+      field["label-tag"],
+      field["label-top"],
+      field["label-left"],
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .join(" ")
+      .toLowerCase();
+
+    if (haystack.includes(SshKeyAutoFillConstants.SupportedAlgorithmsAttribute)) {
+      return true;
+    }
+
+    return SshKeyAutoFillConstants.PublicKeyAlgorithmPrefixes.some((prefix) =>
+      haystack.includes(prefix),
+    );
+  }
+
+  /**
+   * Identifies if a field is the SSH key title field. Limited to non-textarea inputs whose
+   * keywords match a title field name. Callers should additionally confirm a public key field
+   * is present before filling.
+   *
+   * @param field - The field to check
+   */
+  private isSshTitleField(field: AutofillField): boolean {
+    if (field.tagName === "textarea" || this.isSshPublicKeyField(field)) {
+      return false;
+    }
+
+    const keywords = this.getSshKeyAutofillFieldKeywords(field);
+    return keywords.some((keyword) =>
+      AutofillService.isFieldMatch(keyword, SshKeyAutoFillConstants.TitleFieldNames),
+    );
   }
 
   /**
