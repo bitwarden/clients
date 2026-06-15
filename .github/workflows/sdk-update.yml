@@ -332,7 +332,7 @@ jobs:
             echo "### Links"
             echo "- [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
             if [ -n "$_TRIGGERING_RUN_ID" ]; then
-              echo "- [Triggering SDK Publish Run](https://github.com/bitwarden/sdk-internal/actions/runs/$_TRIGGERING_RUN_ID)"
+              echo "- [Triggering SDK Publish Run](https://github.com/bitwarden/deploy/actions/runs/$_TRIGGERING_RUN_ID)"
             fi
             echo "- [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)"
           } > /tmp/pr-body.md
