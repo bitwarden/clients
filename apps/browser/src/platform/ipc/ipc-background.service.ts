@@ -153,8 +153,9 @@ export class IpcBackgroundService extends IpcService {
    * using native messaging. It will automaticall retry and reconnect if the connection fails or is lost.
    */
   private async connectToDesktop() {
+    let port: browser.runtime.Port | chrome.runtime.Port | undefined;
     try {
-      const port = BrowserApi.connectNative("com.8bit.bitwarden");
+      port = BrowserApi.connectNative("com.8bit.bitwarden");
       this.nativeMessagingPort = port;
 
       port.onMessage.addListener((ipcMessage) => {
@@ -172,6 +173,14 @@ export class IpcBackgroundService extends IpcService {
         );
       });
 
+      // Register the disconnect handler before awaiting the discover handshake so that a
+      // disconnect during the handshake window (e.g. the desktop app closing) is still handled.
+      port.onDisconnect.addListener(() => {
+        this.logService.warning("[IPC] Disconnected from Bitwarden Desktop App");
+        this.nativeMessagingPort = undefined;
+        this.scheduleReconnect();
+      });
+
       // Ensure the desktop app is properly connected
       const version = await ipcRequestDiscover(
         this.client,
@@ -181,14 +190,11 @@ export class IpcBackgroundService extends IpcService {
       this.logService.info(
         `[IPC] Connected to Bitwarden Desktop App with version ${version.version}`,
       );
-
-      port.onDisconnect.addListener(() => {
-        this.logService.warning("[IPC] Disconnected from Bitwarden Desktop App");
-        this.nativeMessagingPort = undefined;
-        this.scheduleReconnect();
-      });
     } catch (e) {
       this.logService.error("[IPC] Failed to connect to Bitwarden Desktop App", e);
+      // Explicitly disconnect the port to avoid leaking the native port and its spawned
+      // desktop_proxy process when the handshake fails (e.g. the desktop app is unreachable).
+      port?.disconnect();
       this.nativeMessagingPort = undefined;
       this.scheduleReconnect();
     }
