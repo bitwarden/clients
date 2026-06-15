@@ -103,7 +103,6 @@ export class ByLinkTabComponent {
   );
 
   private readonly prefillAttempted = signal(false);
-  protected readonly isFilledFromClaimedDomains = signal(false);
 
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
@@ -115,15 +114,6 @@ export class ByLinkTabComponent {
         void this.prefillFromVerifiedDomains();
       }
     });
-
-    this.resetHintOnEdit();
-  }
-
-  /** Resets the autopopulation hint as soon as the user manually edits the domain field. */
-  private resetHintOnEdit(): void {
-    this.form.controls.domains.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.isFilledFromClaimedDomains.set(false));
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
@@ -135,7 +125,6 @@ export class ByLinkTabComponent {
     if (verifiedDomainNames.length > 0) {
       this.form.controls.domains.setValue(verifiedDomainNames.join(", "));
       this.form.controls.domains.markAsDirty();
-      this.isFilledFromClaimedDomains.set(true);
     }
   }
 

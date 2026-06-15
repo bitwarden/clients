@@ -13,19 +13,8 @@
 
 <bit-form-field class="tw-flex-1">
   <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
-  <input
-    bitInput
-    type="text"
-    [formControl]="form.controls.domains"
-    data-testid="allowedDomains"
-  />
-  <bit-hint>
-    @if (isFilledFromClaimedDomains()) {
-      {{ "domainsFilledFromClaimedDomains" | i18n }}
-    } @else {
-      {{ "allowedDomainsHint" | i18n }}
-    }
-  </bit-hint>
+  <input bitInput type="text" [formControl]="form.controls.domains" data-testid="allowedDomains" />
+  <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
   <button
     type="button"
     bitButton
