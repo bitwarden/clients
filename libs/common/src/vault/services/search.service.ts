@@ -95,6 +95,28 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
+      // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
+    // A vault item consists of targets. A target is extracted from the various information in the vault item, such as name, notes.
+    //
+    // For each part in the query, at least on target must contain the part. If all query parts are found in the vault item target,
+    // then the vault item matches the search.
+    //
+    // Example:
+    // {
+    //    name: "Email Work MyCompany",
+    //    username: "alice@mycompany.com",
+    //    notes: "Archived"
+    // }
+    //
+    // Valid queries:
+    // - "email work"
+    // - "alice mycompany"
+    // - "alice archived"
+    // - "work email"
+    // - "mycomp mail" (matches on MyCompany and Email)
+    //
+    // This allows a user to not have to remember the exact order they used when creating the item,
+    // leading to a more consistent search experience.
     const terms = normalizeSearchQuery(query.trim().toLowerCase()).split(/\s+/).filter(Boolean);
 
     return ciphers.filter((c) => {
