@@ -982,7 +982,7 @@ export default class MainBackground {
       pinStateService,
     );
 
-    this.ipcContentScriptManagerService = new IpcContentScriptManagerService();
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.biometricsService = new BackgroundBrowserBiometricsService(

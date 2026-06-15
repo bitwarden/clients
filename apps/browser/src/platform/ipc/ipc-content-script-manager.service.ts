@@ -1,3 +1,6 @@
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
 import { BrowserApi } from "../browser/browser-api";
 
 const IPC_CONTENT_SCRIPT_ID = "ipc-content-script";
@@ -5,9 +8,18 @@ const IPC_CONTENT_SCRIPT_FILE = "content/ipc-content-script.js";
 const IPC_CONTENT_SCRIPT_MATCHES = ["https://*/*"];
 
 export class IpcContentScriptManagerService {
+  constructor(private readonly configService: ConfigService) {}
+
   async init() {
     if (!BrowserApi.isManifestVersion(3)) {
       // IPC not supported on MV2
+      return;
+    }
+
+    const enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ContentScriptIpcChannelFramework,
+    );
+    if (!enabled) {
       return;
     }
 
