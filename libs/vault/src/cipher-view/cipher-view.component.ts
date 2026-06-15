@@ -93,7 +93,7 @@ export class CipherViewComponent {
    */
   protected readonly bannerComponent: Type<unknown> | null = inject(CIPHER_VIEW_BANNER, {
     optional: true,
-  }) as Type<unknown> | null;
+  });
 
   /**
    * Observable version of the cipher input

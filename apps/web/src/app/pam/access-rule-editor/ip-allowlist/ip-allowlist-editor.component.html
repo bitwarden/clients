@@ -9,7 +9,7 @@
       <input
         bitInput
         type="text"
-        [formControl]="$any(control)"
+        [formControl]="control"
         [placeholder]="'accessRuleIpAllowlistCidrPlaceholder' | i18n"
         [readonly]="readonly()"
         (input)="onRowChange()"

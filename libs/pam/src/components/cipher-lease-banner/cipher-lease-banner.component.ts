@@ -168,6 +168,10 @@ export class CipherLeaseBannerComponent implements OnInit {
     { validators: [endAfterStartValidator, windowWithinMaxDurationValidator] },
   );
 
+
+  /** Inert snapshot for non-PAM ciphers — mirrors the service's 404 fallback. */
+  private readonly emptyAccessState: CipherAccessState = {};
+
   // Extend-lease fold-out: a duration preset plus a mandatory justification. Extensions are always auto-approved.
   protected readonly extendForm = this.fb.group({
     durationMinutes: this.fb.nonNullable.control<number>(60, {
@@ -190,10 +194,10 @@ export class CipherLeaseBannerComponent implements OnInit {
         // the reveal swaps in the full cipher (partialData gone, leaseGated set).
         relevant
           ? this.pamApiService.getCipherAccessState$(cipherId, userId)
-          : of({ lease: {} } as CipherAccessState),
+          : of(this.emptyAccessState),
       ),
     ),
-    { initialValue: { lease: {} } as CipherAccessState },
+    { initialValue: this.emptyAccessState },
   );
 
   protected readonly activeLease = computed(() => this.state().activeLease);

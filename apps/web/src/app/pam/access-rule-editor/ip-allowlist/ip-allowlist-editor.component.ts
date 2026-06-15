@@ -93,7 +93,7 @@ export class IpAllowlistEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly i18n = inject(I18nService);
 
-  protected readonly cidrArray = this.fb.array<string>(
+  protected readonly cidrArray = this.fb.nonNullable.array<string>(
     [],
     [noDuplicateCidrsValidator(), atLeastOneNonEmptyCidrValidator()],
   );
@@ -110,7 +110,7 @@ export class IpAllowlistEditorComponent implements OnInit {
   }
 
   get currentCidrs(): string[] {
-    return (this.cidrArray.controls as FormControl<string>[]).map((c) => c.value.trim());
+    return this.cidrArray.controls.map((c) => c.value.trim());
   }
 
   /** Returns `true` when the form is valid and ready to submit. */
