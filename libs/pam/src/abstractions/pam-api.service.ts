@@ -66,6 +66,10 @@ export abstract class PamApiService {
    * (or the cipher isn't visible, or the PAM flag is off). The response is
    * NOT persisted into the local cipher cache: callers should treat it as
    * transient and re-fetch on every view.
+   *
+   * @deprecated Scheduled for removal; the full leased cipher will be served
+   * through the standard cipher read path rather than this dedicated endpoint
+   * (`GET /ciphers/{id}/lease/cipher`). Still fully functional for now.
    */
   abstract getLeasedCipher(cipherId: string): Promise<CipherResponse>;
   abstract cancelAccessRequest(id: string): Promise<void>;
