@@ -116,7 +116,7 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     } catch (e) {
       // Do not log the password value or any decrypted vault data.
       this.logService.error(
-        `[ExposedPasswordsReport] [${this.reportScope}] Failed to check if password was exposed`,
+        `[ExposedPasswordsReport] [${this.reportScope}] Failed to check if password was exposed for cipher ${cv.id}`,
         e,
       );
       return null;

@@ -38,6 +38,7 @@ export abstract class CipherReportComponent implements OnDestroy {
 
   loading = false;
   hasLoaded = false;
+  loadFailed = false;
   ciphers: CipherView[] = [];
   allCiphers: CipherView[] = [];
   dataSource = new TableDataSource<CipherView>();
@@ -138,16 +139,11 @@ export abstract class CipherReportComponent implements OnDestroy {
 
   async load() {
     this.loading = true;
+    this.loadFailed = false;
     try {
-      try {
-        this.logService.info(`[CipherReport] [${this.reportScope}] Starting full sync`);
-        await this.syncService.fullSync(false);
-        this.logService.info(`[CipherReport] [${this.reportScope}] Full sync complete`);
-      } catch (e) {
-        this.logService.error(`[CipherReport] [${this.reportScope}] Full sync failed`, e);
-        // Re-throw so the failure is not silently swallowed and continues to surface as before.
-        throw e;
-      }
+      this.logService.info(`[CipherReport] [${this.reportScope}] Starting full sync`);
+      await this.syncService.fullSync(false);
+      this.logService.info(`[CipherReport] [${this.reportScope}] Full sync complete`);
 
       // when a user fixes an item in a report we want to persist the filter they had
       // if they fix the last item of that filter we will go back to the "All" filter
@@ -160,19 +156,14 @@ export abstract class CipherReportComponent implements OnDestroy {
           await this.filterOrgToggle(0);
         }
       } else {
-        // setCiphers() is polymorphic — each report overrides it without calling super, so the
-        // base-level entry/error logging must wrap the call site here to actually run.
-        try {
-          this.logService.info(`[CipherReport] [${this.reportScope}] Setting ciphers`);
-          await this.setCiphers();
-        } catch (e) {
-          this.logService.error(`[CipherReport] [${this.reportScope}] Failed to set ciphers`, e);
-          throw e;
-        }
+        this.logService.info(`[CipherReport] [${this.reportScope}] Setting ciphers`);
+        await this.setCiphers();
       }
-      // Only mark the report as loaded on the success path. On failure we let the error propagate
-      // with hasLoaded still false, so the template does not render a misleading "success" state.
       this.hasLoaded = true;
+    } catch (e) {
+      this.loadFailed = true;
+      this.logService.error(`[CipherReport] [${this.reportScope}] Failed to load report`, e);
+      throw e;
     } finally {
       this.loading = false;
     }

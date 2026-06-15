@@ -95,9 +95,10 @@ describe("InactiveTwoFactorReportComponent (organization)", () => {
     await flushMicrotasks();
 
     expect(logService.error).toHaveBeenCalledWith(
-      expect.stringContaining("Failed to load organization ciphers"),
+      expect.stringContaining("Failed to load report"),
       expect.any(Error),
     );
+    expect(component.loadFailed).toBe(true);
   });
 
   it("does not log a successful initialization when context loading fails", async () => {
@@ -109,5 +110,6 @@ describe("InactiveTwoFactorReportComponent (organization)", () => {
     expect(logService.info).not.toHaveBeenCalledWith(
       expect.stringContaining("Initialized report for organization"),
     );
+    expect(component.loadFailed).toBe(true);
   });
 });

@@ -91,23 +91,23 @@ export class ReusedPasswordsReportComponent
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const ctx = await this.orgReportContext.load(params.organizationId, logContext);
-          this.organization = ctx.organization;
-          this.manageableCipherIds = ctx.manageableCipherIds;
-          this.sharedCollectionIds = ctx.sharedCollectionIds;
-
-          // Runs after this.organization is assigned — the overridden getAllCiphers() reads it.
           try {
-            await super.ngOnInit();
-          } catch (e) {
-            this.logService.error(`${logContext} Failed to load organization ciphers`, e);
-            throw e;
-          }
+            const ctx = await this.orgReportContext.load(params.organizationId, logContext);
+            this.organization = ctx.organization;
+            this.manageableCipherIds = ctx.manageableCipherIds;
+            this.sharedCollectionIds = ctx.sharedCollectionIds;
 
-          this.logService.info(
-            `${logContext} Initialized report for organization ${this.organization?.id} ` +
-              `with ${this.manageableCipherIds.size} manageable ciphers`,
-          );
+            // Runs after this.organization is assigned — the overridden getAllCiphers() reads it.
+            await super.ngOnInit();
+
+            this.logService.info(
+              `${logContext} Initialized report for organization ${this.organization?.id} ` +
+                `with ${this.manageableCipherIds.size} manageable ciphers`,
+            );
+          } catch (e) {
+            this.logService.error(`${logContext} Failed to load report`, e);
+            this.loadFailed = true;
+          }
         }),
         takeUntil(this.destroyed$),
       )

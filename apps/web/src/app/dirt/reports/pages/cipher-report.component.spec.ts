@@ -76,9 +76,10 @@ describe("CipherReportComponent", () => {
     expect(mockLogService.error).toHaveBeenCalledWith(expect.any(String), syncError);
     // Spinner state must still settle so the UI does not hang.
     expect(component.loading).toBe(false);
-    // hasLoaded must remain false on failure so the template does not render a misleading
-    // "success" (e.g. "no exposed passwords found") state when the load never completed.
+    // hasLoaded must remain false and loadFailed must be set on failure so the template renders
+    // an error state instead of a misleading "success" (e.g. "no exposed passwords found") state.
     expect(component.hasLoaded).toBe(false);
+    expect(component.loadFailed).toBe(true);
   });
 
   it("should log a completion info message that includes a count on a successful load", async () => {
@@ -88,6 +89,7 @@ describe("CipherReportComponent", () => {
 
     expect(mockLogService.error).not.toHaveBeenCalled();
     expect(mockLogService.info).toHaveBeenCalled();
+    expect(component.loadFailed).toBe(false);
   });
 
   it("should log entry into setCiphers during load", async () => {
@@ -106,14 +108,15 @@ describe("CipherReportComponent", () => {
     await expect(component.load()).rejects.toThrow(setCiphersError);
 
     expect(mockLogService.error).toHaveBeenCalledWith(
-      expect.stringContaining("Failed to set ciphers"),
+      expect.stringContaining("Failed to load report"),
       setCiphersError,
     );
     // Spinner state must still settle so the UI does not hang.
     expect(component.loading).toBe(false);
-    // hasLoaded must remain false on failure so the template does not render a misleading
-    // "success" (e.g. "no exposed passwords found") state when the load never completed.
+    // hasLoaded must remain false and loadFailed must be set on failure so the template renders
+    // an error state instead of a misleading "success" (e.g. "no exposed passwords found") state.
     expect(component.hasLoaded).toBe(false);
+    expect(component.loadFailed).toBe(true);
   });
 
   it("should remove the cipher from the report if it was deleted", async () => {
