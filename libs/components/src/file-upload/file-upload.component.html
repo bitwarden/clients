@@ -19,6 +19,10 @@
       [ariaDescribedBy]="ariaDescribedBy()"
       (filesSelected)="onFilesSelected($event)"
     />
+    <span class="tw-sr-only" role="status" aria-live="polite" aria-atomic="true">{{
+      statusMessage()
+    }}</span>
+    <span [id]="filesUploadedStatusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
   } @else {
     <div bitFieldContainer class="tw-relative" [hasError]="!!errorMessage()">
       <div

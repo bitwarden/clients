@@ -1,5 +1,6 @@
 @if (files().length > 0) {
-  <ul class="tw-list-none tw-p-0 tw-m-0">
+  <span [id]="labelId" class="tw-sr-only">{{ "uploadedFiles" | i18n }}</span>
+  <ul [attr.aria-labelledby]="labelId" class="tw-list-none tw-p-0 tw-m-0">
     @for (file of files(); track $index) {
       <li class="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-border-b tw-border-border-light">
         <bit-icon-tile icon="bwi-file" variant="subtle" size="sm" />
@@ -9,6 +10,7 @@
         </div>
         @if (!disabled()) {
           <button
+            #deleteBtn
             type="button"
             bitIconButton="bwi-trash"
             buttonType="dangerGhost"

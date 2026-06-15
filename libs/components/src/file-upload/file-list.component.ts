@@ -1,4 +1,12 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  input,
+  output,
+  viewChildren,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -6,6 +14,8 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 import { IconTileComponent } from "../icon-tile/icon-tile.component";
 
 import { FileNameComponent } from "./file-name.component";
+
+let nextId = 0;
 
 @Component({
   selector: "bit-file-list",
@@ -17,6 +27,8 @@ import { FileNameComponent } from "./file-name.component";
   },
 })
 export class FileListComponent {
+  protected readonly labelId = `bit-file-list-${nextId++}-label`;
+
   /** Files to display in the list */
   readonly files = input<File[]>([]);
 
@@ -25,6 +37,14 @@ export class FileListComponent {
 
   /** Emits the file when its delete button is clicked */
   readonly fileRemoved = output<File>();
+
+  private readonly deleteButtons = viewChildren("deleteBtn", { read: ElementRef });
+
+  /** Focus the delete button at the given index, if it exists. */
+  focusDeleteAt(index: number): void {
+    const element = this.deleteButtons()[index]?.nativeElement as HTMLButtonElement | undefined;
+    element?.focus();
+  }
 
   protected formatFileSize(bytes: number): string {
     if (bytes === 0) {
