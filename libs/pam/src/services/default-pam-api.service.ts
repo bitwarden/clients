@@ -89,6 +89,7 @@ export class DefaultPamApiService implements PamApiService {
     return response;
   }
 
+  // DEPRECATED: GET /ciphers/{id}/lease/cipher is scheduled for removal; kept functional. See PamApiService.getLeasedCipher.
   async getLeasedCipher(cipherId: string): Promise<CipherResponse> {
     return new CipherResponse(
       await this.send("GET", `/ciphers/${cipherId}/lease/cipher`, null, true),
