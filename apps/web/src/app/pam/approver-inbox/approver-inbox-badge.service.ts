@@ -20,6 +20,8 @@ import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { PamApiService } from "@bitwarden/pam";
 
+import { isActionableInboxRequest } from "./inbox-request-filter";
+
 /**
  * Drives the nav-badge count of pending lease requests while
  * {@link FeatureFlag.Pam} is on. Singleton (`providedIn: "root"`) so the badge
@@ -97,7 +99,11 @@ export class ApproverInboxBadgeService {
   private async fetchCount(): Promise<number> {
     try {
       const rows = await this.pamApiService.listInboxRequests();
-      return rows.length;
+      // Count only requests that can still be actioned; a timed-out request is
+      // not something the approver needs to decide, so it must not inflate the
+      // nav badge. Matches the inbox list filter.
+      const now = new Date();
+      return rows.filter((row) => isActionableInboxRequest(row, now)).length;
     } catch (e) {
       this.logService.error(e);
       return this._count$.value;
