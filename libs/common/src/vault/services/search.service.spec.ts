@@ -3,7 +3,10 @@ import { BehaviorSubject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { SearchService } from "./search.service";
 
@@ -11,6 +14,18 @@ function createCipherView(id: string, name: string): CipherView {
   const cipher = new CipherView();
   cipher.id = id;
   cipher.name = name;
+  return cipher;
+}
+
+function createLoginCipherView(id: string, name: string, uris: string[]): CipherView {
+  const cipher = createCipherView(id, name);
+  cipher.type = CipherType.Login;
+  cipher.login = new LoginView();
+  cipher.login.uris = uris.map((uri) => {
+    const uriView = new LoginUriView();
+    uriView.uri = uri;
+    return uriView;
+  });
   return cipher;
 }
 
@@ -121,6 +136,27 @@ describe("SearchService", () => {
         const ciphers = [createCipherView("cipher-1", "Ré Login")];
 
         expect(service.searchCiphersBasic(ciphers, "ré")).toHaveLength(1);
+      });
+    });
+
+    describe("login URI matching", () => {
+      it("matches against the URI hostname", () => {
+        const ciphers = [
+          createLoginCipherView("cipher-1", "My Login", ["https://example.com/path"]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "example.com")).toHaveLength(1);
+      });
+
+      it("does not match against the URI path or query params", () => {
+        const ciphers = [
+          createLoginCipherView("cipher-1", "My Login", [
+            "https://example.com/secret-path?secretValue=hidden",
+          ]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "secret-path")).toHaveLength(0);
+        expect(service.searchCiphersBasic(ciphers, "secretvalue")).toHaveLength(0);
       });
     });
   });

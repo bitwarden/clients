@@ -138,7 +138,10 @@ export class SearchService implements SearchServiceAbstraction {
           login.uris?.length &&
           login.uris?.some(
             (loginUri) =>
-              loginUri?.uri && normalizeSearchQuery(loginUri.uri.toLowerCase()).indexOf(term) > -1,
+              loginUri?.uri &&
+              normalizeSearchQuery(
+                CipherViewLikeUtils.getUriHostname(loginUri).toLowerCase(),
+              ).indexOf(term) > -1,
           )
         ) {
           return true;
