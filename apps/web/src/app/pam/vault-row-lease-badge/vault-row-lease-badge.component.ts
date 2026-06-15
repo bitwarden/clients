@@ -6,18 +6,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { GatedState, PamApiService } from "@bitwarden/pam";
 
 import { CipherLeaseBadgeComponent } from "../cipher-lease-badge/cipher-lease-badge.component";
-
-/**
- * Minimal cipher shape needed to drive the badge. `partialData` (the raw
- * JSON-string the server attaches to PAM-gated rows) is the gating signal:
- * when present, we render the badge. Compatible with both `CipherView`
- * (carries partialData) and the SDK `CipherListView` (does not — those rows
- * never render the badge today).
- */
-type BadgeCipher = { id: string; partialData?: string };
 
 type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
 
@@ -40,7 +35,7 @@ type LeaseBadgeView = { state: GatedState; expiresAt: Date | null };
   `,
 })
 export class VaultRowLeaseBadgeComponent {
-  readonly cipher = input.required<BadgeCipher>();
+  readonly cipher = input.required<CipherViewLike>();
 
   private readonly accountService = inject(AccountService);
   private readonly configService = inject(ConfigService);
@@ -57,8 +52,14 @@ export class VaultRowLeaseBadgeComponent {
   ]).pipe(
     switchMap(([cipher, enabled, userId]) => {
       // Gating is driven by the server-supplied `partialData` blob that ships
-      // with each cipher on sync. No blob → not gated → no badge.
-      if (!cipher || !enabled || cipher.partialData == null) {
+      // with each cipher on sync. Only `CipherView` carries it — `CipherListView`
+      // rows never render the badge. No blob → not gated → no badge.
+      if (
+        !cipher ||
+        !enabled ||
+        CipherViewLikeUtils.isCipherListView(cipher) ||
+        cipher.partialData == null
+      ) {
         return of(null);
       }
       return this.pamApiService.getCipherAccessState$(cipher.id, userId).pipe(
