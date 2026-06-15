@@ -3,23 +3,20 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  NgZone,
   OnInit,
   computed,
   effect,
   inject,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   BadgeComponent,
   BadgeVariant,
   ButtonModule,
-  ContainerComponent,
   NoItemsModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -71,20 +68,25 @@ export type MyRequestRow = {
 };
 
 /**
- * "My requests" page. Surfaces the caller's own AccessRequests, split into:
+ * The caller's own AccessRequests, split into:
  *  - Pending (status = pending)
  *  - Recent  (status ≠ pending AND resolvedAt within RECENT_WINDOW_DAYS)
+ *
+ * Self-contained (loads its own data, manages its own countdown clock and
+ * optimistic start/cancel) so it can be embedded wherever the caller's own
+ * requests need to surface — currently the "My requests" section of the
+ * approver inbox. Any page chrome (container, feature-flag gate) stays with the
+ * embedding caller.
  *
  * Capped at MY_REQUESTS_PAGE_LIMIT per section in v0; filtering, sorting, and
  * pagination are explicit non-goals.
  */
 @Component({
-  selector: "app-pam-my-access-requests",
+  selector: "app-pam-my-access-requests-list",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./my-access-requests.component.html",
+  templateUrl: "./my-access-requests-list.component.html",
   imports: [
     CommonModule,
-    ContainerComponent,
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
@@ -95,15 +97,14 @@ export type MyRequestRow = {
     I18nPipe,
   ],
 })
-export class MyAccessRequestsComponent implements OnInit {
+export class MyAccessRequestsListComponent implements OnInit {
   private readonly pamApi = inject(PamApiService);
-  private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
-  protected readonly showPam = signal(false);
   protected readonly loading = signal(true);
   protected readonly cancelling = signal<Set<string>>(new Set<string>());
   /** Ids of approved requests currently being activated (prevents double-click). */
@@ -144,11 +145,6 @@ export class MyAccessRequestsComponent implements OnInit {
   protected readonly recentDataSource = new TableDataSource<MyRequestRow>();
 
   constructor() {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.Pam)
-      .pipe(takeUntilDestroyed())
-      .subscribe((enabled) => this.showPam.set(enabled));
-
     effect(() => {
       this.pendingDataSource.data = this.pendingRows();
     });
@@ -158,8 +154,13 @@ export class MyAccessRequestsComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
-    this.destroyRef.onDestroy(() => clearInterval(intervalId));
+    // Keep the countdown clock outside the Angular zone: a periodic in-zone timer never lets
+    // NgZone settle, which would hang `fixture.whenStable()` for any host that embeds this list
+    // (e.g. the approver inbox). The signal write still drives change detection on its own.
+    this.ngZone.runOutsideAngular(() => {
+      const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
+      this.destroyRef.onDestroy(() => clearInterval(intervalId));
+    });
     await this.reload();
   }
 
@@ -184,8 +185,24 @@ export class MyAccessRequestsComponent implements OnInit {
     return this.cancelling().has(id);
   }
 
+  /**
+   * A request the requester can withdraw: still pending, or an approved-but-not-activated request whose window can
+   * still produce access. An "approved" status implies no lease yet (the server reports "activated" once one exists);
+   * once its window lapses it can no longer be started, so — like the Start action — Cancel is withheld and it awaits
+   * server-side expiry.
+   */
+  protected canCancel(row: MyRequestRow): boolean {
+    if (row.status === AccessRequestStatus.Pending) {
+      return true;
+    }
+    return (
+      row.status === AccessRequestStatus.Approved &&
+      (row.requestedNotAfter == null || row.requestedNotAfter.getTime() > this.nowMs())
+    );
+  }
+
   protected async cancel(row: MyRequestRow): Promise<void> {
-    if (row.status !== AccessRequestStatus.Pending || this.isCancelling(row.id)) {
+    if (!this.canCancel(row) || this.isCancelling(row.id)) {
       return;
     }
 
@@ -346,7 +363,7 @@ export function resolveResolver(
   return { resolverLabelKey: null, resolverName: response.approverId };
 }
 
-function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
+export function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
   return {
     id: response.id,
     cipherId: response.cipherId,

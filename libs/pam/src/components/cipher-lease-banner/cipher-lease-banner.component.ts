@@ -280,7 +280,9 @@ export class CipherLeaseBannerComponent implements OnInit {
   };
 
   readonly cancelAccessRequest = async () => {
-    const request = this.pendingRequest();
+    // Covers both a pending request and an approved-but-not-activated one: either can be withdrawn until a lease is
+    // minted, after which the lease (not the request) governs access.
+    const request = this.pendingRequest() ?? this.approvedRequest();
     if (!request) {
       return;
     }

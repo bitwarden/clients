@@ -1,15 +1,12 @@
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
 
-import { MyAccessRequestsComponent } from "./my-access-requests.component";
+import { MyAccessRequestsListComponent } from "./my-access-requests-list.component";
 
 type Fixture = {
   id: string;
@@ -59,7 +56,6 @@ const i18nMock = () =>
   new I18nMockService({
     loading: "Loading…",
     cancel: "Cancel",
-    pamMyRequestsPageTitle: "My requests",
     pamMyRequestsEmptyTitle: "No access requests yet",
     pamMyRequestsEmptyDescription:
       "When you request access to a leased credential, it will show up here.",
@@ -100,15 +96,6 @@ const withFixtures = (responses: AccessRequestDetailsResponse[]) => ({
         { provide: I18nService, useFactory: i18nMock },
         { provide: PamApiService, useValue: pamApi(responses) },
         {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: (flag: FeatureFlag) =>
-              flag === FeatureFlag.Pam
-                ? new BehaviorSubject<boolean>(true).asObservable()
-                : new BehaviorSubject<boolean>(false).asObservable(),
-          },
-        },
-        {
           provide: ToastService,
           useValue: { showToast: (): void => undefined },
         },
@@ -120,10 +107,10 @@ const withFixtures = (responses: AccessRequestDetailsResponse[]) => ({
 
 export default {
   title: "Web/PAM/My Requests",
-  component: MyAccessRequestsComponent,
-} as Meta<MyAccessRequestsComponent>;
+  component: MyAccessRequestsListComponent,
+} as Meta<MyAccessRequestsListComponent>;
 
-type Story = StoryObj<MyAccessRequestsComponent>;
+type Story = StoryObj<MyAccessRequestsListComponent>;
 
 export const Empty: Story = {
   ...withFixtures([]),

@@ -14781,6 +14781,9 @@
   "pamInboxSubtitle": {
     "message": "Review and act on access requests, and manage who has temporary access to your collections."
   },
+  "pamInboxMyRequestsTitle": {
+    "message": "My requests"
+  },
   "requestAccessModalDuration15m": {
     "message": "15 minutes"
   },
@@ -15289,6 +15292,15 @@
   "pamInboxRevokedToast": {
     "message": "Access revoked"
   },
+  "pamInboxCancelApproval": {
+    "message": "Cancel"
+  },
+  "pamInboxCancelApprovalToast": {
+    "message": "Approval cancelled"
+  },
+  "pamInboxCancelApprovalFailed": {
+    "message": "Could not cancel approval"
+  },
   "pamInboxWindow": {
     "message": "Requested window"
   },
@@ -15312,9 +15324,6 @@
   },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
-  },
-  "pamMyRequestsPageTitle": {
-    "message": "My requests"
   },
   "pamMyRequestsPendingEmpty": {
     "message": "No pending requests"

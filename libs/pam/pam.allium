@@ -231,6 +231,7 @@ entity AccessRequest {
         approved -> activated
         approved -> expired
         approved -> denied
+        approved -> cancelled
         terminal: activated, denied, cancelled, expired
     }
 }
@@ -480,8 +481,11 @@ rule MemberSubmitsAccessRequest {
 }
 
 rule MemberCancelsOwnRequest {
+    -- The requester withdraws their own not-yet-activated request: still pending, or
+    -- approved but not yet activated (status = approved implies no lease — once a lease
+    -- is minted the request is activated, governed by ApproverRevokesLease instead).
     when: MemberCancelsRequest(member, request)
-    requires: request.status = pending
+    requires: request.status in {pending, approved}
     requires: request.requester = member
     ensures: request.status = cancelled
     ensures: request.resolved_at = now
@@ -609,6 +613,25 @@ rule ApproverDeniesRequest {
     ensures: request.resolved_at = now
     ensures: request.resolver = approver
     ensures: request.resolver_comment = comment
+}
+
+rule ApproverRetractsRequest {
+    -- A managing approver retracts a not-yet-activated request — still pending, or
+    -- approved but not yet activated (status = approved implies no lease). Recorded as
+    -- a denial BY the approver so the audit trail names them, distinct from a member's
+    -- own cancellation (MemberCancelsOwnRequest), which records no resolver. No comment
+    -- is captured: this is a retraction, not a considered decision. An activated request
+    -- (one that produced a lease) is out of scope — that access is governed by the lease
+    -- and ended via ApproverRevokesLease. Distinct from ApproverDecides, which only acts
+    -- on a pending request; this also reaches an already-approved one.
+    when: ApproverCancelsRequest(approver, request)
+    requires: request.status in {pending, approved}
+    requires: approver in EligibleApprovers(request)
+    requires: approver != request.requester
+    ensures: request.status = denied
+    ensures: request.resolved_at = now
+    ensures: request.resolver = approver
+    ensures: request.resolver_comment = null
 }
 
 -- ----------------------------------------------------------------------------
@@ -1116,8 +1139,18 @@ surface MyAccessRequestsPage {
             r.activation_deadline
 
     provides:
+        -- Withdraw a not-yet-activated request. A pending request can always be
+        -- withdrawn; an approved one only while its window can still produce access —
+        -- once requested_not_after passes it can no longer be started, so (like the
+        -- Start action) Cancel is withheld and it awaits server-side expiry. (The
+        -- transition itself, MemberCancelsOwnRequest, does not gate on the window; this
+        -- guard is the client UX gating, mirroring MemberActivatesLease.)
         MemberCancelsRequest(requester, request)
-            when request.status = pending and request.requester = requester
+            when request.requester = requester
+             and (request.status = pending
+                  or (request.status = approved
+                      and (request.requested_not_after = null
+                           or now <= request.requested_not_after)))
         -- Activate an approved request: start the lease when ready. Offered only
         -- while the window can still produce access — once requested_not_after
         -- passes, the server rejects activation, so the action is withheld.
@@ -1190,6 +1223,17 @@ surface ApproverInbox {
     provides:
         ApproverDecides(approver, request, verdict, comment)
             when request.status = pending and approver != request.requester
+        -- Retract a not-yet-activated request the approver manages (→ denied). A
+        -- pending one any time; an approved one only while its window can still
+        -- produce access — past that it can no longer be started, so the action is
+        -- withheld (the ApproverRetractsRequest transition ignores the window; this is
+        -- the client UX gating).
+        ApproverCancelsRequest(approver, request)
+            when approver != request.requester
+             and (request.status = pending
+                  or (request.status = approved
+                      and (request.requested_not_after = null
+                           or now <= request.requested_not_after)))
         ApproverRevokesLeaseAction(approver, lease, reason)
             when lease.status = active
 }

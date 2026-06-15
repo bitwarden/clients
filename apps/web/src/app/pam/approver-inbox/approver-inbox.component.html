@@ -37,6 +37,14 @@
     </div>
   }
 
+  <!-- My requests: the viewer's own requests (separate from the approver queue above) -->
+  <section class="tw-flex tw-flex-col tw-gap-3" data-testid="approver-inbox-my-requests">
+    <h2 bitTypography="h6" class="tw-m-0 tw-text-muted tw-uppercase tw-tracking-wide tw-text-xs">
+      {{ "pamInboxMyRequestsTitle" | i18n }}
+    </h2>
+    <app-pam-my-access-requests-list></app-pam-my-access-requests-list>
+  </section>
+
   <!-- Decision history -->
   <section class="tw-flex tw-flex-col tw-gap-3">
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
@@ -125,6 +133,20 @@
                   (click)="onRevoke(row.item)"
                 >
                   {{ "pamInboxRevoke" | i18n }}
+                </button>
+              }
+              @if (row.canCancel) {
+                <button
+                  bitButton
+                  type="button"
+                  buttonType="secondary"
+                  size="small"
+                  [loading]="cancelling().has(row.item.id)"
+                  [disabled]="cancelling().has(row.item.id)"
+                  data-testid="approver-inbox-cancel-approval"
+                  (click)="onCancelRequest(row.item)"
+                >
+                  {{ "pamInboxCancelApproval" | i18n }}
                 </button>
               }
             </td>

@@ -2,22 +2,19 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
 
 import {
-  MyAccessRequestsComponent,
+  MyAccessRequestsListComponent,
   RECENT_WINDOW_DAYS,
   resolveResolver,
   statusBadgeVariant,
   statusLabelKey,
-} from "./my-access-requests.component";
+} from "./my-access-requests-list.component";
 
 type ResponseFixture = {
   id: string;
@@ -51,9 +48,8 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
   });
 }
 
-describe("MyAccessRequestsComponent", () => {
+describe("MyAccessRequestsListComponent", () => {
   let pamApi: MockProxy<PamApiService>;
-  let configFlag$: BehaviorSubject<boolean>;
   let toast: MockProxy<ToastService>;
 
   const i18n = new I18nMockService({
@@ -94,21 +90,13 @@ describe("MyAccessRequestsComponent", () => {
     pamApi = mock<PamApiService>();
     pamApi.listMyAccessRequests.mockResolvedValue([]);
 
-    configFlag$ = new BehaviorSubject<boolean>(true);
     toast = mock<ToastService>();
 
     await TestBed.configureTestingModule({
-      imports: [MyAccessRequestsComponent, NoopAnimationsModule],
+      imports: [MyAccessRequestsListComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
         { provide: PamApiService, useValue: pamApi },
-        {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: (flag: FeatureFlag) =>
-              flag === FeatureFlag.Pam ? configFlag$.asObservable() : new BehaviorSubject(false),
-          },
-        },
         { provide: I18nService, useValue: i18n },
         { provide: ToastService, useValue: toast },
         { provide: LogService, useValue: { error: jest.fn() } },
@@ -120,20 +108,14 @@ describe("MyAccessRequestsComponent", () => {
   // `fixture.whenStable()` would hang — create inside fakeAsync and flush the load with tick().
   const create = (
     responses: AccessRequestDetailsResponse[],
-  ): ComponentFixture<MyAccessRequestsComponent> => {
+  ): ComponentFixture<MyAccessRequestsListComponent> => {
     pamApi.listMyAccessRequests.mockResolvedValue(responses);
-    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
     return fixture;
   };
-
-  it("hides the entire page when the PAM flag is off", fakeAsync(() => {
-    configFlag$.next(false);
-    const fixture = create([]);
-    expect(fixture.nativeElement.textContent.trim()).toBe("");
-  }));
 
   it("shows the global empty state when there are no requests", fakeAsync(() => {
     const fixture = create([]);
@@ -223,7 +205,7 @@ describe("MyAccessRequestsComponent", () => {
     pamApi.listMyAccessRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
     pamApi.cancelAccessRequest.mockResolvedValue(undefined);
 
-    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
@@ -250,7 +232,7 @@ describe("MyAccessRequestsComponent", () => {
     pamApi.listMyAccessRequests.mockResolvedValue([makeResponse({ id: "p1", status: "pending" })]);
     pamApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
 
-    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
@@ -272,7 +254,7 @@ describe("MyAccessRequestsComponent", () => {
   it("shows a toast and renders the empty state when load fails", fakeAsync(() => {
     pamApi.listMyAccessRequests.mockRejectedValue(new Error("boom"));
 
-    const fixture = TestBed.createComponent(MyAccessRequestsComponent);
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
     fixture.detectChanges();
     flush();
     fixture.detectChanges();

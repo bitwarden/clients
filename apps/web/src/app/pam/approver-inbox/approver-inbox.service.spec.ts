@@ -65,7 +65,10 @@ describe("sortInbox", () => {
 
 describe("ApproverInboxService", () => {
   let pamApiService: jest.Mocked<
-    Pick<PamApiService, "listInboxRequests" | "listInboxHistory" | "decideAccessRequest">
+    Pick<
+      PamApiService,
+      "listInboxRequests" | "listInboxHistory" | "decideAccessRequest" | "cancelAccessRequest"
+    >
   >;
   let encryptService: jest.Mocked<Pick<EncryptService, "decryptString">>;
   let service: ApproverInboxService;
@@ -75,8 +78,12 @@ describe("ApproverInboxService", () => {
       listInboxRequests: jest.fn(),
       listInboxHistory: jest.fn().mockResolvedValue([]),
       decideAccessRequest: jest.fn(),
+      cancelAccessRequest: jest.fn().mockResolvedValue(undefined),
     } as jest.Mocked<
-      Pick<PamApiService, "listInboxRequests" | "listInboxHistory" | "decideAccessRequest">
+      Pick<
+        PamApiService,
+        "listInboxRequests" | "listInboxHistory" | "decideAccessRequest" | "cancelAccessRequest"
+      >
     >;
 
     encryptService = {
@@ -221,6 +228,31 @@ describe("ApproverInboxService", () => {
       await service.load();
 
       expect(await firstValueFrom(service.badgeCount$)).toBe(2);
+    });
+  });
+
+  describe("cancelApprovedRequest", () => {
+    it("cancels via the API and flips the history row to denied", async () => {
+      pamApiService.listInboxRequests.mockResolvedValue([]);
+      pamApiService.listInboxHistory.mockResolvedValue([makeRow({ id: "appr-1" })]);
+      await service.load();
+
+      await service.cancelApprovedRequest("appr-1");
+
+      expect(pamApiService.cancelAccessRequest).toHaveBeenCalledWith("appr-1");
+      const history = await firstValueFrom(service.history$);
+      expect(history.find((r) => r.id === "appr-1")?.status).toBe("denied");
+    });
+
+    it("rethrows on API failure and leaves history untouched", async () => {
+      pamApiService.listInboxRequests.mockResolvedValue([]);
+      pamApiService.listInboxHistory.mockResolvedValue([makeRow({ id: "appr-1" })]);
+      pamApiService.cancelAccessRequest.mockRejectedValue(new Error("nope"));
+      await service.load();
+
+      await expect(service.cancelApprovedRequest("appr-1")).rejects.toThrow("nope");
+      const history = await firstValueFrom(service.history$);
+      expect(history.find((r) => r.id === "appr-1")?.status).toBe("pending");
     });
   });
 });

@@ -72,16 +72,28 @@
     class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
   >
     <span class="tw-text-sm tw-font-medium">{{ "pamApprovedRequestBannerTitle" | i18n }}</span>
-    <button
-      type="button"
-      bitButton
-      buttonType="primary"
-      size="small"
-      [bitAction]="activateLease"
-      id="cipher-lease-banner_button_start-lease"
-    >
-      {{ "pamStartLeaseButton" | i18n }}
-    </button>
+    <div class="tw-flex tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        [bitAction]="activateLease"
+        id="cipher-lease-banner_button_start-lease"
+      >
+        {{ "pamStartLeaseButton" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        [bitAction]="cancelAccessRequest"
+        id="cipher-lease-banner_button_cancel-approved-request"
+      >
+        {{ "pendingStateCancelRequest" | i18n }}
+      </button>
+    </div>
   </div>
 } @else if (pendingRequest()) {
   <div
