@@ -40,4 +40,5 @@ export enum NotificationType {
   PremiumStatusChanged = 27,
 
   RefreshApproverInbox = 28,
+  RefreshAccessRequest = 29,
 }

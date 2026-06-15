@@ -1,4 +1,4 @@
-import { merge, Observable, of, Subject, switchMap } from "rxjs";
+import { concat, from, merge, Observable, of, Subject, switchMap, timer } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -42,11 +42,35 @@ export class DefaultPamApiService implements PamApiService {
   ) {}
 
   getCipherAccessState$(cipherId: string, _userId: string): Observable<CipherAccessState> {
-    // Re-fetch on (a) initial subscription, (b) any lease event from the push
-    // channel, and (c) any local mutation. Mirrors the mock's
-    // `store.events$.pipe(map(snapshot), startWith(snapshot))` semantics.
-    return merge(of(undefined), this.accessEvents.allEvents$(), this.localRefresh$).pipe(
-      switchMap(() => this.fetchCipherAccessState(cipherId)),
+    // Re-fetch on (a) initial subscription, (b) any access-change push from the
+    // server (decide / activate / revoke / extend / cancel), and (c) any local
+    // mutation. Each fetch additionally arms a timer at the active lease's
+    // `notAfter`, so a lazily-expiring lease re-locks without a server push.
+    return merge(of(undefined), this.accessEvents.accessChanged$(), this.localRefresh$).pipe(
+      switchMap(() => this.fetchWithExpiry$(cipherId)),
+    );
+  }
+
+  /**
+   * Fetches the access-state snapshot and, when it carries a live lease, schedules
+   * a single re-fetch at the lease's `notAfter`. Expiry is lazy server-side (no
+   * push fires when a lease lapses), so without this timer an open cipher would
+   * keep showing its secrets past the window. The re-fetch returns no active lease
+   * (the server filters expired leases), which drives banners, row badges, and the
+   * open cipher dialog to re-lock on their own.
+   */
+  private fetchWithExpiry$(cipherId: string): Observable<CipherAccessState> {
+    return from(this.fetchCipherAccessState(cipherId)).pipe(
+      switchMap((state) => {
+        const notAfter = state.activeLease?.notAfter;
+        const untilExpiryMs = notAfter != null ? Date.parse(notAfter) - Date.now() : -1;
+        return untilExpiryMs > 0
+          ? concat(
+              of(state),
+              timer(untilExpiryMs).pipe(switchMap(() => this.fetchWithExpiry$(cipherId))),
+            )
+          : of(state);
+      }),
     );
   }
 

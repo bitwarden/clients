@@ -1,22 +1,18 @@
 import { mock } from "jest-mock-extended";
 import { Observable, Subject } from "rxjs";
 
+import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
-
-import { AccessEvent, AccessEventKind } from "../abstractions/access-event";
 
 import { DefaultAccessEventService } from "./default-access-event.service";
 
 type Tuple = readonly [NotificationResponse, UserId];
 
-function pushNotification(payload: Record<string, unknown> | null): NotificationResponse {
-  // The service reads only `notification.payload`. The real constructor can't
-  // produce a raw leasing payload anyway — leasing has no allocated
-  // NotificationType, so the constructor's switch leaves `payload` undefined —
-  // so we mock the response and supply just the field under test.
+function push(type: NotificationType): NotificationResponse {
+  // The service reads only `notification.type`; other fields are irrelevant.
   const notification = mock<NotificationResponse>();
-  notification.payload = payload;
+  notification.type = type;
   return notification;
 }
 
@@ -31,84 +27,47 @@ describe("DefaultAccessEventService", () => {
     service = new DefaultAccessEventService(upstream$.asObservable());
   });
 
-  it("emits an approved event for a lease_approved push matching the request id", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
+  it("emits a tick for a RefreshAccessRequest push", () => {
+    let ticks = 0;
+    service.accessChanged$().subscribe(() => ticks++);
 
-    upstream$.next([pushNotification({ kind: "lease_approved", requestId: "req-1" }), USER]);
+    upstream$.next([push(NotificationType.RefreshAccessRequest), USER]);
 
-    expect(received).toEqual([{ kind: AccessEventKind.Approved, requestId: "req-1" }]);
+    expect(ticks).toBe(1);
   });
 
-  it("emits a denied event for a lease_denied push matching the request id", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
+  it("ignores the approver-inbox push (that signal is consumed elsewhere)", () => {
+    let ticks = 0;
+    service.accessChanged$().subscribe(() => ticks++);
 
-    upstream$.next([pushNotification({ kind: "lease_denied", requestId: "req-1" }), USER]);
+    upstream$.next([push(NotificationType.RefreshApproverInbox), USER]);
 
-    expect(received).toEqual([{ kind: AccessEventKind.Denied, requestId: "req-1" }]);
+    expect(ticks).toBe(0);
   });
 
-  it("accepts PascalCase payload keys (raw API casing)", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
+  it("ignores unrelated push types", () => {
+    let ticks = 0;
+    service.accessChanged$().subscribe(() => ticks++);
 
-    upstream$.next([pushNotification({ Kind: "lease_approved", RequestId: "req-1" }), USER]);
+    upstream$.next([push(NotificationType.SyncCipherUpdate), USER]);
+    upstream$.next([push(NotificationType.AuthRequest), USER]);
 
-    expect(received).toEqual([{ kind: AccessEventKind.Approved, requestId: "req-1" }]);
+    expect(ticks).toBe(0);
   });
 
-  it("does not emit for pushes targeting a different request id", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
+  it("delivers the same tick to multiple subscribers", () => {
+    let a = 0;
+    let b = 0;
+    service.accessChanged$().subscribe(() => a++);
+    service.accessChanged$().subscribe(() => b++);
 
-    upstream$.next([pushNotification({ kind: "lease_approved", requestId: "req-2" }), USER]);
+    upstream$.next([push(NotificationType.RefreshAccessRequest), USER]);
 
-    expect(received).toEqual([]);
+    expect(a).toBe(1);
+    expect(b).toBe(1);
   });
 
-  it("ignores pushes with unknown kinds", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
-
-    upstream$.next([pushNotification({ kind: "lease_revoked", requestId: "req-1" }), USER]);
-    upstream$.next([pushNotification({ kind: undefined, requestId: "req-1" }), USER]);
-
-    expect(received).toEqual([]);
-  });
-
-  it("ignores pushes with missing or empty request id", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
-
-    upstream$.next([pushNotification({ kind: "lease_approved", requestId: "" }), USER]);
-    upstream$.next([pushNotification({ kind: "lease_approved" }), USER]);
-
-    expect(received).toEqual([]);
-  });
-
-  it("ignores pushes with a null payload", () => {
-    const received: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => received.push(e));
-
-    upstream$.next([pushNotification(null), USER]);
-
-    expect(received).toEqual([]);
-  });
-
-  it("delivers the same event to multiple subscribers watching the same request id", () => {
-    const a: AccessEvent[] = [];
-    const b: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => a.push(e));
-    service.events$("req-1").subscribe((e) => b.push(e));
-
-    upstream$.next([pushNotification({ kind: "lease_approved", requestId: "req-1" }), USER]);
-
-    expect(a).toEqual([{ kind: AccessEventKind.Approved, requestId: "req-1" }]);
-    expect(b).toEqual([{ kind: AccessEventKind.Approved, requestId: "req-1" }]);
-  });
-
-  it("shares a single upstream subscription across multiple per-request consumers", () => {
+  it("shares a single upstream subscription across consumers", () => {
     let subscriptions = 0;
     const counted$ = new Observable<Tuple>((subscriber) => {
       subscriptions++;
@@ -117,23 +76,9 @@ describe("DefaultAccessEventService", () => {
     });
     const shared = new DefaultAccessEventService(counted$);
 
-    shared.events$("req-1").subscribe();
-    shared.events$("req-1").subscribe();
-    shared.events$("req-2").subscribe();
+    shared.accessChanged$().subscribe();
+    shared.accessChanged$().subscribe();
 
     expect(subscriptions).toBe(1);
-  });
-
-  it("routes events to the correct per-request subscriber when multiple ids are watched", () => {
-    const a: AccessEvent[] = [];
-    const b: AccessEvent[] = [];
-    service.events$("req-1").subscribe((e) => a.push(e));
-    service.events$("req-2").subscribe((e) => b.push(e));
-
-    upstream$.next([pushNotification({ kind: "lease_approved", requestId: "req-1" }), USER]);
-    upstream$.next([pushNotification({ kind: "lease_denied", requestId: "req-2" }), USER]);
-
-    expect(a).toEqual([{ kind: AccessEventKind.Approved, requestId: "req-1" }]);
-    expect(b).toEqual([{ kind: AccessEventKind.Denied, requestId: "req-2" }]);
   });
 });

@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { filter } from "rxjs/operators";
+import { map, Observable } from "rxjs";
 
-import { AccessEvent, AccessEventService } from "@bitwarden/pam";
+import { AccessEventService } from "@bitwarden/pam";
 
 import { PamMockStore } from "./pam-mock-store";
 
@@ -11,16 +10,14 @@ import { PamMockStore } from "./pam-mock-store";
  *
  * In production {@link AccessEventService} is implemented by
  * `DefaultAccessEventService`, which subscribes to the app-wide WebPush/SignalR
- * notification stream and surfaces lease-approved / lease-denied push payloads.
- * There is no such server in the demo, so this mock stands in for that channel:
- * it republishes {@link PamMockStore.events$} — the Subject the store fires when
- * a pending request auto-decides — and filters by `requestId`, exactly matching
- * the real `events$(requestId)` contract.
+ * notification stream and surfaces {@link NotificationType.RefreshAccessRequest}
+ * pushes. There is no such server in the demo, so this mock stands in for that
+ * channel: it maps {@link PamMockStore.events$} — the Subject the store fires when
+ * a pending request auto-decides or a lease lapses — down to the same bare
+ * "your access changed, re-fetch" tick the real service emits.
  *
- * This is what lets `PendingStateComponent` hear "your request was approved" a
- * few seconds after the user submits the Request Access modal. Swapped in via
- * `provide-pam.ts`, mirroring the `MockPamApiService` <-> `DefaultPamApiService`
- * substitution.
+ * Swapped in via `provide-pam.ts`, mirroring the `MockPamApiService` <->
+ * `DefaultPamApiService` substitution.
  */
 @Injectable({ providedIn: "root" })
 export class MockAccessEventService extends AccessEventService {
@@ -28,11 +25,7 @@ export class MockAccessEventService extends AccessEventService {
     super();
   }
 
-  events$(requestId: string): Observable<AccessEvent> {
-    return this.store.events$.pipe(filter((event) => event.requestId === requestId));
-  }
-
-  allEvents$(): Observable<AccessEvent> {
-    return this.store.events$.asObservable();
+  accessChanged$(): Observable<void> {
+    return this.store.events$.pipe(map((): void => undefined));
   }
 }

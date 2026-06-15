@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, from, Observable, Subject, switchMap } from "rxjs";
+import { concatMap, firstValueFrom, from, Observable, of, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -360,22 +360,40 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   /**
    * A privileged-access (PAM) cipher opens with a partial-data copy and the
-   * lease banner. When a {@link GatedCipherReloader} is provided, watch for a
-   * lease to cover this cipher — minted when the member starts an approved
-   * request from the banner — and swap the partial cipher for the full,
-   * decryptable one in place, so the open dialog reveals the normal view
+   * lease banner. When a {@link GatedCipherReloader} is provided, track whether a
+   * lease covers this cipher: while one does, swap the partial cipher for the
+   * full, decryptable one in place (the normal view appears without a reopen);
+   * when the lease later ends — revoked by an operator, ended by the holder, or
+   * lapsed at its window — swap the partial copy back in so the secrets re-lock
    * without a reopen. Inert for non-gated ciphers and platforms without PAM.
    */
   private revealGatedCipherWhenLeased(): void {
-    const original = this.params.formConfig.originalCipher;
-    if (this.gatedCipherReloader == null || original?.partialData == null) {
+    const partialCipher = this.params.formConfig.originalCipher;
+    if (this.gatedCipherReloader == null || partialCipher?.partialData == null) {
       return;
     }
+    // `fullCipher$` emits the leased full cipher while a lease covers this item and `null` when none
+    // does. Only a `null` that follows a reveal is a re-lock — an initial `null` (no lease yet) leaves
+    // the partial view ngOnInit already set in place.
+    let revealed = false;
     this.gatedCipherReloader
-      .fullCipher$(original.id)
+      .fullCipher$(partialCipher.id)
       .pipe(
-        filter((cipher): cipher is Cipher => cipher != null),
-        switchMap((cipher) => from(this.revealFullCipher(cipher))),
+        // concatMap (not switchMap): reveal and re-lock both mutate the same component fields via
+        // async work. switchMap would unsubscribe an in-flight reveal but its promise keeps running,
+        // so a reveal could land *after* a re-lock and leave secrets shown. Running each transition to
+        // completion in emission order guarantees the final state matches the final lease state.
+        concatMap((fullCipher) => {
+          if (fullCipher != null) {
+            revealed = true;
+            return from(this.revealFullCipher(fullCipher));
+          }
+          if (revealed) {
+            revealed = false;
+            return from(this.relockToPartial(partialCipher));
+          }
+          return of(undefined);
+        }),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -386,25 +404,51 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * derived view state, mirroring the initial load in {@link ngOnInit}.
    */
   private async revealFullCipher(cipher: Cipher): Promise<void> {
-    const activeUserId = await firstValueFrom(this.userId$);
-    this.formConfig.originalCipher = cipher;
-    this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
-    this.collections = this.formConfig.collections.filter((c) =>
-      this.cipher.collectionIds?.includes(c.id),
-    );
-    this.organization = this.formConfig.organizations.find(
-      (o) => o.id === this.cipher.organizationId,
-    );
+    const view = await this.swapInCipher(cipher);
     this.canEdit = await firstValueFrom(
-      this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
+      this.cipherAuthorizationService.canEditCipher$(view, this.params.isAdminConsoleAction),
     );
     this.canDelete = await firstValueFrom(
-      this.cipherAuthorizationService.canDeleteCipher$(
-        this.cipher,
-        this.params.isAdminConsoleAction,
-      ),
+      this.cipherAuthorizationService.canDeleteCipher$(view, this.params.isAdminConsoleAction),
     );
     this.updateTitle();
+  }
+
+  /**
+   * Swaps the leased full cipher back out for the partial copy and forces the read-only view — the
+   * inverse of {@link revealFullCipher}. Called when a lease ends under an open dialog so the revealed
+   * secrets re-lock in place; partial data is never editable, so any edit affordance is dropped and the
+   * lease banner takes back over.
+   */
+  private async relockToPartial(partialCipher: Cipher): Promise<void> {
+    await this.swapInCipher(partialCipher);
+    // Force the read-only view AND unmount the form. The user may have been mid-edit on the revealed
+    // full cipher; leaving the form mounted would keep its editable fields (and its component-scoped
+    // form cache, which holds the full decrypted cipher) alive past the lease. Mirrors the partial
+    // gating in ngOnInit and `changeMode("view")`.
+    this.loadForm = false;
+    this.params.mode = "view";
+    this.canEdit = false;
+    this.canDelete = false;
+    this.updateTitle();
+  }
+
+  /**
+   * Swaps the dialog's cipher for `cipher`, decrypts it, and re-derives the collection / organization
+   * view state — the shared half of {@link revealFullCipher} (reveal on lease) and
+   * {@link relockToPartial} (re-lock on lease end). Returns the decrypted view so the caller can apply
+   * its own edit-gating (real permissions vs. forced read-only) before calling {@link updateTitle}.
+   */
+  private async swapInCipher(cipher: Cipher): Promise<CipherView> {
+    const activeUserId = await firstValueFrom(this.userId$);
+    this.formConfig.originalCipher = cipher;
+    const view = await this.cipherService.decrypt(cipher, activeUserId);
+    this.cipher = view;
+    this.collections = this.formConfig.collections.filter((c) =>
+      view.collectionIds?.includes(c.id),
+    );
+    this.organization = this.formConfig.organizations.find((o) => o.id === view.organizationId);
+    return view;
   }
 
   async ngOnInit() {

@@ -4,7 +4,6 @@ import { firstValueFrom, Subject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
-import { AccessEvent } from "../abstractions/access-event";
 import { AccessEventService } from "../abstractions/access-event.service";
 import { AccessCondition } from "../abstractions/access-rule";
 
@@ -19,15 +18,14 @@ const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("DefaultPamApiService", () => {
   let apiService: MockProxy<ApiService>;
-  let accessEvents: Subject<AccessEvent>;
+  let accessEvents: Subject<void>;
   let service: DefaultPamApiService;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
-    accessEvents = new Subject<AccessEvent>();
+    accessEvents = new Subject<void>();
     const leaseEventService = mock<AccessEventService>();
-    leaseEventService.events$.mockReturnValue(accessEvents.asObservable());
-    leaseEventService.allEvents$.mockReturnValue(accessEvents.asObservable());
+    leaseEventService.accessChanged$.mockReturnValue(accessEvents.asObservable());
     service = new DefaultPamApiService(apiService, leaseEventService);
   });
 
@@ -613,7 +611,7 @@ describe("DefaultPamApiService", () => {
       ).rejects.toBeInstanceOf(ErrorResponse);
     });
 
-    it("re-fetches when the lease event channel emits", async () => {
+    it("re-fetches when the access-change channel emits", async () => {
       apiService.send.mockResolvedValue({ CipherId: "cipher-1" });
       const sink = jest.fn();
 
@@ -622,12 +620,51 @@ describe("DefaultPamApiService", () => {
       expect(sink).toHaveBeenCalledTimes(1);
       expect(apiService.send).toHaveBeenCalledTimes(1);
 
-      accessEvents.next({ kind: "approved", requestId: "req-1" });
+      accessEvents.next();
       await flushMicrotasks();
 
       expect(apiService.send).toHaveBeenCalledTimes(2);
       expect(sink).toHaveBeenCalledTimes(2);
       sub.unsubscribe();
+    });
+
+    it("re-fetches at the active lease's notAfter so an expired lease re-locks without a push", async () => {
+      jest.useFakeTimers();
+      try {
+        const leaseEndingInOneHour = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+        // First fetch carries a live lease; the post-expiry fetch carries none.
+        apiService.send
+          .mockResolvedValueOnce({
+            CipherId: "cipher-1",
+            ActiveLease: {
+              Id: "lease-1",
+              RequestId: "req-1",
+              CipherId: "cipher-1",
+              CollectionId: "col-1",
+              RequesterId: "user-1",
+              NotBefore: new Date(Date.now() - 1000).toISOString(),
+              NotAfter: leaseEndingInOneHour,
+              Status: "active",
+            },
+          })
+          .mockResolvedValue({ CipherId: "cipher-1" });
+        const sink = jest.fn();
+
+        const sub = service.getCipherAccessState$("cipher-1", "user-1").subscribe(sink);
+        await jest.advanceTimersByTimeAsync(0);
+        expect(sink).toHaveBeenCalledTimes(1);
+        expect(sink.mock.calls[0][0].activeLease?.id).toBe("lease-1");
+
+        // Cross the lease window: the timer fires, the re-fetch returns no active lease.
+        await jest.advanceTimersByTimeAsync(60 * 60 * 1000 + 1);
+
+        expect(apiService.send).toHaveBeenCalledTimes(2);
+        expect(sink).toHaveBeenCalledTimes(2);
+        expect(sink.mock.calls[1][0].activeLease).toBeUndefined();
+        sub.unsubscribe();
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it("re-fetches after a local mutation succeeds", async () => {

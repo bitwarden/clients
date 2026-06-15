@@ -611,6 +611,35 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("relockToPartial (lease ended under an open gated cipher)", () => {
+    it("swaps the partial cipher back in and forces the read-only view", async () => {
+      const partialCipher = { id: "gated-1", partialData: '{"Name":"AWS root"}' } as Cipher;
+      const decrypted = {
+        id: "gated-1",
+        type: CipherType.Login,
+        collectionIds: [],
+        partialData: '{"Name":"AWS root"}',
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(decrypted);
+      // Was revealed, mid-edit, and editable; the revoke must drop all of it back.
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+      component["canEdit"] = true;
+      component["canDelete"] = true;
+
+      await component["relockToPartial"](partialCipher);
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(partialCipher, "test-user-id");
+      expect(component["cipher"]).toBe(decrypted);
+      expect(component["formConfig"].originalCipher).toBe(partialCipher);
+      expect(component["params"].mode).toBe("view");
+      // The form must unmount so its editable fields and full-cipher form cache don't outlive the lease.
+      expect(component["loadForm"]).toBe(false);
+      expect(component["canEdit"]).toBe(false);
+      expect(component["canDelete"]).toBe(false);
+    });
+  });
+
   describe("ngOnInit edit gating for partial-data ciphers", () => {
     it("forces a partial-data cipher opened in form mode back to view, even with edit permission", async () => {
       const partialCipher = {
