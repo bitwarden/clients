@@ -112,10 +112,10 @@
                 <td bitCell>
                   <span
                     bitBadge
-                    [variant]="statusVariant(row.status)"
+                    [variant]="row.statusVariant"
                     [attr.data-testid]="'my-requests-status-' + row.id"
                   >
-                    {{ statusLabelKey(row.status) | i18n }}
+                    {{ row.statusLabelKey | i18n }}
                   </span>
                 </td>
                 <td bitCell>

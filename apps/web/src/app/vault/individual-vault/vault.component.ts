@@ -6,6 +6,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  Optional,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -360,7 +361,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private webVaultPromptService: WebVaultPromptService,
     private vaultBatchBarService: VaultBatchBarService<C>,
     private configService: ConfigService,
-    @Inject(CIPHER_OPEN_GATE) private cipherOpenGate: CipherOpenGate,
+    // Optional so the always-on vault doesn't hard-couple to PAM wiring: absent the
+    // gate (PAM not provided), every cipher opens normally. See PAM's providePam().
+    @Optional() @Inject(CIPHER_OPEN_GATE) private cipherOpenGate: CipherOpenGate | null,
   ) {}
 
   async ngOnInit() {
@@ -1165,7 +1168,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    const verdict = await this.cipherOpenGate.check(cipher, activeUserId);
+    const verdict = (await this.cipherOpenGate?.check(cipher, activeUserId)) ?? "open";
     if (verdict === "handled") {
       await this.go(
         { cipherId: null, itemId: null, action: null },

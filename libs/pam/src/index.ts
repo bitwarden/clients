@@ -43,7 +43,7 @@ export {
 } from "./services/requests/access-decision.request";
 export { AccessLeaseExtensionRequest } from "./services/requests/access-lease-extension.request";
 export { AccessLeaseRevokeRequest } from "./services/requests/access-lease-revoke.request";
-export { AccessRuleRequest } from "./services/requests/access-rule.request";
+export { AccessRuleRequest, accessRuleToRequest } from "./services/requests/access-rule.request";
 
 export { CipherLeaseBannerComponent } from "./components/cipher-lease-banner/cipher-lease-banner.component";
 
@@ -56,6 +56,12 @@ export {
   summarizeConditionShort,
   summarizeRuleConditions,
 } from "./helpers/format-access-rule";
+export {
+  AccessRuleStatusFilter,
+  AccessRuleFilter,
+  accessRuleWindow,
+  accessRuleMatchesFilter,
+} from "./helpers/access-rule-table";
 export { formatRemaining } from "./helpers/format-remaining";
 export { formatRelativeTime, elapsedKey } from "./helpers/relative-time";
 export {

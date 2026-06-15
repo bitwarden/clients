@@ -30,7 +30,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  CollectionGovernanceRowResponse,
+  AccessCondition,
   formatCondition,
   OrganizationGovernanceSummaryResponse,
   PamApiService,
@@ -49,6 +49,17 @@ import { KillSwitchComponent } from "./kill-switch/kill-switch.component";
 export const PAM_COLLECTION_FILTER_QUERY_PARAM = "collectionId";
 
 type DashboardStatus = "loading" | "ready" | "empty" | "error";
+
+/** A governance table row with its access-rule summary string precomputed. */
+type GovernanceRow = {
+  collectionId: string;
+  collectionName: string;
+  memberWithAccessCount: number;
+  pendingRequestCount: number;
+  activeLeaseCount: number;
+  lastActivityAt: string | null;
+  rule: string;
+};
 
 /**
  * Governance dashboard for PAM credential leasing (PM-37277).
@@ -101,7 +112,17 @@ export class GovernanceDashboardComponent implements OnInit {
   protected readonly organizationId = signal<string | null>(null);
   protected readonly organizationName = signal<string | null>(null);
 
-  protected readonly rows = computed(() => this.summary()?.collections ?? []);
+  protected readonly rows = computed<GovernanceRow[]>(() =>
+    (this.summary()?.collections ?? []).map((row) => ({
+      collectionId: row.collectionId,
+      collectionName: row.collectionName,
+      memberWithAccessCount: row.memberWithAccessCount,
+      pendingRequestCount: row.pendingRequestCount,
+      activeLeaseCount: row.activeLeaseCount,
+      lastActivityAt: row.lastActivityAt,
+      rule: this.renderRule(row.conditions),
+    })),
+  );
   protected readonly collectionTotal = computed(
     () => this.summary()?.leasingEnabledCollectionCount ?? 0,
   );
@@ -160,12 +181,12 @@ export class GovernanceDashboardComponent implements OnInit {
   }
 
   /** Render a row's conditions as a single human-readable string. */
-  protected renderRule(row: CollectionGovernanceRowResponse): string {
-    if (row.conditions.length === 0) {
+  private renderRule(conditions: AccessCondition[]): string {
+    if (conditions.length === 0) {
       return this.i18nService.t("pamAccessRuleNone");
     }
     const separator = this.i18nService.t("pamAccessRuleSeparator");
-    return row.conditions
+    return conditions
       .map((c) => {
         const summary = formatCondition(c);
         return summary.params?.count != null

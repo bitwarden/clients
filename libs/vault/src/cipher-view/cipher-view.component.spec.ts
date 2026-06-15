@@ -1,5 +1,7 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, NO_ERRORS_SCHEMA, input } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -23,7 +25,21 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 
+import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
+
 import { CipherViewComponent } from "./cipher-view.component";
+
+/** Stand-in for a host-provided banner; captures the inputs the slot passes through. */
+@Component({
+  selector: "test-cipher-view-banner",
+  template: "<div data-testid='test-banner'></div>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestBannerComponent {
+  readonly cipherId = input<string>();
+  readonly partialData = input<string | undefined>();
+  readonly leaseGated = input<boolean>();
+}
 
 describe("CipherViewComponent", () => {
   let component: CipherViewComponent;
@@ -135,6 +151,88 @@ describe("CipherViewComponent", () => {
 
     fixture = TestBed.createComponent(CipherViewComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("banner slot (CIPHER_VIEW_BANNER)", () => {
+    const BANNER_TEMPLATE = /* HTML */ `
+      @if (bannerComponent) {
+      <ng-container
+        *ngComponentOutlet="
+            bannerComponent;
+            inputs: {
+              cipherId: cipher().id,
+              partialData: cipher().partialData,
+              leaseGated: cipher().leaseGated,
+            }
+          "
+      />
+      }
+    `;
+
+    async function setupBanner(provideBanner: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [CipherViewComponent],
+        providers: [
+          { provide: AccountService, useValue: mockAccountService },
+          { provide: OrganizationService, useValue: mockOrganizationService },
+          { provide: CollectionService, useValue: mockCollectionService },
+          { provide: FolderService, useValue: mockFolderService },
+          { provide: TaskService, useValue: mockTaskService },
+          { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+          { provide: ChangeLoginPasswordService, useValue: mockChangeLoginPasswordService },
+          { provide: CipherService, useValue: mockCipherService },
+          { provide: ViewPasswordHistoryService, useValue: mockViewPasswordHistoryService },
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: LogService, useValue: mockLogService },
+          { provide: CipherRiskService, useValue: mockCipherRiskService },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mockBillingAccountProfileStateService,
+          },
+          { provide: VaultSettingsService, useValue: mockVaultSettingsService },
+          { provide: ConfigService, useValue: mockConfigService },
+          ...(provideBanner
+            ? [{ provide: CIPHER_VIEW_BANNER, useValue: TestBannerComponent }]
+            : []),
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      })
+        .overrideComponent(CipherViewComponent, {
+          set: { template: BANNER_TEMPLATE, imports: [CommonModule, TestBannerComponent] },
+        })
+        .compileComponents();
+
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    }
+
+    it("injects null and renders no banner when the host provides none", async () => {
+      await setupBanner(false);
+      fixture.componentRef.setInput("cipher", mockCipherView);
+      fixture.detectChanges();
+
+      expect(component["bannerComponent"]).toBeNull();
+      expect(fixture.debugElement.query(By.directive(TestBannerComponent))).toBeNull();
+    });
+
+    it("renders the host banner with the cipher's id, partialData, and leaseGated", async () => {
+      await setupBanner(true);
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.partialData = "partial-blob";
+      cipher.leaseGated = true;
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      expect(component["bannerComponent"]).toBe(TestBannerComponent);
+      const banner = fixture.debugElement.query(By.directive(TestBannerComponent));
+      expect(banner).not.toBeNull();
+      const instance = banner.componentInstance as TestBannerComponent;
+      expect(instance.cipherId()).toBe("cipher-id");
+      expect(instance.partialData()).toBe("partial-blob");
+      expect(instance.leaseGated()).toBe(true);
+    });
   });
 
   describe("passwordIsAtRisk signal", () => {

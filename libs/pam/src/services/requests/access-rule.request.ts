@@ -1,4 +1,5 @@
 import { AccessCondition, AccessConditionTree } from "../../abstractions/access-rule";
+import { AccessRuleResponse } from "../../abstractions/responses/access-rule.response";
 
 export class AccessRuleRequest {
   name: string;
@@ -52,6 +53,23 @@ export class AccessRuleRequest {
     this.allowsExtensions = init.allowsExtensions ?? false;
     this.maxExtensions = init.maxExtensions ?? null;
   }
+}
+
+/**
+ * Build the create/update payload for a rule, overriding only `enabled`. Used by
+ * the enable/disable toggles, which round-trip the whole rule unchanged otherwise.
+ */
+export function accessRuleToRequest(rule: AccessRuleResponse, enabled: boolean): AccessRuleRequest {
+  return new AccessRuleRequest({
+    name: rule.name,
+    description: rule.description,
+    conditions: rule.conditions,
+    collections: rule.collections,
+    defaultLeaseDurationSeconds: rule.defaultLeaseDurationSeconds,
+    maxLeaseDurationSeconds: rule.maxLeaseDurationSeconds,
+    singleActiveLease: rule.singleActiveLease,
+    enabled,
+  });
 }
 
 function conditionToTree(condition: AccessCondition): AccessConditionTree {

@@ -52,6 +52,10 @@ export type MyRequestRow = {
   cipherId: string;
   cipherName: string | null;
   status: AccessRequestStatus;
+  /** Precomputed badge variant for `status`, so the template avoids a per-row method call. */
+  statusVariant: BadgeVariant;
+  /** Precomputed i18n key for `status`, so the template avoids a per-row method call. */
+  statusLabelKey: string;
   submittedAt: Date;
   resolvedAt: Date | null;
   requestedNotBefore: Date | null;
@@ -198,6 +202,8 @@ export class MyAccessRequestsComponent implements OnInit {
           ? {
               ...r,
               status: AccessRequestStatus.Cancelled,
+              statusVariant: statusBadgeVariant(AccessRequestStatus.Cancelled),
+              statusLabelKey: statusLabelKey(AccessRequestStatus.Cancelled),
               resolvedAt: now,
               ...resolveResolver({ status: AccessRequestStatus.Cancelled, approverId: null }),
             }
@@ -277,14 +283,6 @@ export class MyAccessRequestsComponent implements OnInit {
       });
     }
   }
-
-  protected statusVariant(status: AccessRequestStatus): BadgeVariant {
-    return statusBadgeVariant(status);
-  }
-
-  protected statusLabelKey(status: AccessRequestStatus): string {
-    return statusLabelKey(status);
-  }
 }
 
 /** Map a status to a badge variant. Exported for tests + storybook fidelity. */
@@ -354,6 +352,8 @@ function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
     cipherId: response.cipherId,
     cipherName: null,
     status: response.status,
+    statusVariant: statusBadgeVariant(response.status),
+    statusLabelKey: statusLabelKey(response.status),
     submittedAt: new Date(response.submittedAt),
     resolvedAt: response.resolvedAt == null ? null : new Date(response.resolvedAt),
     requestedNotBefore:

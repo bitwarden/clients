@@ -5,24 +5,19 @@ import {
   computed,
   effect,
   inject,
-  LOCALE_ID,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, map, switchMap, take } from "rxjs";
+import { filter, lastValueFrom, map, switchMap, take } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
-  BitwardenIcon,
   BulkActionComponent,
   BulkActionsBarComponent,
   ButtonModule,
@@ -41,12 +36,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
-  AccessCondition,
-  AccessRuleRequest,
   AccessRuleResponse,
-  formatDurationShort,
-  formatRelativeTime,
-  PamApiService,
+  AccessRuleStatusFilter,
+  accessRuleMatchesFilter,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -57,6 +49,7 @@ import {
   AccessRuleDialogComponent,
   AccessRuleDialogResult,
 } from "./access-rule-dialog.component";
+import { AccessRuleRow, AccessRulesService } from "./access-rules.service";
 
 type RuleTemplate = {
   key: string;
@@ -114,35 +107,10 @@ const RULE_TEMPLATES: RuleTemplate[] = [
   },
 ];
 
-type StatusFilter = "enabled" | "disabled";
-
-type ConditionBadge = {
-  icon: BitwardenIcon;
-  labelKey: string;
-};
-
-/**
- * A flattened, presentation-ready view of an {@link AccessRuleResponse}. The derived
- * `name`, `status`, and `revisionDate` properties are what {@link TableDataSource}'s
- * default accessor sorts on, so each sortable column maps to a property here.
- */
-type AccessRuleRow = {
-  id: string;
-  rule: AccessRuleResponse;
-  name: string;
-  enabled: boolean;
-  status: string;
-  /** Epoch milliseconds, so the "Last modified" column sorts chronologically. */
-  revisionDate: number;
-  collectionNames: string[];
-  conditionBadges: ConditionBadge[];
-  accessWindow: string | null;
-  lastModified: string;
-};
-
 @Component({
   templateUrl: "./access-rules.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [AccessRulesService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -166,22 +134,21 @@ type AccessRuleRow = {
 export class AccessRulesComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly pamApi = inject(PamApiService);
+  private readonly accessRules = inject(AccessRulesService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly accountService = inject(AccountService);
-  private readonly collectionAdminService = inject(CollectionAdminService);
-  private readonly locale = inject(LOCALE_ID);
 
-  private readonly relativeTimeFormat = new Intl.RelativeTimeFormat(this.locale, {
-    numeric: "always",
-    style: "narrow",
+  protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
+  protected readonly rules = toSignal(this.accessRules.rules$, {
+    initialValue: [] as AccessRuleResponse[],
   });
-
-  protected readonly loading = signal(true);
-  protected readonly rules = signal<AccessRuleResponse[]>([]);
-  private readonly collectionNameById = signal<Map<string, string>>(new Map());
+  private readonly collectionNameById = toSignal(this.accessRules.collectionNameById$, {
+    initialValue: new Map<string, string>(),
+  });
+  private readonly rows = toSignal(this.accessRules.rows$, {
+    initialValue: [] as AccessRuleRow[],
+  });
 
   protected readonly ruleTemplates = RULE_TEMPLATES;
 
@@ -197,7 +164,7 @@ export class AccessRulesComponent {
 
   // --- Toolbar filters ---
   protected readonly searchControl = new FormControl("", { nonNullable: true });
-  protected readonly statusControl = new FormControl<StatusFilter | null>(null);
+  protected readonly statusControl = new FormControl<AccessRuleStatusFilter | null>(null);
   protected readonly collectionControl = new FormControl<string | null>(null);
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
@@ -206,7 +173,7 @@ export class AccessRulesComponent {
     initialValue: null,
   });
 
-  protected readonly statusOptions: ChipFilterOption<StatusFilter>[] = [
+  protected readonly statusOptions: ChipFilterOption<AccessRuleStatusFilter>[] = [
     {
       label: this.i18nService.t("pamAccessRuleEnabled"),
       value: "enabled",
@@ -256,12 +223,12 @@ export class AccessRulesComponent {
   constructor() {
     // Reload whenever the active organization changes.
     effect(() => {
-      void this.reload(this.organizationId());
+      void this.accessRules.load(this.organizationId());
     });
 
-    // Project the loaded rules (and resolved collection names) into table rows.
+    // Mirror the projected rows into the table data source.
     effect(() => {
-      this.dataSource.data = this.buildRows(this.rules(), this.collectionNameById());
+      this.dataSource.data = this.rows();
     });
 
     // Recompute the combined filter whenever any toolbar control changes.
@@ -269,7 +236,8 @@ export class AccessRulesComponent {
       const text = this.searchText().trim().toLowerCase();
       const status = this.statusValue();
       const collectionId = this.collectionValue();
-      this.dataSource.filter = (row) => this.matches(row, text, status, collectionId);
+      this.dataSource.filter = (row) =>
+        accessRuleMatchesFilter(row.rule, row.collectionNames, { text, status, collectionId });
     });
 
     // Keep the open dialog in step with the `accessRuleId` query param. Wait for the
@@ -277,7 +245,7 @@ export class AccessRulesComponent {
     // rule, or closing the dialog when the param is removed (e.g. browser back).
     // Driven off the router's queryParams (not a signal) so dialog open/close runs
     // outside change detection.
-    toObservable(this.loading)
+    this.accessRules.loading$
       .pipe(
         filter((loading) => !loading),
         take(1),
@@ -315,12 +283,7 @@ export class AccessRulesComponent {
   protected readonly toggleEnabled = async (rule: AccessRuleResponse): Promise<void> => {
     const nextEnabled = !rule.enabled;
     try {
-      const updated = await this.pamApi.updateAccessRule(
-        this.organizationId(),
-        rule.id,
-        this.toRequest(rule, nextEnabled),
-      );
-      this.rules.update((list) => list.map((r) => (r.id === rule.id ? updated : r)));
+      await this.accessRules.setEnabled(rule, nextEnabled);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
@@ -347,8 +310,7 @@ export class AccessRulesComponent {
       return;
     }
     try {
-      await this.pamApi.deleteAccessRule(this.organizationId(), rule.id);
-      this.rules.update((list) => list.filter((r) => r.id !== rule.id));
+      await this.accessRules.delete(rule);
     } catch (e) {
       this.showError(e);
     }
@@ -397,28 +359,15 @@ export class AccessRulesComponent {
   };
 
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
-    const targets = this.selectedRules().filter((r) => r.enabled !== enabled);
-    if (targets.length === 0) {
-      this.clearSelection();
-      return;
-    }
     try {
-      const updated = await Promise.all(
-        targets.map((rule) =>
-          this.pamApi.updateAccessRule(
-            this.organizationId(),
-            rule.id,
-            this.toRequest(rule, enabled),
-          ),
-        ),
-      );
-      const byId = new Map(updated.map((r) => [r.id, r]));
-      this.rules.update((list) => list.map((r) => byId.get(r.id) ?? r));
+      const changed = await this.accessRules.setManyEnabled(this.selectedRules(), enabled);
       this.clearSelection();
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessRulesUpdated"),
-      });
+      if (changed > 0) {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamAccessRulesUpdated"),
+        });
+      }
     } catch (e) {
       this.showError(e);
     }
@@ -443,11 +392,7 @@ export class AccessRulesComponent {
       return;
     }
     try {
-      await Promise.all(
-        targets.map((rule) => this.pamApi.deleteAccessRule(this.organizationId(), rule.id)),
-      );
-      const removed = new Set(targets.map((r) => r.id));
-      this.rules.update((list) => list.filter((r) => !removed.has(r.id)));
+      await this.accessRules.deleteMany(targets);
       this.clearSelection();
       this.toastService.showToast({
         variant: "success",
@@ -465,92 +410,6 @@ export class AccessRulesComponent {
     return this.processedRows()
       .filter((r) => ids.has(r.id))
       .map((r) => r.rule);
-  }
-
-  private matches(
-    row: AccessRuleRow,
-    text: string,
-    status: StatusFilter | null,
-    collectionId: string | null,
-  ): boolean {
-    if (status === "enabled" && !row.enabled) {
-      return false;
-    }
-    if (status === "disabled" && row.enabled) {
-      return false;
-    }
-    if (collectionId != null && !row.rule.collections.includes(collectionId)) {
-      return false;
-    }
-    if (text.length > 0) {
-      const haystack = `${row.name} ${row.collectionNames.join(" ")}`.toLowerCase();
-      if (!haystack.includes(text)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private buildRows(rules: AccessRuleResponse[], names: Map<string, string>): AccessRuleRow[] {
-    const now = Date.now();
-    return rules.map((rule) => {
-      const revisionDate = Date.parse(rule.revisionDate);
-      return {
-        id: rule.id,
-        rule,
-        name: rule.name,
-        enabled: rule.enabled,
-        status: this.i18nService.t(rule.enabled ? "pamAccessRuleEnabled" : "disabled"),
-        revisionDate: Number.isNaN(revisionDate) ? 0 : revisionDate,
-        collectionNames: rule.collections
-          .map((id) => names.get(id) ?? id)
-          .sort((a, b) => a.localeCompare(b)),
-        conditionBadges: this.conditionBadges(rule.conditions),
-        accessWindow: this.accessWindow(rule),
-        lastModified: Number.isNaN(revisionDate)
-          ? ""
-          : formatRelativeTime(revisionDate, now, this.relativeTimeFormat),
-      };
-    });
-  }
-
-  private conditionBadges(conditions: AccessCondition[]): ConditionBadge[] {
-    const badges: ConditionBadge[] = [];
-    const requiresApproval = conditions.some((c) => c.kind === "human_approval");
-    badges.push(
-      requiresApproval
-        ? { icon: "bwi-users", labelKey: "pamAccessRuleConditionRequiresApproval" }
-        : { icon: "bwi-check", labelKey: "pamAccessRuleConditionAutoApproved" },
-    );
-    if (conditions.some((c) => c.kind === "ip_allowlist")) {
-      badges.push({ icon: "bwi-globe", labelKey: "pamAccessRuleConditionIpRestricted" });
-    }
-    return badges;
-  }
-
-  private accessWindow(rule: AccessRuleResponse): string | null {
-    const def = rule.defaultLeaseDurationSeconds;
-    if (def == null) {
-      return null;
-    }
-    const max = rule.maxLeaseDurationSeconds;
-    if (max != null && max !== def) {
-      return `${formatDurationShort(def)}–${formatDurationShort(max)}`;
-    }
-    return formatDurationShort(def);
-  }
-
-  private toRequest(rule: AccessRuleResponse, enabled: boolean): AccessRuleRequest {
-    return new AccessRuleRequest({
-      name: rule.name,
-      description: rule.description,
-      conditions: rule.conditions,
-      collections: rule.collections,
-      defaultLeaseDurationSeconds: rule.defaultLeaseDurationSeconds,
-      maxLeaseDurationSeconds: rule.maxLeaseDurationSeconds,
-      singleActiveLease: rule.singleActiveLease,
-      enabled,
-    });
   }
 
   private showError(e: unknown): void {
@@ -589,7 +448,7 @@ export class AccessRulesComponent {
    * its own UI the param still points here, so we clear it to keep the URL in step.
    */
   private async openRule(ruleId: string): Promise<void> {
-    const rule = this.rules().find((r) => r.id === ruleId);
+    const rule = this.accessRules.getRule(ruleId);
     if (rule == null) {
       this.toastService.showToast({
         variant: "error",
@@ -614,7 +473,7 @@ export class AccessRulesComponent {
       void this.clearRuleParam();
     }
     if (result === "saved") {
-      await this.reload(this.organizationId());
+      await this.accessRules.load(this.organizationId());
     }
   }
 
@@ -633,22 +492,7 @@ export class AccessRulesComponent {
       data: { organizationId: this.organizationId(), ...data },
     });
     if ((await lastValueFrom(ref.closed)) === "saved") {
-      await this.reload(this.organizationId());
-    }
-  }
-
-  private async reload(organizationId: OrganizationId): Promise<void> {
-    this.loading.set(true);
-    try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const [rulesResponse, collections] = await Promise.all([
-        this.pamApi.listAccessRules(organizationId),
-        firstValueFrom(this.collectionAdminService.collectionAdminViews$(organizationId, userId)),
-      ]);
-      this.collectionNameById.set(new Map(collections.map((c) => [c.id, c.name])));
-      this.rules.set(rulesResponse.data);
-    } finally {
-      this.loading.set(false);
+      await this.accessRules.load(this.organizationId());
     }
   }
 }
