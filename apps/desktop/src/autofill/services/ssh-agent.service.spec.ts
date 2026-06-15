@@ -780,7 +780,9 @@ describe("SshAgentService – list keys request", () => {
 
       // Drain the microtask queue so the reactive keys pipeline fully settles after the
       // status change (it re-subscribes to cipherViews$ and may call replace).
-      for (let i = 0; i < 10; i++) {await Promise.resolve();}
+      for (let i = 0; i < 10; i++) {
+        await Promise.resolve();
+      }
 
       // Clear mocks so assertions only capture what the timeout path does.
       mockReplace.mockClear();
@@ -796,7 +798,9 @@ describe("SshAgentService – list keys request", () => {
 
       // Drain microtasks: the catchError calls the IPC mock (a resolved promise),
       // then switchMap(() => EMPTY) completes the inner observable.
-      for (let i = 0; i < 5; i++) {await Promise.resolve();}
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
 
       expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, false);
       expect(mockListRequestResponse).toHaveBeenCalledTimes(1);
