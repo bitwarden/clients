@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
 import {
@@ -27,7 +28,6 @@ import {
   BitSvg,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -49,8 +49,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -81,6 +83,9 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -99,8 +104,18 @@ import {
   OrganizationFilter,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultItem,
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
+  BulkDeleteDialogResult,
+  BulkMoveDialogResult,
+  openBulkMoveDialog,
+  VaultBatchBarService,
+  VaultBatchActionComponent,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
 } from "@bitwarden/vault";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
@@ -110,25 +125,14 @@ import {
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogMode,
-  VaultItemDialogResult,
-} from "../components/vault-item-dialog/vault-item-dialog.component";
-import { VaultItem } from "../components/vault-items/vault-item";
+import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import {
-  BulkMoveDialogResult,
-  openBulkMoveDialog,
-} from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
+import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -159,7 +163,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    OrganizationWarningsModule,
+    VaultBatchActionComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -167,6 +171,9 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     DefaultCipherFormConfigService,
     WebVaultPromptService,
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
+    VaultBatchBarService,
+    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -204,6 +211,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   protected showAddCipherBtn: boolean = false;
+
+  protected readonly vaultBatchBarFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
 
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
@@ -325,6 +337,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
+    private vaultBatchBarService: VaultBatchBarService<C>,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -421,30 +435,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([
-      allowedCiphers$,
-      filter$,
-      this.currentSearchText$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
-    ]).pipe(
+    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
+      concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, showArchiveVault);
+        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers<C>(
+        if (await this.searchService.isSearchable(searchText)) {
+          const results = await this.searchService.searchCiphers<C>(
             activeUserId,
+            null,
             searchText,
-            [filterFunction],
             allCiphers as C[],
           );
+          return results.filter(filterFunction);
         }
 
-        return ciphers.filter(filterFunction) as C[];
+        return allCiphers.filter(filterFunction) as C[];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -470,7 +480,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+        if (await this.searchService.isSearchable(searchText)) {
           // Flatten the tree for searching through all levels
           const flatCollectionTree: CollectionView[] =
             getFlatCollectionTree(searchableCollectionNodes);
@@ -622,6 +632,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       );
 
     void this.webVaultPromptService.conditionallyPromptUser();
+
+    this.vaultBatchBarService.completed$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([allCollections, hasCiphers]) =>
+        this.vaultBatchBarService.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      );
   }
 
   ngOnDestroy() {
@@ -960,6 +980,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   /**
+   * Opens the add-item type selection dialog and handles the result.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: true,
+      canCreateCollection: this.canCreateCollections,
+      canCreateSshKey: true,
+    });
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (!result) {
+      return;
+    }
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      this.addFolder();
+    } else {
+      await this.addCollection();
+    }
+  }
+
+  /**
    * Opens the add cipher dialog.
    * @param cipherType The type of cipher to add.
    */
@@ -1081,7 +1123,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     );
   }
 
-  async addCollection() {
+  async addCollection(): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
@@ -1171,6 +1213,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.collectionService.delete([collection.id as CollectionId], activeUserId);
+      // Deleting collections will alter the underlying ciphers, perform a full sync
+      // to ensure the vault has the most up to date cipher data.
+      await this.syncService.fullSync(true);
 
       this.toastService.showToast({
         variant: "success",

@@ -5,6 +5,7 @@ import { Menu, MenuItemConstructorOptions } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
+import { SafeShell } from "../../platform/main/safe-shell.main";
 import { VersionMain } from "../../platform/main/version.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { isMac } from "../../utils";
@@ -58,6 +59,7 @@ export class Menubar {
     appVersion: string,
     hardwareAccelerationEnabled: boolean,
     versionMain: VersionMain,
+    shell: SafeShell,
     updateRequest?: MenuUpdateRequest,
   ) {
     let isLocked = true;
@@ -73,6 +75,12 @@ export class Menubar {
       !isLocked && updateRequest?.accounts?.[updateRequest.activeUserId]?.isLockable;
     const hasMasterPassword =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.hasMasterPassword ?? false;
+    // TODO: PM-32419 - remove feature flag check once fully rolled out
+    const multiClientPasswordManagement =
+      updateRequest?.accounts?.[updateRequest.activeUserId]?.multiClientPasswordManagement ?? false;
+    // TODO: PM-34438 - remove desktopAddDevices variable and the parameter passed to AccountMenu
+    const desktopAddDevices =
+      updateRequest?.accounts?.[updateRequest.activeUserId]?.desktopAddDevices ?? false;
 
     this.items = [
       new FileMenu(
@@ -94,14 +102,19 @@ export class Menubar {
         windowMain.win,
         isLocked,
         hasMasterPassword,
+        multiClientPasswordManagement,
+        shell,
+        desktopAddDevices,
       ),
       new WindowMenu(i18nService, messagingService, windowMain),
       new HelpMenu(
         i18nService,
+        messagingService,
         desktopSettingsService,
         webVaultUrl,
         hardwareAccelerationEnabled,
         new AboutMenu(i18nService, appVersion, windowMain.win, updaterMain, versionMain),
+        shell,
       ),
     ];
 

@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -15,6 +14,7 @@ import {
   mockAccountInfoWith,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
+import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -44,7 +44,7 @@ describe("DefaultSdkService", () => {
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
-    let securityStateService!: MockProxy<SecurityStateService>;
+    let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
     let configService!: MockProxy<ConfigService>;
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
@@ -59,7 +59,7 @@ describe("DefaultSdkService", () => {
       platformUtilsService = mock<PlatformUtilsService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
-      securityStateService = mock<SecurityStateService>();
+      accountCryptographicStateService = mock<AccountCryptographicStateService>();
       apiService = mock<ApiService>();
       const mockUserId = Utils.newGuid() as UserId;
       accountService = mockAccountServiceWith(mockUserId);
@@ -78,7 +78,7 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
-        securityStateService,
+        accountCryptographicStateService,
         apiService,
         fakeStateProvider,
         configService,
@@ -99,17 +99,20 @@ describe("DefaultSdkService", () => {
         });
         kdfConfigService.getKdfConfig$
           .calledWith(userId)
-          .mockReturnValue(of(new PBKDF2KdfConfig()));
+          .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
         keyService.userKey$
           .calledWith(userId)
           .mockReturnValue(of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey));
-        keyService.userEncryptedPrivateKey$
-          .calledWith(userId)
-          .mockReturnValue(of("private-key" as EncryptedString));
         keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
-        keyService.userSigningKey$.calledWith(userId).mockReturnValue(of(null));
-        keyService.userSignedPublicKey$.calledWith(userId).mockReturnValue(of(null));
-        securityStateService.accountSecurityState$.calledWith(userId).mockReturnValue(of(null));
+        accountCryptographicStateService.accountCryptographicState$
+          .calledWith(userId)
+          .mockReturnValue(
+            of({
+              V1: {
+                private_key: "private-key" as EncryptedString,
+              },
+            }),
+          );
       });
 
       describe("given no client override has been set for the user", () => {
@@ -183,7 +186,7 @@ describe("DefaultSdkService", () => {
           jest.useRealTimers();
         });
 
-        it("destroys the internal SDK client when the userKey is unset (i.e. lock or logout)", async () => {
+        it("emits a new locked client and frees the previous unlocked client when the userKey is unset", async () => {
           const userKey$ = new BehaviorSubject(
             new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
           );
@@ -193,6 +196,23 @@ describe("DefaultSdkService", () => {
           await userClientTracker.pauseUntilReceived(1);
 
           userKey$.next(undefined);
+          await userClientTracker.pauseUntilReceived(2);
+
+          expect(mockClient.free).toHaveBeenCalledTimes(1);
+          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
+          expect(userClientTracker.emissions[1]).toBeDefined();
+        });
+
+        it("completes the subscription and frees the internal SDK client when the environment is unset (logout)", async () => {
+          const env$ = new BehaviorSubject<Environment | undefined>(mock<Environment>());
+          environmentService.getEnvironment$
+            .calledWith(userId)
+            .mockReturnValue(env$ as BehaviorSubject<Environment>);
+
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
+
+          env$.next(undefined);
           await userClientTracker.expectCompletion();
 
           expect(mockClient.free).toHaveBeenCalledTimes(1);
@@ -286,5 +306,10 @@ function createMockClient(): MockProxy<PasswordManagerClient> {
     free: mock(),
     [Symbol.dispose]: jest.fn(),
   });
+  client.km_state_bridge.mockReturnValue({
+    register_bridge_impl: jest.fn(),
+    free: mock(),
+    [Symbol.dispose]: jest.fn(),
+  } as any);
   return client;
 }

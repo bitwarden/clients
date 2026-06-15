@@ -6,7 +6,6 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -17,7 +16,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -27,10 +26,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -47,8 +48,8 @@ import {
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
+import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
@@ -72,11 +73,9 @@ describe("ViewComponent", () => {
   const copy = jest.fn().mockResolvedValue(true);
   const back = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
-  const stop = jest.fn();
+  const navigateAfterDeletion = jest.fn().mockResolvedValue(undefined);
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
-  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
-  const getFeatureFlag = jest.fn().mockResolvedValue(true);
   const currentAutofillTab$ = of({ url: "https://example.com", id: 1 });
 
   const mockCipher = {
@@ -91,6 +90,9 @@ describe("ViewComponent", () => {
     },
     permissions: {},
     card: {},
+    bankAccount: {},
+    passport: {},
+    driversLicense: {},
   } as unknown as CipherView;
 
   const mockPasswordRepromptService = {
@@ -127,14 +129,12 @@ describe("ViewComponent", () => {
     doAutofill.mockClear();
     doAutofillAndSave.mockClear();
     copy.mockClear();
-    stop.mockClear();
+    navigateAfterDeletion.mockClear();
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
     showPasswordPrompt.mockClear();
-    getFeatureFlag.mockClear();
     autofillAllowed$.next(true);
-    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
     cipherArchiveService.unarchiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
@@ -145,15 +145,28 @@ describe("ViewComponent", () => {
         { provide: Router, useValue: { navigate: mockNavigate } },
         { provide: CipherService, useValue: mockCipherService },
         { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>({
+            showAtRiskPasswordNotifications$: of(true),
+          }),
+        },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: mock<ConfigService>({
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          }),
+        },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
         { provide: EventCollectionService, useValue: { collect } },
-        { provide: VaultPopupScrollPositionService, useValue: { stop } },
+        {
+          provide: VaultPopupAfterDeletionNavigationService,
+          useValue: { navigateAfterDeletion },
+        },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
-        { provide: ConfigService, useValue: { getFeatureFlag$, getFeatureFlag } },
         {
           provide: I18nService,
           useValue: {
@@ -240,6 +253,10 @@ describe("ViewComponent", () => {
           provide: CipherRiskService,
           useValue: mock<CipherRiskService>(),
         },
+        {
+          provide: ChangeLoginPasswordService,
+          useValue: mock<ChangeLoginPasswordService>(),
+        },
       ],
     })
       .overrideProvider(DialogService, {
@@ -293,6 +310,13 @@ describe("ViewComponent", () => {
       flush(); // Resolve all promises
 
       expect(component.headerText).toEqual("viewItemHeaderNote");
+
+      // Set header text for a passport
+      mockCipher.type = CipherType.Passport;
+      params$.next({ cipherId: mockCipher.id });
+      flush(); // Resolve all promises
+
+      expect(component.headerText).toEqual("viewItemHeaderPassport");
     }));
 
     it("sends viewed event", fakeAsync(() => {
@@ -561,17 +585,10 @@ describe("ViewComponent", () => {
       expect(openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
-    it("navigates back", async () => {
+    it("navigates after deletion", async () => {
       await component.delete();
 
-      expect(back).toHaveBeenCalledTimes(1);
-    });
-
-    it("stops scroll position service", async () => {
-      await component.delete();
-
-      expect(stop).toHaveBeenCalledTimes(1);
-      expect(stop).toHaveBeenCalledWith(true);
+      expect(navigateAfterDeletion).toHaveBeenCalledTimes(1);
     });
 
     describe("deny confirmation", () => {
@@ -587,8 +604,7 @@ describe("ViewComponent", () => {
       });
 
       it("does not interact with side effects", () => {
-        expect(back).not.toHaveBeenCalled();
-        expect(stop).not.toHaveBeenCalled();
+        expect(navigateAfterDeletion).not.toHaveBeenCalled();
         expect(showToast).not.toHaveBeenCalled();
       });
     });
@@ -694,7 +710,7 @@ describe("ViewComponent", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("button[bit-chip-action]");
       expect(badge).toBeTruthy();
     }));
 
@@ -711,7 +727,7 @@ describe("ViewComponent", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("button[bit-chip-action]");
       expect(badge).toBeFalsy();
     });
   });
@@ -721,8 +737,7 @@ describe("ViewComponent", () => {
       component.cipher = { ...mockCipher, type: CipherType.Login } as CipherView;
     });
 
-    it("returns true when feature flag is enabled, cipher is a login, and not archived/deleted", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
+    it("returns true when cipher is a login, and not archived/deleted", fakeAsync(() => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -745,7 +760,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns true for Card type when conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -768,7 +782,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns true for Identity type when conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -790,30 +803,7 @@ describe("ViewComponent", () => {
       expect(result).toBe(true);
     }));
 
-    it("returns false when feature flag is disabled", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(false));
-
-      // Recreate component to pick up the new feature flag value
-      fixture = TestBed.createComponent(ViewComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      component.cipher = {
-        ...mockCipher,
-        type: CipherType.Login,
-        isArchived: false,
-        isDeleted: false,
-      } as CipherView;
-
-      flush();
-
-      const result = component.showAutofillButton();
-
-      expect(result).toBe(false);
-    }));
-
     it("returns false when autofill is not allowed", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(false);
 
       // Recreate component to pick up the new autofillAllowed value
@@ -836,7 +826,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false for SecureNote type", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -859,7 +848,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false for SshKey type", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -882,7 +870,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false when cipher is archived", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -905,7 +892,6 @@ describe("ViewComponent", () => {
     }));
 
     it("returns false when cipher is deleted", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -957,53 +943,33 @@ describe("ViewComponent", () => {
       mockVaultPopupAutofillService.currentAutofillTab$ = originalCurrentAutofillTab$;
     });
 
-    it("returns early when feature flag is disabled", async () => {
-      getFeatureFlag.mockResolvedValue(false);
+    it("shows confirmation dialog (not exact match block) when no URIs and default strategy is Exact", async () => {
+      component.cipher.login.uris = [];
+      (component as any).uriMatchStrategy$ = of(UriMatchStrategy.Exact);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const mockDialogRef = { closed: of(AutofillConfirmationDialogResult.Canceled) };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
 
       await component.doAutofill();
 
-      expect(doAutofill).not.toHaveBeenCalled();
       expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("shows exact match dialog when no URIs and default strategy is Exact", async () => {
-      getFeatureFlag.mockResolvedValue(true);
-      component.cipher.login.uris = [];
-      (component as any).uriMatchStrategy$ = of(UriMatchStrategy.Exact);
-
-      await component.doAutofill();
-
-      expect(openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      expect(doAutofill).not.toHaveBeenCalled();
-    });
-
-    it("shows exact match dialog when all URIs have exact match strategy", async () => {
-      getFeatureFlag.mockResolvedValue(true);
+    it("shows confirmation dialog (not exact match block) when all URIs have exact match strategy", async () => {
       component.cipher.login.uris = [
         { uri: "https://example.com", match: UriMatchStrategy.Exact } as LoginUriView,
         { uri: "https://example2.com", match: UriMatchStrategy.Exact } as LoginUriView,
       ];
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const mockDialogRef = { closed: of(AutofillConfirmationDialogResult.Canceled) };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
 
       await component.doAutofill();
 
-      expect(openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      expect(doAutofill).not.toHaveBeenCalled();
+      expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
     it("shows error dialog when current tab URL is unavailable", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       mockVaultPopupAutofillService.currentAutofillTab$ = of({ url: null, id: 1 });
 
       await component.doAutofill();
@@ -1017,7 +983,6 @@ describe("ViewComponent", () => {
     });
 
     it("autofills directly when domain matches", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(true);
 
       await component.doAutofill();
@@ -1026,7 +991,6 @@ describe("ViewComponent", () => {
     });
 
     it("shows confirmation dialog when domain does not match", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1039,14 +1003,13 @@ describe("ViewComponent", () => {
       expect(AutofillConfirmationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com"],
+          savedUris: component.cipher.login.uris,
           viewOnly: false,
         },
       });
     });
 
     it("does not autofill when user cancels confirmation dialog", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1061,7 +1024,6 @@ describe("ViewComponent", () => {
     });
 
     it("autofills only when user selects AutofilledOnly", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1076,7 +1038,6 @@ describe("ViewComponent", () => {
     });
 
     it("autofills and saves URL when user selects AutofillAndUrlAdded", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
 
       const mockDialogRef = {
@@ -1091,7 +1052,6 @@ describe("ViewComponent", () => {
     });
 
     it("passes viewOnly as true when cipher is not editable", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
       component.cipher.edit = false;
 
@@ -1107,14 +1067,13 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com"],
+          savedUris: component.cipher.login.uris,
           viewOnly: true,
         },
       });
     });
 
     it("filters out URIs without uri property", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
       component.cipher.login.uris = [
         { uri: "https://example.com" } as LoginUriView,
@@ -1134,14 +1093,13 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com", "https://example2.com"],
+          savedUris: component.cipher.login.uris.filter((u) => u.uri),
           viewOnly: false,
         },
       });
     });
 
     it("handles cipher with no login uris gracefully", async () => {
-      getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
       component.cipher.login.uris = null;
 
@@ -1157,7 +1115,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: [],
+          savedUris: [],
           viewOnly: false,
         },
       });

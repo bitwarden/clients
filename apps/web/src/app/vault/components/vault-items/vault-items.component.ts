@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   Observable,
   combineLatest,
@@ -19,7 +19,8 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -31,7 +32,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { RoutedVaultFilterService, VaultBatchBarService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -39,12 +40,11 @@ import {
   CollectionPermission,
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 75;
-export const RowHeightClass = `tw-h-[75px]`;
+export const RowHeight = 76.5;
+export const RowHeightClass = `tw-h-[76.5px]`;
 
 const MaxSelectionCount = 500;
 
@@ -151,22 +151,35 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
+  protected readonly batchBarService = inject(VaultBatchBarService, {
+    optional: true,
+  }) as VaultBatchBarService<C> | null;
+  protected readonly batchBarFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  private readonly _localSelection = new SelectionModel<VaultItem<C>>(true, [], true);
+  get selection(): SelectionModel<VaultItem<C>> {
+    return this.batchBarService?.selection ?? this._localSelection;
+  }
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
+  protected showCopyAndLaunchActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
-
-  protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    protected cipherArchiveService: CipherArchiveService,
     protected routedVaultFilterService: RoutedVaultFilterService,
+    private configService: ConfigService,
   ) {
+    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -234,21 +247,23 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       }),
     );
 
-    this.routedVaultFilterService.filter$
-      .pipe(
-        distinctUntilChanged(
-          (prev, curr) =>
-            prev.organizationId === curr.organizationId &&
-            prev.collectionId === curr.collectionId &&
-            prev.folderId === curr.folderId &&
-            prev.type === curr.type &&
-            prev.organizationIdParamType === curr.organizationIdParamType,
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => {
-        this.clearSelection();
-      });
+    if (!this.batchBarService) {
+      this.routedVaultFilterService.filter$
+        .pipe(
+          distinctUntilChanged(
+            (prev, curr) =>
+              prev.organizationId === curr.organizationId &&
+              prev.collectionId === curr.collectionId &&
+              prev.folderId === curr.folderId &&
+              prev.type === curr.type &&
+              prev.organizationIdParamType === curr.organizationIdParamType,
+          ),
+          takeUntilDestroyed(),
+        )
+        .subscribe(() => {
+          this.clearSelection();
+        });
+    }
   }
 
   clearSelection() {

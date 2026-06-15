@@ -42,10 +42,12 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
+/**
+ * @deprecated along with `setInitialPassword()` deprecation
+ */
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
-  newLocalMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
   orgSsoIdentifier: string;
@@ -66,8 +68,9 @@ export interface SetInitialPasswordTdeUserWithPermissionCredentials {
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
+  newPassword: string;
+  salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
   newPasswordHint: string;
 }
 
@@ -97,7 +100,7 @@ export interface InitializeJitPasswordCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
@@ -127,19 +130,6 @@ export abstract class SetInitialPasswordService {
   ) => Promise<void>;
 
   /**
-   * Sets an initial password for a user who logs in after their org offboarded from
-   * trusted device encryption and is now a master-password-encryption org:
-   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
-   *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
-   * @param userId the account `userId`
-   */
-  abstract setInitialPasswordTdeOffboarding: (
-    credentials: SetInitialPasswordTdeOffboardingCredentials,
-    userId: UserId,
-  ) => Promise<void>;
-
-  /**
    * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
    * @param credentials The credentials needed to initialize the JIT password user
    * @param userId The account userId
@@ -148,4 +138,18 @@ export abstract class SetInitialPasswordService {
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
   ): Promise<void>;
+
+  /**
+   * Sets an initial password for a user who logs in after their org offboarded from
+   * trusted device encryption and is now a master-password-encryption org:
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
+   *
+   * @param credentials An object of the credentials needed to set the initial password
+   * @param userId the account `userId`
+   * @throws if `userId`, `userKey`, or necessary credentials are not found
+   */
+  abstract setInitialPasswordTdeOffboarding: (
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) => Promise<void>;
 }

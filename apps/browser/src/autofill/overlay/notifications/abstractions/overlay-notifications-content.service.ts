@@ -6,6 +6,7 @@ export type NotificationTypeData = {
   removeIndividualVault?: boolean;
   importType?: string;
   launchTimestamp?: number;
+  showAnimations?: boolean;
 };
 
 export type NotificationsExtensionMessage = {
@@ -18,6 +19,8 @@ export type NotificationsExtensionMessage = {
     closedByUser?: boolean;
     fadeOutNotification?: boolean;
     params: object;
+    isConfirmation?: boolean;
+    confirmationData?: { cipherId?: string; itemName?: string };
   };
 };
 

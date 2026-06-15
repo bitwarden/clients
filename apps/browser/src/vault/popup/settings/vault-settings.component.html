@@ -16,14 +16,10 @@
       <button type="button" bit-item-content (click)="import()" [title]="'popOutNewWindow' | i18n">
         <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
           <p>{{ "importNoun" | i18n }}</p>
-          <span
-            *ngIf="emptyVaultImportBadge$ | async"
-            bitBadge
-            variant="notification"
-            [attr.aria-label]="'nudgeBadgeAria' | i18n"
-          >
-            1
-          </span>
+          @if (emptyVaultImportBadge$ | async) {
+            <bit-berry variant="danger" [attr.aria-label]="'nudgeBadgeAria' | i18n" [value]="1">
+            </bit-berry>
+          }
         </div>
         <ng-container slot="end">
           <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
@@ -37,30 +33,28 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    @if (showArchiveItem()) {
-      @if (userCanArchive()) {
-        <bit-item>
-          <a data-test-id="archive-link" bit-item-content routerLink="/archive">
+    @if (userCanArchive()) {
+      <bit-item>
+        <a data-test-id="archive-link" bit-item-content routerLink="/archive">
+          {{ "archiveNoun" | i18n }}
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
+    } @else {
+      <bit-item>
+        <a
+          data-test-id="premium-archive-link"
+          bit-item-content
+          href="#"
+          (click)="conditionallyRouteToArchive($event)"
+        >
+          <span class="tw-flex tw-items-center tw-gap-2">
             {{ "archiveNoun" | i18n }}
-            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>
-        </bit-item>
-      } @else {
-        <bit-item>
-          <a
-            data-test-id="premium-archive-link"
-            bit-item-content
-            href="#"
-            (click)="conditionallyRouteToArchive($event)"
-          >
-            <span class="tw-flex tw-items-center tw-gap-2">
-              {{ "archiveNoun" | i18n }}
-              <app-premium-badge></app-premium-badge>
-            </span>
-            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>
-        </bit-item>
-      }
+            <app-premium-badge></app-premium-badge>
+          </span>
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
     }
     <bit-item>
       <a bit-item-content routerLink="/trash">
@@ -69,10 +63,16 @@
       </a>
     </bit-item>
     <bit-item>
-      <button type="button" bit-item-content (click)="sync()">
+      <button type="button" bit-item-content [disabled]="syncLoading" (click)="sync()">
         {{ "syncNow" | i18n }}
         <span slot="secondary">{{ lastSync }}</span>
-        <i slot="end" class="bwi bwi-refresh" aria-hidden="true"></i>
+        <span slot="end">
+          @if (syncLoading) {
+            <bit-spinner size="sm"></bit-spinner>
+          } @else {
+            <i class="bwi bwi-refresh" aria-hidden="true"></i>
+          }
+        </span>
       </button>
     </bit-item>
   </bit-item-group>

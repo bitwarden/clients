@@ -24,7 +24,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -73,10 +72,13 @@ describe("AuthRequestLoginStrategy", () => {
   const email = "EMAIL";
   const accessCode = "ACCESS_CODE";
   const authRequestId = "AUTH_REQUEST_ID";
-  const decUserKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+  const decUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
   beforeEach(async () => {
+    cache = new AuthRequestLoginStrategyData();
+
     keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
     appIdService = mock<AppIdService>();
@@ -146,7 +148,7 @@ describe("AuthRequestLoginStrategy", () => {
     );
   });
 
-  it("sets keys after a successful authentication when only userKey provided in login credentials", async () => {
+  it("sets keys after a successful authentication", async () => {
     // Initialize credentials with only userKey
     credentials = new AuthRequestLoginCredentials(
       email,
@@ -160,7 +162,6 @@ describe("AuthRequestLoginStrategy", () => {
 
     // setMasterKey and setMasterKeyHash should not be called
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
 
     // setMasterKeyEncryptedUserKey, setUserKey, and setPrivateKey should still be called
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
@@ -174,7 +175,7 @@ describe("AuthRequestLoginStrategy", () => {
     );
 
     // trustDeviceIfRequired should be called
-    expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+    expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

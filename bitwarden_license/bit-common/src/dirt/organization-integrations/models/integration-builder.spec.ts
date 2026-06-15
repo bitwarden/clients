@@ -54,6 +54,34 @@ describe("OrgIntegrationBuilder", () => {
 
       expect(config.bw_serviceName).toBe(OrganizationIntegrationServiceName.CrowdStrike);
     });
+
+    it("should work with Blumira service name", () => {
+      const config = OrgIntegrationBuilder.buildHecConfiguration(
+        "https://test.blumira.com/hec",
+        "test-token",
+        OrganizationIntegrationServiceName.Blumira,
+      );
+
+      expect(config).toBeInstanceOf(HecConfiguration);
+      expect((config as HecConfiguration).uri).toBe("https://test.blumira.com/hec");
+      expect((config as HecConfiguration).scheme).toBe("Bearer");
+      expect((config as HecConfiguration).token).toBe("test-token");
+      expect(config.bw_serviceName).toBe(OrganizationIntegrationServiceName.Blumira);
+    });
+
+    it("should work with Splunk service name", () => {
+      const config = OrgIntegrationBuilder.buildHecConfiguration(
+        "https://test.splunk.com/hec",
+        "test-token",
+        OrganizationIntegrationServiceName.Splunk,
+      );
+
+      expect(config).toBeInstanceOf(HecConfiguration);
+      expect((config as HecConfiguration).uri).toBe("https://test.splunk.com/hec");
+      expect((config as HecConfiguration).scheme).toBe("Bearer");
+      expect((config as HecConfiguration).token).toBe("test-token");
+      expect(config.bw_serviceName).toBe(OrganizationIntegrationServiceName.Splunk);
+    });
   });
 
   describe("buildHecTemplate", () => {
@@ -75,6 +103,28 @@ describe("OrgIntegrationBuilder", () => {
       );
 
       expect((template as HecTemplate).index).toBe("");
+    });
+
+    it("should work with Blumira service name", () => {
+      const template = OrgIntegrationBuilder.buildHecTemplate(
+        "test-index",
+        OrganizationIntegrationServiceName.Blumira,
+      );
+
+      expect(template).toBeInstanceOf(HecTemplate);
+      expect((template as HecTemplate).index).toBe("test-index");
+      expect(template.bw_serviceName).toBe(OrganizationIntegrationServiceName.Blumira);
+    });
+
+    it("should work with Splunk service name", () => {
+      const template = OrgIntegrationBuilder.buildHecTemplate(
+        "test-index",
+        OrganizationIntegrationServiceName.Splunk,
+      );
+
+      expect(template).toBeInstanceOf(HecTemplate);
+      expect((template as HecTemplate).index).toBe("test-index");
+      expect(template.bw_serviceName).toBe(OrganizationIntegrationServiceName.Splunk);
     });
   });
 

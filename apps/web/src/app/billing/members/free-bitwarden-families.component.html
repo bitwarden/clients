@@ -1,6 +1,11 @@
 <app-header>
-  <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+  <button
+    type="button"
+    (click)="addSponsorship()"
+    bitButton
+    buttonType="primary"
+    startIcon="bwi-plus"
+  >
     {{ "addSponsorship" | i18n }}
   </button>
 </app-header>
@@ -51,7 +56,7 @@
                     <button
                       type="button"
                       bitIconButton="bwi-ellipsis-v"
-                      buttonType="main"
+                      buttonType="primaryGhost"
                       [bitMenuTriggerFor]="appListDropdown"
                       label="{{ 'options' | i18n }}"
                     ></button>
@@ -75,11 +80,12 @@
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         [attr.aria-label]="'revokeAccountMessage' | i18n"
                         (click)="removeSponsorship(sponsoredFamily)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-close tw-text-danger"></i>
-                        <span class="tw-text-danger tw-pl-1">{{ "remove" | i18n }}</span>
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
                       </button>
                     </bit-menu>
                   </td>

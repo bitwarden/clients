@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -22,10 +22,7 @@ import {
   UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -40,9 +37,9 @@ import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-l
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AsyncActionsModule,
-  BadgeModule,
   ButtonModule,
   CalloutModule,
+  ChipActionComponent,
   DialogService,
   IconButtonModule,
   SearchModule,
@@ -50,10 +47,8 @@ import {
 } from "@bitwarden/components";
 import {
   ArchiveCipherUtilitiesService,
-  ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
-  DefaultChangeLoginPasswordService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
@@ -65,12 +60,13 @@ import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserViewPasswordHistoryService } from "../../../services/browser-view-password-history.service";
+import {
+  ROUTES_AFTER_EDIT_DELETION,
+  VaultPopupAfterDeletionNavigationService,
+} from "../../../services/vault-popup-after-deletion-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
-import { ROUTES_AFTER_EDIT_DELETION } from "../add-edit/add-edit.component";
 import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
@@ -107,12 +103,11 @@ type LoadAction =
     AsyncActionsModule,
     PopOutComponent,
     CalloutModule,
-    BadgeModule,
+    ChipActionComponent,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewComponent {
@@ -127,19 +122,12 @@ export class ViewComponent {
   senderTabId?: number;
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
-  //feature flag
-  private readonly pm30521FeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM30521_AutofillButtonViewLoginScreen),
-  );
-
   private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-
   constructor(
     private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
@@ -155,11 +143,10 @@ export class ViewComponent {
     private popupRouterCacheService: PopupRouterCacheService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
-    private popupScrollPositionService: VaultPopupScrollPositionService,
     private archiveService: CipherArchiveService,
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
-    private configService: ConfigService,
+    private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
   ) {
     this.subscribeToParams();
   }
@@ -234,6 +221,9 @@ export class ViewComponent {
       [CipherType.Identity]: "viewItemHeaderIdentity",
       [CipherType.SecureNote]: "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
+      [CipherType.BankAccount]: "viewItemHeaderBankAccount",
+      [CipherType.DriversLicense]: "viewItemHeaderLicense",
+      [CipherType.Passport]: "viewItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }
@@ -282,8 +272,7 @@ export class ViewComponent {
       return false;
     }
 
-    this.popupScrollPositionService.stop(true);
-    await this.popupRouterCacheService.back();
+    await this.afterDeletionNavigationService.navigateAfterDeletion(this.routeAfterDeletion);
 
     this.toastService.showToast({
       variant: "success",
@@ -341,11 +330,6 @@ export class ViewComponent {
   }
 
   showAutofillButton(): boolean {
-    //feature flag
-    if (!this.pm30521FeatureFlag()) {
-      return false;
-    }
-
     if (!this.autofillAllowed()) {
       return false;
     }
@@ -358,36 +342,9 @@ export class ViewComponent {
   }
 
   async doAutofill() {
-    //feature flag
-    if (
-      !(await this.configService.getFeatureFlag(FeatureFlag.PM30521_AutofillButtonViewLoginScreen))
-    ) {
-      return;
-    }
-
     //for non login types that are still auto-fillable
     if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
       await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
-      return;
-    }
-
-    const uris = this.cipher.login?.uris ?? [];
-    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-
-    const showExactMatchDialog =
-      uris.length === 0
-        ? uriMatchStrategy === UriMatchStrategy.Exact
-        : // all saved URIs are exact match
-          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
-
-    if (showExactMatchDialog) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
       return;
     }
 
@@ -412,7 +369,7 @@ export class ViewComponent {
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: this.cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUris: this.cipher.login?.uris?.filter((u) => u.uri) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });

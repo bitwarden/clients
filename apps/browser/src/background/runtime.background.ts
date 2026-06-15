@@ -12,7 +12,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -27,6 +26,7 @@ import {
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
@@ -60,6 +60,12 @@ export default class RuntimeBackground {
     chrome.runtime.onInstalled.addListener((details: any) => {
       this.onInstalledReason = details.reason;
     });
+
+    if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener((permissions) => {
+        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+      });
+    }
   }
 
   async init() {
@@ -68,6 +74,7 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
+
     const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
@@ -80,6 +87,7 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
+        "getUrlAutofillTargetingRules",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -213,6 +221,38 @@ export default class RuntimeBackground {
         );
         return result;
       }
+      case "getUrlAutofillTargetingRules": {
+        return await this.main.domainSettingsService.getTargetingRulesForUrl(
+          // Because content scripts are injected into all _frames_, we give precedence
+          // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
+          // selector collision with coincidentally-matching in-frame structures.
+          sender.url ?? sender.tab?.url,
+        );
+      }
+    }
+  }
+
+  private async handleSetBitwardenAsDefaultPasswordManager(
+    permissions: chrome.permissions.Permissions,
+  ) {
+    if (!permissions.permissions?.includes("privacy")) {
+      return;
+    }
+
+    if (!chrome.storage?.session) {
+      return;
+    }
+
+    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
+    if (!result.pendingDefaultPasswordManagerApply) {
+      return;
+    }
+
+    try {
+      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
+      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+    } catch (error) {
+      this.logService.error(error);
     }
   }
 
@@ -289,6 +329,9 @@ export default class RuntimeBackground {
 
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
+        break;
+      case FORCE_TARGETING_RULES_UPDATE_COMMAND:
+        this.main.targetingRulesDataService.forceUpdate();
         break;
       case "openPopup":
         await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
@@ -458,9 +501,7 @@ export default class RuntimeBackground {
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
         ) {
-          if (!devFlagEnabled("skipWelcomeOnInstall")) {
-            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
-          }
+          await this.browserInitialInstallService.displayWelcomePage();
 
           await this.autofillSettingsService.setInlineMenuVisibility(
             AutofillOverlayVisibility.OnFieldFocus,
@@ -517,21 +558,26 @@ export default class RuntimeBackground {
   /** Sends a message to each tab that the popup was opened */
   private announcePopupOpen() {
     const announceToAllTabs = async () => {
-      const isOpen = await this.platformUtilsService.isPopupOpen();
       const tabs = await this.getBwTabs();
-
-      if (isOpen && tabs.length > 0) {
-        // Send message to all vault tabs that the extension has opened
-        for (const tab of tabs) {
-          await BrowserApi.executeScriptInTab(tab.id, {
-            file: "content/send-popup-open-message.js",
-            runAt: "document_end",
-          });
-        }
+      for (const tab of tabs) {
+        await BrowserApi.executeScriptInTab(tab.id, {
+          file: "content/send-popup-open-message.js",
+          runAt: "document_end",
+        });
       }
     };
 
-    // Give the popup a buffer to complete opening
-    setTimeout(announceToAllTabs, 100);
+    // Poll every 200ms (up to 1s) until the popup is open, to handle browser timing differences
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const isOpen = await this.platformUtilsService.isPopupOpen();
+      if (isOpen) {
+        clearInterval(interval);
+        await announceToAllTabs();
+      } else if (attempts >= 5) {
+        clearInterval(interval);
+      }
+    }, 200);
   }
 }

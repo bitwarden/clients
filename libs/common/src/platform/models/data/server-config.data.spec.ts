@@ -19,6 +19,7 @@ describe("ServerConfigData", () => {
         },
         settings: {
           disableUserRegistration: false,
+          suppressOnboardingInterstitials: false,
         },
         environment: {
           cloudRegion: Region.EU,
@@ -27,6 +28,7 @@ describe("ServerConfigData", () => {
           identity: "https://identity.com",
           notifications: "https://notifications.com",
           sso: "https://sso.com",
+          fillAssistRules: "https://fill-assist-rules.com",
         },
         utcDate: "2020-01-01T00:00:00.000Z",
         featureStates: { feature: "state" },

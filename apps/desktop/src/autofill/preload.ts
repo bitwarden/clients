@@ -8,9 +8,33 @@ import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/na
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
+import { AUTOTYPE_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+
+const sshAgent = {
+  init: async (useV2: boolean) => {
+    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT, { useV2 });
+  },
+  replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
+  signRequestResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
+  },
+  // V1, delete with PM-30758
+  lock: async () => {
+    return await ipcRenderer.invoke("sshagent.lock");
+  },
+  // V1, delete with PM-30758
+  clearKeys: async () => {
+    return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
+  },
+  stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
+};
 
 export default {
+  sshAgent,
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 

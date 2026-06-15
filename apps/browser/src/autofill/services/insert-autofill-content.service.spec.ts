@@ -482,7 +482,7 @@ describe("InsertAutofillContentService", () => {
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
-      ).toBeCalledWith("__1");
+      ).toHaveBeenCalledWith("__1");
       expect((insertAutofillContentService as any)["triggerClickOnElement"]).toHaveBeenCalledWith(
         textInput,
       );
@@ -547,7 +547,7 @@ describe("InsertAutofillContentService", () => {
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
-      ).toBeCalledWith("__0");
+      ).toHaveBeenCalledWith("__0");
       expect(targetInput.blur).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["simulateUserMouseClickAndFocusEventInteractions"],
@@ -692,6 +692,18 @@ describe("InsertAutofillContentService", () => {
       ).not.toHaveBeenCalled();
       expect(element.value).toBe(value);
     });
+
+    it("does not insert when aria-readonly is set", () => {
+      document.body.innerHTML = `<input type="text" id="username" aria-readonly="true" />`;
+      const element = document.getElementById("username") as HTMLInputElement;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](element, "new-value");
+
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe("handleInsertValueAndTriggerSimulatedEvents", () => {
@@ -774,6 +786,10 @@ describe("InsertAutofillContentService", () => {
       jest.clearAllTimers();
     });
 
+    afterEach(() => {
+      insertAutofillContentService["showAnimations"] = true;
+    });
+
     describe("will not trigger the animation when...", () => {
       it("the element is a non-hidden hidden input type", async () => {
         document.body.innerHTML = mockLoginForm + '<input type="hidden" />';
@@ -839,6 +855,21 @@ describe("InsertAutofillContentService", () => {
         jest.spyOn(testElement.classList, "add");
         jest.spyOn(testElement.classList, "remove");
 
+        insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
+        jest.advanceTimersByTime(200);
+
+        expect(testElement.classList.add).not.toHaveBeenCalled();
+        expect(testElement.classList.remove).not.toHaveBeenCalled();
+      });
+
+      it("the showAnimations flag is set to false", () => {
+        const testElement = document.querySelector(
+          'input[type="password"]',
+        ) as FillableFormFieldElement;
+        jest.spyOn(testElement.classList, "add");
+        jest.spyOn(testElement.classList, "remove");
+
+        insertAutofillContentService["showAnimations"] = false;
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 

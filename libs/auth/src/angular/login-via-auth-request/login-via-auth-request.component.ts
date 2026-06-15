@@ -36,7 +36,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
+import { ButtonModule, LinkModule, IconModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { AuthRequestApiServiceAbstraction } from "../../common/abstractions/auth-request-api.service";
@@ -60,7 +60,7 @@ const matchOptions: IsActiveMatchOptions = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./login-via-auth-request.component.html",
-  imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule],
+  imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule, IconModule],
   providers: [{ provide: LoginViaAuthRequestCacheService }],
 })
 export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {

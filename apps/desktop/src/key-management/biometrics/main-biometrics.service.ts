@@ -118,6 +118,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
+    await this.biometricStateService.setBiometricEnrolledKeyId(userId, null);
     return await this.osBiometricsService.deleteBiometricKey(userId);
   }
 
@@ -142,8 +143,12 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return true;
   }
 
+  /**
+   * Please note, this should only be called via the renderer service, and never directly.
+   * This is missing the setting of the key-id.
+   */
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
-    return await this.osBiometricsService.enrollPersistent(userId, key);
+    await this.osBiometricsService.enrollPersistent(userId, key);
   }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {

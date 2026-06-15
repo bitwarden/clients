@@ -6,5 +6,13 @@ export interface DomQueryService {
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
   ): T[];
-  checkPageContainsShadowDom(): void;
+  updatePageContainsShadowDom(): boolean;
+  checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
+  checkForNewShadowRoots(addedElements?: Element[]): boolean;
+  resetObservedShadowRoots(): void;
+  purgeDetachedShadowRoots(): void;
+  queryDeepSelector(selector: string): Element | null;
+  findIframeCrossing(
+    selector: string,
+  ): { iframeElement: HTMLIFrameElement; innerSelector: string } | null;
 }

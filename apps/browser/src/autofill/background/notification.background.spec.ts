@@ -4,12 +4,14 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,13 +20,15 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
+import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType } from "../enums/notification-type.enum";
@@ -79,11 +83,14 @@ describe("NotificationBackground", () => {
   const selectedThemeMock$ = new BehaviorSubject(ThemeTypes.Light);
   const themeStateService = mock<ThemeStateService>();
   themeStateService.selectedTheme$ = selectedThemeMock$;
+  const enableNotificationAnimationMock$ = new BehaviorSubject(true);
+  autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
   const fido2Background = mock<Fido2Background>();
-  fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
+  fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValue(false);
+  const changeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject({
@@ -117,6 +124,7 @@ describe("NotificationBackground", () => {
       themeStateService,
       userNotificationSettingsService,
       taskService,
+      changeLoginPasswordService,
       messagingService,
       fido2Background,
     );
@@ -218,6 +226,116 @@ describe("NotificationBackground", () => {
     });
   });
 
+  describe("queueMessageIsFromTabOrigin", () => {
+    const createQueueMessage = (tab: chrome.tabs.Tab, domain = "example.com") =>
+      mock<AddLoginQueueMessage>({
+        type: NotificationType.AddLogin,
+        domain,
+        tab,
+        data: { username: "", password: "", uri: "" },
+        expires: new Date(),
+        wasVaultLocked: false,
+        launchTimestamp: 0,
+      });
+
+    it.each([
+      {
+        name: "returns false when the tab navigated away from the queued domain (shared tab reference)",
+        tab: createChromeTabMock({ id: 1, url: "https://example.net" }),
+        expected: false,
+      },
+      {
+        name: "returns true when the tab URL matches the queued domain",
+        tab: createChromeTabMock({ id: 1, url: "https://example.com/login" }),
+        expected: true,
+      },
+      {
+        name: "returns false when the tab URL has no extractable domain",
+        tab: createChromeTabMock({ id: 1, url: undefined }),
+        expected: false,
+      },
+    ])("$name", ({ tab, expected }) => {
+      const message = createQueueMessage(tab);
+      expect(notificationBackground["queueMessageIsFromTabOrigin"](message, tab)).toBe(expected);
+    });
+  });
+
+  describe("getOrgData", () => {
+    it("omits disabled organizations from the notification bar vault list for cipher flows", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "enabledOrg",
+            name: "On",
+            enabled: true,
+            productTierType: ProductTierType.Teams,
+          } as Organization,
+          {
+            id: "disabledOrg",
+            name: "Off",
+            enabled: false,
+            productTierType: ProductTierType.Free,
+          } as Organization,
+        ]),
+      );
+
+      await expect(notificationBackground["getOrgData"]()).resolves.toEqual([
+        { id: "enabledOrg", name: "On", productTierType: ProductTierType.Teams },
+      ]);
+    });
+
+    it("returns an empty array when every organization is disabled", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "disabledOrgA",
+            name: "Disabled Org A",
+            enabled: false,
+            productTierType: ProductTierType.Free,
+          } as Organization,
+          {
+            id: "disabledOrgB",
+            name: "Disabled Org B",
+            enabled: false,
+            productTierType: ProductTierType.Teams,
+          } as Organization,
+        ]),
+      );
+
+      await expect(notificationBackground["getOrgData"]()).resolves.toEqual([]);
+    });
+
+    it("returns every organization when all are enabled", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "firstEnabledOrg",
+            name: "FirstOrg",
+            enabled: true,
+            productTierType: ProductTierType.Teams,
+          } as Organization,
+          {
+            id: "secondEnabledOrg",
+            name: "SecondOrg",
+            enabled: true,
+            productTierType: ProductTierType.Families,
+          } as Organization,
+          {
+            id: "thirdDisabledOrg",
+            name: "ThirdOrg",
+            enabled: false,
+            productTierType: ProductTierType.Families,
+          } as Organization,
+        ]),
+      );
+
+      await expect(notificationBackground["getOrgData"]()).resolves.toEqual([
+        { id: "firstEnabledOrg", name: "FirstOrg", productTierType: ProductTierType.Teams },
+        { id: "secondEnabledOrg", name: "SecondOrg", productTierType: ProductTierType.Families },
+      ]);
+    });
+  });
+
   describe("notification bar extension message handlers and triggers", () => {
     beforeEach(() => {
       notificationBackground.init();
@@ -253,10 +371,16 @@ describe("NotificationBackground", () => {
       });
 
       it("triggers a retryHandler if the message target is `notification.background` and a handler exists", async () => {
+        const retrySender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1 } as chrome.tabs.Tab,
+        });
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
           data: {
-            commandToRetry: { message: { command: "bgSaveCipher" } },
+            commandToRetry: {
+              message: { command: "bgSaveCipher" },
+              sender: retrySender,
+            },
             target: "notification.background",
           } as LockedVaultPendingNotificationsData,
         };
@@ -326,6 +450,175 @@ describe("NotificationBackground", () => {
           "adjustNotificationBar",
           message.data,
         );
+      });
+    });
+
+    describe("bgOpenChangePasswordUrl message handler", () => {
+      const tabUrl = "https://jest-testing-website.com";
+
+      function createMockCipher(overrides: Partial<CipherView> = {}): CipherView {
+        return {
+          id: "cipher-1",
+          deletedDate: null,
+          ...overrides,
+        } as CipherView;
+      }
+
+      function createMockSecurityTask(overrides: Partial<SecurityTask> = {}): SecurityTask {
+        return {
+          cipherId: "cipher-1",
+          status: SecurityTaskStatus.Pending,
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          ...overrides,
+        } as SecurityTask;
+      }
+
+      let createNewTabSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        changeLoginPasswordService.getChangePasswordUrl.mockReset();
+        taskService.tasksEnabled$.mockReturnValue(of(true));
+        taskService.pendingTasks$.mockReturnValue(of([]));
+        createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue(null as any);
+      });
+
+      it("opens a new tab with the trusted change-password URL when a matching cipher and task exist", async () => {
+        const cipher = createMockCipher();
+        const task = createMockSecurityTask();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+        changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(
+          "https://jest-testing-website.com/.well-known/change-password",
+        );
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
+        expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(createNewTabSpy).toHaveBeenCalledWith(
+          "https://jest-testing-website.com/.well-known/change-password",
+        );
+      });
+
+      it("does nothing when the sender tab has no URL", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: undefined },
+        });
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when there is no active user", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        activeAccountSubject.next(null as any);
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+
+        // Restore active account for subsequent tests
+        activeAccountSubject.next({
+          id: userId,
+          ...mockAccountInfoWith({ email: "test@example.com", name: "Test User" }),
+        });
+      });
+
+      it("does nothing when no ciphers match the tab URL", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when no pending security tasks exist", async () => {
+        const cipher = createMockCipher();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([]));
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips soft-deleted ciphers", async () => {
+        const cipher = createMockCipher({ deletedDate: new Date() });
+        const task = createMockSecurityTask();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(changeLoginPasswordService.getChangePasswordUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when no task references any matched cipher", async () => {
+        const cipher = createMockCipher({ id: "cipher-1" });
+        const task = createMockSecurityTask({ cipherId: "cipher-999" as CipherId });
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(changeLoginPasswordService.getChangePasswordUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when getChangePasswordUrl returns null", async () => {
+        const cipher = createMockCipher();
+        const task = createMockSecurityTask();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+        changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(null);
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when sender has no tab", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: undefined });
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(createNewTabSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -825,7 +1118,7 @@ describe("NotificationBackground", () => {
         expectSkippedCheckingNotification();
       });
 
-      it("skips checking if a notification should trigger if a fido2 credential request is in progress for the tab", async () => {
+      it("skips checking if a notification should trigger when a passkey picker is active for the tab", async () => {
         const formEntryData: ModifyLoginCipherFormData = {
           newPassword: "",
           password: "",
@@ -834,7 +1127,7 @@ describe("NotificationBackground", () => {
         };
 
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        fido2Background.isCredentialRequestInProgress.mockReturnValueOnce(true);
+        fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValueOnce(true);
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
@@ -1634,7 +1927,7 @@ describe("NotificationBackground", () => {
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
 
-        it("and no cipher update candidates match `username`, trigger a new cipher notification", async () => {
+        it("and no cipher update candidates match `username`, do not trigger a notification (username alone is insufficient signal)", async () => {
           const storedCiphersForURL = [
             mock<CipherView>({
               id: "cipher-id-1",
@@ -1652,15 +1945,7 @@ describe("NotificationBackground", () => {
           await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-          expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
-            mockFormattedURI,
-            {
-              password: "",
-              url: formEntryData.uri,
-              username: formEntryData.username,
-            },
-            sender.tab,
-          );
+          expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
 
         it("and no cipher update candidates match `username`, do not trigger a new cipher notification if the new cipher notification setting is disabled", async () => {
@@ -1909,6 +2194,24 @@ describe("NotificationBackground", () => {
 
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        });
+
+        it("and no ciphers are saved for the URL, trigger a new cipher notification", async () => {
+          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+          getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
+
+          await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+          expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+          expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+            mockFormattedURI,
+            {
+              username: formEntryData.username,
+              url: formEntryData.uri,
+              password: formEntryData.password,
+            },
+            sender.tab,
+          );
         });
       });
 
@@ -2239,6 +2542,24 @@ describe("NotificationBackground", () => {
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
+
+        it("and no ciphers are saved for the URL, trigger a new cipher notification", async () => {
+          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+          getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
+
+          await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+          expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+          expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+            mockFormattedURI,
+            {
+              username: formEntryData.username,
+              url: formEntryData.uri,
+              password: formEntryData.newPassword,
+            },
+            sender.tab,
+          );
+        });
       });
     });
 
@@ -2300,15 +2621,10 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
-          sender.tab,
-          "addToLockedVaultPendingNotifications",
-          {
-            commandToRetry: { message, sender },
-            target: "notification.background",
-          },
-        );
-        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab);
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+          commandToRetry: { message, sender },
+          target: "notification.background",
+        });
       });
 
       describe("saveOrUpdateCredentials", () => {
@@ -2764,7 +3080,7 @@ describe("NotificationBackground", () => {
 
           expect(convertAddLoginQueueMessageToCipherViewSpy).toHaveBeenCalledWith(
             queueMessage,
-            null,
+            undefined,
           );
           expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(

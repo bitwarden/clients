@@ -1,6 +1,6 @@
 import { RuleTester } from "@typescript-eslint/rule-tester";
 
-import rule, { errorMessage } from "./no-icon-children-in-bit-button.mjs";
+import rule from "./no-icon-children-in-bit-button.mjs";
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -49,49 +49,192 @@ ruleTester.run("no-icon-children-in-bit-button", rule.default, {
   ],
   invalid: [
     {
-      name: "should warn on <i> with bwi class inside button[bitButton]",
+      name: "should suggest startIcon for <i> with bwi class inside button[bitButton]",
       code: `<button bitButton buttonType="primary"><i class="bwi bwi-plus"></i> Add</button>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitButton buttonType="primary" startIcon="bwi-plus">Add</button>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on <i> with bwi class and extra classes inside button[bitButton]",
+      name: "should suggest fix when <i> has droppable spacing classes",
       code: `<button bitButton><i class="bwi bwi-lock tw-me-2" aria-hidden="true"></i> Lock</button>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitButton startIcon="bwi-lock">Lock</button>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on <i> with bwi class inside a[bitButton]",
+      name: "should not suggest fix when <i> has non-droppable classes",
+      code: `<button bitButton><i class="bwi bwi-lock tw-text-red" aria-hidden="true"></i> Lock</button>`,
+      errors: [{ messageId: "noIconChildren" }],
+    },
+    {
+      name: "should suggest startIcon for <i> with bwi class inside a[bitButton]",
       code: `<a bitButton buttonType="secondary"><i class="bwi bwi-external-link"></i> Link</a>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<a bitButton buttonType="secondary" startIcon="bwi-external-link">Link</a>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on <bit-icon> inside button[bitButton]",
+      name: "should suggest startIcon for <bit-icon> inside button[bitButton]",
       code: `<button bitButton buttonType="primary"><bit-icon name="bwi-lock"></bit-icon> Lock</button>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitButton buttonType="primary" startIcon="bwi-lock">Lock</button>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on <bit-icon> inside a[bitButton]",
+      name: "should suggest startIcon for <bit-icon> inside a[bitButton]",
       code: `<a bitButton><bit-icon name="bwi-clone"></bit-icon> Copy</a>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<a bitButton startIcon="bwi-clone">Copy</a>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on multiple icon children inside bitButton",
+      name: "should suggest startIcon and endIcon for multiple icon children",
       code: `<button bitButton><i class="bwi bwi-plus"></i> Add <i class="bwi bwi-angle-down"></i></button>`,
-      errors: [{ message: errorMessage }, { message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitButton startIcon="bwi-plus">Add <i class="bwi bwi-angle-down"></i></button>`,
+            },
+          ],
+        },
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useEndIcon",
+              output: `<button bitButton endIcon="bwi-angle-down"><i class="bwi bwi-plus"></i> Add</button>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on both <i> and <bit-icon> children",
+      name: "should suggest for both <i> and <bit-icon> children",
       code: `<button bitButton><i class="bwi bwi-plus"></i><bit-icon name="bwi-lock"></bit-icon></button>`,
-      errors: [{ message: errorMessage }, { message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitButton startIcon="bwi-plus"><bit-icon name="bwi-lock"></bit-icon></button>`,
+            },
+          ],
+        },
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useEndIcon",
+              output: `<button bitButton endIcon="bwi-lock"><i class="bwi bwi-plus"></i></button>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on <i> with bwi class inside a[bitLink]",
+      name: "should suggest startIcon for <i> with bwi class inside a[bitLink]",
       code: `<a bitLink><i class="bwi bwi-external-link"></i> Link</a>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<a bitLink startIcon="bwi-external-link">Link</a>`,
+            },
+          ],
+        },
+      ],
     },
     {
-      name: "should warn on <bit-icon> inside button[bitLink]",
+      name: "should suggest startIcon for <bit-icon> inside button[bitLink]",
       code: `<button bitLink><bit-icon name="bwi-lock"></bit-icon> Lock</button>`,
-      errors: [{ message: errorMessage }],
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitLink startIcon="bwi-lock">Lock</button>`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "should suggest endIcon when icon is after text",
+      code: `<button bitButton>Save <i class="bwi bwi-angle-down"></i></button>`,
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useEndIcon",
+              output: `<button bitButton endIcon="bwi-angle-down">Save</button>`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "should suggest startIcon for <i> with aria-hidden (no extra classes)",
+      code: `<button bitButton><i class="bwi bwi-plus" aria-hidden="true"></i> Add</button>`,
+      errors: [
+        {
+          messageId: "noIconChildren",
+          suggestions: [
+            {
+              messageId: "useStartIcon",
+              output: `<button bitButton startIcon="bwi-plus">Add</button>`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });

@@ -4,9 +4,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { View } from "@bitwarden/common/models/view/view";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
+import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
 import { CollectionAccessDetailsResponse } from "./collection.response";
@@ -169,6 +171,55 @@ export class CollectionView implements View, ITreeNodeObject {
 
   static fromJSON(obj: Jsonify<CollectionView>) {
     return Object.assign(new CollectionView({ ...obj }), obj);
+  }
+
+  /**
+   * Creates a CollectionView from the SDK CollectionView returned by SDK decrypt operations.
+   *
+   * The `sourceCollection` parameter is required to preserve `defaultUserCollectionEmail`, which
+   * the SDK's CollectionView type does not carry. That field is consumed by `canEditName()` to
+   * enforce the security restriction that prevents editing names on offboarded default-user
+   * collections (see WARNING on `canEditName`). Without it the restriction would be silently
+   * bypassed on the SDK decrypt path.
+   */
+  static fromSdkCollectionView(
+    sdkView: SdkCollectionView,
+    sourceCollection: Collection,
+  ): CollectionView {
+    const view = new CollectionView({
+      id: sdkView.id ? (uuidAsString(sdkView.id) as CollectionId) : ("" as CollectionId),
+      organizationId: uuidAsString(sdkView.organizationId) as OrganizationId,
+      name: sdkView.name,
+    });
+
+    view.externalId = sdkView.externalId;
+    view.hidePasswords = sdkView.hidePasswords;
+    view.readOnly = sdkView.readOnly;
+    view.manage = sdkView.manage;
+    view.assigned = true;
+    view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
+    view.type = sdkView.type;
+
+    return view;
+  }
+
+  /**
+   * Maps this CollectionView to the SDK CollectionView format for use with SDK crypto operations.
+   *
+   * Uses the `name` getter, which resolves `defaultUserCollectionEmail` when present, ensuring
+   * the correct display name is passed to the SDK.
+   */
+  toSdkCollectionView(): SdkCollectionView {
+    return {
+      id: this.id ? asUuid(this.id) : undefined,
+      organizationId: asUuid(this.organizationId),
+      name: this.name,
+      externalId: this.externalId,
+      hidePasswords: this.hidePasswords,
+      readOnly: this.readOnly,
+      manage: this.manage,
+      type: this.type,
+    };
   }
 
   encrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<Collection> {

@@ -1,3 +1,8 @@
+//! Biometric unlock module
+//!
+//! This modules can protect a key, either in-memory or in persisted operating system APIs
+//! and release it only after authenticating via biometrics.
+
 use anyhow::Result;
 
 #[allow(clippy::module_inception)]
@@ -11,6 +16,7 @@ pub mod windows_focus;
 
 pub use biometric_v2::BiometricLockSystem;
 
+/// Platform-specific biometric-protected key storage
 #[allow(async_fn_in_trait)]
 pub trait BiometricTrait: Send + Sync {
     /// Authenticate the user

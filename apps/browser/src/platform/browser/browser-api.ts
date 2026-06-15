@@ -12,6 +12,7 @@ import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { registerContentScriptsPolyfill } from "./browser-api.register-content-scripts-polyfill";
+import { ExtensionInstallType } from "./extension-install-type";
 
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
@@ -31,6 +32,30 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Returns how this extension was installed on the current browser. Use
+   * {@link ExtensionInstallType.Admin} to detect enterprise-policy installs and
+   * {@link ExtensionInstallType.Sideload} to detect extensions installed by other software
+   * on the machine.
+   *
+   * `management.getSelf()` is the only `chrome.management` method that does
+   * not require the "management" manifest permission.
+   */
+  static async getInstallType(): Promise<ExtensionInstallType> {
+    try {
+      if (BrowserApi.isWebExtensionsApi) {
+        const info = await browser.management.getSelf();
+        return (info?.installType as ExtensionInstallType) ?? ExtensionInstallType.Unknown;
+      } else if (BrowserApi.isChromeApi) {
+        const info = await chrome.management.getSelf();
+        return (info?.installType as ExtensionInstallType) ?? ExtensionInstallType.Unknown;
+      }
+    } catch {
+      // management API not available on this browser (e.g. older Safari)
+    }
+    return ExtensionInstallType.Unknown;
   }
 
   /**
@@ -465,11 +490,101 @@ export class BrowserApi {
   }
 
   /**
-   * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * Returns true if the vault popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some((context) => context.contextType === "POPUP");
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    return BrowserApi.getExtensionViews({ type: "popup" }).length > 0;
+  }
+
+  /**
+   * Returns true if the toolbar popup or any popout window is currently open.
+   *
+   * Used to gate `chrome.runtime.reload()` so it doesn't fire while a popout is mid-teardown.
+   * Popouts are classified as `TAB` contexts (not `POPUP`) by `chrome.runtime.getContexts`,
+   * so they're identified by `uilocation=popout` in their documentUrl.
+   */
+  static async isAnyPopupOrPopoutOpen(): Promise<boolean> {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some(
+        (context) =>
+          context.contextType === "POPUP" ||
+          (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")),
+      );
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+    return BrowserApi.getExtensionViews({ type: "tab" }).some((v) =>
+      v.location.href.includes("uilocation=popout"),
+    );
+  }
+
+  /**
+   * Returns true if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Sidebar: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused.
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
+   *
+   * NOTE: The `getContexts` path is restricted to MV3. Firefox MV2's persistent
+   * background page is classified as a "POPUP" context by `runtime.getContexts()`,
+   * which would cause `isAnyViewFocused` to permanently return true and block vault
+   * timeout. The `getExtensionViews` path only returns actually-visible views.
+   */
+  static async isAnyViewFocused(): Promise<boolean> {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+
+      if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {
+        return true;
+      }
+
+      const tabs = contexts.filter(
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+
+    return BrowserApi.getExtensionViews({ type: "tab" }).some(
+      (v) =>
+        v.location.href.includes("uilocation=sidebar") ||
+        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+    );
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
@@ -588,6 +703,38 @@ export class BrowserApi {
         event.removeListener(callback);
       }
     });
+  }
+
+  /**
+   * Whether the Chrome Side Panel API is available (Chrome 114+).
+   */
+  static get isSidePanelApiSupported(): boolean {
+    return typeof chrome !== "undefined" && typeof chrome.sidePanel !== "undefined";
+  }
+
+  /**
+   * Opens the extension's side panel for a specific tab.
+   * Must be called in response to a user gesture (context menu click qualifies).
+   */
+  static async openSidePanel(options: { tabId: number }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.open({ tabId: options.tabId });
+  }
+
+  /**
+   * Sets the side panel options (path, enabled state), optionally scoped to a tab.
+   */
+  static async setSidePanelOptions(options: {
+    path?: string;
+    enabled?: boolean;
+    tabId?: number;
+  }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.setOptions(options);
   }
 
   static sendMessage(subscriber: string, arg: any = {}) {

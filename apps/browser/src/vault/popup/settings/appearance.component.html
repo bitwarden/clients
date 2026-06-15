@@ -1,4 +1,6 @@
 <popup-page [loading]="formLoading">
+  @let isPremium = isPremiumUser();
+
   <popup-header slot="header" [pageTitle]="'appearance' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -10,11 +12,9 @@
       <bit-form-field>
         <bit-label>{{ "theme" | i18n }}</bit-label>
         <bit-select formControlName="theme">
-          <bit-option
-            *ngFor="let o of themeOptions"
-            [value]="o.value"
-            [label]="o.name"
-          ></bit-option>
+          @for (o of themeOptions; track o.value) {
+            <bit-option [value]="o.value" [label]="o.name"></bit-option>
+          }
         </bit-select>
       </bit-form-field>
 
@@ -25,10 +25,7 @@
 
       <bit-form-control>
         <input bitCheckbox formControlName="enableCompactMode" type="checkbox" />
-        <bit-label
-          >{{ "compactMode" | i18n }}
-          <span bitBadge variant="warning">{{ "beta" | i18n }}</span></bit-label
-        >
+        <bit-label>{{ "compactMode" | i18n }} </bit-label>
       </bit-form-control>
 
       <bit-form-control>
@@ -50,15 +47,25 @@
           <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
         </bit-label>
       </bit-form-control>
-      <bit-form-control [disableMargin]="simplifiedItemActionEnabled()">
+      <bit-form-control [disableMargin]="simplifiedItemActionEnabled() && !isPremium">
         <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
         <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
       </bit-form-control>
+
       @if (!simplifiedItemActionEnabled()) {
-        <bit-form-control disableMargin>
+        <bit-form-control [disableMargin]="!isPremium">
           <input bitCheckbox formControlName="clickItemsToAutofillVaultView" type="checkbox" />
           <bit-label>
             {{ "clickToAutofill" | i18n }}
+          </bit-label>
+        </bit-form-control>
+      }
+
+      @if (isPremium) {
+        <bit-form-control disableMargin>
+          <input bitCheckbox formControlName="showAtRiskNotifications" type="checkbox" />
+          <bit-label>
+            {{ "showAtRiskPasswordNotifications" | i18n }}
           </bit-label>
         </bit-form-control>
       }

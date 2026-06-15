@@ -16,25 +16,27 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
+  filter,
 } from "rxjs";
 
+import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import {
   PasswordManagerClient,
   ClientSettings,
   TokenProvider,
   UnsignedSharedKey,
   WrappedAccountCryptographicState,
+  Kdf,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -50,7 +52,7 @@ import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
-import { initializeState } from "./client-managed-state";
+import { initializeClientManagedState } from "./client-managed-state";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -106,7 +108,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
-    private securityStateService: SecurityStateService,
+    private accountCryptographyStateService: AccountCryptographicStateService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
@@ -131,6 +133,13 @@ export class DefaultSdkService implements SdkService {
         return this.internalClient$(userId);
       }),
       takeWhile((client) => client !== undefined, false),
+      // Filter out clients that have been marked for disposal. This can happen in the
+      // race window where `internalClient$`'s `combineLatest` re-emits (e.g. during
+      // unlock when org keys / user key re-emit): the previous inner Observable's
+      // cleanup marks the old Rc for disposal before the new client finishes its
+      // async initialization, leaving the shared ReplaySubject holding a disposed
+      // reference that would otherwise throw on `take()`.
+      filter((client) => !client.isMarkedForDisposal),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
   }
@@ -166,105 +175,70 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
     );
     const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const privateKey$ = this.keyService
-      .userEncryptedPrivateKey$(userId)
+    const accountCryptographicState$ = this.accountCryptographyStateService
+      .accountCryptographicState$(userId)
       .pipe(distinctUntilChanged());
-    const signingKey$ = this.keyService.userSigningKey$(userId).pipe(distinctUntilChanged());
     const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
     const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
-    const securityState$ = this.securityStateService
-      .accountSecurityState$(userId)
-      .pipe(distinctUntilChanged(compareValues));
-    const signedPublicKey$ = this.keyService
-      .userSignedPublicKey$(userId)
-      .pipe(distinctUntilChanged(compareValues));
 
     const client$ = combineLatest([
       this.environmentService.getEnvironment$(userId),
       account$,
       kdfParams$,
-      privateKey$,
+      accountCryptographicState$,
       userKey$,
-      signingKey$,
       orgKeys$,
-      securityState$,
-      signedPublicKey$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
-      switchMap(
-        ([
-          env,
-          account,
-          kdfParams,
-          privateKey,
-          userKey,
-          signingKey,
-          orgKeys,
-          securityState,
-          signedPublicKey,
-        ]) => {
-          // Create our own observable to be able to implement clean-up logic
-          return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
-            const createAndInitializeClient = async () => {
-              if (env == null || kdfParams == null || privateKey == null || userKey == null) {
-                return undefined;
-              }
+      switchMap(([env, account, kdfParams, accountCryptographicState, userKey, orgKeys]) => {
+        // Create our own observable to be able to implement clean-up logic
+        return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
+          const createAndInitializeClient = async () => {
+            if (env == null) {
+              return undefined;
+            }
 
-              const settings = await this.toSettings(env);
-              const client = await this.sdkClientFactory.createSdkClient(
-                new JsTokenProvider(this.apiService, userId),
-                settings,
-              );
+            const settings = await this.toSettings(env);
+            const client = await this.sdkClientFactory.createSdkClient(
+              new JsTokenProvider(this.apiService, userId),
+              settings,
+            );
+            await this.initializeClient(userId, client);
 
-              let accountCryptographicState: WrappedAccountCryptographicState;
-              if (signingKey != null && securityState != null && signedPublicKey != null) {
-                accountCryptographicState = {
-                  V2: {
-                    private_key: privateKey,
-                    signing_key: signingKey,
-                    security_state: securityState,
-                    signed_public_key: signedPublicKey,
-                  },
-                };
-              } else {
-                accountCryptographicState = {
-                  V1: {
-                    private_key: privateKey,
-                  },
-                };
-              }
-
-              await this.initializeClient(
-                userId,
-                client,
-                account,
-                kdfParams,
-                userKey,
-                accountCryptographicState,
-                orgKeys,
-              );
-
+            // Returns a locked SDK client, if any of these values are missing
+            if (kdfParams == null || accountCryptographicState == null || userKey == null) {
               return client;
-            };
+            }
 
-            let client: Rc<PasswordManagerClient> | undefined;
-            createAndInitializeClient()
-              .then((c) => {
-                client = c === undefined ? undefined : new Rc(c);
+            await this.initializeClientCrypto(
+              userId,
+              client,
+              account,
+              kdfParams.toSdkConfig(),
+              accountCryptographicState,
+              orgKeys,
+            );
 
-                subscriber.next(client);
-              })
-              .catch((e) => {
-                subscriber.error(e);
-              });
+            return client;
+          };
 
-            return () => client?.markForDisposal();
-          });
-        },
-      ),
+          let client: Rc<PasswordManagerClient> | undefined;
+          createAndInitializeClient()
+            .then((c) => {
+              client = c === undefined ? undefined : new Rc(c);
+
+              subscriber.next(client);
+            })
+            .catch((e) => {
+              subscriber.error(e);
+            });
+
+          return () => client?.markForDisposal();
+        });
+      }),
       tap({ finalize: () => this.sdkClientCache.delete(userId) }),
       share({
         connector: () => new ReplaySubject(1),
@@ -276,29 +250,28 @@ export class DefaultSdkService implements SdkService {
     return client$;
   }
 
-  private async initializeClient(
+  private async initializeClient(userId: UserId, client: PasswordManagerClient) {
+    // Initialize the client managed repositories.
+    await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
+    client
+      .km_state_bridge()
+      .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
+    await this.loadFeatureFlags(client);
+  }
+
+  private async initializeClientCrypto(
     userId: UserId,
     client: PasswordManagerClient,
     account: AccountInfo,
-    kdfParams: KdfConfig,
-    userKey: UserKey,
+    kdf: Kdf,
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       email: account.email,
-      method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
-      kdfParams:
-        kdfParams.kdfType === KdfType.PBKDF2_SHA256
-          ? { pBKDF2: { iterations: kdfParams.iterations } }
-          : {
-              argon2id: {
-                iterations: kdfParams.iterations,
-                memory: kdfParams.memory,
-                parallelism: kdfParams.parallelism,
-              },
-            },
+      method: { clientManagedState: {} },
+      kdfParams: kdf,
       accountCryptographicState: accountCryptographicState,
     });
 
@@ -309,11 +282,6 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
-
-    // Initialize the SDK managed database and the client managed repositories.
-    await initializeState(userId, client.platform().state(), this.stateProvider);
-
-    await this.loadFeatureFlags(client);
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
@@ -325,7 +293,7 @@ export class DefaultSdkService implements SdkService {
         .map(([key, value]) => [key, value] as [string, boolean]),
     );
 
-    client.platform().load_flags(featureFlagMap);
+    await client.platform().load_flags(featureFlagMap);
   }
 
   private async toSettings(env: Environment): Promise<ClientSettings> {

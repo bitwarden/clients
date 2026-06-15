@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output, input } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { IconButtonModule } from "../icon-button";
-import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
 export type ToastVariant = "success" | "error" | "info" | "warning";
@@ -30,7 +31,7 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
 @Component({
   selector: "bit-toast",
   templateUrl: "toast.component.html",
-  imports: [SharedModule, IconButtonModule, TypographyModule],
+  imports: [I18nPipe, IconButtonModule, TypographyModule],
 })
 export class ToastComponent {
   readonly variant = input<ToastVariant>("info");

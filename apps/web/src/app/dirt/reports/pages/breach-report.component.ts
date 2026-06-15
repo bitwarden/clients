@@ -18,10 +18,10 @@ import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/br
 export class BreachReportComponent implements OnInit {
   loading = false;
   error = false;
-  checkedUsername: string;
+  checkedEmail: string;
   breachedAccounts: BreachAccountResponse[] = [];
   formGroup = this.formBuilder.group({
-    username: ["", { validators: [Validators.required], updateOn: "change" }],
+    email: ["", { validators: [Validators.required, Validators.email], updateOn: "change" }],
   });
 
   constructor(
@@ -32,7 +32,7 @@ export class BreachReportComponent implements OnInit {
 
   async ngOnInit() {
     this.formGroup
-      .get("username")
+      .get("email")
       .setValue(
         await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
       );
@@ -47,15 +47,15 @@ export class BreachReportComponent implements OnInit {
 
     this.error = false;
     this.loading = true;
-    const username = this.formGroup.value.username.toLowerCase();
+    const email = this.formGroup.value.email.toLowerCase();
     try {
-      this.breachedAccounts = await this.auditService.breachedAccounts(username);
+      this.breachedAccounts = await this.auditService.breachedAccounts(email);
     } catch {
       this.error = true;
     } finally {
       this.loading = false;
     }
 
-    this.checkedUsername = username;
+    this.checkedEmail = email;
   };
 }

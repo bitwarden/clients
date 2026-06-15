@@ -1,23 +1,32 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
-  BadgeComponent,
   DialogService,
   ItemModule,
   LinkModule,
   TypographyModule,
+  CalloutModule,
+  BerryComponent,
 } from "@bitwarden/components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -36,48 +45,59 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopOutComponent,
     ItemModule,
     CurrentAccountComponent,
-    BadgeComponent,
-    SpotlightComponent,
     TypographyModule,
     LinkModule,
+    CalloutModule,
+    BerryComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsV2Component {
-  NudgeType = NudgeType;
+  readonly NudgeType = NudgeType;
 
-  private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => account !== null),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private readonly authenticatedAccount$: Observable<Account> =
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => account !== null),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected hasPremium$ = this.authenticatedAccount$.pipe(
+  protected readonly hasPremium$ = this.authenticatedAccount$.pipe(
     switchMap((account) => this.accountProfileStateService.hasPremiumFromAnySource$(account.id)),
   );
 
-  showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.DownloadBitwarden, account.id),
     ),
   );
 
-  showVaultBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showVaultBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.EmptyVaultNudge, account.id),
     ),
   );
 
-  showAdminBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showAdminBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.AutoConfirmNudge, account.id),
     ),
   );
 
-  showAutofillBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
-    switchMap((account) => this.nudgesService.showNudgeBadge$(NudgeType.AutofillNudge, account.id)),
+  readonly showAutofillBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      combineLatest([
+        this.nudgesService.showNudgeBadge$(NudgeType.AutofillNudge, account.id),
+        this.autofillSettingsService.showClipboardSettingUpdateNotification$,
+      ]).pipe(
+        map(
+          ([showAutofillNudge, showClipboardNotification]) =>
+            showAutofillNudge || showClipboardNotification,
+        ),
+      ),
+    ),
   );
 
-  showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+  readonly showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.autoConfirmService.canManageAutoConfirm$(userId)),
   );
@@ -88,6 +108,7 @@ export class SettingsV2Component {
     private readonly autoConfirmService: AutomaticUserConfirmationService,
     private readonly accountProfileStateService: BillingAccountProfileStateService,
     private readonly dialogService: DialogService,
+    private readonly autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {}
 
   protected openUpgradeDialog() {

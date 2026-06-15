@@ -14,11 +14,10 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 export class WebRegistrationFinishService
@@ -28,12 +27,13 @@ export class WebRegistrationFinishService
   constructor(
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
     private organizationInviteService: OrganizationInviteService,
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
   ) {
-    super(keyService, accountApiService);
+    super(keyService, accountApiService, masterPasswordService);
   }
 
   override async getOrgNameFromOrgInvite(): Promise<string | null> {
@@ -78,9 +78,9 @@ export class WebRegistrationFinishService
 
   // Note: the org invite token and email verification are mutually exclusive. Only one will be present.
   override async buildRegisterRequest(
+    newUserKey: UserKey,
     email: string,
     passwordInputResult: PasswordInputResult,
-    encryptedUserKey: EncryptedString,
     userAsymmetricKeys: [string, EncString],
     emailVerificationToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string,
@@ -90,9 +90,9 @@ export class WebRegistrationFinishService
     providerUserId?: string,
   ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
+      newUserKey,
       email,
       passwordInputResult,
-      encryptedUserKey,
       userAsymmetricKeys,
       emailVerificationToken,
     );

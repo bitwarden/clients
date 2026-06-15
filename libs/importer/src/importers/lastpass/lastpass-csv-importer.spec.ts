@@ -1,4 +1,5 @@
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -40,13 +41,13 @@ Notes:some text
       name: "Credit-card",
       notes: "some text\n",
       type: 3,
-      card: {
+      card: Object.assign(new CardView(), {
         cardholderName: "John Doe",
         number: "1234567812345678",
         code: "123",
         expYear: "2020",
         expMonth: "6",
-      },
+      }),
       fields: [
         Object.assign(new FieldView(), {
           name: "Start Date",
@@ -70,9 +71,9 @@ Notes:",empty,,0`,
     expected: Object.assign(new CipherView(), {
       name: "empty",
       type: 3,
-      card: {
+      card: Object.assign(new CardView(), {
         expMonth: undefined,
-      },
+      }),
       fields: [
         Object.assign(new FieldView(), {
           name: "Start Date",
@@ -96,12 +97,12 @@ Notes:",noyear,,0`,
     expected: Object.assign(new CipherView(), {
       name: "noyear",
       type: 3,
-      card: {
+      card: Object.assign(new CardView(), {
         cardholderName: "John Doe",
         number: "1234567887654321",
         code: "321",
         expMonth: "1",
-      },
+      }),
       fields: [
         Object.assign(new FieldView(), {
           name: "Type",
@@ -130,13 +131,13 @@ Notes:",nomonth,,0`,
     expected: Object.assign(new CipherView(), {
       name: "nomonth",
       type: 3,
-      card: {
+      card: Object.assign(new CardView(), {
         cardholderName: "John Doe",
         number: "8765432112345678",
         code: "987",
         expYear: "2020",
         expMonth: undefined,
-      },
+      }),
       fields: [
         Object.assign(new FieldView(), {
           name: "Type",

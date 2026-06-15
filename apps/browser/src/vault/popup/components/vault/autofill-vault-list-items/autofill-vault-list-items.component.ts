@@ -7,12 +7,13 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+import { TypographyModule } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
+import { SimplifiedAutofillInfoComponent } from "../simplified-autofill-info/simplified-autofill-info.component";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -23,7 +24,7 @@ import { VaultListItemsContainerComponent } from "../vault-list-items-container/
     TypographyModule,
     VaultListItemsContainerComponent,
     JslibModule,
-    IconButtonModule,
+    SimplifiedAutofillInfoComponent,
   ],
   selector: "app-autofill-vault-list-items",
   templateUrl: "autofill-vault-list-items.component.html",

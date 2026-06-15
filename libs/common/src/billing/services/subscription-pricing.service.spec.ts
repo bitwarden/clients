@@ -30,7 +30,7 @@ describe("DefaultSubscriptionPricingService", () => {
   let environmentService: MockProxy<EnvironmentService>;
 
   const mockFamiliesPlan = {
-    type: PlanType.FamiliesAnnually2025,
+    type: PlanType.FamiliesAnnually,
     productTier: ProductTierType.Families,
     name: "Families (Annually)",
     isAnnual: true,
@@ -40,6 +40,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: 7,
     hasSelfHost: false,
     hasPolicies: false,
+    hasMyItems: false,
     hasGroups: false,
     hasDirectory: false,
     hasEvents: false,
@@ -80,6 +81,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: 7,
     hasSelfHost: true,
     hasPolicies: true,
+    hasMyItems: false,
     hasGroups: true,
     hasDirectory: true,
     hasEvents: true,
@@ -131,6 +133,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: 7,
     hasSelfHost: true,
     hasPolicies: true,
+    hasMyItems: true,
     hasGroups: true,
     hasDirectory: true,
     hasEvents: true,
@@ -181,6 +184,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: null,
     hasSelfHost: false,
     hasPolicies: false,
+    hasMyItems: false,
     hasGroups: false,
     hasDirectory: false,
     hasEvents: false,

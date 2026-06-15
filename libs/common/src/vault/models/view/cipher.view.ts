@@ -4,6 +4,8 @@ import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import {
   CipherCreateRequest,
   CipherEditRequest,
+  CipherPartialEditRequest,
+  CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
@@ -19,10 +21,14 @@ import { LocalData, toSdkLocalData, fromSdkLocalData } from "../data/local.data"
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
+import { BankAccountView } from "./bank-account.view";
 import { CardView } from "./card.view";
+import { DriversLicenseView } from "./drivers-license.view";
+import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
+import { PassportView } from "./passport.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
@@ -47,6 +53,9 @@ export class CipherView implements View, InitializerMetadata {
   card = new CardView();
   secureNote = new SecureNoteView();
   sshKey = new SshKeyView();
+  bankAccount = new BankAccountView();
+  driversLicense = new DriversLicenseView();
+  passport = new PassportView();
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
@@ -103,6 +112,12 @@ export class CipherView implements View, InitializerMetadata {
         return this.identity;
       case CipherType.SshKey:
         return this.sshKey;
+      case CipherType.BankAccount:
+        return this.bankAccount;
+      case CipherType.DriversLicense:
+        return this.driversLicense;
+      case CipherType.Passport:
+        return this.passport;
       default:
         break;
     }
@@ -265,6 +280,15 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.SshKey:
         view.sshKey = SshKeyView.fromJSON(obj.sshKey);
         break;
+      case CipherType.BankAccount:
+        view.bankAccount = BankAccountView.fromJSON(obj.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        view.driversLicense = DriversLicenseView.fromJSON(obj.driversLicense);
+        break;
+      case CipherType.Passport:
+        view.passport = PassportView.fromJSON(obj.passport);
+        break;
       default:
         break;
     }
@@ -275,7 +299,7 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(obj: SdkCipherView): CipherView | undefined {
+  static fromSdkCipherView(obj: SdkCipherView, sdk?: CiphersClient): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }
@@ -329,6 +353,19 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.Login:
         cipherView.login = obj.login ? LoginView.fromSdkLoginView(obj.login) : new LoginView();
+        if (sdk && obj.login?.fido2Credentials?.length) {
+          const fido2CredentialViews = sdk.decrypt_fido2_credentials(obj);
+          const decryptedKeyValue = sdk.decrypt_fido2_private_key(obj);
+          cipherView.login.fido2Credentials = fido2CredentialViews
+            .map((cred) => {
+              const view = Fido2CredentialView.fromSdkFido2CredentialView(cred);
+              if (view) {
+                view.keyValue = decryptedKeyValue;
+              }
+              return view;
+            })
+            .filter((cred): cred is Fido2CredentialView => !!cred);
+        }
         break;
       case CipherType.SecureNote:
         cipherView.secureNote = obj.secureNote
@@ -339,6 +376,21 @@ export class CipherView implements View, InitializerMetadata {
         cipherView.sshKey = obj.sshKey
           ? SshKeyView.fromSdkSshKeyView(obj.sshKey)
           : new SshKeyView();
+        break;
+      case CipherType.BankAccount:
+        cipherView.bankAccount = obj.bankAccount
+          ? BankAccountView.fromSdkBankAccountView(obj.bankAccount)
+          : new BankAccountView();
+        break;
+      case CipherType.DriversLicense:
+        cipherView.driversLicense = obj.driversLicense
+          ? DriversLicenseView.fromSdkDriversLicenseView(obj.driversLicense)
+          : new DriversLicenseView();
+        break;
+      case CipherType.Passport:
+        cipherView.passport = obj.passport
+          ? PassportView.fromSdkPassportView(obj.passport)
+          : new PassportView();
         break;
       default:
         break;
@@ -352,7 +404,7 @@ export class CipherView implements View, InitializerMetadata {
    *
    * @returns {CipherCreateRequest} The SDK cipher create request object
    */
-  toSdkCreateCipherRequest(): CipherCreateRequest {
+  toSdkCreateCipherRequest(sdk: CiphersClient): CipherCreateRequest {
     const sdkCipherCreateRequest: CipherCreateRequest = {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map((i) => asUuid(i)) : [],
@@ -363,7 +415,15 @@ export class CipherView implements View, InitializerMetadata {
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       type: this.getSdkCipherViewType(),
+      archivedDate: this.archivedDate?.toISOString(),
     };
+
+    // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
+    // separately due to restrictions in how the SDK handles them.
+    if (this.type === CipherType.Login && this.login?.hasFido2Credentials) {
+      const sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
+      sdkCipherCreateRequest.type = { login: sdkCipherView.login! };
+    }
 
     return sdkCipherCreateRequest;
   }
@@ -373,7 +433,7 @@ export class CipherView implements View, InitializerMetadata {
    *
    * @returns {CipherEditRequest} The SDK cipher edit request object
    */
-  toSdkUpdateCipherRequest(): CipherEditRequest {
+  toSdkUpdateCipherRequest(sdk: CiphersClient): CipherEditRequest {
     const sdkCipherEditRequest: CipherEditRequest = {
       id: asUuid(this.id),
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
@@ -390,7 +450,29 @@ export class CipherView implements View, InitializerMetadata {
       key: this.key?.toSdk(),
     };
 
+    // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
+    // separately due to restrictions in how the SDK handles them.
+    if (this.type === CipherType.Login && this.login?.hasFido2Credentials) {
+      const sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
+      sdkCipherEditRequest.type = { login: sdkCipherView.login! };
+    }
+
     return sdkCipherEditRequest;
+  }
+
+  /**
+   * Maps CipherView to an SDK CipherPartialEditRequest
+   *
+   * @returns {CipherPartialEditRequest} The SDK cipher edit request object
+   */
+  toSdkPartialUpdateCipherRequest(): CipherPartialEditRequest {
+    const sdkCipherPartialEditRequest: CipherPartialEditRequest = {
+      id: asUuid(this.id),
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      favorite: this.favorite ?? false,
+    };
+
+    return sdkCipherPartialEditRequest;
   }
 
   /**
@@ -416,6 +498,15 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.SshKey:
         viewType = { sshKey: this.sshKey?.toSdkSshKeyView() };
         break;
+      case CipherType.BankAccount:
+        viewType = { bankAccount: this.bankAccount?.toSdkBankAccountView() };
+        break;
+      case CipherType.DriversLicense:
+        viewType = { driversLicense: this.driversLicense?.toSdkDriversLicenseView() };
+        break;
+      case CipherType.Passport:
+        viewType = { passport: this.passport?.toSdkPassportView() };
+        break;
       default:
         viewType = {
           // Default to empty login - should not be valid code path.
@@ -429,10 +520,16 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Maps CipherView to SdkCipherView
    *
+   * If `sdk` parameter is provided, it will set the FIDO2 credentials on the SDK view,
+   * since they remain encrypted and are not included in the standard mapping.
+   *
+   * If sdk is not provided, the caller is responsible for handling the FIDO2 credentials
+   * on the SDK view separately.
+   *
    * @returns {SdkCipherView} The SDK cipher view object
    */
-  toSdkCipherView(): SdkCipherView {
-    const sdkCipherView: SdkCipherView = {
+  toSdkCipherView(sdk?: CiphersClient): SdkCipherView {
+    let sdkCipherView: SdkCipherView = {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
@@ -464,6 +561,9 @@ export class CipherView implements View, InitializerMetadata {
       identity: undefined,
       secureNote: undefined,
       sshKey: undefined,
+      bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
     };
 
     switch (this.type) {
@@ -482,8 +582,25 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.SshKey:
         sdkCipherView.sshKey = this.sshKey?.toSdkSshKeyView();
         break;
+      case CipherType.BankAccount:
+        sdkCipherView.bankAccount = this.bankAccount?.toSdkBankAccountView();
+        break;
+      case CipherType.DriversLicense:
+        sdkCipherView.driversLicense = this.driversLicense?.toSdkDriversLicenseView();
+        break;
+      case CipherType.Passport:
+        sdkCipherView.passport = this.passport?.toSdkPassportView();
+        break;
       default:
         break;
+    }
+
+    // If the cipher has FIDO2 credentials, we need to set them on the SDK view separately since they remain encrypted.
+    if (sdk && this.type === CipherType.Login && this.login?.hasFido2Credentials) {
+      const fido2Credentials = this.login.fido2Credentials.map((cred) =>
+        cred.toSdkFido2CredentialFullView(),
+      );
+      sdkCipherView = sdk.set_fido2_credentials(sdkCipherView, fido2Credentials);
     }
 
     return sdkCipherView;

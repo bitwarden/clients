@@ -1,4 +1,3 @@
-import { Location } from "@angular/common";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
@@ -7,10 +6,9 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,6 +37,8 @@ import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
+import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
@@ -52,6 +52,7 @@ describe("AddEditComponent", () => {
   let fixture: ComponentFixture<AddEditComponent>;
   let addEditCipherInfo$: BehaviorSubject<AddEditCipherInfo | null>;
   let cipherServiceMock: MockProxy<CipherService>;
+  let vaultPopupAutofillService: MockProxy<VaultPopupAutofillService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
   const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
@@ -61,8 +62,7 @@ describe("AddEditComponent", () => {
   const back = jest.fn().mockResolvedValue(null);
   const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
-  const history$ = jest.fn();
-  const historyGo = jest.fn().mockResolvedValue(null);
+  const navigateAfterDeletion = jest.fn().mockResolvedValue(undefined);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const cipherArchiveService = mock<CipherArchiveService>();
 
@@ -72,17 +72,19 @@ describe("AddEditComponent", () => {
     navigate.mockClear();
     back.mockClear();
     collect.mockClear();
-    history$.mockClear();
-    historyGo.mockClear();
+    navigateAfterDeletion.mockClear();
     openSimpleDialog.mockClear();
 
-    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>({
       addEditCipherInfo$: jest.fn().mockReturnValue(addEditCipherInfo$),
     });
+    vaultPopupAutofillService = {
+      currentAutofillTab$: of({ id: 1 } as chrome.tabs.Tab),
+      doAutofill: jest.fn().mockResolvedValue(undefined),
+    } as unknown as MockProxy<VaultPopupAutofillService>;
 
     await TestBed.configureTestingModule({
       imports: [AddEditComponent],
@@ -90,10 +92,9 @@ describe("AddEditComponent", () => {
         provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: PopupRouterCacheService, useValue: { back, setHistory, history$ } },
+        { provide: PopupRouterCacheService, useValue: { back, setHistory } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
-        { provide: Location, useValue: { historyGo } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: CipherService, useValue: cipherServiceMock },
@@ -128,6 +129,14 @@ describe("AddEditComponent", () => {
             archiveCipher: jest.fn().mockResolvedValue(null),
             unarchiveCipher: jest.fn().mockResolvedValue(null),
           },
+        },
+        {
+          provide: VaultPopupAfterDeletionNavigationService,
+          useValue: { navigateAfterDeletion },
+        },
+        {
+          provide: VaultPopupAutofillService,
+          useValue: vaultPopupAutofillService,
         },
       ],
     })
@@ -330,11 +339,41 @@ describe("AddEditComponent", () => {
     it("closes single action popout", async () => {
       jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);
       jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
+      const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
 
-      await component.onCipherSaved({ id: "123-456-789" } as CipherView);
+      await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
 
+      expect(sendMessageSpy).toHaveBeenCalledWith("showLoginSavedNotification", {
+        cipherId: "123-456-789",
+        itemName: "Test Cipher",
+        senderTabId: 1,
+      });
       expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalled();
       expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("shows the saved notification after successful save and fill", async () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);
+      jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
+      const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+      vaultPopupAutofillService.doAutofill.mockResolvedValue(true);
+      (component as any).fillOnSuccessfulSave = true;
+
+      await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
+
+      expect(vaultPopupAutofillService.doAutofill).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "123-456-789" }),
+        false,
+        true,
+      );
+      expect(sendMessageSpy).toHaveBeenCalledWith("showLoginSavedNotification", {
+        cipherId: "123-456-789",
+        itemName: "Test Cipher",
+        senderTabId: 1,
+      });
+      expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalledWith(
+        "vault_AddEditVaultItem",
+      );
     });
 
     it("navigates to view-cipher for new ciphers", async () => {
@@ -370,6 +409,18 @@ describe("AddEditComponent", () => {
         expect(sendMessageSpy).toHaveBeenCalledWith("addEditCipherSubmitted");
       },
     );
+  });
+
+  describe("submitAndFill", () => {
+    it("resets the fill intent when the form does not save", async () => {
+      const submit = jest.fn().mockResolvedValue(undefined);
+      (component as any).cipherFormComponent = jest.fn(() => ({ submit }));
+
+      await component.submitAndFill();
+
+      expect(submit).toHaveBeenCalled();
+      expect((component as any).fillOnSuccessfulSave).toBe(false);
+    });
   });
 
   describe("handleBackButton", () => {
@@ -465,10 +516,10 @@ describe("AddEditComponent", () => {
       jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
       await component.delete();
 
-      expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+      expect(navigateAfterDeletion).toHaveBeenCalledWith("/tabs/vault");
     });
 
-    it("navigates to custom route when not in history", fakeAsync(() => {
+    it("navigates to custom route after deletion", fakeAsync(() => {
       buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
       queryParams$.next({
         cipherId: "123",
@@ -477,54 +528,15 @@ describe("AddEditComponent", () => {
 
       tick();
 
-      // Mock history without the target route
-      history$.mockReturnValue(
-        of([
-          { url: "/tabs/vault" },
-          { url: "/view-cipher?cipherId=123" },
-          { url: "/add-edit?cipherId=123" },
-        ]),
-      );
-
       jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
 
       void component.delete();
       tick();
 
-      expect(history$).toHaveBeenCalled();
-      expect(historyGo).not.toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith(["/archive"]);
+      expect(navigateAfterDeletion).toHaveBeenCalledWith("/archive");
     }));
 
-    it("uses historyGo when custom route exists in history", fakeAsync(() => {
-      buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
-      queryParams$.next({
-        cipherId: "123",
-        routeAfterDeletion: "/archive",
-      });
-
-      tick();
-
-      history$.mockReturnValue(
-        of([
-          { url: "/tabs/vault" },
-          { url: "/archive" },
-          { url: "/view-cipher?cipherId=123" },
-          { url: "/add-edit?cipherId=123" },
-        ]),
-      );
-
-      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
-
-      void component.delete();
-      tick();
-
-      expect(history$).toHaveBeenCalled();
-      expect(historyGo).toHaveBeenCalledWith(-2);
-      expect(navigate).not.toHaveBeenCalled();
-    }));
-
-    it("uses router.navigate for default /tabs/vault route", fakeAsync(() => {
+    it("uses default /tabs/vault route when routeAfterDeletion is not set", fakeAsync(() => {
       buildConfigResponse.originalCipher = { edit: true, id: "456" } as Cipher;
       component.routeAfterDeletion = "/tabs/vault";
 
@@ -539,9 +551,7 @@ describe("AddEditComponent", () => {
       void component.delete();
       tick();
 
-      expect(history$).not.toHaveBeenCalled();
-      expect(historyGo).not.toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+      expect(navigateAfterDeletion).toHaveBeenCalledWith("/tabs/vault");
     }));
 
     it("ignores invalid routeAfterDeletion query param and uses default route", fakeAsync(() => {
@@ -608,7 +618,7 @@ describe("AddEditComponent", () => {
     }));
 
     it("does not reload data if config is not set", fakeAsync(() => {
-      component.config = null;
+      component.config = null as any;
 
       const messageListener = component["messageListener"];
       messageListener({ command: "reloadAddEditCipherData" });

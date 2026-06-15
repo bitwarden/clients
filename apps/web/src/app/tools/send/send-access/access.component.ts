@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
@@ -26,7 +28,7 @@ type SendViewState = (typeof SendViewState)[keyof typeof SendViewState];
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessComponent implements OnInit {
-  readonly viewState = signal<SendViewState>(SendViewState.Auth);
+  readonly viewState = signal<SendViewState | null>(SendViewState.Auth);
   id: string;
   key: string;
 
@@ -43,6 +45,18 @@ export class AccessComponent implements OnInit {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.id = params.sendId;
       this.key = params.key;
+
+      // when pasting sequential Send URLs into the browser,
+      // Angular reuses the SendAuthComponent instance
+      // Reset state so child components are recreated with fresh data
+      this.sendAccessResponse = null;
+      this.sendAccessToken = null;
+      this.sendAccessRequest = new SendAccessRequest();
+
+      // Temporarily set viewState to null to destroy the current child component,
+      // then set it back to Auth on the next tick to recreate it with the new id/key.
+      this.viewState.set(null);
+      setTimeout(() => this.viewState.set(SendViewState.Auth));
     });
   }
 

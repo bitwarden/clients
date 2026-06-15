@@ -26,7 +26,6 @@ import { BaseCardComponent } from "../card";
 @Component({
   selector: "bit-landing-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [BaseCardComponent],
   templateUrl: "./landing-card.component.html",
 })

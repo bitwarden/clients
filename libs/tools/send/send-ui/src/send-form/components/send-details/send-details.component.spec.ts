@@ -7,6 +7,7 @@ import { of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,7 +16,10 @@ import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { LogService } from "@bitwarden/logging";
 
+import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
+import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
 import {
@@ -62,13 +66,22 @@ describe("SendDetailsComponent", () => {
   const mockGeneratorService = mock<CredentialGeneratorService>();
   const mockSendApiService = mock<SendApiService>();
   const mockEnvironmentService = mock<EnvironmentService>();
+  const mockSendFormService = mock<SendFormService>();
+  const mockPolicyService = mock<PolicyService>();
 
   beforeEach(async () => {
     mockEnvironmentService.environment$ = of({
       getSendUrl: () => "https://send.bitwarden.com/",
     } as any);
     mockAccountService.activeAccount$ = of({ id: "userId" } as Account);
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+    mockConfigService.getFeatureFlag$.mockImplementation((key) => {
+      if (key === FeatureFlag.SendControls) {
+        return of(true);
+      }
+      return of(false);
+    });
+    mockPolicyService.policiesByType$.mockReturnValue(of([]));
+    mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
     mockBillingStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
     mockI18nService.t.mockImplementation((k) => k);
 
@@ -84,15 +97,22 @@ describe("SendDetailsComponent", () => {
         { provide: BillingAccountProfileStateService, useValue: mockBillingStateService },
         { provide: CredentialGeneratorService, useValue: mockGeneratorService },
         { provide: SendApiService, useValue: mockSendApiService },
-        { provide: PolicyService, useValue: mock<PolicyService>() },
+        { provide: PolicyService, useValue: mockPolicyService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: SendFormService, useValue: mockSendFormService },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: SendFormGenerationService, useValue: mock<SendFormGenerationService>() },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SendDetailsComponent);
     component = fixture.componentInstance;
-    component.config = { areSendsAllowed: true, mode: "add", sendType: SendType.Text };
+    mockSendFormService.sendFormConfig = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: SendType.Text,
+    };
     fixture.detectChanges();
   });
 
@@ -128,7 +148,7 @@ describe("SendDetailsComponent", () => {
     expect(passwordControl?.validator).toBeNull();
   });
 
-  it("should show validation error when emails are cleared while authType is Email", () => {
+  it("should show required error when emails are cleared while authType is Email", () => {
     // Set authType to Email with valid emails
     component.sendDetailsForm.patchValue({
       authType: AuthType.Email,
@@ -136,29 +156,22 @@ describe("SendDetailsComponent", () => {
     });
     expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
 
-    // Clear emails - should trigger validation error
+    // Clear emails - should be invalid (required validator on emails)
     component.sendDetailsForm.patchValue({ emails: "" });
     expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
-    expect(component.sendDetailsForm.get("emails")?.hasError("emailsRequiredForEmailAuth")).toBe(
-      true,
-    );
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
   });
 
-  it("should clear validation error when authType is changed from Email after clearing emails", () => {
-    // Set authType to Email and then clear emails
+  it("should show required error when emails contain only whitespace while authType is Email", () => {
     component.sendDetailsForm.patchValue({
       authType: AuthType.Email,
-      emails: "test@example.com",
+      emails: "   ,  ,  ",
     });
-    component.sendDetailsForm.patchValue({ emails: "" });
     expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
-
-    // Change authType to None - emails field should become valid (no longer required)
-    component.sendDetailsForm.patchValue({ authType: AuthType.None });
-    expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
   });
 
-  it("should force user to change authType by blocking form submission when emails are cleared", () => {
+  it("should block form submission when emails are cleared while authType is Email", () => {
     // Set up a send with email verification
     component.sendDetailsForm.patchValue({
       name: "Test Send",
@@ -167,17 +180,9 @@ describe("SendDetailsComponent", () => {
     });
     expect(component.sendDetailsForm.valid).toBe(true);
 
-    // User clears emails field
+    // User clears emails field - form is now invalid
     component.sendDetailsForm.patchValue({ emails: "" });
-
-    // Form should now be invalid, preventing save
     expect(component.sendDetailsForm.valid).toBe(false);
-    expect(component.sendDetailsForm.get("emails")?.hasError("emailsRequiredForEmailAuth")).toBe(
-      true,
-    );
-
-    // User must change authType to continue
-    component.sendDetailsForm.patchValue({ authType: AuthType.None });
-    expect(component.sendDetailsForm.valid).toBe(true);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
   });
 });

@@ -30,10 +30,13 @@ export abstract class LockService {
    */
   abstract lock(userId: UserId): Promise<void>;
 
-  abstract runPlatformOnLockActions(): Promise<void>;
+  abstract runPlatformOnLockActions(userId: UserId): Promise<void>;
+  abstract registerOnLockAction(action: (userId: UserId) => Promise<void>): void;
 }
 
 export class DefaultLockService implements LockService {
+  private onLockActions: Array<(userId: UserId) => Promise<void>> = [];
+
   constructor(
     private readonly accountService: AccountService,
     private readonly biometricService: BiometricsService,
@@ -51,6 +54,10 @@ export class DefaultLockService implements LockService {
     private readonly logService: LogService,
     private readonly keyService: KeyService,
   ) {}
+
+  registerOnLockAction(action: (userId: UserId) => Promise<void>): void {
+    this.onLockActions.push(action);
+  }
 
   async lockAll() {
     const accounts = await firstValueFrom(
@@ -106,7 +113,7 @@ export class DefaultLockService implements LockService {
     await this.wipeDecryptedState(userId);
     await this.waitForLockedStatus(userId);
     await this.systemService.clearPendingClipboard();
-    await this.runPlatformOnLockActions();
+    await this.runPlatformOnLockActions(userId);
 
     this.logService.info(`[LockService] Locked user ${userId}`);
 
@@ -121,10 +128,8 @@ export class DefaultLockService implements LockService {
 
   private async wipeDecryptedState(userId: UserId) {
     // Manually clear state
-    await this.searchService.clearIndex(userId);
     //! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
     await this.folderService.clearDecryptedFolderState(userId);
-    await this.masterPasswordService.clearMasterKey(userId);
     await this.cipherService.clearCache(userId);
     // Clear CLI unlock state
     await this.keyService.clearStoredUserKey(userId);
@@ -151,7 +156,10 @@ export class DefaultLockService implements LockService {
     );
   }
 
-  async runPlatformOnLockActions(): Promise<void> {
+  async runPlatformOnLockActions(userId: UserId): Promise<void> {
+    for (const action of this.onLockActions) {
+      await action(userId);
+    }
     // No platform specific actions to run for this platform.
     return;
   }

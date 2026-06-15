@@ -2,8 +2,12 @@
 
 <p bitTypography="body1">
   {{ "scimIntegrationDescription" | i18n }}
-  <a bitLink target="_blank" href="https://bitwarden.com/help/about-scim/"
-    ><i class="bwi bwi-question-circle"></i
+  <a
+    bitLink
+    target="_blank"
+    appA11yTitle="{{ 'learnMore' | i18n }}"
+    href="https://bitwarden.com/help/about-scim/"
+    startIcon="bwi-question-circle"
   ></a>
 </p>
 
@@ -23,7 +27,7 @@
   </bit-form-control>
   <bit-form-field *ngIf="showScimSettings">
     <bit-label>{{ "scimUrl" | i18n }}</bit-label>
-    <input bitInput type="text" formControlName="endpointUrl" />
+    <input bitInput type="text" formControlName="endpointUrl" readonly />
     <button
       type="button"
       bitSuffix
@@ -40,21 +44,14 @@
       [type]="showScimKey ? 'text' : 'password'"
       formControlName="clientSecret"
       id="clientSecret"
+      readonly
     />
     <button
       type="button"
       bitSuffix
       [bitIconButton]="showScimKey ? 'bwi-eye-slash' : 'bwi-eye'"
-      [bitAction]="toggleScimKey"
+      [bitAction]="loadApiKey"
       [label]="'toggleVisibility' | i18n"
-    ></button>
-    <button
-      type="button"
-      bitSuffix
-      bitIconButton="bwi-generate"
-      [bitAction]="rotateScimKey"
-      bitFormButton
-      [label]="'rotateScimKey' | i18n"
     ></button>
     <button
       type="button"
@@ -62,6 +59,13 @@
       bitIconButton="bwi-clone"
       [bitAction]="copyScimKey"
       [label]="'copyScimKey' | i18n"
+    ></button>
+    <button
+      type="button"
+      bitSuffix
+      bitIconButton="bwi-generate"
+      [bitAction]="rotateScimKey"
+      [label]="'rotateScimKey' | i18n"
     ></button>
     <bit-hint>{{ "scimApiKeyHelperText" | i18n }}</bit-hint>
   </bit-form-field>

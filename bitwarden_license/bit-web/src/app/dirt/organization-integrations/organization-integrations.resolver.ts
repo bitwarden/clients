@@ -7,6 +7,7 @@ import { Integration } from "@bitwarden/bit-common/dirt/organization-integration
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -15,8 +16,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 
-import { OrganizationIntegrationsState } from "./organization-integrations.state";
-
 @Injectable()
 export class OrganizationIntegrationsResolver implements Resolve<boolean> {
   constructor(
@@ -24,7 +23,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
     private accountService: AccountService,
     private configService: ConfigService,
     private organizationIntegrationService: OrganizationIntegrationService,
-    private state: OrganizationIntegrationsState,
+    private state: IntegrationStateService,
   ) {}
 
   async resolve(route: ActivatedRouteSnapshot): Promise<boolean> {
@@ -180,13 +179,6 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         type: IntegrationType.BWDC,
       },
       {
-        name: "Splunk",
-        linkURL: "https://bitwarden.com/help/splunk-siem/",
-        image: "../../../../../../../images/integrations/logo-splunk-black.svg",
-        imageDarkMode: "../../../../../../../images/integrations/splunk-darkmode.svg",
-        type: IntegrationType.EVENT,
-      },
-      {
         name: "Microsoft Sentinel",
         linkURL: "https://bitwarden.com/help/microsoft-sentinel-siem/",
         image: "../../../../../../../images/integrations/logo-microsoft-sentinel-color.svg",
@@ -227,6 +219,40 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       },
     ];
 
+    const splunkFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForSplunk),
+    );
+
+    if (splunkFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Splunk,
+        linkURL: "https://bitwarden.com/help/splunk-siem/",
+        image: "../../../../../../../images/integrations/logo-splunk-black.svg",
+        imageDarkMode: "../../../../../../../images/integrations/splunk-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://<SPLUNK_HEC_URL>/services/collector/raw",
+      });
+    }
+
+    const blumiraFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForBlumira),
+    );
+
+    if (blumiraFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Blumira,
+        linkURL: "https://bitwarden.com/help/blumira-siem/",
+        image: "../../../../../../../images/integrations/logo-blumira-color.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-blumira-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://<BLUMIRA_HEC_URL>/services/collector/",
+      });
+    }
+
     const featureEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike),
     );
@@ -236,18 +262,22 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         {
           name: OrganizationIntegrationServiceName.CrowdStrike,
           linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
-          image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
+          image: "../../../../../../../images/integrations/logo-crowdstrike-lightmode.svg",
+          imageDarkMode: "../../../../../../../images/integrations/logo-crowdstrike-darkmode.svg",
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Hec,
+          urlHelperLinkText: "https://<customer-id>.crowdstrike.com",
         },
         {
           name: OrganizationIntegrationServiceName.Datadog,
           linkURL: "https://bitwarden.com/help/datadog-siem/",
-          image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+          image: "../../../../../../../images/integrations/logo-datadog-lightmode.svg",
+          imageDarkMode: "../../../../../../../images/integrations/logo-datadog-darkmode.svg",
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Datadog,
+          urlHelperLinkText: "https://api.<region>.datadoghq.com",
         },
       );
     }
@@ -262,10 +292,12 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         name: OrganizationIntegrationServiceName.Huntress,
         linkURL: "https://bitwarden.com/help/huntress-siem/",
         image: "../../../../../../../images/integrations/logo-huntress-siem.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-huntress-siem-darkmode.svg",
         type: IntegrationType.EVENT,
         description: "huntressEventIntegrationDesc",
         canSetupConnection: true,
         integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://hec.huntress.io/services/collector",
       });
     }
 

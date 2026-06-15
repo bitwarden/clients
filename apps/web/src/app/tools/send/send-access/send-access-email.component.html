@@ -10,6 +10,7 @@
       type="submit"
       buttonType="primary"
       [loading]="loading()"
+      [disabled]="!validateEmail()"
       [block]="true"
     >
       <span>{{ "sendCode" | i18n }} </span>
@@ -18,7 +19,11 @@
 } @else {
   <bit-form-field>
     <bit-label>{{ "verificationCode" | i18n }}</bit-label>
-    <input bitInput type="text" [formControl]="otp" required appInputVerbatim appAutofocus />
+    <input bitInput type="text" [formControl]="otp" appInputVerbatim appAutofocus />
+    <bit-hint>
+      {{ "didNotReceiveCodeContactSenderOr" | i18n
+      }}<a bitLink type="button" (click)="onResendCode()">{{ "resendCode" | i18n | lowercase }}</a>
+    </bit-hint>
   </bit-form-field>
   <button
     bitButton

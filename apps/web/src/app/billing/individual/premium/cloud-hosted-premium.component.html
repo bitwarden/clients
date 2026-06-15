@@ -1,5 +1,5 @@
 <div class="tw-max-w-3xl tw-mx-auto">
-  <bit-section *ngIf="shouldShowNewDesign$ | async">
+  <bit-section>
     <div class="tw-text-center">
       <div class="tw-mt-8 tw-mb-6">
         <span bitBadge variant="secondary" [truncate]="false">
@@ -59,9 +59,9 @@
         href="https://bitwarden.com/pricing/business/"
         target="_blank"
         rel="noopener noreferrer"
+        endIcon="bwi-external-link"
       >
         {{ "viewbusinessplans" | i18n }}
-        <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
       </a>
     </div>
   </bit-section>

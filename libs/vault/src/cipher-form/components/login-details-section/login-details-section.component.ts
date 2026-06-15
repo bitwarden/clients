@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DatePipe, NgIf } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -8,8 +8,7 @@ import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -44,7 +43,6 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
     FormFieldModule,
     IconButtonModule,
     AsyncActionsModule,
-    NgIf,
     PopoverModule,
     AutofillOptionsComponent,
     LinkModule,

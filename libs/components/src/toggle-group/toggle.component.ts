@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   contentChild,
+  effect,
   ElementRef,
   inject,
   input,
@@ -11,7 +12,7 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { BadgeComponent } from "../badge";
+import { BerryComponent } from "../berry";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 
@@ -33,8 +34,8 @@ export class ToggleComponent<TValue> {
 
   readonly value = input.required<TValue>();
   protected readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
-  protected readonly badgeElement = contentChild(BadgeComponent);
-  protected readonly hasBadge = computed(() => !!this.badgeElement());
+  private readonly berryComponent = contentChild(BerryComponent);
+  protected readonly hasBerry = computed(() => !!this.berryComponent());
 
   protected readonly labelTitle = signal<string | null>(null);
 
@@ -45,6 +46,11 @@ export class ToggleComponent<TValue> {
       if (labelText) {
         this.labelTitle.set(labelText);
       }
+    });
+
+    effect(() => {
+      const berryVariant = this.selected() ? "contrast" : "primary";
+      this.berryComponent()?.variant.set(berryVariant);
     });
   }
 

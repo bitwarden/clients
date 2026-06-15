@@ -1,7 +1,8 @@
 {
   "extends": "../tsconfig",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "bundler"
   },
   "exclude": ["../src/test.setup.ts", "../apps/**/*.spec.ts", "../libs/**/*.spec.ts"],
   "files": [

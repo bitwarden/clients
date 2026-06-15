@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "Salin nomor paspor"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Salin nomor lisensi"
   },
@@ -202,8 +214,13 @@
     "message": "Isikan",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Isi otomatis"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Autofill masuk"
@@ -375,6 +392,9 @@
   },
   "save": {
     "message": "Simpan"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Pindah"
@@ -696,23 +716,33 @@
   "unlockMethods": {
     "message": "Pilihan Penguncian"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Mengatur metode pembukaan kunci untuk mengubah tindakan batas waktu brankas Anda."
-  },
   "unlockMethodNeeded": {
     "message": "Mengatur metode penguncian di Pengaturan"
   },
   "sessionTimeoutHeader": {
     "message": "Batas waktu sesi"
   },
-  "vaultTimeoutHeader": {
-    "message": "Batas waktu brankas"
-  },
   "otherOptions": {
     "message": "Opsi lainnya"
   },
   "rateExtension": {
     "message": "Nilai Ekstensi"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "browserNotSupportClipboard": {
     "message": "Peramban Anda tidak mendukung menyalin clipboard dengan mudah. Salin secara manual."
@@ -1154,6 +1184,15 @@
     "message": "Secara otomatis menghapus konten yang disalin dari papan klip Anda.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "Haruskah Bitwarden mengingat sandi ini untuk Anda?"
   },
@@ -1306,6 +1345,18 @@
   },
   "additionalOptions": {
     "message": "Pilihan tambahan"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
+  },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
   },
   "enableContextMenuItem": {
     "message": "Tampilkan pilihan menu konteks"
@@ -1760,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL Server Ikon"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "URL lingkungan disimpan"
   },
@@ -1793,6 +1847,39 @@
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
+  },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
   },
   "showInlineMenuLabel": {
     "message": "Tampilkan saran isi otomatis pada kolom formulir"
@@ -1949,11 +2036,32 @@
   "brand": {
     "message": "Merek"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "Bulan Kedaluwarsa"
   },
   "expirationYear": {
     "message": "Tahun Kedaluwarsa"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
   },
   "monthly": {
     "message": "bulan"
@@ -2048,6 +2156,51 @@
   "passportNumber": {
     "message": "Nomor Paspor"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "Nomor Lisensi"
   },
@@ -2105,8 +2258,68 @@
   "typeSshKey": {
     "message": "Kunci SSH"
   },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "typeNote": {
     "message": "Catatan"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "licenseClass": {
+    "message": "License class"
   },
   "newItemHeaderLogin": {
     "message": "Log Masuk Baru",
@@ -2128,12 +2341,24 @@
     "message": "Kunci SSH Baru",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Kirim Teks Baru",
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Kirim Berkas Baru",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2156,12 +2381,24 @@
     "message": "Sunting kunci SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2183,6 +2420,21 @@
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "Riwayat Kata Sandi"
@@ -2238,6 +2490,31 @@
   "clear": {
     "message": "Bersihkan",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "Periksa jika kata sandi telah terekspos."
@@ -2372,6 +2649,30 @@
   "weakMasterPasswordDesc": {
     "message": "Kata sandi utama yang Anda pilih itu lemah. Anda harus menggunakan kata sandi yang kuat (atau frasa sandi) untuk melindungi akun Bitwarden Anda. Apakah Anda yakin ingin menggunakan kata sandi ini?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2763,8 @@
   "vaultTimeoutAction": {
     "message": "Tindakan Batas Waktu Brankas"
   },
-  "vaultTimeoutAction1": {
-    "message": "Batas waktu tindakan"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Kunci",
@@ -2704,18 +3005,6 @@
   "biometricsFailedDesc": {
     "message": "Biometrik tidak dapat diselesaikan, pertimbangkan untuk menggunakan sebuah kata sandi utama atau keluar. Jika hal ini tetap berlangsung, mohon hubungi dukungan Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Izin tidak diberikan"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Tanpa adanya izin untuk berkomunikasi dengan Aplikasi Desktop Bitwarden kami tidak bisa menyediakan fitur biometrik di dalam ekstensi peramban. Silakan coba lagi."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Kesalahan permintaan izin"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Tindakan ini tidak dapat dilakukan di sidebar, coba lagi tindakan di pop-up atau pop-out."
-  },
   "personalOwnershipSubmitError": {
     "message": "Karena Kebijakan Perusahaan, Anda dilarang menyimpan item ke brankas personal Anda. Ubah opsi Kepemilikan ke organisasi dan pilih dari Koleksi yang tersedia."
   },
@@ -2819,8 +3108,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ ingin Anda untuk mengubah kata sandi ini karena kata sandi itu dalam bahaya. Pergi ke pengaturan akun Anda untuk mengubah kata sandinya.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3230,9 +3519,6 @@
   "minutes": {
     "message": "Menit"
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Persyaratan kebijakan perusahaan telah diterapkan ke pilihan batas waktu Anda"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Kebijakan organisasi Anda telah menata waktu tunggu brankas maksimum yang diizinkan milik Anda ke $HOURS$ jam $MINUTES$ menit.",
     "placeholders": {
@@ -3343,33 +3629,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Mengekspor brankas individu"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Hanya benda-benda brankas perorangan yang terkait dengan $EMAIL$ yang akan diekspor. Benda-benda brankas organisasi tidak akan disertakan. Hanya informasi benda brankas yang akan diekspor dan tidak menyertakan lampiran yang terkait.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Hanya benda-benda brankas satuan termasuk lampiran yang terhubung dengan $EMAIL$ yang akan diekspor. Benda brankas organisasi tidak akan disertakan",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Mengekspor brankas organisasi"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Hanya brankas organisasi yang terkait dengan $ORGANIZATION$ yang akan diekspor. Benda-benda di brankas perorangan atau organisasi lainnya tidak akan disertakan.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3753,6 +4024,24 @@
   "loginStatus": {
     "message": "Status masuk"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "masterPasswordChanged": {
     "message": "Sandi utama disimpan"
   },
@@ -4111,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1 atau lebih surel tidak valid"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Masukan tidak boleh berisi hanya spasi kosong.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4176,12 +4468,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Isi otomatis ketika halaman dimuat telah diatur untuk menggunakan pengaturan bawaan.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Cannot autofill"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "Okay"
@@ -4408,6 +4694,9 @@
   "chooseFile": {
     "message": "Pilih Berkas"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "Tidak ada berkas yang dipilih"
   },
@@ -4435,6 +4724,21 @@
   },
   "exportSuccess": {
     "message": "Data brankas berhasil diekspor"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Kunci sandi"
@@ -4850,6 +5154,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Tidak ada nilai untuk disalin"
   },
@@ -4864,6 +5172,9 @@
   },
   "copyAddress": {
     "message": "Salin alamat"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "adminConsole": {
     "message": "Konsol Admin"
@@ -5946,6 +6257,10 @@
   "next": {
     "message": "Next"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6094,6 +6409,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgrade"
   },
@@ -6127,8 +6454,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6463,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
   },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
-  },
   "items": {
     "message": "Items"
   },
   "searchResults": {
     "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
@@ -6166,11 +6505,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"
@@ -6184,5 +6523,169 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company (business)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (personal)"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "searchPassport": {
+    "message": "Search passports"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
+  },
+  "more": {
+    "message": "More"
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

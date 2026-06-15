@@ -20,7 +20,10 @@ import { TokenService } from "../../../auth/services/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
-import { PinStateServiceAbstraction } from "../../pin/pin-state.service.abstraction";
+import {
+  PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+  PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+} from "../../pin/pin.state";
 import { SessionTimeoutTypeService } from "../../session-timeout";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
@@ -35,7 +38,6 @@ import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.st
 
 describe("VaultTimeoutSettingsService", () => {
   let accountService: FakeAccountService;
-  let pinStateService: MockProxy<PinStateServiceAbstraction>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
   let tokenService: MockProxy<TokenService>;
@@ -53,7 +55,6 @@ describe("VaultTimeoutSettingsService", () => {
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId);
-    pinStateService = mock<PinStateServiceAbstraction>();
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     keyService = mock<KeyService>();
     tokenService = mock<TokenService>();
@@ -78,7 +79,6 @@ describe("VaultTimeoutSettingsService", () => {
 
     vaultTimeoutSettingsService = createVaultTimeoutSettingsService(defaultVaultTimeout);
 
-    pinStateService.pinSet$.mockReturnValue(of(false));
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
   });
 
@@ -110,7 +110,7 @@ describe("VaultTimeoutSettingsService", () => {
       });
 
       it("contains Lock when the user has either a persistent or ephemeral PIN configured", async () => {
-        pinStateService.pinSet$.mockReturnValue(of(true));
+        await setPinAvailability(true, mockUserId);
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
@@ -132,7 +132,7 @@ describe("VaultTimeoutSettingsService", () => {
 
       it("not contains Lock when the user does not have a master password, PIN, or biometrics", async () => {
         userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
-        pinStateService.pinSet$.mockReturnValue(of(false));
+        await setPinAvailability(false, mockUserId);
         biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
 
         const result = await firstValueFrom(
@@ -167,13 +167,12 @@ describe("VaultTimeoutSettingsService", () => {
       });
 
       it("should return Lock and LogOut when provided user has PIN configured", async () => {
-        pinStateService.pinSet$.mockReturnValue(of(true));
+        await setPinAvailability(true, mockUserId);
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(mockUserId),
         );
 
-        expect(pinStateService.pinSet$).toHaveBeenCalledWith(mockUserId);
         expect(result).toContain(VaultTimeoutAction.Lock);
         expect(result).toContain(VaultTimeoutAction.LogOut);
       });
@@ -192,7 +191,7 @@ describe("VaultTimeoutSettingsService", () => {
 
       it("should not return Lock when provided user has no unlock methods", async () => {
         userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
-        pinStateService.pinSet$.mockReturnValue(of(false));
+        await setPinAvailability(false, mockUserId);
         biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
 
         const result = await firstValueFrom(
@@ -288,7 +287,7 @@ describe("VaultTimeoutSettingsService", () => {
         "returns $expected when policy is $policy, has PIN unlock method: $hasPinUnlock or Biometric unlock method: $hasBiometricUnlock, and user preference is $userPreference",
         async ({ hasPinUnlock, hasBiometricUnlock, policy, userPreference, expected }) => {
           biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(hasBiometricUnlock));
-          pinStateService.pinSet$.mockReturnValue(of(hasPinUnlock));
+          await setPinAvailability(hasPinUnlock, mockUserId);
 
           userDecryptionOptionsSubject.next(
             new UserDecryptionOptions({ hasMasterPassword: false }),
@@ -306,6 +305,176 @@ describe("VaultTimeoutSettingsService", () => {
           expect(result).toBe(expected);
         },
       );
+    });
+
+    describe("state persistence side effects", () => {
+      beforeEach(() => {
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockImplementation(
+          async (timeout) => timeout,
+        );
+        policyService.policiesByType$.mockReturnValue(of([]));
+      });
+
+      it("resets incompatible stored action to null when only one action is available (e.g. lock stored, only LogOut available)", async () => {
+        // TDE user removes PIN — only LogOut available but "lock" was stored
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(false, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+
+        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, VaultTimeoutAction.Lock, mockUserId);
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        expect(
+          stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION).nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      it("migrates tokens to memory when stored Lock is reset because only LogOut is available", async () => {
+        const mockAccessToken = "mockAccessToken";
+        const mockRefreshToken = "mockRefreshToken";
+        const mockClientId = "mockClientId";
+        const mockClientSecret = "mockClientSecret";
+
+        // TDE user removes PIN — only LogOut available, but "lock" was stored
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(false, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+
+        tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
+        tokenService.getRefreshToken.mockResolvedValue(mockRefreshToken);
+        tokenService.getClientId.mockResolvedValue(mockClientId);
+        tokenService.getClientSecret.mockResolvedValue(mockClientSecret);
+
+        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, VaultTimeoutAction.Lock, mockUserId);
+        await stateProvider.setUserState(VAULT_TIMEOUT, 15, mockUserId);
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        expect(tokenService.setTokens).toHaveBeenCalledWith(
+          mockAccessToken,
+          VaultTimeoutAction.LogOut,
+          15,
+          mockRefreshToken,
+          [mockClientId, mockClientSecret],
+        );
+      });
+
+      it("resets stored LogOut to null when only LogOut is available (master-password-less)", async () => {
+        // TDE user removed PIN — stored LogOut must be cleared so that re-enabling PIN later
+        // defaults back to Lock instead of staying on LogOut.
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(false, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+
+        await stateProvider.setUserState(
+          VAULT_TIMEOUT_ACTION,
+          VaultTimeoutAction.LogOut,
+          mockUserId,
+        );
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        // State must be reset to null; no token migration since the effective action didn't change
+        expect(
+          stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION).nextMock,
+        ).toHaveBeenCalledWith(null);
+        expect(tokenService.setTokens).not.toHaveBeenCalled();
+      });
+
+      it("does not write when state is already null and only one action is available", async () => {
+        // TDE user with no unlock methods, state already null — no write needed
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(false, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+
+        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, mockUserId);
+        const stateFake = stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION);
+        stateFake.nextMock.mockClear();
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        expect(stateFake.nextMock).not.toHaveBeenCalled();
+      });
+
+      it("stores policy-forced LogOut when multiple actions are available", async () => {
+        // User with PIN — both Lock and LogOut available; policy forces LogOut
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(true, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+        policyService.policiesByType$.mockReturnValue(
+          of([
+            { data: { action: VaultTimeoutAction.LogOut, type: "never" } },
+          ] as unknown as Policy[]),
+        );
+
+        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, mockUserId);
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        expect(
+          stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT_ACTION).nextMock,
+        ).toHaveBeenCalledWith(VaultTimeoutAction.LogOut);
+      });
+
+      it("migrates tokens when effective action changes from null (forced LogOut reset) to Lock", async () => {
+        const mockAccessToken = "mockAccessToken";
+        const mockRefreshToken = "mockRefreshToken";
+        const mockClientId = "mockClientId";
+        const mockClientSecret = "mockClientSecret";
+
+        // User adds PIN — Lock becomes available; stored action is null (reset by migrator or new code)
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(true, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+
+        tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
+        tokenService.getRefreshToken.mockResolvedValue(mockRefreshToken);
+        tokenService.getClientId.mockResolvedValue(mockClientId);
+        tokenService.getClientSecret.mockResolvedValue(mockClientSecret);
+
+        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, mockUserId);
+        await stateProvider.setUserState(VAULT_TIMEOUT, 15, mockUserId);
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        expect(tokenService.setTokens).toHaveBeenCalledWith(
+          mockAccessToken,
+          VaultTimeoutAction.Lock,
+          15,
+          mockRefreshToken,
+          [mockClientId, mockClientSecret],
+        );
+      });
+
+      it("does not call setTokens when accessToken is null during null to Lock transition", async () => {
+        // User adds PIN but accessToken is null (e.g. not yet authenticated)
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
+        await setPinAvailability(true, mockUserId);
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
+
+        tokenService.getAccessToken.mockResolvedValue(null);
+
+        await stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, mockUserId);
+
+        await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(mockUserId),
+        );
+
+        expect(tokenService.setTokens).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -799,22 +968,32 @@ describe("VaultTimeoutSettingsService", () => {
       expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
     });
 
-    it("should clear the tokens when the timeout is not never and the action is log out", async () => {
+    it("should re-store the tokens when the timeout is not never and the action is log out", async () => {
       // Arrange
+
       const action = VaultTimeoutAction.LogOut;
       const timeout = 30;
+      tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
 
       // Act
       await vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, timeout, action);
 
-      // Assert
-      expect(tokenService.clearTokens).toHaveBeenCalled();
+      // Assert: setTokens is called to re-store tokens in the correct location
+      // (eviction of other storage locations is managed by the token service)
+      expect(tokenService.setTokens).toHaveBeenCalledWith(
+        mockAccessToken,
+        action,
+        timeout,
+        undefined, // refreshToken not mocked
+        [undefined, undefined], // clientId / clientSecret not mocked
+      );
     });
 
     it("should not clear the tokens when the timeout is never and the action is log out", async () => {
       // Arrange
       const action = VaultTimeoutAction.LogOut;
       const timeout = VaultTimeoutStringType.Never;
+      tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
 
       // Act
       await vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, timeout, action);
@@ -829,7 +1008,6 @@ describe("VaultTimeoutSettingsService", () => {
   ): VaultTimeoutSettingsService {
     return new VaultTimeoutSettingsService(
       accountService,
-      pinStateService,
       userDecryptionOptionsService,
       keyService,
       tokenService,
@@ -840,5 +1018,24 @@ describe("VaultTimeoutSettingsService", () => {
       defaultVaultTimeout,
       sessionTimeoutTypeService,
     );
+  }
+
+  async function setPinAvailability(isAvailable: boolean, userId?: UserId) {
+    if (isAvailable) {
+      await stateProvider.setUserState(
+        PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+        "mockEnvelope" as any,
+        userId,
+      );
+      await stateProvider.setUserState(
+        PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+        "mockEnvelope" as any,
+        userId,
+      );
+      return;
+    }
+
+    await stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, null, userId);
+    await stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, null, userId);
   }
 });

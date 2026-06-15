@@ -5,6 +5,7 @@ import { of, throwError } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -17,7 +18,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -28,13 +28,13 @@ import { KeyService } from "@bitwarden/key-management";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-import { REQUESTS_PER_BATCH, MemberActionsService } from "./member-actions.service";
+import { MemberActionsService } from "./member-actions.service";
+import { REQUESTS_PER_BATCH } from "./member-actions.types";
 
 describe("MemberActionsService", () => {
   let service: MemberActionsService;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationUserService: MockProxy<OrganizationUserService>;
-  let configService: MockProxy<ConfigService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
 
@@ -47,7 +47,6 @@ describe("MemberActionsService", () => {
   beforeEach(() => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationUserService = mock<OrganizationUserService>();
-    configService = mock<ConfigService>();
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     memberDialogManager = mock<MemberDialogManagerService>();
 
@@ -72,7 +71,6 @@ describe("MemberActionsService", () => {
         MemberActionsService,
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
         { provide: OrganizationUserService, useValue: organizationUserService },
-        { provide: ConfigService, useValue: configService },
         {
           provide: OrganizationMetadataServiceAbstraction,
           useValue: organizationMetadataService,
@@ -94,30 +92,25 @@ describe("MemberActionsService", () => {
     service = TestBed.inject(MemberActionsService);
   });
 
-  describe("inviteUser", () => {
+  describe("invite", () => {
     it("should successfully invite a user", async () => {
       organizationUserApiService.postOrganizationUserInvite.mockResolvedValue(undefined);
 
-      const result = await service.inviteUser(
-        mockOrganization,
-        "test@example.com",
-        OrganizationUserType.User,
-        {},
-        [],
-        [],
-      );
+      const request = new OrganizationUserInviteRequest({
+        emails: ["test@example.com"],
+        type: OrganizationUserType.User,
+        accessSecretsManager: false,
+        collections: [],
+        groups: [],
+        permissions: {} as any,
+      });
+
+      const result = await service.invite(organizationId, request);
 
       expect(result).toEqual({ success: true });
       expect(organizationUserApiService.postOrganizationUserInvite).toHaveBeenCalledWith(
         organizationId,
-        {
-          emails: ["test@example.com"],
-          type: OrganizationUserType.User,
-          accessSecretsManager: false,
-          collections: [],
-          groups: [],
-          permissions: {},
-        },
+        request,
       );
     });
 
@@ -127,11 +120,16 @@ describe("MemberActionsService", () => {
         new Error(errorMessage),
       );
 
-      const result = await service.inviteUser(
-        mockOrganization,
-        "test@example.com",
-        OrganizationUserType.User,
-      );
+      const request = new OrganizationUserInviteRequest({
+        emails: ["test@example.com"],
+        type: OrganizationUserType.User,
+        accessSecretsManager: false,
+        collections: [],
+        groups: [],
+        permissions: {} as any,
+      });
+
+      const result = await service.invite(organizationId, request);
 
       expect(result).toEqual({ success: false, error: errorMessage });
     });
@@ -184,64 +182,27 @@ describe("MemberActionsService", () => {
   });
 
   describe("restoreUser", () => {
-    describe("when feature flag is enabled", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
-      });
+    it("should call organizationUserService.restoreUser", async () => {
+      organizationUserService.restoreUser.mockReturnValue(of(undefined));
 
-      it("should call organizationUserService.restoreUser", async () => {
-        organizationUserService.restoreUser.mockReturnValue(of(undefined));
+      const result = await service.restoreUser(mockOrganization, userIdToManage);
 
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: true });
-        expect(organizationUserService.restoreUser).toHaveBeenCalledWith(
-          mockOrganization,
-          userIdToManage,
-        );
-        expect(organizationUserApiService.restoreOrganizationUser).not.toHaveBeenCalled();
-      });
-
-      it("should handle errors from organizationUserService.restoreUser", async () => {
-        const errorMessage = "Restore failed";
-        organizationUserService.restoreUser.mockReturnValue(
-          throwError(() => new Error(errorMessage)),
-        );
-
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: false, error: errorMessage });
-      });
+      expect(result).toEqual({ success: true });
+      expect(organizationUserService.restoreUser).toHaveBeenCalledWith(
+        mockOrganization,
+        userIdToManage,
+      );
     });
 
-    describe("when feature flag is disabled", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(false));
-      });
+    it("should handle errors from organizationUserService.restoreUser", async () => {
+      const errorMessage = "Restore failed";
+      organizationUserService.restoreUser.mockReturnValue(
+        throwError(() => new Error(errorMessage)),
+      );
 
-      it("should call organizationUserApiService.restoreOrganizationUser", async () => {
-        organizationUserApiService.restoreOrganizationUser.mockResolvedValue(undefined);
+      const result = await service.restoreUser(mockOrganization, userIdToManage);
 
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: true });
-        expect(organizationUserApiService.restoreOrganizationUser).toHaveBeenCalledWith(
-          organizationId,
-          userIdToManage,
-        );
-        expect(organizationUserService.restoreUser).not.toHaveBeenCalled();
-      });
-
-      it("should handle errors", async () => {
-        const errorMessage = "Restore failed";
-        organizationUserApiService.restoreOrganizationUser.mockRejectedValue(
-          new Error(errorMessage),
-        );
-
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: false, error: errorMessage });
-      });
+      expect(result).toEqual({ success: false, error: errorMessage });
     });
   });
 
@@ -325,7 +286,8 @@ describe("MemberActionsService", () => {
 
   describe("bulkReinvite", () => {
     beforeEach(() => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
+      memberDialogManager.openBulkProgressDialog.mockReturnValue({ closed: of(undefined) } as any);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValue(of([]));
     });
 
     it("should process users in a single batch when count equals REQUESTS_PER_BATCH", async () => {
@@ -578,165 +540,112 @@ describe("MemberActionsService", () => {
       expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
     });
 
-    describe("with BulkReinviteUI feature flag enabled", () => {
-      let mockDialogService: MockProxy<DialogService>;
-      let mockI18nService: MockProxy<I18nService>;
+    it("should open progress dialog when user count exceeds REQUESTS_PER_BATCH", async () => {
+      const totalUsers = REQUESTS_PER_BATCH + 100;
+      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
 
-      beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
-        mockDialogService = TestBed.inject(DialogService) as MockProxy<DialogService>;
-        mockI18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
-        mockI18nService.t.mockImplementation((key: string) => key);
-      });
+      const mockDialogRef = { closed: of(undefined) };
+      memberDialogManager.openBulkProgressDialog.mockReturnValue(mockDialogRef as any);
 
-      it("should open progress dialog when user count exceeds REQUESTS_PER_BATCH", async () => {
-        const totalUsers = REQUESTS_PER_BATCH + 100;
-        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-        const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const mockResponse1 = new ListResponse(
+        {
+          data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
+            id,
+            error: null,
+          })),
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
 
-        mockDialogService.openSimpleDialog.mockResolvedValue(true);
+      const mockResponse2 = new ListResponse(
+        {
+          data: userIdsBatch.slice(REQUESTS_PER_BATCH).map((id) => ({
+            id,
+            error: null,
+          })),
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
 
-        const mockDialogRef = { closed: of(undefined) };
-        memberDialogManager.openBulkProgressDialog.mockReturnValue(mockDialogRef as any);
+      organizationUserApiService.postManyOrganizationUserReinvite
+        .mockResolvedValueOnce(mockResponse1)
+        .mockResolvedValueOnce(mockResponse2);
 
-        const mockResponse1 = new ListResponse(
-          {
-            data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
-              id,
-              error: null,
-            })),
-            continuationToken: null,
-          },
-          OrganizationUserBulkResponse,
-        );
+      await service.bulkReinvite(mockOrganization, users);
 
-        const mockResponse2 = new ListResponse(
-          {
-            data: userIdsBatch.slice(REQUESTS_PER_BATCH).map((id) => ({
-              id,
-              error: null,
-            })),
-            continuationToken: null,
-          },
-          OrganizationUserBulkResponse,
-        );
+      expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
+      expect(memberDialogManager.openBulkProgressDialog).toHaveBeenCalledWith(
+        expect.anything(),
+        totalUsers,
+      );
+    });
 
-        organizationUserApiService.postManyOrganizationUserReinvite
-          .mockResolvedValueOnce(mockResponse1)
-          .mockResolvedValueOnce(mockResponse2);
+    it("should not open progress dialog when user count is or below REQUESTS_PER_BATCH", async () => {
+      const totalUsers = REQUESTS_PER_BATCH;
+      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
 
-        await service.bulkReinvite(mockOrganization, users);
+      const mockResponse = new ListResponse(
+        {
+          data: userIdsBatch.map((id) => ({
+            id,
+            error: null,
+          })),
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
 
-        expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
-        expect(memberDialogManager.openBulkProgressDialog).toHaveBeenCalledWith(
-          expect.anything(),
-          totalUsers,
-        );
-      });
+      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
 
-      it("should not open progress dialog when user count is or below REQUESTS_PER_BATCH", async () => {
-        const totalUsers = REQUESTS_PER_BATCH;
-        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-        const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      await service.bulkReinvite(mockOrganization, users);
 
-        const mockResponse = new ListResponse(
-          {
-            data: userIdsBatch.map((id) => ({
-              id,
-              error: null,
-            })),
-            continuationToken: null,
-          },
-          OrganizationUserBulkResponse,
-        );
+      expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
+      expect(memberDialogManager.openBulkProgressDialog).not.toHaveBeenCalled();
+    });
 
-        organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+    it("should open failure dialog when there are failures", async () => {
+      const totalUsers = 10;
+      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
 
-        await service.bulkReinvite(mockOrganization, users);
+      const mockResponse = new ListResponse(
+        {
+          data: userIdsBatch.map((id) => ({
+            id,
+            error: "error",
+          })),
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
 
-        expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
-        expect(memberDialogManager.openBulkProgressDialog).not.toHaveBeenCalled();
-      });
+      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
 
-      it("should open failure dialog when there are failures", async () => {
-        const totalUsers = 10;
-        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-        const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const result = await service.bulkReinvite(mockOrganization, users);
 
-        const mockResponse = new ListResponse(
-          {
-            data: userIdsBatch.map((id) => ({
-              id,
-              error: "error",
-            })),
-            continuationToken: null,
-          },
-          OrganizationUserBulkResponse,
-        );
-
-        organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
-
-        const result = await service.bulkReinvite(mockOrganization, users);
-
-        expect(memberDialogManager.openBulkReinviteFailureDialog).toHaveBeenCalledWith(
-          mockOrganization,
-          users,
-          result,
-        );
-        expect(result.failed.length).toBeGreaterThan(0);
-      });
-
-      it("should process batches when exceeding REQUESTS_PER_BATCH", async () => {
-        const totalUsers = REQUESTS_PER_BATCH + 100;
-        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-        const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
-
-        const mockDialogRef = { closed: of(undefined) };
-        memberDialogManager.openBulkProgressDialog.mockReturnValue(mockDialogRef as any);
-
-        const mockResponse1 = new ListResponse(
-          {
-            data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
-              id,
-              error: null,
-            })),
-            continuationToken: null,
-          },
-          OrganizationUserBulkResponse,
-        );
-
-        const mockResponse2 = new ListResponse(
-          {
-            data: userIdsBatch.slice(REQUESTS_PER_BATCH).map((id) => ({
-              id,
-              error: null,
-            })),
-            continuationToken: null,
-          },
-          OrganizationUserBulkResponse,
-        );
-
-        organizationUserApiService.postManyOrganizationUserReinvite
-          .mockResolvedValueOnce(mockResponse1)
-          .mockResolvedValueOnce(mockResponse2);
-
-        await service.bulkReinvite(mockOrganization, users);
-
-        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
-          2,
-        );
-      });
+      expect(memberDialogManager.openBulkReinviteFailureDialog).toHaveBeenCalledWith(
+        mockOrganization,
+        users,
+        result,
+      );
+      expect(result.failed.length).toBeGreaterThan(0);
     });
   });
 
   describe("allowResetPassword", () => {
     const resetPasswordEnabled = true;
+    const adminResetTwoFactorEnabled = true;
 
     it("should allow reset password for Owner over User", () => {
       const result = service.allowResetPassword(
         mockOrgUser,
         mockOrganization,
         resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
       );
 
       expect(result).toBe(true);
@@ -745,7 +654,12 @@ describe("MemberActionsService", () => {
     it("should allow reset password for Admin over User", () => {
       const adminOrg = { ...mockOrganization, type: OrganizationUserType.Admin } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, adminOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        adminOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(true);
     });
@@ -757,7 +671,12 @@ describe("MemberActionsService", () => {
         type: OrganizationUserType.Owner,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(ownerUser, adminOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        ownerUser,
+        adminOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -765,7 +684,12 @@ describe("MemberActionsService", () => {
     it("should allow reset password for Custom over User", () => {
       const customOrg = { ...mockOrganization, type: OrganizationUserType.Custom } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, customOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        customOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(true);
     });
@@ -777,7 +701,12 @@ describe("MemberActionsService", () => {
         type: OrganizationUserType.Admin,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(adminUser, customOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        adminUser,
+        customOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -789,7 +718,12 @@ describe("MemberActionsService", () => {
         type: OrganizationUserType.Owner,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(ownerUser, customOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        ownerUser,
+        customOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -797,7 +731,12 @@ describe("MemberActionsService", () => {
     it("should not allow reset password when organization cannot manage users password", () => {
       const org = { ...mockOrganization, canManageUsersPassword: false } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, org, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        org,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -805,7 +744,12 @@ describe("MemberActionsService", () => {
     it("should not allow reset password when organization does not use reset password", () => {
       const org = { ...mockOrganization, useResetPassword: false } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, org, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        org,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -813,18 +757,82 @@ describe("MemberActionsService", () => {
     it("should not allow reset password when user is not enrolled in reset password", () => {
       const user = { ...mockOrgUser, resetPasswordEnrolled: false } as OrganizationUserView;
 
-      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
 
-    it("should not allow reset password when user status is not confirmed", () => {
+    it("should allow reset password when user status is revoked and AdminResetTwoFactor is enabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Revoked,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled, true);
+
+      expect(result).toBe(true);
+    });
+
+    it("should not allow reset password when user status is revoked and AdminResetTwoFactor is disabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Revoked,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        false,
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should allow reset password when user status is accepted and AdminResetTwoFactor is enabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Accepted,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled, true);
+
+      expect(result).toBe(true);
+    });
+
+    it("should not allow reset password when user status is accepted and AdminResetTwoFactor is disabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Accepted,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        false,
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should not allow reset password when user status is invited", () => {
       const user = {
         ...mockOrgUser,
         status: OrganizationUserStatusType.Invited,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });

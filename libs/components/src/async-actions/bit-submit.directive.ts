@@ -8,6 +8,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 
 import { FunctionReturningAwaitable, functionToObservable } from "../utils/function-to-observable";
 
+import { DirtyFormService } from "./dirty-form.service";
+
 /**
  * Allow a form to perform async actions on submit, disabling the form while the action is processing.
  */
@@ -16,6 +18,7 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
 })
 export class BitSubmitDirective implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dirtyFormService = inject(DirtyFormService);
 
   private _loading$ = new BehaviorSubject<boolean>(false);
   private _disabled$ = new BehaviorSubject<boolean>(false);
@@ -60,6 +63,11 @@ export class BitSubmitDirective implements OnInit {
   }
 
   ngOnInit(): void {
+    this.dirtyFormService.registerForm(this.formGroupDirective);
+    this.destroyRef.onDestroy(() => {
+      this.dirtyFormService.deregisterForm(this.formGroupDirective);
+    });
+
     this.formGroupDirective.statusChanges
       ?.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((c) => {

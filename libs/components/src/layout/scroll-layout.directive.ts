@@ -28,7 +28,6 @@ export class ScrollLayoutService {
  **/
 @Directive({
   selector: "[bitScrollLayoutHost]",
-  standalone: true,
   host: {
     class: "cdk-virtual-scrollable",
   },
@@ -55,7 +54,6 @@ export class ScrollLayoutHostDirective implements OnDestroy {
  */
 @Directive({
   selector: "[bitScrollLayout]",
-  standalone: true,
   providers: [{ provide: VIRTUAL_SCROLLABLE, useExisting: ScrollLayoutDirective }],
 })
 export class ScrollLayoutDirective extends CdkVirtualScrollable implements OnInit {

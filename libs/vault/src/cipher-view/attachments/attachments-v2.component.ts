@@ -125,7 +125,7 @@ export class AttachmentsV2Component {
   uploadSuccessful() {
     this.isUploading = false;
     this.dialogRef.disableClose = false;
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: AttachmentDialogResult.Uploaded,
     });
   }
@@ -144,13 +144,13 @@ export class AttachmentsV2Component {
    * Closes the dialog with a 'removed' result.
    */
   removalSuccessful() {
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: AttachmentDialogResult.Removed,
     });
   }
 
   closeButtonPressed() {
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: AttachmentDialogResult.Closed,
     });
   }

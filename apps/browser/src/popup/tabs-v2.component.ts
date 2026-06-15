@@ -1,5 +1,5 @@
-import { Component } from "@angular/core";
-import { map, Observable, startWith, switchMap } from "rxjs";
+import { Component, inject } from "@angular/core";
+import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import {
@@ -14,6 +14,8 @@ import {
 } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
@@ -25,13 +27,27 @@ import { NavButton } from "../platform/popup/layout/popup-tab-navigation.compone
   standalone: false,
 })
 export class TabsV2Component {
+  private sendPolicyService = inject(SendPolicyService);
+
   private hasActiveBadges$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
-  protected navButtons$: Observable<NavButton[]> = this.hasActiveBadges$.pipe(
-    startWith(false),
-    map((hasBadges) => {
-      return [
+
+  private showSettingsBerry$ = combineLatest([
+    this.hasActiveBadges$,
+    this.autofillSettingsService.showClipboardSettingUpdateNotification$,
+  ]).pipe(map(([hasBadges, showClipboard]) => hasBadges || showClipboard));
+
+  private sendEnabled$ = this.sendPolicyService.disableSend$.pipe(
+    map((disableSend) => !disableSend),
+  );
+
+  protected navButtons$: Observable<NavButton[]> = combineLatest([
+    this.showSettingsBerry$.pipe(startWith(false)),
+    this.sendEnabled$.pipe(startWith(true)),
+  ]).pipe(
+    map(([showBerry, sendEnabled]) => {
+      const buttons: NavButton[] = [
         {
           label: "vault",
           page: "/tabs/vault",
@@ -44,24 +60,31 @@ export class TabsV2Component {
           icon: GeneratorInactive,
           iconActive: GeneratorActive,
         },
-        {
-          label: "send",
-          page: "/tabs/send",
-          icon: SendInactive,
-          iconActive: SendActive,
-        },
+        ...(sendEnabled
+          ? [
+              {
+                label: "send",
+                page: "/tabs/send",
+                icon: SendInactive,
+                iconActive: SendActive,
+              } as NavButton,
+            ]
+          : []),
         {
           label: "settings",
           page: "/tabs/settings",
           icon: SettingsInactive,
           iconActive: SettingsActive,
-          showBerry: hasBadges,
+          showBerry,
         },
       ];
+      return buttons;
     }),
   );
+
   constructor(
     private nudgesService: NudgesService,
     private accountService: AccountService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {}
 }

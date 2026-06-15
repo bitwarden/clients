@@ -2,8 +2,23 @@
   "allApplications": {
     "message": "모든 앱"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
     "message": "Activity"
+  },
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "criticalApplicationsAtRisk": {
+    "message": "Critical applications at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden 로고"
@@ -44,6 +59,15 @@
   "passwordRisk": {
     "message": "Password Risk"
   },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
+  },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
@@ -77,20 +101,11 @@
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
   },
-  "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Create new login item"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% 완료",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -123,6 +138,9 @@
   "sendReminders": {
     "message": "Send reminders"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Once you mark applications critical, they will display here."
   },
@@ -142,15 +160,6 @@
       "total": {
         "content": "$2",
         "example": "5"
-      }
-    }
-  },
-  "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
       }
     }
   },
@@ -202,8 +211,44 @@
       }
     }
   },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Your data is in. Let's put it to work."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Your entire org's security, in one view"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "You set the priorities. We surface the risks."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Track improvements across your team"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Import your org data to get started"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Access Intelligence welcome tour"
+  },
+  "startTour": {
+    "message": "Start tour"
+  },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "데이터를 찾을 수 없습니다"
   },
   "noDataInOrgDescription": {
     "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
@@ -227,10 +272,10 @@
     "message": "Track changes over time to show security improvements."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "보고서 생성"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "보고서 생성을 시작할 준비가 되었습니다. 한 번 생성하면 다음 기능들을 이용할 수 있습니다:"
   },
   "noCriticalApplicationsTitle": {
     "message": "You haven’t marked any applications as critical"
@@ -251,10 +296,10 @@
     "message": "applications selected"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "애플리케이션 선택"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "애플리케이션 선택 해제"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
@@ -307,23 +352,26 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
-    "message": "Application"
+    "message": "애플리케이션"
   },
   "applications": {
-    "message": "Applications"
+    "message": "애플리케이션"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "위험한 비밀번호"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "비밀번호 변경 요청"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "총 비밀번호"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "애플리케이션 검색"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -331,8 +379,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "These members have access to vulnerable items for critical applications."
   },
-  "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+  "membersWithAtRiskPwds": {
+    "message": "Members with at risk passwords"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
@@ -361,6 +422,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -410,7 +480,7 @@
     "message": "Review new applications"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "새 애플리케이션 $COUNT$개",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -422,10 +492,10 @@
     "message": "Review new applications to mark as critical and keep your organization secure"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "지금 검토"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "모두 확인했습니다!"
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "No new applications to review at this time"
@@ -473,7 +543,7 @@
     "message": "Error saving review status"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "다시 시도하세요"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -564,10 +634,10 @@
     "message": "Autofill options"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "웹사이트 (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "웹사이트 (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -577,16 +647,16 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "웹사이트 추가됨"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "웹사이트 추가"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "웹사이트 삭제"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "기본값 ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -612,6 +682,12 @@
         "example": "https://example.com"
       }
     }
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
@@ -643,6 +719,27 @@
   "passportNumber": {
     "message": "여권 번호"
   },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
   "licenseNumber": {
     "message": "면허 번호"
   },
@@ -650,7 +747,7 @@
     "message": "이메일"
   },
   "emails": {
-    "message": "Emails"
+    "message": "이메일"
   },
   "phone": {
     "message": "전화번호"
@@ -710,10 +807,10 @@
     "message": "Dr"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "만료된 카드"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "갱신했다면 카드 정보를 업데이트하세요"
   },
   "expirationMonth": {
     "message": "만료 월"
@@ -728,13 +825,16 @@
     "message": "Make 2-step verification seamless"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden은 2단계 인증 코드들을 저장하고, 채워넣을 수 있습니다. 키를 복사하여 이 입력란에 붙여넣으세요."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden은 2단계 인증 코드들을 저장하고, 채워넣을 수 있습니다. 카메라 아이콘을 선택하고, 이 웹사이드의 인증 도구 QR코드를 스크린샷을 찍거나, 키를 복사하여 이 입력란에 붙여넣으세요."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "인증 도구에 대해 자세히 알아보기"
   },
   "folder": {
     "message": "폴더"
@@ -752,17 +852,17 @@
     "message": "참 / 거짓"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "체크박스"
   },
   "cfTypeLinked": {
     "message": "연결됨",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "필드 유형"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "필드 레이블"
   },
   "remove": {
     "message": "제거"
@@ -775,7 +875,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "당신",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -785,7 +885,7 @@
     "message": "폴더 편집"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "$ITEM$ 편집: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -798,10 +898,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "새 폴더"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "폴더 이름"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -871,7 +971,7 @@
     "message": "취소"
   },
   "later": {
-    "message": "Later"
+    "message": "나중에"
   },
   "canceled": {
     "message": "취소됨"
@@ -932,7 +1032,7 @@
     "message": "그룹 검색"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "검색 초기화"
   },
   "allItems": {
     "message": "모든 항목"
@@ -941,7 +1041,7 @@
     "message": "즐겨찾기"
   },
   "taskSummary": {
-    "message": "Task summary"
+    "message": "작업 요약"
   },
   "types": {
     "message": "유형"
@@ -959,10 +1059,52 @@
     "message": "보안 메모"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "메모"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH 키"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
   },
   "typeLoginPlural": {
     "message": "로그인"
@@ -975,6 +1117,9 @@
   },
   "typeSecureNotePlural": {
     "message": "보안 메모"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "folders": {
     "message": "폴더"
@@ -995,7 +1140,7 @@
     "message": "전체 이름"
   },
   "address": {
-    "message": "Address"
+    "message": "주소"
   },
   "address1": {
     "message": "주소 1"
@@ -1033,6 +1178,9 @@
   "addItem": {
     "message": "항목 추가"
   },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
+  },
   "editItem": {
     "message": "항목 편집"
   },
@@ -1040,67 +1188,91 @@
     "message": "항목 보기"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "새 로그인",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "새 카드",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "새 신원",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "새 메모",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "새 SSH 키",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "SSH 키 편집",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "카드 보기",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
@@ -1114,6 +1286,18 @@
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "새 항목",
@@ -1203,6 +1387,9 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "Copy phone"
   },
@@ -1218,6 +1405,21 @@
   "copyPassportNumber": {
     "message": "Copy passport number"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
@@ -1229,6 +1431,12 @@
   },
   "copyFingerprint": {
     "message": "Copy fingerprint"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Copy name"
@@ -1247,6 +1455,42 @@
       "ciphername": {
         "content": "$2",
         "example": "Login Item"
+      }
+    }
+  },
+  "copyInfoTitle": {
+    "message": "Copy info - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
+  "noValuesToCopy": {
+    "message": "No values to copy"
+  },
+  "launchWebsiteName": {
+    "message": "Launch website $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
       }
     }
   },
@@ -1288,6 +1532,28 @@
   },
   "unselectAll": {
     "message": "모두 선택 해제"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "launch": {
     "message": "열기"
@@ -1358,6 +1624,24 @@
   },
   "deleteAttachment": {
     "message": "첨부 파일 삭제"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "정말로 휴지통으로 이동시킬까요?"
@@ -1471,7 +1755,7 @@
     "message": "Use a different log in method"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "패스키로 로그인"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
@@ -1498,16 +1782,16 @@
     "message": "Learn more about passwordless"
   },
   "creatingPasskeyLoading": {
-    "message": "Creating passkey..."
+    "message": "패스키 생성 중..."
   },
   "creatingPasskeyLoadingInfo": {
     "message": "Keep this window open and follow prompts from your browser."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "패스키 생성 오류"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "패스키를 생성하는 데 문제가 발생했습니다."
   },
   "passkeySuccessfullyCreated": {
     "message": "패스키가 생성되었습니다!"
@@ -1528,7 +1812,7 @@
     "message": "Encryption not supported"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "암호화 설정"
   },
   "usedForEncryption": {
     "message": "Used for encryption"
@@ -1537,7 +1821,7 @@
     "message": "Log in with passkey turned on"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ 저장됨",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1546,10 +1830,10 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "패스키 제거됨"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "패스키 제거"
   },
   "removePasskeyInfo": {
     "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
@@ -1558,13 +1842,13 @@
     "message": "Passkey limit reached. Remove a passkey to add another."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "다시 시도"
   },
   "createAccount": {
     "message": "계정 만들기"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden이 처음이신가요?"
   },
   "setAStrongPassword": {
     "message": "Set a strong password"
@@ -1600,13 +1884,13 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "신원을 인증하세요"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "이 기기를 인식할 수 없습니다. 신원을 확인하려면 이메일로 전송된 코드를 입력하세요."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "로그인 계속하기"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -1615,10 +1899,10 @@
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
   },
   "logInInitiated": {
-    "message": "Log in initiated"
+    "message": "로그인 시작됨"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "요청 전송됨"
   },
   "submit": {
     "message": "보내기"
@@ -1651,13 +1935,13 @@
     "message": "마스터 비밀번호 힌트 (선택)"
   },
   "newMasterPassHint": {
-    "message": "New master password hint (optional)"
+    "message": "새 마스터 비밀번호 힌트 (선택)"
   },
   "masterPassHintLabel": {
     "message": "마스터 비밀번호 힌트"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "비밀번호를 잊어버린 경우 비밀번호 힌트가 이메일로 전송됩니다. 최대 길이는 $CURRENT$/$MAXIMUM$자입니다.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1673,13 +1957,13 @@
     "message": "설정"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "계정 이메일"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "힌트 요청"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "비밀번호 힌트 요청"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
@@ -1716,10 +2000,10 @@
     "message": "계정 생성이 완료되었습니다! 이제 로그인하실 수 있습니다."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "계정 생성이 완료되었습니다!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "로그인했습니다!"
   },
   "trialAccountCreated": {
     "message": "계정이 생성되었습니다."
@@ -2048,11 +2332,11 @@
     "message": "모든 Bitwarden 사용자 계정은 고유한 계정 암호화 키를 가지고 있습니다. 따라서, 다른 계정에서는 암호화된 내보내기를 가져올 수 없습니다."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "내보내기",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "내보내기",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2102,6 +2386,21 @@
   },
   "exportSuccess": {
     "message": "보관함 데이터를 내보냈습니다."
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "비밀번호 생성기"
@@ -2227,10 +2526,10 @@
     "message": "다시 로그인해 주세요."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "현재 세션"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "요청 보류 중"
   },
   "logBackInOthersToo": {
     "message": "다시 로그인해 주세요. 다른 Bitwarden 앱을 사용 중인 경우 해당 앱에서도 다시 로그인해야 합니다."
@@ -2303,13 +2602,13 @@
     "message": "계속 진행하면, 현재 세션 또한 로그아웃 되므로 다시 로그인하여야 합니다. 2단계 로그인이 활성화 된 경우 다시 요구하는 메세지가 표시됩니다. 다른 기기의 활성화 된 세션은 최대 1시간 동안 유지 될 수 있습니다."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "새 기기 로그인"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "새 기기 로그인 보호 끄기"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "새 기기 로그인 보호 켜기"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
     "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
@@ -2365,6 +2664,18 @@
   "deleteAccountWarning": {
     "message": "계정 삭제는 영구적이며 되돌릴 수 없습니다."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
     "message": "계정 삭제됨"
   },
@@ -2381,35 +2692,15 @@
     "message": "도구"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "가져오기",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "가져오기",
     "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "데이터 가져오기"
-  },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "가져오기할 데이터가 없으면, 대신 ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "새 항목",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": "을 생성할 수 있습니다.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": "을 생성할 수 있습니다. 관리자가 귀하의 조직을 확인할 때까지 기다려야 할 수 있습니다.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "가져오기 오류"
@@ -2421,7 +2712,7 @@
     "message": "데이터를 보관함으로 성공적으로 불러왔습니다."
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "총 $AMOUNT$개의 항목을 가져왔습니다.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2479,6 +2770,9 @@
   },
   "chooseFile": {
     "message": "파일 선택"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "선택된 파일 없음"
@@ -3047,16 +3341,16 @@
   "breachDesc": {
     "message": "\"유출(breach)\"이란, 사이트의 데이터가 불법적으로 해커에 의해 접근되고 공개되는 사건을 뜻합니다. 손상된 데이터 유형(이메일 주소, 비밀번호, 신용카드 등)을 검토하고 비밀번호 변경 등 적절한 조치를 취하십시오."
   },
-  "breachCheckUsernameEmail": {
-    "message": "사용하는 사용자 이름 혹은 이메일 주소를 확인해보세요."
+  "breachCheckEmail": {
+    "message": "Check any email addresses that you use."
   },
   "checkBreaches": {
     "message": "유출 확인하기"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$을 알려진 데이터 유출에서 발견하지 못했습니다.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ was not found in any known data breaches.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3360,10 @@
     "message": "좋은 소식이에요",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$을 $COUNT$개의 온라인 상의 데이터 유출에서 발견되었습니다.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ was found in $COUNT$ different data breaches online.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3271,11 +3565,17 @@
   "year": {
     "message": "년"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "yr"
   },
   "month": {
     "message": "월"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "월",
@@ -3296,8 +3596,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Your payment method will be charged for any unpaid subscriptions."
   },
-  "paymentChargedWithTrial": {
-    "message": "\b귀하의 요금제는 7일 무료 체험을 포함합니다. 체험 기간이 끝날 때까지 등록한 결제 수단에 요금이 청구되지 않습니다. 언제든지 취소하실 수 있습니다."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "결제 정보"
@@ -3353,6 +3659,87 @@
   "canceledSubscription": {
     "message": "구독을 취소했습니다."
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancel subscription"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "만료 없음"
   },
@@ -3376,6 +3763,12 @@
   },
   "discount": {
     "message": "discount"
+  },
+  "discountApplied": {
+    "message": "Discount applied"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
   },
   "downloadLicense": {
     "message": "라이선스 다운로드"
@@ -3721,12 +4114,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "고객님의 $PLAN$ 7일 무료 체험은 7일 후 유료 구독으로 전환될 예정입니다.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -3783,6 +4180,15 @@
   },
   "policies": {
     "message": "정책"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "통합 인증(SSO)"
@@ -3877,15 +4283,34 @@
       }
     }
   },
+  "invite": {
+    "message": "Invite"
+  },
   "inviteUserDesc": {
     "message": "아래에 Bitwarden 계정 이메일 주소를 입력하여 조직에 새 사용자를 초대하십시오. Bitwarden 계정을 가지고 있지 않다면, 새로운 계정을 만들라는 메시지가 표시됩니다."
   },
+  "inviteUserDescription": {
+    "message": "Invite new users to your organization by entering their email address below."
+  },
   "inviteMultipleEmailDesc": {
-    "message": "이메일 주소 목록을 쉼표(,)로 구분하여 한 번에 최대 $COUNT$명의 사용자를 초대할 수 있습니다.",
+    "message": "Enter up to $COUNT$ emails by separating with a comma.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3894,6 +4319,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "You have 0 invites remaining."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "이 사용자는 계정을 보호하기 위해 2단계 로그인을 사용하고 있습니다."
@@ -4052,6 +4486,53 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created text Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created text Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Created file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created file Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created file Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedTextSend": {
+    "message": "Edited text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Edited file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Deleted text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Deleted file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Accessed text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Accessed file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "$ID$ 항목을 조직으로 이동시켰습니다.",
     "placeholders": {
@@ -4157,6 +4638,132 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Viewed account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Viewed PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Copied account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Copied PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
+    "message": "Viewed license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedIbanItemId": {
+    "message": "Viewed IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Copied IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Viewed SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Copied SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Viewed national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Copied national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "$ID$ 항목을 자동으로 채웠습니다.",
     "placeholders": {
@@ -4195,6 +4802,15 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "editedPolicyId": {
     "message": "$ID$ 정책을 편집했습니다.",
@@ -4268,6 +4884,51 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
+  "revocationReasonNotLogged": {
+    "message": "No reason logged"
+  },
+  "revocationReasonManual": {
+    "message": "Revoked by an admin"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Not in compliance with two-step login policy"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Not in compliance with single organization policy"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Declined item transfer to organization"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Revoked organization access for $ID$ for declining transfer to organization ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",
     "placeholders": {
@@ -4315,9 +4976,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
-  },
-  "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
   },
   "invitedUserId": {
     "message": "$ID$ 사용자를 초대했습니다.",
@@ -4417,6 +5075,24 @@
   },
   "loginStatus": {
     "message": "Login status"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "firstLogin": {
     "message": "First login"
@@ -4626,8 +5302,17 @@
   "reportGenerationDone": {
     "message": "Done!"
   },
+  "reportGenerationFailed": {
+    "message": "An error occurred while generating the report. Try again."
+  },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
+  },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
   },
   "updateBrowserDesc": {
     "message": "지원하지 않는 웹 브라우저를 사용하고 있습니다. 웹 보관함 기능이 제대로 동작하지 않을 수 있습니다."
@@ -4867,6 +5552,9 @@
   },
   "bankAccount": {
     "message": "은행 계좌"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "금액 $COUNT$",
@@ -5143,6 +5831,65 @@
   },
   "atAnyTime": {
     "message": "at any time."
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
+  },
+  "allowedDomains": {
+    "message": "Allowed domains"
+  },
+  "allowedDomainsHint": {
+    "message": "If entering multiple domains, separate with commas"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Enter allowed domains to generate an invite link"
+  },
+  "domainsEdited": {
+    "message": "Domains edited"
+  },
+  "inviteLink": {
+    "message": "Invite link"
+  },
+  "lastGenerated": {
+    "message": "Last generated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Invite link copied"
+  },
+  "inviteLinkRegenerated": {
+    "message": "Invite link regenerated"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerate invite link"
+  },
+  "invalidateInviteLink": {
+    "message": "Invalidate invite link"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "If you remove all domains, this invite link will no longer work for anyone."
+  },
+  "invalidateLink": {
+    "message": "Invalidate link"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Invite link invalidated"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Must enter at least 1 domain"
+  },
+  "deactivateLink": {
+    "message": "Deactivate link"
+  },
+  "inviteByLinkDesc": {
+    "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
@@ -5445,8 +6192,8 @@
   "minimumNumberOfWords": {
     "message": "단어 최소 개수"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Password type",
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5757,14 +6504,6 @@
       }
     }
   },
-  "newTextSend": {
-    "message": "New Text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "New File Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "editedSend": {
     "message": "Send 수정함",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5857,6 +6596,19 @@
   },
   "downloadAttachments": {
     "message": "첨부 파일 다운로드"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Experiencing an issue? Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "sendAccessPasswordTitle": {
     "message": "Enter the password to view this Send",
@@ -6054,6 +6806,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },
@@ -6091,8 +6849,8 @@
   "availableNow": {
     "message": "Available now"
   },
-  "autoConfirm": {
-    "message": "Automatic confirmation of new users"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
@@ -6198,6 +6956,16 @@
   "sendDisabledWarning": {
     "message": "엔터프라이즈 정책으로 인해 이미 생성된 Send를 삭제하는 것만 허용됩니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
   "sendOptions": {
     "message": "Send 설정",
@@ -6459,6 +7227,14 @@
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "이 Send를 생성한 Bitwarden 사용자가 자신의 이메일 주소를 숨겼습니다. 이 링크에 접속하거나 내용을 다운로드하기 전에, 이 링크의 출처를 신뢰하는지 확인하십시오.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6544,8 +7320,17 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "$ID$ 사용자의 마스터 비밀번호를 재설정합니다.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Account recovery with master password initiated for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6633,6 +7418,9 @@
   },
   "resetPasswordDetailsError": {
     "message": "비밀번호 재성정 정보 반응 없음"
+  },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
   },
   "trashCleanupWarning": {
     "message": "휴지통으로 이동된 암호는 30일 이후 자동으로 삭제됩니다."
@@ -7004,6 +7792,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Session timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Immediately"
@@ -7594,6 +8385,9 @@
   "iconsUrl": {
     "message": "Icons server URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Environment URLs saved"
   },
@@ -7703,26 +8497,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ 주소와 연관된 개인 보관함 항목만 내보내기됩니다. 조직 보관함 항목은 포함되지 않습니다. 보관함 항목 정보만 내보내기되고 첨부 파일을 포함하지 않습니다.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ 조직과 연관된 조직 보관함만 내보내기됩니다. 개인 보관함이나 다른 조직의 항목은 포함되지 않습니다.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8133,9 +8912,19 @@
     "message": "SCIM provisioning",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
+  },
+  "scimLearnMore": {
+    "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
@@ -8154,6 +8943,10 @@
   },
   "copyScimKey": {
     "message": "Copy the SCIM API key to your clipboard",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
+  "viewScimApiKey": {
+    "message": "View the SCIM API key",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
@@ -8187,8 +8980,45 @@
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
+  },
   "inputRequired": {
     "message": "Input is required."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "inputEmail": {
     "message": "Input is not an email address."
@@ -8240,6 +9070,9 @@
   },
   "multipleInputEmails": {
     "message": "1 or more emails are invalid"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "tooManyEmails": {
     "message": "You can only submit up to $COUNT$ emails at a time",
@@ -8304,6 +9137,9 @@
   "members": {
     "message": "구성원"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Reporting"
   },
@@ -8345,6 +9181,15 @@
   },
   "pink": {
     "message": "Pink"
+  },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Purple"
+  },
+  "blue": {
+    "message": "Blue"
   },
   "customColor": {
     "message": "Custom Color"
@@ -8574,6 +9419,14 @@
   "newProject": {
     "message": "New project",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Click to rename this project",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Cannot decrypt project name - click project to rename",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Deleting secrets can affect existing integrations.",
@@ -8969,6 +9822,9 @@
   "inviteMember": {
     "message": "구성원 초대"
   },
+  "inviteMembers": {
+    "message": "Invite members"
+  },
   "addSponsorship": {
     "message": "Add sponsorship"
   },
@@ -8977,6 +9833,9 @@
   },
   "memberRole": {
     "message": "구성원 역할"
+  },
+  "moreSettings": {
+    "message": "More settings"
   },
   "moreFromBitwarden": {
     "message": "More from Bitwarden"
@@ -9160,6 +10019,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Activate user access to Secrets Manager."
+  },
+  "grantSecretsManager": {
+    "message": "Grant access to Secrets Manager"
   },
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
@@ -9388,12 +10250,18 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "User attempted to access known phishing site"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "User exited phishing warning page"
+  },
+  "phishingBlockerBypassed": {
+    "message": "User bypassed phishing warning"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
-  },
-  "createAnAccount": {
-    "message": "Create an account"
   },
   "createSecret": {
     "message": "Create a secret"
@@ -9417,8 +10285,45 @@
   "getStarted": {
     "message": "Get started"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Get started with Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete these steps to start managing your team's secrets"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Create machine account"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize your secrets into projects"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Create project"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bring existing secrets in from another tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Store passwords, certificates, and API keys"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Create secret"
+  },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ Complete",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ of $TOTAL$ complete",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -9633,8 +10538,32 @@
   "recoverAccount": {
     "message": "Recover account"
   },
-  "updatedTempPassword": {
-    "message": "User updated a password issued through account recovery."
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
+  },
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "Activated access to Secrets Manager",
@@ -10048,11 +10977,38 @@
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Install browser extension"
+  "getStartedWithYourVault": {
+    "message": "Get started with your vault"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+  "onboardingChecklistSubtitle": {
+    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Dismiss this checklist"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Create your account"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Import your passwords"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Install the browser extension"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+  },
+  "onboardingImportCta": {
+    "message": "Import passwords"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Install extension"
+  },
+  "completed": {
+    "message": "Completed"
   },
   "projectAccessUpdated": {
     "message": "Project access updated"
@@ -10187,6 +11143,46 @@
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Missing features or functionality",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Something we needed wasn't available",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Too difficult to set up or manage",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We're not getting enough value for the cost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "The price doesn't match what we're getting out of it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Not enough usage by our team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We couldn't get people to actually use it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Our needs changed",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Free for 1 year"
   },
@@ -10222,6 +11218,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
+  },
+  "sendNotifications": {
+    "message": "Send notifications"
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -10624,6 +11623,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connected successfully.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -10977,6 +11985,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+  },
   "kdfIterationRecommends": {
     "message": "We recommend 600,000 or more"
   },
@@ -11027,6 +12038,9 @@
   },
   "clientDetails": {
     "message": "Client details"
+  },
+  "downloadChart": {
+    "message": "Download chart"
   },
   "downloadCSV": {
     "message": "Download CSV"
@@ -11480,6 +12494,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "User $ID$ self-revoked from organization.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
     "placeholders": {
@@ -11746,6 +12772,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
     "placeholders": {
@@ -11775,6 +12810,46 @@
         "example": "02/14/2024"
       }
     }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
   },
   "restartOrganizationSubscription": {
     "message": "Organization subscription restarted"
@@ -11863,6 +12938,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
@@ -12213,12 +13291,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -12242,6 +13324,10 @@
   },
   "missingTaxIdWarning": {
     "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -12533,12 +13619,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
@@ -12737,8 +13817,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12746,14 +13826,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "youHaveBitwardenPremium": {
     "message": "You have Bitwarden Premium"
@@ -12877,6 +13960,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "Who can view"
   },
@@ -12889,11 +13987,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
@@ -13001,5 +14099,340 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "searchPassport": {
+    "message": "Search passports"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "past3Months": {
+    "message": "Past 3 months"
+  },
+  "past6Months": {
+    "message": "Past 6 months"
+  },
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "timePeriod": {
+    "message": "Time period"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "more": {
+    "message": "More"
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+  },
+  "singleOrgPrerequisite": {
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "enableBanner": {
+    "message": "Enable banner"
+  },
+  "createBannerMessage": {
+    "message": "Create banner message"
+  },
+  "header": {
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "You must enter a header to create a button."
+  },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

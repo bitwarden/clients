@@ -22,7 +22,7 @@ type Result<T> =
       message: string;
     };
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class SubscriberBillingClient {
   constructor(private apiService: ApiService) {}
 

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -31,6 +32,7 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
   LoginEmailService,
   SsoUrlService,
   UserDecryptionOptionsServiceAbstraction,
@@ -73,6 +75,12 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  SharedUnlockLeaderService,
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
+import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -97,6 +105,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
+import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -112,7 +121,7 @@ import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/s
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -127,9 +136,12 @@ import {
   SessionTimeoutSettingsComponentService,
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UnlockService } from "@bitwarden/unlock";
 import {
+  CipherFormGenerationService,
   DefaultSshImportPromptService,
   SshImportPromptService,
   VaultFilterServiceAbstraction,
@@ -163,13 +175,21 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import {
+  DefaultServerCommunicationConfigService,
+  ServerCommunicationConfigPlatformApiService,
+  ServerCommunicationConfigRepository,
+} from "../../platform/services/server-communication-config";
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
+import { DesktopCredentialGenerationService } from "../../services/desktop-cipher-form-generator.service";
+import { DesktopCopyListenerService } from "../../services/desktop-copy-listener.service";
+import { DesktopDeviceManagementComponentService } from "../../services/desktop-device-management-component.service";
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
-import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
@@ -186,18 +206,27 @@ const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
+    provide: CipherFormGenerationService,
+    useClass: DesktopCredentialGenerationService,
+    deps: [],
+  }),
+  safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService],
+    deps: [TokenService, BiometricStateService, IpcService],
   }),
   safeProvider({
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService],
+    deps: [TokenService, BiometricStateService, IpcService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DesktopDeviceManagementComponentService,
+    deps: [],
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
-  safeProvider(SearchBarService),
   safeProvider(DialogService),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
@@ -231,8 +260,15 @@ const safeProviders: SafeProvider[] = [
     //
     // Note: Portable mode does not use secure storage for read/write/clear operations,
     // preventing any collision with tokens from a regular desktop installation.
+    //
+    // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
+    // behavior on any platform, for environments where the OS keyring is unavailable or
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !ipc.platform.isWindowsPortable,
+    useValue:
+      ELECTRON_SUPPORTS_SECURE_STORAGE &&
+      !ipc.platform.isWindowsPortable &&
+      !ipc.platform.forceDiskAccessTokenStorage,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
@@ -365,6 +401,26 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SharedUnlockLeaderService,
+    useClass: DefaultSharedUnlockLeaderService,
+    deps: [
+      IpcService,
+      AccountService,
+      LockService,
+      KeyServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      VaultTimeoutSettingsService,
+      EnvironmentService,
+      SharedUnlockSettingsService,
+      UnlockService,
+    ],
+  }),
+  safeProvider({
     provide: DesktopAutofillSettingsService,
     deps: [StateProvider],
   }),
@@ -423,14 +479,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
       WINDOW,
       LogServiceAbstraction,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -508,7 +562,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
-    deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
+    deps: [
+      DialogService,
+      ToastService,
+      PlatformUtilsServiceAbstraction,
+      I18nServiceAbstraction,
+      ConfigService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: DesktopAutotypeService,
@@ -552,11 +613,12 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       CollectionService,
       AccountServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
     provide: VAULT_FILTER_BASE_ROUTE,
-    useValue: "/new-vault",
+    useValue: "/vault",
   }),
   safeProvider({
     provide: RoutedVaultFilterService,
@@ -569,6 +631,11 @@ const safeProviders: SafeProvider[] = [
     deps: [Router, RoutedVaultFilterService, VaultFilterServiceAbstraction],
   }),
   safeProvider({
+    provide: COPY_CLICK_LISTENER,
+    useClass: DesktopCopyListenerService,
+    deps: [MessagingServiceAbstraction],
+  }),
+  safeProvider({
     provide: AuthRequestAnsweringService,
     useClass: DesktopAuthRequestAnsweringService,
     deps: [
@@ -579,12 +646,51 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+      ConfigService,
     ],
+  }),
+  safeProvider({
+    provide: ServerCommunicationConfigService,
+    useFactory: (
+      stateProvider: StateProvider,
+      platformUtilsService: PlatformUtilsService,
+      messageListener: MessageListener,
+      logService: LogService,
+      configService: ConfigService,
+      apiService: ApiService,
+      dialogService: DialogService,
+    ) =>
+      new DefaultServerCommunicationConfigService(
+        new ServerCommunicationConfigRepository(stateProvider),
+        new ServerCommunicationConfigPlatformApiService(
+          platformUtilsService,
+          messageListener,
+          logService,
+          dialogService,
+        ),
+        configService,
+        apiService,
+      ),
+    deps: [
+      StateProvider,
+      PlatformUtilsService,
+      MessageListener,
+      LogService,
+      ConfigService,
+      ApiService,
+      DialogService,
+    ],
+  }),
+
+  safeProvider({
+    provide: IpcService,
+    useClass: NoopIpcService,
+    deps: [LogServiceAbstraction],
   }),
 ];
 
 @NgModule({
-  imports: [JslibServicesModule, GeneratorServicesModule],
+  imports: [JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,

@@ -1,7 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { firstValueFrom, Observable } from "rxjs";
 
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { AnonLayoutWrapperDataService } from "@bitwarden/components";
@@ -15,7 +14,6 @@ import { WebBrowserInteractionService } from "./web-browser-interaction.service"
 describe("BrowserExtensionPromptService", () => {
   let service: BrowserExtensionPromptService;
   const setAnonLayoutWrapperData = jest.fn();
-  const isFirefox = jest.fn().mockReturnValue(false);
   const openExtensionMock = jest.fn().mockResolvedValue(undefined);
   const postMessage = jest.fn();
   window.postMessage = postMessage;
@@ -23,14 +21,12 @@ describe("BrowserExtensionPromptService", () => {
   beforeEach(() => {
     setAnonLayoutWrapperData.mockClear();
     postMessage.mockClear();
-    isFirefox.mockClear();
     openExtensionMock.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         BrowserExtensionPromptService,
         { provide: AnonLayoutWrapperDataService, useValue: { setAnonLayoutWrapperData } },
-        { provide: PlatformUtilsService, useValue: { isFirefox } },
         { provide: WebBrowserInteractionService, useValue: { openExtension: openExtensionMock } },
       ],
     });
@@ -110,30 +106,6 @@ describe("BrowserExtensionPromptService", () => {
     });
   });
 
-  describe("firefox", () => {
-    beforeEach(() => {
-      isFirefox.mockReturnValue(true);
-      service.start();
-    });
-
-    afterEach(() => {
-      isFirefox.mockReturnValue(false);
-    });
-
-    it("sets manual open state", (done) => {
-      service.pageState$.subscribe((state) => {
-        expect(state).toBe(BrowserPromptState.ManualOpen);
-        done();
-      });
-    });
-
-    it("sets error state after timeout", () => {
-      expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
-        pageTitle: { key: "somethingWentWrong" },
-      });
-    });
-  });
-
   describe("mobile state", () => {
     beforeEach(() => {
       Utils.isMobileBrowser = true;
@@ -185,7 +157,7 @@ describe("BrowserExtensionPromptService", () => {
       const pageState$: Observable<BrowserPromptState> = service.pageState$;
 
       await service.openExtension(VaultMessages.OpenAtRiskPasswords, true);
-      jest.advanceTimersByTime(1000);
+      jest.advanceTimersByTime(1500);
 
       expect(await firstValueFrom(pageState$)).toBe(BrowserPromptState.ManualOpen);
     });

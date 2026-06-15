@@ -21,7 +21,7 @@
         </bit-form-field>
       </div>
       <div>
-        <bit-avatar [text]="org.name" [id]="org.id" size="large"></bit-avatar>
+        <bit-avatar [text]="org.name" [id]="org.id" size="2xl"></bit-avatar>
         <app-account-fingerprint
           [fingerprintMaterial]="organizationId"
           [publicKeyBuffer]="publicKeyBuffer"
@@ -89,12 +89,14 @@
     </button>
   </form>
 
-  <app-danger-zone>
-    <button type="button" bitButton buttonType="danger" (click)="deleteOrganization()">
-      {{ "deleteOrganization" | i18n }}
-    </button>
-    <button type="button" bitButton buttonType="danger" [bitAction]="purgeVault">
-      {{ "purgeVault" | i18n }}
-    </button>
-  </app-danger-zone>
+  @if (!loading) {
+    <app-danger-zone>
+      <button type="button" bitButton buttonType="danger" (click)="deleteOrganization()">
+        {{ "deleteOrganization" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="danger" [bitAction]="purgeVault">
+        {{ "purgeVault" | i18n }}
+      </button>
+    </app-danger-zone>
+  }
 </bit-container>

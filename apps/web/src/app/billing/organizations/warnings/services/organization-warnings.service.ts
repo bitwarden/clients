@@ -32,6 +32,7 @@ import { openChangePlanDialog } from "../../change-plan-dialog.component";
 import {
   OrganizationFreeTrialWarning,
   OrganizationResellerRenewalWarning,
+  OrganizationScheduledPriceIncreaseWarning,
   OrganizationWarningsResponse,
 } from "../types";
 
@@ -42,7 +43,7 @@ const format = (date: Date) =>
     year: "numeric",
   });
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
   private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
 
@@ -123,29 +124,19 @@ export class OrganizationWarningsService {
             return {
               type: "info",
               message: this.i18nService.t(
-                "resellerRenewalWarningMsg",
-                organization.providerName,
+                "resellerRenewalWarningMsgV2",
                 format(warning.upcoming!.renewalDate),
               ),
             };
           }
           case "issued": {
-            return {
-              type: "info",
-              message: this.i18nService.t(
-                "resellerOpenInvoiceWarningMgs",
-                organization.providerName,
-                format(warning.issued!.issuedDate),
-                format(warning.issued!.dueDate),
-              ),
-            };
+            return null;
           }
           case "past_due": {
             return {
-              type: "warning",
+              type: "info",
               message: this.i18nService.t(
-                "resellerPastDueWarningMsg",
-                organization.providerName,
+                "resellerPastDueWarningMsgV2",
                 format(warning.pastDue!.suspensionDate),
               ),
             };
@@ -153,6 +144,11 @@ export class OrganizationWarningsService {
         }
       }),
     );
+
+  getScheduledPriceIncreaseWarning$ = (
+    organization: Organization,
+  ): Observable<OrganizationScheduledPriceIncreaseWarning | null> =>
+    this.getWarning$(organization, (response) => response.scheduledPriceIncrease);
 
   getTaxIdWarning$ = (organization: Organization): Observable<TaxIdWarningType | null> =>
     merge(

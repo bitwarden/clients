@@ -55,6 +55,11 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
+  // Password counts — required; old blobs without these fields should default to 0
+  totalPasswordCount: number;
+  totalAtRiskPasswordCount: number;
+  totalCriticalPasswordCount: number;
+  totalCriticalAtRiskPasswordCount: number;
 };
 
 /**
@@ -103,6 +108,7 @@ export const ReportStatus = Object.freeze({
   Loading: 2,
   Complete: 3,
   Error: 4,
+  LoadError: 5,
 } as const);
 
 export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];

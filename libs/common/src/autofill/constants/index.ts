@@ -44,7 +44,7 @@ export const AUTOFILL_ATTRIBUTES = {
   AUTOCOMPLETE_TYPE: "autocompletetype",
   X_AUTOCOMPLETE_TYPE: "x-autocompletetype",
   CHECKED: "checked",
-  CLASS: "class",
+  // CLASS intentionally omitted because it can cause a callback storm on dynamic pages.
   DATA_LABEL: "data-label",
   DATA_STRIPE: "data-stripe",
   DISABLED: "disabled",
@@ -64,13 +64,13 @@ export const AUTOFILL_ATTRIBUTES = {
 } as const;
 
 export const ClearClipboardDelay = {
-  Never: null as null,
-  TenSeconds: 10,
-  TwentySeconds: 20,
-  ThirtySeconds: 30,
-  OneMinute: 60,
-  TwoMinutes: 120,
-  FiveMinutes: 300,
+  Never: "never",
+  TenSeconds: "tenSeconds",
+  TwentySeconds: "twentySeconds",
+  ThirtySeconds: "thirtySeconds",
+  OneMinute: "oneMinute",
+  TwoMinutes: "twoMinutes",
+  FiveMinutes: "fiveMinutes",
 } as const;
 
 /* Ids for context menu items and messaging events */
@@ -78,6 +78,7 @@ export const AUTOFILL_CARD_ID = "autofill-card";
 export const AUTOFILL_ID = "autofill";
 export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
 export const AUTOFILL_IDENTITY_ID = "autofill-identity";
+export const AUTOFILL_TRIAGE_ID = "autofill-triage";
 export const COPY_IDENTIFIER_ID = "copy-identifier";
 export const COPY_PASSWORD_ID = "copy-password";
 export const COPY_USERNAME_ID = "copy-username";
@@ -148,5 +149,108 @@ export type ExtensionCommandType = (typeof ExtensionCommand)[keyof typeof Extens
 export const CLEAR_NOTIFICATION_LOGIN_DATA_DURATION = 60 * 1000; // 1 minute
 
 export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
+
+export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
+
+// this list is derived from the `attachShadow` candidate elements list
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
+  new Set([
+    "ARTICLE",
+    "ASIDE",
+    "BLOCKQUOTE",
+    "BODY",
+    "DIV",
+    "FOOTER",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "HEADER",
+    "MAIN",
+    "NAV",
+    "P",
+    "SECTION",
+    "SPAN",
+  ]),
+);
+
+/**
+ * Field keys for targeting rules. These MUST match the `fieldKey` enum in
+ * the Forms Map schema.
+ */
+export const AutofillTargetingRuleTypes = {
+  // Authentication
+  username: "username",
+  password: "password",
+  newPassword: "newPassword",
+  oneTimeCode: "oneTimeCode",
+
+  // Name
+  fullName: "fullName",
+  honorificPrefix: "honorificPrefix",
+  firstName: "firstName",
+  middleName: "middleName",
+  lastName: "lastName",
+  honorificSuffix: "honorificSuffix",
+
+  // Contact
+  email: "email",
+  phone: "phone",
+  phoneCountryCode: "phoneCountryCode",
+  phoneAreaCode: "phoneAreaCode",
+  phoneLocal: "phoneLocal",
+  phoneExtension: "phoneExtension",
+  organization: "organization",
+
+  // Address
+  streetAddress: "streetAddress",
+  addressLine1: "addressLine1",
+  addressLine2: "addressLine2",
+  addressLine3: "addressLine3",
+  addressLevel1: "addressLevel1",
+  addressLevel2: "addressLevel2",
+  addressLevel3: "addressLevel3",
+  addressLevel4: "addressLevel4",
+  postalCode: "postalCode",
+  country: "country",
+
+  // Birthdate
+  birthdate: "birthdate",
+  birthdateDay: "birthdateDay",
+  birthdateMonth: "birthdateMonth",
+  birthdateYear: "birthdateYear",
+
+  // Payment card
+  cardholderName: "cardholderName",
+  cardNumber: "cardNumber",
+  cardExpirationDate: "cardExpirationDate",
+  cardExpirationMonth: "cardExpirationMonth",
+  cardExpirationYear: "cardExpirationYear",
+  cardCvv: "cardCvv",
+  cardType: "cardType",
+
+  // Consent
+  consentTerms: "consentTerms",
+  consentPrivacy: "consentPrivacy",
+  consentUser: "consentUser",
+
+  // Search
+  searchTerm: "searchTerm",
+} as const;
+
+export const FormPurposeCategories = {
+  AccountCreation: "account-creation",
+  AccountLogin: "account-login",
+  AccountRecovery: "account-recovery",
+  AccountUpdate: "account-update",
+  Address: "address",
+  Identity: "identity",
+  PaymentCard: "payment-card",
+  Search: "search",
+  Signup: "signup",
+} as const;
 
 export * from "./match-patterns";

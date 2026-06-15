@@ -7,19 +7,21 @@ import { HttpStatusCode } from "../../../enums";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
 import { Utils } from "../../../platform/misc/utils";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
 import { PolicyApiServiceAbstraction } from "../../abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Policy } from "../../models/domain/policy";
-import { PolicyRequest } from "../../models/request/policy.request";
+import { SavePolicyRequest } from "../../models/request/save-policy.request";
 import { PolicyStatusResponse } from "../../models/response/policy-status.response";
 import { PolicyResponse } from "../../models/response/policy.response";
 
 export class PolicyApiService implements PolicyApiServiceAbstraction {
   constructor(
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     private apiService: ApiService,
     private accountService: AccountService,
   ) {}
@@ -64,6 +66,17 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
         "&organizationUserId=" +
         organizationUserId,
       null,
+      false,
+      true,
+    );
+    return Policy.fromListResponse(new ListResponse(r, PolicyResponse));
+  }
+
+  async getPoliciesByInviteLinkCode(code: string): Promise<Policy[] | undefined> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/invite-link/policies",
+      { code },
       false,
       true,
     );
@@ -116,26 +129,18 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
     }
   }
 
-  async putPolicy(organizationId: string, type: PolicyType, request: PolicyRequest): Promise<any> {
+  async putPolicy(
+    organizationId: string,
+    type: PolicyType,
+    request: SavePolicyRequest,
+  ): Promise<any> {
     const response = await this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/policies/" + type,
+      `/organizations/${organizationId}/policies/${type}`,
       request,
       true,
       true,
     );
-    await this.handleResponse(response);
-  }
-
-  async putPolicyVNext(organizationId: string, type: PolicyType, request: any): Promise<any> {
-    const response = await this.apiService.send(
-      "PUT",
-      `/organizations/${organizationId}/policies/${type}/vnext`,
-      request,
-      true,
-      true,
-    );
-
     await this.handleResponse(response);
   }
 
@@ -144,5 +149,6 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
     const policyResponse = new PolicyResponse(response);
     const data = new PolicyData(policyResponse);
     await this.policyService.upsert(data, userId);
+    await this.newPolicyService.upsert(data, userId);
   }
 }

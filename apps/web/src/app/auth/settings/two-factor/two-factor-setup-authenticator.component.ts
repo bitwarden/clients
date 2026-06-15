@@ -29,6 +29,7 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  IconModule,
   SvgModule,
   InputModule,
   LinkModule,
@@ -63,6 +64,7 @@ declare global {
     ReactiveFormsModule,
     DialogModule,
     FormFieldModule,
+    IconModule,
     InputModule,
     LinkModule,
     TypographyModule,
@@ -145,7 +147,7 @@ export class TwoFactorSetupAuthenticatorComponent
     }
     if (this.enabled) {
       await this.disableMethod();
-      this.dialogRef.close(this.enabled);
+      await this.dialogRef.close(this.enabled);
     } else {
       await this.enable();
     }

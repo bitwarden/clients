@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
@@ -12,7 +10,6 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -20,7 +17,6 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -35,6 +31,17 @@ import {
 } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
+
+export type RecoverAccountRequest = {
+  organizationUserId: string;
+  organizationId: OrganizationId;
+  resetMasterPassword: boolean;
+  resetTwoFactor: boolean;
+  /** Required when resetMasterPassword is true */
+  newMasterPassword?: string;
+  /** Required when resetMasterPassword is true */
+  email?: string;
+};
 
 @Injectable({
   providedIn: "root",
@@ -52,7 +59,6 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     private i18nService: I18nService,
     private accountService: AccountService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -66,7 +72,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString> {
+  ): Promise<EncryptedString | undefined> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -81,7 +87,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
 
     if (
       !trustedPublicKeys.some(
-        (key) => Utils.fromBufferToHex(key) === Utils.fromBufferToHex(publicKey),
+        (key) => Utils.fromArrayToHex(key) === Utils.fromArrayToHex(publicKey),
       )
     ) {
       throw new Error("Untrusted public key");
@@ -94,12 +100,72 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
   }
 
   /**
+   * Recovers an organization user's account by optionally resetting their master password
+   * and/or two-step login.
+   */
+  async recoverAccount(request: RecoverAccountRequest): Promise<void> {
+    let newMasterPasswordHash: string | undefined;
+    let key: string | undefined;
+
+    if (request.resetMasterPassword) {
+      const newMasterPassword = request.newMasterPassword;
+      if (Utils.isNullOrWhitespace(newMasterPassword) || newMasterPassword == undefined) {
+        throw new Error(this.i18nService.t("resetPasswordNewPasswordRequired"));
+      }
+
+      const email = request.email;
+      if (Utils.isNullOrWhitespace(email) || email == undefined) {
+        throw new Error(this.i18nService.t("emailRequired"));
+      }
+
+      const resetPasswordDetails =
+        await this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
+          request.organizationId,
+          request.organizationUserId,
+        );
+
+      if (resetPasswordDetails == null) {
+        throw new Error(this.i18nService.t("resetPasswordDetailsError"));
+      }
+
+      const kdfConfig = this.buildKdfConfig(resetPasswordDetails);
+      const existingUserKey = await this.decryptUserKey(
+        resetPasswordDetails,
+        request.organizationId,
+      );
+      // Prefer server-provided salt; fallback to normalized email for legacy servers
+      // that don't yet return MasterPasswordSalt in the account-recovery details response.
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3) we will no longer fall back to email.
+      const salt: MasterPasswordSalt =
+        typeof resetPasswordDetails.masterPasswordSalt === "string"
+          ? (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt)
+          : this.masterPasswordService.emailToSalt(email);
+
+      ({ newMasterPasswordHash, key } = await this.buildResetPasswordRequest(
+        newMasterPassword,
+        salt,
+        kdfConfig,
+        existingUserKey,
+      ));
+    }
+
+    await this.organizationUserApiService.putOrganizationUserRecoverAccount(
+      request.organizationId,
+      request.organizationUserId,
+      new OrganizationUserResetPasswordRequest(
+        request.resetMasterPassword,
+        request.resetTwoFactor,
+        newMasterPasswordHash,
+        key,
+      ),
+    );
+  }
+
+  /**
    * Sets a user's master password through account recovery.
-   * Intended for organization admins
-   * @param newMasterPassword user's new master password
-   * @param email user's email
-   * @param orgUserId organization user's id
-   * @param orgId organization id
+   * Intended for organization admins.
+   *
+   * @deprecated Use `recoverAccount` instead.
    */
   async resetMasterPassword(
     newMasterPassword: string,
@@ -107,108 +173,14 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgUserId: string,
     orgId: OrganizationId,
   ): Promise<void> {
-    const response = await this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
-      orgId,
-      orgUserId,
-    );
-
-    if (response == null) {
-      throw new Error(this.i18nService.t("resetPasswordDetailsError"));
-    }
-
-    // Decrypt Organization's encrypted Private Key with org key
-    const orgSymKey = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.keyService.orgKeys$(userId)),
-        map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null),
-      ),
-    );
-
-    if (orgSymKey == null) {
-      throw new Error("No org key found");
-    }
-    const decPrivateKey = await this.encryptService.unwrapDecapsulationKey(
-      new EncString(response.encryptedPrivateKey),
-      orgSymKey,
-    );
-
-    // Decrypt User's Reset Password Key to get UserKey
-    const userKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.resetPasswordKey),
-      decPrivateKey,
-    );
-    const existingUserKey = userKey as UserKey;
-
-    // determine Kdf Algorithm
-    const kdfConfig: KdfConfig =
-      response.kdf === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(response.kdfIterations)
-        : new Argon2KdfConfig(response.kdfIterations, response.kdfMemory, response.kdfParallelism);
-
-    const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-    );
-
-    if (newApisWithInputPasswordFlagEnabled) {
-      const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
-
-      // Create authentication and unlock data
-      const authenticationData =
-        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-          newMasterPassword,
-          kdfConfig,
-          salt,
-        );
-
-      const unlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
-        newMasterPassword,
-        kdfConfig,
-        salt,
-        existingUserKey,
-      );
-
-      // Create request
-      const request = OrganizationUserResetPasswordRequest.newConstructor(
-        authenticationData,
-        unlockData,
-      );
-
-      // Change user's password
-      await this.organizationUserApiService.putOrganizationUserResetPassword(
-        orgId,
-        orgUserId,
-        request,
-      );
-
-      return; // EARLY RETURN for flagged code
-    }
-
-    // Create new master key and hash new password
-    const newMasterKey = await this.keyService.makeMasterKey(
+    return this.recoverAccount({
+      organizationUserId: orgUserId,
+      organizationId: orgId,
+      resetMasterPassword: true,
+      resetTwoFactor: false,
       newMasterPassword,
-      email.trim().toLowerCase(),
-      kdfConfig,
-    );
-    const newMasterKeyHash = await this.keyService.hashMasterKey(newMasterPassword, newMasterKey);
-
-    // Create new encrypted user key for the User
-    const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      existingUserKey,
-    );
-
-    // Create request
-    const request = new OrganizationUserResetPasswordRequest();
-    request.key = newUserKey[1].encryptedString;
-    request.newMasterPasswordHash = newMasterKeyHash;
-
-    // Change user's password
-    await this.organizationUserApiService.putOrganizationUserResetPassword(
-      orgId,
-      orgUserId,
-      request,
-    );
+      email,
+    });
   }
 
   async getPublicKeys(userId: UserId): Promise<OrganizationUserResetPasswordEntry[]> {
@@ -238,7 +210,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     newUserKey: UserKey,
     trustedPublicKeys: Uint8Array[],
     userId: UserId,
-  ): Promise<OrganizationUserResetPasswordWithIdRequest[] | null> {
+  ): Promise<OrganizationUserResetPasswordWithIdRequest[]> {
     if (newUserKey == null) {
       throw new Error("New user key is required for rotation.");
     }
@@ -259,13 +231,90 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey, trustedPublicKeys);
 
       // Create/Execute request
-      const request = new OrganizationUserResetPasswordWithIdRequest();
-      request.organizationId = org.id;
+      const request = new OrganizationUserResetPasswordWithIdRequest(org.id);
       request.resetPasswordKey = encryptedKey;
       request.masterPasswordHash = "ignored";
 
       requests.push(request);
     }
     return requests;
+  }
+
+  /** Constructs the appropriate KDF config from reset password details response. */
+  private buildKdfConfig(response: {
+    kdf: KdfType;
+    kdfIterations: number;
+    kdfMemory?: number;
+    kdfParallelism?: number;
+  }): KdfConfig {
+    switch (response.kdf) {
+      case KdfType.PBKDF2_SHA256:
+        return new PBKDF2KdfConfig(response.kdfIterations);
+      case KdfType.Argon2id:
+        if (response.kdfMemory == null || response.kdfParallelism == null) {
+          throw new Error("Invalid KDF configuration");
+        }
+        return new Argon2KdfConfig(
+          response.kdfIterations,
+          response.kdfMemory,
+          response.kdfParallelism,
+        );
+      default:
+        throw new Error("Unsupported KDF type");
+    }
+  }
+
+  /** Decrypts the user's UserKey using the organization's private key and the stored reset password key. */
+  private async decryptUserKey(
+    response: { encryptedPrivateKey: string; resetPasswordKey: string },
+    orgId: OrganizationId,
+  ): Promise<UserKey> {
+    const orgSymKey = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+        map((orgKeys) => orgKeys?.[orgId as OrganizationId] ?? null),
+      ),
+    );
+
+    if (orgSymKey == null) {
+      throw new Error("No org key found");
+    }
+
+    const decPrivateKey = await this.encryptService.unwrapDecapsulationKey(
+      new EncString(response.encryptedPrivateKey),
+      orgSymKey,
+    );
+
+    return (await this.encryptService.decapsulateKeyUnsigned(
+      new EncString(response.resetPasswordKey),
+      decPrivateKey,
+    )) as UserKey;
+  }
+
+  private async buildResetPasswordRequest(
+    newMasterPassword: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+    existingUserKey: UserKey,
+  ): Promise<Pick<OrganizationUserResetPasswordRequest, "newMasterPasswordHash" | "key">> {
+    const authenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newMasterPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      newMasterPassword,
+      kdfConfig,
+      salt,
+      existingUserKey,
+    );
+
+    return {
+      newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+      key: unlockData.masterKeyWrappedUserKey,
+    };
   }
 }

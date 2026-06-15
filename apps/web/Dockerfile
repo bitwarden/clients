@@ -9,16 +9,21 @@ COPY package*.json ./
 COPY . .
 RUN npm ci
 
-# Remove commercial packages if LICENSE_TYPE is not 'commercial'
-ARG LICENSE_TYPE=oss
-RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \
-      rm -rf node_modules/@bitwarden/commercial-sdk-internal ; \
-    fi
-
 # Override SDK if custom artifacts are present
 RUN if [ -d "sdk-internal" ]; then \
       echo "Overriding SDK with custom artifacts from sdk-internal" ; \
       npm link ./sdk-internal ; \
+    fi
+
+RUN if [ -d "commercial-sdk-internal" ]; then \
+      echo "Overriding Commercial SDK with custom artifacts from commercial-sdk-internal" ; \
+      npm link ./commercial-sdk-internal ; \
+    fi
+
+# Remove commercial packages if LICENSE_TYPE is not 'commercial'
+ARG LICENSE_TYPE=oss
+RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \
+      rm -rf node_modules/@bitwarden/commercial-sdk-internal ; \
     fi
 
 WORKDIR /source/apps/web
@@ -28,7 +33,7 @@ RUN npm run ${NPM_COMMAND}
 ###############################################
 #                Build stage 2                #
 ###############################################
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.21 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23 AS build
 
 # Docker buildx supplies the value for this arg
 ARG TARGETPLATFORM
@@ -68,7 +73,7 @@ WORKDIR /app
 ###############################################
 #                  App stage                  #
 ###############################################
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.21
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23
 
 ARG TARGETPLATFORM
 LABEL com.bitwarden.product="bitwarden"

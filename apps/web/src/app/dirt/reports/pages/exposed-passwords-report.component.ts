@@ -9,8 +9,11 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -64,12 +67,14 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     this.filterStatus = [0];
 
     allCiphers.forEach((ciph) => {
-      const { type, login, isDeleted } = ciph;
+      const { type, login, isDeleted, edit, viewPassword } = ciph;
       if (
         type !== CipherType.Login ||
         login.password == null ||
         login.password === "" ||
-        isDeleted
+        isDeleted ||
+        (!this.organization && !edit) ||
+        !viewPassword
       ) {
         return;
       }
