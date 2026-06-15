@@ -14258,6 +14258,9 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$"
+  },
   "coachmarkStepIndicator": {
     "message": "Step $CURRENT$ of $TOTAL$",
     "placeholders": {
