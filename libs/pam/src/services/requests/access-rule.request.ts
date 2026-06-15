@@ -1,17 +1,15 @@
-import { AccessCondition, AccessConditionTree } from "../../abstractions/access-rule";
+import { AccessCondition } from "../../abstractions/access-rule";
 import { AccessRuleResponse } from "../../abstractions/responses/access-rule.response";
 
 export class AccessRuleRequest {
   name: string;
   description: string | null;
   /**
-   * Server-required conditions document: a single AccessCondition tree.
-   * Derived from the UI's flat condition list so the UI doesn't need to
-   * maintain both shapes: each condition maps to a leaf, multiple conditions
-   * are wrapped in an `all_of`, and zero conditions collapse to an empty
-   * `all_of` (a no-op gate, which the server accepts).
+   * Server-required conditions document: a flat list of conditions, ANDed together. UI-only fields
+   * (such as `approvers`) are dropped so each entry matches the server's leaf shape. Zero conditions
+   * is a valid no-op gate.
    */
-  conditions: AccessConditionTree;
+  conditions: AccessCondition[];
   collections: string[];
   /** Default lease duration in seconds. Null = backend default. */
   defaultLeaseDurationSeconds: number | null;
@@ -44,7 +42,7 @@ export class AccessRuleRequest {
   }) {
     this.name = init.name;
     this.description = init.description ?? null;
-    this.conditions = conditionsToTree(init.conditions);
+    this.conditions = init.conditions.map(toWireCondition);
     this.collections = init.collections ?? [];
     this.defaultLeaseDurationSeconds = init.defaultLeaseDurationSeconds ?? null;
     this.maxLeaseDurationSeconds = init.maxLeaseDurationSeconds ?? null;
@@ -72,18 +70,12 @@ export function accessRuleToRequest(rule: AccessRuleResponse, enabled: boolean):
   });
 }
 
-function conditionToTree(condition: AccessCondition): AccessConditionTree {
+/** Map a UI condition to the server's leaf shape, dropping UI-only fields (e.g. approvers). */
+function toWireCondition(condition: AccessCondition): AccessCondition {
   switch (condition.kind) {
     case "human_approval":
       return { kind: "human_approval" };
     case "ip_allowlist":
       return { kind: "ip_allowlist", cidrs: condition.cidrs };
   }
-}
-
-function conditionsToTree(conditions: AccessCondition[]): AccessConditionTree {
-  if (conditions.length === 1) {
-    return conditionToTree(conditions[0]);
-  }
-  return { kind: "all_of", conditions: conditions.map(conditionToTree) };
 }

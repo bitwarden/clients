@@ -57,6 +57,10 @@ export function parseAccessCondition(json: unknown): AccessCondition {
   }
 }
 
+/**
+ * Parse the server's conditions document — a flat array of conditions ANDed together — into the UI's
+ * `AccessCondition[]`. A null/undefined value yields an empty list; any non-array value throws.
+ */
 export function parseAccessConditions(json: unknown): AccessCondition[] {
   if (json == null) {
     return [];
@@ -65,54 +69,4 @@ export function parseAccessConditions(json: unknown): AccessCondition[] {
     throw new Error("Invalid conditions: not an array");
   }
   return json.map(parseAccessCondition);
-}
-
-// Server-side conditions document shape: a single AccessCondition tree, not a
-// flat list. The UI still works in terms of `AccessCondition[]`;
-// AccessRuleRequest derives the tree from those conditions before sending.
-export type AccessConditionTree =
-  | { kind: "human_approval" }
-  | { kind: "ip_allowlist"; cidrs: string[] }
-  | { kind: "all_of"; conditions: AccessConditionTree[] };
-
-export function parseConditionTree(json: unknown): AccessConditionTree | null {
-  if (json == null || typeof json !== "object") {
-    return null;
-  }
-  const obj = json as Record<string, unknown>;
-  const kind = get(obj, "kind");
-  switch (kind) {
-    case ConditionKind.HumanApproval:
-      return { kind: "human_approval" };
-    case ConditionKind.IpAllowlist:
-      return { kind: "ip_allowlist", cidrs: (get(obj, "cidrs") as string[]) ?? [] };
-    case "all_of": {
-      const children = get(obj, "conditions");
-      const parsed = Array.isArray(children)
-        ? children.map(parseConditionTree).filter((c): c is AccessConditionTree => c != null)
-        : [];
-      return { kind: "all_of", conditions: parsed };
-    }
-    default:
-      return null;
-  }
-}
-
-/**
- * Flatten the server's condition tree back into the UI's `AccessCondition[]` —
- * the inverse of {@link AccessRuleRequest}'s `conditionsToTree`. The server
- * stores the tree, not the conditions list, so this reconstructs the list on
- * read. Note the tree carries no `approvers` (the forward mapping drops them),
- * so a reconstructed `human_approval` has no approvers — all the current UI
- * needs.
- */
-export function treeToConditions(tree: AccessConditionTree): AccessCondition[] {
-  switch (tree.kind) {
-    case "human_approval":
-      return [{ kind: "human_approval" }];
-    case "ip_allowlist":
-      return [{ kind: "ip_allowlist", cidrs: tree.cidrs }];
-    case "all_of":
-      return tree.conditions.flatMap(treeToConditions);
-  }
 }

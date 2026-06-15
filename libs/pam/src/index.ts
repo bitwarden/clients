@@ -1,12 +1,9 @@
 export {
   Approvers,
   AccessCondition,
-  AccessConditionTree,
   ConditionKind,
   parseAccessCondition,
   parseAccessConditions,
-  parseConditionTree,
-  treeToConditions,
 } from "./abstractions/access-rule";
 export { CipherAccessState, PamApiService } from "./abstractions/pam-api.service";
 export {
