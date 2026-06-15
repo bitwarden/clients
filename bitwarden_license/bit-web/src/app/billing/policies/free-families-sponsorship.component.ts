@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FormFieldModule } from "@bitwarden/components";
+import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   BasePolicyEditDefinition,
@@ -18,18 +18,16 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 60;
   component = FreeFamiliesSponsorshipPolicyComponent;
-  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "freeFamiliesSponsorshipPolicyTitleV2",
     description: "freeFamiliesSponsorshipPolicyDescV2",
-    labelKey: "enablePolicy",
   };
 }
 
 @Component({
   templateUrl: "free-families-sponsorship.component.html",
-  imports: [ReactiveFormsModule, FormFieldModule, I18nPipe],
+  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyEditComponent {}

@@ -13,7 +13,6 @@ export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 80;
   component = RemoveUnlockWithPinPolicyComponent;
-  hideCancelButton = true;
 }
 
 @Component({

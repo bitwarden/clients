@@ -5,7 +5,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FormFieldModule } from "@bitwarden/components";
+import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -20,12 +20,10 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   category = PolicyCategory.VaultManagement;
   priority = 70;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
-  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "desktopAutotypePolicyTitleV2",
     description: "desktopAutotypePolicyDescV2",
-    labelKey: "enablePolicy",
   };
 
   display$(organization: Organization, configService: ConfigService) {
@@ -36,7 +34,7 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
 @Component({
   selector: "autotype-policy-edit",
   templateUrl: "autotype-policy.component.html",
-  imports: [ReactiveFormsModule, FormFieldModule, I18nPipe],
+  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopAutotypeDefaultSettingPolicyComponent extends BasePolicyEditComponent {}

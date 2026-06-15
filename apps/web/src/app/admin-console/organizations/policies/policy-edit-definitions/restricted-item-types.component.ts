@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FormFieldModule } from "@bitwarden/components";
+import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -17,18 +17,16 @@ export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 50;
   component = RestrictedItemTypesPolicyComponent;
-  hideCancelButton = true;
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "restrictedItemTypePolicyDescV2",
-    labelKey: "enablePolicy",
   };
 }
 
 @Component({
   selector: "restricted-item-types-policy-edit",
   templateUrl: "restricted-item-types.component.html",
-  imports: [ReactiveFormsModule, FormFieldModule, I18nPipe],
+  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {

@@ -3,20 +3,26 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Inject,
   Signal,
   ViewContainerRef,
   WritableSignal,
   computed,
+  inject,
   signal,
   viewChild,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { map, of, startWith, switchMap } from "rxjs";
+import { filter, map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -50,6 +56,12 @@ export class MultiStepPolicyEditDialogComponent
     "policyForm",
     { read: ViewContainerRef },
   );
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly configService = inject(ConfigService);
+  private readonly authService = inject(AuthService);
+  private readonly accountService2 = inject(AccountService);
+  private readonly discardGuardEnabled = signal(false);
 
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
@@ -101,6 +113,72 @@ export class MultiStepPolicyEditDialogComponent
     );
   }
 
+  private isFormDirty(): boolean {
+    const component = this.policyComponent();
+    if (!component) {
+      return false;
+    }
+    return component.enabled.dirty || (component.data?.dirty ?? false);
+  }
+
+  private readonly discardDialogOptions = {
+    title: { key: "discardEditsTitle" },
+    content: { key: "discardEditsConfirmation" },
+    type: "danger" as const,
+    hideIcon: true,
+    acceptButtonText: { key: "discardEdits" },
+    cancelButtonText: { key: "backToEditing" },
+  };
+
+  private async setupDiscardGuard(): Promise<void> {
+    this.discardGuardEnabled.set(
+      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
+    );
+    if (!this.discardGuardEnabled()) {
+      return;
+    }
+
+    this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
+      if (result || !this.isFormDirty()) {
+        return true;
+      }
+      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+      if (confirmed) {
+        this.discardGuardEnabled.set(false);
+      }
+      return confirmed;
+    };
+
+    this.accountService2.activeAccount$
+      .pipe(
+        switchMap((account) => {
+          if (account?.id == null) {
+            return of(null);
+          }
+          return this.authService
+            .authStatusFor$(account.id)
+            .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.discardGuardEnabled.set(false);
+        this.dialogRef.closePredicate = undefined;
+      });
+  }
+
+  protected override readonly cancel = async () => {
+    if (!this.discardGuardEnabled() || !this.isFormDirty()) {
+      await this.dialogRef.close();
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+    if (confirmed) {
+      this.dialogRef.closePredicate = undefined;
+      await this.dialogRef.close();
+    }
+  };
+
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading.set(false);
@@ -122,6 +200,8 @@ export class MultiStepPolicyEditDialogComponent
     // Read step configuration from child component.
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
+
+    await this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {

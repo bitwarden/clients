@@ -89,7 +89,7 @@ export abstract class BasePolicyEditDefinition {
   warningKey?: string;
 
   /**
-   * When true, the cancel button is hidden in the drawer footer.
+   * @deprecated No longer read by the drawer template. The cancel button is always hidden in drawers.
    */
   hideCancelButton?: boolean;
 
@@ -113,8 +113,6 @@ export abstract class BasePolicyEditDefinition {
     prerequisiteLinkHref?: string;
     /** i18n key for the text of {@link prerequisiteLinkHref}. */
     prerequisiteLinkTextKey?: string;
-    /** i18n key for the switch label. Defaults to "turnOn" when not set. */
-    labelKey?: string;
   };
 
   /**
