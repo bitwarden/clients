@@ -14,21 +14,22 @@
 - **CRITICAL**: new encryption logic should not be added to this repo.
 - **NEVER** send unencrypted vault data to API services
 - **NEVER** commit secrets, credentials, or sensitive information.
-- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`).
-  - Missing prefix breaks styling completely.
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
 - **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
+- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`). Missing prefix means the class is ignored and styling silently breaks. See [.claude/rules/tailwind.md](./rules/tailwind.md) for additional Tailwind rules.
 
 ## Mono-Repo Architecture
 
 This repository is organized as a **monorepo** containing multiple applications and libraries. The
 main directories are:
 
-- `apps/` – Contains all application projects (e.g., browser, cli, desktop, web). Each app is
-  self-contained with its own configuration, source code, and tests.
-- `libs/` – Contains shared libraries and modules used across multiple apps. Libraries are organized
-  by team name, domain, functionality (e.g., common, ui, platform, key-management).
+- `apps/<client>/` — single-client code (browser, cli, desktop, web). Each app is self-contained.
+- `libs/common/` — code shared across **all** clients, including non-Angular (CLI). No Angular APIs here: no `@Injectable`, no `inject()`, no decorators, no template references.
+- `libs/angular/` — code shared across Angular clients (browser/desktop/web). Angular APIs allowed.
+- Other `libs/*` (e.g. `ui`, `platform`, `key-management`, `vault`) — domain-scoped, follow the same Angular / non-Angular split based on which clients consume them.
+
+When adding new code, place it as deep and as narrow as possible. Promote to a shared `libs/` only when a second client needs it.
 
 **Strict boundaries** must be maintained between apps and libraries. Do not introduce
 cross-dependencies that violate the intended modular structure. Always consult and respect the
