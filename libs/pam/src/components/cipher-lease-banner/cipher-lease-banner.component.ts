@@ -144,7 +144,6 @@ export class CipherLeaseBannerComponent implements OnInit {
   /** Whether the "Extend lease" fold-out is open, and whether a submit is in flight. */
   protected readonly extendFormExpanded = signal(false);
   protected readonly submittingExtension = signal(false);
-  protected readonly extendDurationOptions = LEASE_EXTENSION_DURATION_PRESETS;
 
   protected readonly automaticForm = this.fb.group({
     durationMinutes: this.fb.nonNullable.control<number>(60, {
@@ -203,10 +202,14 @@ export class CipherLeaseBannerComponent implements OnInit {
   protected readonly pendingRequest = computed(() => this.state().pendingRequest);
   protected readonly approvedRequest = computed(() => this.state().approvedRequest);
 
-  /** The active lease can be extended when its rule opts in and at least one extension remains. */
-  protected readonly canExtendLease = computed(
-    () => (this.state().extensionsAllowed ?? false) && (this.state().extensionsRemaining ?? 0) > 0,
-  );
+  /** The active lease can be extended when its rule opts in and it has not been extended yet. */
+  protected readonly canExtendLease = computed(() => this.state().extensionsAllowed ?? false);
+
+  /** Duration presets the member may pick, capped at the rule's maximum extension length. */
+  protected readonly extendDurationOptions = computed(() => {
+    const maxSeconds = this.state().maxExtensionDurationSeconds ?? 0;
+    return LEASE_EXTENSION_DURATION_PRESETS.filter((o) => o.minutes * 60 <= maxSeconds);
+  });
 
   /**
    * Show the "Request access" entry point when:
@@ -413,12 +416,18 @@ export class CipherLeaseBannerComponent implements OnInit {
     }
   };
 
-  /** Toggle the "Extend lease" fold-out, resetting the form to defaults when opening. */
+  /** Toggle the "Extend lease" fold-out, resetting the form (default duration within the rule's max) when opening. */
   protected toggleExtendForm(): void {
     const next = !this.extendFormExpanded();
     this.extendFormExpanded.set(next);
     if (next) {
-      this.extendForm.reset({ durationMinutes: 60, reason: "" });
+      const options = this.extendDurationOptions();
+      // Prefer 1h, else the largest allowed preset, so the default is always within the rule's cap.
+      const defaultMinutes =
+        options.find((o) => o.minutes === 60)?.minutes ??
+        options[options.length - 1]?.minutes ??
+        60;
+      this.extendForm.reset({ durationMinutes: defaultMinutes, reason: "" });
     }
   }
 

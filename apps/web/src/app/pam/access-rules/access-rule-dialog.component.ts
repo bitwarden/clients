@@ -64,8 +64,17 @@ const NAME_MAX_LENGTH = 256;
 /** The "no maximum" option in the max-duration picker; never constrains the default. */
 const NO_DURATION_CAP = 0;
 
-/** Default number of extensions offered when a rule first enables them. */
-const DEFAULT_MAX_EXTENSIONS = 1;
+/** Admin-selectable maximum extension lengths, in seconds (30m–8h). */
+const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
+  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
+  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
+  { seconds: 2 * 60 * 60, labelKey: "pamAccessRuleDuration2h" },
+  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
+  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+];
+
+/** Default maximum extension length offered when a rule first enables extensions (1h). */
+const DEFAULT_MAX_EXTENSION_DURATION_SECONDS = 60 * 60;
 
 @Component({
   templateUrl: "./access-rule-dialog.component.html",
@@ -96,6 +105,7 @@ export class AccessRuleDialogComponent implements OnInit {
 
   protected readonly editing = this.data.existing != null;
   protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
+  protected readonly extensionDurationOptions = EXTENSION_DURATION_OPTIONS;
   protected readonly noDurationCap = NO_DURATION_CAP;
 
   protected readonly initialCidrs = findCidrs(this.data.existing?.conditions ?? []);
@@ -122,10 +132,9 @@ export class AccessRuleDialogComponent implements OnInit {
     ],
     enabled: [this.data.existing?.enabled ?? true],
     allowsExtensions: [this.data.existing?.allowsExtensions ?? false],
-    // Only meaningful when allowsExtensions is on; the server requires a positive value in that case.
-    maxExtensions: [
-      this.data.existing?.maxExtensions ?? DEFAULT_MAX_EXTENSIONS,
-      [Validators.min(1)],
+    // Only meaningful when allowsExtensions is on; the longest a single extension may run.
+    maxExtensionDurationSeconds: [
+      this.data.existing?.maxExtensionDurationSeconds ?? DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
     ],
     humanApprovalEnabled: [
       hasKind(this.data.existing?.conditions, "human_approval") ||
@@ -236,7 +245,9 @@ export class AccessRuleDialogComponent implements OnInit {
       singleActiveLease: value.singleActiveLease,
       enabled: value.enabled,
       allowsExtensions: value.allowsExtensions,
-      maxExtensions: value.allowsExtensions ? value.maxExtensions : null,
+      maxExtensionDurationSeconds: value.allowsExtensions
+        ? value.maxExtensionDurationSeconds
+        : null,
     });
 
     try {

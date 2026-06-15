@@ -90,9 +90,13 @@
 
     @if (formGroup.controls.allowsExtensions.value) {
       <bit-form-field class="tw-ml-7">
-        <bit-label>{{ "pamAccessRuleMaxExtensions" | i18n }}</bit-label>
-        <input bitInput type="number" min="1" step="1" formControlName="maxExtensions" />
-        <bit-hint>{{ "pamAccessRuleMaxExtensionsHint" | i18n }}</bit-hint>
+        <bit-label>{{ "pamAccessRuleMaxExtensionLength" | i18n }}</bit-label>
+        <select bitInput formControlName="maxExtensionDurationSeconds">
+          @for (opt of extensionDurationOptions; track opt.seconds) {
+            <option [ngValue]="opt.seconds">{{ opt.labelKey | i18n }}</option>
+          }
+        </select>
+        <bit-hint>{{ "pamAccessRuleMaxExtensionLengthHint" | i18n }}</bit-hint>
       </bit-form-field>
     }
 

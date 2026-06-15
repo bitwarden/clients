@@ -29,10 +29,10 @@ export type CipherAccessState = {
    * (activation) rather than creating a duplicate request.
    */
   approvedRequest?: AccessRequestDetailsResponse;
-  /** Whether the active lease may be extended (its rule opts in and the per-lease maximum is not yet reached). */
+  /** Whether the active lease can still be extended (its rule opts in and it has not been extended yet). */
   extensionsAllowed?: boolean;
-  /** How many extensions remain for the active lease. */
-  extensionsRemaining?: number;
+  /** Longest a single extension of the active lease may run, in seconds. */
+  maxExtensionDurationSeconds?: number;
 };
 
 export abstract class PamApiService {

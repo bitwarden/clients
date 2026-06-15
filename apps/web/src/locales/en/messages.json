@@ -14542,6 +14542,9 @@
   "pamAccessRuleDuration1h": {
     "message": "1 hour"
   },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hours"
+  },
   "pamAccessRuleDuration4h": {
     "message": "4 hours"
   },
@@ -14564,13 +14567,13 @@
     "message": "Allow lease extensions"
   },
   "pamAccessRuleAllowExtensionsHint": {
-    "message": "Members can extend an active lease without a new approval, up to the maximum below."
+    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
   },
-  "pamAccessRuleMaxExtensions": {
-    "message": "Maximum extensions"
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximum extension length"
   },
-  "pamAccessRuleMaxExtensionsHint": {
-    "message": "How many times a single lease may be extended."
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "The longest a single extension may run."
   },
   "pamAccessRuleConditionsHeading": {
     "message": "Access conditions"
