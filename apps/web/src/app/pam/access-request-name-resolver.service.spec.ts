@@ -96,4 +96,30 @@ describe("AccessRequestNameResolver", () => {
     expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
     expect(collectionService.decryptedCollections$).not.toHaveBeenCalled();
   });
+
+  describe("namesFor", () => {
+    it("returns lookup maps for arbitrary cipher/collection refs", async () => {
+      cipherService.getAllDecryptedForIds.mockResolvedValue([
+        Object.assign(new CipherView(), { id: "cipher-1", name: "Prod DB" }),
+      ]);
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]),
+      );
+
+      const { cipherNameById, collectionNameById } = await resolver.namesFor([
+        { cipherId: "cipher-1", collectionId: "col-1" },
+      ]);
+
+      expect(cipherNameById.get("cipher-1")).toBe("Prod DB");
+      expect(collectionNameById.get("col-1")).toBe("Production");
+    });
+
+    it("returns empty maps and touches no services for an empty list", async () => {
+      const { cipherNameById, collectionNameById } = await resolver.namesFor([]);
+
+      expect(cipherNameById.size).toBe(0);
+      expect(collectionNameById.size).toBe(0);
+      expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
+    });
+  });
 });

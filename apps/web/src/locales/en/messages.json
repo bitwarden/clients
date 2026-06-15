@@ -15426,5 +15426,65 @@
         "example": "2025-06-15 14:00"
       }
     }
+  },
+  "pamTabApprovals": {
+    "message": "Approvals"
+  },
+  "pamTabMyRequests": {
+    "message": "My requests"
+  },
+  "pamTabAuditLog": {
+    "message": "Audit log"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Requester"
+  },
+  "pamApprovalsDensityLabel": {
+    "message": "Row density"
+  },
+  "pamApprovalsDensityComfortable": {
+    "message": "Comfortable"
+  },
+  "pamApprovalsDensityCompact": {
+    "message": "Compact"
+  },
+  "pamApprovalsPendingHeader": {
+    "message": "Pending approval $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamMyLeasesActiveSection": {
+    "message": "Active leases"
+  },
+  "pamMyLeasesActiveEmpty": {
+    "message": "No active leases"
+  },
+  "pamMyRequestsHistorySection": {
+    "message": "History"
+  },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "No request history"
+  },
+  "pamColumnRemaining": {
+    "message": "Remaining"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Approve access request"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Deny access request"
+  },
+  "pamDecideCommentHint": {
+    "message": "Optional · saved to the audit log"
   }
 }

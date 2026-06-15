@@ -1,0 +1,90 @@
+<bit-dialog [title]="(isApprove ? 'pamDecideApproveTitle' : 'pamDecideDenyTitle') | i18n">
+  <ng-container bitDialogContent>
+    <!-- Request summary -->
+    <div class="tw-rounded-lg tw-border tw-border-solid tw-border-secondary-300 tw-p-4">
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <!-- TODO(PM-follow-up): brand favicons require resolution from the gated CipherView in
+             local vault; use a generic credential icon for now. -->
+        <div
+          class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-lg tw-bg-secondary-100 tw-text-muted"
+        >
+          <bit-icon name="bwi-key" [fixedWidth]="true"></bit-icon>
+        </div>
+        <div class="tw-min-w-0">
+          <div bitTypography="body1" class="tw-font-semibold">{{ cipherName }}</div>
+          @if (collectionName) {
+            <div class="tw-text-sm tw-text-muted">
+              {{ "pamInboxInCollection" | i18n: collectionName }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <dl class="tw-mb-0 tw-mt-4 tw-grid tw-grid-cols-[auto_1fr] tw-gap-x-6 tw-gap-y-2 tw-text-sm">
+        <dt class="tw-font-normal tw-text-muted">{{ "pamInboxRequester" | i18n }}</dt>
+        <dd class="tw-m-0 tw-text-main">
+          @if (requesterName) {
+            {{ requesterName }}
+            @if (requesterEmail) {
+              <span class="tw-text-muted">&lt;{{ requesterEmail }}&gt;</span>
+            }
+          } @else {
+            {{ requesterEmail }}
+          }
+        </dd>
+
+        <dt class="tw-font-normal tw-text-muted">{{ "window" | i18n }}</dt>
+        <dd class="tw-m-0 tw-text-main">
+          {{ duration.key | i18n: duration.value }}
+          <span class="tw-text-muted">·</span>
+          {{ start.key | i18n: start.value }}
+        </dd>
+
+        <dt class="tw-font-normal tw-text-muted">{{ "pamInboxReason" | i18n }}</dt>
+        <dd class="tw-m-0 tw-text-main">
+          @if (reason) {
+            <span class="tw-italic">&ldquo;{{ reason }}&rdquo;</span>
+          } @else {
+            <span class="tw-italic tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+          }
+        </dd>
+      </dl>
+    </div>
+
+    <!-- Comment -->
+    <div class="tw-mt-6">
+      <label bitTypography="h6" class="tw-mb-0 tw-block" for="pam-decide-dialog_input_comment">
+        {{ "pamInboxCommentLabel" | i18n }}
+      </label>
+      <p class="tw-mb-2 tw-mt-0 tw-text-sm tw-text-muted">{{ "pamDecideCommentHint" | i18n }}</p>
+      <textarea
+        bitInput
+        rows="4"
+        id="pam-decide-dialog_input_comment"
+        class="tw-w-full tw-resize-none"
+        [formControl]="commentControl"
+        [placeholder]="'pamInboxCommentPlaceholder' | i18n"
+      ></textarea>
+    </div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      [buttonType]="isApprove ? 'primary' : 'danger'"
+      (click)="confirm()"
+      id="pam-decide-dialog_button_confirm"
+    >
+      {{ (isApprove ? "pamInboxApprove" : "pamInboxDeny") | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="cancel()"
+      id="pam-decide-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

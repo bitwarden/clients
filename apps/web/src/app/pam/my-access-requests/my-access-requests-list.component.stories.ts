@@ -4,11 +4,17 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
+import {
+  AccessLeaseResponse,
+  AccessRequestDetailsResponse,
+  AccessRequestStatus,
+  PamApiService,
+} from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { MyAccessRequestsListComponent } from "./my-access-requests-list.component";
+import { MyAccessRequestsService } from "./my-access-requests.service";
 
 /** Readable names for the gated ciphers, keyed by the `cipher-<id>` the fixtures request. */
 const CIPHER_NAMES: Record<string, string> = {
@@ -53,13 +59,18 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
   });
 }
 
-function pamApi(responses: AccessRequestDetailsResponse[]): PamApiService {
+function pamApi(
+  responses: AccessRequestDetailsResponse[],
+  leases: AccessLeaseResponse[] = [],
+): PamApiService {
   return {
     cancelAccessRequest: () => Promise.resolve(),
     requestLeaseExtension: () => Promise.reject(new Error("not implemented")),
     decideAccessRequest: () => Promise.reject(new Error("not implemented")),
     revokeAccessLease: () => Promise.resolve(),
+    activateLease: () => Promise.reject(new Error("not implemented")),
     listMyAccessRequests: () => Promise.resolve(responses),
+    listActiveLeases: () => Promise.resolve(leases),
   } as unknown as PamApiService;
 }
 
@@ -72,6 +83,12 @@ function nameResolver(): AccessRequestNameResolver {
         row.collectionName = "Production";
       });
     },
+    namesFor: async (refs: ReadonlyArray<{ cipherId: string; collectionId: string }>) => ({
+      cipherNameById: new Map(
+        refs.map((r) => [r.cipherId, CIPHER_NAMES[r.cipherId] ?? r.cipherId]),
+      ),
+      collectionNameById: new Map(refs.map((r) => [r.collectionId, "Production"])),
+    }),
   } as unknown as AccessRequestNameResolver;
 }
 
@@ -107,18 +124,30 @@ const i18nMock = () =>
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
     pamWindowTtlSeconds: "__$1__s",
+    window: "Window",
+    pamMyLeasesActiveSection: "Active leases",
+    pamMyLeasesActiveEmpty: "No active leases",
+    pamMyRequestsHistorySection: "History",
+    pamMyRequestsHistoryEmpty: "No request history",
+    pamColumnRemaining: "Remaining",
+    pamStartLeaseButton: "Start access",
+    pamActivateWithin: "Activate within __$1__",
     actions: "Actions",
   });
 
-const withFixtures = (responses: AccessRequestDetailsResponse[]) => ({
+const withFixtures = (
+  responses: AccessRequestDetailsResponse[],
+  leases: AccessLeaseResponse[] = [],
+) => ({
   decorators: [
     applicationConfig({
       providers: [provideNoopAnimations()],
     }),
     moduleMetadata({
       providers: [
+        MyAccessRequestsService,
         { provide: I18nService, useFactory: i18nMock },
-        { provide: PamApiService, useValue: pamApi(responses) },
+        { provide: PamApiService, useValue: pamApi(responses, leases) },
         { provide: AccessRequestNameResolver, useValue: nameResolver() },
         {
           provide: ToastService,
@@ -211,4 +240,31 @@ export const Mixed: Story = {
       approverId: null,
     }),
   ]),
+};
+
+function makeLease(id: string, cipherId: string): AccessLeaseResponse {
+  return new AccessLeaseResponse({
+    Id: id,
+    RequestId: `req-${id}`,
+    CipherId: cipherId,
+    CollectionId: "col-1",
+    GranteeUserId: "me",
+    NotBefore: new Date(now - oneHour).toISOString(),
+    NotAfter: new Date(now + 2 * oneHour).toISOString(),
+    Status: "active",
+  });
+}
+
+export const WithActiveLeases: Story = {
+  ...withFixtures(
+    [
+      makeResponse({
+        id: "p1",
+        status: "pending",
+        submittedAt: new Date(now - oneHour).toISOString(),
+        requestedNotAfter: new Date(now + 4 * oneHour).toISOString(),
+      }),
+    ],
+    [makeLease("lease-1", "cipher-r1"), makeLease("lease-2", "cipher-p2")],
+  ),
 };
