@@ -1,5 +1,4 @@
 import { Injectable, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -10,10 +9,7 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
-import {
-  AccessRequestNameResolver,
-  fillCollectionNames,
-} from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { LeaseRow, MyRequestRow, toLeaseRow, toRow } from "./my-request-row";
 
@@ -36,12 +32,19 @@ export class MyAccessRequestsService {
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   private readonly _cipherById$ = new BehaviorSubject<Map<string, CipherView>>(new Map());
 
-  /** Raw responses with names resolved — the audit log needs the response shape for bucketing. */
-  readonly responses$: Observable<AccessRequestDetailsResponse[]> = this._responses$.asObservable();
-  readonly rows$: Observable<MyRequestRow[]> = this._responses$.pipe(
+  /**
+   * Collection names are resolved reactively (see {@link AccessRequestNameResolver.applyCollectionNames$}):
+   * they back-fill when local collection state warms up, whether that happens before or after the
+   * load populates the rows. Cipher names + favicons come from the one-shot load path below.
+   *
+   * Raw responses (names applied) — the audit log needs the response shape for bucketing.
+   */
+  readonly responses$: Observable<AccessRequestDetailsResponse[]> =
+    this.nameResolver.applyCollectionNames$(this._responses$);
+  readonly rows$: Observable<MyRequestRow[]> = this.responses$.pipe(
     map((responses) => responses.map((r) => toRow(r))),
   );
-  readonly leases$: Observable<LeaseRow[]> = this._leases$.asObservable();
+  readonly leases$: Observable<LeaseRow[]> = this.nameResolver.applyCollectionNames$(this._leases$);
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   /**
    * Decrypted views for every gated cipher referenced by a request or lease, keyed by id.
@@ -53,16 +56,6 @@ export class MyAccessRequestsService {
     map((responses) => responses.filter((r) => r.status === AccessRequestStatus.Pending).length),
     distinctUntilChanged(),
   );
-
-  constructor() {
-    // Collection names come from local collection state, which may not be warm when the page first
-    // loads (cipher names resolve on demand; collection names do not). Re-apply them whenever that
-    // state emits, so they fill in without the user opening the vault.
-    this.nameResolver
-      .collectionNames$()
-      .pipe(takeUntilDestroyed())
-      .subscribe((names) => this.applyCollectionNames(names));
-  }
 
   /** Fetch the caller's requests + active leases, resolve display names, replace local state. */
   async load(): Promise<void> {
@@ -126,17 +119,5 @@ export class MyAccessRequestsService {
     const lease = await this.pamApi.activateLease(id);
     await this.load();
     return lease;
-  }
-
-  /** Fill collection names on the held requests + leases from the latest collection-state snapshot. */
-  private applyCollectionNames(names: Map<string, string>): void {
-    const responses = this._responses$.value;
-    if (fillCollectionNames(responses, names)) {
-      this._responses$.next([...responses]);
-    }
-    const leases = this._leases$.value;
-    if (fillCollectionNames(leases, names)) {
-      this._leases$.next([...leases]);
-    }
   }
 }

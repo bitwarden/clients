@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -46,7 +46,8 @@ describe("MyAccessRequestsService", () => {
     nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
     nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
-    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
+    // Collection-name application is the resolver's job (covered in its own spec); pass rows through.
+    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
     TestBed.configureTestingModule({
       providers: [
         MyAccessRequestsService,

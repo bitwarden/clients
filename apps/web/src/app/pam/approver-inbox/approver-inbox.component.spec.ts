@@ -125,7 +125,7 @@ describe("ApproverInboxComponent", () => {
       collectionNameById: new Map(),
       cipherById: new Map(),
     });
-    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
+    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
 
     await TestBed.configureTestingModule({
       imports: [ApproverInboxComponent, NoopAnimationsModule],
