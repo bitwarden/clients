@@ -43,11 +43,13 @@
           <ng-content></ng-content>
         </span>
       </div>
-      @if (showActions() && hasActionsContent()) {
-        <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @3xl:tw-mt-0">
-          <ng-content select="[slot='actions']"></ng-content>
-        </div>
-      }
+      <div
+        #actionsRef
+        class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @3xl:tw-mt-0"
+        [class.tw-hidden]="!showActions() || !hasActionsContent()"
+      >
+        <ng-content select="[slot='actions']"></ng-content>
+      </div>
     </div>
   </div>
 

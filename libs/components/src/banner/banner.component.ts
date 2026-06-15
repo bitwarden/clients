@@ -3,10 +3,11 @@ import {
   Component,
   ElementRef,
   OnInit,
+  afterNextRender,
   computed,
-  contentChild,
   input,
   signal,
+  viewChild,
 } from "@angular/core";
 import { outputFromObservable } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
@@ -55,6 +56,15 @@ const bannerColors: Record<BannerVariant, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent implements OnInit {
+  private readonly actionsRef = viewChild<ElementRef<HTMLElement>>("actionsRef");
+
+  constructor() {
+    afterNextRender(() => {
+      const el = this.actionsRef()?.nativeElement;
+      this.hasActionsContent.set(!!el && el.children.length > 0);
+    });
+  }
+
   /**
    * The variant of banner, which determines its color scheme.
    */
@@ -77,8 +87,6 @@ export class BannerComponent implements OnInit {
    */
   readonly useAlertRole = input(true);
 
-  readonly hasActionsContent = contentChild<ElementRef>("actions");
-
   private readonly dismiss$ = new Subject<void>();
   /**
    * Emitted when the user clicks the close button. The close button is only rendered when this
@@ -86,6 +94,7 @@ export class BannerComponent implements OnInit {
    */
   readonly dismiss = outputFromObservable(this.dismiss$);
   protected readonly isDismissible = signal(false);
+  protected readonly hasActionsContent = signal(false);
 
   ngOnInit() {
     this.isDismissible.set(this.dismiss$.observed);
