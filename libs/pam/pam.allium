@@ -953,11 +953,14 @@ deferred EligibleApprovers    -- see: libs/pam/src/helpers/can-approve.ts
 -- the lease's org admins. Org admins may revoke any single lease directly (from
 -- the governance dashboard) — they are not limited to the org-wide kill switch.
 --
--- NOT YET IMPLEMENTED in full: the server today only authorizes collection-Manage
--- holders (RevokeLeaseCommand checks CanManageCollectionAsync); requester
--- self-revoke is intended design awaiting implementation (server: extend the
--- revoke guard to allow lease.RequesterId = caller; client: ActiveLeasesPage).
-deferred EligibleRevokers     -- see: apps/web/src/app/pam/approver-inbox (ActiveLeasesPage planned, not yet built)
+-- Implemented in RevokeAccessLeaseCommand: it authorizes the lease's own holder
+-- (lease.RequesterId = caller) OR anyone who can Manage the lease's collection
+-- (CanManageCollectionAsync, which already covers managing approvers and org
+-- admins). The actor is recorded as the lease's revoked_by, so revoked_by =
+-- requester marks a self-end versus an operator revoke. Surfaced today by the
+-- cipher-lease banner's "End access" (holder) and the approver inbox (manager);
+-- the dedicated ActiveLeasesPage is still planned but no longer the only path.
+deferred EligibleRevokers     -- see: RevokeAccessLeaseCommand; cipher-lease-banner ("End access"), approver-inbox
 
 -- `RuleAutomatedConditionsPass(request)`: every non-human condition on the
 -- rule evaluates to true for this request (today: ip_allowlist matches the
