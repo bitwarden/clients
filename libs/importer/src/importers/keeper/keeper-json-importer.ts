@@ -1,17 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
+import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
-import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
+import { KeeperImporter } from "./keeper-importer";
 import { KeeperJsonExport, Record, CustomFields } from "./types/keeper-json-types";
 
 type Reference = {
@@ -19,11 +23,11 @@ type Reference = {
   type: string;
 };
 
-export class KeeperJsonImporter extends BaseImporter implements Importer {
+export class KeeperJsonImporter extends KeeperImporter implements Importer {
   private references: Map<string, Reference[]> = new Map<string, Reference[]>();
   private idToCipher: Map<string, CipherView> = new Map<string, CipherView>();
 
-  parse(data: string): Promise<ImportResult> {
+  async parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
     const keeperExport: KeeperJsonExport = JSON.parse(data);
     if (!keeperExport?.records?.length) {
@@ -32,7 +36,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
 
     this.parseSharedFolders(keeperExport, result);
-    this.parseRecords(keeperExport, result);
+    await this.parseRecords(keeperExport, result);
     this.resolveReferences();
 
     if (this.organization) {
@@ -53,10 +57,11 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     });
   }
 
-  private parseRecords(keeperExport: KeeperJsonExport, result: ImportResult) {
+  private async parseRecords(keeperExport: KeeperJsonExport, result: ImportResult) {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     keeperExport.records.forEach((record) => {
-      this.parseFolders(result, record);
-
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(record.title);
       cipher.notes = this.getValueOrDefault(record.notes);
@@ -71,13 +76,13 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
           this.importBankCard(record, cipher);
           break;
         case "driverLicense":
-          this.importDriverLicense(record, cipher);
+          this.importDriverLicense(record, cipher, useNewDedicatedTypes);
           break;
         case "ssnCard":
           this.importSsnCard(record, cipher);
           break;
         case "passport":
-          this.importPassport(record, cipher);
+          this.importPassport(record, cipher, useNewDedicatedTypes);
           break;
         case "sshKeys":
           // In Bitwarden the ssh key is supposed to be valid.
@@ -89,6 +94,13 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             this.addField(cipher, "Passphrase", cipher.login.password, FieldType.Hidden);
           }
           break;
+        case "bankAccount": {
+          // If flag is on we create a second cipher for the bank account directly
+          if (useNewDedicatedTypes) {
+            this.importBankAccountDedicatedCipher(result, record, cipher);
+          }
+          break;
+        }
       }
 
       if (record.custom_fields) {
@@ -114,6 +126,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       }
 
       this.convertToNoteIfNeeded(cipher);
+      this.parseFolders(result, record);
       this.cleanupCipher(cipher);
 
       result.ciphers.push(cipher);
@@ -148,6 +161,51 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
   private findFieldByName(cipher: CipherView, name: string): FieldView | null {
     return cipher.fields.find((f) => f.name === name) || null;
+  }
+
+  /**
+   * Parses the $name custom field as an array of the form [first, middle, last]
+   * and removes it from the custom fields list. Parts of the name that are unable
+   * to be parsed are returned as `undefined`
+   **/
+  private extractNameFromCustomFields(fields: CustomFields) {
+    const result: [string?, string?, string?] = [
+      this.findCustomField(fields, "$name/first") || undefined,
+      this.findCustomField(fields, "$name/middle") || undefined,
+      this.findCustomField(fields, "$name/last") || undefined,
+    ];
+    this.deleteTopLevelCustomField(fields, "$name");
+    return result;
+  }
+
+  private importBankAccountDedicatedCipher(
+    result: ImportResult,
+    record: Record,
+    cipher: CipherView,
+  ) {
+    const bankAccountCipher = this.initLoginCipher();
+    bankAccountCipher.name = cipher.name;
+    bankAccountCipher.type = CipherType.BankAccount;
+
+    const bankAccount = new BankAccountView();
+
+    bankAccount.accountNumber = this.findCustomField(
+      record.custom_fields,
+      "$bankAccount/accountNumber",
+    );
+    bankAccount.routingNumber = this.findCustomField(
+      record.custom_fields,
+      "$bankAccount/routingNumber",
+    );
+    this.deleteTopLevelCustomField(record.custom_fields, "$bankAccount");
+
+    const nameParts = this.extractNameFromCustomFields(record.custom_fields);
+    bankAccount.nameOnAccount = nameParts.filter((f) => f).join(" ");
+
+    bankAccountCipher.bankAccount = bankAccount;
+    this.parseFolders(result, record);
+    this.cleanupCipher(bankAccountCipher);
+    result.ciphers.push(bankAccountCipher);
   }
 
   private importBankCard(record: Record, cipher: CipherView) {
@@ -223,14 +281,43 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     return true;
   }
 
-  private importDriverLicense(record: Record, cipher: CipherView) {
-    cipher.type = CipherType.Identity;
-    cipher.identity = new IdentityView();
-    cipher.identity.licenseNumber = this.findCustomField(
-      record.custom_fields,
-      "$accountNumber:dlNumber",
-    );
-    this.importIdentityName(record, cipher);
+  private convertMillisToDate(msString: string): string | undefined {
+    const date = new Date(Number(msString));
+    if (isNaN(date.getTime())) {
+      return;
+    }
+    return date.toUTCString();
+  }
+
+  private importDriverLicense(record: Record, cipher: CipherView, useNewDedicatedTypes: boolean) {
+    const licenseNumber = this.findCustomField(record.custom_fields, "$accountNumber:dlNumber");
+    if (useNewDedicatedTypes) {
+      cipher.type = CipherType.DriversLicense;
+      const driversLicense = new DriversLicenseView();
+      driversLicense.licenseNumber = licenseNumber;
+      const [first, middle, last] = this.extractNameFromCustomFields(record.custom_fields);
+      driversLicense.firstName = first;
+      driversLicense.middleName = middle;
+      driversLicense.lastName = last;
+      // Date of birth is returned as a milliseconds string
+      const birthDateMsString = this.findCustomField(record.custom_fields, "$birthDate");
+      if (birthDateMsString) {
+        driversLicense.dateOfBirth = this.convertMillisToDate(birthDateMsString);
+        this.deleteTopLevelCustomField(record.custom_fields, "$birthDate");
+      }
+      // Expiration date is returned as a milliseconds string
+      const expirationDateMsString = this.findCustomField(record.custom_fields, "$expirationDate");
+      if (expirationDateMsString) {
+        driversLicense.expirationDate = this.convertMillisToDate(expirationDateMsString);
+        this.deleteTopLevelCustomField(record.custom_fields, "$expirationDate");
+      }
+      cipher.driversLicense = driversLicense;
+    } else {
+      cipher.type = CipherType.Identity;
+      cipher.identity = new IdentityView();
+      cipher.identity.licenseNumber = licenseNumber;
+      this.importIdentityName(record, cipher);
+    }
     this.copyLoginPropertiesAsCustomFields(cipher);
     this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:dlNumber");
   }
@@ -247,14 +334,46 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:identityNumber");
   }
 
-  private importPassport(record: Record, cipher: CipherView) {
-    cipher.type = CipherType.Identity;
-    cipher.identity = new IdentityView();
-    cipher.identity.passportNumber = this.findCustomField(
+  private importPassport(record: Record, cipher: CipherView, useNewDedicatedTypes: boolean) {
+    const passportNumber = this.findCustomField(
       record.custom_fields,
       "$accountNumber:passportNumber",
     );
-    this.importIdentityName(record, cipher);
+    if (useNewDedicatedTypes) {
+      cipher.type = CipherType.Passport;
+      const passport = new PassportView();
+      passport.passportNumber = passportNumber;
+      const [first, middle, last] = this.extractNameFromCustomFields(record.custom_fields);
+      passport.givenName = first;
+      if (middle) {
+        passport.givenName = passport.givenName + " " + middle;
+      }
+      passport.surname = last;
+      // Date of birth is returned as a milliseconds string
+      const birthDateMsString = this.findCustomField(record.custom_fields, "$birthDate");
+      if (birthDateMsString) {
+        passport.dateOfBirth = this.convertMillisToDate(birthDateMsString);
+        this.deleteTopLevelCustomField(record.custom_fields, "$birthDate");
+      }
+      // Expiration date is returned as a milliseconds string
+      const expirationDateMsString = this.findCustomField(record.custom_fields, "$expirationDate");
+      if (expirationDateMsString) {
+        passport.expirationDate = this.convertMillisToDate(expirationDateMsString);
+        this.deleteTopLevelCustomField(record.custom_fields, "$expirationDate");
+      }
+      // Date of issued is returned as a milliseconds string
+      const dateOfIssueMsString = this.findCustomField(record.custom_fields, "$date:dateIssued");
+      if (dateOfIssueMsString) {
+        passport.issueDate = this.convertMillisToDate(dateOfIssueMsString);
+        this.deleteTopLevelCustomField(record.custom_fields, "$date:dateIssued");
+      }
+      cipher.passport = passport;
+    } else {
+      cipher.type = CipherType.Identity;
+      cipher.identity = new IdentityView();
+      cipher.identity.passportNumber = passportNumber;
+      this.importIdentityName(record, cipher);
+    }
     this.copyLoginPropertiesAsCustomFields(cipher);
     this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:passportNumber");
   }
@@ -264,25 +383,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     cipher.identity.middleName = this.findCustomField(record.custom_fields, "$name/middle");
     cipher.identity.lastName = this.findCustomField(record.custom_fields, "$name/last");
     this.deleteTopLevelCustomField(record.custom_fields, "$name");
-  }
-
-  private copyLoginPropertiesAsCustomFields(cipher: CipherView) {
-    if (!this.isNullOrWhitespace(cipher.login.username)) {
-      this.addField(cipher, "Username", cipher.login.username!);
-      cipher.login.username = undefined;
-    }
-
-    if (!this.isNullOrWhitespace(cipher.login.password)) {
-      this.addField(cipher, "Password", cipher.login.password!, FieldType.Hidden);
-      cipher.login.password = undefined;
-    }
-
-    if (cipher.login.uris) {
-      cipher.login.uris.forEach((uri, index) => {
-        this.addField(cipher, "URL", uri.uri);
-      });
-      cipher.login.uris = [];
-    }
   }
 
   // Matches by the full key with only the trailing `:digit` suffix stripped.
@@ -571,33 +671,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
 
     return [fieldType, fieldName];
-  }
-
-  private addField(cipher: CipherView, name: string, value: any, type: FieldType = FieldType.Text) {
-    if (!value) {
-      return;
-    }
-
-    const field = new FieldView();
-    field.type = type;
-    field.name = name;
-    field.value = this.convertToFieldValue(value);
-    cipher.fields.push(field);
-  }
-
-  // Just to be safe, value come in all kinds of flavors
-  private convertToFieldValue(value: any): string {
-    if (typeof value === "string") {
-      return value;
-    }
-
-    try {
-      return JSON.stringify(value);
-    } catch {
-      // Fallthrough
-    }
-
-    return "";
   }
 
   private makeArray(value: any): any[] {

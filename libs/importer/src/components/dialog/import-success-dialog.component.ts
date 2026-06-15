@@ -60,49 +60,39 @@ export class ImportSuccessDialogComponent implements OnInit {
   }
 
   private buildResultList(): ResultList[] {
-    let logins = 0;
-    let cards = 0;
-    let identities = 0;
-    let secureNotes = 0;
-    let sshKeys = 0;
+    const resultCounts = new Map<CipherType, number>();
     this.data.importResult.ciphers.forEach((c) => {
-      switch (c.type) {
-        case CipherType.Login:
-          logins++;
-          break;
-        case CipherType.Card:
-          cards++;
-          break;
-        case CipherType.SecureNote:
-          secureNotes++;
-          break;
-        case CipherType.Identity:
-          identities++;
-          break;
-        case CipherType.SshKey:
-          sshKeys++;
-          break;
-        default:
-          break;
+      const curCount = resultCounts.get(c.type);
+      if (curCount === undefined) {
+        resultCounts.set(c.type, 1);
+      } else {
+        resultCounts.set(c.type, curCount + 1);
       }
     });
 
-    const list: ResultList[] = [];
-    if (logins > 0) {
-      list.push({ icon: "globe", type: "typeLogin", count: logins });
-    }
-    if (cards > 0) {
-      list.push({ icon: "credit-card", type: "typeCard", count: cards });
-    }
-    if (identities > 0) {
-      list.push({ icon: "id-card", type: "typeIdentity", count: identities });
-    }
-    if (secureNotes > 0) {
-      list.push({ icon: "sticky-note", type: "typeSecureNote", count: secureNotes });
-    }
-    if (sshKeys > 0) {
-      list.push({ icon: "key", type: "typeSshKey", count: sshKeys });
-    }
+    const list: ResultList[] = Array.from(resultCounts.entries()).flatMap(([cipherType, count]) => {
+      switch (cipherType) {
+        case CipherType.Login:
+          return { icon: "globe", type: "typeLogin", count };
+        case CipherType.Card:
+          return { icon: "credit-card", type: "typeCard", count };
+        case CipherType.Identity:
+          return { icon: "id-card", type: "typeIdentity", count };
+        case CipherType.SecureNote:
+          return { icon: "sticky-note", type: "typeSecureNote", count };
+        case CipherType.SshKey:
+          return { icon: "key", type: "typeSshKey", count };
+        case CipherType.BankAccount:
+          return { icon: "bank", type: "typeBankAccount", count };
+        case CipherType.DriversLicense:
+          return { icon: "id-card", type: "typeDriversLicense", count };
+        case CipherType.Passport:
+          return { icon: "passport", type: "typePassport", count };
+        default:
+          // Ignore any CipherType we don't know about yet. The flatMap will remove this
+          return [] as ResultList[];
+      }
+    });
     if (this.data.importResult.folders.length > 0) {
       list.push({ icon: "folder", type: "folders", count: this.data.importResult.folders.length });
     }

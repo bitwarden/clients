@@ -1,11 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
 import { ImportResult } from "../../models/import-result";
@@ -13,7 +18,14 @@ import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
 export class LastPassCsvImporter extends BaseImporter implements Importer {
-  parse(data: string): Promise<ImportResult> {
+  constructor(private configService: ConfigService) {
+    super();
+  }
+
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const result = new ImportResult();
     const results = this.parseCsv(data, true);
     if (results == null) {
@@ -51,7 +63,7 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
         cipher.login.password = this.getValueOrDefault(value.password);
         cipher.login.totp = this.getValueOrDefault(value.totp);
       } else if (cipher.type === CipherType.SecureNote) {
-        this.parseSecureNote(value, cipher);
+        this.parseSecureNote(value, cipher, useNewDedicatedTypes);
       } else if (cipher.type === CipherType.Card) {
         cipher.card = this.parseCard(value);
         cipher.notes = this.getValueOrDefault(value.notes);
@@ -164,7 +176,7 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
     return identity;
   }
 
-  private parseSecureNote(value: any, cipher: CipherView) {
+  private parseSecureNote(value: any, cipher: CipherView, useNewDedicatedTypes: boolean) {
     const extraParts = this.splitNewLine(value.extra);
     let processedNote = false;
 
@@ -192,12 +204,8 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
             const [monthString, year] = mappedData.expMonth.split(",");
             // Parse month name into number
             if (!this.isNullOrWhitespace(monthString)) {
-              const month = new Date(Date.parse(monthString.trim() + " 1, 2012")).getMonth() + 1;
-              if (isNaN(month)) {
-                mappedData.expMonth = undefined;
-              } else {
-                mappedData.expMonth = month.toString();
-              }
+              const month = this.getMonthNumberFromName(monthString);
+              mappedData.expMonth = month;
             } else {
               mappedData.expMonth = undefined;
             }
@@ -232,6 +240,122 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
         }
         processedNote = true;
       }
+      if (useNewDedicatedTypes && typeParts[0] === "NoteType" && typeParts[1] === "Bank Account") {
+        const mappedData = this.parseSecureNoteMapping<BankAccountView>(cipher, extraParts, {
+          "Bank Name": "bankName",
+          "Account Type": "accountType",
+          "Routing Number": "routingNumber",
+          "Account Number": "accountNumber",
+          "SWIFT Code": "swiftCode",
+          "IBAN Number": "iban",
+          Pin: "pin",
+          "Branch Phone": "bankContactPhone",
+        });
+        cipher.type = CipherType.BankAccount;
+        cipher.bankAccount = new BankAccountView();
+        Object.assign(cipher.bankAccount, mappedData);
+        processedNote = true;
+      }
+
+      if (useNewDedicatedTypes && typeParts[0] === "NoteType" && typeParts[1] === "Passport") {
+        const mappedData = this.parseSecureNoteMapping<PassportView>(cipher, extraParts, {
+          Type: "passportType",
+          // Store full name in givenName field then parse later
+          Name: "givenName",
+          Country: "issuingCountry",
+          Number: "passportNumber",
+          Nationality: "nationality",
+          "Issuing Authority": "issuingAuthority",
+          // LP provides date in a format like 'June,20,2020'
+          // Store in dateOfBirth, then parse and modify
+          "Date of Birth": "dateOfBirth",
+          // LP provides date in a format like 'June,20,2020'
+          // Store in issueDate, then parse and modify
+          "Issued Date": "issueDate",
+          // LP provides date in a format like 'June,20,2020'
+          // Store in expirationDate, then parse and modify
+          "Expiration Date": "expirationDate",
+        });
+
+        // Parse full name from the givenName field
+        if (!this.isNullOrWhitespace(mappedData.givenName)) {
+          const [first, middle, last] = this.getFullName(mappedData.givenName);
+          mappedData.givenName = first;
+          if (middle) {
+            mappedData.givenName += ` ${middle}`;
+          }
+          mappedData.surname = last;
+        }
+
+        // Parse date of birth
+        if (!this.isNullOrWhitespace(mappedData.dateOfBirth)) {
+          const dob = this.parseFullDate(mappedData.dateOfBirth);
+          mappedData.dateOfBirth = dob?.toUTCString();
+        }
+
+        // Parse issue date
+        if (!this.isNullOrWhitespace(mappedData.issueDate)) {
+          const issueDate = this.parseFullDate(mappedData.issueDate);
+          mappedData.issueDate = issueDate?.toUTCString();
+        }
+
+        // Parse expiration date
+        if (!this.isNullOrWhitespace(mappedData.expirationDate)) {
+          const expirationDate = this.parseFullDate(mappedData.expirationDate);
+          mappedData.expirationDate = expirationDate?.toUTCString();
+        }
+
+        cipher.type = CipherType.Passport;
+        cipher.passport = new PassportView();
+        Object.assign(cipher.passport, mappedData);
+        processedNote = true;
+      }
+
+      if (
+        useNewDedicatedTypes &&
+        typeParts[0] === "NoteType" &&
+        typeParts[1] === "Driver's License"
+      ) {
+        const mappedData = this.parseSecureNoteMapping<DriversLicenseView>(cipher, extraParts, {
+          Number: "licenseNumber",
+          // LP provides date in a format like 'June,20,2020'
+          // Store in expirationDate, then parse and modify
+          "Expiration Date": "expirationDate",
+          "License Class": "licenseClass",
+          // Store full name in firstName field then parse later
+          Name: "firstName",
+          State: "issuingState",
+          Country: "issuingCountry",
+          // LP provides date in a format like 'June,20,2020'
+          // Store in dateofBirth, then parse and modify
+          "Date of Birth": "dateOfBirth",
+        });
+
+        // Parse expiration date
+        if (!this.isNullOrWhitespace(mappedData.expirationDate)) {
+          const expirationDate = this.parseFullDate(mappedData.expirationDate);
+          mappedData.expirationDate = expirationDate?.toUTCString();
+        }
+
+        // Parse full name from the givenName field
+        if (!this.isNullOrWhitespace(mappedData.firstName)) {
+          const [first, middle, last] = this.getFullName(mappedData.firstName);
+          mappedData.firstName = first;
+          mappedData.middleName = middle;
+          mappedData.lastName = last;
+        }
+
+        // Parse date of birth
+        if (!this.isNullOrWhitespace(mappedData.dateOfBirth)) {
+          const dob = this.parseFullDate(mappedData.dateOfBirth);
+          mappedData.dateOfBirth = dob?.toUTCString();
+        }
+
+        cipher.type = CipherType.DriversLicense;
+        cipher.driversLicense = new DriversLicenseView();
+        Object.assign(cipher.driversLicense, mappedData);
+        processedNote = true;
+      }
     }
 
     if (!processedNote) {
@@ -241,7 +365,34 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
     }
   }
 
-  private parseSecureNoteMapping<T>(cipher: CipherView, extraParts: string[], map: any): T {
+  /** Takes a string of the form "<month name>,<day>,<year>" (e.g. "June,20,2020")
+   * and converts it to a date. Returns undefined if any portions of the date are missing
+   */
+  private parseFullDate(dateString: string): Date | undefined {
+    const [monthString, dayString, yearString] = dateString.split(",");
+    const month = this.getMonthNumberFromName(monthString);
+    if (!month || !dayString || !yearString) {
+      return undefined;
+    }
+    return new Date(Date.UTC(Number(yearString), Number(month) - 1, Number(dayString)));
+  }
+
+  /** Takes a month name string ("January", "February", etc.) and returns the month
+   * number as a string ("1", "2", etc.). Returns undefined if it cannot parse the month */
+  private getMonthNumberFromName(monthNameString: string) {
+    const month = new Date(Date.parse(monthNameString.trim() + " 1, 2012")).getMonth() + 1;
+    if (isNaN(month)) {
+      return undefined;
+    } else {
+      return month.toString();
+    }
+  }
+
+  private parseSecureNoteMapping<T>(
+    cipher: CipherView,
+    extraParts: string[],
+    map: { [key: string]: keyof T },
+  ): T {
     const dataObj: any = {};
 
     let processingNotes = false;

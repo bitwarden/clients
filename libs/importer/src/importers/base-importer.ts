@@ -406,21 +406,42 @@ export abstract class BaseImporter {
     }
   }
 
+  /** Parse a string that contains a name and set a cipher's `identity` fields accordingly */
   protected processFullName(cipher: CipherView, fullName: string) {
+    const [firstName, middleName, lastName] = this.getFullName(fullName);
+
+    if (!this.isNullOrWhitespace(firstName)) {
+      cipher.identity.firstName = firstName;
+    }
+    if (!this.isNullOrWhitespace(middleName)) {
+      cipher.identity.middleName = middleName;
+    }
+    if (!this.isNullOrWhitespace(lastName)) {
+      cipher.identity.lastName = lastName;
+    }
+  }
+
+  /**
+   * Returns the parsed name as an array of the form `[first name, middle name, last name]`
+   * Name parts that were unable to be parsed are returned as undefined
+   */
+  protected getFullName(fullName: string) {
+    const result: (string | undefined)[] = [undefined, undefined, undefined];
     if (this.isNullOrWhitespace(fullName)) {
-      return;
+      return result;
     }
 
     const nameParts = fullName.split(" ");
     if (nameParts.length > 0) {
-      cipher.identity.firstName = this.getValueOrDefault(nameParts[0]);
+      result[0] = this.getValueOrDefault(nameParts[0]);
     }
     if (nameParts.length === 2) {
-      cipher.identity.lastName = this.getValueOrDefault(nameParts[1]);
+      result[2] = this.getValueOrDefault(nameParts[1]);
     } else if (nameParts.length >= 3) {
-      cipher.identity.middleName = this.getValueOrDefault(nameParts[1]);
-      cipher.identity.lastName = nameParts.slice(2, nameParts.length).join(" ");
+      result[1] = this.getValueOrDefault(nameParts[1]);
+      result[2] = nameParts.slice(2, nameParts.length).join(" ");
     }
+    return result;
   }
 
   private validateNoExternalEntities(data: string): boolean {

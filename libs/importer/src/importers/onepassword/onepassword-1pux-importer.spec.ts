@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
@@ -34,12 +37,18 @@ import { OnePassword1PuxImporter } from "./onepassword-1pux-importer";
 
 jest.mock("@bitwarden/sdk-internal");
 
+async function expectSuccessfulParse(importer: OnePassword1PuxImporter, data: string) {
+  const result = await importer.parse(data);
+  expect(result).not.toBeNull();
+  expect(result).not.toBeUndefined();
+  return result;
+}
+
 function validateCustomField(fields: FieldView[], fieldName: string, expectedValue: any) {
   expect(fields).toBeDefined();
-  const customField = fields.find((f) => f.name === fieldName);
-  expect(customField).toBeDefined();
-
-  expect(customField.value).toEqual(expectedValue);
+  const customFieldIdx = fields.findIndex((f) => f.name === fieldName);
+  expect(customFieldIdx).not.toEqual(-1);
+  expect(fields[customFieldIdx].value).toEqual(expectedValue);
 }
 
 function validateDuplicateCustomField(
@@ -60,23 +69,27 @@ describe("1Password 1Pux Importer", () => {
   const IdentityDataJson = JSON.stringify(IdentityData);
   const SecureNoteDataJson = JSON.stringify(SecureNoteData);
   const SanitizedExportJson = JSON.stringify(SanitizedExport);
+  const configService = mock<ConfigService>();
 
   it("should not import items with state 'archived'", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const archivedLoginData = LoginData;
-    archivedLoginData["accounts"][0]["vaults"][0]["items"][0]["state"] = "archived";
+    const accounts = archivedLoginData.accounts ?? [];
+    const vaults = accounts[0].vaults ?? [];
+    const items = vaults[0].items ?? [];
+    items[0].state = "archived";
     const archivedDataJson = JSON.stringify(archivedLoginData);
-    const result = await importer.parse(archivedDataJson);
-    expect(result != null).toBe(true);
+    const result = await expectSuccessfulParse(importer, archivedDataJson);
+
     expect(result.ciphers.length).toBe(0);
   });
 
   it("should parse login data", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(LoginDataJson);
-    expect(result != null).toBe(true);
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, LoginDataJson);
 
-    const cipher = result.ciphers.shift();
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toEqual("eToro");
@@ -95,32 +108,31 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse notes", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(OnePuxExampleFileJson);
-    expect(result != null).toBe(true);
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
 
-    const cipher = result.ciphers.shift();
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.notes).toEqual("This is a note. *bold*! _italic_!");
   });
 
   it("should set favourite if favIndex equals 1", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(OnePuxExampleFileJson);
-    expect(result != null).toBe(true);
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
 
-    const cipher = result.ciphers.shift();
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.favorite).toBe(true);
   });
 
   it("should handle custom boolean fields", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(LoginDataJson);
-    expect(result != null).toBe(true);
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, LoginDataJson);
 
     const ciphers = result.ciphers;
     expect(ciphers.length).toEqual(1);
 
-    const cipher = ciphers.shift();
+    const cipher = ciphers[0];
     expect(cipher.fields[0].name).toEqual("terms");
     expect(cipher.fields[0].value).toEqual("false");
     expect(cipher.fields[0].type).toBe(FieldType.Boolean);
@@ -131,14 +143,13 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should add fields of type email as custom fields", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const EmailFieldDataJson = JSON.stringify(EmailFieldData);
-    const result = await importer.parse(EmailFieldDataJson);
-    expect(result != null).toBe(true);
+    const result = await expectSuccessfulParse(importer, EmailFieldDataJson);
 
     const ciphers = result.ciphers;
     expect(ciphers.length).toEqual(1);
-    const cipher = ciphers.shift();
+    const cipher = ciphers[0];
 
     expect(cipher.fields[0].name).toEqual("registered email");
     expect(cipher.fields[0].value).toEqual("kriddler@nullvalue.test");
@@ -150,39 +161,40 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it('should create concealed field as "hidden" type', async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(OnePuxExampleFileJson);
-    expect(result != null).toBe(true);
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
 
     const ciphers = result.ciphers;
     expect(ciphers.length).toEqual(1);
 
-    const cipher = ciphers.shift();
+    const cipher = ciphers[0];
     const fields = cipher.fields;
     expect(fields.length).toEqual(1);
 
-    const field = fields.shift();
+    const field = fields[0];
     expect(field.name).toEqual("PIN");
     expect(field.value).toEqual("12345");
     expect(field.type).toEqual(FieldType.Hidden);
   });
 
   it("should create password history", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(OnePuxExampleFileJson);
-    const cipher = result.ciphers.shift();
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.passwordHistory.length).toEqual(1);
-    const ph = cipher.passwordHistory.shift();
+    const ph = cipher.passwordHistory[0];
     expect(ph.password).toEqual("12345password");
     expect(ph.lastUsedDate.toISOString()).toEqual("2016-03-18T17:32:35.000Z");
   });
 
   it("should create credit card records", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(CreditCardDataJson);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, CreditCardDataJson);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.name).toEqual("Parent's Credit Card");
     expect(cipher.notes).toEqual("My parents' credit card.");
 
@@ -211,10 +223,11 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create identity records", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(IdentityDataJson);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, IdentityDataJson);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.name).toEqual("George Engels");
 
     const identity = cipher.identity;
@@ -253,14 +266,13 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("emails fields on identity types should be added to the identity email field", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const EmailFieldOnIdentityDataJson = JSON.stringify(EmailFieldOnIdentityData);
-    const result = await importer.parse(EmailFieldOnIdentityDataJson);
-    expect(result != null).toBe(true);
+    const result = await expectSuccessfulParse(importer, EmailFieldOnIdentityDataJson);
 
     const ciphers = result.ciphers;
     expect(ciphers.length).toEqual(1);
-    const cipher = ciphers.shift();
+    const cipher = ciphers[0];
 
     const identity = cipher.identity;
     expect(identity.email).toEqual("gengels@nullvalue.test");
@@ -271,14 +283,13 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("emails fields on identity types should be added to custom fields if identity.email has been filled", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const EmailFieldOnIdentityPrefilledDataJson = JSON.stringify(EmailFieldOnIdentityPrefilledData);
-    const result = await importer.parse(EmailFieldOnIdentityPrefilledDataJson);
-    expect(result != null).toBe(true);
+    const result = await expectSuccessfulParse(importer, EmailFieldOnIdentityPrefilledDataJson);
 
     const ciphers = result.ciphers;
     expect(ciphers.length).toEqual(1);
-    const cipher = ciphers.shift();
+    const cipher = ciphers[0];
 
     const identity = cipher.identity;
     expect(identity.email).toEqual("gengels@nullvalue.test");
@@ -293,11 +304,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 005 - Password (Legacy)", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(PasswordData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toEqual("SuperSecret Password");
     expect(cipher.notes).toEqual("SuperSecret Password Notes");
@@ -307,11 +319,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 100 - SoftwareLicense", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(SoftwareLicenseData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toEqual("Limux Product Key");
     expect(cipher.notes).toEqual("My Software License");
@@ -336,36 +349,66 @@ describe("1Password 1Pux Importer", () => {
     validateCustomField(cipher.fields, "order total", "$1086.59");
   });
 
-  it("should parse category 101 - BankAccount", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const jsonString = JSON.stringify(BankAccountData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toEqual(CipherType.Card);
-    expect(cipher.name).toEqual("Bank Account");
-    expect(cipher.notes).toEqual("My Bank Account");
+  describe("should parse category 101 - BankAccount", () => {
+    it("with new item types feature flag OFF", async () => {
+      const importer = new OnePassword1PuxImporter(configService);
+      const jsonString = JSON.stringify(BankAccountData);
+      const result = await expectSuccessfulParse(importer, jsonString);
 
-    expect(cipher.card.cardholderName).toEqual("Cool Guy");
+      expect(result.ciphers.length).toEqual(1);
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Card);
+      expect(cipher.name).toEqual("Bank Account");
+      expect(cipher.notes).toEqual("My Bank Account");
 
-    expect(cipher.fields.length).toEqual(9);
-    validateCustomField(cipher.fields, "bank name", "Super Credit Union");
-    validateCustomField(cipher.fields, "type", "checking");
-    validateCustomField(cipher.fields, "routing number", "111000999");
-    validateCustomField(cipher.fields, "account number", "192837465918273645");
-    validateCustomField(cipher.fields, "SWIFT", "123456");
-    validateCustomField(cipher.fields, "IBAN", "DE12 123456");
-    validateCustomField(cipher.fields, "PIN", "5555");
-    validateCustomField(cipher.fields, "phone", "9399399933");
-    validateCustomField(cipher.fields, "address", "1 Fifth Avenue");
+      expect(cipher.card.cardholderName).toEqual("Cool Guy");
+
+      expect(cipher.fields.length).toEqual(9);
+      validateCustomField(cipher.fields, "bank name", "Super Credit Union");
+      validateCustomField(cipher.fields, "type", "checking");
+      validateCustomField(cipher.fields, "routing number", "111000999");
+      validateCustomField(cipher.fields, "account number", "192837465918273645");
+      validateCustomField(cipher.fields, "SWIFT", "123456");
+      validateCustomField(cipher.fields, "IBAN", "DE12 123456");
+      validateCustomField(cipher.fields, "PIN", "5555");
+      validateCustomField(cipher.fields, "phone", "9399399933");
+      validateCustomField(cipher.fields, "address", "1 Fifth Avenue");
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const importer = new OnePassword1PuxImporter(configService);
+      const jsonString = JSON.stringify(BankAccountData);
+      const result = await expectSuccessfulParse(importer, jsonString);
+
+      expect(result.ciphers.length).toEqual(1);
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.BankAccount);
+      expect(cipher.name).toEqual("Bank Account");
+      expect(cipher.notes).toEqual("My Bank Account");
+
+      expect(cipher.bankAccount.nameOnAccount).toEqual("Cool Guy");
+      expect(cipher.bankAccount.bankName).toEqual("Super Credit Union");
+      expect(cipher.bankAccount.accountType).toEqual("checking");
+      expect(cipher.bankAccount.routingNumber).toEqual("111000999");
+      expect(cipher.bankAccount.accountNumber).toEqual("192837465918273645");
+      expect(cipher.bankAccount.swiftCode).toEqual("123456");
+      expect(cipher.bankAccount.iban).toEqual("DE12 123456");
+      expect(cipher.bankAccount.pin).toEqual("5555");
+      expect(cipher.bankAccount.bankContactPhone).toEqual("9399399933");
+
+      expect(cipher.fields.length).toEqual(1);
+      validateCustomField(cipher.fields, "address", "1 Fifth Avenue");
+    });
   });
 
   it("should parse category 102 - Database", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(DatabaseData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toEqual("Database");
@@ -385,40 +428,75 @@ describe("1Password 1Pux Importer", () => {
     validateCustomField(cipher.fields, "connection options", "ssh");
   });
 
-  it("should parse category 103 - Drivers license", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const jsonString = JSON.stringify(DriversLicenseData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
-    expect(cipher.name).toEqual("Michael Scarn");
-    expect(cipher.subTitle).toEqual("Michael Scarn");
-    expect(cipher.notes).toEqual("My Driver's License");
+  describe("should parse category 103 - Drivers license", () => {
+    it("with new item types feature flag OFF", async () => {
+      const importer = new OnePassword1PuxImporter(configService);
+      const jsonString = JSON.stringify(DriversLicenseData);
+      const result = await expectSuccessfulParse(importer, jsonString);
 
-    const identity = cipher.identity;
-    expect(identity.firstName).toEqual("Michael");
-    expect(identity.middleName).toBeUndefined();
-    expect(identity.lastName).toEqual("Scarn");
-    expect(identity.address1).toEqual("2120 Mifflin Rd.");
-    expect(identity.state).toEqual("Pennsylvania");
-    expect(identity.country).toEqual("United States");
-    expect(identity.licenseNumber).toEqual("12345678901");
+      expect(result.ciphers.length).toEqual(1);
+      const cipher = result.ciphers[0];
+      expect(cipher.name).toEqual("Michael Scarn");
+      expect(cipher.type).toEqual(CipherType.Identity);
+      expect(cipher.subTitle).toEqual("Michael Scarn");
+      expect(cipher.notes).toEqual("My Driver's License");
 
-    expect(cipher.fields.length).toEqual(6);
-    validateCustomField(cipher.fields, "date of birth", "Sun, 01 Jan 1978 12:01:00 GMT");
-    validateCustomField(cipher.fields, "sex", "male");
-    validateCustomField(cipher.fields, "height", "5'11\"");
-    validateCustomField(cipher.fields, "license class", "C");
-    validateCustomField(cipher.fields, "conditions / restrictions", "B");
-    validateCustomField(cipher.fields, "expiry date", "203012");
+      const identity = cipher.identity;
+      expect(identity.firstName).toEqual("Michael");
+      expect(identity.middleName).toBeUndefined();
+      expect(identity.lastName).toEqual("Scarn");
+      expect(identity.address1).toEqual("2120 Mifflin Rd.");
+      expect(identity.state).toEqual("Pennsylvania");
+      expect(identity.country).toEqual("United States");
+      expect(identity.licenseNumber).toEqual("12345678901");
+
+      expect(cipher.fields.length).toEqual(6);
+      validateCustomField(cipher.fields, "date of birth", "Sun, 01 Jan 1978 12:01:00 GMT");
+      validateCustomField(cipher.fields, "sex", "male");
+      validateCustomField(cipher.fields, "height", "5'11\"");
+      validateCustomField(cipher.fields, "license class", "C");
+      validateCustomField(cipher.fields, "conditions / restrictions", "B");
+      validateCustomField(cipher.fields, "expiry date", "203012");
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const importer = new OnePassword1PuxImporter(configService);
+      const jsonString = JSON.stringify(DriversLicenseData);
+      const result = await expectSuccessfulParse(importer, jsonString);
+
+      expect(result.ciphers.length).toEqual(1);
+      const cipher = result.ciphers[0];
+      expect(cipher.name).toEqual("Michael Scarn");
+      expect(cipher.type).toEqual(CipherType.DriversLicense);
+      expect(cipher.notes).toEqual("My Driver's License");
+
+      const driversLicense = cipher.driversLicense;
+      expect(driversLicense.firstName).toEqual("Michael");
+      expect(driversLicense.middleName).toBeUndefined();
+      expect(driversLicense.lastName).toEqual("Scarn");
+      expect(driversLicense.issuingState).toEqual("Pennsylvania");
+      expect(driversLicense.issuingCountry).toEqual("United States");
+      expect(driversLicense.licenseNumber).toEqual("12345678901");
+      expect(driversLicense.dateOfBirth).toEqual("Sun, 01 Jan 1978 12:01:00 GMT");
+      expect(driversLicense.licenseClass).toEqual("C");
+      expect(driversLicense.expirationDate).toEqual("Tue, 31 Dec 2030 00:00:00 GMT");
+
+      expect(cipher.fields.length).toEqual(4);
+      validateCustomField(cipher.fields, "address", "2120 Mifflin Rd.");
+      validateCustomField(cipher.fields, "sex", "male");
+      validateCustomField(cipher.fields, "height", "5'11\"");
+      validateCustomField(cipher.fields, "conditions / restrictions", "B");
+    });
   });
 
   it("should parse category 104 - Outdoor License", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(OutdoorLicenseData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Identity);
     expect(cipher.name).toEqual("Harvest License");
@@ -440,11 +518,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 105 - Membership", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(MembershipData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Identity);
     expect(cipher.name).toEqual("Library Card");
@@ -464,39 +543,71 @@ describe("1Password 1Pux Importer", () => {
     validateCustomField(cipher.fields, "PIN", "19191");
   });
 
-  it("should parse category 106 - Passport", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const jsonString = JSON.stringify(PassportData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+  describe("should parse category 106 - Passport", () => {
+    it("with new item types feature flag OFF", async () => {
+      const importer = new OnePassword1PuxImporter(configService);
+      const jsonString = JSON.stringify(PassportData);
+      const result = await expectSuccessfulParse(importer, jsonString);
 
-    expect(cipher.type).toEqual(CipherType.Identity);
-    expect(cipher.name).toEqual("Mr. Globewide");
+      expect(result.ciphers.length).toEqual(1);
+      const cipher = result.ciphers[0];
 
-    const identity = cipher.identity;
-    expect(identity.firstName).toEqual("David");
-    expect(identity.middleName).toBeUndefined();
-    expect(identity.lastName).toEqual("Global");
-    expect(identity.passportNumber).toEqual("76436847");
+      expect(cipher.type).toEqual(CipherType.Identity);
+      expect(cipher.name).toEqual("Mr. Globewide");
 
-    expect(cipher.fields.length).toEqual(8);
-    validateCustomField(cipher.fields, "type", "US Passport");
-    validateCustomField(cipher.fields, "sex", "female");
-    validateCustomField(cipher.fields, "nationality", "International");
-    validateCustomField(cipher.fields, "issuing authority", "Department of State");
-    validateCustomField(cipher.fields, "date of birth", "Fri, 01 Apr 1983 12:01:00 GMT");
-    validateCustomField(cipher.fields, "place of birth", "A cave somewhere in Maine");
-    validateCustomField(cipher.fields, "issued on", "Wed, 01 Jan 2020 12:01:00 GMT");
-    validateCustomField(cipher.fields, "expiry date", "Sat, 01 Jan 2050 12:01:00 GMT");
+      const identity = cipher.identity;
+      expect(identity.firstName).toEqual("David");
+      expect(identity.middleName).toBeUndefined();
+      expect(identity.lastName).toEqual("Global");
+      expect(identity.passportNumber).toEqual("76436847");
+
+      expect(cipher.fields.length).toEqual(8);
+      validateCustomField(cipher.fields, "type", "US Passport");
+      validateCustomField(cipher.fields, "sex", "female");
+      validateCustomField(cipher.fields, "nationality", "International");
+      validateCustomField(cipher.fields, "issuing authority", "Department of State");
+      validateCustomField(cipher.fields, "date of birth", "Fri, 01 Apr 1983 12:01:00 GMT");
+      validateCustomField(cipher.fields, "place of birth", "A cave somewhere in Maine");
+      validateCustomField(cipher.fields, "issued on", "Wed, 01 Jan 2020 12:01:00 GMT");
+      validateCustomField(cipher.fields, "expiry date", "Sat, 01 Jan 2050 12:01:00 GMT");
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const importer = new OnePassword1PuxImporter(configService);
+      const jsonString = JSON.stringify(PassportData);
+      const result = await expectSuccessfulParse(importer, jsonString);
+
+      expect(result.ciphers.length).toEqual(1);
+      const cipher = result.ciphers[0];
+
+      expect(cipher.type).toEqual(CipherType.Passport);
+      expect(cipher.name).toEqual("Mr. Globewide");
+
+      const passport = cipher.passport;
+      expect(passport.givenName).toEqual("David");
+      expect(passport.surname).toEqual("Global");
+      expect(passport.issuingCountry).toEqual("United States of America");
+      expect(passport.passportNumber).toEqual("76436847");
+      expect(passport.nationality).toEqual("International");
+      expect(passport.issuingAuthority).toEqual("Department of State");
+      expect(passport.dateOfBirth).toEqual("Fri, 01 Apr 1983 12:01:00 GMT");
+      expect(passport.birthPlace).toEqual("A cave somewhere in Maine");
+      expect(passport.issueDate).toEqual("Wed, 01 Jan 2020 12:01:00 GMT");
+      expect(passport.expirationDate).toEqual("Sat, 01 Jan 2050 12:01:00 GMT");
+
+      expect(cipher.fields.length).toEqual(1);
+      validateCustomField(cipher.fields, "sex", "female");
+    });
   });
 
   it("should parse category 107 - RewardsProgram", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(RewardsProgramData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Identity);
     expect(cipher.name).toEqual("Retail Reward Thing");
@@ -518,11 +629,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 108 - SSN", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(SSNData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.name).toEqual("SSN");
 
     const identity = cipher.identity;
@@ -533,11 +645,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 109 - WirelessRouter", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(WirelessRouterData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toEqual("Wireless Router");
@@ -555,11 +668,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 110 - Server", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(ServerData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toEqual("Super Cool Server");
@@ -584,11 +698,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 111 - EmailAccount", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(EmailAccountData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toEqual("Email Config");
@@ -617,11 +732,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 112 - API Credentials", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(APICredentialsData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toEqual("API Credential");
@@ -639,10 +755,11 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create secure notes", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(SecureNoteDataJson);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, SecureNoteDataJson);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
 
     expect(cipher.name).toEqual("Secure Note #1");
     expect(cipher.notes).toEqual(
@@ -652,11 +769,12 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 113 - Medical Record", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(MedicalRecordData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toEqual("Some Health Record");
     expect(cipher.notes).toEqual("Some notes about my medical history");
@@ -684,11 +802,12 @@ describe("1Password 1Pux Importer", () => {
 
     jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(mockConvertedKey);
 
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     const jsonString = JSON.stringify(SSH_KeyData);
-    const result = await importer.parse(jsonString);
-    expect(result != null).toBe(true);
-    const cipher = result.ciphers.shift();
+    const result = await expectSuccessfulParse(importer, jsonString);
+
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.type).toEqual(CipherType.SshKey);
     expect(cipher.name).toEqual("Some SSH Key");
     expect(cipher.notes).toEqual("SSH Key Note");
@@ -705,9 +824,8 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create folders", async () => {
-    const importer = new OnePassword1PuxImporter();
-    const result = await importer.parse(SanitizedExportJson);
-    expect(result != null).toBe(true);
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await expectSuccessfulParse(importer, SanitizedExportJson);
 
     const folders = result.folders;
     expect(folders.length).toBe(5);
@@ -726,10 +844,9 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create collections if part of an organization", async () => {
-    const importer = new OnePassword1PuxImporter();
+    const importer = new OnePassword1PuxImporter(configService);
     importer.organizationId = Utils.newGuid() as OrganizationId;
-    const result = await importer.parse(SanitizedExportJson);
-    expect(result != null).toBe(true);
+    const result = await expectSuccessfulParse(importer, SanitizedExportJson);
 
     const collections = result.collections;
     expect(collections.length).toBe(5);

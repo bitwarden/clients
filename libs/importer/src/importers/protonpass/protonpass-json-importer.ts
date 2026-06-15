@@ -1,10 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
 import { ImportResult } from "../../models/import-result";
@@ -52,7 +56,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     "extraSections",
   ];
 
-  constructor(private i18nService: I18nService) {
+  constructor(
+    private i18nService: I18nService,
+    private configService: ConfigService,
+  ) {
     super();
   }
 
@@ -107,7 +114,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     });
   }
 
-  parse(data: string): Promise<ImportResult> {
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const result = new ImportResult();
     const results: ProtonPassJsonFile = JSON.parse(data);
     if (results == null || results.vaults == null) {
@@ -202,8 +212,36 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             cipher.identity.phone = this.getValueOrDefault(identityContent.phoneNumber);
             cipher.identity.company = this.getValueOrDefault(identityContent.company);
             cipher.identity.ssn = this.getValueOrDefault(identityContent.socialSecurityNumber);
-            cipher.identity.passportNumber = this.getValueOrDefault(identityContent.passportNumber);
-            cipher.identity.licenseNumber = this.getValueOrDefault(identityContent.licenseNumber);
+            const licenseNumber = this.getValueOrDefault(identityContent.licenseNumber);
+            if (useNewDedicatedTypes) {
+              if (licenseNumber) {
+                const licenseCipher = this.initLoginCipher();
+                licenseCipher.name = cipher.name;
+                licenseCipher.type = CipherType.DriversLicense;
+                licenseCipher.driversLicense = new DriversLicenseView();
+                licenseCipher.driversLicense.licenseNumber = licenseNumber;
+                this.processFolder(result, vault.name);
+                this.cleanupCipher(licenseCipher);
+                result.ciphers.push(licenseCipher);
+              }
+            } else {
+              cipher.identity.licenseNumber = licenseNumber;
+            }
+            const passportNumber = this.getValueOrDefault(identityContent.passportNumber);
+            if (useNewDedicatedTypes) {
+              if (passportNumber) {
+                const passportCipher = this.initLoginCipher();
+                passportCipher.name = cipher.name;
+                passportCipher.type = CipherType.Passport;
+                passportCipher.passport = new PassportView();
+                passportCipher.passport.passportNumber = passportNumber;
+                this.processFolder(result, vault.name);
+                this.cleanupCipher(passportCipher);
+                result.ciphers.push(passportCipher);
+              }
+            } else {
+              cipher.identity.passportNumber = passportNumber;
+            }
 
             const address3 =
               `${identityContent.floor ?? ""} ${identityContent.county ?? ""}`.trim();

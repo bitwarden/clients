@@ -1,10 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -49,7 +54,14 @@ const _mappedPersonalInfoAsIdentityColumns = new Set([
 const _mappedSecureNoteColumns = new Set(["title", "note"]);
 
 export class DashlaneCsvImporter extends BaseImporter implements Importer {
-  parse(data: string): Promise<ImportResult> {
+  constructor(private configService: ConfigService) {
+    super();
+  }
+
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const result = new ImportResult();
     const results = this.parseCsv(data, true);
     if (results == null) {
@@ -85,11 +97,11 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
       }
 
       if (rowKeys[0] === "type" && rowKeys[1] === "account_name") {
-        this.parsePaymentRecord(cipher, row);
+        this.parsePaymentRecord(cipher, row, useNewDedicatedTypes);
       }
 
       if (rowKeys[0] === "type" && rowKeys[1] === "number") {
-        this.parseIdRecord(cipher, row);
+        this.parseIdRecord(cipher, row, useNewDedicatedTypes);
       }
 
       if (rowKeys[0] === "type" && rowKeys[1] === "title") {
@@ -127,7 +139,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     this.importUnmappedFields(cipher, row, _mappedCredentialsColumns);
   }
 
-  parsePaymentRecord(cipher: CipherView, row: PaymentsRecord) {
+  parsePaymentRecord(cipher: CipherView, row: PaymentsRecord, useNewDedicatedTypes: boolean) {
     cipher.type = CipherType.Card;
     cipher.card = new CardView();
 
@@ -152,11 +164,20 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
         ];
         break;
       case "bank":
-        cipher.card.cardholderName = row.account_holder;
-        cipher.card.number = row.account_number;
-
         // If you add more mapped fields please extend this
         mappedValues = ["account_name", "account_holder", "account_number"];
+        if (useNewDedicatedTypes) {
+          cipher.type = CipherType.BankAccount;
+          const bankAccount = new BankAccountView();
+          bankAccount.nameOnAccount = row.account_holder;
+          bankAccount.accountNumber = row.account_number;
+          cipher.bankAccount = bankAccount;
+          // We don't actually map the type field, but all it says is "bank"
+          mappedValues.push("type");
+        } else {
+          cipher.card.cardholderName = row.account_holder;
+          cipher.card.number = row.account_number;
+        }
         break;
       default:
         break;
@@ -165,7 +186,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     this.importUnmappedFields(cipher, row, new Set(mappedValues));
   }
 
-  parseIdRecord(cipher: CipherView, row: IdRecord) {
+  parseIdRecord(cipher: CipherView, row: IdRecord, useNewDedicatedTypes: boolean) {
     cipher.type = CipherType.Identity;
     cipher.identity = new IdentityView();
 
@@ -178,15 +199,49 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
         break;
       case "passport":
         cipher.name = `${row.name} ${row.type}`;
-        this.processFullName(cipher, row.name);
-        cipher.identity.passportNumber = row.number;
+        if (useNewDedicatedTypes) {
+          cipher.type = CipherType.Passport;
+          const passport = new PassportView();
+          const [firstName, middleName, lastName] = this.getFullName(row.name);
+          passport.givenName = firstName;
+          if (!this.isNullOrWhitespace(middleName)) {
+            passport.givenName = passport.givenName + " " + middleName;
+          }
+          passport.surname = lastName;
+          passport.passportNumber = row.number;
+          passport.issueDate = row.issue_date;
+          passport.expirationDate = row.expiration_date;
+          passport.issuingCountry = row.place_of_issue;
+          cipher.passport = passport;
+          // Type is not mapped to a property but we don't want it as a custom field
+          mappedValues.push(...["issue_date", "expiration_date", "place_of_issue", "type"]);
+        } else {
+          this.processFullName(cipher, row.name);
+          cipher.identity.passportNumber = row.number;
+        }
         break;
       case "license":
         cipher.name = `${row.name} ${row.type}`;
-        this.processFullName(cipher, row.name);
-        cipher.identity.licenseNumber = row.number;
-        cipher.identity.state = row.state;
-
+        if (useNewDedicatedTypes) {
+          cipher.type = CipherType.DriversLicense;
+          const license = new DriversLicenseView();
+          const [firstName, middleName, lastName] = this.getFullName(row.name);
+          license.firstName = firstName;
+          license.middleName = middleName;
+          license.lastName = lastName;
+          license.licenseNumber = row.number;
+          license.issueDate = row.issue_date;
+          license.expirationDate = row.expiration_date;
+          license.issuingCountry = row.place_of_issue;
+          license.issuingState = row.state;
+          cipher.driversLicense = license;
+          // We don't actually map the type field, but it's not needed with the specific DriversLicense type
+          mappedValues.push(...["issue_date", "expiration_date", "place_of_issue", "type"]);
+        } else {
+          this.processFullName(cipher, row.name);
+          cipher.identity.licenseNumber = row.number;
+          cipher.identity.state = row.state;
+        }
         mappedValues.push("state");
         break;
       case "social_security":
