@@ -5,7 +5,8 @@ import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
-export type SubFrameDataFromWindowMessage = SubFrameOffsetData & {
+// Omit `url` so that messages don't leak it across frame boundaries
+export type SubFrameDataFromWindowMessage = Omit<NonNullable<SubFrameOffsetData>, "url"> & {
   subFrameDepth: number;
 };
 

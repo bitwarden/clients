@@ -3,6 +3,7 @@ import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
+import type { SubFrameDataFromWindowMessage } from "../services/abstractions/autofill-overlay-content.service";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -582,4 +583,39 @@ export function areKeyValuesNull<T extends Record<string, any>>(
   const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
 
   return keysToCheck.every((key) => obj[key] == null);
+}
+
+/**
+ * Type guard for the untrusted `data` of a `calculateSubFramePositioning` window
+ * message. Validates the shape of `subFrameData` and rejects any payload that
+ * carries a `url`: the field is intentionally excluded from
+ * `SubFrameDataFromWindowMessage` and must not cross the frame boundary, so a
+ * message containing one is dropped rather than relayed onward.
+ *
+ * @param data - The untrusted `data` property of the window message event.
+ */
+export function isSubFramePositioningMessageData(
+  data: unknown,
+): data is { subFrameData: SubFrameDataFromWindowMessage } {
+  if (typeof data !== "object" || data === null || !("subFrameData" in data)) {
+    return false;
+  }
+
+  const { subFrameData } = data as { subFrameData: unknown };
+  if (typeof subFrameData !== "object" || subFrameData === null || "url" in subFrameData) {
+    return false;
+  }
+
+  // Number.isFinite (not `typeof === "number"`) so NaN/Infinity are rejected: a
+  // non-finite subFrameDepth would defeat the MAX_SUB_FRAME_DEPTH relay guard.
+  const candidate = subFrameData as Record<string, unknown>;
+  return (
+    Number.isFinite(candidate.top) &&
+    Number.isFinite(candidate.left) &&
+    Number.isFinite(candidate.subFrameDepth) &&
+    (candidate.frameId === undefined || Number.isFinite(candidate.frameId)) &&
+    (candidate.parentFrameIds === undefined ||
+      (Array.isArray(candidate.parentFrameIds) &&
+        candidate.parentFrameIds.every((id) => Number.isFinite(id))))
+  );
 }
