@@ -13,7 +13,11 @@ import {
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
-import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import {
+  CipherView as SdkCipherView,
+  CreateAttachmentRequest,
+  EncString,
+} from "@bitwarden/sdk-internal";
 
 import { CipherType } from "../enums/cipher-type";
 
@@ -967,9 +971,9 @@ describe("DefaultCipherSdkService", () => {
 
   describe("createAttachment()", () => {
     const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
-    const request = {
-      key: "2.encryptedKey",
-      fileName: "2.encryptedFileName",
+    const request: CreateAttachmentRequest = {
+      key: "2.encryptedKey" as unknown as EncString,
+      fileName: "2.encryptedFileName" as unknown as EncString,
       fileSize: 65,
       lastKnownRevisionDate: "2024-05-31T11:20:58.456Z",
       asAdmin: false,
