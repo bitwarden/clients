@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "Ainakin yksi sähköpostiosoite on virheellinen"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "tooManyEmails": {
     "message": "Voit lähettää kerrallaan vain $COUNT$ sähköpostiviestiä",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

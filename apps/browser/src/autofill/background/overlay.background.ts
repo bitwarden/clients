@@ -24,6 +24,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -2248,10 +2249,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       // If our currently focused field is for a login form, we want to fill the current password field.
       // Otherwise, map over all page details and filter out fields that are not new password fields.
+      // Targeted fields qualified as `newPassword` by targeting rules bypass the heuristic
+      // check; the rules represent an explicit assertion that the field is a new-password
+      // field, and heuristic keyword tokenization can miss compact names like `confirmPassword`.
       if (!this.focusedFieldMatchesFillType(CipherType.Login)) {
         pageDetails = this.getFilteredPageDetails(
           pageDetails,
-          this.inlineMenuFieldQualificationService.isNewPasswordField,
+          (field) =>
+            (field.targeted === true &&
+              field.fieldQualifier === AutofillTargetingRuleTypes.newPassword) ||
+            this.inlineMenuFieldQualificationService.isNewPasswordField(field),
         );
       }
 

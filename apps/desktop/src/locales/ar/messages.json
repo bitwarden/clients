@@ -124,7 +124,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "عرض تسجيل الدخول"
+    "message": "ليس لديك صلاحية لتعديل هذا العنصر"
   },
   "welcomeBack": {
     "message": "مرحبًا بعودتك"
@@ -1391,7 +1391,7 @@
     "message": "رابط خادم الأيقونات"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL خادم Send"
   },
   "environmentSaved": {
     "message": "تم حفظ عناوين URL للبيئة."
@@ -1576,7 +1576,7 @@
     "message": "فتح بكلمة مرور رئيسية"
   },
   "unlock": {
-    "message": "فتح"
+    "message": "فتح القفل"
   },
   "loggedInAsOn": {
     "message": "تم تسجيل الدخول كـ $EMAIL$ في $HOSTNAME$.",
@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "نسخ المفتاح الخاص"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "نسخ المفتاح العام"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "نسخ بصمة الإصبع"
   },
   "cardNumber": {
     "message": "رقم البطاقة"
@@ -2257,11 +2257,11 @@
     "message": "كلمة المرور الرئيسية التي اخترتها ضعيفة. يجب عليك استخدام كلمة مرور رئيسية قوية (أو عبارة مرور) لحماية حساب Bitwarden الخاص بك بشكل صحيح. هل أنت متأكد من أنك تريد استخدام كلمة المرور الرئيسية هذه؟"
   },
   "pin": {
-    "message": "رقم التعريف الشخصي",
+    "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "unlockWithPin": {
-    "message": "فتح باستخدام رمز PIN"
+    "message": "فتح القفل باستخدام رمز PIN"
   },
   "setYourPinCode": {
     "message": "تعيين رمز PIN الخاص بك لإلغاء قفل Bitwarden. سيتم إعادة تعيين إعدادات PIN الخاصة بك إذا قمت بتسجيل الخروج بالكامل من التطبيق."
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 أو أكثر من رسائل البريد الإلكتروني غير صالحة"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "لا يمكن أن تتجاوز قائمة مستلمي البريد الإلكتروني 2,500 حرف. احذف مستلماً واحداً أو أكثر للمتابعة."
+  },
   "inputTrimValidator": {
     "message": "الإدخال يجب أن لا يحتوي على مساحة بيضاء فقط.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -3914,7 +3917,7 @@
     "message": "-- اختيار --"
   },
   "multiSelectPlaceholder": {
-    "message": "-- اكتب للنصفية --"
+    "message": "-- اكتب للتصفية --"
   },
   "multiSelectLoading": {
     "message": "استرداد الخيارات..."
@@ -4532,7 +4535,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "أمسح الفلاتر أو جرب مصطلح بحث آخر"
+    "message": "مسح عوامل التصفية أو جرب مصطلح بحث آخر"
   },
   "generatorNudgeTitle": {
     "message": "أنشئ كلمات مرور بسرعة"
@@ -4960,7 +4963,7 @@
     "message": "حدد طريقة فتح القفل لتغيير إجراء انتهاء مهلة الجلسة."
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Session timeout is controlled by the desktop app"
+    "message": "مهلة انتهاء الجلسة يتحكم فيها تطبيق سطح المكتب"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ غير مثبت. يرجى تثبيت $BROWSER$ قبل استيراد كلمات المرور منه.",
@@ -5077,7 +5080,7 @@
     "message": "لم يتم العثور على نتائج بحث"
   },
   "clearFiltersOrTryAnother": {
-    "message": "امسح الفلاتر أو جرب مصطلح بحث آخر"
+    "message": "مسح عوامل التصفية أو جرب مصطلح بحث آخر"
   },
   "sendPasswordHelperText": {
     "message": "سيحتاج الأفراد إلى إدخال كلمة المرور لعرض هذا Send",
@@ -5150,7 +5153,7 @@
     "message": "الحساب البنكي"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "تفاصيل الحساب البنكي"
   },
   "bankName": {
     "message": "اسم البَنك"
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "فئة الرخصة"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "تعذّر حفظ العنصر. يجب تأكيد عضويتك في المنظمة لحفظ العناصر."
   }
 }

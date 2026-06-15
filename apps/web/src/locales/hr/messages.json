@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "Jedna ili više adresa e-pošte nije valjana"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "tooManyEmails": {
     "message": "Možeš unijeti najviše $COUNT$ adresa e-pošte odjednom",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Kopiraj"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

@@ -1350,13 +1350,13 @@
     "message": "Doldurma yardımcısını kullan"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "Doldurma yardımcısını etkinleştir"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "Doldurma yardımcısı, desteklenen sitelerde siteye özgü kuralları kullanarak otomatik doldurma doğruluğunu artırır. Bu özelliği kullandığınızda hiçbir veri toplanmaz ve kaydedilmez."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "Doldurma yardımcısı hakkında"
   },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Bir veya daha fazla e-posta geçersiz"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Girdi yalnızca boşluktan ibaret olamaz.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birden fazla koleksiyona dahil olan öğeleri \"Öğelerim\"e aktaramazsınız"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
