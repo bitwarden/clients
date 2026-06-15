@@ -3,13 +3,13 @@ import { TestBed } from "@angular/core/testing";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { LeasedCipherFetcher } from "@bitwarden/pam";
+import { LeasedCipherFetcherService } from "@bitwarden/pam";
 
 import { PamCipherOpenGate } from "./cipher-open-gate.service";
 
 describe("PamCipherOpenGate", () => {
   let configService: jest.Mocked<Pick<ConfigService, "getFeatureFlag">>;
-  let fetcher: jest.Mocked<Pick<LeasedCipherFetcher, "fetch">>;
+  let fetcher: jest.Mocked<Pick<LeasedCipherFetcherService, "fetch">>;
   let gate: PamCipherOpenGate;
 
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe("PamCipherOpenGate", () => {
       providers: [
         PamCipherOpenGate,
         { provide: ConfigService, useValue: configService },
-        { provide: LeasedCipherFetcher, useValue: fetcher },
+        { provide: LeasedCipherFetcherService, useValue: fetcher },
       ],
     });
 

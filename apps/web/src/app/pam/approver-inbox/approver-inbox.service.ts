@@ -15,6 +15,7 @@ import {
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
   AccessLeaseRevokeRequest,
+  AccessLeaseStatus,
   PamApiService,
 } from "@bitwarden/pam";
 
@@ -116,7 +117,7 @@ export class ApproverInboxService {
     await this.pamApiService.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
     const updated = this._history$.value.map((item) => {
       if (item.producedLeaseId === leaseId) {
-        item.producedLeaseStatus = "revoked";
+        item.producedLeaseStatus = AccessLeaseStatus.Revoked;
       }
       return item;
     });

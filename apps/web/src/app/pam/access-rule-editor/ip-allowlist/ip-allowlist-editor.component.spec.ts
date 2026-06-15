@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormControl } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -9,13 +10,21 @@ describe("IpAllowlistEditorComponent", () => {
   let fixture: ComponentFixture<IpAllowlistEditorComponent>;
   let component: IpAllowlistEditorComponent;
 
-  function setup(cidrs: string[] = [], readonly = false) {
+  /** Creates the component and runs ngOnInit (which seeds a blank row when unbound). */
+  function create(): void {
     fixture = TestBed.createComponent(IpAllowlistEditorComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput("cidrs", cidrs);
-    fixture.componentRef.setInput("readonly", readonly);
     fixture.detectChanges();
   }
+
+  /** The protected internal FormArray, exposed for assertions. */
+  const cidrArray = () => component["cidrArray"];
+
+  const touched = () => {
+    const control = new FormControl();
+    control.markAsTouched();
+    return control;
+  };
 
   beforeEach(() => {
     const i18nService = { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") };
@@ -25,148 +34,166 @@ describe("IpAllowlistEditorComponent", () => {
     });
   });
 
-  describe("initialisation", () => {
-    it("adds a single blank row when no initial CIDRs are provided", () => {
-      setup([]);
-      expect(component["cidrArray"].length).toBe(1);
-      expect(component["cidrArray"].at(0).value).toBe("");
+  describe("ngOnInit", () => {
+    it("starts with a single blank row when no value is written", () => {
+      create();
+      expect(cidrArray().length).toBe(1);
+      expect(cidrArray().at(0).value).toBe("");
+    });
+  });
+
+  describe("writeValue", () => {
+    it("populates a single blank row for an empty list", () => {
+      create();
+      component.writeValue([]);
+      expect(cidrArray().length).toBe(1);
+      expect(cidrArray().at(0).value).toBe("");
     });
 
-    it("populates rows from the initial cidrs input", () => {
-      setup(["10.0.0.0/8", "192.168.0.0/16"]);
-      expect(component["cidrArray"].length).toBe(2);
-      expect(component["cidrArray"].at(0).value).toBe("10.0.0.0/8");
-      expect(component["cidrArray"].at(1).value).toBe("192.168.0.0/16");
+    it("populates one row per CIDR", () => {
+      create();
+      component.writeValue(["10.0.0.0/8", "192.168.0.0/16"]);
+      expect(cidrArray().length).toBe(2);
+      expect(cidrArray().at(0).value).toBe("10.0.0.0/8");
+      expect(cidrArray().at(1).value).toBe("192.168.0.0/16");
+    });
+
+    it("treats null as an empty list", () => {
+      create();
+      component.writeValue(null);
+      expect(cidrArray().length).toBe(1);
+    });
+
+    it("does not emit a change while writing", () => {
+      create();
+      const emitted: string[][] = [];
+      component.registerOnChange((v) => emitted.push(v));
+      component.writeValue(["10.0.0.0/8"]);
+      expect(emitted).toEqual([]);
     });
   });
 
   describe("validate()", () => {
-    it("returns false and marks touched when the single row is empty", () => {
-      setup([]);
-      component["cidrArray"].at(0).setValue("");
-
-      const result = component.validate();
-
-      expect(result).toBe(false);
+    it("rejects a single empty row", () => {
+      create();
+      component.writeValue([]);
+      expect(component.validate(new FormControl())).toEqual({ ipAllowlist: true });
     });
 
-    it("returns false for a malformed CIDR", () => {
-      setup([]);
-      component["cidrArray"].at(0).setValue("not-a-cidr");
+    it("rejects a malformed CIDR", () => {
+      create();
+      component.writeValue([]);
+      cidrArray().at(0).setValue("not-a-cidr");
 
-      const result = component.validate();
-
-      expect(result).toBe(false);
-      expect(component["cidrArray"].at(0).hasError("invalidCidr")).toBe(true);
+      expect(component.validate(new FormControl())).toEqual({ ipAllowlist: true });
+      expect(cidrArray().at(0).hasError("invalidCidr")).toBe(true);
     });
 
-    it("returns true for a single valid IPv4 CIDR", () => {
-      setup([]);
-      component["cidrArray"].at(0).setValue("10.0.0.0/8");
-
-      const result = component.validate();
-
-      expect(result).toBe(true);
+    it("accepts a single valid IPv4 CIDR", () => {
+      create();
+      component.writeValue(["10.0.0.0/8"]);
+      expect(component.validate(new FormControl())).toBeNull();
     });
 
-    it("returns true for a single valid IPv6 CIDR", () => {
-      setup([]);
-      component["cidrArray"].at(0).setValue("2001:db8::/32");
-
-      const result = component.validate();
-
-      expect(result).toBe(true);
+    it("accepts a single valid IPv6 CIDR", () => {
+      create();
+      component.writeValue(["2001:db8::/32"]);
+      expect(component.validate(new FormControl())).toBeNull();
     });
 
-    it("returns false when duplicate CIDRs are present", () => {
-      setup(["10.0.0.0/8", "10.0.0.0/8"]);
+    it("rejects duplicate CIDRs", () => {
+      create();
+      component.writeValue(["10.0.0.0/8", "10.0.0.0/8"]);
 
-      const result = component.validate();
-
-      expect(result).toBe(false);
-      expect(component["cidrArray"].hasError("duplicateCidrs")).toBe(true);
+      expect(component.validate(new FormControl())).toEqual({ ipAllowlist: true });
+      expect(cidrArray().hasError("duplicateCidrs")).toBe(true);
     });
 
-    it("returns false when there are no rows (all removed)", () => {
-      setup(["10.0.0.0/8"]);
-      component["cidrArray"].removeAt(0);
+    it("marks rows touched once the host control is touched", () => {
+      create();
+      component.writeValue([]);
 
-      const result = component.validate();
+      component.validate(touched());
 
-      expect(result).toBe(false);
+      expect(cidrArray().touched).toBe(true);
+    });
+
+    it("leaves rows untouched while the host control is untouched", () => {
+      create();
+      component.writeValue([]);
+
+      component.validate(new FormControl());
+
+      expect(cidrArray().touched).toBe(false);
     });
   });
 
-  describe("currentCidrs", () => {
-    it("returns the trimmed values of all rows", () => {
-      setup(["10.0.0.0/8", "192.168.0.0/16"]);
+  describe("change propagation", () => {
+    it("emits the trimmed list when a row value changes", () => {
+      create();
+      component.writeValue(["10.0.0.0/8"]);
+      const emitted: string[][] = [];
+      component.registerOnChange((v) => emitted.push(v));
 
-      expect(component.currentCidrs).toEqual(["10.0.0.0/8", "192.168.0.0/16"]);
+      cidrArray().at(0).setValue(" 192.168.0.0/16 ");
+
+      expect(emitted[emitted.length - 1]).toEqual(["192.168.0.0/16"]);
     });
 
-    it("trims whitespace from values", () => {
-      setup([" 10.0.0.0/8 "]);
-
-      expect(component.currentCidrs).toEqual(["10.0.0.0/8"]);
-    });
-  });
-
-  describe("addRow()", () => {
-    it("appends a blank row", () => {
-      setup(["10.0.0.0/8"]);
-      const before = component["cidrArray"].length;
+    it("emits when a row is added", () => {
+      create();
+      component.writeValue(["10.0.0.0/8"]);
+      const emitted: string[][] = [];
+      component.registerOnChange((v) => emitted.push(v));
 
       component["addRow"]();
 
-      expect(component["cidrArray"].length).toBe(before + 1);
-      expect(component["cidrArray"].at(before).value).toBe("");
+      expect(emitted[emitted.length - 1]).toEqual(["10.0.0.0/8", ""]);
     });
-  });
 
-  describe("removeRow()", () => {
-    it("removes the row at the given index", () => {
-      setup(["10.0.0.0/8", "192.168.0.0/16"]);
-
-      component["removeRow"](0);
-
-      expect(component["cidrArray"].length).toBe(1);
-      expect(component["cidrArray"].at(0).value).toBe("192.168.0.0/16");
-    });
-  });
-
-  describe("cidrsChange output", () => {
-    it("emits the updated list when a row is added", () => {
-      setup(["10.0.0.0/8"]);
+    it("emits when a row is removed", () => {
+      create();
+      component.writeValue(["10.0.0.0/8", "192.168.0.0/16"]);
       const emitted: string[][] = [];
-      component.cidrsChange.subscribe((v) => emitted.push(v));
-
-      component["addRow"]();
-
-      expect(emitted.length).toBeGreaterThan(0);
-    });
-
-    it("emits the updated list when a row is removed", () => {
-      setup(["10.0.0.0/8", "192.168.0.0/16"]);
-      const emitted: string[][] = [];
-      component.cidrsChange.subscribe((v) => emitted.push(v));
+      component.registerOnChange((v) => emitted.push(v));
 
       component["removeRow"](1);
 
       expect(emitted[emitted.length - 1]).toEqual(["10.0.0.0/8"]);
     });
+
+    it("notifies touched on blur", () => {
+      create();
+      const onTouched = jest.fn();
+      component.registerOnTouched(onTouched);
+
+      component["markTouched"]();
+
+      expect(onTouched).toHaveBeenCalled();
+    });
   });
 
-  describe("valid submission serialises correctly", () => {
-    it("currentCidrs matches { kind: 'ip_allowlist', cidrs: [...] } shape", () => {
-      setup(["10.0.0.0/8", "192.168.1.0/24"]);
-      component["cidrArray"].at(0).setValue("10.0.0.0/8");
-      component["cidrArray"].at(1).setValue("192.168.1.0/24");
+  describe("removeRow()", () => {
+    it("keeps a single blank row when the last row is removed", () => {
+      create();
+      component.writeValue(["10.0.0.0/8"]);
 
-      const isValid = component.validate();
-      const rule = { kind: "ip_allowlist" as const, cidrs: component.currentCidrs };
+      component["removeRow"](0);
 
-      expect(isValid).toBe(true);
-      expect(rule).toEqual({ kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.1.0/24"] });
+      expect(cidrArray().length).toBe(1);
+      expect(cidrArray().at(0).value).toBe("");
+    });
+  });
+
+  describe("setDisabledState()", () => {
+    it("disables and re-enables the array", () => {
+      create();
+
+      component.setDisabledState(true);
+      expect(cidrArray().disabled).toBe(true);
+
+      component.setDisabledState(false);
+      expect(cidrArray().disabled).toBe(false);
     });
   });
 });

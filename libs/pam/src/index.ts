@@ -35,7 +35,7 @@ export { AccessEventService } from "./abstractions/access-event.service";
 
 export { DefaultPamApiService } from "./services/default-pam-api.service";
 export { DefaultAccessEventService } from "./services/default-access-event.service";
-export { LeasedCipherFetcher } from "./services/leased-cipher-fetcher.service";
+export { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";
 export { AccessRequestCreateRequest } from "./services/requests/access-request-create.request";
 export {
   AccessDecisionVerdict,

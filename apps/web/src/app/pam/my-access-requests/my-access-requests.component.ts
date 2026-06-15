@@ -111,7 +111,7 @@ export class MyAccessRequestsComponent implements OnInit {
 
   protected readonly pendingRows = computed(() =>
     this.rows()
-      .filter((r) => r.status === "pending")
+      .filter((r) => r.status === AccessRequestStatus.Pending)
       .slice(0, MY_REQUESTS_PAGE_LIMIT),
   );
 
@@ -119,7 +119,10 @@ export class MyAccessRequestsComponent implements OnInit {
     const cutoff = Date.now() - RECENT_WINDOW_DAYS * 24 * 60 * 60 * 1000;
     return this.rows()
       .filter(
-        (r) => r.status !== "pending" && r.resolvedAt != null && r.resolvedAt.getTime() >= cutoff,
+        (r) =>
+          r.status !== AccessRequestStatus.Pending &&
+          r.resolvedAt != null &&
+          r.resolvedAt.getTime() >= cutoff,
       )
       .slice(0, MY_REQUESTS_PAGE_LIMIT);
   });
@@ -178,7 +181,7 @@ export class MyAccessRequestsComponent implements OnInit {
   }
 
   protected async cancel(row: MyRequestRow): Promise<void> {
-    if (row.status !== "pending" || this.isCancelling(row.id)) {
+    if (row.status !== AccessRequestStatus.Pending || this.isCancelling(row.id)) {
       return;
     }
 
@@ -194,9 +197,9 @@ export class MyAccessRequestsComponent implements OnInit {
         r.id === row.id
           ? {
               ...r,
-              status: "cancelled" as AccessRequestStatus,
+              status: AccessRequestStatus.Cancelled,
               resolvedAt: now,
-              ...resolveResolver({ status: "cancelled", approverId: null }),
+              ...resolveResolver({ status: AccessRequestStatus.Cancelled, approverId: null }),
             }
           : r,
       ),
@@ -232,14 +235,14 @@ export class MyAccessRequestsComponent implements OnInit {
    */
   protected canStart(row: MyRequestRow): boolean {
     return (
-      row.status === "approved" &&
+      row.status === AccessRequestStatus.Approved &&
       (row.requestedNotAfter == null || row.requestedNotAfter.getTime() > this.nowMs())
     );
   }
 
   /** A live "activate within X" label for an approved on-demand request. */
   protected redemptionRemainingLabel(row: MyRequestRow): string | null {
-    if (row.status !== "approved" || row.activationDeadline == null) {
+    if (row.status !== AccessRequestStatus.Approved || row.activationDeadline == null) {
       return null;
     }
     return formatRemaining(row.activationDeadline.getTime() - this.nowMs());
@@ -247,7 +250,7 @@ export class MyAccessRequestsComponent implements OnInit {
 
   /** Activates an approved request (MemberStartsLease). */
   protected async activateLease(row: MyRequestRow): Promise<void> {
-    if (row.status !== "approved" || this.isStarting(row.id)) {
+    if (row.status !== AccessRequestStatus.Approved || this.isStarting(row.id)) {
       return;
     }
     this.starting.update((s) => new Set([...s, row.id]));
@@ -287,17 +290,17 @@ export class MyAccessRequestsComponent implements OnInit {
 /** Map a status to a badge variant. Exported for tests + storybook fidelity. */
 export function statusBadgeVariant(status: AccessRequestStatus): BadgeVariant {
   switch (status) {
-    case "approved":
+    case AccessRequestStatus.Approved:
       return "success";
-    case "activated":
+    case AccessRequestStatus.Activated:
       return "success";
-    case "denied":
+    case AccessRequestStatus.Denied:
       return "danger";
-    case "cancelled":
+    case AccessRequestStatus.Cancelled:
       return "subtle";
-    case "expired":
+    case AccessRequestStatus.Expired:
       return "warning";
-    case "pending":
+    case AccessRequestStatus.Pending:
       return "primary";
   }
 }
@@ -305,17 +308,17 @@ export function statusBadgeVariant(status: AccessRequestStatus): BadgeVariant {
 /** i18n key for a status label. Exported for tests. */
 export function statusLabelKey(status: AccessRequestStatus): string {
   switch (status) {
-    case "approved":
+    case AccessRequestStatus.Approved:
       return "pamStatusApproved";
-    case "activated":
+    case AccessRequestStatus.Activated:
       return "pamStatusActivated";
-    case "denied":
+    case AccessRequestStatus.Denied:
       return "pamStatusDenied";
-    case "cancelled":
+    case AccessRequestStatus.Cancelled:
       return "pamStatusCancelled";
-    case "expired":
+    case AccessRequestStatus.Expired:
       return "pamStatusExpired";
-    case "pending":
+    case AccessRequestStatus.Pending:
       return "pamStatusPending";
   }
 }
@@ -336,7 +339,7 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 export function resolveResolver(
   response: Pick<AccessRequestDetailsResponse, "status" | "approverId">,
 ): Pick<MyRequestRow, "resolverLabelKey" | "resolverName"> {
-  if (response.status === "pending") {
+  if (response.status === AccessRequestStatus.Pending) {
     return { resolverLabelKey: null, resolverName: null };
   }
   if (response.approverId == null) {

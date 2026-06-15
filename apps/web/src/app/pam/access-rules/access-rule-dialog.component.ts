@@ -6,7 +6,6 @@ import {
   inject,
   OnInit,
   signal,
-  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -86,8 +85,6 @@ const DEFAULT_MAX_EXTENSIONS = 1;
   ],
 })
 export class AccessRuleDialogComponent implements OnInit {
-  private readonly ipAllowlistEditor = viewChild(IpAllowlistEditorComponent);
-
   protected readonly data = inject<AccessRuleDialogData>(DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
   private readonly pamApi = inject(PamApiService);
@@ -138,6 +135,9 @@ export class AccessRuleDialogComponent implements OnInit {
       hasKind(this.data.existing?.conditions, "ip_allowlist") ||
         (this.data.template?.ipAllowlistEnabled ?? false),
     ],
+    // Bound to the IP allowlist editor (a ControlValueAccessor + Validator) when the
+    // condition is enabled; the editor owns its own row-level validation.
+    ipAllowlistCidrs: [this.initialCidrs],
   });
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
@@ -201,6 +201,9 @@ export class AccessRuleDialogComponent implements OnInit {
 
   protected readonly submit = async (): Promise<void> => {
     this.formGroup.markAllAsTouched();
+    // markAllAsTouched doesn't re-run the IP allowlist editor's validator, so nudge it
+    // to surface its inline errors on a blind submit before checking overall validity.
+    this.formGroup.controls.ipAllowlistCidrs.updateValueAndValidity();
     if (this.formGroup.invalid) {
       return;
     }
@@ -216,13 +219,9 @@ export class AccessRuleDialogComponent implements OnInit {
     }
 
     if (value.ipAllowlistEnabled) {
-      const editor = this.ipAllowlistEditor();
-      if (editor == null || !editor.validate()) {
-        return;
-      }
       conditions.push({
         kind: "ip_allowlist",
-        cidrs: editor.currentCidrs.filter((c) => c !== ""),
+        cidrs: value.ipAllowlistCidrs.filter((c) => c !== ""),
       });
     }
 

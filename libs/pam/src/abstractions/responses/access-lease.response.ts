@@ -1,6 +1,11 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-export type AccessLeaseStatus = "active" | "expired" | "revoked";
+export const AccessLeaseStatus = Object.freeze({
+  Active: "active",
+  Expired: "expired",
+  Revoked: "revoked",
+} as const);
+export type AccessLeaseStatus = (typeof AccessLeaseStatus)[keyof typeof AccessLeaseStatus];
 
 /**
  * An access lease as its requester sees it: the originating request, string

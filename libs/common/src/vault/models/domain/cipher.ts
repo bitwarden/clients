@@ -77,7 +77,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    * sent by the server, persisted to `CipherData`, or round-tripped through JSON —
    * it exists only so gating surfaces (the cipher-lease banner) can tell a leased
    * cipher is PAM-governed once it's fully decrypted and `partialData` is gone.
-   * See LeasedCipherFetcher.
+   * See LeasedCipherFetcherService.
    */
   leaseGated?: boolean;
 

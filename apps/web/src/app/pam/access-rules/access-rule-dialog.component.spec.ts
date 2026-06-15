@@ -161,4 +161,23 @@ describe("AccessRuleDialogComponent — collection selection", () => {
     expect(orgId).toBe("org-1");
     expect(request.collections).toEqual(["col-2"]);
   });
+
+  it("serialises the ipAllowlistCidrs control into an ip_allowlist condition, dropping empties", async () => {
+    setup({ organizationId: "org-1" });
+    await component.ngOnInit();
+
+    controls().name.setValue("IP restricted");
+    controls().ipAllowlistEnabled.setValue(true);
+    controls().ipAllowlistCidrs.setValue(["10.0.0.0/8", "", "192.168.0.0/16"]);
+
+    await component["submit"]();
+
+    expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
+    const [, request] = pamApi.createAccessRule.mock.calls[0];
+    // A lone condition collapses to a single leaf in the request tree.
+    expect(request.conditions).toEqual({
+      kind: "ip_allowlist",
+      cidrs: ["10.0.0.0/8", "192.168.0.0/16"],
+    });
+  });
 });

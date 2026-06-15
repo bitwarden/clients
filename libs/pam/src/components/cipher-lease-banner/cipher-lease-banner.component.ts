@@ -138,7 +138,6 @@ export class CipherLeaseBannerComponent implements OnInit {
   /** Approval workflow resolved by the pre-check; `null` until the fold-out lands it. */
   protected readonly requestMode = signal<AccessApprovalMode | null>(null);
   protected readonly loadingRequestForm = signal(false);
-  protected readonly submittingRequest = signal(false);
   protected readonly requestError = signal<string | null>(null);
   protected readonly durationOptions = LEASE_DURATION_PRESETS;
 
@@ -360,7 +359,7 @@ export class CipherLeaseBannerComponent implements OnInit {
         this.requestFormExpanded.set(false);
         return;
       }
-      if (preCheck.approvalMode === "human") {
+      if (preCheck.approvalMode === AccessApprovalMode.Human) {
         this.humanForm.patchValue(defaultWindowFormValues());
       }
       this.requestMode.set(preCheck.approvalMode);
@@ -374,20 +373,22 @@ export class CipherLeaseBannerComponent implements OnInit {
     }
   }
 
-  protected async submitRequest(): Promise<void> {
+  // `[bitAction]` owns the button's busy/disabled state and serializes re-entrant
+  // clicks, so this handler only guards on form validity.
+  protected readonly submitRequest = async (): Promise<void> => {
     const mode = this.requestMode();
     if (mode == null) {
       return;
     }
-    const form = mode === "automatic" ? this.automaticForm : this.humanForm;
-    if (form.invalid || this.submittingRequest()) {
+    const form = mode === AccessApprovalMode.Automatic ? this.automaticForm : this.humanForm;
+    if (form.invalid) {
       return;
     }
-    this.submittingRequest.set(true);
     this.requestError.set(null);
 
     try {
-      const body = mode === "automatic" ? this.buildAutomaticBody() : this.buildHumanBody();
+      const body =
+        mode === AccessApprovalMode.Automatic ? this.buildAutomaticBody() : this.buildHumanBody();
       const response = await this.pamApiService.submitAccessRequest(this.cipherId(), body);
 
       // Neither path mints a lease at submit: automatic returns an already-approved
@@ -397,7 +398,7 @@ export class CipherLeaseBannerComponent implements OnInit {
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t(
-            response.approvalMode === "automatic"
+            response.approvalMode === AccessApprovalMode.Automatic
               ? "requestAccessModalApprovedSuccess"
               : "requestAccessModalRequestCreatedSuccess",
           ),
@@ -409,10 +410,8 @@ export class CipherLeaseBannerComponent implements OnInit {
       this.requestError.set(this.i18nService.t("requestAccessModalGenericError"));
     } catch (e) {
       this.handleRequestError(e);
-    } finally {
-      this.submittingRequest.set(false);
     }
-  }
+  };
 
   /** Toggle the "Extend lease" fold-out, resetting the form to defaults when opening. */
   protected toggleExtendForm(): void {

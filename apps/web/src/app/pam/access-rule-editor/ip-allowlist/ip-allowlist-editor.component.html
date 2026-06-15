@@ -12,7 +12,7 @@
         [formControl]="control"
         [placeholder]="'accessRuleIpAllowlistCidrPlaceholder' | i18n"
         [readonly]="readonly()"
-        (input)="onRowChange()"
+        (blur)="markTouched()"
       />
       @if (!readonly() && control.value.trim().length > 0) {
         <button

@@ -8,4 +8,9 @@
  *                          any approval (automated or human).
  * - "gated_active_lease" — the caller already holds an active lease.
  */
-export type GatedState = "unleased" | "gated_no_lease" | "gated_active_lease";
+export const GatedState = Object.freeze({
+  Unleased: "unleased",
+  GatedNoLease: "gated_no_lease",
+  GatedActiveLease: "gated_active_lease",
+} as const);
+export type GatedState = (typeof GatedState)[keyof typeof GatedState];

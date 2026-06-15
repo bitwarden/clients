@@ -26,7 +26,7 @@
     </bit-no-items>
   } @else {
     <div class="tw-flex tw-flex-col tw-gap-3" data-testid="approver-inbox-list">
-      @for (req of requests(); track trackById($index, req)) {
+      @for (req of requests(); track req.id) {
         <app-pam-approver-inbox-row
           [request]="req"
           [canDecide]="canDecide(req)"

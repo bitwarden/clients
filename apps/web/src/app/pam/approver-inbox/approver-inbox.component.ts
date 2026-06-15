@@ -34,6 +34,8 @@ import {
   AccessRequestDetailsResponse,
   AccessDecisionVerdict,
   AccessDecisionRequest,
+  AccessLeaseStatus,
+  AccessRequestStatus,
   PamApiService,
   canApprove,
   formatRemaining,
@@ -64,7 +66,7 @@ type FlatHistoryRow = {
 
 /** An approved request that has not produced a lease yet: the requester may still start it. */
 function isAwaitingStart(item: AccessRequestDetailsResponse): boolean {
-  return item.status === "approved" && item.producedLeaseId == null;
+  return item.status === AccessRequestStatus.Approved && item.producedLeaseId == null;
 }
 
 function historyStatusClassFor(bucket: BucketKey, status: string): string {
@@ -74,7 +76,7 @@ function historyStatusClassFor(bucket: BucketKey, status: string): string {
   if (bucket === "future") {
     return "tw-text-primary-600";
   }
-  if (status === "denied") {
+  if (status === AccessRequestStatus.Denied) {
     return "tw-text-danger-700";
   }
   return "tw-text-muted";
@@ -96,20 +98,20 @@ export function historyStatusLabelFor(
   }
   // A produced lease that has ended is labelled by the lease outcome, not the request status (which
   // stays "activated"): distinguish a manually revoked lease from one that lapsed.
-  if (item.producedLeaseStatus === "revoked") {
+  if (item.producedLeaseStatus === AccessLeaseStatus.Revoked) {
     return "pamInboxHistoryStatusRevoked";
   }
-  if (item.producedLeaseStatus === "expired") {
+  if (item.producedLeaseStatus === AccessLeaseStatus.Expired) {
     return "pamInboxHistoryStatusExpired";
   }
   switch (item.status) {
-    case "approved":
+    case AccessRequestStatus.Approved:
       return "pamInboxHistoryStatusApproved";
-    case "activated":
+    case AccessRequestStatus.Activated:
       return "pamInboxHistoryStatusActivated";
-    case "denied":
+    case AccessRequestStatus.Denied:
       return "pamInboxHistoryStatusDenied";
-    case "expired":
+    case AccessRequestStatus.Expired:
       return "pamInboxHistoryStatusExpired";
     default:
       return "pamInboxHistoryStatusCancelled";
@@ -233,7 +235,7 @@ export class ApproverInboxComponent implements OnInit {
           canRevoke:
             (bucket === "active" || bucket === "future") &&
             item.producedLeaseId != null &&
-            item.producedLeaseStatus === "active",
+            item.producedLeaseStatus === AccessLeaseStatus.Active,
           statusClass: historyStatusClassFor(bucket, item.status),
           statusLabel: historyStatusLabelFor(bucket, item),
           relTime: historyRelTimeFor(item, bucket, now),
@@ -326,7 +328,9 @@ export class ApproverInboxComponent implements OnInit {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          event.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
+          event.verdict === AccessDecisionVerdict.Approve
+            ? "pamInboxApprovedToast"
+            : "pamInboxDeniedToast",
         ),
       });
     } catch (e) {
@@ -366,11 +370,6 @@ export class ApproverInboxComponent implements OnInit {
       });
     }
   }
-
-  /** Used by @for track on the inbox list. */
-  protected trackById(_index: number, request: AccessRequestDetailsResponse): string {
-    return request.id;
-  }
 }
 
 export type HistoryGroup = {
@@ -394,8 +393,8 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
     // independently: a lease that starts immediately has notBefore=null but is still active if
     // notAfter is in the future.
     if (
-      (item.status === "activated" || item.producedLeaseId != null) &&
-      item.producedLeaseStatus === "active"
+      (item.status === AccessRequestStatus.Activated || item.producedLeaseId != null) &&
+      item.producedLeaseStatus === AccessLeaseStatus.Active
     ) {
       if (notBefore != null && notBefore > nowMs) {
         future.push(item);
@@ -405,7 +404,10 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
         active.push(item);
         continue;
       }
-    } else if (item.status === "approved" && (notAfter == null || notAfter >= nowMs)) {
+    } else if (
+      item.status === AccessRequestStatus.Approved &&
+      (notAfter == null || notAfter >= nowMs)
+    ) {
       // Approved but not started: the requester can still mint the lease, so the grant belongs
       // with Upcoming — never Active. Once the window lapses unstarted it falls through to Past.
       future.push(item);

@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -10,7 +11,7 @@ export default {
   component: IpAllowlistEditorComponent,
   decorators: [
     moduleMetadata({
-      imports: [IpAllowlistEditorComponent],
+      imports: [IpAllowlistEditorComponent, ReactiveFormsModule],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
@@ -21,40 +22,40 @@ export default {
 type Story = StoryObj<IpAllowlistEditorComponent>;
 
 export const Empty: Story = {
-  render: (args) => ({
-    props: args,
-    template: /* HTML */ `<app-pam-ip-allowlist-editor [cidrs]="[]"></app-pam-ip-allowlist-editor>`,
+  render: () => ({
+    props: { control: new FormControl<string[]>([]) },
+    template: /* HTML */ `<app-pam-ip-allowlist-editor
+      [formControl]="control"
+    ></app-pam-ip-allowlist-editor>`,
   }),
 };
 
 export const SingleRow: Story = {
-  render: (args) => ({
-    props: args,
-    template: /* HTML */ `
-      <app-pam-ip-allowlist-editor [cidrs]="['10.0.0.0/8']"></app-pam-ip-allowlist-editor>
-    `,
+  render: () => ({
+    props: { control: new FormControl<string[]>(["10.0.0.0/8"]) },
+    template: /* HTML */ `<app-pam-ip-allowlist-editor
+      [formControl]="control"
+    ></app-pam-ip-allowlist-editor>`,
   }),
 };
 
 export const MultipleRows: Story = {
-  render: (args) => ({
-    props: args,
-    template: /* HTML */ `
-      <app-pam-ip-allowlist-editor
-        [cidrs]="['10.0.0.0/8', '192.168.1.0/24', '2001:db8::/32']"
-      ></app-pam-ip-allowlist-editor>
-    `,
+  render: () => ({
+    props: {
+      control: new FormControl<string[]>(["10.0.0.0/8", "192.168.1.0/24", "2001:db8::/32"]),
+    },
+    template: /* HTML */ `<app-pam-ip-allowlist-editor
+      [formControl]="control"
+    ></app-pam-ip-allowlist-editor>`,
   }),
 };
 
 export const ReadOnly: Story = {
-  render: (args) => ({
-    props: args,
-    template: /* HTML */ `
-      <app-pam-ip-allowlist-editor
-        [cidrs]="['10.0.0.0/8', '192.168.1.0/24']"
-        [readonly]="true"
-      ></app-pam-ip-allowlist-editor>
-    `,
+  render: () => ({
+    props: { control: new FormControl<string[]>(["10.0.0.0/8", "192.168.1.0/24"]) },
+    template: /* HTML */ `<app-pam-ip-allowlist-editor
+      [formControl]="control"
+      [readonly]="true"
+    ></app-pam-ip-allowlist-editor>`,
   }),
 };
