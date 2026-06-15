@@ -70,6 +70,7 @@ export abstract class PamApiService {
   abstract getLeasedCipher(cipherId: string): Promise<CipherResponse>;
   abstract cancelAccessRequest(id: string): Promise<void>;
   abstract requestLeaseExtension(
+    leaseId: string,
     request: AccessLeaseExtensionRequest,
   ): Promise<AccessRequestDetailsResponse>;
   abstract decideAccessRequest(
