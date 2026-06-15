@@ -1,4 +1,7 @@
-import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+import {
+  AUTOFILL_ATTRIBUTES,
+  AutofillTargetingRuleTypes,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
@@ -36,6 +39,19 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { AutoFillConstants } from "./autofill-constants";
+
+/**
+ * Per-field-type cap on how many DOM matches the targeted-collection pass
+ * accepts from a selector array. Selector arrays are alternatives by default
+ * (first match wins), but certain field types appear in pairs on the same
+ * form; most notably `newPassword`, which is commonly mirrored by a
+ * "confirm new password" input on registration and password-update flows.
+ */
+const MAX_MATCHES_BY_FIELD_TYPE: Readonly<Partial<Record<AutofillTargetingRuleType, number>>> =
+  Object.freeze({
+    [AutofillTargetingRuleTypes.newPassword]: 2,
+  });
+const DEFAULT_MAX_MATCHES = 1;
 
 type ResolveFieldTarget = {
   selectorAlternatives: string[];
@@ -272,9 +288,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    *
    * When a `container` resolves locally, fields belonging to that
    * `FormContent` are associated with the resolved form record via
-   * `field.form`. When it does not resolve (or is absent, or crosses an
-   * iframe boundary), fields are left unassociated — the targeted path is
-   * mutually exclusive with heuristics and does not fall back to native
+   * `field.form`. When it does not resolve (or is absent or crosses an
+   * `iframe` boundary), fields are left unassociated; the targeted path is
+   * mutually-exclusive with heuristics and does not fall back to native
    * `<input>.form` ancestry.
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
@@ -298,26 +314,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
     this.routeIframeTargets(iframeTargets);
 
-    // If this frame resolved no local targeted fields but already has fields cached
-    // from a prior applyExternalTargetedFields call, use those cached fields. This
-    // handles the case where an iframe's own getPageDetails() runs the targeting path
-    // (because targeting rules apply to the whole tab URL) but all selectors in the
-    // rules cross an iframe boundary that doesn't exist inside this frame — so the
-    // results are empty, and we must not overwrite the background's page-details entry
-    // with an empty payload.
-    if (!localFields.length && this.autofillFieldElements.size > 0) {
-      this.domRecentlyMutated = false;
-      const cachedPageDetails = this.getFormattedPageDetails(
-        this.getFormattedAutofillFormsData(),
-        this.getFormattedAutofillFieldsData(),
-      );
-      this.setupOverlayListeners(cachedPageDetails);
-      return cachedPageDetails;
-    }
-
     this.domRecentlyMutated = false;
     /**
-     * @TODO check if need to utilize targeting rules for forms/submits within closed
+     * FIXME check if need to utilize targeting rules for forms/submits within closed
      * shadow roots as well, in order to detect cipher additions/updates
      */
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, localFields);
@@ -460,7 +459,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
+      const maxMatches = MAX_MATCHES_BY_FIELD_TYPE[fieldType] ?? DEFAULT_MAX_MATCHES;
+      // Dedupe by element identity in case two selectors in the array
+      // resolve to the same node.
+      const matchedElements = new Set<Element>();
+      let matchCount = 0;
+
       for (const selector of selectorAlternatives) {
+        if (matchCount >= maxMatches) {
+          break;
+        }
+
         if (typeof selector !== "string") {
           continue;
         }
@@ -471,36 +480,43 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (iframeCrossing) {
           const { iframeElement, innerSelector } = iframeCrossing;
           const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
-          // Empty src (srcdoc, about:blank) is deferred — see routing/scope notes.
-          if (iframeSrc) {
-            if (!iframeTargets.has(iframeSrc)) {
-              iframeTargets.set(iframeSrc, []);
-            }
-            iframeTargets.get(iframeSrc)!.push({
-              selector: innerSelector,
-              fieldType,
-            });
+          // An iframe with no resolvable source (constructed but not yet
+          // navigated, srcdoc, about:blank) is not counted, so a later
+          // alternative in the same selector array still gets a chance to
+          // resolve.
+          if (!iframeSrc) {
+            continue;
           }
-          break;
+          if (!iframeTargets.has(iframeSrc)) {
+            iframeTargets.set(iframeSrc, []);
+          }
+          iframeTargets.get(iframeSrc)!.push({
+            selector: innerSelector,
+            fieldType,
+          });
+          matchCount++;
+          continue;
         }
 
         // No iframe boundary — resolve locally (direct element or shadow DOM).
         const matchedElement = this.domQueryService.queryDeepSelector(selector);
-        if (matchedElement) {
-          const fieldId = `targeted_field_${targetIndex}_${fieldType}`;
-          const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-          formFieldElement.opid = fieldId;
-
-          const autofillField = this.buildTargetedAutofillField(
-            formFieldElement,
-            fieldType,
-            localFields.length,
-          );
-          autofillField.form = formOpid ?? null;
-          localFields.push(autofillField);
-          this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
-          break;
+        if (!matchedElement || matchedElements.has(matchedElement)) {
+          continue;
         }
+        matchedElements.add(matchedElement);
+
+        const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+        formFieldElement.opid = `targeted_field_${targetIndex}_${fieldType}_${matchCount}`;
+
+        const autofillField = this.buildTargetedAutofillField(
+          formFieldElement,
+          fieldType,
+          localFields.length,
+        );
+        autofillField.form = formOpid ?? null;
+        localFields.push(autofillField);
+        this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+        matchCount++;
       }
     }
 
