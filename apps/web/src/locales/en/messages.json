@@ -14772,6 +14772,9 @@
   "pamInboxTitle": {
     "message": "Access requests"
   },
+  "pamAccessRequestTitle": {
+    "message": "Access request"
+  },
   "pamInboxSubtitle": {
     "message": "Review and act on access requests, and manage who has temporary access to your collections."
   },

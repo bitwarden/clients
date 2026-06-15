@@ -686,7 +686,7 @@ const routes: Routes = [
       },
       {
         path: "leasing/requests/:id",
-        data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
+        data: { titleId: "pamAccessRequestTitle" } satisfies RouteDataProperties,
         canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
         loadComponent: () =>
           import("./pam/access-request-route/access-request-route.component").then(

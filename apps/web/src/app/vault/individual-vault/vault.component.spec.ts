@@ -350,6 +350,48 @@ describe("VaultComponent", () => {
     expect(component).toBeTruthy();
   });
 
+  describe("cipher open gate (PAM seam)", () => {
+    let gate: { check: jest.Mock };
+
+    beforeEach(() => {
+      gate = TestBed.inject(CIPHER_OPEN_GATE) as unknown as { check: jest.Mock };
+      // openVaultItemDialog awaits the dialog's `closed`; emit so viewCipherById resolves.
+      // go() (on close / handled) routes through router.navigate — keep it inert.
+      openVaultItemDialogSpy.mockReturnValue({
+        closed: of(undefined),
+      } as unknown as DialogRef<VaultItemDialogResult, unknown>);
+      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      openVaultItemDialogSpy.mockClear();
+    });
+
+    it('opens the view dialog when the gate returns "open"', async () => {
+      gate.check.mockResolvedValue("open");
+
+      await component.viewCipherById(TEST_CIPHER_ID);
+
+      expect(gate.check).toHaveBeenCalled();
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+    });
+
+    it('skips the view dialog when the gate returns "handled"', async () => {
+      gate.check.mockResolvedValue("handled");
+
+      await component.viewCipherById(TEST_CIPHER_ID);
+
+      expect(openVaultItemDialogSpy).not.toHaveBeenCalled();
+    });
+
+    it('substitutes the gate-supplied cipher for an "openWith" verdict', async () => {
+      const leased = { id: "leased-cipher", type: CipherType.Login, edit: true } as Cipher;
+      gate.check.mockResolvedValue({ kind: "openWith", cipher: leased });
+
+      await component.viewCipherById(TEST_CIPHER_ID);
+
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+      expect(openVaultItemDialogSpy.mock.lastCall[1].formConfig.originalCipher).toBe(leased);
+    });
+  });
+
   [
     { action: "view", formDetails: { mode: "view", formMode: "edit" } },
     { action: "edit", eventName: "editCipher", formDetails: { mode: "form", formMode: "edit" } },

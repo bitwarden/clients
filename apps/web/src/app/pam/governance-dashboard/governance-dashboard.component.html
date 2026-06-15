@@ -64,11 +64,11 @@
           @for (row of rows(); track row.collectionId) {
             <tr bitRow>
               <td bitCell>
-                <span [title]="row.collectionName">{{ row.collectionName }}</span>
+                <span [bitTooltip]="row.collectionName">{{ row.collectionName }}</span>
               </td>
               <td bitCell>
                 <span class="tw-text-sm" [bitTooltip]="'pamAccessRuleSummaryTooltip' | i18n">
-                  {{ renderRule(row) }}
+                  {{ row.rule }}
                 </span>
               </td>
               <td bitCell>
@@ -103,7 +103,7 @@
               </td>
               <td bitCell>
                 @if (row.lastActivityAt) {
-                  <span [title]="row.lastActivityAt">{{
+                  <span [bitTooltip]="row.lastActivityAt">{{
                     row.lastActivityAt | date: "medium"
                   }}</span>
                 } @else {
