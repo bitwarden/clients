@@ -10,6 +10,7 @@ export { type ColumnRef, type ColumnName, type ColumnRefs } from "./column";
 export { SearchModel } from "./search-model";
 export { SortModel, type SortState } from "./sort-model";
 export { FiltersModel, type FilterDefinition, type AppliedFilter } from "./filters-model";
+export { PaginationModel, type PaginationConfig } from "./pagination-model";
 export { TableModel, type TableModelConfig } from "./table-model";
 export { TableSelectionModel } from "./table-selection-model";
 export { BitTableV2Component } from "./table-v2.component";

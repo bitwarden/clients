@@ -30,6 +30,7 @@ import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 import { SortModel } from "./sort-model";
 import { TableModel } from "./table-model";
 
@@ -112,6 +113,7 @@ function sortRows<T>(
     BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
+    BitTablePaginatorComponent,
     NoItemsComponent,
     SkeletonTextComponent,
     I18nPipe,
@@ -258,15 +260,26 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Searc
     ...(this.fill() ? ["tw-flex", "tw-min-h-0", "tw-flex-1", "tw-flex-col"] : []),
   ]);
 
-  /** Rendered rows: the model's `filtered` sorted by {@link sort} using the column's `sortFn` or default. */
+  /**
+   * Rendered rows: the model's `filtered` sorted by {@link sort} (using the
+   * column's `sortFn` or the default), then sliced to the current page when
+   * client-side pagination is configured. In `manual` pagination mode the data
+   * already holds only the page, so no slice is applied.
+   */
   protected readonly rows = computed(() => {
     const filtered = this.table().filtered();
     const sort = this.table().sort.current();
-    if (!sort.column) {
-      return filtered;
+    let sorted = filtered;
+    if (sort.column) {
+      const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+      sorted = sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
     }
-    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+    const pagination = this.table().pagination;
+    if (pagination && !pagination.manual) {
+      const start = pagination.currentPage() * pagination.pageSize();
+      return sorted.slice(start, start + pagination.pageSize());
+    }
+    return sorted;
   });
 
   /** Index array for the skeleton rows shown while loading. */
@@ -312,6 +325,12 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Searc
       this.logService?.warning(
         "bit-table-v2: virtualization (`virtualRowHeight`) needs a bounded height — set `maxHeight` " +
           "or `fill` (inside a bounded container). Without one the viewport collapses and no rows render.",
+      );
+    }
+    if (this.isVirtualized() && this.table().pagination) {
+      this.logService?.warning(
+        "bit-table-v2: `pagination` and virtualization (`virtualRowHeight`) are mutually exclusive — " +
+          "virtualization already renders large sets efficiently. The paginator will page the virtualized rows.",
       );
     }
     const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());

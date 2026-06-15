@@ -183,6 +183,13 @@ export default {
               nothingToShow: "Nothing to show",
               selectAllRows: "Select all rows",
               selectRow: "Select row",
+              showingItemRange: (start, end, total) => `Showing ${start} - ${end} of ${total}`,
+              rowsPerPage: "Rows per page",
+              rowsPerPageOption: (count) => `${count} rows per page`,
+              previousPage: "Previous page",
+              nextPage: "Next page",
+              goToPage: "Go to page",
+              selectPlaceholder: "-- Select --",
             }),
         },
       ],
@@ -642,6 +649,46 @@ export const Loading: Story = {
           <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-8"></bit-skeleton-text></bit-cell>
         </bit-column>
         <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Other</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+const paginatedTable = new TableModel<DemoRow>({
+  data: signal(
+    [...Array(23).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` })),
+  ),
+  displayedColumns: ["id", "name", "other"],
+  pagination: { pageSize: 10, pageSizeOptions: [5, 10, 25] },
+});
+
+/**
+ * Configure `pagination` on the model and the table renders a footer in the
+ * chrome below the rows automatically — no element to project. The footer shows
+ * the current row range on the left and a page-size select, previous/next
+ * controls, and a page input on the right; the table slices its filtered (and
+ * sorted) rows to the page.
+ */
+export const Pagination: Story = {
+  render: () => ({
+    props: {
+      table: paginatedTable,
+      sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
+    },
+    template: `
+      <bit-table-v2 [table]="table">
+        <bit-column sortable defaultSort="asc" [sortFn]="sortFn">
+          <bit-header-cell>Id</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+        </bit-column>
+        <bit-column sortable>
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
         </bit-column>

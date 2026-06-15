@@ -1,0 +1,47 @@
+@let p = pagination();
+<div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-px-3 tw-py-2">
+  <span class="tw-text-sm tw-text-muted">
+    {{ "showingItemRange" | i18n: p.rangeStart() : p.rangeEnd() : p.length() }}
+  </span>
+
+  <div class="tw-flex tw-items-center tw-gap-2">
+    <bit-select
+      [ngModel]="p.pageSize()"
+      (ngModelChange)="setPageSize($event)"
+      [attr.aria-label]="'rowsPerPage' | i18n"
+    >
+      @for (size of p.pageSizeOptions; track size) {
+        <bit-option [value]="size" [label]="'rowsPerPageOption' | i18n: size"></bit-option>
+      }
+    </bit-select>
+
+    <button
+      type="button"
+      bitIconButton="bwi-angle-left"
+      size="small"
+      [disabled]="!p.hasPrevious()"
+      [label]="'previousPage' | i18n"
+      (click)="p.previous()"
+    ></button>
+
+    <input
+      bitInput
+      type="number"
+      min="1"
+      [max]="p.pageCount()"
+      class="tw-text-center [field-sizing:content] [appearance:textfield] [&::-webkit-inner-spin-button]:[appearance:none] [&::-webkit-outer-spin-button]:[appearance:none]"
+      [ngModel]="p.currentPage() + 1"
+      (ngModelChange)="goToPage($event)"
+      [attr.aria-label]="'goToPage' | i18n"
+    />
+
+    <button
+      type="button"
+      bitIconButton="bwi-angle-right"
+      size="small"
+      [disabled]="!p.hasNext()"
+      [label]="'nextPage' | i18n"
+      (click)="p.next()"
+    ></button>
+  </div>
+</div>

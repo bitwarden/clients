@@ -2,6 +2,7 @@ import { computed, Signal, signal, WritableSignal } from "@angular/core";
 
 import { ColumnName, ColumnRefs, createColumnRefs } from "./column";
 import { FilterDefinition, FiltersModel } from "./filters-model";
+import { PaginationConfig, PaginationModel } from "./pagination-model";
 import { SearchModel } from "./search-model";
 import { SortModel, SortState } from "./sort-model";
 import { TableSelectionModel } from "./table-selection-model";
@@ -25,6 +26,8 @@ export type TableModelConfig<T, S extends string, F extends string = string> = {
   filters?: FilterDefinition<T, F>[];
   /** Row selection. Omit for a non-selectable table (no checkbox column). */
   selection?: { multiple?: boolean; initial?: T[]; canSelect?: (row: T) => boolean };
+  /** Pagination. Omit for an unpaginated table (no paginator state) — see {@link PaginationModel}. */
+  pagination?: PaginationConfig;
 };
 
 /**
@@ -88,6 +91,9 @@ export class TableModel<T, S extends string = never, F extends string = string> 
   /** Selection state, present only when configured. */
   readonly selection?: TableSelectionModel<T>;
 
+  /** Pagination state, present only when configured. */
+  readonly pagination?: PaginationModel;
+
   constructor(config: TableModelConfig<T, S, F>) {
     this.data = config.data ?? signal<T[]>([]);
     this.loading = config.loading ?? signal(false);
@@ -106,6 +112,14 @@ export class TableModel<T, S extends string = never, F extends string = string> 
         canSelect: config.selection.canSelect,
         rows: this.filtered,
       });
+    }
+    if (config.pagination) {
+      // Server mode (a `length` is supplied) trusts the consumer's total; client
+      // mode counts the filtered rows, which the model uses as the fallback.
+      this.pagination = new PaginationModel(
+        config.pagination,
+        computed(() => this.filtered().length),
+      );
     }
   }
 }

@@ -136,4 +136,14 @@
       <ng-content select="bit-row"></ng-content>
     }
   </div>
+
+  <!--
+    Paginator: rendered automatically below the `role="table"` element (so it
+    sits at the bottom without being treated as a row) when the model is
+    configured with `pagination`. A stateless view over the model's pagination
+    state — consumers configure it on the model, not by projecting it.
+  -->
+  @if (table().pagination; as pagination) {
+    <bit-table-paginator [pagination]="pagination"></bit-table-paginator>
+  }
 </div>

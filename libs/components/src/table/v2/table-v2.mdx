@@ -444,6 +444,47 @@ model's selection via DI; its clear button also clears the selection. No explici
 Outside a table, the bar's explicit API (`[selectedCount]`, `(clear)`) still works — see
 [Bulk Actions Bar](?path=/docs/component-library-bulk-actions-bar--docs).
 
+## Pagination
+
+Configure `pagination` on the model. The table renders a footer in the chrome below the rows
+automatically — there's no element to project, the same way `selection` adds the checkbox column and
+`loading` adds skeleton rows. The footer shows the current row range on the left, and a page-size
+select, previous/next controls, and a page input on the right:
+
+```ts
+const table = new TableModel<Member>({
+  data: members,
+  displayedColumns: ["name", "email"],
+  pagination: { pageSize: 10, pageSizeOptions: [10, 25, 50, 100] },
+});
+```
+
+```html
+<bit-table-v2 [table]="table">…columns…</bit-table-v2>
+```
+
+<Canvas of={stories.Pagination} />
+
+By default pagination is **client-side**: the table slices its filtered (and sorted) rows to the
+current page, and the total ("of N") is the filtered row count. Read or set the page
+programmatically via `table.pagination` — `pageIndex`, `pageSize`, `goTo`, `next`, `previous`,
+`setPageSize` — to persist or restore state.
+
+For **server-side** pagination, supply a `length` signal with the total row count. That selects
+server mode: the table does not slice — `data()` is expected to already hold only the current page
+(fetch it keyed off `table.pagination.pageIndex()` / `pageSize()`):
+
+```ts
+const table = new TableModel<Member>({
+  data: currentPageRows, // Signal<Member[]> — just this page, from your API
+  displayedColumns: ["name", "email"],
+  pagination: { length: totalCount, pageSize: 10 },
+});
+```
+
+Pagination and [virtual scrolling](#virtual-scrolling) are mutually exclusive — virtualization
+already renders large sets efficiently.
+
 ## Scrolling and the sticky header
 
 By default the table grows to fit its rows and scrolls with the page. To bound it instead — so the
