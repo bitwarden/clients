@@ -1,16 +1,18 @@
+//! Direct clipboard backend using `arboard`.
+//! This is used on all platforms, except Gnome since gnome on wayland.
+
 use anyhow::Result;
 use arboard::{Clipboard, Set};
 
-pub fn read() -> Result<String> {
+pub(super) fn read() -> Result<String> {
     let mut clipboard = Clipboard::new()?;
-
     Ok(clipboard.get_text()?)
 }
 
-pub fn write(text: &str, password: bool) -> Result<()> {
+pub(super) fn write(text: &str, hide_from_history: bool) -> Result<()> {
     let mut clipboard = Clipboard::new()?;
 
-    let set = clipboard_set(clipboard.set(), password);
+    let set = clipboard_set(clipboard.set(), hide_from_history);
 
     set.text(text)?;
     Ok(())
@@ -18,10 +20,10 @@ pub fn write(text: &str, password: bool) -> Result<()> {
 
 // Exclude from windows clipboard history
 #[cfg(target_os = "windows")]
-fn clipboard_set(set: Set, password: bool) -> Set {
+fn clipboard_set(set: Set, hide_from_history: bool) -> Set {
     use arboard::SetExtWindows;
 
-    if password {
+    if hide_from_history {
         set.exclude_from_cloud().exclude_from_history()
     } else {
         set
@@ -30,10 +32,10 @@ fn clipboard_set(set: Set, password: bool) -> Set {
 
 // Wait for clipboard to be available on linux
 #[cfg(target_os = "linux")]
-fn clipboard_set(set: Set, password: bool) -> Set {
+fn clipboard_set(set: Set, hide_from_history: bool) -> Set {
     use arboard::SetExtLinux;
 
-    if password {
+    if hide_from_history {
         set.exclude_from_history().wait()
     } else {
         set.wait()
@@ -41,10 +43,10 @@ fn clipboard_set(set: Set, password: bool) -> Set {
 }
 
 #[cfg(target_os = "macos")]
-fn clipboard_set(set: Set, password: bool) -> Set {
+fn clipboard_set(set: Set, hide_from_history: bool) -> Set {
     use arboard::SetExtApple;
 
-    if password {
+    if hide_from_history {
         set.exclude_from_history()
     } else {
         set
