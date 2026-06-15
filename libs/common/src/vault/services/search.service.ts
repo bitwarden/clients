@@ -98,8 +98,8 @@ export class SearchService implements SearchServiceAbstraction {
     // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
     // A vault item consists of targets. A target is extracted from the various information in the vault item, such as name, notes.
     //
-    // For each part in the query, at least on target must contain the part. If all query parts are found in the vault item target,
-    // then the vault item matches the search.
+    // For each part in the query, at least on target must contain the part.
+    // If all query parts are found in the vault item target, then the vault item matches the search.
     //
     // Example:
     // {
