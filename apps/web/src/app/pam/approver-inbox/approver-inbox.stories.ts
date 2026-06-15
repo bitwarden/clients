@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import { ApproverInboxComponent } from "./approver-inbox.component";
@@ -77,6 +78,18 @@ function decorators(rows: AccessRequestDetailsResponse[]) {
       imports: [I18nPipe],
       providers: [
         { provide: PamApiService, useValue: fakeApi(rows) },
+        // Names render from local vault state, filled in here as the real resolver would.
+        {
+          provide: AccessRequestNameResolver,
+          useValue: {
+            resolveDisplayNames: async (resolveRows: AccessRequestDetailsResponse[]) => {
+              resolveRows.forEach((row) => {
+                row.cipherName = "Prod DB admin";
+                row.collectionName = "Production";
+              });
+            },
+          },
+        },
         {
           provide: AccountService,
           useValue: {

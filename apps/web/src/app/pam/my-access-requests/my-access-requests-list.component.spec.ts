@@ -8,6 +8,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
 
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+
 import {
   MyAccessRequestsListComponent,
   RECENT_WINDOW_DAYS,
@@ -51,6 +53,7 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
 describe("MyAccessRequestsListComponent", () => {
   let pamApi: MockProxy<PamApiService>;
   let toast: MockProxy<ToastService>;
+  let nameResolver: MockProxy<AccessRequestNameResolver>;
 
   const i18n = new I18nMockService({
     loading: "Loading…",
@@ -77,6 +80,7 @@ describe("MyAccessRequestsListComponent", () => {
     pamColumnResolver: "Resolver",
     pamColumnComment: "Comment",
     pamColumnResolved: "Resolved",
+    pamInboxInCollection: "in __$1__",
     pamApproversTbd: "Awaiting approval",
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
@@ -92,11 +96,15 @@ describe("MyAccessRequestsListComponent", () => {
 
     toast = mock<ToastService>();
 
+    nameResolver = mock<AccessRequestNameResolver>();
+    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
+
     await TestBed.configureTestingModule({
       imports: [MyAccessRequestsListComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
         { provide: PamApiService, useValue: pamApi },
+        { provide: AccessRequestNameResolver, useValue: nameResolver },
         { provide: I18nService, useValue: i18n },
         { provide: ToastService, useValue: toast },
         { provide: LogService, useValue: { error: jest.fn() } },
@@ -136,6 +144,34 @@ describe("MyAccessRequestsListComponent", () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-recent-empty"]'),
     ).not.toBeNull();
+  }));
+
+  it("renders the cipher and collection names resolved from local vault state", fakeAsync(() => {
+    nameResolver.resolveDisplayNames.mockImplementation(async (rows) => {
+      rows.forEach((row) => {
+        row.cipherName = "Production DB";
+        row.collectionName = "Engineering";
+      });
+    });
+
+    const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-p1", status: "pending" })]);
+
+    const cell = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-pending-row-p1"] td',
+    ) as HTMLElement;
+    expect(nameResolver.resolveDisplayNames).toHaveBeenCalled();
+    expect(cell.textContent).toContain("Production DB");
+    expect(cell.textContent).toContain("in Engineering");
+  }));
+
+  it("falls back to the cipher id when the cipher is not in local vault state", fakeAsync(() => {
+    // Resolver leaves cipherName null (cipher absent from vault); template shows the id.
+    const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-xyz", status: "pending" })]);
+
+    const cell = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-pending-row-p1"] td',
+    ) as HTMLElement;
+    expect(cell.textContent).toContain("cipher-xyz");
   }));
 
   it("places resolved-within-window rows in the Recent section", fakeAsync(() => {

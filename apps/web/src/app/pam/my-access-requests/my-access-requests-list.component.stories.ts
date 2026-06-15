@@ -6,7 +6,18 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
 
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+
 import { MyAccessRequestsListComponent } from "./my-access-requests-list.component";
+
+/** Readable names for the gated ciphers, keyed by the `cipher-<id>` the fixtures request. */
+const CIPHER_NAMES: Record<string, string> = {
+  "cipher-p1": "Production database",
+  "cipher-p2": "Staging API key",
+  "cipher-r1": "AWS root account",
+  "cipher-r2": "Billing portal",
+  "cipher-r3": "Legacy VPN",
+};
 
 type Fixture = {
   id: string;
@@ -52,6 +63,18 @@ function pamApi(responses: AccessRequestDetailsResponse[]): PamApiService {
   } as unknown as PamApiService;
 }
 
+/** Fills each row's cipher/collection name from the fixtures, as the real resolver would from vault state. */
+function nameResolver(): AccessRequestNameResolver {
+  return {
+    resolveDisplayNames: async (rows: AccessRequestDetailsResponse[]) => {
+      rows.forEach((row) => {
+        row.cipherName = CIPHER_NAMES[row.cipherId] ?? row.cipherId;
+        row.collectionName = "Production";
+      });
+    },
+  } as unknown as AccessRequestNameResolver;
+}
+
 const i18nMock = () =>
   new I18nMockService({
     loading: "Loading…",
@@ -79,6 +102,7 @@ const i18nMock = () =>
     pamColumnResolver: "Resolver",
     pamColumnComment: "Comment",
     pamColumnResolved: "Resolved",
+    pamInboxInCollection: "in __$1__",
     pamApproversTbd: "Awaiting approval",
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
@@ -95,6 +119,7 @@ const withFixtures = (responses: AccessRequestDetailsResponse[]) => ({
       providers: [
         { provide: I18nService, useFactory: i18nMock },
         { provide: PamApiService, useValue: pamApi(responses) },
+        { provide: AccessRequestNameResolver, useValue: nameResolver() },
         {
           provide: ToastService,
           useValue: { showToast: (): void => undefined },

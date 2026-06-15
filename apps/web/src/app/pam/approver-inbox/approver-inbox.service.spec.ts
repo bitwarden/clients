@@ -1,12 +1,10 @@
 import { TestBed } from "@angular/core/testing";
-import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { KeyService } from "@bitwarden/key-management";
 import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
+
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { ApproverInboxService, sortInbox } from "./approver-inbox.service";
 
@@ -70,7 +68,7 @@ describe("ApproverInboxService", () => {
       "listInboxRequests" | "listInboxHistory" | "decideAccessRequest" | "cancelAccessRequest"
     >
   >;
-  let encryptService: jest.Mocked<Pick<EncryptService, "decryptString">>;
+  let nameResolver: MockProxy<AccessRequestNameResolver>;
   let service: ApproverInboxService;
 
   beforeEach(() => {
@@ -86,25 +84,14 @@ describe("ApproverInboxService", () => {
       >
     >;
 
-    encryptService = {
-      decryptString: jest.fn().mockResolvedValue("decrypted-name"),
-    } as jest.Mocked<Pick<EncryptService, "decryptString">>;
-
-    const accountService = mock<AccountService>();
-    (accountService as unknown as { activeAccount$: BehaviorSubject<unknown> }).activeAccount$ =
-      new BehaviorSubject({ id: "user-current", email: "me@example.com" });
-
-    const keyService = mock<KeyService>();
-    keyService.orgKeys$.mockReturnValue(of({ "org-1": "fake-org-key" } as never));
+    nameResolver = mock<AccessRequestNameResolver>();
+    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
 
     TestBed.configureTestingModule({
       providers: [
         ApproverInboxService,
         { provide: PamApiService, useValue: pamApiService },
-        { provide: AccountService, useValue: accountService },
-        { provide: KeyService, useValue: keyService },
-        { provide: EncryptService, useValue: encryptService },
-        { provide: LogService, useValue: mock<LogService>() },
+        { provide: AccessRequestNameResolver, useValue: nameResolver },
       ],
     });
 
@@ -124,31 +111,15 @@ describe("ApproverInboxService", () => {
       expect(rows.map((r) => r.id)).toEqual(["older", "newer"]);
     });
 
-    it("decrypts cipher and collection names with the row's org key", async () => {
-      pamApiService.listInboxRequests.mockResolvedValue([
-        makeRow({ id: "a", cipherName: "2.cipher-blob" }),
-      ]);
+    it("resolves display names for the inbox and history together in one pass", async () => {
+      pamApiService.listInboxRequests.mockResolvedValue([makeRow({ id: "a" })]);
+      pamApiService.listInboxHistory.mockResolvedValue([makeRow({ id: "h" })]);
 
       await service.load();
 
-      // One call per field (cipherName, collectionName).
-      expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
-      const rows = await firstValueFrom(service.requests$);
-      expect(rows[0].cipherName).toBe("decrypted-name");
-      expect(rows[0].collectionName).toBe("decrypted-name");
-    });
-
-    it("falls back to a placeholder when decryption fails", async () => {
-      pamApiService.listInboxRequests.mockResolvedValue([
-        makeRow({ id: "a", cipherName: "2.cipher-blob" }),
-      ]);
-      encryptService.decryptString.mockRejectedValue(new Error("boom"));
-
-      await service.load();
-
-      const rows = await firstValueFrom(service.requests$);
-      expect(rows[0].cipherName).toBe("[error: cannot decrypt]");
-      expect(rows[0].collectionName).toBe("[error: cannot decrypt]");
+      expect(nameResolver.resolveDisplayNames).toHaveBeenCalledTimes(1);
+      const resolved = nameResolver.resolveDisplayNames.mock.calls[0][0];
+      expect(resolved.map((r) => r.id).sort()).toEqual(["a", "h"]);
     });
 
     it("excludes timed-out requests from the actionable list", async () => {

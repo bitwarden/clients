@@ -7,15 +7,14 @@ import { BehaviorSubject, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 import { AccessLeaseStatus, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { HeaderModule } from "../../layouts/header/header.module";
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import {
@@ -88,20 +87,17 @@ describe("ApproverInboxComponent", () => {
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
 
-    const keyService = mock<KeyService>();
-    keyService.orgKeys$.mockReturnValue(new BehaviorSubject({}) as never);
-
-    const encryptService = mock<EncryptService>();
-    encryptService.decryptString.mockResolvedValue("decrypted");
+    // The inbox + embedded "My requests" list resolve cipher/collection names from local vault state.
+    const nameResolver = mock<AccessRequestNameResolver>();
+    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [ApproverInboxComponent],
       providers: [
         provideRouter([]),
         { provide: PamApiService, useValue: pamApiService },
+        { provide: AccessRequestNameResolver, useValue: nameResolver },
         { provide: AccountService, useValue: accountService },
-        { provide: KeyService, useValue: keyService },
-        { provide: EncryptService, useValue: encryptService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: mock<LogService>() },
