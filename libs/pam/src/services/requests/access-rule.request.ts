@@ -24,6 +24,10 @@ export class AccessRuleRequest {
   singleActiveLease: boolean;
   /** When false, the rule is inactive and does not restrict access. */
   enabled: boolean;
+  /** When true, an active lease under this rule may be extended (always auto-approved), up to maxExtensions times. */
+  allowsExtensions: boolean;
+  /** Maximum number of times a single lease may be extended. Null when extensions are not allowed. */
+  maxExtensions: number | null;
 
   constructor(init: {
     name: string;
@@ -34,6 +38,8 @@ export class AccessRuleRequest {
     maxLeaseDurationSeconds?: number | null;
     singleActiveLease?: boolean;
     enabled?: boolean;
+    allowsExtensions?: boolean;
+    maxExtensions?: number | null;
   }) {
     this.name = init.name;
     this.description = init.description ?? null;
@@ -43,6 +49,8 @@ export class AccessRuleRequest {
     this.maxLeaseDurationSeconds = init.maxLeaseDurationSeconds ?? null;
     this.singleActiveLease = init.singleActiveLease ?? false;
     this.enabled = init.enabled ?? true;
+    this.allowsExtensions = init.allowsExtensions ?? false;
+    this.maxExtensions = init.maxExtensions ?? null;
   }
 }
 

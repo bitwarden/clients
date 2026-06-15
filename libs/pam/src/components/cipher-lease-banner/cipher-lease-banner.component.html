@@ -1,32 +1,71 @@
 @if (activeLease()) {
   <div
-    class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
+    class="tw-mb-4 tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
   >
-    <span class="tw-text-sm tw-font-medium">{{
-      "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel()
-    }}</span>
-    <span class="tw-flex tw-items-center tw-gap-2">
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        size="small"
-        [bitAction]="extendLease"
-        id="cipher-lease-banner_button_extend-lease"
-      >
-        {{ "pamExtendLeaseButton" | i18n }}
-      </button>
-      <button
-        type="button"
-        bitButton
-        buttonType="danger"
-        size="small"
-        [bitAction]="endLease"
-        id="cipher-lease-banner_button_end-lease"
-      >
-        {{ "pamEndLeaseButton" | i18n }}
-      </button>
-    </span>
+    <div class="tw-flex tw-items-center tw-justify-between">
+      <span class="tw-text-sm tw-font-medium">{{
+        "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel()
+      }}</span>
+      <span class="tw-flex tw-items-center tw-gap-2">
+        @if (canExtendLease()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            (click)="toggleExtendForm()"
+            id="cipher-lease-banner_button_extend-toggle"
+          >
+            {{ (extendFormExpanded() ? "cancel" : "pamExtendLeaseButton") | i18n }}
+          </button>
+        }
+        <button type="button" bitButton buttonType="danger" size="small" [bitAction]="endLease">
+          {{ "pamEndLeaseButton" | i18n }}
+        </button>
+      </span>
+    </div>
+
+    @if (extendFormExpanded()) {
+      <hr class="tw-my-3 tw-border-t tw-border-success-600" />
+      <form [formGroup]="extendForm" class="tw-flex tw-flex-col tw-gap-4">
+        <bit-form-field>
+          <bit-label>{{ "pamExtendLeaseDuration" | i18n }}</bit-label>
+          <select bitInput formControlName="durationMinutes" data-testid="extend-lease-duration">
+            @for (opt of extendDurationOptions; track opt.minutes) {
+              <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
+            }
+          </select>
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "pamExtendLeaseReasonRequired" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="reason"
+            [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+            data-testid="extend-lease-reason"
+          />
+          <bit-hint>{{ "pamExtendLeaseReasonHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      </form>
+
+      <div class="tw-mt-4 tw-flex tw-justify-end">
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          size="small"
+          [disabled]="submittingExtension()"
+          [loading]="submittingExtension()"
+          (click)="submitExtension()"
+          data-testid="extend-lease-submit"
+          id="cipher-lease-banner_button_extend-submit"
+        >
+          {{ "pamExtendLeaseButton" | i18n }}
+        </button>
+      </div>
+    }
   </div>
 } @else if (approvedRequest()) {
   <div

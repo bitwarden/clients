@@ -34,6 +34,7 @@ import { AccessApprovalMode } from "../../abstractions/responses/access-pre-chec
 import { formatRemaining } from "../../helpers/format-remaining";
 import {
   LEASE_DURATION_PRESETS,
+  LEASE_EXTENSION_DURATION_PRESETS,
   MAX_LEASE_DURATION_MINUTES,
   defaultWindowFormValues,
   endAfterStartValidator,
@@ -141,6 +142,11 @@ export class CipherLeaseBannerComponent implements OnInit {
   protected readonly requestError = signal<string | null>(null);
   protected readonly durationOptions = LEASE_DURATION_PRESETS;
 
+  /** Whether the "Extend lease" fold-out is open, and whether a submit is in flight. */
+  protected readonly extendFormExpanded = signal(false);
+  protected readonly submittingExtension = signal(false);
+  protected readonly extendDurationOptions = LEASE_EXTENSION_DURATION_PRESETS;
+
   protected readonly automaticForm = this.fb.group({
     durationMinutes: this.fb.nonNullable.control<number>(60, {
       validators: [
@@ -161,6 +167,14 @@ export class CipherLeaseBannerComponent implements OnInit {
     },
     { validators: [endAfterStartValidator, windowWithinMaxDurationValidator] },
   );
+
+  // Extend-lease fold-out: a duration preset plus a mandatory justification. Extensions are always auto-approved.
+  protected readonly extendForm = this.fb.group({
+    durationMinutes: this.fb.nonNullable.control<number>(60, {
+      validators: [Validators.required, Validators.min(1)],
+    }),
+    reason: this.fb.nonNullable.control<string>("", [Validators.required, nonBlankValidator()]),
+  });
 
   protected readonly state = toSignal(
     combineLatest([
@@ -185,6 +199,11 @@ export class CipherLeaseBannerComponent implements OnInit {
   protected readonly activeLease = computed(() => this.state().activeLease);
   protected readonly pendingRequest = computed(() => this.state().pendingRequest);
   protected readonly approvedRequest = computed(() => this.state().approvedRequest);
+
+  /** The active lease can be extended when its rule opts in and at least one extension remains. */
+  protected readonly canExtendLease = computed(
+    () => (this.state().extensionsAllowed ?? false) && (this.state().extensionsRemaining ?? 0) > 0,
+  );
 
   /**
    * Show the "Request access" entry point when:
@@ -303,40 +322,6 @@ export class CipherLeaseBannerComponent implements OnInit {
     }
   };
 
-  readonly extendLease = async () => {
-    const lease = this.activeLease();
-    if (!lease) {
-      return;
-    }
-    const currentNotAfter = new Date(lease.notAfter);
-    const newNotAfter = new Date(currentNotAfter.getTime() + 60 * 60 * 1000);
-    try {
-      const response = await this.pamApiService.requestLeaseExtension(
-        new AccessLeaseExtensionRequest({
-          leaseId: lease.id,
-          notBefore: currentNotAfter,
-          notAfter: newNotAfter,
-        }),
-      );
-      // `getCipherAccessState$` is the source of truth for the eventual outcome;
-      // surface a status-appropriate toast and let the next stream emission
-      // update the visible countdown.
-      const approved = response.status === "approved";
-      this.toastService.showToast({
-        variant: approved ? "success" : "info",
-        message: this.i18nService.t(
-          approved ? "pamExtendLeaseSuccess" : "pamExtendLeasePendingMessage",
-        ),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
-  };
-
   protected get customWindowEndBeforeStart(): boolean {
     return this.humanForm.errors?.["customWindow"] === "endBeforeStart";
   }
@@ -422,6 +407,52 @@ export class CipherLeaseBannerComponent implements OnInit {
       this.handleRequestError(e);
     } finally {
       this.submittingRequest.set(false);
+    }
+  }
+
+  /** Toggle the "Extend lease" fold-out, resetting the form to defaults when opening. */
+  protected toggleExtendForm(): void {
+    const next = !this.extendFormExpanded();
+    this.extendFormExpanded.set(next);
+    if (next) {
+      this.extendForm.reset({ durationMinutes: 60, reason: "" });
+    }
+  }
+
+  protected async submitExtension(): Promise<void> {
+    const lease = this.activeLease();
+    if (!lease || this.submittingExtension()) {
+      return;
+    }
+    if (this.extendForm.invalid) {
+      this.extendForm.markAllAsTouched();
+      return;
+    }
+    this.submittingExtension.set(true);
+    try {
+      const { durationMinutes, reason } = this.extendForm.getRawValue();
+      await this.pamApiService.requestLeaseExtension(
+        new AccessLeaseExtensionRequest({
+          leaseId: lease.id,
+          durationSeconds: durationMinutes * 60,
+          reason: reason.trim(),
+        }),
+      );
+      // Extensions are always auto-approved, so a resolved call means the lease was extended;
+      // `getCipherAccessState$` re-emits the longer countdown.
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamExtendLeaseSuccess"),
+      });
+      this.extendFormExpanded.set(false);
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    } finally {
+      this.submittingExtension.set(false);
     }
   }
 

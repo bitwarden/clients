@@ -14560,6 +14560,18 @@
   "pamAccessRuleSingleActiveLeaseHint": {
     "message": "New requests are queued until the current lease ends or is revoked."
   },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Allow lease extensions"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Members can extend an active lease without a new approval, up to the maximum below."
+  },
+  "pamAccessRuleMaxExtensions": {
+    "message": "Maximum extensions"
+  },
+  "pamAccessRuleMaxExtensionsHint": {
+    "message": "How many times a single lease may be extended."
+  },
   "pamAccessRuleConditionsHeading": {
     "message": "Access conditions"
   },
@@ -14964,8 +14976,17 @@
   "pamExtendLeaseSuccess": {
     "message": "Lease extended"
   },
-  "pamExtendLeasePendingMessage": {
-    "message": "Extension request submitted. Awaiting approval."
+  "pamExtendLeaseDuration": {
+    "message": "Extend by"
+  },
+  "pamExtendLeaseDuration2h": {
+    "message": "2 hours"
+  },
+  "pamExtendLeaseReasonRequired": {
+    "message": "Reason for extension"
+  },
+  "pamExtendLeaseReasonHint": {
+    "message": "Explain why you need more time."
   },
   "pamGovernanceDescription": {
     "message": "Configure access rules and review activity for privileged items."

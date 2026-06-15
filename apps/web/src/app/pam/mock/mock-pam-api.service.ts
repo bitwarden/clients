@@ -20,6 +20,9 @@ import {
 
 import { PamMockStore } from "./pam-mock-store";
 
+/** DEMO ONLY — fixed per-lease extension cap surfaced in the cipher access-state snapshot. */
+const MOCK_MAX_EXTENSIONS = 3;
+
 /**
  * DEMO ONLY — extends `DefaultPamApiService` and overrides the lease/request
  * surface with a {@link PamMockStore}-backed implementation. Access-rule CRUD
@@ -88,10 +91,17 @@ export class MockPamApiService extends DefaultPamApiService {
       const approvedRequest = requests.find(
         (r) => r.cipherId === cipherId && r.status === "approved" && r.extensionOfLeaseId == null,
       );
+      const isActive = activeLease?.status === "active";
+      // Demo: any active lease is extendable, capped at a fixed maximum less the extensions already applied.
+      const extensionsUsed = isActive
+        ? requests.filter((r) => r.extensionOfLeaseId === activeLease!.id).length
+        : 0;
       return {
-        activeLease: activeLease?.status === "active" ? activeLease : undefined,
+        activeLease: isActive ? activeLease : undefined,
         pendingRequest,
         approvedRequest,
+        extensionsAllowed: isActive,
+        extensionsRemaining: isActive ? Math.max(0, MOCK_MAX_EXTENSIONS - extensionsUsed) : 0,
       };
     };
 
@@ -124,25 +134,20 @@ export class MockPamApiService extends DefaultPamApiService {
   ): Promise<AccessRequestDetailsResponse> {
     const parent = this.requireLease(request.leaseId);
     const userId = this.store.currentUserId ?? parent.requesterId;
-    // Modelled as a fresh request pointing back at the parent lease; carries the
-    // requested window through so approval extends the parent in place (rather
-    // than the old behaviour of clobbering leaseId and discarding the window).
-    const notBefore = request.notBefore != null ? new Date(request.notBefore) : null;
-    const notAfter = request.notAfter != null ? new Date(request.notAfter) : null;
-    const startMs = (notBefore ?? new Date()).getTime();
-    const ttlSeconds =
-      notAfter != null ? Math.max(0, Math.floor((notAfter.getTime() - startMs) / 1000)) : 0;
+    // Extensions are always auto-approved: record a child request pointing at the parent lease, carrying the new
+    // window ([current end .. current end + duration]) through, then approve it immediately so the parent's end is
+    // pushed out in place. No deterministic deny path — extensions never route to an approver.
+    const currentNotAfter = new Date(parent.notAfter);
+    const newNotAfter = new Date(currentNotAfter.getTime() + request.durationSeconds * 1000);
     const child = this.store.createPendingRequest(parent.cipherId, userId, {
       collectionId: parent.collectionId,
-      requestedNotBefore: notBefore,
-      requestedNotAfter: notAfter,
-      requestedTtlSeconds: ttlSeconds,
+      requestedNotBefore: currentNotAfter,
+      requestedNotAfter: newNotAfter,
+      requestedTtlSeconds: request.durationSeconds,
       reason: request.reason,
       extensionOfLeaseId: parent.id,
     });
-    // Extension modal submits in one step — no separate patch — so kick off
-    // auto-decision immediately.
-    this.store.scheduleAutoDecideFor(child.id);
+    this.store.approveRequest(child, null);
     return child;
   }
 
