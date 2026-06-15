@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Icons server URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Environment URLs saved"
   },
@@ -1677,53 +1680,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "Minimize to tray icon"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "When minimizing the window, show an icon in the system tray instead."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimize to menu bar"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "When minimizing the window, show an icon in the menu bar instead."
-  },
-  "enableCloseToTray": {
-    "message": "Close to tray icon"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "When closing the window, show an icon in the system tray instead."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Close to menu bar"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "When closing the window, show an icon in the menu bar instead."
-  },
-  "enableTray": {
-    "message": "Show tray icon"
-  },
-  "enableTrayDesc": {
-    "message": "Always show an icon in the system tray."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Start automatically on login"
   },
   "openAtLoginDesc": {
     "message": "Start the Bitwarden desktop application automatically on login."
-  },
-  "alwaysShowDock": {
-    "message": "Always show in the Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Show the Bitwarden icon in the Dock even when minimized to the menu bar."
-  },
-  "confirmTrayTitle": {
-    "message": "Confirm hiding tray"
-  },
-  "confirmTrayDesc": {
-    "message": "Turning off this setting will also turn off all other tray related settings."
   },
   "language": {
     "message": "Language"
@@ -1823,6 +1793,15 @@
   "copySecurityCode": {
     "message": "Copy security code",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "card number"
@@ -2117,9 +2096,9 @@
   "exit": {
     "message": "Exit"
   },
-  "showHide": {
-    "message": "Show / Hide",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Hide to tray"
@@ -2322,12 +2301,6 @@
   },
   "preferences": {
     "message": "Preferences"
-  },
-  "enableMenuBar": {
-    "message": "Show menu bar icon"
-  },
-  "enableMenuBarDesc": {
-    "message": "Always show an icon in the menu bar."
   },
   "hideToMenuBar": {
     "message": "Hide to menu bar"
@@ -3882,6 +3855,9 @@
   "multipleInputEmails": {
     "message": "1 or more emails are invalid"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Input must not contain only whitespace.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4947,6 +4923,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5253,10 +5232,6 @@
     "message": "Send has unsaved edits. Are you sure you want to leave?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "viewTextSendHeader": {
     "message": "View text"
   },
@@ -5334,5 +5309,8 @@
   },
   "licenseClass": {
     "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
