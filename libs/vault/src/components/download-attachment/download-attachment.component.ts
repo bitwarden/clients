@@ -115,6 +115,10 @@ export class DownloadAttachmentComponent {
       this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk),
     );
 
+    if (!attachment.id) {
+      return undefined;
+    }
+
     try {
       if (useSdk) {
         return await this.cipherSdkService.getAttachmentDownloadUrl(
