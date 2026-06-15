@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 ou mais e-mails são inválidos"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "A lista de destinatários de e-mail não pode exceder 2.500 caracteres. Remova um ou mais destinatários para continuar."
+  },
   "tooManyEmails": {
     "message": "Só pode submeter um máximo de $COUNT$ e-mails de cada vez",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Copiar"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
