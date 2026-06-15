@@ -19,9 +19,9 @@ export interface SerializedOutgoingMessage extends Omit<
 }
 
 export function isIpcMessage(message: any): message is IpcMessage {
-  return message.type === "bitwarden-ipc-message";
+  return message != null && message.type === "bitwarden-ipc-message";
 }
 
 export function isForwardedIpcMessage(message: any): message is ForwardedIpcMessage {
-  return message.type === "forwarded-bitwarden-ipc-message";
+  return message != null && message.type === "forwarded-bitwarden-ipc-message";
 }

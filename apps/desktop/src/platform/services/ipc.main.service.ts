@@ -84,7 +84,16 @@ export class IpcMainService extends IpcService {
           return;
         }
 
-        const ipcMessage = JSON.parse(nativeMessage.message);
+        let ipcMessage: unknown;
+        try {
+          ipcMessage = JSON.parse(nativeMessage.message);
+        } catch (e) {
+          // A malformed native message must not tear down the subscription, which would
+          // break IPC for all subsequent messages.
+          this.logService.error("[IPC] Failed to parse native message", e);
+          return;
+        }
+
         if (!isIpcMessage(ipcMessage)) {
           return;
         }
