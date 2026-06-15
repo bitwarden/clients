@@ -89,6 +89,13 @@
       *ngIf="(pamFeatureFlagEnabled$ | async) && organization.canManageAccessRules"
     >
       <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules"></bit-nav-item>
+      <bit-nav-item [text]="'pamInboxNav' | i18n" route="pam/approver-inbox">
+        @if (pamInboxBadgeCount() > 0) {
+          <span slot="end" class="tw-flex tw-items-center">
+            <span bitBadge variant="primary">{{ pamInboxBadgeCount() }}</span>
+          </span>
+        }
+      </bit-nav-item>
       <bit-nav-item [text]="'pamGovernanceTitle' | i18n" route="pam/governance"></bit-nav-item>
     </bit-nav-group>
     <bit-nav-group

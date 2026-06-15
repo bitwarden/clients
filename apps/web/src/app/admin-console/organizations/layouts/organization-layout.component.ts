@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
@@ -28,7 +29,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { BannerModule, SvgModule } from "@bitwarden/components";
+import { BadgeModule, BannerModule, SvgModule } from "@bitwarden/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
@@ -37,6 +38,7 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
+import { ApproverInboxBadgeService } from "../../../pam/approver-inbox/approver-inbox-badge.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -50,6 +52,7 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     WebLayoutModule,
     SvgModule,
     OrgSwitcherComponent,
+    BadgeModule,
     BannerModule,
     TaxIdWarningComponent,
   ],
@@ -124,6 +127,10 @@ export class OrganizationLayoutComponent {
 
   protected readonly pamFeatureFlagEnabled$: Observable<boolean> =
     this.configService.getFeatureFlag$(FeatureFlag.Pam);
+
+  protected readonly pamInboxBadgeCount = toSignal(inject(ApproverInboxBadgeService).count$, {
+    initialValue: 0,
+  });
 
   protected readonly showSponsoredFamiliesDropdown$: Observable<boolean> =
     this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);
