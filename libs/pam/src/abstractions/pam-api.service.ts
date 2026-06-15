@@ -96,7 +96,8 @@ export abstract class PamApiService {
   ): Promise<OrganizationGovernanceSummaryResponse>;
   /**
    * Org-wide kill switch: revokes all active leases in the organization. When
-   * `blockNewLeases` is true,    * activated until {@link unblockNewLeases} lifts it.
+   * `blockNewLeases` is true, it also engages a leasing freeze so no new lease
+   * can be activated until {@link unblockNewLeases} lifts it.
    */
   abstract bulkRevokeLeases(
     organizationId: string,

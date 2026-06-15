@@ -5,7 +5,11 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
  * - `automatic`: submitting an access request mints an active lease immediately.
  * - `human`: submitting creates a pending request that an approver must resolve.
  */
-export type AccessApprovalMode = "automatic" | "human";
+export const AccessApprovalMode = Object.freeze({
+  Automatic: "automatic",
+  Human: "human",
+} as const);
+export type AccessApprovalMode = (typeof AccessApprovalMode)[keyof typeof AccessApprovalMode];
 
 export class AccessPreCheckResponse extends BaseResponse {
   cipherId: string;

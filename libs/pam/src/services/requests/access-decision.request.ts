@@ -1,4 +1,9 @@
-export type AccessDecisionVerdict = "approve" | "deny";
+export const AccessDecisionVerdict = Object.freeze({
+  Approve: "approve",
+  Deny: "deny",
+} as const);
+export type AccessDecisionVerdict =
+  (typeof AccessDecisionVerdict)[keyof typeof AccessDecisionVerdict];
 
 export class AccessDecisionRequest {
   verdict: AccessDecisionVerdict;

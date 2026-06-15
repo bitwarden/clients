@@ -4,7 +4,7 @@ import { distinctUntilChanged, from, map, Observable, of, switchMap } from "rxjs
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { LeasedCipherFetcher, PamApiService } from "@bitwarden/pam";
+import { LeasedCipherFetcherService, PamApiService } from "@bitwarden/pam";
 import { GatedCipherReloader } from "@bitwarden/vault";
 
 /**
@@ -21,7 +21,7 @@ import { GatedCipherReloader } from "@bitwarden/vault";
 @Injectable({ providedIn: "root" })
 export class PamGatedCipherReloader implements GatedCipherReloader {
   private readonly pamApiService = inject(PamApiService);
-  private readonly leasedCipherFetcher = inject(LeasedCipherFetcher);
+  private readonly leasedCipherFetcher = inject(LeasedCipherFetcherService);
   private readonly accountService = inject(AccountService);
 
   fullCipher$(cipherId: string): Observable<Cipher | null> {

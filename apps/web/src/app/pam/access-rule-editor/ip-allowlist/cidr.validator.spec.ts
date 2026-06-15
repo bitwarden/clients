@@ -1,6 +1,11 @@
-import { FormControl } from "@angular/forms";
+import { FormArray, FormControl } from "@angular/forms";
 
-import { cidrValidator, isValidCidr } from "./cidr.validator";
+import {
+  atLeastOneNonEmptyCidrValidator,
+  cidrValidator,
+  isValidCidr,
+  noDuplicateCidrsValidator,
+} from "./cidr.validator";
 
 describe("isValidCidr", () => {
   describe("valid IPv4 CIDRs", () => {
@@ -74,5 +79,51 @@ describe("cidrValidator", () => {
 
   it("returns null for a whitespace-only string (treated as empty)", () => {
     expect(validate("   ")).toBeNull();
+  });
+});
+
+describe("noDuplicateCidrsValidator", () => {
+  const validate = (values: string[]) =>
+    noDuplicateCidrsValidator()(new FormArray(values.map((v) => new FormControl(v))));
+
+  it("returns null when all values are distinct", () => {
+    expect(validate(["10.0.0.0/8", "192.168.0.0/16"])).toBeNull();
+  });
+
+  it("returns duplicateCidrs when two values match", () => {
+    expect(validate(["10.0.0.0/8", "10.0.0.0/8"])).toEqual({ duplicateCidrs: true });
+  });
+
+  it("ignores leading/trailing whitespace when comparing", () => {
+    expect(validate(["10.0.0.0/8", " 10.0.0.0/8 "])).toEqual({ duplicateCidrs: true });
+  });
+
+  it("ignores empty rows", () => {
+    expect(validate(["", "10.0.0.0/8", "   "])).toBeNull();
+  });
+
+  it("returns null for a non-array control", () => {
+    expect(noDuplicateCidrsValidator()(new FormControl("10.0.0.0/8"))).toBeNull();
+  });
+});
+
+describe("atLeastOneNonEmptyCidrValidator", () => {
+  const validate = (values: string[]) =>
+    atLeastOneNonEmptyCidrValidator()(new FormArray(values.map((v) => new FormControl(v))));
+
+  it("returns null when at least one row is non-empty", () => {
+    expect(validate(["", "10.0.0.0/8"])).toBeNull();
+  });
+
+  it("returns atLeastOneCidr when every row is empty or whitespace", () => {
+    expect(validate(["", "   "])).toEqual({ atLeastOneCidr: true });
+  });
+
+  it("returns atLeastOneCidr for an empty array", () => {
+    expect(validate([])).toEqual({ atLeastOneCidr: true });
+  });
+
+  it("returns null for a non-array control", () => {
+    expect(atLeastOneNonEmptyCidrValidator()(new FormControl(""))).toBeNull();
   });
 });

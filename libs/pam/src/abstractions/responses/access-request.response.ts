@@ -9,13 +9,15 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
  * `activated`. An approved request left unactivated past its activation
  * deadline transitions to `expired`.
  */
-export type AccessRequestStatus =
-  | "pending"
-  | "approved"
-  | "activated"
-  | "denied"
-  | "cancelled"
-  | "expired";
+export const AccessRequestStatus = Object.freeze({
+  Pending: "pending",
+  Approved: "approved",
+  Activated: "activated",
+  Denied: "denied",
+  Cancelled: "cancelled",
+  Expired: "expired",
+} as const);
+export type AccessRequestStatus = (typeof AccessRequestStatus)[keyof typeof AccessRequestStatus];
 
 /**
  * A plain access-request row, as returned inside the submission result

@@ -3,7 +3,7 @@ import {
   CipherLeaseBannerComponent,
   DefaultPamApiService,
   AccessEventService,
-  LeasedCipherFetcher,
+  LeasedCipherFetcherService,
   PamApiService,
 } from "@bitwarden/pam";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
@@ -57,8 +57,8 @@ export function providePam(): SafeProvider[] {
       deps: [],
     }),
     safeProvider({
-      provide: LeasedCipherFetcher,
-      useFactory: (pamApiService: PamApiService) => new LeasedCipherFetcher(pamApiService),
+      provide: LeasedCipherFetcherService,
+      useFactory: (pamApiService: PamApiService) => new LeasedCipherFetcherService(pamApiService),
       deps: [PamApiService],
     }),
   ];

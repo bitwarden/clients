@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
@@ -66,16 +66,15 @@ export class VaultRowLeaseBadgeComponent {
         map((state): LeaseBadgeView => {
           if (state.activeLease != null) {
             return {
-              state: "gated_active_lease",
+              state: GatedState.GatedActiveLease,
               expiresAt: new Date(state.activeLease.notAfter),
             };
           }
-          return { state: "gated_no_lease", expiresAt: null };
+          return { state: GatedState.GatedNoLease, expiresAt: null };
         }),
       );
     }),
   );
 
-  private readonly viewSignal = toSignal(this.view$, { initialValue: null });
-  protected readonly badge = computed(() => this.viewSignal());
+  protected readonly badge = toSignal(this.view$, { initialValue: null });
 }

@@ -25,7 +25,7 @@ export class CipherLeaseBadgeComponent {
   private readonly i18nService = inject(I18nService);
   private readonly now = signal(Date.now());
 
-  protected readonly isActiveLease = computed(() => this.state() === "gated_active_lease");
+  protected readonly isActiveLease = computed(() => this.state() === GatedState.GatedActiveLease);
 
   protected readonly remainingLabel = computed(() => {
     const expiresAt = this.leaseExpiresAt();
@@ -37,9 +37,9 @@ export class CipherLeaseBadgeComponent {
 
   protected readonly tooltip = computed(() => {
     switch (this.state()) {
-      case "gated_active_lease":
+      case GatedState.GatedActiveLease:
         return this.i18nService.t("cipherLeaseExpiresIn", this.remainingLabel());
-      case "gated_no_lease":
+      case GatedState.GatedNoLease:
         return this.i18nService.t("cipherLeaseRequiresApproval");
       default:
         return "";

@@ -7,7 +7,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import {
   AccessLeaseResponse,
   CipherAccessState,
-  LeasedCipherFetcher,
+  LeasedCipherFetcherService,
   PamApiService,
 } from "@bitwarden/pam";
 
@@ -15,7 +15,7 @@ import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
 
 describe("PamGatedCipherReloader", () => {
   let pamApiService: MockProxy<PamApiService>;
-  let fetcher: MockProxy<LeasedCipherFetcher>;
+  let fetcher: MockProxy<LeasedCipherFetcherService>;
   let state$: BehaviorSubject<CipherAccessState>;
   let reloader: PamGatedCipherReloader;
 
@@ -28,7 +28,7 @@ describe("PamGatedCipherReloader", () => {
     state$ = new BehaviorSubject<CipherAccessState>({});
     pamApiService = mock<PamApiService>();
     pamApiService.getCipherAccessState$.mockReturnValue(state$);
-    fetcher = mock<LeasedCipherFetcher>();
+    fetcher = mock<LeasedCipherFetcherService>();
     const accountService = mock<AccountService>();
     (accountService as unknown as { activeAccount$: Observable<unknown> }).activeAccount$ = of({
       id: "user-1",
@@ -38,7 +38,7 @@ describe("PamGatedCipherReloader", () => {
       providers: [
         PamGatedCipherReloader,
         { provide: PamApiService, useValue: pamApiService },
-        { provide: LeasedCipherFetcher, useValue: fetcher },
+        { provide: LeasedCipherFetcherService, useValue: fetcher },
         { provide: AccountService, useValue: accountService },
       ],
     });

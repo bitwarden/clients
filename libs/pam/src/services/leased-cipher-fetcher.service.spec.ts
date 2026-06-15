@@ -5,15 +5,15 @@ import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.r
 
 import { PamApiService } from "../abstractions/pam-api.service";
 
-import { LeasedCipherFetcher } from "./leased-cipher-fetcher.service";
+import { LeasedCipherFetcherService } from "./leased-cipher-fetcher.service";
 
-describe("LeasedCipherFetcher", () => {
+describe("LeasedCipherFetcherService", () => {
   let pamApi: MockProxy<PamApiService>;
-  let fetcher: LeasedCipherFetcher;
+  let fetcher: LeasedCipherFetcherService;
 
   beforeEach(() => {
     pamApi = mock<PamApiService>();
-    fetcher = new LeasedCipherFetcher(pamApi);
+    fetcher = new LeasedCipherFetcherService(pamApi);
   });
 
   it("returns the leased cipher as a domain object on success", async () => {

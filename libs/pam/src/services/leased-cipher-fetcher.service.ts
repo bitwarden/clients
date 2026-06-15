@@ -13,7 +13,7 @@ import { PamApiService } from "../abstractions/pam-api.service";
  * scope. It must not be written into the local cipher cache: the cache stays
  * partial-data, and every view re-fetches.
  */
-export class LeasedCipherFetcher {
+export class LeasedCipherFetcherService {
   constructor(private readonly pamApiService: PamApiService) {}
 
   /**

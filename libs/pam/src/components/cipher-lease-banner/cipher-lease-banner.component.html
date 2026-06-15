@@ -229,9 +229,7 @@
             bitButton
             buttonType="primary"
             size="small"
-            [disabled]="submittingRequest()"
-            [loading]="submittingRequest()"
-            (click)="submitRequest()"
+            [bitAction]="submitRequest"
             id="cipher-lease-banner_button_request-access-submit"
           >
             {{ "pamRequestAccessButton" | i18n }}
