@@ -3,9 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   input,
   output,
   signal,
+  viewChild,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -67,7 +69,15 @@ export class DropzoneComponent {
    * `<label for="...">` associates with the dropzone's file input.
    */
   readonly inputId = input.required<string>();
+
+  private readonly fileInputEl = viewChild<ElementRef<HTMLInputElement>>("fileInput");
+
   protected readonly isDragOver = signal(false);
+
+  /** Focus the underlying native file input. */
+  focus(): void {
+    this.fileInputEl()?.nativeElement.focus();
+  }
 
   /**
    * Track drag enter/leave depth to prevent flicker when dragging over child elements.
@@ -165,7 +175,7 @@ export class DropzoneComponent {
     this.emitFiles(files);
 
     // Clear value so re-selecting the same file still triggers a change event
-    input.value = "";
+    // input.value = "";
   }
 
   private emitFiles(files: File[]): void {

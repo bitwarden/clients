@@ -30,6 +30,7 @@ export default {
             new I18nMockService({
               delete: "Delete",
               loading: "Loading",
+              uploadedFiles: "Uploaded files",
             }),
         },
       ],

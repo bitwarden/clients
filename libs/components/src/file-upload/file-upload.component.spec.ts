@@ -25,6 +25,12 @@ const i18nProvider = {
       clickToUploadOrDragAndDrop: "Click to upload or drag and drop",
       noFileChosen: "No file chosen",
       fileChosen: "File chosen __$1__",
+      fileAdded: "File added: __$1__",
+      filesAdded: "__$1__ files added: __$2__",
+      fileRemoved: "File removed: __$1__",
+      oneFileUploaded: "1 file uploaded",
+      filesUploaded: "__$1__ files uploaded",
+      uploadedFiles: "Uploaded files",
       delete: "Delete",
       loading: "Loading",
     }),
@@ -549,6 +555,257 @@ describe("FileUploadComponent", () => {
 
       expect(heading.id).toBeTruthy();
       expect(fileInput.getAttribute("aria-labelledby")).toBe(heading.id);
+    });
+  });
+
+  describe("dropzone variant accessibility announcements", () => {
+    let fixture: ComponentFixture<TestHostComponent>;
+
+    const liveRegion = () =>
+      fixture.nativeElement.querySelector('span[role="status"]') as HTMLElement | null;
+
+    const dropzone = () =>
+      fixture.debugElement.query(By.directive(DropzoneComponent))
+        .componentInstance as DropzoneComponent;
+
+    const fileList = () =>
+      fixture.debugElement.query(By.directive(FileListComponent))
+        ?.componentInstance as FileListComponent;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [TestHostComponent],
+        providers: [i18nProvider],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(TestHostComponent);
+      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.multiple = true;
+      fixture.detectChanges();
+    });
+
+    it("renders an empty live region on initial render", () => {
+      const region = liveRegion();
+      expect(region).toBeTruthy();
+      expect(region!.textContent?.trim()).toBe("");
+    });
+
+    it("announces a single-file add with the filename", () => {
+      dropzone().filesSelected.emit([makeFile("a.txt")]);
+      fixture.detectChanges();
+
+      expect(liveRegion()!.textContent?.trim()).toBe("File added: a.txt");
+    });
+
+    it("announces a multi-file add with count and joined filenames", () => {
+      dropzone().filesSelected.emit([makeFile("a.txt"), makeFile("b.txt"), makeFile("c.txt")]);
+      fixture.detectChanges();
+
+      expect(liveRegion()!.textContent?.trim()).toBe("3 files added: a.txt, b.txt, c.txt");
+    });
+
+    it("announces a removal with the filename", () => {
+      const a = makeFile("a.txt");
+      fixture.componentInstance.files = [a];
+      fixture.detectChanges();
+
+      fileList().fileRemoved.emit(a);
+      fixture.detectChanges();
+
+      expect(liveRegion()!.textContent?.trim()).toBe("File removed: a.txt");
+    });
+
+    it("does not announce when files are set via writeValue", () => {
+      const upload: FileUploadComponent = fixture.debugElement.query(
+        By.directive(FileUploadComponent),
+      ).componentInstance;
+
+      upload.writeValue([makeFile("a.txt")]);
+      fixture.detectChanges();
+
+      expect(liveRegion()!.textContent?.trim()).toBe("");
+    });
+
+    it("has role=status, aria-live=polite, aria-atomic=true, and tw-sr-only", () => {
+      const region = liveRegion()!;
+      expect(region.getAttribute("role")).toBe("status");
+      expect(region.getAttribute("aria-live")).toBe("polite");
+      expect(region.getAttribute("aria-atomic")).toBe("true");
+      expect(region.classList.contains("tw-sr-only")).toBe(true);
+    });
+
+    it("does not render the live region in the default variant", () => {
+      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.multiple = false;
+      fixture.detectChanges();
+
+      // The default variant has its own aria-live span (with an id), not role="status".
+      expect(fixture.nativeElement.querySelector('span[role="status"]')).toBeNull();
+    });
+  });
+
+  describe("dropzone variant focus-time file count announcement", () => {
+    let fixture: ComponentFixture<TestHostComponent>;
+
+    const dropzoneInput = () =>
+      fixture.nativeElement.querySelector('bit-dropzone input[type="file"]') as HTMLInputElement;
+
+    const filesUploadedSpan = () => {
+      const input = dropzoneInput();
+      const id = `${input.id}-files-uploaded`;
+      return fixture.nativeElement.querySelector(`#${id}`) as HTMLElement | null;
+    };
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [TestHostComponent],
+        providers: [i18nProvider],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(TestHostComponent);
+      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.multiple = true;
+      fixture.detectChanges();
+    });
+
+    it("renders an empty status span and omits its id from aria-describedby when no files are attached", () => {
+      const input = dropzoneInput();
+      const span = filesUploadedSpan();
+
+      expect(span).toBeTruthy();
+      expect(span!.textContent?.trim()).toBe("");
+      expect(input.getAttribute("aria-describedby") ?? "").not.toContain(span!.id);
+    });
+
+    it("announces a single file as '1 file uploaded' via aria-describedby", () => {
+      fixture.componentInstance.files = [makeFile("a.txt")];
+      fixture.detectChanges();
+
+      const input = dropzoneInput();
+      const span = filesUploadedSpan()!;
+
+      expect(span.textContent?.trim()).toBe("1 file uploaded");
+      expect(input.getAttribute("aria-describedby")?.split(" ")).toContain(span.id);
+    });
+
+    it("announces multiple files with count via aria-describedby", () => {
+      fixture.componentInstance.files = [makeFile("a.txt"), makeFile("b.txt"), makeFile("c.txt")];
+      fixture.detectChanges();
+
+      const input = dropzoneInput();
+      const span = filesUploadedSpan()!;
+
+      expect(span.textContent?.trim()).toBe("3 files uploaded");
+      expect(input.getAttribute("aria-describedby")?.split(" ")).toContain(span.id);
+    });
+
+    it("chains the files-uploaded id with the error id in aria-describedby when both are present", () => {
+      fixture.componentInstance.files = [makeFile("a.txt"), makeFile("b.txt")];
+      fixture.componentInstance.errorMessage = "boom";
+      fixture.detectChanges();
+
+      const input = dropzoneInput();
+      const span = filesUploadedSpan()!;
+      const errorEl = fixture.nativeElement.querySelector("bit-error") as HTMLElement;
+
+      const describedBy = input.getAttribute("aria-describedby")?.split(" ") ?? [];
+      expect(describedBy).toContain(span.id);
+      expect(describedBy).toContain(errorEl.id);
+    });
+
+    it("does not include the files-uploaded id in the default variant's aria-describedby", () => {
+      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.multiple = false;
+      fixture.componentInstance.files = [makeFile("a.txt")];
+      fixture.detectChanges();
+
+      const overlayButton = fixture.nativeElement.querySelector(
+        'button[type="button"]',
+      ) as HTMLButtonElement;
+      const describedBy = overlayButton.getAttribute("aria-describedby") ?? "";
+
+      expect(describedBy).not.toContain("-files-uploaded");
+    });
+  });
+
+  describe("focus management after removal", () => {
+    let fixture: ComponentFixture<TestHostComponent>;
+
+    const fileList = () =>
+      fixture.debugElement.query(By.directive(FileListComponent))
+        ?.componentInstance as FileListComponent;
+
+    const deleteButtons = () =>
+      Array.from(
+        fixture.nativeElement.querySelectorAll(
+          "bit-file-list button[bitIconButton]",
+        ) as NodeListOf<HTMLButtonElement>,
+      );
+
+    const dropzoneInput = () =>
+      fixture.nativeElement.querySelector('bit-dropzone input[type="file"]') as HTMLInputElement;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [TestHostComponent],
+        providers: [i18nProvider],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(TestHostComponent);
+      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.multiple = true;
+    });
+
+    it("focuses the delete button at the removed index when a middle file is removed", () => {
+      const a = makeFile("a.txt");
+      const b = makeFile("b.txt");
+      const c = makeFile("c.txt");
+      fixture.componentInstance.files = [a, b, c];
+      fixture.detectChanges();
+
+      fileList().fileRemoved.emit(b);
+      fixture.detectChanges();
+
+      const buttons = deleteButtons();
+      expect(buttons.length).toBe(2);
+      expect(document.activeElement).toBe(buttons[1]);
+    });
+
+    it("clamps to the last delete button when the last file is removed", () => {
+      const a = makeFile("a.txt");
+      const b = makeFile("b.txt");
+      fixture.componentInstance.files = [a, b];
+      fixture.detectChanges();
+
+      fileList().fileRemoved.emit(b);
+      fixture.detectChanges();
+
+      const buttons = deleteButtons();
+      expect(buttons.length).toBe(1);
+      expect(document.activeElement).toBe(buttons[0]);
+    });
+
+    it("focuses the dropzone's file input when the last remaining file is removed", () => {
+      const a = makeFile("a.txt");
+      fixture.componentInstance.files = [a];
+      fixture.detectChanges();
+
+      fileList().fileRemoved.emit(a);
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(dropzoneInput());
+    });
+
+    it("is a no-op for focus when the removed file is not present in the list", () => {
+      const a = makeFile("a.txt");
+      fixture.componentInstance.files = [a];
+      fixture.detectChanges();
+
+      const before = document.activeElement;
+      fileList().fileRemoved.emit(makeFile("ghost.txt"));
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(before);
     });
   });
 });
