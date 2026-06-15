@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
@@ -63,7 +64,9 @@ export class AcceptFlowService {
     try {
       await handler(invite);
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : null;
+      // `ErrorResponse` is the standard API error shape and carries a `message` field
+      // but does not extend `Error`, so it must be recognized explicitly here.
+      const message = e instanceof ErrorResponse || e instanceof Error ? e.message : null;
       await this.handleError(message, config);
     }
   }

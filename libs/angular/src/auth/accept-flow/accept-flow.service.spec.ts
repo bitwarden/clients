@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
@@ -167,6 +168,27 @@ describe("AcceptFlowService", () => {
       await sut.run({ id: "org-id" /* missing token */ }, config);
 
       expect(getErrorMessage).toHaveBeenCalledWith(null);
+    });
+
+    it("passes ErrorResponse.message through as the apiError", async () => {
+      authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+        AuthenticationStatus.Unlocked,
+      );
+      const errorResponse = new ErrorResponse(
+        { Message: "Your organization access has been revoked." },
+        400,
+      );
+      const config = buildConfig({
+        authedHandler: jest.fn().mockRejectedValue(errorResponse),
+      });
+
+      await sut.run(validParams, config);
+
+      expect(i18nService.t).toHaveBeenCalledWith(
+        "inviteAcceptFailedShort",
+        "Your organization access has been revoked.",
+      );
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
     });
 
     it("treats non-Error throws from authedHandler as a null apiError", async () => {

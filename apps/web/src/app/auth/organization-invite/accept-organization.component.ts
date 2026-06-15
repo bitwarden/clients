@@ -78,6 +78,24 @@ export class AcceptOrganizationComponent implements OnInit {
       return this.i18nService.t(this.failedMessage);
     }
 
+    // TODO PM-39080: Translate the description fragment via i18nService.
+    // Today the server returns raw English strings (e.g. "Your organization access has been
+    // revoked.", "Invalid token.", "Already accepted.") that get interpolated verbatim into
+    // `inviteAcceptFailedShort` ("Unable to accept invitation. $DESCRIPTION$"), so non-English
+    // users see English fragments and our UX leaks server-API wording.
+    //
+    // Plan: keep the `inviteAcceptFailedShort` wrapper (it is already localized) and add a
+    // server-string -> i18n-key map for the description fragment. Each mapped key is just the
+    // reason ("Your organization access has been revoked."), and we interpolate the translated
+    // fragment back into `inviteAcceptFailedShort` so every locale still gets
+    // "{localized prefix} {localized reason}". The authoritative catalog of server strings
+    // lives in the server repo at
+    // `src/Core/AdminConsole/OrganizationFeatures/OrganizationUsers/AcceptOrgUserCommand.cs`
+    // plus the token errors in `OrgUserInviteTokenable` / `TokenableValidationError`. Fall
+    // through to the current raw-passthrough interpolation for unmapped strings so we never
+    // drop information when the server adds a new error. The expired-token special case above
+    // collapses into the map once it has a mapped key. Same treatment will benefit the other
+    // 5 `BaseAcceptComponent` subclasses.
     return errorMessage != null
       ? this.i18nService.t("inviteAcceptFailedShort", errorMessage)
       : this.i18nService.t(this.failedMessage);
