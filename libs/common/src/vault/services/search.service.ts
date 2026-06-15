@@ -96,30 +96,87 @@ export class SearchService implements SearchServiceAbstraction {
 
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
     query = normalizeSearchQuery(query.trim().toLowerCase());
+
+    // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
+    // A vault item consists of targets. A target is extracted from the various information in the vault item, such as name, notes.
+    //
+    // For each part in the query, at least on target must contain the part. If all query parts are found in the vault item target,
+    // then the vault item matches the search.
+    //
+    // Example:
+    // {
+    //    name: "Email Work MyCompany",
+    //    username: "alice@mycompany.com",
+    //    notes: "Archived"
+    // }
+    //
+    // Valid queries:
+    // - "email work"
+    // - "alice mycompany"
+    // - "alice archived"
+    // - "work email"
+    // - "mycomp mail" (matches on MyCompany and Email)
+    //
+    // This allows a user to not have to remember the exact order they used when creating the item,
+    // leading to a more consistent search experience.
+    const queryParts = query.split(" ");
+
     return ciphers.filter((c) => {
-      if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
-        return true;
+      const targets = [];
+
+      // Match on vault item name
+      if (c.name != null && c.name.toLowerCase()) {
+        targets.push(c.name.toLowerCase());
       }
-      if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
-        return true;
+
+      // Match on vault item UUID
+      if (query.length >= 8) {
+        targets.push(uuidAsString(c.id));
       }
+
+      // Match on vault item subtitle
       const subtitle = CipherViewLikeUtils.subtitle(c);
-      if (subtitle != null && subtitle.toLowerCase().indexOf(query) > -1) {
-        return true;
+      if (subtitle != null) {
+        targets.push(subtitle.toLowerCase());
       }
 
+      // Match on hostname of any login URIs
+      // We do not match on the full URI because parts of the URI such as the query are hidden.
       const login = CipherViewLikeUtils.getLogin(c);
-
-      if (
-        login &&
-        login.uris?.length &&
-        login.uris?.some(
-          (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().indexOf(query) > -1,
-        )
-      ) {
-        return true;
+      if (login) {
+        login.uris.forEach((u) => {
+          if (u.uri) {
+            try {
+              const url = new URL(u.uri);
+              targets.push(url.hostname.toLowerCase());
+            } catch {
+              // Not a valid URI, skip it
+            }
+          }
+        });
       }
-      return false;
+
+      // Match on any custom fields (both name and value)
+      c.fields.forEach((f) => {
+        if (f.value != null) {
+          targets.push(f.name.toLowerCase());
+          targets.push(f.value.toLowerCase());
+        }
+      });
+
+      // Match on any notes
+      if (c.notes != null) {
+        targets.push(c.notes.toLowerCase());
+      }
+
+      // Match parts to targets
+      for (const part of queryParts) {
+        if (!targets.some((t) => t.indexOf(part) > -1)) {
+          return false;
+        }
+      }
+
+      return true;
     });
   }
 
