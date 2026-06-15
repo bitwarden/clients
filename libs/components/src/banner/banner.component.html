@@ -43,7 +43,7 @@
           <ng-content></ng-content>
         </span>
       </div>
-      @if (showActions()) {
+      @if (showActions() && hasActionsContent()) {
         <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @3xl:tw-mt-0">
           <ng-content select="[slot='actions']"></ng-content>
         </div>

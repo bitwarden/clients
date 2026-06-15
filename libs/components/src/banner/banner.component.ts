@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  computed,
+  contentChild,
+  input,
+  signal,
+} from "@angular/core";
 import { outputFromObservable } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
 
@@ -67,6 +76,8 @@ export class BannerComponent implements OnInit {
    * Whether to use ARIA alert role for screen readers.
    */
   readonly useAlertRole = input(true);
+
+  readonly hasActionsContent = contentChild<ElementRef>("actions");
 
   private readonly dismiss$ = new Subject<void>();
   /**
