@@ -95,7 +95,7 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
-      // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
+    // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
     // A vault item consists of targets. A target is extracted from the various information in the vault item, such as name, notes.
     //
     // For each part in the query, at least on target must contain the part. If all query parts are found in the vault item target,
@@ -136,13 +136,16 @@ export class SearchService implements SearchServiceAbstraction {
         if (
           login &&
           login.uris?.length &&
-          login.uris?.some(
-            (loginUri) =>
-              loginUri?.uri &&
-              normalizeSearchQuery(
-                CipherViewLikeUtils.getUriHostname(loginUri).toLowerCase(),
-              ).indexOf(term) > -1,
-          )
+          login.uris?.some((loginUri) => {
+            if (!loginUri?.uri) {
+              return false;
+            }
+            const hostname = CipherViewLikeUtils.getUriHostname(loginUri);
+            if (hostname === undefined) {
+              return false;
+            }
+            return normalizeSearchQuery(hostname.toLowerCase()).indexOf(term) > -1;
+          })
         ) {
           return true;
         }
