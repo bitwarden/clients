@@ -128,6 +128,11 @@ jobs:
             image_name: web-qa-cloud
             npm_command: build:bit:qa
             git_metadata: true
+          - artifact_name: cloud-usqa2
+            license_type: "commercial"
+            image_name: web-qa2-cloud
+            npm_command: build:bit:usqa2
+            git_metadata: true
           - artifact_name: ee
             license_type: "commercial"
             image_name: web-ee

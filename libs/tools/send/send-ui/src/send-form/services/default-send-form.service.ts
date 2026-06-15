@@ -15,7 +15,6 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
 import { SendPolicyService } from "../../services/send-policy.service";
@@ -31,7 +30,6 @@ import { SendForm } from "../send-form-container";
 export class DefaultSendFormService implements SendFormService {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
-  private logService = inject(LogService);
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
   private sendApiService = inject(SendApiService);
@@ -124,17 +122,27 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
 
-    const sendData = await this.sendService.encrypt(
-      this._updatedSendView(),
-      this.file,
-      this._updatedSendView().password,
-      null,
-    );
-    const newSend = await this.sendApiService.save(sendData);
-    const sendView = await this.decryptSend(newSend);
+    let sendView: SendView;
+    try {
+      const sendData = await this.sendService.encrypt(
+        this.updatedSendView(),
+        this.file,
+        this.updatedSendView().password,
+        null,
+      );
+      const newSend = await this.sendApiService.save(sendData);
+      sendView = await this.decryptSend(newSend);
+    } catch (err) {
+      // We surface any errors but make sure that the submitting
+      // status signal is set to false before we do
+      this._submitting.set(false);
+      throw err;
+    }
+
     this._originalSendView.set(null);
     this._updatedSendView.set(null);
     this._submitting.set(false);
+
     return sendView;
   }
 

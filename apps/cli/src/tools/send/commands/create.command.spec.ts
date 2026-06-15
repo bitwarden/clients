@@ -43,6 +43,7 @@ describe("SendCreateCommand", () => {
     accountProfileService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     environmentService.environment$ = of({
       getWebVaultUrl: () => "https://vault.bitwarden.com",
+      getSendUrl: () => "https://send.bitwarden.com/#",
     } as any);
     configService.getFeatureFlag.mockResolvedValue(false);
 
