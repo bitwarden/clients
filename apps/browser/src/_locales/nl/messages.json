@@ -214,8 +214,13 @@
     "message": "Invullen",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatisch invullen"
+  "autofillNoun": {
+    "message": "Automatisch invullen",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatisch invullen",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Login automatisch invullen"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Opslaan"
+  },
+  "saveAndFill": {
+    "message": "Opslaan en vullen"
   },
   "move": {
     "message": "Verplaatsen"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Invulassistent gebruiken"
   },
+  "turnOnFillAssist": {
+    "message": "Invulassistent inschakelen"
+  },
+  "enableFillAssistDescription": {
+    "message": "Invulassistent verbetert de nauwkeurigheid op ondersteunde websites door sitespecifieke regels te gebruiken. Er worden geen gegevens verzameld of opgeslagen wanneer je deze functie gebruikt."
+  },
+  "aboutFillAssist": {
+    "message": "Over invulassistent"
+  },
   "enableContextMenuItem": {
     "message": "Contextmenu-opties weergeven"
   },
@@ -1794,6 +1811,9 @@
   "iconsUrl": {
     "message": "Pictogrammenserver-URL"
   },
+  "sendUrl": {
+    "message": "Server-URL Send"
+  },
   "environmentSaved": {
     "message": "Omgeving-URL's opgeslagen"
   },
@@ -1827,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Deze website komt past niet bij je opgeslagen inloggegevens. Verzeker jezelf ervan dat het een vertrouwde website is, voordat je je inloggegevens invult."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login komt niet overeen"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Deze website komt niet overeen met je opgeslagen logindetails. Controleer of je op een vertrouwde site bent voordat je automatisch invult."
+  },
+  "uriMatchRule": {
+    "message": "URI-matchregel"
+  },
+  "neverMatch": {
+    "message": "Nooit matchen"
   },
   "loginHasNoSiteSaved": {
     "message": "Login heeft geen site opgeslagen"
@@ -2228,6 +2260,9 @@
   },
   "bankAccount": {
     "message": "Bankrekening"
+  },
+  "bankAccountDetails": {
+    "message": "Bankgegevens"
   },
   "typeNote": {
     "message": "Notitie"
@@ -4365,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Een of meer e-mailadressen zijn ongeldig"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "De e-mailadressenlijst mag niet meer dan 2.500 tekens bevatten. Verwijder één of meer ontvangers om door te gaan."
+  },
   "inputTrimValidator": {
     "message": "Invoer mag niet alleen witruimte bevatten.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4430,12 +4468,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatisch invullen bij het laden van een pagina ingesteld op de standaardinstelling.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Kan niet automatisch invullen"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Standaard overeenkomst is ingesteld op 'Exacte match'. De huidige website komt niet precies overeen met de opgeslagen inloggegevens voor dit item."
   },
   "okay": {
     "message": "Oké"
@@ -6226,7 +6258,7 @@
     "message": "Volgende"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Broodkruimels",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6492,6 +6524,18 @@
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
   },
+  "sharedUnlock": {
+    "message": "Gezamenlijk ontgrendelen"
+  },
+  "sharedUnlockDescription": {
+    "message": "Houd je Bitwarden-apps gesynchroniseerd. Inschakelen deelt de ontgrendelstatus met alle apps op dit apparaat. Vereist de desktop-app om verschillende browsers te synchroniseren."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Houd je Bitwarden-apps gesynchroniseerd. Inschakelen deelt de ontgrendelstatus met Bitwarden-webkluis in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Houd je Bitwarden-apps gesynchroniseerd. Inschakelen deelt de ontgrendelstatus met de Bitwarden-desktop-app."
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -6635,14 +6679,13 @@
     "message": "Voortgangsbalk",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Bewerkingen Send opslaan mislukt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Kan het item niet opslaan. Voor het opslaan van items moet het bevestigd zijn dat je bij de organisatie hoort."
   }
 }

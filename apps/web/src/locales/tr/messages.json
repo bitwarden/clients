@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Hatırlatıcı gönder"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Uygulamaları kritik olarak işaretlediğinizde burada görüntülenecekler."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Verileri içe aktar"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "İçe aktarılacak veriniz yoksa ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "yeni bir kayıt",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "yeni hesap",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " oluşturabilirsiniz.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " oluşturabilirsiniz. Yöneticiniz kuruluş üyeliğinizi onaylayana kadar beklemeniz gerekebilir.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "İçe aktarma hatası"
   },
@@ -3582,10 +3565,16 @@
   "year": {
     "message": "yıl"
   },
+  "years": {
+    "message": "yıl"
+  },
   "yr": {
     "message": "yıl"
   },
   "month": {
+    "message": "ay"
+  },
+  "months": {
     "message": "ay"
   },
   "monthAbbr": {
@@ -3670,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Abonelik iptal edildi"
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Aboneliği iptal et"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$LENGTH$ $DURATION$ boyunca $DISCOUNT$ indirim",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Zaman aşımı yok"
   },
@@ -3693,6 +3763,9 @@
   },
   "discount": {
     "message": "indirim"
+  },
+  "discountApplied": {
+    "message": "İndirim uygulandı"
   },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
@@ -5232,6 +5305,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Raporu çalıştır"
   },
@@ -5476,6 +5552,9 @@
   },
   "bankAccount": {
     "message": "Banka hesabı"
+  },
+  "bankAccountDetails": {
+    "message": "Banka hesap bilgileri"
   },
   "amountX": {
     "message": "Tutar: $COUNT$",
@@ -7340,6 +7419,9 @@
   "resetPasswordDetailsError": {
     "message": "Parola sıfırlama detayları yanıtı boş"
   },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Yeni parola gerekli"
+  },
   "trashCleanupWarning": {
     "message": "30 günden uzun süre çöp kutusunda duran kayıtlar otomatik olarak silinecektir."
   },
@@ -8303,6 +8385,9 @@
   "iconsUrl": {
     "message": "Simge sunucusu URL'si"
   },
+  "sendUrl": {
+    "message": "Send sunucusu URL'si"
+  },
   "environmentSaved": {
     "message": "Ortam URL'leri kaydedildi"
   },
@@ -8985,6 +9070,9 @@
   },
   "multipleInputEmails": {
     "message": "Bir veya daha fazla e-posta geçersiz"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "tooManyEmails": {
     "message": "Bir seferde en fazla $COUNT$ e-posta gönderebilirsiniz",
@@ -10175,9 +10263,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Hesap oluştur"
-  },
   "createSecret": {
     "message": "Sır oluştur"
   },
@@ -10200,7 +10285,44 @@
   "getStarted": {
     "message": "Başlayın"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Secrets Manager'ı kullanmaya başlayın"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete these steps to start managing your team's secrets"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Makine hesabı oluşturun"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize your secrets into projects"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Proje oluşturun"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bring existing secrets in from another tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Store passwords, certificates, and API keys"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Sır oluşturun"
+  },
   "complete": {
+    "message": "$COMPLETED$/$TOTAL$ tamamlandı",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
     "message": "$COMPLETED$/$TOTAL$ tamamlandı",
     "placeholders": {
       "COMPLETED": {
@@ -10855,11 +10977,38 @@
     "message": "Ayrıntılı talimatları yardım sitemizde bulabilirsiniz:",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Tarayıcı uzantısını yükle"
+  "getStartedWithYourVault": {
+    "message": "Kasanızı kullanmaya başlayın"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Web uygulamasını açmadan oturum açma bilgilerini hızlı bir şekilde kaydetmek ve formları otomatik doldurmak için uzantıyı kullanın."
+  "onboardingChecklistSubtitle": {
+    "message": "Kişisel verileriniz korumak ve Bitwarden'dan en iyi şekilde yararlanmak bu adımları tamamlayın"
+  },
+  "dismissThisChecklist": {
+    "message": "Bu listeyi kapat"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Hesabınızı oluşturun"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Parolalarınızı içe aktarın"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Tarayıcı uzantısını yükleyin"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Başka bir parola yöneticisindeki verilerinizi içe aktararak zaman kazanabilirsiniz. Kayıtları kasanıza manuel olarak da ekleyebilirsiniz."
+  },
+  "onboardingImportCta": {
+    "message": "Parolaları içe aktar"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Uzantıyı tarayıcınıza sabitleyin. Böylece daha hızlı oturum açabilir ve parolalarınızı kolayca kaydedebilirsiniz."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Uzantıyı yükle"
+  },
+  "completed": {
+    "message": "Tamamlandı"
   },
   "projectAccessUpdated": {
     "message": "Proje erişimi güncellendi"
@@ -12671,6 +12820,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
+  },
   "restartOrganizationSubscription": {
     "message": "Kuruluş aboneliği yeniden başlatıldı"
   },
@@ -14047,8 +14227,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Adım $CURRENT$/$TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$/$TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14075,12 +14255,76 @@
   "backToEditing": {
     "message": "Düzenlemeye dön"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+  },
+  "singleOrgPrerequisite": {
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "enableBanner": {
+    "message": "Enable banner"
+  },
+  "createBannerMessage": {
+    "message": "Create banner message"
+  },
+  "header": {
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "You must enter a header to create a button."
+  },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
@@ -14187,5 +14431,8 @@
   },
   "copy": {
     "message": "Kopyala"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
