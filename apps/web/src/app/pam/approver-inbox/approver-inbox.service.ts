@@ -1,5 +1,4 @@
 import { Injectable, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
 
 import {
@@ -10,10 +9,7 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
-import {
-  AccessRequestNameResolver,
-  fillCollectionNames,
-} from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { isActionableInboxRequest } from "./inbox-request-filter";
 
@@ -36,24 +32,21 @@ export class ApproverInboxService {
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
-  readonly requests$: Observable<AccessRequestDetailsResponse[]> = this._requests$.asObservable();
-  readonly history$: Observable<AccessRequestDetailsResponse[]> = this._history$.asObservable();
+  /**
+   * Collection names back-fill reactively from local vault state (see
+   * {@link AccessRequestNameResolver.applyCollectionNames$}), whether that state warms up before or
+   * after the load populates the rows. Cipher names are resolved on the one-shot load path.
+   */
+  readonly requests$: Observable<AccessRequestDetailsResponse[]> =
+    this.nameResolver.applyCollectionNames$(this._requests$);
+  readonly history$: Observable<AccessRequestDetailsResponse[]> =
+    this.nameResolver.applyCollectionNames$(this._history$);
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   readonly badgeCount$: Observable<number> = this._requests$.pipe(
     map((rows) => rows.length),
     distinctUntilChanged(),
   );
-
-  constructor() {
-    // Collection names come from local collection state, which may not be warm when the page first
-    // loads (cipher names resolve on demand; collection names do not). Re-apply them whenever that
-    // state emits, so they fill in without the user opening the vault.
-    this.nameResolver
-      .collectionNames$()
-      .pipe(takeUntilDestroyed())
-      .subscribe((names) => this.applyCollectionNames(names));
-  }
 
   /** Fetch the inbox and history, resolve display names from vault state, replace local state. */
   async load(): Promise<void> {
@@ -145,18 +138,6 @@ export class ApproverInboxService {
       return item;
     });
     this._history$.next(updated);
-  }
-
-  /** Fill collection names on the held inbox + history rows from the latest collection snapshot. */
-  private applyCollectionNames(names: Map<string, string>): void {
-    const requests = this._requests$.value;
-    if (fillCollectionNames(requests, names)) {
-      this._requests$.next([...requests]);
-    }
-    const history = this._history$.value;
-    if (fillCollectionNames(history, names)) {
-      this._history$.next([...history]);
-    }
   }
 }
 

@@ -145,4 +145,47 @@ describe("AccessRequestNameResolver", () => {
 
     expect(cipherById.get("cipher-1")).toBe(view);
   });
+
+  describe("applyCollectionNames$", () => {
+    it("back-fills collection names when collection state warms up after subscribe", () => {
+      // The original bug: rows are held before collection state is warm. Names must fill in when
+      // that state emits, without re-loading the rows.
+      const collections$ = new BehaviorSubject<CollectionView[]>([]);
+      collectionService.decryptedCollections$.mockReturnValue(collections$);
+      const rows$ = new BehaviorSubject([makeRow({ collectionId: "col-1" })]);
+
+      const seen: (string | null)[] = [];
+      const sub = resolver
+        .applyCollectionNames$(rows$)
+        .subscribe((rows) => seen.push(rows[0].collectionName));
+
+      // Cold: collection state empty, no name yet — but the rows still emitted (cipher names paint).
+      expect(seen.at(-1)).toBeNull();
+
+      // Collection state warms up after subscribe.
+      collections$.next([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]);
+
+      expect(seen.at(-1)).toBe("Production");
+      sub.unsubscribe();
+    });
+
+    it("applies names to rows that arrive after collection state is already warm", () => {
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]),
+      );
+      const rows$ = new BehaviorSubject([makeRow({ id: "a", collectionId: "col-1" })]);
+
+      const seen: (string | null)[] = [];
+      const sub = resolver
+        .applyCollectionNames$(rows$)
+        .subscribe((rows) => seen.push(rows[0]?.collectionName ?? null));
+      expect(seen.at(-1)).toBe("Production");
+
+      // A reload swaps in fresh rows; names apply without re-warming collection state.
+      rows$.next([makeRow({ id: "b", collectionId: "col-1" })]);
+
+      expect(seen.at(-1)).toBe("Production");
+      sub.unsubscribe();
+    });
+  });
 });

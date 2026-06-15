@@ -138,7 +138,7 @@ describe("MyAccessRequestsListComponent", () => {
     nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
     nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
-    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
+    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
 
     await TestBed.configureTestingModule({
       imports: [MyAccessRequestsListComponent, NoopAnimationsModule],

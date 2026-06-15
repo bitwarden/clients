@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
 
@@ -90,7 +90,8 @@ describe("ApproverInboxService", () => {
       collectionNameById: new Map(),
       cipherById: new Map(),
     });
-    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
+    // Collection-name application is the resolver's job (covered in its own spec); pass rows through.
+    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
 
     TestBed.configureTestingModule({
       providers: [

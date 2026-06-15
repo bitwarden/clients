@@ -1,5 +1,13 @@
 import { Injectable, inject } from "@angular/core";
-import { Observable, firstValueFrom, map, switchMap } from "rxjs";
+import {
+  Observable,
+  combineLatest,
+  firstValueFrom,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,6 +31,18 @@ export class AccessRequestNameResolver {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+
+  /**
+   * The live collection-id → name map from local vault state, seeded with an empty map so consumers
+   * paint immediately (with cipher names) before collection state is warm, and shared so any number
+   * of subscribers drive a single decryption. The real names back-fill when {@link collectionNames$}
+   * emits. Drives {@link applyCollectionNames$}.
+   */
+  private readonly liveCollectionNames$: Observable<Map<string, string>> =
+    this.collectionNames$().pipe(
+      startWith(new Map<string, string>()),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
   /**
    * Populate each row's `cipherName`/`collectionName` in place. The cipher name
@@ -86,6 +106,24 @@ export class AccessRequestNameResolver {
       map((collections) => new Map(collections.map((c) => [c.id, c.name]))),
     );
   }
+
+  /**
+   * Reactively fill `collectionName` on a stream of rows from local collection state, re-applying
+   * whenever either the rows or that state changes — so names appear regardless of whether the rows
+   * load before or after collection state warms up. Names are filled in place (the rows may be
+   * response class instances that can't be cloned), then a fresh array is emitted so change
+   * detection sees the update. Shared by the requester's list and the approver inbox.
+   */
+  applyCollectionNames$<T extends { collectionId: string; collectionName: string | null }>(
+    rows$: Observable<T[]>,
+  ): Observable<T[]> {
+    return combineLatest([rows$, this.liveCollectionNames$]).pipe(
+      map(([rows, names]) => {
+        fillCollectionNames(rows, names);
+        return rows.slice();
+      }),
+    );
+  }
 }
 
 /** Lookup maps resolved from a single local vault snapshot. */
@@ -105,24 +143,18 @@ function emptyResolvedNames(): ResolvedNames {
 }
 
 /**
- * Fill in collection names on rows from the latest {@link AccessRequestNameResolver.collectionNames$}
- * lookup, without clobbering a name already resolved (the map only ever gains entries as collection
- * state warms). Returns whether anything changed, so callers only re-emit when needed.
- *
- * Shared by the PAM data services, which subscribe to `collectionNames$()` and re-apply names to
- * their held rows as local collection state loads — without the user having to open the vault first.
+ * Fill in collection names on rows in place from the latest collection-state lookup, without
+ * clobbering a name already resolved (the map only ever gains entries as collection state warms).
+ * Backs {@link AccessRequestNameResolver.applyCollectionNames$}.
  */
 export function fillCollectionNames(
   items: ReadonlyArray<{ collectionId: string; collectionName: string | null }>,
   names: Map<string, string>,
-): boolean {
-  let changed = false;
+): void {
   for (const item of items) {
     const name = names.get(item.collectionId);
-    if (name != null && name !== item.collectionName) {
+    if (name != null) {
       item.collectionName = name;
-      changed = true;
     }
   }
-  return changed;
 }
