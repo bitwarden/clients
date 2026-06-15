@@ -437,6 +437,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Resets the cached targeting-rules. Invoked when the background signals
+   * that the user disabled fill assist mid-session.
+   */
+  clearCachedTargetingRules(): void {
+    this.pageTargetingRules = undefined;
+  }
+
+  /**
    * Fire-and-forget dispatch of accumulated iframe-crossing selectors to the
    * background, which routes each batch to the matching frame's content script.
    * The receiving frame's `applyExternalTargetedFields` will resolve locally
@@ -1453,6 +1461,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       void this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
     }
     this.noFieldsFound = false;
+
+    // Targeting rules are URL-scoped and gated by user/feature state at fetch
+    // time; the new URL must re-fetch to pick up rule and gate changes.
+    this.pageTargetingRules = undefined;
 
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
