@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "Eén of meer e-mailadressen zijn ongeldig"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "De e-mailadressenlijst mag niet meer dan 2.500 tekens bevatten. Verwijder één of meer ontvangers om door te gaan."
+  },
   "inputTrimValidator": {
     "message": "Invoer mag niet alleen witruimte bevatten.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Rijbewijsklasse"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Kan het item niet opslaan. Voor het opslaan van items moet het bevestigd zijn dat je bij de organisatie hoort."
   }
 }

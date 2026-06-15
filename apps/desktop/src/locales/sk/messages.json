@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopírovať súkromný kľúč"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopírovať verejný kľúč"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopírovať odtlačok"
   },
   "cardNumber": {
     "message": "číslo karty"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Skupina vodičského preukazu"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
   }
 }

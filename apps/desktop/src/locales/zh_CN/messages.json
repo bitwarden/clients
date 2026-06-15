@@ -428,7 +428,7 @@
     "message": "复制签发机构 / 部门"
   },
   "licenseNumber": {
-    "message": "许可证号码"
+    "message": "驾驶证号码"
   },
   "email": {
     "message": "电子邮箱"
@@ -1391,7 +1391,7 @@
     "message": "图标服务器 URL"
   },
   "sendUrl": {
-    "message": "Send 服务 URL"
+    "message": "Send 服务器 URL"
   },
   "environmentSaved": {
     "message": "环境 URL 已保存"
@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "复制私钥"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "复制公钥"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "复制指纹"
   },
   "cardNumber": {
     "message": "卡号"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "一个或多个电子邮箱无效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "电子邮件收件人列表不能超过 2,500 个字符。请移除一个或多个收件人后继续。"
+  },
   "inputTrimValidator": {
     "message": "输入不能只包含空格。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -3938,7 +3941,7 @@
     "message": "子菜单"
   },
   "toggleSideNavigation": {
-    "message": "切换侧边导航"
+    "message": "切换侧边导航栏"
   },
   "skipToContent": {
     "message": "跳转到内容"
@@ -4960,7 +4963,7 @@
     "message": "设置一个解锁方式以更改您的超时动作"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "会话超时时间由桌面应用统一管理"
+    "message": "会话超时由桌面 App 控制"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ 未安装。从中导入密码之前，请先安装 $BROWSER$。",
@@ -5288,7 +5291,7 @@
     "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
   },
   "sideNavigation": {
-    "message": "侧边导航"
+    "message": "侧边导航栏"
   },
   "skipLink": {
     "message": "跳过链接"
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "驾驶证等级"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   }
 }

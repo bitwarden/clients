@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Privaten Schlüssel kopieren"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Öffentlichen Schlüssel kopieren"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Fingerabdruck kopieren"
   },
   "cardNumber": {
     "message": "Kartennummer"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "Mindestens 1 E-Mail-Adresse ist ungültig"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Die E-Mail-Adressen-Empfängerliste darf 2.500 Zeichen nicht überschreiten. Entferne einen oder mehrere Empfänger, um fortzufahren."
+  },
   "inputTrimValidator": {
     "message": "Die Eingabe darf nicht nur Leerzeichen enthalten.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Führerscheinklasse"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Eintrag konnte nicht gespeichert werden. Du musst von der Organisation bestätigt werden, um Einträge zu speichern."
   }
 }

@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Скопировать приватный ключ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Скопировать публичный ключ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Скопировать отпечаток"
   },
   "cardNumber": {
     "message": "номер карты"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
+  },
   "inputTrimValidator": {
     "message": "Введенные данные не должны содержать только пробелы.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Категории водительского удостоверения"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }
