@@ -81,7 +81,11 @@ export class InitService {
       }
       this.taskService.listenForTaskNotifications();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.configService,
+      );
       containerService.attachToGlobal(this.win);
     };
   }

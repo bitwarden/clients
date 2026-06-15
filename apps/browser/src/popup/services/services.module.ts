@@ -314,6 +314,7 @@ const safeProviders: SafeProvider[] = [
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
       accountCryptographicStateService: AccountCryptographicStateService,
+      configService: ConfigService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -328,7 +329,7 @@ const safeProviders: SafeProvider[] = [
         kdfConfigService,
         accountCryptographicStateService,
       );
-      new ContainerService(keyService, encryptService).attachToGlobal(self);
+      new ContainerService(keyService, encryptService, configService).attachToGlobal(self);
       return keyService;
     },
     deps: [
@@ -343,6 +344,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
       AccountCryptographicStateService,
+      ConfigService,
     ],
   }),
   safeProvider({

@@ -36,6 +36,14 @@ export function flagEnabled<Flags extends SharedFlags>(flag: keyof Flags): boole
 }
 
 /**
+ * Whether the client is running in a development build.
+ * @returns true when built with `ENV=development`
+ */
+export function devModeEnabled(): boolean {
+  return process.env.ENV === "development";
+}
+
+/**
  * Gets the value of a dev flag from environment.
  * Will always return false unless in development.
  * Only use for shared code in `libs`, otherwise use the client-specific function.

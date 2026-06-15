@@ -1173,7 +1173,11 @@ export default class MainBackground {
       this.restrictedItemTypesService,
     );
 
-    this.containerService = new ContainerService(this.keyService, this.encryptService);
+    this.containerService = new ContainerService(
+      this.keyService,
+      this.encryptService,
+      this.configService,
+    );
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(

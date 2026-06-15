@@ -57,6 +57,12 @@
         ></bit-nav-item>
       }
       <billing-free-families-nav-item></billing-free-families-nav-item>
+      @if (showDeveloperOptions()) {
+        <bit-nav-item
+          [text]="'developerOptions' | i18n"
+          route="settings/developer-options"
+        ></bit-nav-item>
+      }
     </bit-nav-group>
   </app-side-nav>
 

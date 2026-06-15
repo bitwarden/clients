@@ -14,6 +14,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
@@ -92,6 +93,7 @@ describe("SettingsV2Component", () => {
         { provide: AutomaticUserConfirmationService, useValue: mockAutoConfirmService },
         { provide: AutofillSettingsServiceAbstraction, useValue: mockAutofillSettingsService },
         { provide: DialogService, useValue: dialogService },
+        { provide: ConfigService, useValue: { localFeatureFlagOverrideGuiEnabled$: of(false) } },
         { provide: I18nService, useValue: { t: jest.fn((key: string) => key) } },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },

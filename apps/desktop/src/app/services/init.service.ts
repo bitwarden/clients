@@ -112,7 +112,11 @@ export class InitService {
       this.versionService.init();
       this.updateRestartService.init();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.configService,
+      );
       containerService.attachToGlobal(this.win);
 
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {

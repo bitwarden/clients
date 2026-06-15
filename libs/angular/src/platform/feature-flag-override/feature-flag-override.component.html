@@ -1,0 +1,25 @@
+<p class="tw-text-sm tw-text-muted">
+  Local overrides apply only to this client and take precedence over the server config.
+  <strong>Default</strong> uses the server/default value.
+</p>
+<ul class="tw-m-0 tw-list-none tw-pl-0">
+  @for (row of rows; track row.flag) {
+    <li
+      class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-py-2"
+    >
+      <span class="tw-min-w-0">
+        <code class="tw-break-all tw-text-xs">{{ row.flag }}</code>
+        <span class="tw-block tw-text-xs tw-text-muted">default: {{ row.defaultValue }}</span>
+      </span>
+      <bit-toggle-group
+        [selected]="stateFor(row.flag)"
+        (selectedChange)="setState(row.flag, $event)"
+        [attr.aria-label]="row.flag"
+      >
+        <bit-toggle [value]="OverrideState.Default">Default</bit-toggle>
+        <bit-toggle [value]="OverrideState.On">On</bit-toggle>
+        <bit-toggle [value]="OverrideState.Off">Off</bit-toggle>
+      </bit-toggle-group>
+    </li>
+  }
+</ul>

@@ -79,6 +79,7 @@ import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/s
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
+import { DeveloperOptionsComponent } from "../tools/popup/settings/developer-options.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
@@ -365,6 +366,12 @@ const routes: Routes = [
     path: "admin",
     component: AdminSettingsComponent,
     canActivate: [authGuard, canAccessAutoConfirmSettings],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "developer-options",
+    component: DeveloperOptionsComponent,
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

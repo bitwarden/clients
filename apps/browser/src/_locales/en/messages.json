@@ -5230,6 +5230,9 @@
   "appearance": {
     "message": "Appearance"
   },
+  "developerOptions": {
+    "message": "Developer options"
+  },
   "errorAssigningTargetCollection": {
     "message": "Error assigning target collection."
   },

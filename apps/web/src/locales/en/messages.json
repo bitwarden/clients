@@ -2814,6 +2814,9 @@
   "default": {
     "message": "Default"
   },
+  "developerOptions": {
+    "message": "Developer options"
+  },
   "domainRules": {
     "message": "Domain rules"
   },

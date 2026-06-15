@@ -34,6 +34,7 @@ import {
   ApiUrl,
   DefaultConfigService,
   RETRIEVAL_INTERVAL,
+  ENABLE_LOCAL_FEATURE_FLAG_OVERRIDE_GUI,
   GLOBAL_FEATURE_FLAG_OVERRIDES,
   GLOBAL_SERVER_CONFIGURATIONS,
   USER_SERVER_CONFIG,
@@ -449,6 +450,74 @@ describe("ConfigService", () => {
       const result = await firstValueFrom(
         sut.userCachedFeatureFlag$(FeatureFlag.AdminResetTwoFactor, userId),
       );
+
+      expect(result).toBe(true);
+    });
+
+    it("featureFlagOverrides$ emits an empty object when the state is null", async () => {
+      overrideState.stateSubject.next(null);
+
+      const result = await firstValueFrom(sut.featureFlagOverrides$);
+
+      expect(result).toEqual({});
+    });
+
+    it("setFeatureFlagOverride stores the override", async () => {
+      overrideState.stateSubject.next({});
+
+      await sut.setFeatureFlagOverride(FeatureFlag.AdminResetTwoFactor, true);
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.AdminResetTwoFactor));
+      expect(result).toBe(true);
+    });
+
+    it("setFeatureFlagOverride with null removes an existing override", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.AdminResetTwoFactor]: true });
+
+      await sut.setFeatureFlagOverride(FeatureFlag.AdminResetTwoFactor, null);
+
+      const overrides = await firstValueFrom(sut.featureFlagOverrides$);
+      expect(overrides[FeatureFlag.AdminResetTwoFactor]).toBeUndefined();
+    });
+  });
+
+  describe("local feature flag override GUI", () => {
+    let sut: DefaultConfigService;
+    let guiState: FakeGlobalState<boolean>;
+    const environmentSubject = new BehaviorSubject(environmentFactory(activeApiUrl));
+
+    beforeAll(async () => {
+      await accountService.switchAccount(null);
+    });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.globalEnvironment$ = environmentSubject;
+      globalState.stateSubject.next({ [activeApiUrl]: serverConfigFactory(activeApiUrl) });
+
+      guiState = stateProvider.global.getFake(ENABLE_LOCAL_FEATURE_FLAG_OVERRIDE_GUI);
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+    });
+
+    it("is disabled by default outside of development", async () => {
+      guiState.stateSubject.next(null);
+
+      const result = await firstValueFrom(sut.localFeatureFlagOverrideGuiEnabled$);
+
+      expect(result).toBe(false);
+    });
+
+    it("reflects the stored enabled state", async () => {
+      await sut.setLocalFeatureFlagOverrideGuiEnabled(true);
+
+      const result = await firstValueFrom(sut.localFeatureFlagOverrideGuiEnabled$);
 
       expect(result).toBe(true);
     });

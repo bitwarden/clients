@@ -3088,6 +3088,9 @@
   "appPreferences": {
     "message": "App settings (all accounts)"
   },
+  "developerOptions": {
+    "message": "Developer options"
+  },
   "accountSwitcherLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."
   },

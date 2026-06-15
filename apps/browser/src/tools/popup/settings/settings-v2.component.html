@@ -105,6 +105,15 @@
       </bit-item>
     }
 
+    @if (showDeveloperOptions$ | async) {
+      <bit-item>
+        <a bit-item-content routerLink="/developer-options" [truncate]="false">
+          <i slot="start" class="bwi bwi-sliders" aria-hidden="true"></i>
+          {{ "developerOptions" | i18n }}
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
+    }
     <bit-item>
       <a bit-item-content routerLink="/about" [truncate]="false">
         <i slot="start" class="bwi bwi-info-circle" aria-hidden="true"></i>

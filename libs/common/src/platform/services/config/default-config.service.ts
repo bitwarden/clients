@@ -32,7 +32,7 @@ import { ConfigService } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService, Region } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
-import { devFlagEnabled, devFlagValue } from "../../misc/flags";
+import { devFlagEnabled, devFlagValue, devModeEnabled } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import { ServerSettings } from "../../models/domain/server-settings";
 import { ServerConfigResponse } from "../../models/response/server-config.response";
@@ -66,6 +66,14 @@ export const GLOBAL_FEATURE_FLAG_OVERRIDES = KeyDefinition.record<
   deserializer: (data) => data,
 });
 
+export const ENABLE_LOCAL_FEATURE_FLAG_OVERRIDE_GUI = new KeyDefinition<boolean>(
+  CONFIG_DISK,
+  "enable_local_feature_flag_override_gui",
+  {
+    deserializer: (data) => data ?? false,
+  },
+);
+
 const environmentComparer = (previous: Environment, current: Environment) => {
   return previous.getApiUrl() === current.getApiUrl();
 };
@@ -82,9 +90,9 @@ export class DefaultConfigService implements ConfigService {
 
   cloudRegion$: Observable<Region>;
 
-  private featureFlagOverrides$: Observable<Partial<
-    Record<FeatureFlag, AllowedFeatureFlagTypes>
-  > | null>;
+  localFeatureFlagOverrideGuiEnabled$: Observable<boolean>;
+
+  featureFlagOverrides$: Observable<Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>>>;
 
   constructor(
     private configApiService: ConfigApiServiceAbstraction,
@@ -172,7 +180,13 @@ export class DefaultConfigService implements ConfigService {
       map((config) => config?.settings ?? new ServerSettings()),
     );
 
-    this.featureFlagOverrides$ = this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$;
+    this.featureFlagOverrides$ = this.stateProvider
+      .getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES)
+      .state$.pipe(map((overrides) => overrides ?? {}));
+
+    this.localFeatureFlagOverrideGuiEnabled$ = this.stateProvider
+      .getGlobal(ENABLE_LOCAL_FEATURE_FLAG_OVERRIDE_GUI)
+      .state$.pipe(map((enabled) => devModeEnabled() || !!enabled));
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
@@ -218,6 +232,28 @@ export class DefaultConfigService implements ConfigService {
   async ensureConfigFetched() {
     // Triggering a retrieval for the given user ensures that the config is less than RETRIEVAL_INTERVAL old
     await firstValueFrom(this.serverConfig$);
+  }
+
+  async setLocalFeatureFlagOverrideGuiEnabled(enabled: boolean): Promise<void> {
+    await this.stateProvider
+      .getGlobal(ENABLE_LOCAL_FEATURE_FLAG_OVERRIDE_GUI)
+      .update(() => enabled);
+  }
+
+  async setFeatureFlagOverride<Flag extends FeatureFlag>(
+    flag: Flag,
+    value: AllowedFeatureFlagTypes | null,
+  ): Promise<void> {
+    await this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).update((overrides) => {
+      const next: Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>> = { ...overrides };
+      if (value == null) {
+        delete next[flag];
+      } else {
+        next[flag] = value;
+      }
+      // KeyDefinition.record types this as a full Record, but it is used (and resolved) partially.
+      return next as Record<FeatureFlag, AllowedFeatureFlagTypes>;
+    });
   }
 
   private olderThanRetrievalInterval(date: Date) {

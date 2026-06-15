@@ -8,6 +8,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { concatMap, map, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import { FeatureFlagOverrideComponent } from "@bitwarden/angular/platform/feature-flag-override";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -98,6 +99,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
+    FeatureFlagOverrideComponent,
   ],
 })
 export class SettingsDialogComponent implements OnInit {
@@ -148,6 +150,10 @@ export class SettingsDialogComponent implements OnInit {
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
+  protected readonly showDeveloperOptions = toSignal(
+    this.configService.localFeatureFlagOverrideGuiEnabled$,
+    { initialValue: false },
+  );
   protected readonly showMinToTray: boolean;
   protected readonly showAlwaysShowDock: boolean;
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {

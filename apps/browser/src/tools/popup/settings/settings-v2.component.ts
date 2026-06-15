@@ -19,6 +19,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   DialogService,
@@ -102,6 +103,9 @@ export class SettingsV2Component {
     switchMap((userId) => this.autoConfirmService.canManageAutoConfirm$(userId)),
   );
 
+  readonly showDeveloperOptions$: Observable<boolean> =
+    this.configService.localFeatureFlagOverrideGuiEnabled$;
+
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
@@ -109,6 +113,7 @@ export class SettingsV2Component {
     private readonly accountProfileStateService: BillingAccountProfileStateService,
     private readonly dialogService: DialogService,
     private readonly autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private readonly configService: ConfigService,
   ) {}
 
   protected openUpgradeDialog() {

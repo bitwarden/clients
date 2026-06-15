@@ -12,6 +12,7 @@ import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstra
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -41,6 +42,10 @@ import { WebLayoutModule } from "./web-layout.module";
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
+  protected readonly showDeveloperOptions = toSignal(
+    inject(ConfigService).localFeatureFlagOverrideGuiEnabled$,
+    { initialValue: false },
+  );
   protected readonly sendEnabled$: Observable<boolean> = this.sendPolicyService.disableSend$.pipe(
     map((disableSend) => !disableSend),
   );

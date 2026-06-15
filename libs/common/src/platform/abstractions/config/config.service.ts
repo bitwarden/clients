@@ -5,7 +5,11 @@ import { SemVer } from "semver";
 
 import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
 
-import { FeatureFlag, FeatureFlagValueType } from "../../../enums/feature-flag.enum";
+import {
+  AllowedFeatureFlagTypes,
+  FeatureFlag,
+  FeatureFlagValueType,
+} from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ServerSettings } from "../../models/domain/server-settings";
 import { Region } from "../environment.service";
@@ -25,6 +29,17 @@ export abstract class ConfigService {
   serverSettings$: Observable<ServerSettings | null>;
   /** The cloud region of the currently active user */
   cloudRegion$: Observable<Region>;
+  /**
+   * Emits whether the local feature flag override GUI should be available on this client.
+   * True when running in a development build or when explicitly enabled via
+   * {@link setLocalFeatureFlagOverrideGuiEnabled} (e.g. `bitwardenContainerService.enableFeatureFlagGui()`).
+   */
+  localFeatureFlagOverrideGuiEnabled$: Observable<boolean>;
+  /**
+   * The currently active local feature flag overrides, keyed by flag. Used by the override GUI.
+   * An override takes precedence over the server config and default value for that flag.
+   */
+  featureFlagOverrides$: Observable<Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>>>;
   /**
    * Retrieves the value of a feature flag for the currently active user
    * @param key The feature flag to retrieve
@@ -62,4 +77,21 @@ export abstract class ConfigService {
    * Triggers a check that the config for the currently active user is up-to-date. If it is not, it will be fetched from the server and stored.
    */
   abstract ensureConfigFetched(): Promise<void>;
+
+  /**
+   * Enables or disables the local feature flag override GUI on this client.
+   * @param enabled Whether the GUI should be available
+   */
+  abstract setLocalFeatureFlagOverrideGuiEnabled(enabled: boolean): Promise<void>;
+
+  /**
+   * Sets or clears a local override for a feature flag. Overrides apply only to this client and
+   * take precedence over the server config and default value.
+   * @param flag The feature flag to override
+   * @param value The value to force, or null to remove the override (revert to server/default)
+   */
+  abstract setFeatureFlagOverride<Flag extends FeatureFlag>(
+    flag: Flag,
+    value: AllowedFeatureFlagTypes | null,
+  ): Promise<void>;
 }

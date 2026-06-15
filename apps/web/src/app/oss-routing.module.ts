@@ -86,6 +86,7 @@ import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
+import { DeveloperOptionsComponent } from "./settings/developer-options.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
@@ -734,6 +735,11 @@ const routes: Routes = [
             path: "sponsored-families",
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
+          },
+          {
+            path: "developer-options",
+            component: DeveloperOptionsComponent,
+            data: { titleId: "developerOptions" } satisfies RouteDataProperties,
           },
         ],
       },

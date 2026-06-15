@@ -271,6 +271,12 @@
           <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
         </bit-form-field>
       </bit-tab>
+
+      @if (showDeveloperOptions()) {
+        <bit-tab [label]="'developerOptions' | i18n">
+          <app-feature-flag-override></app-feature-flag-override>
+        </bit-tab>
+      }
     </bit-tab-group>
   </ng-container>
 </form>
