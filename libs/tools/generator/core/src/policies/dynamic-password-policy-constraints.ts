@@ -59,11 +59,21 @@ export class DynamicPasswordPolicyConstraints implements DynamicStateConstraints
   readonly constraints: PolicyConstraints<PasswordGeneratorSettings>;
 
   calibrate(state: PasswordGeneratorSettings): StateConstraints<PasswordGeneratorSettings> {
-    // decide which constraints are active
+    // decide which constraints are active. A policy-derived minimum for
+    // numbers/special characters must keep its character class enabled even
+    // when the user has unchecked the matching checkbox; otherwise an admin
+    // policy that sets `minSpecial`/`minNumbers` without also enforcing
+    // `useSpecial`/`useNumbers` would be silently bypassed.
     const lowercase = state.lowercase || this.constraints.lowercase?.requiredValue || false;
     const uppercase = state.uppercase || this.constraints.uppercase?.requiredValue || false;
-    const number = state.number || this.constraints.number?.requiredValue || false;
-    const special = state.special || this.constraints.special?.requiredValue || false;
+    const number =
+      state.number ||
+      this.constraints.number?.requiredValue ||
+      (this.constraints.minNumber?.min ?? 0) > 0;
+    const special =
+      state.special ||
+      this.constraints.special?.requiredValue ||
+      (this.constraints.minSpecial?.min ?? 0) > 0;
 
     // minimum constraints cannot `atLeast(state...) because doing so would force
     // the constrained value to only increase

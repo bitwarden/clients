@@ -11,6 +11,7 @@ import { AdjustSubscription } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
 import { ChangePlanComponent } from "./change-plan.component";
+import { ChurnMitigationOfferDialogComponent } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
 import { OrganizationBillingRoutingModule } from "./organization-billing-routing.module";
@@ -21,6 +22,7 @@ import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscript
 import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
 import { SubscriptionHiddenComponent } from "./subscription-hidden.component";
 import { SubscriptionStatusComponent } from "./subscription-status.component";
+import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/components";
 
 @NgModule({
   imports: [
@@ -30,6 +32,8 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     OrganizationPlansComponent,
     HeaderModule,
     BannerModule,
+    OrganizationScheduledPriceIncreaseWarningComponent,
+    ChurnMitigationOfferDialogComponent,
   ],
   declarations: [
     AdjustSubscription,

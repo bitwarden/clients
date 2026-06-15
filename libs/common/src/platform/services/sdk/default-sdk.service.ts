@@ -16,11 +16,11 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
+  filter,
 } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
@@ -133,6 +133,13 @@ export class DefaultSdkService implements SdkService {
         return this.internalClient$(userId);
       }),
       takeWhile((client) => client !== undefined, false),
+      // Filter out clients that have been marked for disposal. This can happen in the
+      // race window where `internalClient$`'s `combineLatest` re-emits (e.g. during
+      // unlock when org keys / user key re-emit): the previous inner Observable's
+      // cleanup marks the old Rc for disposal before the new client finishes its
+      // async initialization, leaving the shared ReplaySubject holding a disposed
+      // reference that would otherwise throw on `take()`.
+      filter((client) => !client.isMarkedForDisposal),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
   }
@@ -190,12 +197,7 @@ export class DefaultSdkService implements SdkService {
         // Create our own observable to be able to implement clean-up logic
         return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
-            if (
-              env == null ||
-              kdfParams == null ||
-              accountCryptographicState == null ||
-              userKey == null
-            ) {
+            if (env == null) {
               return undefined;
             }
 
@@ -204,13 +206,18 @@ export class DefaultSdkService implements SdkService {
               new JsTokenProvider(this.apiService, userId),
               settings,
             );
+            await this.initializeClient(userId, client);
 
-            await this.initializeClient(
+            // Returns a locked SDK client, if any of these values are missing
+            if (kdfParams == null || accountCryptographicState == null || userKey == null) {
+              return client;
+            }
+
+            await this.initializeClientCrypto(
               userId,
               client,
               account,
               kdfParams.toSdkConfig(),
-              userKey,
               accountCryptographicState,
               orgKeys,
             );
@@ -243,40 +250,30 @@ export class DefaultSdkService implements SdkService {
     return client$;
   }
 
-  private async initializeClient(
+  private async initializeClient(userId: UserId, client: PasswordManagerClient) {
+    // Initialize the client managed repositories.
+    await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
+    client
+      .km_state_bridge()
+      .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
+    await this.loadFeatureFlags(client);
+  }
+
+  private async initializeClientCrypto(
     userId: UserId,
     client: PasswordManagerClient,
     account: AccountInfo,
     kdf: Kdf,
-    userKey: UserKey,
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
-    // Initialize the client managed repositories.
-    await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
-    await this.loadFeatureFlags(client);
-
-    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
-      await client.crypto().initialize_user_crypto({
-        userId: asUuid(userId),
-        email: account.email,
-        method: { clientManagedState: {} },
-        kdfParams: kdf,
-        accountCryptographicState: accountCryptographicState,
-      });
-    } else {
-      await client.crypto().initialize_user_crypto({
-        userId: asUuid(userId),
-        email: account.email,
-        method: {
-          decryptedKey: {
-            decrypted_user_key: userKey.toBase64(),
-          },
-        },
-        kdfParams: kdf,
-        accountCryptographicState: accountCryptographicState,
-      });
-    }
+    await client.crypto().initialize_user_crypto({
+      userId: asUuid(userId),
+      email: account.email,
+      method: { clientManagedState: {} },
+      kdfParams: kdf,
+      accountCryptographicState: accountCryptographicState,
+    });
 
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.
