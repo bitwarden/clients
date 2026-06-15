@@ -43,6 +43,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
+import { MyAccessRequestsListComponent } from "../my-access-requests/my-access-requests-list.component";
 
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import { ApproverInboxRowComponent } from "./approver-inbox-row.component";
@@ -59,6 +60,7 @@ type FlatHistoryRow = {
   item: AccessRequestDetailsResponse;
   bucket: BucketKey;
   canRevoke: boolean;
+  canCancel: boolean;
   statusClass: string; // Tailwind colour classes for the status label
   statusLabel: string; // i18n key
   relTime: { key: string; value: string } | null;
@@ -170,6 +172,7 @@ export function historyRelTimeFor(
     NgFor,
     I18nPipe,
     HeaderModule,
+    MyAccessRequestsListComponent,
     ApproverInboxRowComponent,
     ButtonModule,
     IconModule,
@@ -236,6 +239,12 @@ export class ApproverInboxComponent implements OnInit {
             (bucket === "active" || bucket === "future") &&
             item.producedLeaseId != null &&
             item.producedLeaseStatus === AccessLeaseStatus.Active,
+          // An approved request that has not minted a lease and whose window can still produce access can be
+          // retracted by the approver (cancel the approval). A window-passed approval can no longer be started,
+          // so — like a lapsed lease — it is offered no action and sits in history awaiting server-side expiry.
+          canCancel:
+            isAwaitingStart(item) &&
+            (item.requestedNotAfter == null || Date.parse(item.requestedNotAfter) >= now.getTime()),
           statusClass: historyStatusClassFor(bucket, item.status),
           statusLabel: historyStatusLabelFor(bucket, item),
           relTime: historyRelTimeFor(item, bucket, now),
@@ -265,6 +274,9 @@ export class ApproverInboxComponent implements OnInit {
 
   /** IDs of leases currently being revoked (prevents double-click). */
   protected readonly revoking = signal<Set<string>>(new Set());
+
+  /** IDs of approved requests currently being cancelled (prevents double-click). */
+  protected readonly cancelling = signal<Set<string>>(new Set());
 
   constructor() {
     effect(() => {
@@ -370,6 +382,37 @@ export class ApproverInboxComponent implements OnInit {
       });
     }
   }
+
+  /**
+   * Cancel an approved-but-not-activated request, retracting the approval so the requester can no longer
+   * activate it. The server records it as a Deny by the approver; the row drops out of the actionable groups.
+   */
+  protected async onCancelRequest(item: AccessRequestDetailsResponse): Promise<void> {
+    const requestId = item.id;
+    if (this.cancelling().has(requestId)) {
+      return;
+    }
+    this.cancelling.update((s) => new Set([...s, requestId]));
+    try {
+      await this.inbox.cancelApprovedRequest(requestId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamInboxCancelApprovalToast"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("pamInboxCancelApprovalFailed"),
+      });
+    } finally {
+      this.cancelling.update((s) => {
+        const next = new Set(s);
+        next.delete(requestId);
+        return next;
+      });
+    }
+  }
 }
 
 export type HistoryGroup = {
@@ -391,7 +434,9 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
     // lease drops to Past regardless of its window, so the inbox never offers Revoke on a lease that
     // has already ended (the request itself stays "activated" forever). Check each bound
     // independently: a lease that starts immediately has notBefore=null but is still active if
-    // notAfter is in the future.
+    // notAfter is in the future. A lease whose window has fully lapsed also drops to Past — its
+    // access can no longer be used, so Revoke would be a no-op (the real lapse-to-expired transition
+    // is a server concern; v1 has no autonomous expiry yet).
     if (
       (item.status === AccessRequestStatus.Activated || item.producedLeaseId != null) &&
       item.producedLeaseStatus === AccessLeaseStatus.Active

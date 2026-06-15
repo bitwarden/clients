@@ -132,6 +132,21 @@ export class ApproverInboxService {
     this._history$.next(updated);
   }
 
+  /**
+   * Cancel an approved-but-not-activated request on the approver's behalf (the server records a Deny). Flip the row
+   * to "denied" optimistically so it repaints out of the Active/Upcoming groups; the next load reconciles.
+   */
+  async cancelApprovedRequest(requestId: string): Promise<void> {
+    await this.pamApiService.cancelAccessRequest(requestId);
+    const updated = this._history$.value.map((item) => {
+      if (item.id === requestId) {
+        item.status = "denied";
+      }
+      return item;
+    });
+    this._history$.next(updated);
+  }
+
   private async snapshotOrgKeys(): Promise<Record<OrganizationId, OrgKey>> {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account?.id) {

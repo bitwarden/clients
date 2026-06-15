@@ -65,6 +65,9 @@ function fakeApi(rows: AccessRequestDetailsResponse[]): PamApiService {
     revokeAccessLease: () => Promise.resolve(),
     listInboxRequests: () => Promise.resolve(rows),
     listInboxHistory: () => Promise.resolve([]),
+    // The embedded "My requests" list loads its own data; the inbox stories focus on the
+    // approver queue, so keep it empty.
+    listMyAccessRequests: () => Promise.resolve([]),
   } as unknown as PamApiService;
 }
 

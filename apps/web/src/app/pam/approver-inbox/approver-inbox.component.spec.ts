@@ -65,6 +65,8 @@ describe("ApproverInboxComponent", () => {
 
     pamApiService.listInboxRequests.mockResolvedValue([]);
     pamApiService.listInboxHistory.mockResolvedValue([]);
+    // The embedded "My requests" list loads independently; keep it empty so it doesn't error.
+    pamApiService.listMyAccessRequests.mockResolvedValue([]);
 
     // Live-refresh triggers: a server push (RefreshApproverInbox) and this client's own mutations.
     notifications$ = new Subject();
@@ -315,7 +317,7 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     expect(bucketOf(item)).toBe("active");
   });
 
-  it("buckets an activated request with a lapsed window as Past", () => {
+  it("buckets an activated request with a lapsed window as Past (no Revoke on unusable access)", () => {
     const item = historyRow({
       status: "activated",
       producedLeaseId: "lease-1",
