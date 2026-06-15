@@ -136,20 +136,13 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly isWindows: boolean;
   protected readonly isLinux: boolean;
   protected readonly isMac: boolean;
-  protected readonly requireEnableTray: boolean;
   protected readonly showOpenAtLoginOption: boolean;
   protected readonly showDuckDuckGoIntegrationOption: boolean;
-  protected readonly enableTrayText: string;
-  protected readonly enableTrayDescText: string;
-  protected readonly enableMinToTrayText: string;
-  protected readonly enableMinToTrayDescText: string;
-  protected readonly enableCloseToTrayText: string;
-  protected readonly enableCloseToTrayDescText: string;
+  protected readonly runInBackgroundText: string;
+  protected readonly runInBackgroundDescText: string;
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
-  protected readonly showMinToTray: boolean;
-  protected readonly showAlwaysShowDock: boolean;
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -182,11 +175,8 @@ export class SettingsDialogComponent implements OnInit {
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     // App Settings
-    enableTray: false,
-    enableMinToTray: false,
-    enableCloseToTray: false,
+    runInBackground: false,
     openAtLogin: false,
-    alwaysShowDock: false,
     enableBrowserIntegration: false,
     enableHardwareAcceleration: true,
     enableSshAgent: false,
@@ -206,23 +196,11 @@ export class SettingsDialogComponent implements OnInit {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    this.showMinToTray = !this.isLinux;
-    this.showAlwaysShowDock = this.isMac;
 
-    // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
-    this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
-
-    const trayKey = this.isMac ? "enableMenuBar" : "enableTray";
-    this.enableTrayText = this.i18nService.t(trayKey);
-    this.enableTrayDescText = this.i18nService.t(trayKey + "Desc");
-
-    const minToTrayKey = this.isMac ? "enableMinToMenuBar" : "enableMinToTray";
-    this.enableMinToTrayText = this.i18nService.t(minToTrayKey);
-    this.enableMinToTrayDescText = this.i18nService.t(minToTrayKey + "Desc");
-
-    const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
-    this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
-    this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
+    this.runInBackgroundText = this.i18nService.t("runInBackground");
+    this.runInBackgroundDescText = this.i18nService.t(
+      this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+    );
 
     this.showOpenAtLoginOption = this.showAutostartSetting();
 
@@ -294,11 +272,8 @@ export class SettingsDialogComponent implements OnInit {
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
-      enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
-      enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
-      enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
+      runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
-      alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,
       ),
@@ -556,44 +531,8 @@ export class SettingsDialogComponent implements OnInit {
     this.messagingService.send("refreshCiphers");
   }
 
-  protected async saveMinToTray() {
-    await this.desktopSettingsService.setMinimizeToTray(this.form.value.enableMinToTray);
-  }
-
-  protected async saveCloseToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-  }
-
-  protected async saveTray() {
-    if (
-      this.requireEnableTray &&
-      !this.form.value.enableTray &&
-      this.form.value.enableCloseToTray
-    ) {
-      const confirm = await this.dialogService.openSimpleDialog({
-        title: { key: "confirmTrayTitle" },
-        content: { key: "confirmTrayDesc" },
-        type: "warning",
-      });
-
-      if (confirm) {
-        this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-      } else {
-        this.form.controls.enableTray.setValue(true);
-      }
-
-      return;
-    }
-
-    await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
-    this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
+  protected async saveRunInBackground() {
+    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
   private async saveLocale(newValue: string) {
@@ -613,10 +552,6 @@ export class SettingsDialogComponent implements OnInit {
 
   private async saveClearClipboard(newValue: ClearClipboardDelaySetting) {
     await this.autofillSettingsService.setClearClipboardDelay(newValue);
-  }
-
-  protected async saveAlwaysShowDock() {
-    await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
   }
 
   private showAutostartSetting(): boolean {
