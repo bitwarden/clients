@@ -18,7 +18,7 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   component = BlockClaimedDomainAccountCreationPolicyComponent;
   v2 = {
     component: SimpleTogglePolicyComponent,
-    name: "blockClaimedDomainAccountCreationTitleV2",
+    name: "blockClaimedDomainAccountCreation",
     description: "blockClaimedDomainAccountCreationDescV2",
     prerequisiteKey: "blockClaimedDomainAccountCreationPrerequisiteV2",
     prerequisiteLinkHref: "https://bitwarden.com/help/claimed-domains/",

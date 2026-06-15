@@ -21,8 +21,6 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -58,10 +56,9 @@ export class MultiStepPolicyEditDialogComponent
   );
 
   private readonly multiStepDestroyRef = inject(DestroyRef);
-  private readonly configService = inject(ConfigService);
   private readonly authService = inject(AuthService);
   private readonly accountService2 = inject(AccountService);
-  private readonly discardGuardEnabled = signal(false);
+  private readonly discardGuardEnabled = signal(true);
 
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
@@ -130,14 +127,7 @@ export class MultiStepPolicyEditDialogComponent
     cancelButtonText: { key: "backToEditing" },
   };
 
-  private async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled.set(
-      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
-    );
-    if (!this.discardGuardEnabled()) {
-      return;
-    }
-
+  private setupDiscardGuard(): void {
     this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
       if (result || !this.isFormDirty()) {
         return true;
@@ -201,7 +191,7 @@ export class MultiStepPolicyEditDialogComponent
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
 
-    await this.setupDiscardGuard();
+    this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {

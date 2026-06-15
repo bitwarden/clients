@@ -1,4 +1,3 @@
-import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -24,8 +23,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -50,7 +47,7 @@ import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit
 export class PolicyEditDrawerComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   private readonly destroyRef = inject(DestroyRef);
-  private readonly discardGuardEnabled = signal(false);
+  private readonly discardGuardEnabled = signal(true);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -75,8 +72,6 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     private readonly toastService: ToastService,
     private readonly keyService: KeyService,
     private readonly dialogService: DialogService,
-    private readonly cdkDialogRef: CdkDialogRef,
-    private readonly configService: ConfigService,
     private readonly authService: AuthService,
   ) {}
 
@@ -101,14 +96,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     cancelButtonText: { key: "backToEditing" },
   };
 
-  private async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled.set(
-      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
-    );
-    if (!this.discardGuardEnabled()) {
-      return;
-    }
-
+  private setupDiscardGuard(): void {
     this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
       // A truthy result means an intentional close (e.g. after a successful save) — always allow.
       if (result || !this.isFormDirty()) {
@@ -185,7 +173,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
-    await this.setupDiscardGuard();
+    this.setupDiscardGuard();
   }
 
   async load() {
