@@ -1350,13 +1350,13 @@
     "message": "使用填充助手"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "启用填充助手"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "填充助手通过使用站点特定的规则来提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "关于填充助手"
   },
   "enableContextMenuItem": {
     "message": "显示上下文菜单选项"
@@ -1812,7 +1812,7 @@
     "message": "图标服务器 URL"
   },
   "sendUrl": {
-    "message": "Send 服务 URL"
+    "message": "Send 服务器 URL"
   },
   "environmentSaved": {
     "message": "环境 URL 已保存"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "一个或多个电子邮箱无效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "电子邮件收件人列表不能超过 2,500 个字符。请移除一个或多个收件人后继续。"
+  },
   "inputTrimValidator": {
     "message": "输入不能只包含空格。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4470,7 +4473,7 @@
     "message": "确定"
   },
   "toggleSideNavigation": {
-    "message": "切换侧边导航"
+    "message": "切换侧边导航栏"
   },
   "skipToContent": {
     "message": "跳转到内容"
@@ -6525,7 +6528,7 @@
     "message": "共享解锁"
   },
   "sharedUnlockDescription": {
-    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将由此机器上的所有 App 共享。要在不同浏览器之间同步，需要桌面 App。"
+    "message": "保持您的 Bitwarden App 同步。启用后，此机器上的所有 App 将共享解锁状态。要在不同浏览器之间同步，需要使用桌面 App。"
   },
   "sharedUnlockDescriptionSafari": {
     "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Safari 中的 Bitwarden 网页密码库共享。"
@@ -6663,7 +6666,7 @@
     "message": "必须输入整数"
   },
   "sideNavigation": {
-    "message": "侧边导航"
+    "message": "侧边导航栏"
   },
   "skipLink": {
     "message": "跳过链接"
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   }
 }

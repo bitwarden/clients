@@ -1350,13 +1350,13 @@
     "message": "入力補助を使用する"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "入力アシストをオンにする"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。この機能を使用してもデータが収集されたり保存されることはありません。"
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "入力アシストについて"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1つ以上のメールアドレスが無効です"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "メール受信者リストは2,500文字を超えることはできません。続行するには1つ以上の受信者を削除してください。"
+  },
   "inputTrimValidator": {
     "message": "値を空白のみにしないでください。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "複数のコレクションに含まれるアイテムは、マイアイテムにインポートできません"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "アイテムを保存できません。アイテムを保存するには組織に確認する必要があります。"
   }
 }

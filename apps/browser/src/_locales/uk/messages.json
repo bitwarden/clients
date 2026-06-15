@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1 або більше адрес е-пошти недійсні"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Введене значення не повинно містити лише пробіл.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Ви не можете імпортувати записи в \"Мої записи\", які є частиною різних збірок"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
