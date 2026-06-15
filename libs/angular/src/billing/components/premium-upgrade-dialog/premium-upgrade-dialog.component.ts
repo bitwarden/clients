@@ -88,9 +88,18 @@ export class PremiumUpgradeDialogComponent {
       const checkoutFlagEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM34515_BrowserDesktopCheckout,
       );
+      // QA-only: lets a self-hosted-region client behave as cloud for premium
+      // checkout. Off by default; only delivered by servers that enable it.
+      const bypassSelfHostCheck = await this.configService.getFeatureFlag(
+        FeatureFlag.DebugDisableSelfHostPremiumCheck,
+      );
       const platform = this.resolveCheckoutPlatform();
 
-      if (checkoutFlagEnabled && environment.isCloud() && platform != null) {
+      if (
+        checkoutFlagEnabled &&
+        (environment.isCloud() || bypassSelfHostCheck) &&
+        platform != null
+      ) {
         const { checkoutSessionUrl } = await this.billingApiService.createPremiumCheckoutSession({
           platform,
         });
