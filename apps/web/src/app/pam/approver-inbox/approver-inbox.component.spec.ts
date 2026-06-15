@@ -11,6 +11,7 @@ import { NotificationType } from "@bitwarden/common/enums/notification-type.enum
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { AccessLeaseStatus, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
@@ -114,11 +115,17 @@ describe("ApproverInboxComponent", () => {
     i18nService.t.mockImplementation((key: string) => key);
 
     const nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
+    nameResolver.resolveDisplayNames.mockResolvedValue({
+      cipherNameById: new Map(),
+      collectionNameById: new Map(),
+      cipherById: new Map(),
+    });
     nameResolver.namesFor.mockResolvedValue({
       cipherNameById: new Map(),
       collectionNameById: new Map(),
+      cipherById: new Map(),
     });
+    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
 
     await TestBed.configureTestingModule({
       imports: [ApproverInboxComponent, NoopAnimationsModule],
@@ -133,6 +140,7 @@ describe("ApproverInboxComponent", () => {
         { provide: ApproverInboxBadgeService, useValue: badgeService },
         { provide: ServerNotificationsService, useValue: notificationsService },
         { provide: DialogService, useValue: dialogService },
+        { provide: SyncService, useValue: { fullSync: () => Promise.resolve(true) } },
       ],
     })
       .overrideComponent(ApproverInboxComponent, {

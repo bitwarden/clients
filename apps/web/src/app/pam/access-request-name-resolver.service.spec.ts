@@ -114,12 +114,35 @@ describe("AccessRequestNameResolver", () => {
       expect(collectionNameById.get("col-1")).toBe("Production");
     });
 
+    it("exposes the decrypted cipher views by id for favicon rendering", async () => {
+      const view = Object.assign(new CipherView(), { id: "cipher-1", name: "Prod DB" });
+      cipherService.getAllDecryptedForIds.mockResolvedValue([view]);
+
+      const { cipherById } = await resolver.namesFor([
+        { cipherId: "cipher-1", collectionId: "col-1" },
+      ]);
+
+      expect(cipherById.get("cipher-1")).toBe(view);
+    });
+
     it("returns empty maps and touches no services for an empty list", async () => {
-      const { cipherNameById, collectionNameById } = await resolver.namesFor([]);
+      const { cipherNameById, collectionNameById, cipherById } = await resolver.namesFor([]);
 
       expect(cipherNameById.size).toBe(0);
       expect(collectionNameById.size).toBe(0);
+      expect(cipherById.size).toBe(0);
       expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
     });
+  });
+
+  it("returns the resolved cipher views from resolveDisplayNames", async () => {
+    const view = Object.assign(new CipherView(), { id: "cipher-1", name: "Prod DB" });
+    cipherService.getAllDecryptedForIds.mockResolvedValue([view]);
+
+    const { cipherById } = await resolver.resolveDisplayNames([
+      makeRow({ cipherId: "cipher-1", collectionId: "col-1" }),
+    ]);
+
+    expect(cipherById.get("cipher-1")).toBe(view);
   });
 });

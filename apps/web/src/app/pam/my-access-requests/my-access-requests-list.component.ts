@@ -12,8 +12,10 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
   ButtonModule,
@@ -66,6 +68,7 @@ export type { LeaseRow, MyRequestRow } from "./my-request-row";
     ButtonModule,
     NoItemsModule,
     I18nPipe,
+    IconComponent,
   ],
 })
 export class MyAccessRequestsListComponent implements OnInit {
@@ -86,6 +89,11 @@ export class MyAccessRequestsListComponent implements OnInit {
   private readonly rows = toSignal(this.myRequests.rows$, { initialValue: [] as MyRequestRow[] });
   protected readonly leases = toSignal(this.myRequests.leases$, {
     initialValue: [] as LeaseRow[],
+  });
+
+  /** Decrypted gated ciphers keyed by id; the template reads these to render an item's favicon. */
+  private readonly cipherById = toSignal(this.myRequests.cipherById$, {
+    initialValue: new Map<string, CipherView>(),
   });
 
   protected readonly pendingRows = computed(() =>
@@ -151,6 +159,14 @@ export class MyAccessRequestsListComponent implements OnInit {
 
   protected isCancelling(id: string): boolean {
     return this.cancelling().has(id);
+  }
+
+  /**
+   * The decrypted cipher for a row, or undefined when it isn't in the caller's vault. The template
+   * renders `app-vault-icon` only when a cipher is present; otherwise the row shows no icon.
+   */
+  protected cipherFor(cipherId: string): CipherView | undefined {
+    return this.cipherById().get(cipherId);
   }
 
   /**

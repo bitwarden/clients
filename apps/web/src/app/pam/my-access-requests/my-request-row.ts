@@ -42,6 +42,7 @@ export type MyRequestRow = {
 export type LeaseRow = {
   id: string;
   cipherId: string;
+  collectionId: string;
   cipherName: string | null;
   collectionName: string | null;
   notBefore: Date;
@@ -137,6 +138,7 @@ export function toLeaseRow(
   return {
     id: lease.id,
     cipherId: lease.cipherId,
+    collectionId: lease.collectionId,
     cipherName: names.cipherNameById.get(lease.cipherId) ?? null,
     collectionName: names.collectionNameById.get(lease.collectionId) ?? null,
     notBefore: new Date(lease.notBefore),

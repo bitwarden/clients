@@ -2,9 +2,17 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import {
   AccessLeaseResponse,
@@ -13,10 +21,22 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
 import { MyAccessRequestsListComponent } from "./my-access-requests-list.component";
 import { MyAccessRequestsService } from "./my-access-requests.service";
+
+function emptyResolvedNames(): ResolvedNames {
+  return { cipherNameById: new Map(), collectionNameById: new Map(), cipherById: new Map() };
+}
+
+/** A Login cipher with a website URI, so `app-vault-icon` resolves a favicon. */
+function loginCipher(id: string): CipherView {
+  const login = Object.assign(new LoginView(), {
+    uris: [Object.assign(new LoginUriView(), { uri: "https://example.com" })],
+  });
+  return Object.assign(new CipherView(), { id, name: id, type: CipherType.Login, login });
+}
 
 type ResponseFixture = {
   id: string;
@@ -116,11 +136,9 @@ describe("MyAccessRequestsListComponent", () => {
     toast = mock<ToastService>();
 
     nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
-    nameResolver.namesFor.mockResolvedValue({
-      cipherNameById: new Map(),
-      collectionNameById: new Map(),
-    });
+    nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
+    nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
+    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
 
     await TestBed.configureTestingModule({
       imports: [MyAccessRequestsListComponent, NoopAnimationsModule],
@@ -132,6 +150,13 @@ describe("MyAccessRequestsListComponent", () => {
         { provide: I18nService, useValue: i18n },
         { provide: ToastService, useValue: toast },
         { provide: LogService, useValue: { error: jest.fn() } },
+        // `app-vault-icon` dependencies — only exercised by rows that resolve a cipher.
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }).compileComponents();
   });
@@ -176,6 +201,7 @@ describe("MyAccessRequestsListComponent", () => {
     nameResolver.namesFor.mockResolvedValue({
       cipherNameById: new Map([["cipher-1", "Prod DB"]]),
       collectionNameById: new Map([["col-1", "Production"]]),
+      cipherById: new Map(),
     });
     const fixture = create([], [makeLease("lease-1", "cipher-1")]);
     const row = fixture.nativeElement.querySelector(
@@ -192,6 +218,7 @@ describe("MyAccessRequestsListComponent", () => {
         row.cipherName = "Production DB";
         row.collectionName = "Engineering";
       });
+      return emptyResolvedNames();
     });
 
     const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-p1", status: "pending" })]);
@@ -202,6 +229,29 @@ describe("MyAccessRequestsListComponent", () => {
     expect(nameResolver.resolveDisplayNames).toHaveBeenCalled();
     expect(cell.textContent).toContain("Production DB");
     expect(cell.textContent).toContain("in Engineering");
+  }));
+
+  it("renders a favicon for a request whose cipher is in local vault state", fakeAsync(() => {
+    nameResolver.resolveDisplayNames.mockResolvedValue({
+      ...emptyResolvedNames(),
+      cipherById: new Map([["cipher-p1", loginCipher("cipher-p1")]]),
+    });
+
+    const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-p1", status: "pending" })]);
+
+    const row = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-pending-row-p1"]',
+    ) as HTMLElement;
+    expect(row.querySelector("app-vault-icon")).not.toBeNull();
+  }));
+
+  it("omits the favicon for a request whose cipher is absent from local vault state", fakeAsync(() => {
+    const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-xyz", status: "pending" })]);
+
+    const row = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-pending-row-p1"]',
+    ) as HTMLElement;
+    expect(row.querySelector("app-vault-icon")).toBeNull();
   }));
 
   it("falls back to the cipher id when the cipher is not in local vault state", fakeAsync(() => {

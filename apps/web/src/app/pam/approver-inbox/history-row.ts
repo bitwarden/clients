@@ -201,8 +201,15 @@ export function flattenHistory(
         statusClass: historyStatusClassFor(bucket, item.status),
         statusLabel: historyStatusLabelFor(bucket, item),
         relTime: historyRelTimeFor(item, bucket, now),
-        sortTimeMs: Date.parse(item.resolvedAt ?? item.submittedAt),
+        sortTimeMs: resolvedOrSubmittedMs(item),
       };
     }),
   );
+}
+
+/** Epoch ms a history item is ordered by: its resolution time, falling back to its submit time. */
+export function resolvedOrSubmittedMs(
+  item: Pick<AccessRequestDetailsResponse, "resolvedAt" | "submittedAt">,
+): number {
+  return Date.parse(item.resolvedAt ?? item.submittedAt);
 }

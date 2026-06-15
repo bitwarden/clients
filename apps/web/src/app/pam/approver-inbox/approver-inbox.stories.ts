@@ -10,6 +10,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogModule, ToastService } from "@bitwarden/components";
 import {
   AccessLeaseResponse,
@@ -123,11 +124,18 @@ function decorators(fixtures: ApiFixtures) {
                 r.cipherName = r.cipherName ?? "Prod DB admin";
                 r.collectionName = r.collectionName ?? "Production";
               });
+              return {
+                cipherNameById: new Map(),
+                collectionNameById: new Map(),
+                cipherById: new Map(),
+              };
             },
             namesFor: async () => ({
               cipherNameById: new Map(),
               collectionNameById: new Map(),
+              cipherById: new Map(),
             }),
+            collectionNames$: () => of(new Map()),
           },
         },
         {
@@ -144,6 +152,7 @@ function decorators(fixtures: ApiFixtures) {
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: LogService, useValue: { error: () => {} } },
         { provide: ServerNotificationsService, useValue: { notifications$: of() } },
+        { provide: SyncService, useValue: { fullSync: () => Promise.resolve(true) } },
         {
           provide: ApproverInboxBadgeService,
           useValue: { count$: of(0), refresh: () => Promise.resolve() },
