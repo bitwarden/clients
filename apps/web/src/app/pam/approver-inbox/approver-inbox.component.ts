@@ -1,15 +1,12 @@
-import { AsyncPipe, DatePipe, NgFor } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   OnInit,
   computed,
-  effect,
   inject,
   input,
   signal,
-  viewChildren,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { debounceTime, filter, map, merge } from "rxjs";
@@ -19,186 +16,63 @@ import { NotificationType } from "@bitwarden/common/enums/notification-type.enum
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import {
-  ButtonModule,
-  IconModule,
-  NoItemsModule,
-  TableDataSource,
-  TableModule,
-  ToastService,
-  ToggleGroupModule,
-  TooltipDirective,
-  TypographyModule,
-} from "@bitwarden/components";
+import { TabsModule, ToastService } from "@bitwarden/components";
 import {
   AccessRequestDetailsResponse,
-  AccessDecisionVerdict,
   AccessDecisionRequest,
-  AccessLeaseStatus,
   AccessRequestStatus,
   PamApiService,
-  canApprove,
-  formatRemaining,
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { MyAccessRequestsListComponent } from "../my-access-requests/my-access-requests-list.component";
+import { MyAccessRequestsService } from "../my-access-requests/my-access-requests.service";
 
+import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
-import { ApproverInboxRowComponent } from "./approver-inbox-row.component";
 import { ApproverInboxService } from "./approver-inbox.service";
-
-/** Time-bucket a history item belongs to. */
-type BucketKey = "active" | "future" | "past";
-
-/** Filter value for the history table: a specific bucket or "all". */
-type HistoryFilter = BucketKey | "all";
-
-/** A single row in the flat history table — all display fields pre-computed. */
-type FlatHistoryRow = {
-  item: AccessRequestDetailsResponse;
-  bucket: BucketKey;
-  canRevoke: boolean;
-  canCancel: boolean;
-  statusClass: string; // Tailwind colour classes for the status label
-  statusLabel: string; // i18n key
-  relTime: { key: string; value: string } | null;
-};
-
-/** An approved request that has not produced a lease yet: the requester may still start it. */
-function isAwaitingStart(item: AccessRequestDetailsResponse): boolean {
-  return item.status === AccessRequestStatus.Approved && item.producedLeaseId == null;
-}
-
-function historyStatusClassFor(bucket: BucketKey, status: string): string {
-  if (bucket === "active") {
-    return "tw-text-success-700";
-  }
-  if (bucket === "future") {
-    return "tw-text-primary-600";
-  }
-  if (status === AccessRequestStatus.Denied) {
-    return "tw-text-danger-700";
-  }
-  return "tw-text-muted";
-}
-
-export function historyStatusLabelFor(
-  bucket: BucketKey,
-  item: AccessRequestDetailsResponse,
-): string {
-  if (bucket === "active") {
-    return "pamInboxHistoryGroupActive";
-  }
-  if (bucket === "future") {
-    // An approved-but-not-started request grants nothing yet — say so instead of "Upcoming",
-    // which is reserved for a minted lease whose window hasn't opened.
-    return isAwaitingStart(item)
-      ? "pamInboxHistoryStatusAwaitingStart"
-      : "pamInboxHistoryGroupFuture";
-  }
-  // A produced lease that has ended is labelled by the lease outcome, not the request status (which
-  // stays "activated"): distinguish a manually revoked lease from one that lapsed.
-  if (item.producedLeaseStatus === AccessLeaseStatus.Revoked) {
-    return "pamInboxHistoryStatusRevoked";
-  }
-  if (item.producedLeaseStatus === AccessLeaseStatus.Expired) {
-    return "pamInboxHistoryStatusExpired";
-  }
-  switch (item.status) {
-    case AccessRequestStatus.Approved:
-      return "pamInboxHistoryStatusApproved";
-    case AccessRequestStatus.Activated:
-      return "pamInboxHistoryStatusActivated";
-    case AccessRequestStatus.Denied:
-      return "pamInboxHistoryStatusDenied";
-    case AccessRequestStatus.Expired:
-      return "pamInboxHistoryStatusExpired";
-    default:
-      return "pamInboxHistoryStatusCancelled";
-  }
-}
-
-export function historyRelTimeFor(
-  item: AccessRequestDetailsResponse,
-  bucket: BucketKey,
-  now: Date,
-): { key: string; value: string } | null {
-  if (bucket === "future") {
-    const notBeforeMs = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
-    if (notBeforeMs != null && notBeforeMs > now.getTime()) {
-      return {
-        key: "pamInboxHistoryStartsIn",
-        value: formatRemaining(notBeforeMs - now.getTime()),
-      };
-    }
-    // Awaiting start inside an already-open window: show how long the approval stays startable.
-    if (isAwaitingStart(item) && item.requestedNotAfter) {
-      const startable = formatRemaining(Date.parse(item.requestedNotAfter) - now.getTime());
-      if (startable === "0s") {
-        return null;
-      }
-      return { key: "pamInboxHistoryStartableFor", value: startable };
-    }
-    return null;
-  }
-  if (bucket === "active" && item.requestedNotAfter) {
-    const remaining = formatRemaining(Date.parse(item.requestedNotAfter) - now.getTime());
-    if (remaining === "0s") {
-      return null;
-    }
-    return { key: "pamInboxHistoryTimeRemaining", value: remaining };
-  }
-  return null;
-}
+import { AuditLogComponent } from "./audit-log.component";
 
 /**
- * Approver inbox page. Lists pending lease requests for collections the
- * caller can Manage and lets them approve or deny with an optional comment.
+ * Approver inbox page ("Access requests"). A tabbed surface over the leasing data the caller
+ * can see:
+ *  - Approvals — pending requests for collections the caller can Manage (a sortable table).
+ *  - My requests — the caller's own active leases, pending requests, and request history.
+ *  - Audit log — the managed-collection decision history merged with the caller's own resolved
+ *    requests, as one bucketable record.
  *
- * The frontend never decides who an approver is — the server-side inbox
- * endpoint filters by Manage permission. The page only enforces the
- * self-approval guard, which is an additional UX safeguard.
+ * The frontend never decides who an approver is — the server-side inbox endpoint filters by
+ * Manage permission. The page only enforces the self-approval guard as an additional UX safeguard.
+ * Data, optimistic updates, and name resolution live in the two page-scoped services; this
+ * component orchestrates loading + live refresh and routes child actions to those services.
  */
-
 @Component({
   selector: "app-pam-approver-inbox",
   templateUrl: "./approver-inbox.component.html",
-  providers: [ApproverInboxService],
+  providers: [ApproverInboxService, MyAccessRequestsService],
   imports: [
-    AsyncPipe,
-    DatePipe,
-    NgFor,
     I18nPipe,
     HeaderModule,
+    TabsModule,
+    ApprovalsComponent,
     MyAccessRequestsListComponent,
-    ApproverInboxRowComponent,
-    ButtonModule,
-    IconModule,
-    NoItemsModule,
-    TableModule,
-    ToggleGroupModule,
-    TooltipDirective,
-    TypographyModule,
+    AuditLogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApproverInboxComponent implements OnInit {
   /**
-   * Server filters by Manage. The two empty states differ in copy:
+   * Server filters by Manage. The two Approvals empty states differ in copy:
    * - true (default): "No requests waiting."
    * - false: "You're not designated to approve requests for any collections."
    *
-   * Exposed as an input so storybook / parents can drive the alternate
-   * empty-state copy. Production callers will leave this at the default and
-   * an upcoming ticket will resolve it from collection metadata.
+   * Exposed as an input so storybook / parents can drive the alternate empty-state copy.
    */
   readonly hasManagerCollections = input<boolean>(true);
 
-  protected readonly rows = viewChildren(ApproverInboxRowComponent);
-
   private readonly inbox = inject(ApproverInboxService);
+  private readonly myRequests = inject(MyAccessRequestsService);
   private readonly badgeService = inject(ApproverInboxBadgeService);
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
@@ -214,75 +88,44 @@ export class ApproverInboxComponent implements OnInit {
   );
 
   protected readonly requests = toSignal(this.inbox.requests$, { initialValue: [] });
-  protected readonly history = toSignal(this.inbox.history$, { initialValue: [] });
+  private readonly history = toSignal(this.inbox.history$, { initialValue: [] });
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: false });
+  protected readonly myPendingCount = toSignal(this.myRequests.pendingCount$, { initialValue: 0 });
+  private readonly myResponses = toSignal(this.myRequests.responses$, {
+    initialValue: [] as AccessRequestDetailsResponse[],
+  });
 
   /**
-   * Snapshot the current "now" for elapsed-time rendering. Updated on every
-   * successful load so all rows agree on a consistent reference clock.
+   * Snapshot of "now" for elapsed/relative-time rendering. Updated on every successful load so
+   * all rows agree on a consistent reference clock.
    */
   protected readonly renderedAt = signal<Date>(new Date());
 
+  /** Ids of the decision-history rows — the items in the audit log the viewer can act on. */
+  protected readonly managedIds = computed(() => new Set(this.history().map((h) => h.id)));
+
   /**
-   * Flat, ordered list of history items (active → upcoming → past) with all
-   * display fields pre-computed. Re-evaluated whenever history or renderedAt
-   * changes, so relative-time labels stay accurate after each refresh.
+   * Everything the viewer can see in one record: the managed-collection decision history merged
+   * with the viewer's own resolved requests, de-duplicated by id (the managed copy wins so its
+   * Revoke / Cancel-approval actions stay wired) and ordered newest-first.
    */
-  protected readonly flatHistory = computed((): FlatHistoryRow[] => {
-    const now = this.renderedAt();
-    return groupHistory(this.history(), now).flatMap(({ bucket, items }) =>
-      items.map(
-        (item): FlatHistoryRow => ({
-          item,
-          bucket,
-          canRevoke:
-            (bucket === "active" || bucket === "future") &&
-            item.producedLeaseId != null &&
-            item.producedLeaseStatus === AccessLeaseStatus.Active,
-          // An approved request that has not minted a lease and whose window can still produce access can be
-          // retracted by the approver (cancel the approval). A window-passed approval can no longer be started,
-          // so — like a lapsed lease — it is offered no action and sits in history awaiting server-side expiry.
-          canCancel:
-            isAwaitingStart(item) &&
-            (item.requestedNotAfter == null || Date.parse(item.requestedNotAfter) >= now.getTime()),
-          statusClass: historyStatusClassFor(bucket, item.status),
-          statusLabel: historyStatusLabelFor(bucket, item),
-          relTime: historyRelTimeFor(item, bucket, now),
-        }),
-      ),
-    );
-  });
-
-  /** Currently active filter pill. "all" shows every history row. */
-  protected readonly historyFilter = signal<HistoryFilter>("all");
-
-  /** History rows visible under the current filter. */
-  protected readonly filteredHistory = computed((): FlatHistoryRow[] => {
-    const filter = this.historyFilter();
-    if (filter === "all") {
-      return this.flatHistory();
+  protected readonly auditItems = computed((): AccessRequestDetailsResponse[] => {
+    const byId = new Map<string, AccessRequestDetailsResponse>();
+    for (const item of this.history()) {
+      byId.set(item.id, item);
     }
-    return this.flatHistory().filter((row) => row.bucket === filter);
+    for (const item of this.myResponses()) {
+      if (item.status !== AccessRequestStatus.Pending && !byId.has(item.id)) {
+        byId.set(item.id, item);
+      }
+    }
+    return [...byId.values()].sort((a, b) => auditTime(b) - auditTime(a));
   });
 
-  /**
-   * Renders the filtered history through a data source, consistent with the other PAM tables.
-   * Bucket ordering and filtering already live in the computeds above, so the data source only
-   * holds the rows to render.
-   */
-  protected readonly historyDataSource = new TableDataSource<FlatHistoryRow>();
-
-  /** IDs of leases currently being revoked (prevents double-click). */
+  /** Lease ids currently being revoked (prevents double-click). */
   protected readonly revoking = signal<Set<string>>(new Set());
-
-  /** IDs of approved requests currently being cancelled (prevents double-click). */
+  /** Approved-request ids currently being cancelled (prevents double-click). */
   protected readonly cancelling = signal<Set<string>>(new Set());
-
-  constructor() {
-    effect(() => {
-      this.historyDataSource.data = this.filteredHistory();
-    });
-  }
 
   async ngOnInit(): Promise<void> {
     await this.refresh();
@@ -291,7 +134,7 @@ export class ApproverInboxComponent implements OnInit {
     // Active group and its (now-stale) Revoke button disappears without a manual refresh:
     // - a RefreshApproverInbox push fires when another approver or the requester ends a lease, and
     // - mutations$ fires for changes made in this same client (e.g. the requester ending their lease
-    //   from the cipher banner, which would otherwise leave a 409-ing Revoke button here).
+    //   from the cipher banner, or cancelling/activating from the My requests tab).
     // Debounced to coalesce bursts (several leases ending at once).
     merge(
       this.notificationsService.notifications$.pipe(
@@ -305,11 +148,10 @@ export class ApproverInboxComponent implements OnInit {
 
   protected async refresh(): Promise<void> {
     try {
-      await this.inbox.load();
+      await Promise.all([this.inbox.load(), this.myRequests.load()]);
       this.renderedAt.set(new Date());
-      // Keep the nav badge consistent with what the page just rendered, even
-      // if a server push was missed while the user was elsewhere. Best-effort;
-      // failure is swallowed by the service.
+      // Keep the nav badge consistent with what the page just rendered, even if a server push was
+      // missed while the user was elsewhere. Best-effort; failure is swallowed by the service.
       void this.badgeService.refresh();
     } catch (e) {
       this.logService.error(e);
@@ -320,35 +162,21 @@ export class ApproverInboxComponent implements OnInit {
     }
   }
 
-  protected canDecide(request: AccessRequestDetailsResponse): boolean {
-    const userId = this.currentUserId();
-    if (userId == null) {
-      return false;
-    }
-    return canApprove({ requesterId: request.requesterId }, { id: userId });
-  }
-
-  protected async onDecide(
-    request: AccessRequestDetailsResponse,
-    event: { verdict: AccessDecisionVerdict; comment: string | undefined },
-  ): Promise<void> {
+  protected async onDecide(event: DecideEvent): Promise<void> {
     try {
       await this.inbox.decideAccessRequest(
-        request.id,
+        event.request.id,
         new AccessDecisionRequest({ verdict: event.verdict, comment: event.comment }),
       );
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          event.verdict === AccessDecisionVerdict.Approve
-            ? "pamInboxApprovedToast"
-            : "pamInboxDeniedToast",
+          event.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
         ),
       });
     } catch (e) {
       this.logService.error(e);
-      const row = this.rows().find((r) => r.request().id === request.id);
-      row?.resetAfterFailure();
+      // The inbox service restored the row optimistically; surface the failure so the user retries.
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("pamInboxDecisionFailed"),
@@ -384,10 +212,11 @@ export class ApproverInboxComponent implements OnInit {
   }
 
   /**
-   * Cancel an approved-but-not-activated request, retracting the approval so the requester can no longer
-   * activate it. The server records it as a Deny by the approver; the row drops out of the actionable groups.
+   * Cancel an approved-but-not-activated request, retracting the approval so the requester can no
+   * longer activate it. The server records it as a Deny by the approver; the row drops out of the
+   * actionable groups.
    */
-  protected async onCancelRequest(item: AccessRequestDetailsResponse): Promise<void> {
+  protected async onCancelApproval(item: AccessRequestDetailsResponse): Promise<void> {
     const requestId = item.id;
     if (this.cancelling().has(requestId)) {
       return;
@@ -415,57 +244,7 @@ export class ApproverInboxComponent implements OnInit {
   }
 }
 
-export type HistoryGroup = {
-  bucket: BucketKey;
-  items: AccessRequestDetailsResponse[];
-};
-
-export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): HistoryGroup[] {
-  const nowMs = now.getTime();
-  const future: AccessRequestDetailsResponse[] = [];
-  const active: AccessRequestDetailsResponse[] = [];
-  const past: AccessRequestDetailsResponse[] = [];
-
-  for (const item of items) {
-    const notBefore = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
-    const notAfter = item.requestedNotAfter ? Date.parse(item.requestedNotAfter) : null;
-
-    // A minted lease is real access only while its status is still "active": a revoked or expired
-    // lease drops to Past regardless of its window, so the inbox never offers Revoke on a lease that
-    // has already ended (the request itself stays "activated" forever). Check each bound
-    // independently: a lease that starts immediately has notBefore=null but is still active if
-    // notAfter is in the future. A lease whose window has fully lapsed also drops to Past — its
-    // access can no longer be used, so Revoke would be a no-op (the real lapse-to-expired transition
-    // is a server concern; v1 has no autonomous expiry yet).
-    if (
-      (item.status === AccessRequestStatus.Activated || item.producedLeaseId != null) &&
-      item.producedLeaseStatus === AccessLeaseStatus.Active
-    ) {
-      if (notBefore != null && notBefore > nowMs) {
-        future.push(item);
-        continue;
-      }
-      if (notAfter != null && notAfter >= nowMs) {
-        active.push(item);
-        continue;
-      }
-    } else if (
-      item.status === AccessRequestStatus.Approved &&
-      (notAfter == null || notAfter >= nowMs)
-    ) {
-      // Approved but not started: the requester can still mint the lease, so the grant belongs
-      // with Upcoming — never Active. Once the window lapses unstarted it falls through to Past.
-      future.push(item);
-      continue;
-    }
-    past.push(item);
-  }
-
-  return (
-    [
-      { bucket: "active", items: active },
-      { bucket: "future", items: future },
-      { bucket: "past", items: past },
-    ] satisfies HistoryGroup[]
-  ).filter((g) => g.items.length > 0);
+/** Sort key for audit rows: resolution time, falling back to submit time. */
+function auditTime(item: AccessRequestDetailsResponse): number {
+  return Date.parse(item.resolvedAt ?? item.submittedAt);
 }

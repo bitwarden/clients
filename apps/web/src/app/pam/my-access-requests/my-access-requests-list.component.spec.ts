@@ -6,17 +6,17 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse, AccessRequestStatus, PamApiService } from "@bitwarden/pam";
+import {
+  AccessLeaseResponse,
+  AccessRequestDetailsResponse,
+  AccessRequestStatus,
+  PamApiService,
+} from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
-import {
-  MyAccessRequestsListComponent,
-  RECENT_WINDOW_DAYS,
-  resolveResolver,
-  statusBadgeVariant,
-  statusLabelKey,
-} from "./my-access-requests-list.component";
+import { MyAccessRequestsListComponent } from "./my-access-requests-list.component";
+import { MyAccessRequestsService } from "./my-access-requests.service";
 
 type ResponseFixture = {
   id: string;
@@ -50,6 +50,20 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
   });
 }
 
+function makeLease(id: string, cipherId: string): AccessLeaseResponse {
+  const now = Date.now();
+  return new AccessLeaseResponse({
+    Id: id,
+    RequestId: `req-${id}`,
+    CipherId: cipherId,
+    CollectionId: "col-1",
+    GranteeUserId: "me",
+    NotBefore: new Date(now - 60 * 60 * 1000).toISOString(),
+    NotAfter: new Date(now + 60 * 60 * 1000).toISOString(),
+    Status: "active",
+  });
+}
+
 describe("MyAccessRequestsListComponent", () => {
   let pamApi: MockProxy<PamApiService>;
   let toast: MockProxy<ToastService>;
@@ -58,12 +72,15 @@ describe("MyAccessRequestsListComponent", () => {
   const i18n = new I18nMockService({
     loading: "Loading…",
     cancel: "Cancel",
+    window: "Window",
     pamMyRequestsEmptyTitle: "No access requests yet",
     pamMyRequestsEmptyDescription: "When you request access…",
+    pamMyLeasesActiveSection: "Active leases",
+    pamMyLeasesActiveEmpty: "No active leases",
     pamMyRequestsPendingSection: "Pending",
-    pamMyRequestsRecentSection: "Recent",
+    pamMyRequestsHistorySection: "History",
     pamMyRequestsPendingEmpty: "No pending requests.",
-    pamMyRequestsRecentEmpty: "No recent requests.",
+    pamMyRequestsHistoryEmpty: "No request history.",
     pamMyRequestsLoadError: "Load error",
     pamMyRequestsCancelSuccess: "Cancelled",
     pamMyRequestsCancelError: "Cancel error",
@@ -75,17 +92,18 @@ describe("MyAccessRequestsListComponent", () => {
     pamColumnItem: "Item",
     pamColumnRequestedWindow: "Requested window",
     pamColumnSubmitted: "Submitted",
-    pamColumnApprovers: "Approvers",
+    pamColumnRemaining: "Remaining",
     pamColumnStatus: "Status",
     pamColumnResolver: "Resolver",
     pamColumnComment: "Comment",
     pamColumnResolved: "Resolved",
     pamInboxInCollection: "in __$1__",
-    pamApproversTbd: "Awaiting approval",
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
     pamWindowTtlSeconds: "__$1__s",
     pamStartLeaseButton: "Start access",
+    pamStartLeaseSuccess: "Access started",
+    pamStartLeaseError: "Start error",
     pamActivateWithin: "Activate within __$1__",
     actions: "Actions",
   });
@@ -93,16 +111,22 @@ describe("MyAccessRequestsListComponent", () => {
   beforeEach(async () => {
     pamApi = mock<PamApiService>();
     pamApi.listMyAccessRequests.mockResolvedValue([]);
+    pamApi.listActiveLeases.mockResolvedValue([]);
 
     toast = mock<ToastService>();
 
     nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
+    nameResolver.namesFor.mockResolvedValue({
+      cipherNameById: new Map(),
+      collectionNameById: new Map(),
+    });
 
     await TestBed.configureTestingModule({
       imports: [MyAccessRequestsListComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
+        MyAccessRequestsService,
         { provide: PamApiService, useValue: pamApi },
         { provide: AccessRequestNameResolver, useValue: nameResolver },
         { provide: I18nService, useValue: i18n },
@@ -116,8 +140,10 @@ describe("MyAccessRequestsListComponent", () => {
   // `fixture.whenStable()` would hang — create inside fakeAsync and flush the load with tick().
   const create = (
     responses: AccessRequestDetailsResponse[],
+    leases: AccessLeaseResponse[] = [],
   ): ComponentFixture<MyAccessRequestsListComponent> => {
     pamApi.listMyAccessRequests.mockResolvedValue(responses);
+    pamApi.listActiveLeases.mockResolvedValue(leases);
     const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
     fixture.detectChanges();
     tick();
@@ -125,7 +151,7 @@ describe("MyAccessRequestsListComponent", () => {
     return fixture;
   };
 
-  it("shows the global empty state when there are no requests", fakeAsync(() => {
+  it("shows the global empty state when there are no requests or leases", fakeAsync(() => {
     const fixture = create([]);
     expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
   }));
@@ -142,8 +168,22 @@ describe("MyAccessRequestsListComponent", () => {
       fixture.nativeElement.querySelector('[data-testid="my-requests-pending-row-p2"]'),
     ).not.toBeNull();
     expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-empty"]'),
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-empty"]'),
     ).not.toBeNull();
+  }));
+
+  it("renders an active lease with its resolved cipher name", fakeAsync(() => {
+    nameResolver.namesFor.mockResolvedValue({
+      cipherNameById: new Map([["cipher-1", "Prod DB"]]),
+      collectionNameById: new Map([["col-1", "Production"]]),
+    });
+    const fixture = create([], [makeLease("lease-1", "cipher-1")]);
+    const row = fixture.nativeElement.querySelector(
+      '[data-testid="my-leases-row-lease-1"]',
+    ) as HTMLElement;
+    expect(row).not.toBeNull();
+    expect(row.textContent).toContain("Prod DB");
+    expect(row.textContent).toContain("in Production");
   }));
 
   it("renders the cipher and collection names resolved from local vault state", fakeAsync(() => {
@@ -165,7 +205,6 @@ describe("MyAccessRequestsListComponent", () => {
   }));
 
   it("falls back to the cipher id when the cipher is not in local vault state", fakeAsync(() => {
-    // Resolver leaves cipherName null (cipher absent from vault); template shows the id.
     const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-xyz", status: "pending" })]);
 
     const cell = fixture.nativeElement.querySelector(
@@ -174,18 +213,13 @@ describe("MyAccessRequestsListComponent", () => {
     expect(cell.textContent).toContain("cipher-xyz");
   }));
 
-  it("places resolved-within-window rows in the Recent section", fakeAsync(() => {
-    const within = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  it("places every resolved row in the History section, regardless of age", fakeAsync(() => {
+    const old = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
     const fixture = create([
-      makeResponse({
-        id: "r1",
-        status: "approved",
-        resolvedAt: within,
-        approverId: "user-7",
-      }),
+      makeResponse({ id: "r1", status: "approved", resolvedAt: old, approverId: "user-7" }),
     ]);
     expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-r1"]'),
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-row-r1"]'),
     ).not.toBeNull();
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-pending-empty"]'),
@@ -218,23 +252,9 @@ describe("MyAccessRequestsListComponent", () => {
       }),
     ]);
     expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-a2"]'),
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-row-a2"]'),
     ).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="my-requests-start-a2"]')).toBeNull();
-  }));
-
-  it("excludes resolved rows older than the recency window", fakeAsync(() => {
-    const stale = new Date(
-      Date.now() - (RECENT_WINDOW_DAYS + 1) * 24 * 60 * 60 * 1000,
-    ).toISOString();
-    const fixture = create([
-      makeResponse({ id: "old", status: "approved", resolvedAt: stale, approverId: "x" }),
-    ]);
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-old"]'),
-    ).toBeNull();
-    // Both empties show, but the global empty also fires since nothing fits anywhere.
-    expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
   }));
 
   it("cancels a pending request optimistically and calls the API", fakeAsync(() => {
@@ -253,9 +273,9 @@ describe("MyAccessRequestsListComponent", () => {
     button.click();
     fixture.detectChanges();
 
-    // Optimistically moved to Recent as cancelled.
+    // Optimistically moved to History as cancelled.
     expect(
-      fixture.nativeElement.querySelector('[data-testid="my-requests-recent-row-p1"]'),
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-row-p1"]'),
     ).not.toBeNull();
     expect(pamApi.cancelAccessRequest).toHaveBeenCalledWith("p1");
 
@@ -298,49 +318,4 @@ describe("MyAccessRequestsListComponent", () => {
     expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
     expect(fixture.nativeElement.querySelector('[data-testid="my-requests-empty"]')).not.toBeNull();
   }));
-});
-
-describe("statusBadgeVariant", () => {
-  it("maps each status to a distinct visual variant", () => {
-    expect(statusBadgeVariant("approved")).toBe("success");
-    expect(statusBadgeVariant("activated")).toBe("success");
-    expect(statusBadgeVariant("denied")).toBe("danger");
-    expect(statusBadgeVariant("cancelled")).toBe("subtle");
-    expect(statusBadgeVariant("expired")).toBe("warning");
-    expect(statusBadgeVariant("pending")).toBe("primary");
-  });
-});
-
-describe("statusLabelKey", () => {
-  it("returns a pamStatus* i18n key for each status", () => {
-    expect(statusLabelKey("approved")).toBe("pamStatusApproved");
-    expect(statusLabelKey("activated")).toBe("pamStatusActivated");
-    expect(statusLabelKey("denied")).toBe("pamStatusDenied");
-    expect(statusLabelKey("cancelled")).toBe("pamStatusCancelled");
-    expect(statusLabelKey("expired")).toBe("pamStatusExpired");
-    expect(statusLabelKey("pending")).toBe("pamStatusPending");
-  });
-});
-
-describe("resolveResolver", () => {
-  it("returns no resolver for pending requests", () => {
-    expect(resolveResolver({ status: "pending", approverId: null })).toEqual({
-      resolverLabelKey: null,
-      resolverName: null,
-    });
-  });
-
-  it("returns the access-rule label key when there is no resolver user", () => {
-    expect(resolveResolver({ status: "expired", approverId: null })).toEqual({
-      resolverLabelKey: "pamResolverAccessRule",
-      resolverName: null,
-    });
-  });
-
-  it("falls back to the raw user id when a human resolved the request", () => {
-    expect(resolveResolver({ status: "approved", approverId: "user-7" })).toEqual({
-      resolverLabelKey: null,
-      resolverName: "user-7",
-    });
-  });
 });

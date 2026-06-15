@@ -32,19 +32,35 @@ export class AccessRequestNameResolver {
     if (rows.length === 0) {
       return;
     }
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const cipherIds = [...new Set(rows.map((row) => row.cipherId))];
-    const [cipherViews, collections] = await Promise.all([
-      this.cipherService.getAllDecryptedForIds(userId, cipherIds),
-      firstValueFrom(this.collectionService.decryptedCollections$(userId)),
-    ]);
-    const cipherNameById = new Map<string, string>(cipherViews.map((view) => [view.id, view.name]));
-    const collectionNameById = new Map<string, string>(
-      collections.map((collection) => [collection.id, collection.name]),
-    );
+    const { cipherNameById, collectionNameById } = await this.namesFor(rows);
     for (const row of rows) {
       row.cipherName = cipherNameById.get(row.cipherId) ?? row.cipherId;
       row.collectionName = collectionNameById.get(row.collectionId) ?? null;
     }
+  }
+
+  /**
+   * Resolve cipher and collection display names for arbitrary references from local vault
+   * state, returned as lookup maps. Used for types without writable name fields (e.g. leases),
+   * which read from the maps directly. Does no work — and touches no services — for an empty list.
+   */
+  async namesFor(
+    refs: ReadonlyArray<{ cipherId: string; collectionId: string }>,
+  ): Promise<{ cipherNameById: Map<string, string>; collectionNameById: Map<string, string> }> {
+    if (refs.length === 0) {
+      return { cipherNameById: new Map(), collectionNameById: new Map() };
+    }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherIds = [...new Set(refs.map((ref) => ref.cipherId))];
+    const [cipherViews, collections] = await Promise.all([
+      this.cipherService.getAllDecryptedForIds(userId, cipherIds),
+      firstValueFrom(this.collectionService.decryptedCollections$(userId)),
+    ]);
+    return {
+      cipherNameById: new Map<string, string>(cipherViews.map((view) => [view.id, view.name])),
+      collectionNameById: new Map<string, string>(
+        collections.map((collection) => [collection.id, collection.name]),
+      ),
+    };
   }
 }

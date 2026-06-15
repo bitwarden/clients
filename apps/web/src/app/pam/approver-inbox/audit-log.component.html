@@ -1,0 +1,115 @@
+<div class="tw-flex tw-flex-col tw-gap-3">
+  @if (flatHistory().length > 0) {
+    <div class="tw-flex tw-justify-end">
+      <bit-toggle-group
+        [selected]="filter()"
+        (selectedChange)="filter.set($event)"
+        aria-label="{{ 'pamInboxHistoryFilterLabel' | i18n }}"
+      >
+        <bit-toggle value="all">{{ "pamInboxFilterAll" | i18n }}</bit-toggle>
+        <bit-toggle value="active">{{ "pamInboxFilterActive" | i18n }}</bit-toggle>
+        <bit-toggle value="future">{{ "pamInboxFilterUpcoming" | i18n }}</bit-toggle>
+        <bit-toggle value="past">{{ "pamInboxFilterPast" | i18n }}</bit-toggle>
+      </bit-toggle-group>
+    </div>
+  }
+
+  @if (flatHistory().length === 0) {
+    <p class="tw-m-0 tw-text-sm tw-text-muted" data-testid="audit-log-empty">
+      {{ "pamInboxHistoryEmpty" | i18n }}
+    </p>
+  } @else if (filtered().length === 0) {
+    <p class="tw-m-0 tw-text-sm tw-text-muted">
+      {{ "pamInboxHistoryFilterEmpty" | i18n }}
+    </p>
+  } @else {
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+          <th bitCell>{{ "pamInboxRequester" | i18n }}</th>
+          <th bitCell>{{ "status" | i18n }}</th>
+          <th bitCell bitSortable="sortTimeMs">{{ "pamColumnResolved" | i18n }}</th>
+          <th bitCell class="tw-w-0"></th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="'audit-log-row'">
+          <td bitCell>
+            <span class="tw-font-medium">{{ row.item.cipherName ?? row.item.cipherId }}</span>
+            @if (row.item.collectionName) {
+              <div class="tw-text-xs tw-text-muted">
+                {{ "pamInboxInCollection" | i18n: row.item.collectionName }}
+              </div>
+            }
+          </td>
+          <td bitCell>
+            <span>{{ row.item.requesterName || row.item.requesterEmail }}</span>
+            @if (row.item.reason) {
+              <div
+                class="tw-mt-0.5 tw-truncate tw-text-xs tw-text-muted"
+                [bitTooltip]="row.item.reason"
+              >
+                {{ row.item.reason }}
+              </div>
+            }
+          </td>
+          <td bitCell>
+            <span class="tw-text-sm" [class]="row.statusClass">{{ row.statusLabel | i18n }}</span>
+            @if (row.relTime) {
+              <span class="tw-text-xs tw-text-muted">
+                &nbsp;·&nbsp;{{ row.relTime.key | i18n: row.relTime.value }}
+              </span>
+            }
+            @if (row.item.approverComment) {
+              <div class="tw-mt-0.5 tw-text-xs tw-text-muted tw-italic">
+                {{ row.item.approverComment }}
+              </div>
+            }
+          </td>
+          <td bitCell>
+            @if (row.item.resolvedAt) {
+              <span class="tw-whitespace-nowrap tw-text-sm tw-text-muted">
+                {{ row.item.resolvedAt | date: "short" }}
+              </span>
+            } @else {
+              <span class="tw-whitespace-nowrap tw-text-sm tw-text-muted">
+                {{ row.item.submittedAt | date: "short" }}
+              </span>
+            }
+          </td>
+          <td bitCell>
+            @if (row.canRevoke && row.item.producedLeaseId) {
+              <button
+                bitButton
+                type="button"
+                buttonType="secondary"
+                size="small"
+                [loading]="revoking().has(row.item.producedLeaseId)"
+                [disabled]="revoking().has(row.item.producedLeaseId)"
+                data-testid="approver-inbox-revoke"
+                (click)="revoke.emit(row.item)"
+              >
+                {{ "pamInboxRevoke" | i18n }}
+              </button>
+            }
+            @if (row.canCancel) {
+              <button
+                bitButton
+                type="button"
+                buttonType="secondary"
+                size="small"
+                [loading]="cancelling().has(row.item.id)"
+                [disabled]="cancelling().has(row.item.id)"
+                data-testid="approver-inbox-cancel-approval"
+                (click)="cancelApproval.emit(row.item)"
+              >
+                {{ "pamInboxCancelApproval" | i18n }}
+              </button>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  }
+</div>
