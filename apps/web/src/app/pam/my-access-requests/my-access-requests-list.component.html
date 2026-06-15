@@ -39,7 +39,14 @@
             *ngFor="let row of rows$ | async"
             [attr.data-testid]="'my-requests-pending-row-' + row.id"
           >
-            <td bitCell>{{ row.cipherName ?? row.cipherId }}</td>
+            <td bitCell>
+              <div>{{ row.cipherName ?? row.cipherId }}</div>
+              @if (row.collectionName) {
+                <div class="tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                </div>
+              }
+            </td>
             <td bitCell>
               @if (row.requestedNotBefore && row.requestedNotAfter) {
                 {{ row.requestedNotBefore | date: "short" }}
@@ -106,7 +113,14 @@
             *ngFor="let row of rows$ | async"
             [attr.data-testid]="'my-requests-recent-row-' + row.id"
           >
-            <td bitCell>{{ row.cipherName ?? row.cipherId }}</td>
+            <td bitCell>
+              <div>{{ row.cipherName ?? row.cipherId }}</div>
+              @if (row.collectionName) {
+                <div class="tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                </div>
+              }
+            </td>
             <td bitCell>
               <span
                 bitBadge

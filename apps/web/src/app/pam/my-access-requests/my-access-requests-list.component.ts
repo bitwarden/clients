@@ -33,21 +33,25 @@ import {
 } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+
 /** Max items rendered per section in v0 (no pagination). */
 export const MY_REQUESTS_PAGE_LIMIT = 50;
 
 /** Recency window (in days) for the "Recent" section. */
 export const RECENT_WINDOW_DAYS = 7;
 
-/**
- * Cipher-name lookup is deferred — the v0 response only carries `cipherId`. Until
- * the cipher-fetch transport lands (PM-37264), rows surface the raw id so the page
- * is still useful for QA / smoke testing.
- */
 export type MyRequestRow = {
   id: string;
   cipherId: string;
+  /**
+   * Cipher and collection names resolved from local vault state (the gated cipher's
+   * already-decrypted name and its CollectionView). `cipherName` is null when the
+   * cipher isn't in the vault, so the template falls back to `cipherId`; `collectionName`
+   * is null when unknown.
+   */
   cipherName: string | null;
+  collectionName: string | null;
   status: AccessRequestStatus;
   /** Precomputed badge variant for `status`, so the template avoids a per-row method call. */
   statusVariant: BadgeVariant;
@@ -99,6 +103,7 @@ export type MyRequestRow = {
 })
 export class MyAccessRequestsListComponent implements OnInit {
   private readonly pamApi = inject(PamApiService);
+  private readonly nameResolver = inject(AccessRequestNameResolver);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
@@ -168,6 +173,8 @@ export class MyAccessRequestsListComponent implements OnInit {
     this.loading.set(true);
     try {
       const responses = await this.pamApi.listMyAccessRequests();
+      // Resolve cipher/collection names from local vault state, in place.
+      await this.nameResolver.resolveDisplayNames(responses);
       this.rows.set(responses.map((r) => toRow(r)));
     } catch (e) {
       this.logService.error(e);
@@ -367,7 +374,8 @@ export function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
   return {
     id: response.id,
     cipherId: response.cipherId,
-    cipherName: null,
+    cipherName: response.cipherName,
+    collectionName: response.collectionName,
     status: response.status,
     statusVariant: statusBadgeVariant(response.status),
     statusLabelKey: statusLabelKey(response.status),

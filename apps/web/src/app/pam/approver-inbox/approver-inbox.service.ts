@@ -1,16 +1,6 @@
 import { Injectable, inject } from "@angular/core";
-import { BehaviorSubject, Observable, distinctUntilChanged, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  DECRYPT_ERROR,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
 import {
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
@@ -19,6 +9,8 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+
 import { isActionableInboxRequest } from "./inbox-request-filter";
 
 /**
@@ -26,17 +18,14 @@ import { isActionableInboxRequest } from "./inbox-request-filter";
  * inbox sort (oldest first, then collection name), and manages optimistic
  * removal + rollback on decision submission.
  *
- * Cipher names arrive encrypted on the wire (see {@link AccessRequestDetailsResponse})
- * and are decrypted in-place with the owning org's key before rows reach
- * subscribers. No other Vault Data passes through this service.
+ * Cipher and collection names are resolved from local vault state via
+ * {@link AccessRequestNameResolver} before rows reach subscribers — no name
+ * decryption happens here. No other Vault Data passes through this service.
  */
 @Injectable()
 export class ApproverInboxService {
   private readonly pamApiService = inject(PamApiService);
-  private readonly accountService = inject(AccountService);
-  private readonly keyService = inject(KeyService);
-  private readonly encryptService = inject(EncryptService);
-  private readonly logService = inject(LogService);
+  private readonly nameResolver = inject(AccessRequestNameResolver);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
   private readonly _history$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
@@ -52,7 +41,7 @@ export class ApproverInboxService {
     distinctUntilChanged(),
   );
 
-  /** Fetch the inbox and history, decrypt cipher names, replace local state. */
+  /** Fetch the inbox and history, resolve display names from vault state, replace local state. */
   async load(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -67,11 +56,8 @@ export class ApproverInboxService {
       // for the same cipher that can never be acted on.
       const now = new Date();
       const actionable = rows.filter((row) => isActionableInboxRequest(row, now));
-      const orgKeys = await this.snapshotOrgKeys();
-      await Promise.all([
-        this.decryptDisplayNames(actionable, orgKeys),
-        this.decryptDisplayNames(history, orgKeys),
-      ]);
+      // Resolve names across both lists in one pass (one vault + collection snapshot).
+      await this.nameResolver.resolveDisplayNames([...actionable, ...history]);
       this._requests$.next(sortInbox(actionable));
       this._history$.next(history);
     } catch (e) {
@@ -145,50 +131,6 @@ export class ApproverInboxService {
       return item;
     });
     this._history$.next(updated);
-  }
-
-  private async snapshotOrgKeys(): Promise<Record<OrganizationId, OrgKey>> {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (!account?.id) {
-      return {} as Record<OrganizationId, OrgKey>;
-    }
-    const keys = await firstValueFrom(this.keyService.orgKeys$(account.id as UserId));
-    return keys ?? ({} as Record<OrganizationId, OrgKey>);
-  }
-
-  private async decryptDisplayNames(
-    rows: AccessRequestDetailsResponse[],
-    orgKeys: Record<OrganizationId, OrgKey>,
-  ): Promise<void> {
-    await Promise.all(
-      rows.map(async (row) => {
-        const orgKey = row.organizationId ? orgKeys[row.organizationId as OrganizationId] : null;
-        if (!orgKey) {
-          return;
-        }
-        await Promise.all([
-          this.decryptField(row, "cipherName", orgKey),
-          this.decryptField(row, "collectionName", orgKey),
-        ]);
-      }),
-    );
-  }
-
-  private async decryptField(
-    row: AccessRequestDetailsResponse,
-    field: "cipherName" | "collectionName",
-    orgKey: OrgKey,
-  ): Promise<void> {
-    const value = row[field];
-    if (!value) {
-      return;
-    }
-    try {
-      row[field] = await this.encryptService.decryptString(new EncString(value), orgKey);
-    } catch (e) {
-      this.logService.error(`Failed to decrypt approver-inbox ${field}`, e);
-      row[field] = DECRYPT_ERROR;
-    }
   }
 }
 

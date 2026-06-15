@@ -10,9 +10,10 @@ import { AccessRequestStatus } from "./access-request.response";
  * snapshot.
  *
  * `cipherName` and `collectionName` arrive as encrypted blobs (EncString
- * payload strings), not plaintext — the approver inbox service decrypts both
- * with the owning org's key before pushing rows to subscribers. No other
- * cipher field is exposed.
+ * payload strings), not plaintext. The web client does not decrypt them — it
+ * resolves display names from local vault state instead (the gated CipherView
+ * and the CollectionView), so these fields are a fallback for callers without
+ * that state. No other cipher field is exposed.
  *
  * The decision endpoint (`POST /access-requests/{id}/decision`) returns this
  * shape but only `status`, `resolvedAt`, and `approverComment` are guaranteed
