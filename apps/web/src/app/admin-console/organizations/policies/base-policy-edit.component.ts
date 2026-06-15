@@ -108,8 +108,6 @@ export abstract class BasePolicyEditDefinition {
     prerequisiteLinkHref?: string;
     /** i18n key for the text of {@link prerequisiteLinkHref}. */
     prerequisiteLinkTextKey?: string;
-    /** When true, the cancel button is hidden in the drawer footer. */
-    hideCancelButton?: boolean;
   };
 
   /**

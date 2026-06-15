@@ -18,7 +18,6 @@ export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "removeUnlockWithPinPolicyDescV2",
-    hideCancelButton: true,
   };
 }
 

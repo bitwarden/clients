@@ -21,7 +21,6 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "disablePersonalVaultExportDescriptionV2",
-    hideCancelButton: true,
   };
 }
 

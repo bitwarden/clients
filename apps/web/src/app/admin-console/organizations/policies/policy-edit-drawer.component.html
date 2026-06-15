@@ -44,10 +44,5 @@
     <button bitButton buttonType="primary" [disabled]="saveDisabled()" bitFormButton type="submit">
       {{ "save" | i18n }}
     </button>
-    @if (!policy.v2?.hideCancelButton) {
-      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-        {{ "cancel" | i18n }}
-      </button>
-    }
   </ng-container>
 </form>
