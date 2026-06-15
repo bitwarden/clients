@@ -1,6 +1,8 @@
 import { Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
 
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AccessLeaseResponse,
   AccessRequestDetailsResponse,
@@ -8,7 +10,10 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import {
+  AccessRequestNameResolver,
+  fillCollectionNames,
+} from "../access-request-name-resolver.service";
 
 import { LeaseRow, MyRequestRow, toLeaseRow, toRow } from "./my-request-row";
 
@@ -29,6 +34,7 @@ export class MyAccessRequestsService {
   private readonly _responses$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
   private readonly _leases$ = new BehaviorSubject<LeaseRow[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
+  private readonly _cipherById$ = new BehaviorSubject<Map<string, CipherView>>(new Map());
 
   /** Raw responses with names resolved — the audit log needs the response shape for bucketing. */
   readonly responses$: Observable<AccessRequestDetailsResponse[]> = this._responses$.asObservable();
@@ -37,10 +43,26 @@ export class MyAccessRequestsService {
   );
   readonly leases$: Observable<LeaseRow[]> = this._leases$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+  /**
+   * Decrypted views for every gated cipher referenced by a request or lease, keyed by id.
+   * The list templates read from here to render an item's favicon; ciphers absent from the
+   * caller's vault are simply missing, so those rows render without an icon.
+   */
+  readonly cipherById$: Observable<Map<string, CipherView>> = this._cipherById$.asObservable();
   readonly pendingCount$: Observable<number> = this._responses$.pipe(
     map((responses) => responses.filter((r) => r.status === AccessRequestStatus.Pending).length),
     distinctUntilChanged(),
   );
+
+  constructor() {
+    // Collection names come from local collection state, which may not be warm when the page first
+    // loads (cipher names resolve on demand; collection names do not). Re-apply them whenever that
+    // state emits, so they fill in without the user opening the vault.
+    this.nameResolver
+      .collectionNames$()
+      .pipe(takeUntilDestroyed())
+      .subscribe((names) => this.applyCollectionNames(names));
+  }
 
   /** Fetch the caller's requests + active leases, resolve display names, replace local state. */
   async load(): Promise<void> {
@@ -51,11 +73,16 @@ export class MyAccessRequestsService {
         this.pamApi.listActiveLeases(),
       ]);
       // Resolve request names in place; resolve lease names into lookup maps (leases have no
-      // writable name fields). One vault + collection snapshot covers both.
-      await this.nameResolver.resolveDisplayNames(requests);
-      const leaseNames = await this.nameResolver.namesFor(leases);
+      // writable name fields). Run the two snapshots concurrently so one load doesn't serialize
+      // two cipher-decrypt round-trips.
+      const [requestNames, leaseNames] = await Promise.all([
+        this.nameResolver.resolveDisplayNames(requests),
+        this.nameResolver.namesFor(leases),
+      ]);
       this._responses$.next(requests);
       this._leases$.next(leases.map((lease) => toLeaseRow(lease, leaseNames)));
+      // Merge the decrypted views from both snapshots so the list can render favicons.
+      this._cipherById$.next(new Map([...requestNames.cipherById, ...leaseNames.cipherById]));
     } finally {
       this._loading$.next(false);
     }
@@ -99,5 +126,17 @@ export class MyAccessRequestsService {
     const lease = await this.pamApi.activateLease(id);
     await this.load();
     return lease;
+  }
+
+  /** Fill collection names on the held requests + leases from the latest collection-state snapshot. */
+  private applyCollectionNames(names: Map<string, string>): void {
+    const responses = this._responses$.value;
+    if (fillCollectionNames(responses, names)) {
+      this._responses$.next([...responses]);
+    }
+    const leases = this._leases$.value;
+    if (fillCollectionNames(leases, names)) {
+      this._leases$.next([...leases]);
+    }
   }
 }

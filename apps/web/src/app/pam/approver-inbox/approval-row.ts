@@ -69,13 +69,18 @@ export function relativeStart(request: AccessRequestDetailsResponse, now: Date):
   return { key: "pamInboxStartInDays", value: diffDays };
 }
 
+/** Shared formatter for the exact-window tooltip — built once, not per row. */
+const WINDOW_FORMAT = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "short",
+  timeStyle: "short",
+});
+
 /** A fully-formatted "from – to" window for the tooltip, or "" when the window is open-ended. */
 export function exactWindow(request: AccessRequestDetailsResponse): string {
   if (!request.requestedNotBefore || !request.requestedNotAfter) {
     return "";
   }
-  const fmt = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" });
-  return `${fmt.format(new Date(request.requestedNotBefore))} – ${fmt.format(new Date(request.requestedNotAfter))}`;
+  return `${WINDOW_FORMAT.format(new Date(request.requestedNotBefore))} – ${WINDOW_FORMAT.format(new Date(request.requestedNotAfter))}`;
 }
 
 /** Build the table row for a pending request, snapshotting relative-time fields against `now`. */

@@ -1,8 +1,16 @@
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { of } from "rxjs";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import {
   AccessLeaseResponse,
@@ -16,14 +24,32 @@ import { AccessRequestNameResolver } from "../access-request-name-resolver.servi
 import { MyAccessRequestsListComponent } from "./my-access-requests-list.component";
 import { MyAccessRequestsService } from "./my-access-requests.service";
 
-/** Readable names for the gated ciphers, keyed by the `cipher-<id>` the fixtures request. */
-const CIPHER_NAMES: Record<string, string> = {
-  "cipher-p1": "Production database",
-  "cipher-p2": "Staging API key",
-  "cipher-r1": "AWS root account",
-  "cipher-r2": "Billing portal",
-  "cipher-r3": "Legacy VPN",
+/** Readable names + a website URI for each gated cipher, keyed by the `cipher-<id>` fixtures use. */
+const CIPHERS: Record<string, { name: string; uri: string }> = {
+  "cipher-p1": { name: "Production database", uri: "https://postgresql.org" },
+  "cipher-p2": { name: "Staging API key", uri: "https://stripe.com" },
+  "cipher-r1": { name: "AWS root account", uri: "https://aws.amazon.com" },
+  "cipher-r2": { name: "Billing portal", uri: "https://github.com" },
+  "cipher-r3": { name: "Legacy VPN", uri: "https://cloudflare.com" },
 };
+
+/** A decrypted Login cipher with a website URI, as the real resolver would read from vault state. */
+function makeCipher(id: string): CipherView {
+  const login = Object.assign(new LoginView(), {
+    uris: [Object.assign(new LoginUriView(), { uri: CIPHERS[id]?.uri ?? "https://example.com" })],
+  });
+  return Object.assign(new CipherView(), {
+    id,
+    name: CIPHERS[id]?.name ?? id,
+    type: CipherType.Login,
+    login,
+  });
+}
+
+/** Build the `cipherById` lookup the resolver returns, covering every referenced cipher id. */
+function cipherViews(cipherIds: string[]): Map<string, CipherView> {
+  return new Map(cipherIds.map((id) => [id, makeCipher(id)]));
+}
 
 type Fixture = {
   id: string;
@@ -74,21 +100,30 @@ function pamApi(
   } as unknown as PamApiService;
 }
 
-/** Fills each row's cipher/collection name from the fixtures, as the real resolver would from vault state. */
+/** Fills each row's cipher/collection name + favicon from the fixtures, as the real resolver would from vault state. */
 function nameResolver(): AccessRequestNameResolver {
   return {
     resolveDisplayNames: async (rows: AccessRequestDetailsResponse[]) => {
       rows.forEach((row) => {
-        row.cipherName = CIPHER_NAMES[row.cipherId] ?? row.cipherId;
+        row.cipherName = CIPHERS[row.cipherId]?.name ?? row.cipherId;
         row.collectionName = "Production";
       });
+      return {
+        cipherNameById: new Map(
+          rows.map((r) => [r.cipherId, CIPHERS[r.cipherId]?.name ?? r.cipherId]),
+        ),
+        collectionNameById: new Map(rows.map((r) => [r.collectionId, "Production"])),
+        cipherById: cipherViews(rows.map((r) => r.cipherId)),
+      };
     },
     namesFor: async (refs: ReadonlyArray<{ cipherId: string; collectionId: string }>) => ({
       cipherNameById: new Map(
-        refs.map((r) => [r.cipherId, CIPHER_NAMES[r.cipherId] ?? r.cipherId]),
+        refs.map((r) => [r.cipherId, CIPHERS[r.cipherId]?.name ?? r.cipherId]),
       ),
       collectionNameById: new Map(refs.map((r) => [r.collectionId, "Production"])),
+      cipherById: cipherViews(refs.map((r) => r.cipherId)),
     }),
+    collectionNames$: () => of(new Map<string, string>()),
   } as unknown as AccessRequestNameResolver;
 }
 
@@ -154,6 +189,13 @@ const withFixtures = (
           useValue: { showToast: (): void => undefined },
         },
         { provide: LogService, useValue: { error: (): void => undefined } },
+        // `app-vault-icon` dependencies, so the item favicons resolve against the icons server.
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }),
   ],

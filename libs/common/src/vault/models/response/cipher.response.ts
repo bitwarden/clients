@@ -155,6 +155,14 @@ export class CipherResponse extends BaseResponse {
         if (parsed?.Name != null && this.name == null) {
           this.name = parsed.Name;
         }
+        // Likewise lift the encrypted login URIs so the partial view exposes a
+        // domain (favicon, launch). Only `Uris` ships in the blob — the secret
+        // login fields (password, TOTP, …) stay gated — so the decrypted partial
+        // view gains a domain but no credentials. Build the login from `Uris`
+        // alone so an expanded blob can never leak more onto the gated view.
+        if (this.type === CipherType.Login && this.login == null && parsed?.Uris?.length > 0) {
+          this.login = new LoginApi({ Uris: parsed.Uris });
+        }
       } catch {
         // Malformed partialData blob — leave name as-is. The cipher will
         // render with an empty name; the gating signal (partialData) is

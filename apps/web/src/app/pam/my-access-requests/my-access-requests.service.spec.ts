@@ -1,7 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AccessLeaseResponse,
   AccessRequestDetailsResponse,
@@ -9,7 +10,7 @@ import {
   PamApiService,
 } from "@bitwarden/pam";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
 import { MyAccessRequestsService } from "./my-access-requests.service";
 
@@ -25,6 +26,14 @@ function response(id: string, status: AccessRequestStatus): AccessRequestDetails
   });
 }
 
+function emptyResolvedNames(): ResolvedNames {
+  return { cipherNameById: new Map(), collectionNameById: new Map(), cipherById: new Map() };
+}
+
+function cipher(id: string): CipherView {
+  return Object.assign(new CipherView(), { id, name: id });
+}
+
 describe("MyAccessRequestsService", () => {
   let pamApi: MockProxy<PamApiService>;
   let nameResolver: MockProxy<AccessRequestNameResolver>;
@@ -35,11 +44,9 @@ describe("MyAccessRequestsService", () => {
     pamApi.listMyAccessRequests.mockResolvedValue([]);
     pamApi.listActiveLeases.mockResolvedValue([]);
     nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
-    nameResolver.namesFor.mockResolvedValue({
-      cipherNameById: new Map(),
-      collectionNameById: new Map(),
-    });
+    nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
+    nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
+    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
     TestBed.configureTestingModule({
       providers: [
         MyAccessRequestsService,
@@ -77,6 +84,7 @@ describe("MyAccessRequestsService", () => {
     nameResolver.namesFor.mockResolvedValue({
       cipherNameById: new Map([["cipher-1", "Prod DB"]]),
       collectionNameById: new Map([["col-1", "Production"]]),
+      cipherById: new Map(),
     });
 
     await service.load();
@@ -84,6 +92,36 @@ describe("MyAccessRequestsService", () => {
     const leases = await firstValueFrom(service.leases$);
     expect(leases[0].cipherName).toBe("Prod DB");
     expect(leases[0].collectionName).toBe("Production");
+  });
+
+  it("merges request and lease cipher views into cipherById$ for favicon rendering", async () => {
+    pamApi.listMyAccessRequests.mockResolvedValue([response("p1", "pending")]);
+    pamApi.listActiveLeases.mockResolvedValue([
+      new AccessLeaseResponse({
+        Id: "lease-1",
+        RequestId: "req-1",
+        CipherId: "cipher-lease",
+        CollectionId: "col-1",
+        GranteeUserId: "me",
+        NotBefore: "2026-06-10T10:00:00Z",
+        NotAfter: "2026-06-10T12:00:00Z",
+        Status: "active",
+      }),
+    ]);
+    nameResolver.resolveDisplayNames.mockResolvedValue({
+      ...emptyResolvedNames(),
+      cipherById: new Map([["cipher-p1", cipher("cipher-p1")]]),
+    });
+    nameResolver.namesFor.mockResolvedValue({
+      ...emptyResolvedNames(),
+      cipherById: new Map([["cipher-lease", cipher("cipher-lease")]]),
+    });
+
+    await service.load();
+
+    const cipherById = await firstValueFrom(service.cipherById$);
+    expect(cipherById.get("cipher-p1")?.id).toBe("cipher-p1");
+    expect(cipherById.get("cipher-lease")?.id).toBe("cipher-lease");
   });
 
   it("cancels optimistically and calls the API", async () => {

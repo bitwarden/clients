@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
 
@@ -85,7 +85,12 @@ describe("ApproverInboxService", () => {
     >;
 
     nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue(undefined);
+    nameResolver.resolveDisplayNames.mockResolvedValue({
+      cipherNameById: new Map(),
+      collectionNameById: new Map(),
+      cipherById: new Map(),
+    });
+    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
 
     TestBed.configureTestingModule({
       providers: [

@@ -34,12 +34,19 @@
             [attr.data-testid]="'my-leases-row-' + lease.id"
           >
             <td bitCell>
-              <div>{{ lease.cipherName ?? lease.cipherId }}</div>
-              @if (lease.collectionName) {
-                <div class="tw-text-xs tw-text-muted">
-                  {{ "pamInboxInCollection" | i18n: lease.collectionName }}
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(lease.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <div>{{ lease.cipherName ?? lease.cipherId }}</div>
+                  @if (lease.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: lease.collectionName }}
+                    </div>
+                  }
                 </div>
-              }
+              </div>
             </td>
             <td bitCell>
               {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
@@ -84,12 +91,19 @@
             [attr.data-testid]="'my-requests-pending-row-' + row.id"
           >
             <td bitCell>
-              <div>{{ row.cipherName ?? row.cipherId }}</div>
-              @if (row.collectionName) {
-                <div class="tw-text-xs tw-text-muted">
-                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <div>{{ row.cipherName ?? row.cipherId }}</div>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
                 </div>
-              }
+              </div>
             </td>
             <td bitCell>
               @if (row.requestedNotBefore && row.requestedNotAfter) {
@@ -155,12 +169,19 @@
             [attr.data-testid]="'my-requests-history-row-' + row.id"
           >
             <td bitCell>
-              <div>{{ row.cipherName ?? row.cipherId }}</div>
-              @if (row.collectionName) {
-                <div class="tw-text-xs tw-text-muted">
-                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <div>{{ row.cipherName ?? row.cipherId }}</div>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
                 </div>
-              }
+              </div>
             </td>
             <td bitCell>
               <span

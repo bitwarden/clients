@@ -16,6 +16,7 @@ import { NotificationType } from "@bitwarden/common/enums/notification-type.enum
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { TabsModule, ToastService } from "@bitwarden/components";
 import {
   AccessRequestDetailsResponse,
@@ -33,6 +34,7 @@ import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
 import { ApproverInboxService } from "./approver-inbox.service";
 import { AuditLogComponent } from "./audit-log.component";
+import { resolvedOrSubmittedMs } from "./history-row";
 
 /**
  * Approver inbox page ("Access requests"). A tabbed surface over the leasing data the caller
@@ -80,6 +82,7 @@ export class ApproverInboxComponent implements OnInit {
   private readonly logService = inject(LogService);
   private readonly notificationsService = inject(ServerNotificationsService);
   private readonly pamApiService = inject(PamApiService);
+  private readonly syncService = inject(SyncService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUserId = toSignal(
@@ -119,7 +122,7 @@ export class ApproverInboxComponent implements OnInit {
         byId.set(item.id, item);
       }
     }
-    return [...byId.values()].sort((a, b) => auditTime(b) - auditTime(a));
+    return [...byId.values()].sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a));
   });
 
   /** Lease ids currently being revoked (prevents double-click). */
@@ -128,6 +131,13 @@ export class ApproverInboxComponent implements OnInit {
   protected readonly cancelling = signal<Set<string>>(new Set());
 
   async ngOnInit(): Promise<void> {
+    // Collection (and cipher) names are read from local vault state, which isn't loaded on a fresh
+    // navigation to this page — only the vault triggers a sync. Kick one here (a no-op when a recent
+    // sync exists) so collection state populates; the services' reactive name resolution then fills
+    // in the collection names without the user having to visit the vault first. Fire-and-forget so
+    // the inbox renders immediately and names back-fill when the sync lands.
+    void this.syncService.fullSync(false).catch((e: unknown) => this.logService.error(e));
+
     await this.refresh();
 
     // Keep an open inbox fresh when a lease changes elsewhere, so a lease that ends drops out of the
@@ -242,9 +252,4 @@ export class ApproverInboxComponent implements OnInit {
       });
     }
   }
-}
-
-/** Sort key for audit rows: resolution time, falling back to submit time. */
-function auditTime(item: AccessRequestDetailsResponse): number {
-  return Date.parse(item.resolvedAt ?? item.submittedAt);
 }
