@@ -99,7 +99,7 @@ export class IntegrationsComponent {
       },
       {
         name: "Terraform Provider",
-        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest",
+        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest/docs",
         image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
         type: IntegrationType.Integration,
         newBadgeExpiration: "2025-12-12", // December 12, 2025
