@@ -1350,13 +1350,13 @@
     "message": "Pomáhať pri vypĺňaní"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "Zapnúť pomoc pri vypĺňaní"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných stránkach pomocou pravidiel špecifických pre danú stránku. Pri používaní tejto funkcie sa nezhromažďujú ani neukladajú žiadne údaje."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "Info o pomoci pri vypĺňaní"
   },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
   }
 }
