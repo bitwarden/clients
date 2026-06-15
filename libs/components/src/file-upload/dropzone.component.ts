@@ -175,7 +175,7 @@ export class DropzoneComponent {
     this.emitFiles(files);
 
     // Clear value so re-selecting the same file still triggers a change event
-    // input.value = "";
+    input.value = "";
   }
 
   private emitFiles(files: File[]): void {
