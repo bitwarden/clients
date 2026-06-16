@@ -2,7 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BankAccountType } from "@bitwarden/common/vault/enums/bank-account-type";
+import {
+  BankAccountType,
+  BankAccountTypeI18nKeys,
+} from "@bitwarden/common/vault/enums/bank-account-type";
 import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -43,20 +46,13 @@ export class BankAccountViewComponent {
   readonly revealIban = signal(false);
 
   readonly localizedAccountType = computed(() => {
-    const accountTypeMap: Record<BankAccountType, string> = {
-      checking: this.i18nService.t("bankAccountTypeChecking"),
-      savings: this.i18nService.t("bankAccountTypeSavings"),
-      certificateOfDeposit: this.i18nService.t("bankAccountTypeCertificateOfDeposit"),
-      lineOfCredit: this.i18nService.t("bankAccountTypeLineOfCredit"),
-      investmentBrokerage: this.i18nService.t("bankAccountTypeInvestmentBrokerage"),
-      moneyMarket: this.i18nService.t("bankAccountTypeMoneyMarket"),
-      other: this.i18nService.t("bankAccountTypeOther"),
-    };
     const accountType = this.bankAccount().accountType;
+    if (!accountType) {
+      return undefined;
+    }
 
-    return accountType
-      ? (accountTypeMap[accountType as keyof typeof accountTypeMap] ?? accountType)
-      : undefined;
+    const i18nKey = BankAccountTypeI18nKeys[accountType as BankAccountType];
+    return i18nKey ? this.i18nService.t(i18nKey) : accountType;
   });
 
   async toggleAccountNumberVisible(visible: boolean) {
