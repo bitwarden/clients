@@ -19,7 +19,7 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ActivityCardComponent } from "../../activity/activity-card.component";
@@ -31,6 +31,8 @@ import {
   TrendWidgetComponent,
   TrendWidgetViewType,
 } from "../../activity/trend-widget/trend-widget.component";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 
@@ -57,6 +59,8 @@ import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/pas
     ReportLoadingComponent,
     ActivityCardComponent,
     PasswordChangeMetricV2Component,
+    AccessIntelligenceCoachmarkComponent,
+    PopoverModule,
     TrendWidgetComponent,
   ],
 })
@@ -64,6 +68,7 @@ export class ActivityTabComponent {
   private readonly accessIntelligenceService = inject(AccessIntelligenceDataService);
   private readonly drawerStateService = inject(DrawerStateService);
   private readonly dialogService = inject(DialogService);
+  private readonly coachmarkService = inject(AccessIntelligenceCoachmarkService);
   private readonly configService = inject(ConfigService);
   private readonly riskOverTimeService = inject(RiskOverTimeService);
 
@@ -175,6 +180,10 @@ export class ActivityTabComponent {
     }
     return "default";
   });
+
+  protected readonly prioritizeRisksOpen = computed(
+    () => this.coachmarkService.activeStepId() === "prioritizeRisks",
+  );
 
   /**
    * Handles the review new applications button click.

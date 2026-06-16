@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -24,6 +24,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -64,6 +65,7 @@ describe("AccessIntelligencePageComponent", () => {
     queryParams: BehaviorSubject<any>;
   };
   let hasCiphersSubject: BehaviorSubject<boolean>;
+  let mockCoachmarkService: jest.Mocked<AccessIntelligenceCoachmarkService>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -135,6 +137,14 @@ describe("AccessIntelligencePageComponent", () => {
       queryParams: new BehaviorSubject({}),
     };
 
+    mockCoachmarkService = {
+      activeStepId: jest.fn().mockReturnValue(null),
+      tourCompleted$: new Subject<boolean>(),
+      requiredTabIndex: jest.fn().mockReturnValue(0),
+      isRunning: jest.fn().mockReturnValue(false),
+      skipTour: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     await TestBed.configureTestingModule({
       imports: [AccessIntelligencePageComponent],
       providers: [
@@ -146,6 +156,7 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     })

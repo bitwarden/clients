@@ -21,6 +21,7 @@ import { DialogService, I18nMockService } from "@bitwarden/components";
 
 import { ChartExportService } from "../../../shared/chart-export.service";
 import { TrendWidgetData } from "../../activity/trend-widget/trend-widget.component";
+import { AccessIntelligenceCoachmarkStepId } from "../../onboarding/access-intelligence-coachmark-step";
 import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 
@@ -284,6 +285,9 @@ export class MockDialogService {
   openSimpleDialog = () => Promise.resolve(true);
 }
 
+export class MockAccessIntelligenceCoachmarkService {
+  readonly activeStepId = signal<AccessIntelligenceCoachmarkStepId | null>(null);
+}
 /**
  * Mock ConfigService for Storybook stories.
  */
