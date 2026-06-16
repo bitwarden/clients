@@ -1,8 +1,6 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ipc } from "@bitwarden/desktop-napi";
 
-import { WindowMain } from "./window.main";
-
 /**
  * Ipc service for communicating with the safari extension. This is implemented in `desktop_native`.
  */

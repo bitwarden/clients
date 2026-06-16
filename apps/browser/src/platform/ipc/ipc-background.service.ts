@@ -9,7 +9,6 @@ import {
   ipcRegisterDiscoverHandler,
   IpcClient,
   IpcSessionRepository,
-  ipcRequestDiscover,
 } from "@bitwarden/sdk-internal";
 
 import { SafariApp } from "../../browser/safariApp";
