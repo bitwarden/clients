@@ -1,4 +1,4 @@
-import { Directive, OnDestroy } from "@angular/core";
+import { Directive, OnDestroy, Optional } from "@angular/core";
 import {
   BehaviorSubject,
   lastValueFrom,
@@ -20,6 +20,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, TableDataSource, DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfig,
   CipherFormConfigService,
@@ -65,6 +66,7 @@ export abstract class CipherReportComponent implements OnDestroy {
     private syncService: SyncService,
     private cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    @Optional() protected logService?: LogService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -131,15 +133,22 @@ export abstract class CipherReportComponent implements OnDestroy {
   }
 
   async load() {
+    this.logService?.info(
+      `[CipherReport] load() — filterStatus="${this.currentFilterStatus}", cipherCount=${this.ciphers.length}`,
+    );
     this.loading = true;
     await this.syncService.fullSync(false);
     // when a user fixes an item in a report we want to persist the filter they had
     // if they fix the last item of that filter we will go back to the "All" filter
     if (this.currentFilterStatus) {
       if (this.ciphers.length > 2) {
+        this.logService?.info(`[CipherReport] Restoring filter "${this.currentFilterStatus}"`);
         this.filterOrgStatus$.next(this.currentFilterStatus);
         await this.filterOrgToggle(this.currentFilterStatus);
       } else {
+        this.logService?.info(
+          `[CipherReport] Too few items (${this.ciphers.length}), resetting filter to All`,
+        );
         this.filterOrgStatus$.next(0);
         await this.filterOrgToggle(0);
       }
@@ -283,8 +292,15 @@ export abstract class CipherReportComponent implements OnDestroy {
   }
 
   protected async getAllCiphers(): Promise<CipherView[]> {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await this.cipherService.getAllDecrypted(activeUserId);
+    this.logService?.info(`[CipherReport] Fetching all ciphers for user`);
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      return await this.cipherService.getAllDecrypted(activeUserId);
+    } catch (e) {
+      this.logService?.error(`[CipherReport] Failed to fetch ciphers for user`, e);
+      throw e;
+    }
   }
 
   protected canDisplayToggleGroup(): boolean {
