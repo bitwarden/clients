@@ -25,11 +25,8 @@ pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
     }
 }
 
-/// macOS-specific peer-info resolution via the `proc_pidpath(2)` call from
-/// the system `libproc` library. This avoids the `task_for_pid` entitlement
-/// that `sysinfo::Process::name()` ends up needing on macOS, so it can still
-/// resolve the caller when `sysinfo` cannot (notably inside the Mac App Store
-/// sandbox).
+/// Alternative to the `sysinfo`-based lookup that is permissive within
+/// sandboxed runtimes such as Mac App Store builds.
 #[cfg(target_os = "macos")]
 fn peer_info_from_libproc(peer_pid: u32) -> Result<PeerInfo, String> {
     let pid_i32 =
@@ -42,18 +39,17 @@ fn peer_info_from_libproc(peer_pid: u32) -> Result<PeerInfo, String> {
     Ok(PeerInfo::new(peer_pid, peer_pid, process_name))
 }
 
-/// Safe wrapper over `proc_pidpath(2)` (declared in the macOS `<libproc.h>`
-/// system header). Returns the absolute executable path of `pid`, or an error
-/// string describing the failure. Requires no entitlement.
+/// Safe wrapper over `proc_pidpath(2)`, declared in macOS's
+/// [`<libproc.h>`][libproc-h]. Returns the absolute executable path of `pid`,
+/// or an error string describing the failure.
+///
+/// [libproc-h]: https://github.com/apple-oss-distributions/xnu/blob/main/libsyscall/wrappers/libproc/libproc.h
 #[cfg(target_os = "macos")]
 fn pid_executable_path(pid: i32) -> Result<String, String> {
     // PROC_PIDPATHINFO_MAXSIZE from <sys/proc_info.h> is 4 * PATH_MAX.
     let mut buf = vec![0u8; 4 * (libc::PATH_MAX as usize)];
     // SAFETY: `proc_pidpath` writes at most `buf.len()` bytes into `buf` and
-    // returns the number of bytes written (<= 0 on failure). `buf` is a
-    // uniquely-owned, correctly-sized allocation that outlives the call, and
-    // its true length is passed as the buffer size, so the call cannot write
-    // out of bounds.
+    // returns the number of bytes written (0 on failure).
     let written = unsafe {
         libc::proc_pidpath(
             pid,
@@ -68,11 +64,12 @@ fn pid_executable_path(pid: i32) -> Result<String, String> {
         ));
     }
     let written = written as usize;
-    debug_assert!(
-        written <= buf.len(),
-        "proc_pidpath wrote {written} bytes into a {}-byte buffer",
-        buf.len()
-    );
+    if written > buf.len() {
+        return Err(format!(
+            "proc_pidpath({pid}) overran buffer: wrote {written} bytes into a {}-byte buffer",
+            buf.len()
+        ));
+    }
     buf.truncate(written);
     // Some XNU versions historically counted the trailing NUL in the returned
     // length; trim at the first NUL so the resolved path is clean regardless of
