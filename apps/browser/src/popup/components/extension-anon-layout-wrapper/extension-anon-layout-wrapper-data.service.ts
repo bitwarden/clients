@@ -2,11 +2,11 @@ import { Observable, Subject } from "rxjs";
 
 import {
   AnonLayoutWrapperDataService,
-  BASE_LAYOUT_DEFAULTS,
+  ANON_LAYOUT_DEFAULTS,
   DefaultAnonLayoutWrapperDataService,
 } from "@bitwarden/components";
 
-import { EXTENSION_LAYOUT_DEFAULTS } from "./extension-anon-layout-defaults";
+import { EXTENSION_ANON_LAYOUT_DEFAULTS } from "./extension-anon-layout-defaults";
 import { ExtensionAnonLayoutWrapperData } from "./extension-anon-layout-wrapper.component";
 
 export class ExtensionAnonLayoutWrapperDataService
@@ -31,8 +31,8 @@ export class ExtensionAnonLayoutWrapperDataService
     // fields fall back to the defaults, which clears stale imperative overrides for fields
     // the route didn't declare.
     this.anonLayoutWrapperDataSubject.next({
-      ...BASE_LAYOUT_DEFAULTS,
-      ...EXTENSION_LAYOUT_DEFAULTS,
+      ...ANON_LAYOUT_DEFAULTS,
+      ...EXTENSION_ANON_LAYOUT_DEFAULTS,
       ...this.cachedRouteData,
     });
   }

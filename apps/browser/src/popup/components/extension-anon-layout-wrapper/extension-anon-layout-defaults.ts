@@ -2,11 +2,11 @@
  * Default values for the fields {@link ExtensionAnonLayoutWrapperData} adds on top of
  * {@link AnonLayoutWrapperData}
  *
- * Used together with `BASE_LAYOUT_DEFAULTS` in `ExtensionAnonLayoutWrapperDataService`'s
+ * Used together with `ANON_LAYOUT_DEFAULTS` in `ExtensionAnonLayoutWrapperDataService`'s
  * `resetToCachedRouteData()` override so the reset emits a complete payload across both
  * the base and the extension-only fields.
  */
-export const EXTENSION_LAYOUT_DEFAULTS = {
+export const EXTENSION_ANON_LAYOUT_DEFAULTS = {
   showAcctSwitcher: false,
   showBackButton: false,
   // Note: `false` preserves the current observable behavior — most extension auth routes

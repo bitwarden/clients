@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { BASE_LAYOUT_DEFAULTS } from "../anon-layout";
+import { ANON_LAYOUT_DEFAULTS } from "../anon-layout";
 
 export const LandingContentMaxWidth = ["md", "lg", "xl", "2xl", "3xl", "4xl"] as const;
 
@@ -56,7 +56,7 @@ export class LandingContentComponent {
    *
    * "compact" reduces the top padding.
    */
-  readonly contentTopPadding = input<ContentTopPaddingType>(BASE_LAYOUT_DEFAULTS.contentTopPadding);
+  readonly contentTopPadding = input<ContentTopPaddingType>(ANON_LAYOUT_DEFAULTS.contentTopPadding);
 
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
     md: "tw-max-w-md",

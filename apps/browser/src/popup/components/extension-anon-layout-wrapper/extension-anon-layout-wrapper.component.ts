@@ -13,7 +13,7 @@ import {
   AnonLayoutComponent,
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
-  BASE_LAYOUT_DEFAULTS,
+  ANON_LAYOUT_DEFAULTS,
   ContentTopPaddingType,
   HeroTextAlignmentType,
   SecondaryContentLocationType,
@@ -26,7 +26,7 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-import { EXTENSION_LAYOUT_DEFAULTS } from "./extension-anon-layout-defaults";
+import { EXTENSION_ANON_LAYOUT_DEFAULTS } from "./extension-anon-layout-defaults";
 
 export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showAcctSwitcher?: boolean;
@@ -135,29 +135,30 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.pageIcon = firstChildRouteData["pageIcon"];
     }
 
-    // When undefined, fall back to BASE_LAYOUT_DEFAULTS / EXTENSION_LAYOUT_DEFAULTS — single
+    // When undefined, fall back to ANON_LAYOUT_DEFAULTS / EXTENSION_ANON_LAYOUT_DEFAULTS — single
     // source of truth for route-init defaults, the reset emission, and the component-level
     // input defaults.
     this.showReadonlyHostname =
-      firstChildRouteData["showReadonlyHostname"] ?? BASE_LAYOUT_DEFAULTS.showReadonlyHostname;
-    this.maxWidth = firstChildRouteData["maxWidth"] ?? BASE_LAYOUT_DEFAULTS.maxWidth;
+      firstChildRouteData["showReadonlyHostname"] ?? ANON_LAYOUT_DEFAULTS.showReadonlyHostname;
+    this.maxWidth = firstChildRouteData["maxWidth"] ?? ANON_LAYOUT_DEFAULTS.maxWidth;
     this.hideCardWrapper =
-      firstChildRouteData["hideCardWrapper"] ?? BASE_LAYOUT_DEFAULTS.hideCardWrapper;
-    this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? BASE_LAYOUT_DEFAULTS.hidePageIcon;
+      firstChildRouteData["hideCardWrapper"] ?? ANON_LAYOUT_DEFAULTS.hideCardWrapper;
+    this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
     this.contentTopPadding =
-      firstChildRouteData["contentTopPadding"] ?? BASE_LAYOUT_DEFAULTS.contentTopPadding;
+      firstChildRouteData["contentTopPadding"] ?? ANON_LAYOUT_DEFAULTS.contentTopPadding;
     this.heroTextAlignment =
-      firstChildRouteData["heroTextAlignment"] ?? BASE_LAYOUT_DEFAULTS.heroTextAlignment;
+      firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
     this.showAcctSwitcher =
-      firstChildRouteData["showAcctSwitcher"] ?? EXTENSION_LAYOUT_DEFAULTS.showAcctSwitcher;
+      firstChildRouteData["showAcctSwitcher"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showAcctSwitcher;
     this.showBackButton =
-      firstChildRouteData["showBackButton"] ?? EXTENSION_LAYOUT_DEFAULTS.showBackButton;
-    this.showLogo = firstChildRouteData["showLogo"] ?? EXTENSION_LAYOUT_DEFAULTS.showLogo;
-    this.hideFooter = firstChildRouteData["hideFooter"] ?? EXTENSION_LAYOUT_DEFAULTS.hideFooter;
+      firstChildRouteData["showBackButton"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showBackButton;
+    this.showLogo = firstChildRouteData["showLogo"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showLogo;
+    this.hideFooter =
+      firstChildRouteData["hideFooter"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.hideFooter;
     this.secondaryContentLocation =
       firstChildRouteData["secondaryContentLocation"] ??
-      EXTENSION_LAYOUT_DEFAULTS.secondaryContentLocation;
+      EXTENSION_ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
 
     // Cache the route-data payload so resetToCachedRouteData() can later restore it.
     this.extensionAnonLayoutWrapperDataService.cacheRouteData(

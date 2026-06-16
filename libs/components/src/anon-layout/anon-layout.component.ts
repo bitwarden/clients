@@ -27,7 +27,7 @@ import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
-import { BASE_LAYOUT_DEFAULTS } from "./anon-layout-defaults";
+import { ANON_LAYOUT_DEFAULTS } from "./anon-layout-defaults";
 
 export type SecondaryContentLocationType = "main" | "footer";
 
@@ -48,18 +48,18 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly title = input<string>();
   readonly subtitle = input<string>();
   readonly icon = model.required<BitSvg | null>();
-  readonly showReadonlyHostname = input<boolean>(BASE_LAYOUT_DEFAULTS.showReadonlyHostname);
+  readonly showReadonlyHostname = input<boolean>(ANON_LAYOUT_DEFAULTS.showReadonlyHostname);
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
-  readonly hideCardWrapper = input<boolean>(BASE_LAYOUT_DEFAULTS.hideCardWrapper);
+  readonly hideCardWrapper = input<boolean>(ANON_LAYOUT_DEFAULTS.hideCardWrapper);
   readonly hideBackgroundIllustration = input<boolean>(
-    BASE_LAYOUT_DEFAULTS.hideBackgroundIllustration,
+    ANON_LAYOUT_DEFAULTS.hideBackgroundIllustration,
   );
 
-  readonly hidePageIcon = input<boolean>(BASE_LAYOUT_DEFAULTS.hidePageIcon);
-  readonly contentTopPadding = input<ContentTopPaddingType>(BASE_LAYOUT_DEFAULTS.contentTopPadding);
-  readonly heroTextAlignment = input<HeroTextAlignmentType>(BASE_LAYOUT_DEFAULTS.heroTextAlignment);
-  // Note: `secondaryContentLocation`'s default value lives in `EXTENSION_LAYOUT_DEFAULTS`
+  readonly hidePageIcon = input<boolean>(ANON_LAYOUT_DEFAULTS.hidePageIcon);
+  readonly contentTopPadding = input<ContentTopPaddingType>(ANON_LAYOUT_DEFAULTS.contentTopPadding);
+  readonly heroTextAlignment = input<HeroTextAlignmentType>(ANON_LAYOUT_DEFAULTS.heroTextAlignment);
+  // Note: `secondaryContentLocation`'s default value lives in `EXTENSION_ANON_LAYOUT_DEFAULTS`
   // (extension-only field). Kept hardcoded here because the base layout component cannot import
   // from `apps/browser/...` without an upward dependency.
   readonly secondaryContentLocation = input<SecondaryContentLocationType>("main");
@@ -73,7 +73,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  readonly maxWidth = model<LandingContentMaxWidthType>(BASE_LAYOUT_DEFAULTS.maxWidth);
+  readonly maxWidth = model<LandingContentMaxWidthType>(ANON_LAYOUT_DEFAULTS.maxWidth);
 
   protected logo = BitwardenLogo;
   protected year: string;
@@ -93,14 +93,14 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit() {
-    this.maxWidth.set(this.maxWidth() ?? BASE_LAYOUT_DEFAULTS.maxWidth);
+    this.maxWidth.set(this.maxWidth() ?? ANON_LAYOUT_DEFAULTS.maxWidth);
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     if (changes.maxWidth) {
-      this.maxWidth.set(changes.maxWidth.currentValue ?? BASE_LAYOUT_DEFAULTS.maxWidth);
+      this.maxWidth.set(changes.maxWidth.currentValue ?? ANON_LAYOUT_DEFAULTS.maxWidth);
     }
   }
 }

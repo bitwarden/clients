@@ -10,7 +10,7 @@ import { AnonLayoutWrapperData } from "./anon-layout-wrapper.component";
  * Also referenced from `AnonLayoutComponent`'s `input<>()` declarations to keep the
  * component-level default and the reset-time default in lockstep.
  */
-export const BASE_LAYOUT_DEFAULTS: Required<AnonLayoutWrapperData> = {
+export const ANON_LAYOUT_DEFAULTS: Required<AnonLayoutWrapperData> = {
   pageTitle: null,
   pageSubtitle: null,
   pageIcon: null,
