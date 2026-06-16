@@ -24,7 +24,12 @@ import {
 } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
-import { EventOptions, EventService } from "../../services/event.service";
+import {
+  EventOptions,
+  EventService,
+  MEMBER_EVENTS_HREF_PREFIX,
+  SEND_EVENTS_HREF_PREFIX,
+} from "../../services/event.service";
 
 export interface EntityEventsDialogParams {
   entity: "user" | "cipher" | "secret" | "project" | "service-account" | "send";
@@ -116,25 +121,24 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   }
 
   protected onEventMessageClick(event: Event) {
-    const target = event.target as HTMLElement;
-
-    const sendAnchor = target?.closest("[data-event-send-id]");
-    if (sendAnchor) {
+    const href = (event.target as HTMLElement)?.closest("a")?.getAttribute("href");
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(SEND_EVENTS_HREF_PREFIX)) {
       event.preventDefault();
-      const sendId = sendAnchor.getAttribute("data-event-send-id");
+      const sendId = href.slice(SEND_EVENTS_HREF_PREFIX.length);
       void this.switchEntity(
         "send",
         sendId,
-        this.i18nService.t("send") + " " + sendId?.substring(0, 8),
+        this.i18nService.t("send") + " " + sendId.substring(0, 8),
       );
       return;
     }
-
-    const userAnchor = target?.closest("[data-event-user-id]");
-    if (userAnchor) {
+    if (href.startsWith(MEMBER_EVENTS_HREF_PREFIX)) {
       event.preventDefault();
-      const platformUserId = userAnchor.getAttribute("data-event-user-id");
-      const member = platformUserId != null ? this.orgUsersUserIdMap.get(platformUserId) : null;
+      const platformUserId = href.slice(MEMBER_EVENTS_HREF_PREFIX.length);
+      const member = this.orgUsersUserIdMap.get(platformUserId);
       if (member?.organizationUserId != null) {
         void this.switchEntity("user", member.organizationUserId, member.name);
       }

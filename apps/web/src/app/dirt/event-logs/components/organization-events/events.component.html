@@ -118,13 +118,7 @@
                   <span title="{{ e.userEmail }}">{{ e.userName }}</span>
                 }
               </td>
-              <td
-                bitCell
-                [innerHTML]="e.message"
-                (click)="onEventMessageClick($event)"
-                (keydown.enter)="onEventMessageClick($event)"
-                (keydown.space)="onEventMessageClick($event)"
-              ></td>
+              <td bitCell [innerHTML]="e.message" (click)="onEventMessageClick($event)"></td>
             </tr>
           }
         </ng-template>

@@ -1,4 +1,4 @@
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -17,20 +17,24 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EventExportService } from "../../../../tools/event-export";
-import { EventService } from "../../services/event.service";
+import {
+  EventService,
+  MEMBER_EVENTS_HREF_PREFIX,
+  SEND_EVENTS_HREF_PREFIX,
+} from "../../services/event.service";
 
 import { EventsComponent } from "./events.component";
 
-describe("EventsComponent Send access member linking", () => {
+describe("EventsComponent Send access linking", () => {
   let component: any;
-  let router: ReturnType<typeof mock<Router>>;
+  let dialogService: ReturnType<typeof mock<DialogService>>;
 
   beforeEach(() => {
     const eventService = mock<EventService>();
     eventService.getDefaultDateFilters.mockReturnValue(["", ""]);
     const i18n = mock<I18nService>();
     i18n.t.mockImplementation((id: string) => id);
-    router = mock<Router>();
+    dialogService = mock<DialogService>();
 
     component = new EventsComponent(
       mock<ApiService>(),
@@ -48,10 +52,9 @@ describe("EventsComponent Send access member linking", () => {
       mock<FileDownloadService>(),
       mock<ToastService>(),
       mock<AccountService>(),
-      mock<DialogService>(),
+      dialogService,
       mock<ConfigService>(),
       mock<ActivatedRoute>(),
-      router,
     );
 
     component.organizationId = "org-1";
@@ -70,6 +73,15 @@ describe("EventsComponent Send access member linking", () => {
   const sendAccess = (over: Partial<EventView>): EventView =>
     ({ type: EventType.Send_Accessed_Text, ...over }) as EventView;
 
+  // A click whose target is a <code> inside an <a href="…">, mirroring the interactive-id links in messages.
+  const clickOnHref = (href: string) => {
+    const anchor = document.createElement("a");
+    anchor.setAttribute("href", href);
+    const code = document.createElement("code");
+    anchor.appendChild(code);
+    return { target: code, preventDefault: jest.fn() } as unknown as Event;
+  };
+
   describe("isSendAccessMemberLink", () => {
     it("links when the accessor is a confirmed member", () => {
       const e = sendAccess({ actingUserId: "member-user-id", userId: "member-user-id" });
@@ -78,11 +90,6 @@ describe("EventsComponent Send access member linking", () => {
 
     it("does NOT link an external access even when the creator is a member (regression)", () => {
       // External accessor: actingUserId is null; EventView.userId falls back to the creator (a member).
-      const e = sendAccess({ actingUserId: null, userId: "creator-user-id" });
-      expect(component.isSendAccessMemberLink(e)).toBe(false);
-    });
-
-    it("does NOT link a claimed-domain (non-member) access", () => {
       const e = sendAccess({ actingUserId: null, userId: "creator-user-id" });
       expect(component.isSendAccessMemberLink(e)).toBe(false);
     });
@@ -119,17 +126,51 @@ describe("EventsComponent Send access member linking", () => {
     });
   });
 
-  describe("navigateToMember", () => {
-    it("navigates to the member's events using the resolved organization user id", async () => {
-      await component.navigateToMember("member-user-id");
-      expect(router.navigate).toHaveBeenCalledWith(["/organizations", "org-1", "members"], {
-        queryParams: { search: "org-user", viewEvents: "org-user-1" },
-      });
+  describe("interactive id clicks open a dialog in place", () => {
+    it("opens a Send-scoped events dialog when a Send id is clicked", () => {
+      component.onEventMessageClick(clickOnHref(SEND_EVENTS_HREF_PREFIX + "send-123"));
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ entity: "send", entityId: "send-123" }),
+        }),
+      );
     });
 
-    it("does nothing when the platform user id does not resolve to a member", async () => {
-      await component.navigateToMember("unknown-user-id");
-      expect(router.navigate).not.toHaveBeenCalled();
+    it("opens a member-scoped events dialog when a creator id is clicked", () => {
+      component.onEventMessageClick(clickOnHref(MEMBER_EVENTS_HREF_PREFIX + "member-user-id"));
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            entity: "user",
+            entityId: "org-user-1",
+            showUser: true,
+          }),
+        }),
+      );
+    });
+
+    it("opens a member-scoped events dialog when a member name is clicked", () => {
+      component.memberNameClicked(
+        { preventDefault: jest.fn() } as unknown as Event,
+        "member-user-id",
+      );
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ entity: "user", entityId: "org-user-1" }),
+        }),
+      );
+    });
+
+    it("does nothing when the clicked user id does not resolve to a member", () => {
+      component.memberNameClicked({ preventDefault: jest.fn() } as unknown as Event, "unknown-id");
+
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 });

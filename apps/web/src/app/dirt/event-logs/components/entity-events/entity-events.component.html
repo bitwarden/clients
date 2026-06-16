@@ -62,13 +62,7 @@
           <td bitCell *ngIf="showUser">
             <span appA11yTitle="{{ r.userEmail }}">{{ r.userName }}</span>
           </td>
-          <td
-            bitCell
-            [innerHTML]="r.message"
-            (click)="onEventMessageClick($event)"
-            (keydown.enter)="onEventMessageClick($event)"
-            (keydown.space)="onEventMessageClick($event)"
-          ></td>
+          <td bitCell [innerHTML]="r.message" (click)="onEventMessageClick($event)"></td>
         </tr>
       </ng-template>
     </bit-table>

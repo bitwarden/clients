@@ -12,7 +12,7 @@ describe("EventService Send events", () => {
   let sut: EventService;
 
   // Echoes the key and appends each substitution arg, so assertions can detect whether an interactive
-  // anchor (with its data-* attribute) made it into the message vs. the plain human-readable copy.
+  // anchor (with its sentinel href) made it into the message vs. the plain human-readable copy.
   const i18n = mock<I18nService>();
   i18n.t.mockImplementation(
     (id: string, p1?: string, p2?: string) => `${id}${p1 ?? ""}${p2 ?? ""}`,
@@ -34,17 +34,17 @@ describe("EventService Send events", () => {
     return { type, sendId, userId: creatorId, organizationId: "org" } as EventResponse;
   }
 
-  it("renders a Send access message with clickable Send-id and creator markers", async () => {
+  it("renders a Send access message with clickable Send-id and creator links (sentinel hrefs)", async () => {
     const info = await sut.getEventInfo(accessEvent(EventType.Send_Accessed_Text));
 
-    expect(info.message).toContain(`data-event-send-id="${sendId}"`);
-    expect(info.message).toContain(`data-event-user-id="${creatorId}"`);
+    expect(info.message).toContain(`href="#send-events:${sendId}"`);
+    expect(info.message).toContain(`href="#member-events:${creatorId}"`);
   });
 
   it("keeps the human-readable (export) message plain text", async () => {
     const info = await sut.getEventInfo(accessEvent(EventType.Send_Accessed_File));
 
-    expect(info.humanReadableMessage).not.toContain("data-event");
+    expect(info.humanReadableMessage).not.toContain("href");
     expect(info.humanReadableMessage).not.toContain("<a");
     expect(info.humanReadableMessage).toContain(sendId.substring(0, 8));
   });
@@ -55,8 +55,8 @@ describe("EventService Send events", () => {
 
     const info = await sut.getEventInfo(accessEvent(EventType.Send_Accessed_Text), options);
 
-    expect(info.message).not.toContain("data-event-send-id");
-    expect(info.message).toContain(`data-event-user-id="${creatorId}"`);
+    expect(info.message).not.toContain("#send-events:");
+    expect(info.message).toContain(`href="#member-events:${creatorId}"`);
   });
 
   it("renders the Send id on a create event", async () => {
@@ -66,8 +66,8 @@ describe("EventService Send events", () => {
       organizationId: "org",
     } as EventResponse);
 
-    expect(info.message).toContain(`data-event-send-id="${sendId}"`);
-    expect(info.humanReadableMessage).not.toContain("data-event");
+    expect(info.message).toContain(`href="#send-events:${sendId}"`);
+    expect(info.humanReadableMessage).not.toContain("href");
     expect(info.humanReadableMessage).toContain(sendId.substring(0, 8));
   });
 });

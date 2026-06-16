@@ -13,6 +13,9 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BitwardenIcon } from "@bitwarden/components";
 
+export const SEND_EVENTS_HREF_PREFIX = "#send-events:";
+export const MEMBER_EVENTS_HREF_PREFIX = "#member-events:";
+
 @Injectable()
 export class EventService {
   private policies: Policy[];
@@ -1178,55 +1181,30 @@ export class EventService {
     return a;
   }
 
-  // Builds an interactive id anchor handled by the event-log containers via click delegation (see the
-  // organization-events and entity-events components). No href: the container reads the data attribute
-  // and either opens/navigates (table) or re-parameterizes the dialog in place.
-  private makeInteractiveId(dataAttr: string, fullId: string, ariaLabel: string): string {
-    const a = document.createElement("a");
-    a.title = this.i18nService.t("view");
-    a.setAttribute("role", "button");
-    a.setAttribute("tabindex", "0");
-    a.setAttribute("aria-label", ariaLabel);
-    a.setAttribute(dataAttr, fullId);
-    // Build the <code> via textContent (not innerHTML) so the id can never be interpreted as markup.
-    const code = document.createElement("code");
-    code.textContent = this.getShortId(fullId);
-    a.appendChild(code);
-    return a.outerHTML;
-  }
-
-  // The accessed Send, rendered clickable. Returns a leading-space token (so it slots in after "…Send")
-  // or "" when hidden (inside a Send-scoped dialog).
   private formatSendId(ev: EventResponse, options: EventOptions): string {
     if (options.hideSendId || ev.sendId == null) {
       return "";
     }
-    return (
-      " " +
-      this.makeInteractiveId(
-        "data-event-send-id",
-        ev.sendId,
-        this.i18nService.t("viewSendEvents", this.getShortId(ev.sendId)),
-      )
-    );
+    const shortId = this.getShortId(ev.sendId);
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewSendEvents", shortId);
+    a.setAttribute("href", SEND_EVENTS_HREF_PREFIX + ev.sendId);
+    return " " + a.outerHTML;
   }
 
-  // The on-screen message uses formatSendId's clickable HTML link; the exported event log can't
-  // contain HTML, so its plain-text version uses this short id instead.
   private formatSendIdText(ev: EventResponse, options: EventOptions): string {
     return options.hideSendId || ev.sendId == null ? "" : " " + this.getShortId(ev.sendId);
   }
 
-  // The Send creator, rendered clickable (navigates to the member in the table, re-parameterizes in a dialog).
   private formatSendCreatorId(ev: EventResponse): string {
     if (ev.userId == null) {
       return "";
     }
-    return this.makeInteractiveId(
-      "data-event-user-id",
-      ev.userId,
-      this.i18nService.t("viewMemberEvents", this.getShortId(ev.userId)),
-    );
+    const shortId = this.getShortId(ev.userId);
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewMemberEvents", shortId);
+    a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
+    return a.outerHTML;
   }
 
   private getShortId(id: string) {

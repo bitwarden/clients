@@ -3,7 +3,7 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -40,7 +40,11 @@ import {
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
 import { EventExportService } from "../../../../tools/event-export";
-import { EventService } from "../../services/event.service";
+import {
+  EventService,
+  MEMBER_EVENTS_HREF_PREFIX,
+  SEND_EVENTS_HREF_PREFIX,
+} from "../../services/event.service";
 import { BaseEventsComponent } from "../base-events/base-events.component";
 import { openEntityEventsDialog } from "../entity-events/entity-events.component";
 import { placeholderEvents } from "../placeholder-events";
@@ -87,7 +91,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private dialogService: DialogService,
     private configService: ConfigService,
     protected activeRoute: ActivatedRoute,
-    private router: Router,
   ) {
     super(
       eventService,
@@ -258,28 +261,27 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     );
   }
 
-  /** Delegated handler for interactive ids embedded in the event message (Send id, creator user id). */
+  /** Delegated handler for the interactive id links in an event message (Send id, creator user id). */
   protected onEventMessageClick(event: Event) {
-    const target = event.target as HTMLElement;
-
-    const sendAnchor = target?.closest("[data-event-send-id]");
-    if (sendAnchor) {
-      event.preventDefault();
-      this.openSendEventsDialog(sendAnchor.getAttribute("data-event-send-id"));
+    const href = (event.target as HTMLElement)?.closest("a")?.getAttribute("href");
+    if (href == null) {
       return;
     }
-
-    const userAnchor = target?.closest("[data-event-user-id]");
-    if (userAnchor) {
+    if (href.startsWith(SEND_EVENTS_HREF_PREFIX)) {
       event.preventDefault();
-      void this.navigateToMember(userAnchor.getAttribute("data-event-user-id"));
+      this.openSendEventsDialog(href.slice(SEND_EVENTS_HREF_PREFIX.length));
+      return;
+    }
+    if (href.startsWith(MEMBER_EVENTS_HREF_PREFIX)) {
+      event.preventDefault();
+      this.openMemberEventsDialog(href.slice(MEMBER_EVENTS_HREF_PREFIX.length));
     }
   }
 
   /** Member-column name click on a Send access row. */
   protected memberNameClicked(event: Event, platformUserId: string) {
     event.preventDefault();
-    void this.navigateToMember(platformUserId);
+    this.openMemberEventsDialog(platformUserId);
   }
 
   private openSendEventsDialog(sendId: string) {
@@ -297,16 +299,19 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     });
   }
 
-  private async navigateToMember(platformUserId: string) {
-    const organizationUserId =
-      platformUserId != null
-        ? this.orgUsersUserIdMap.get(platformUserId)?.organizationUserId
-        : null;
-    if (organizationUserId == null) {
+  private openMemberEventsDialog(platformUserId: string) {
+    const member = platformUserId != null ? this.orgUsersUserIdMap.get(platformUserId) : null;
+    if (member?.organizationUserId == null) {
       return;
     }
-    await this.router.navigate(["/organizations", this.organizationId, "members"], {
-      queryParams: { search: this.getShortId(organizationUserId), viewEvents: organizationUserId },
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        entity: "user",
+        entityId: member.organizationUserId,
+        organizationId: this.organizationId,
+        name: member.name,
+        showUser: true,
+      },
     });
   }
 
