@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { Translation } from "../dialog";
 import {
-  ContentTopPaddingType,
+  ContentVerticalPaddingType,
   HeroTextAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
@@ -43,11 +43,11 @@ export interface AnonLayoutWrapperData {
    */
   hidePageIcon?: boolean;
   /**
-   * Top-padding of the content area. Defaults to "default".
+   * Vertical padding of the content area. Defaults to "default".
    *
-   * "compact" reduces the top padding so more content fits. Use in scenarios where vertical space is at a premium.
+   * "compact" reduces the vertical padding so more content fits. Use in scenarios where vertical space is at a premium.
    */
-  contentTopPadding?: ContentTopPaddingType;
+  contentVerticalPadding?: ContentVerticalPaddingType;
   /**
    * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
    * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
@@ -89,7 +89,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
   protected hidePageIcon?: boolean;
-  protected contentTopPadding?: ContentTopPaddingType;
+  protected contentVerticalPadding?: ContentVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
 
   constructor(
@@ -152,8 +152,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
       firstChildRouteData["hideBackgroundIllustration"] ??
       ANON_LAYOUT_DEFAULTS.hideBackgroundIllustration;
     this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
-    this.contentTopPadding =
-      firstChildRouteData["contentTopPadding"] ?? ANON_LAYOUT_DEFAULTS.contentTopPadding;
+    this.contentVerticalPadding =
+      firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
     this.heroTextAlignment =
       firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
@@ -211,8 +211,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
     if (data.hidePageIcon !== undefined) {
       this.hidePageIcon = data.hidePageIcon;
     }
-    if (data.contentTopPadding !== undefined) {
-      this.contentTopPadding = data.contentTopPadding;
+    if (data.contentVerticalPadding !== undefined) {
+      this.contentVerticalPadding = data.contentVerticalPadding;
     }
     if (data.heroTextAlignment !== undefined) {
       this.heroTextAlignment = data.heroTextAlignment;
@@ -242,7 +242,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideCardWrapper = null;
     this.hideBackgroundIllustration = null;
     this.hidePageIcon = undefined;
-    this.contentTopPadding = undefined;
+    this.contentVerticalPadding = undefined;
     this.heroTextAlignment = undefined;
   }
 }

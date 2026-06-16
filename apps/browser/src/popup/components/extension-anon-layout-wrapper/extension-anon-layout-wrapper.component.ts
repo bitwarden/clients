@@ -14,7 +14,7 @@ import {
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
   ANON_LAYOUT_DEFAULTS,
-  ContentTopPaddingType,
+  ContentVerticalPaddingType,
   HeroTextAlignmentType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
@@ -74,7 +74,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
   protected hidePageIcon?: boolean;
-  protected contentTopPadding?: ContentTopPaddingType;
+  protected contentVerticalPadding?: ContentVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
@@ -144,8 +144,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hideCardWrapper =
       firstChildRouteData["hideCardWrapper"] ?? ANON_LAYOUT_DEFAULTS.hideCardWrapper;
     this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
-    this.contentTopPadding =
-      firstChildRouteData["contentTopPadding"] ?? ANON_LAYOUT_DEFAULTS.contentTopPadding;
+    this.contentVerticalPadding =
+      firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
     this.heroTextAlignment =
       firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
@@ -223,8 +223,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.hidePageIcon !== undefined) {
       this.hidePageIcon = data.hidePageIcon;
     }
-    if (data.contentTopPadding !== undefined) {
-      this.contentTopPadding = data.contentTopPadding;
+    if (data.contentVerticalPadding !== undefined) {
+      this.contentVerticalPadding = data.contentVerticalPadding;
     }
     if (data.heroTextAlignment !== undefined) {
       this.heroTextAlignment = data.heroTextAlignment;
@@ -256,7 +256,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hideFooter = null;
     this.hideCardWrapper = null;
     this.hidePageIcon = undefined;
-    this.contentTopPadding = undefined;
+    this.contentVerticalPadding = undefined;
     this.heroTextAlignment = undefined;
     this.secondaryContentLocation = undefined;
   }

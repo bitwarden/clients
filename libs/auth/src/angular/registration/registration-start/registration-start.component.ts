@@ -170,7 +170,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
     // Result is null, so email verification is required
     this.state = RegistrationStartState.CHECK_EMAIL;
-    // The `hidePageIcon` / `heroTextAlignment` / `contentTopPadding` overrides specifically
+    // The `hidePageIcon` / `heroTextAlignment` / `contentVerticalPadding` overrides specifically
     // undo the extension SignUp route's compact/left/no-icon styling (which we only want to
     // apply to the USER_DATA_ENTRY screen, not the CHECK_EMAIL screen). Only the extension
     // route declares those, so `resetToCachedRouteData()` in `goBack()` only rolls them back
@@ -183,7 +183,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       pageIcon: RegistrationCheckEmailIcon,
       hidePageIcon: false,
       heroTextAlignment: "center",
-      contentTopPadding: "default",
+      contentVerticalPadding: "default",
     });
     this.registrationStartStateChange.emit(this.state);
   };

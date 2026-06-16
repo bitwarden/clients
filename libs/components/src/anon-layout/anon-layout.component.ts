@@ -19,7 +19,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
-  ContentTopPaddingType,
+  ContentVerticalPaddingType,
   HeroTextAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
@@ -57,7 +57,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   );
 
   readonly hidePageIcon = input<boolean>(ANON_LAYOUT_DEFAULTS.hidePageIcon);
-  readonly contentTopPadding = input<ContentTopPaddingType>(ANON_LAYOUT_DEFAULTS.contentTopPadding);
+  readonly contentVerticalPadding = input<ContentVerticalPaddingType>(
+    ANON_LAYOUT_DEFAULTS.contentVerticalPadding,
+  );
   readonly heroTextAlignment = input<HeroTextAlignmentType>(ANON_LAYOUT_DEFAULTS.heroTextAlignment);
   // Note: `secondaryContentLocation`'s default value lives in `EXTENSION_ANON_LAYOUT_DEFAULTS`
   // (extension-only field). Kept hardcoded here because the base layout component cannot import
