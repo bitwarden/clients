@@ -605,6 +605,8 @@ const routes: Routes = [
           },
           showReadonlyHostname: true,
           showAcctSwitcher: true,
+          contentVerticalPadding: "compact",
+          footerVerticalPadding: "compact",
           elevation: 1,
           /**
            * This ensures that in a passkey flow the `/fido2?<queryParams>` URL does not get
