@@ -31,8 +31,8 @@
           name="SelectedDeletionDatePreset"
           formControlName="selectedDeletionDatePreset"
         >
-          @for (o of datePresetOptions; track o.name) {
-            <bit-option [value]="o.value" [label]="o.name"></bit-option>
+          @for (o of datePresetOptions; track o.label) {
+            <bit-option [value]="o.value" [label]="o.label"></bit-option>
           }
         </bit-select>
       }
@@ -42,7 +42,10 @@
       }
     </bit-form-field>
 
-    <bit-form-field [disableMargin]="sendDetailsForm.get('authType').value === AuthType.None">
+    <bit-form-field
+      [disableMargin]="sendDetailsForm.get('authType').value === AuthType.None"
+      [hidden]="(availableAuthTypes$ | async).length === 1"
+    >
       <bit-label>{{ "whoCanView" | i18n }}</bit-label>
       @if (!editing()) {
         <input

@@ -1,4 +1,4 @@
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "@bitwarden/common/platform/state";
 
 // We're storing the organization invite for 2 reasons:
