@@ -1,10 +1,11 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
+  DrawerState,
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/access-intelligence";
@@ -64,6 +65,8 @@ describe("AccessIntelligencePageComponent", () => {
     queryParams: BehaviorSubject<any>;
   };
   let hasCiphersSubject: BehaviorSubject<boolean>;
+  let drawerStateSignal: WritableSignal<DrawerState>;
+  let drawerClosed$: Subject<unknown>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -102,18 +105,26 @@ describe("AccessIntelligencePageComponent", () => {
       hasCiphers$: hasCiphersSubject.asObservable(),
     };
 
+    // Real signal + faithful open/close impls mirror DefaultDrawerStateService so the drawer
+    // subscription pipeline can be driven end-to-end in tests.
+    drawerStateSignal = signal<DrawerState>({ open: false, type: DrawerType.None, invokerId: "" });
     mockDrawerStateService = {
-      drawerState: jest.fn().mockReturnValue({ open: false, type: null, invokerId: "" }),
-      openDrawer: jest.fn(),
-      closeDrawer: jest.fn(),
+      drawerState: drawerStateSignal,
+      openDrawer: jest.fn((type: DrawerType, invokerId: string) =>
+        drawerStateSignal.set({ open: true, type, invokerId }),
+      ),
+      closeDrawer: jest.fn(() =>
+        drawerStateSignal.set({ open: false, type: DrawerType.None, invokerId: "" }),
+      ),
     } as any;
 
     mockI18nService = {
       t: jest.fn((key: string, ...args: any[]) => key),
     } as any;
 
+    drawerClosed$ = new Subject<unknown>();
     mockDialogService = {
-      openDrawer: jest.fn().mockReturnValue({ close: jest.fn() }),
+      openDrawer: jest.fn().mockResolvedValue({ close: jest.fn(), closed: drawerClosed$ }),
     } as any;
 
     mockLogService = {
@@ -401,6 +412,44 @@ describe("AccessIntelligencePageComponent", () => {
 
       expect((content as AppAtRiskMembersData).members[0].atRiskPasswordCount).toBeGreaterThan(0);
     });
+  });
+
+  // ==================== Drawer Reopen Tests (PM-38286) ====================
+
+  describe("Drawer Reopen", () => {
+    beforeEach(async () => {
+      testReport.recomputeSummary();
+      mockAccessIntelligenceService.report$.next(testReport);
+      await component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it("resets drawer state when the dialog closes so the same drawer can reopen", fakeAsync(() => {
+      // Open the org at-risk members drawer
+      mockDrawerStateService.openDrawer(DrawerType.OrgAtRiskMembers, "org-card");
+      fixture.detectChanges();
+      tick();
+
+      const opensAfterFirstClick = mockDialogService.openDrawer.mock.calls.length;
+      expect(opensAfterFirstClick).toBeGreaterThan(0);
+
+      // User closes the drawer via the X button (or ESC) — dialog emits on `closed`
+      drawerClosed$.next(undefined);
+      tick();
+
+      // State must be reset, otherwise re-clicking the same button is a no-op
+      expect(mockDrawerStateService.closeDrawer).toHaveBeenCalled();
+      fixture.detectChanges();
+      tick();
+
+      // Re-clicking the same button reopens the drawer (the bug: nothing happened until a
+      // different drawer was opened first)
+      mockDrawerStateService.openDrawer(DrawerType.OrgAtRiskMembers, "org-card");
+      fixture.detectChanges();
+      tick();
+
+      expect(mockDialogService.openDrawer.mock.calls.length).toBeGreaterThan(opensAfterFirstClick);
+    }));
   });
 
   // ==================== Empty State Tests ====================
