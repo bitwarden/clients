@@ -368,9 +368,14 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   private setCollectionControlState() {
     const initialCipherView = this.cipherFormContainer.getInitialCipherView();
+    // These permission checks are only meaningful for existing, server-fetched ciphers whose
+    // edit/viewPassword flags reflect real server-side permissions. Skip for new ciphers (no id).
+    if (!initialCipherView?.id) {
+      return;
+    }
     const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
     const organization = this.organizations.find((o) => o.id === orgId);
-    if (!organization || !initialCipherView) {
+    if (!organization) {
       return;
     }
     // Disable the collection control if either of the following apply:
