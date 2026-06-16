@@ -214,8 +214,13 @@
     "message": "Remplir",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Saisie automatique"
+  "autofillNoun": {
+    "message": "Saisie automatique",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Saisie automatique",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Saisie automatique de l'identifiant"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Enregistrer"
+  },
+  "saveAndFill": {
+    "message": "Enregistrer et remplir"
   },
   "move": {
     "message": "Déplacer"
@@ -1177,13 +1185,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Paramètres du presse-papier mis à jour"
+    "message": "Paramètre du presse-papiers mis à jour"
   },
   "clipboardSettingUpdatedMessage": {
     "message": "Le délai d'expiration de votre presse-papier est défini à la valeur par défaut, qui a été mis à jour sur 5 minutes pour une sécurité accrue."
   },
   "jumpToSetting": {
-    "message": "Allez aux paramètres"
+    "message": "Allez au paramètre"
   },
   "notificationAddDesc": {
     "message": "Est-ce que Bitwarden doit se souvenir de ce mot de passe pour vous ?"
@@ -1340,6 +1348,15 @@
   },
   "enableFillAssist": {
     "message": "Utiliser l'aide de remplissage"
+  },
+  "turnOnFillAssist": {
+    "message": "Activer l'aide de remplissage"
+  },
+  "enableFillAssistDescription": {
+    "message": "L'aide de remplissage améliore la précision de la saisie automatique sur les sites compatibles avec des règles spécifiques au site. Aucune donnée n'est collectée ou sauvegardée lorsque vous utilisez cette fonctionnalité."
+  },
+  "aboutFillAssist": {
+    "message": "À propos de l'aide de remplissage"
   },
   "enableContextMenuItem": {
     "message": "Afficher les options du menu contextuel"
@@ -1793,6 +1810,9 @@
   },
   "iconsUrl": {
     "message": "URL du serveur d’icônes"
+  },
+  "sendUrl": {
+    "message": "URL du serveur Send"
   },
   "environmentSaved": {
     "message": "Les URL d'environnement ont été enregistrées"
@@ -4380,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Une ou plusieurs adresses e-mail ne sont pas valides"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "La saisie ne doit pas contenir que des espaces.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5821,10 +5844,10 @@
     "message": "Vous pouvez personnaliser vos paramètres de déverrouillage et de délai d'attente pour accéder plus rapidement à votre coffre-fort."
   },
   "unlockPinSet": {
-    "message": "Déverrouiller l'ensemble de codes NIP"
+    "message": "Déverrouillage par PIN activé"
   },
   "unlockWithBiometricSet": {
-    "message": "Déverrouiller avec l'ensemble biométrique"
+    "message": "Déverrouillage par biométrie activé"
   },
   "authenticating": {
     "message": "Authentification"
@@ -6501,6 +6524,18 @@
   "userVerificationFailed": {
     "message": "Échec de la vérification d'utilisateur."
   },
+  "sharedUnlock": {
+    "message": "Déverrouillage partagé"
+  },
+  "sharedUnlockDescription": {
+    "message": "Gardez vos applications Bitwarden synchronisées. Une fois activé, l'état déverrouillé sera partagé avec toutes les applications sur cette machine. Afin de synchroniser entre les différents navigateurs, l'application de bureau Bitwarden est nécessaire."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Gardez vos applications Bitwarden synchronisées. Une fois activé, l'état déverrouillé sera partagé avec les coffres web Bitwarden dans Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Gardez vos applications Bitwarden synchronisées. Une fois activé, l'état déverrouillé sera partagé avec l'application de bureau Bitwarden."
+  },
   "enterMonth": {
     "message": "Entrez le mois."
   },
@@ -6644,14 +6679,13 @@
     "message": "Barre de progression",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "L'enregistrement des modifications du Send a échoué",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Votre organisation exige que votre adresse e-mail soit visible. Décochez « Masquer votre courriel aux visiteurs » pour enregistrer."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Vous ne pouvez pas importer des éléments dans Mes éléments qui font partie de plusieurs collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
