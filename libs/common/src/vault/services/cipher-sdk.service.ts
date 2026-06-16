@@ -3,9 +3,20 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import {
+  CipherId,
+  CollectionId,
+  EmergencyAccessId,
+  OrganizationId,
+  UserId,
+} from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import {
+  CipherListView,
+  CipherView as SdkCipherView,
+  CreateAttachmentRequest,
+  CreatedAttachment,
+} from "@bitwarden/sdk-internal";
 
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
@@ -327,15 +338,118 @@ export class DefaultCipherSdkService implements CipherSdkService {
           const result = asAdmin
             ? await ref.value
                 .vault()
-                .ciphers()
+                .attachments()
                 .admin()
                 .delete_attachment(asUuid(cipherId), attachmentId)
-            : await ref.value.vault().ciphers().delete_attachment(asUuid(cipherId), attachmentId);
+            : await ref.value
+                .vault()
+                .attachments()
+                .delete_attachment(asUuid(cipherId), attachmentId);
 
           return Cipher.fromSdkCipher(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to delete cipher attachment: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getAttachmentDownloadUrl(
+    cipherId: CipherId,
+    attachmentId: string,
+    userId: UserId,
+    options?: { asAdmin?: boolean; emergencyAccessId?: EmergencyAccessId },
+  ): Promise<string> {
+    if (options?.asAdmin && options?.emergencyAccessId) {
+      throw new Error("asAdmin and emergencyAccessId are mutually exclusive");
+    }
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          const attachments = ref.value.vault().attachments();
+
+          if (options?.asAdmin) {
+            return await attachments
+              .admin()
+              .get_attachment_download_url(asUuid(cipherId), attachmentId);
+          }
+          return await attachments.get_attachment_download_url(
+            asUuid(cipherId),
+            attachmentId,
+            options?.emergencyAccessId,
+          );
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to get attachment download URL: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async createAttachment(
+    cipherId: CipherId,
+    request: CreateAttachmentRequest,
+    userId: UserId,
+  ): Promise<CreatedAttachment> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.vault().attachments().create_attachment(asUuid(cipherId), request);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to create attachment: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async renewAttachmentUploadUrl(
+    cipherId: CipherId,
+    attachmentId: string,
+    userId: UserId,
+  ): Promise<string> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value
+            .vault()
+            .attachments()
+            .renew_file_upload_url(asUuid(cipherId), attachmentId);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to renew attachment upload URL: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async upgradeAttachment(
+    cipherId: CipherId,
+    attachmentId: string,
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+          const result = await ref.value
+            .vault()
+            .attachments()
+            .upgrade_attachment(asUuid(cipherId), attachmentId);
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to upgrade attachment: ${error}`);
           throw error;
         }),
       ),
