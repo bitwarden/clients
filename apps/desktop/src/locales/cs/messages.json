@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopírovat soukromý klíč"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopírovat veřejný klíč"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopírovat otisk prstu"
   },
   "cardNumber": {
     "message": "číslo karty"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 nebo více e-mailů jsou neplatné"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Seznam příjemců e-mailu nesmí překročit 2500 znaků. Chcete-li pokračovat, odeberte jednoho nebo více příjemců."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmí obsahovat jen mezery.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Skupina řidičského průkazu"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku nelze uložit. Musíte potvrdit organizaci pro uložení položek."
   }
 }

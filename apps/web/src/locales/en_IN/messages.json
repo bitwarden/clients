@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 or more emails are invalid"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "tooManyEmails": {
     "message": "You can only submit up to $COUNT$ emails at a time",
     "placeholders": {
@@ -14256,10 +14259,10 @@
     "message": "Vault banner"
   },
   "organizationUserNotificationPolicyDesc": {
-    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+    "message": "Create and launch a customised banner that all organisation members see on their vault page after login."
   },
   "singleOrgPrerequisite": {
-    "message": "The single organization policy must be turned on before activating this policy."
+    "message": "The single organisation policy must be turned on before activating this policy."
   },
   "enableBanner": {
     "message": "Enable banner"
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organisation to save items."
   }
 }
