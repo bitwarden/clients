@@ -260,8 +260,15 @@ const safeProviders: SafeProvider[] = [
     //
     // Note: Portable mode does not use secure storage for read/write/clear operations,
     // preventing any collision with tokens from a regular desktop installation.
+    //
+    // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
+    // behavior on any platform, for environments where the OS keyring is unavailable or
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !ipc.platform.isWindowsPortable,
+    useValue:
+      ELECTRON_SUPPORTS_SECURE_STORAGE &&
+      !ipc.platform.isWindowsPortable &&
+      !ipc.platform.forceDiskAccessTokenStorage,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,

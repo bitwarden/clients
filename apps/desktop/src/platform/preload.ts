@@ -11,6 +11,8 @@ import {
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
 import {
+  EnvAccessTokenLocation,
+  accessTokenLocation,
   allowBrowserintegrationOverride,
   isAppImage,
   isDev,
@@ -115,6 +117,7 @@ export default {
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   isWindowsPortable: isWindowsPortable(),
+  forceDiskAccessTokenStorage: accessTokenLocation() === EnvAccessTokenLocation.Disk,
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
@@ -131,13 +134,6 @@ export default {
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
-
-  openContextMenu: (
-    menu: {
-      label?: string;
-      type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-    }[],
-  ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
   onSystemThemeUpdated: (callback: (theme: ThemeType) => void) => {

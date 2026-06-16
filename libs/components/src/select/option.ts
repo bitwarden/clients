@@ -5,7 +5,7 @@ export interface Option<T> {
   icon?: BitwardenIcon;
   value: T | null;
   label?: string;
-  count?: string;
+  description?: string;
   disabled?: boolean;
 }
 

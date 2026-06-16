@@ -5,7 +5,7 @@
   [placeholder]="placeholder()"
   [items]="items()"
   (blur)="onBlur()"
-  [labelForId]="labelForId"
+  [labelForId]="searchInputId()"
   [clearable]="false"
   (close)="onClose()"
   appendTo="body"
@@ -14,8 +14,8 @@
   [attr.aria-label]="selectedOption()?.label ?? placeholder()"
 >
   <ng-template ng-option-tmp let-item="item">
-    <div class="tw-flex tw-justify-between tw-items-center" [title]="item.label">
-      <div class="tw-flex tw-gap-2 tw-items-center">
+    <div class="tw-flex" [title]="item.label">
+      <div class="tw-me-2 tw-flex-initial tw-self-center">
         @if (item.icon != null) {
           <bit-icon [name]="item.icon" fixedWidth />
         }
@@ -23,8 +23,13 @@
           {{ item.label }}
         </div>
       </div>
-      <div bitTypography="helper">
-        {{ item.count }}
+      <div class="tw-flex tw-flex-col tw-min-w-0">
+        <div class="tw-flex-1 tw-text-ellipsis tw-overflow-hidden">
+          {{ item.label }}
+        </div>
+        <div bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-truncate">
+          {{ item.description }}
+        </div>
       </div>
     </div>
   </ng-template>
