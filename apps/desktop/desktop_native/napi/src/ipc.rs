@@ -173,7 +173,7 @@ pub mod ipc {
                 let _ = message;
                 Err(napi::Error::from_reason(
                     "Safari IPC server is only supported on macOS",
-                ));
+                ))
             }
         }
     }
