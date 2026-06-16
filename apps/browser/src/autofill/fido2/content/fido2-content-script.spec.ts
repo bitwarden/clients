@@ -226,4 +226,205 @@ describe("Fido2 Content Script", () => {
 
     expect(messengerForDOMCommunicationSpy).not.toHaveBeenCalled();
   });
+
+  describe("Permissions Policy enforcement", () => {
+    afterEach(() => {
+      delete (mockGlobalThisDocument as any).featurePolicy;
+      delete (mockGlobalThisDocument as any).permissionsPolicy;
+    });
+
+    async function expectNotAllowedErrorAndNoBackgroundCall(
+      messageType:
+        | typeof MessageTypes.CredentialCreationRequest
+        | typeof MessageTypes.CredentialGetRequest,
+    ) {
+      jest.clearAllMocks();
+      (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
+        () => mockGlobalThisDocument,
+      );
+
+      const message = mock<MessageWithMetadata>({
+        type: messageType,
+        data: mock<InsecureCreateCredentialParams>(),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-content-script");
+
+      const result = messenger.handler!(message, new AbortController());
+
+      await expect(result).rejects.toEqual(expect.objectContaining({ name: "NotAllowedError" }));
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "fido2RegisterCredentialRequest" }),
+      );
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "fido2GetCredentialRequest" }),
+      );
+    }
+
+    it("rejects creation requests when document.featurePolicy denies publickey-credentials-create", async () => {
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: jest.fn((feature: string) => feature !== "publickey-credentials-create"),
+      };
+
+      await expectNotAllowedErrorAndNoBackgroundCall(MessageTypes.CredentialCreationRequest);
+    });
+
+    it("rejects get requests when document.featurePolicy denies publickey-credentials-get", async () => {
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: jest.fn((feature: string) => feature !== "publickey-credentials-get"),
+      };
+
+      await expectNotAllowedErrorAndNoBackgroundCall(MessageTypes.CredentialGetRequest);
+    });
+
+    it("prefers document.permissionsPolicy over document.featurePolicy when both are present", async () => {
+      const permissionsAllowsFeature = jest.fn(() => false);
+      const featureAllowsFeature = jest.fn(() => true);
+      (mockGlobalThisDocument as any).permissionsPolicy = {
+        allowsFeature: permissionsAllowsFeature,
+      };
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: featureAllowsFeature,
+      };
+
+      await expectNotAllowedErrorAndNoBackgroundCall(MessageTypes.CredentialGetRequest);
+
+      expect(permissionsAllowsFeature).toHaveBeenCalledWith("publickey-credentials-get");
+      expect(featureAllowsFeature).not.toHaveBeenCalled();
+    });
+
+    it("uses document.permissionsPolicy when featurePolicy is absent", async () => {
+      (mockGlobalThisDocument as any).permissionsPolicy = {
+        allowsFeature: jest.fn((feature: string) => feature !== "publickey-credentials-create"),
+      };
+
+      await expectNotAllowedErrorAndNoBackgroundCall(MessageTypes.CredentialCreationRequest);
+    });
+
+    it("allows the request when the policy permits the feature", async () => {
+      jest.clearAllMocks();
+      (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
+        () => mockGlobalThisDocument,
+      );
+      (mockGlobalThisDocument as any).featurePolicy = {
+        allowsFeature: jest.fn(() => true),
+      };
+
+      const mockResult = { credentialId: "mock" } as CreateCredentialResult;
+      (jest.spyOn(chrome.runtime, "sendMessage") as jest.Mock).mockResolvedValue(mockResult);
+
+      const message = mock<MessageWithMetadata>({
+        type: MessageTypes.CredentialCreationRequest,
+        data: mock<InsecureCreateCredentialParams>(),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-content-script");
+
+      const response = await messenger.handler!(message, new AbortController());
+
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ command: "fido2RegisterCredentialRequest" }),
+      );
+      expect(response).toEqual({
+        type: MessageTypes.CredentialCreationResponse,
+        result: mockResult,
+      });
+    });
+  });
+
+  describe("Permissions Policy enforcement — defense-in-depth fallback", () => {
+    let topSpy: jest.SpyInstance | undefined;
+    let selfSpy: jest.SpyInstance | undefined;
+
+    afterEach(() => {
+      topSpy?.mockRestore();
+      selfSpy?.mockRestore();
+      topSpy = undefined;
+      selfSpy = undefined;
+      delete (mockGlobalThisDocument as any).featurePolicy;
+      delete (mockGlobalThisDocument as any).permissionsPolicy;
+    });
+
+    it("denies when no Permissions Policy API is available and we're in a cross-origin iframe", async () => {
+      jest.clearAllMocks();
+      (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
+        () => mockGlobalThisDocument,
+      );
+      const fakeSelf = { location: { origin: "https://child.example" } } as Window;
+      const fakeTop = { location: { origin: "https://parent.example" } } as Window;
+      selfSpy = jest.spyOn(globalThis, "self", "get").mockReturnValue(fakeSelf as any);
+      topSpy = jest.spyOn(globalThis, "top", "get").mockReturnValue(fakeTop as any);
+
+      const message = mock<MessageWithMetadata>({
+        type: MessageTypes.CredentialGetRequest,
+        data: mock<InsecureCreateCredentialParams>(),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-content-script");
+
+      const result = messenger.handler!(message, new AbortController());
+
+      await expect(result).rejects.toEqual(expect.objectContaining({ name: "NotAllowedError" }));
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "fido2GetCredentialRequest" }),
+      );
+    });
+
+    it("denies when no Permissions Policy API is available and accessing top.location throws", async () => {
+      jest.clearAllMocks();
+      (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
+        () => mockGlobalThisDocument,
+      );
+      const fakeSelf = { location: { origin: "https://child.example" } } as Window;
+      const fakeTop = {
+        get location() {
+          throw new DOMException("blocked", "SecurityError");
+        },
+      } as unknown as Window;
+      selfSpy = jest.spyOn(globalThis, "self", "get").mockReturnValue(fakeSelf as any);
+      topSpy = jest.spyOn(globalThis, "top", "get").mockReturnValue(fakeTop as any);
+
+      const message = mock<MessageWithMetadata>({
+        type: MessageTypes.CredentialCreationRequest,
+        data: mock<InsecureCreateCredentialParams>(),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-content-script");
+
+      const result = messenger.handler!(message, new AbortController());
+
+      await expect(result).rejects.toEqual(expect.objectContaining({ name: "NotAllowedError" }));
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "fido2RegisterCredentialRequest" }),
+      );
+    });
+
+    it("allows when no Permissions Policy API is available and we're top-level (self === top)", async () => {
+      jest.clearAllMocks();
+      (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
+        () => mockGlobalThisDocument,
+      );
+
+      const mockResult = { credentialId: "mock" } as CreateCredentialResult;
+      (jest.spyOn(chrome.runtime, "sendMessage") as jest.Mock).mockResolvedValue(mockResult);
+
+      const message = mock<MessageWithMetadata>({
+        type: MessageTypes.CredentialGetRequest,
+        data: mock<InsecureCreateCredentialParams>(),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-content-script");
+
+      await messenger.handler!(message, new AbortController());
+
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ command: "fido2GetCredentialRequest" }),
+      );
+    });
+  });
 });

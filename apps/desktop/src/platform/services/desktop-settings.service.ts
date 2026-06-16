@@ -34,23 +34,11 @@ const WINDOW_KEY = new KeyDefinition<WindowState | null>(DESKTOP_SETTINGS_DISK, 
   deserializer: (s) => s,
 });
 
-const CLOSE_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "closeToTray", {
-  deserializer: (b) => b,
-});
-
-const MINIMIZE_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeToTray", {
-  deserializer: (b) => b,
-});
-
-const TRAY_ENABLED_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "trayEnabled", {
+const RUN_IN_BACKGROUND_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "runInBackground", {
   deserializer: (b) => b,
 });
 
 const OPEN_AT_LOGIN_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "openAtLogin", {
-  deserializer: (b) => b,
-});
-
-const ALWAYS_SHOW_DOCK_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "alwaysShowDock", {
   deserializer: (b) => b,
 });
 
@@ -105,35 +93,22 @@ export class DesktopSettingsService {
 
   private readonly windowState = this.stateProvider.getGlobal(WINDOW_KEY);
 
-  private readonly closeToTrayState = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
+  private readonly runInBackground = this.stateProvider.getGlobal(RUN_IN_BACKGROUND_KEY);
   /**
-   * The applications setting for whether or not to close the application into the system tray.
+   * The application setting for whether or not Bitwarden should keep running in the background.
+   *
+   * When enabled, the system tray icon is shown and closing the window hides the
+   * application to the tray (keeping background features such as the SSH agent and
+   * biometric unlock available) instead of quitting. When disabled, no tray is shown
+   * and closing the window quits the application.
    */
-  closeToTray$ = this.closeToTrayState.state$.pipe(map((v) => v ?? !isDev()));
-
-  private readonly minimizeToTrayState = this.stateProvider.getGlobal(MINIMIZE_TO_TRAY_KEY);
-  /**
-   * The application setting for whether or not to minimize the applicaiton into the system tray.
-   */
-  minimizeToTray$ = this.minimizeToTrayState.state$.pipe(map(Boolean));
-
-  private readonly trayEnabledState = this.stateProvider.getGlobal(TRAY_ENABLED_KEY);
-  /**
-   * Whether or not the system tray has been enabled.
-   */
-  trayEnabled$ = this.trayEnabledState.state$.pipe(map((v) => v ?? !isDev()));
+  runInBackground$ = this.runInBackground.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly openAtLoginState = this.stateProvider.getGlobal(OPEN_AT_LOGIN_KEY);
   /**
    * The application setting for whether or not the application should open at system login.
    */
   openAtLogin$ = this.openAtLoginState.state$.pipe(map((v) => v ?? !isDev()));
-
-  private readonly alwaysShowDockState = this.stateProvider.getGlobal(ALWAYS_SHOW_DOCK_KEY);
-  /**
-   * The application setting for whether or not the application should show up in the dock.
-   */
-  alwaysShowDock$ = this.alwaysShowDockState.state$.pipe(map(Boolean));
 
   private readonly alwaysOnTopState = this.stateProvider.getGlobal(ALWAYS_ON_TOP_KEY);
 
@@ -210,27 +185,12 @@ export class DesktopSettingsService {
   }
 
   /**
-   * Sets the setting for whether or not the application should go into the system tray when closed.
-   * @param value `true` if the application should go into the system tray when closed, `false` if it should not.
+   * Sets the setting for whether or not Bitwarden should keep running in the background.
+   * @param value `true` if the application should show the tray and hide to it when the window
+   * is closed, `false` if closing the window should quit the application.
    */
-  async setCloseToTray(value: boolean) {
-    await this.closeToTrayState.update(() => value);
-  }
-
-  /**
-   * Sets the setting for whether or not the application should go into the tray when minimized.
-   * @param value `true` if the application should minimize into the system tray, `false` if it should not.
-   */
-  async setMinimizeToTray(value: boolean) {
-    await this.minimizeToTrayState.update(() => value);
-  }
-
-  /**
-   * Sets the setting for whether or not the application be shown in the system tray.
-   * @param value `true` if the application should show in the tray, `false` if it should not.
-   */
-  async setTrayEnabled(value: boolean) {
-    await this.trayEnabledState.update(() => value);
+  async setRunInBackground(value: boolean) {
+    await this.runInBackground.update(() => value);
   }
 
   /**
@@ -239,14 +199,6 @@ export class DesktopSettingsService {
    */
   async setOpenAtLogin(value: boolean) {
     await this.openAtLoginState.update(() => value);
-  }
-
-  /**
-   * Sets the setting for whether or not the application should be shown in the dock.
-   * @param value `true` if the application should show in the dock, `false` if it should not.
-   */
-  async setAlwaysShowDock(value: boolean) {
-    await this.alwaysShowDockState.update(() => value);
   }
 
   /**

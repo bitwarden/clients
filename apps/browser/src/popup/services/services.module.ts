@@ -437,7 +437,6 @@ const safeProviders: SafeProvider[] = [
       ScriptInjectorService,
       AccountServiceAbstraction,
       AuthService,
-      ConfigService,
       UserNotificationSettingsServiceAbstraction,
       MessageListener,
       AnimationControlService,

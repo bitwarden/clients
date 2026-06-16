@@ -11,7 +11,7 @@ Code in this directory runs as **injected content scripts**, not within the Angu
 
 - **DO NOT** use Angular patterns (components, services, dependency injection, RxJS Observable Data Services, Signals, `takeUntilDestroyed()`, `async` pipe, etc.)
 - **DO NOT** import Angular modules or dependencies
-- The Angular patterns defined in [angular-components.md](./angular-components.md) and the Observable Data Services pattern in [typescript.md](./typescript.md) do not apply here
+- The Angular patterns defined in [angular.md](./angular.md) and [angular-components.md](./angular-components.md), and the Observable Data Services pattern in [typescript.md](./typescript.md), do not apply here
 
 ## Lit Components
 

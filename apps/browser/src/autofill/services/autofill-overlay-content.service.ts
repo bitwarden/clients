@@ -3,6 +3,7 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
+  AutofillTargetingRuleTypes,
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
@@ -46,6 +47,7 @@ import {
   throttle,
 } from "../utils";
 import { EventSecurity } from "../utils/event-security";
+import { getSubFrameUrlVariations } from "../utils/url-variations";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -1176,6 +1178,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     // which are distinct from the heuristic AutofillFieldQualifierType values.
     const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
 
+    if (qualifier === AutofillTargetingRuleTypes.newPassword) {
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      return;
+    }
+
     if (loginQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Login;
       return;
@@ -1492,7 +1499,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
 
-    const subFrameUrlVariations = subFrameUrl && this.getSubFrameUrlVariations(subFrameUrl);
+    const subFrameUrlVariations = subFrameUrl && getSubFrameUrlVariations(subFrameUrl);
     if (!subFrameUrlVariations) {
       return null;
     }
@@ -1518,57 +1525,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
-  }
-
-  /**
-   * Returns a set of all possible URL variations for the sub frame URL.
-   *
-   * @param subFrameUrl - The URL of the sub frame.
-   */
-  private getSubFrameUrlVariations(subFrameUrl: string) {
-    try {
-      const url = new URL(subFrameUrl, globalThis.location.href);
-      const pathAndHash = url.pathname + url.hash;
-      const pathAndSearch = url.pathname + url.search;
-      const pathSearchAndHash = pathAndSearch + url.hash;
-      const pathNameWithoutTrailingSlash = url.pathname.replace(/\/$/, "");
-      const pathWithoutTrailingSlashAndHash = pathNameWithoutTrailingSlash + url.hash;
-      const pathWithoutTrailingSlashAndSearch = pathNameWithoutTrailingSlash + url.search;
-      const pathWithoutTrailingSlashSearchAndHash = pathWithoutTrailingSlashAndSearch + url.hash;
-
-      return new Set([
-        url.href,
-        url.href.replace(/\/$/, ""),
-        url.pathname,
-        pathAndHash,
-        pathAndSearch,
-        pathSearchAndHash,
-        pathNameWithoutTrailingSlash,
-        pathWithoutTrailingSlashAndHash,
-        pathWithoutTrailingSlashAndSearch,
-        pathWithoutTrailingSlashSearchAndHash,
-        url.hostname + url.pathname,
-        url.hostname + pathAndHash,
-        url.hostname + pathAndSearch,
-        url.hostname + pathSearchAndHash,
-        url.hostname + pathNameWithoutTrailingSlash,
-        url.hostname + pathWithoutTrailingSlashAndHash,
-        url.hostname + pathWithoutTrailingSlashAndSearch,
-        url.hostname + pathWithoutTrailingSlashSearchAndHash,
-        url.origin + url.pathname,
-        url.origin + pathAndHash,
-        url.origin + pathAndSearch,
-        url.origin + pathSearchAndHash,
-        url.origin + pathNameWithoutTrailingSlash,
-        url.origin + pathWithoutTrailingSlashAndHash,
-        url.origin + pathWithoutTrailingSlashAndSearch,
-        url.origin + pathWithoutTrailingSlashSearchAndHash,
-      ]);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) {
-      return null;
-    }
   }
 
   /**

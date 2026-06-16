@@ -1350,13 +1350,13 @@
     "message": "Utiliser l'aide de remplissage"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "Activer l'aide de remplissage"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "L'aide de remplissage améliore la précision de la saisie automatique sur les sites compatibles avec des règles spécifiques au site. Aucune donnée n'est collectée ou sauvegardée lorsque vous utilisez cette fonctionnalité."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "À propos de l'aide de remplissage"
   },
   "enableContextMenuItem": {
     "message": "Afficher les options du menu contextuel"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Une ou plusieurs adresses e-mail ne sont pas valides"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "La saisie ne doit pas contenir que des espaces.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5841,10 +5844,10 @@
     "message": "Vous pouvez personnaliser vos paramètres de déverrouillage et de délai d'attente pour accéder plus rapidement à votre coffre-fort."
   },
   "unlockPinSet": {
-    "message": "Déverrouiller l'ensemble de codes NIP"
+    "message": "Déverrouillage par PIN activé"
   },
   "unlockWithBiometricSet": {
-    "message": "Déverrouiller avec l'ensemble biométrique"
+    "message": "Déverrouillage par biométrie activé"
   },
   "authenticating": {
     "message": "Authentification"
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Vous ne pouvez pas importer des éléments dans Mes éléments qui font partie de plusieurs collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

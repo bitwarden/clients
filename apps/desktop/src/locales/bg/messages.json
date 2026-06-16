@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Копиране на частния ключ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Копиране на публичния ключ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Копиране на отпечатъка"
   },
   "cardNumber": {
     "message": "номер на карта"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 или повече е-пощи са неправилни"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Полето за получателите на е-писмото не може да съдържа повече от 2 500 знака. Премахнете един или повече получатели, за да продължите."
+  },
   "inputTrimValidator": {
     "message": "Въведеното не може да съдържа само интервали.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Клас на лиценза"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
   }
 }
