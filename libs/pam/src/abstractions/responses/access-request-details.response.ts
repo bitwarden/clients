@@ -5,9 +5,9 @@ import { AccessRequestStatus } from "./access-request.response";
 
 /**
  * An access request with its denormalized display fields (cipher/collection
- * names, requester identity), as returned by the approver inbox, the caller's
- * own request list, the decision endpoint, and the cipher access-state
- * snapshot.
+ * names, requester and approver identity), as returned by the approver inbox,
+ * the caller's own request list, the decision endpoint, and the cipher
+ * access-state snapshot.
  *
  * `cipherName` and `collectionName` arrive as encrypted blobs (EncString
  * payload strings), not plaintext. The web client does not decrypt them — it
@@ -47,6 +47,10 @@ export class AccessRequestDetailsResponse extends BaseResponse {
    */
   expiredAt: string | null;
   approverId: string | null;
+  /** The human approver's display name, denormalized by the server; null when no human resolved. */
+  approverName: string | null;
+  /** The human approver's email, the fallback display when {@link approverName} is unset. */
+  approverEmail: string | null;
   approverComment: string | null;
   /** The lease minted when this approved request was activated. */
   producedLeaseId: string | null;
@@ -84,6 +88,8 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.resolvedAt = this.getResponseProperty("ResolvedAt") ?? null;
     this.expiredAt = this.getResponseProperty("ExpiredAt") ?? null;
     this.approverId = this.getResponseProperty("ApproverId") ?? null;
+    this.approverName = this.getResponseProperty("ApproverName") ?? null;
+    this.approverEmail = this.getResponseProperty("ApproverEmail") ?? null;
     this.approverComment = this.getResponseProperty("ApproverComment") ?? null;
     this.producedLeaseId = this.getResponseProperty("ProducedLeaseId") ?? null;
     this.producedLeaseStatus = this.getResponseProperty("ProducedLeaseStatus") ?? null;

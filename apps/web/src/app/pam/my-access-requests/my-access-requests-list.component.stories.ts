@@ -57,6 +57,8 @@ type Fixture = {
   submittedAt: string;
   resolvedAt?: string | null;
   approverId?: string | null;
+  approverName?: string | null;
+  approverEmail?: string | null;
   approverComment?: string | null;
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
@@ -71,7 +73,7 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
     Id: f.id,
     CipherId: `cipher-${f.id}`,
     CollectionId: "col-1",
-    RequesterUserId: "me",
+    RequesterId: "me",
     Status: f.status,
     RequestedNotBefore: f.requestedNotBefore ?? null,
     RequestedNotAfter: f.requestedNotAfter ?? null,
@@ -79,9 +81,11 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
     Reason: null,
     SubmittedAt: f.submittedAt,
     ResolvedAt: f.resolvedAt ?? null,
-    ResolverUserId: f.approverId ?? null,
-    ResolverComment: f.approverComment ?? null,
-    LeaseId: null,
+    ApproverId: f.approverId ?? null,
+    ApproverName: f.approverName ?? null,
+    ApproverEmail: f.approverEmail ?? null,
+    ApproverComment: f.approverComment ?? null,
+    ProducedLeaseId: null,
   });
 }
 
@@ -238,6 +242,8 @@ export const OnlyRecent: Story = {
       submittedAt: new Date(now - 2 * oneDay).toISOString(),
       resolvedAt: new Date(now - 1 * oneDay).toISOString(),
       approverId: "alice-id",
+      approverName: "Alice Approver",
+      approverEmail: "alice@example.com",
       approverComment: "LGTM",
     }),
     makeResponse({
@@ -246,6 +252,8 @@ export const OnlyRecent: Story = {
       submittedAt: new Date(now - 3 * oneDay).toISOString(),
       resolvedAt: new Date(now - 2 * oneDay).toISOString(),
       approverId: "bob-id",
+      approverName: "Bob Approver",
+      approverEmail: "bob@example.com",
       approverComment: "Wrong scope.",
     }),
     makeResponse({
@@ -272,6 +280,8 @@ export const Mixed: Story = {
       submittedAt: new Date(now - 2 * oneDay).toISOString(),
       resolvedAt: new Date(now - 1 * oneDay).toISOString(),
       approverId: "alice-id",
+      approverName: "Alice Approver",
+      approverEmail: "alice@example.com",
       approverComment: "Approved for incident response.",
     }),
     makeResponse({

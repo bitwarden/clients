@@ -26,21 +26,70 @@ describe("statusLabelKey", () => {
 
 describe("resolveResolver", () => {
   it("returns no resolver for pending requests", () => {
-    expect(resolveResolver({ status: "pending", approverId: null })).toEqual({
+    expect(
+      resolveResolver({
+        status: "pending",
+        approverId: null,
+        approverName: null,
+        approverEmail: null,
+      }),
+    ).toEqual({
       resolverLabelKey: null,
       resolverName: null,
     });
   });
 
   it("returns the access-rule label key when there is no resolver user", () => {
-    expect(resolveResolver({ status: "expired", approverId: null })).toEqual({
+    expect(
+      resolveResolver({
+        status: "expired",
+        approverId: null,
+        approverName: null,
+        approverEmail: null,
+      }),
+    ).toEqual({
       resolverLabelKey: "pamResolverAccessRule",
       resolverName: null,
     });
   });
 
-  it("falls back to the raw user id when a human resolved the request", () => {
-    expect(resolveResolver({ status: "approved", approverId: "user-7" })).toEqual({
+  it("shows the approver name when a human resolved the request", () => {
+    expect(
+      resolveResolver({
+        status: "approved",
+        approverId: "user-7",
+        approverName: "Ada Approver",
+        approverEmail: "ada@example.com",
+      }),
+    ).toEqual({
+      resolverLabelKey: null,
+      resolverName: "Ada Approver",
+    });
+  });
+
+  it("falls back to the approver email when the name is absent", () => {
+    expect(
+      resolveResolver({
+        status: "denied",
+        approverId: "user-7",
+        approverName: null,
+        approverEmail: "ada@example.com",
+      }),
+    ).toEqual({
+      resolverLabelKey: null,
+      resolverName: "ada@example.com",
+    });
+  });
+
+  it("falls back to the raw user id when the server could not resolve the user", () => {
+    expect(
+      resolveResolver({
+        status: "approved",
+        approverId: "user-7",
+        approverName: null,
+        approverEmail: null,
+      }),
+    ).toEqual({
       resolverLabelKey: null,
       resolverName: "user-7",
     });

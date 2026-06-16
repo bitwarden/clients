@@ -22,7 +22,35 @@ export type FlatHistoryRow = {
   relTime: { key: string; value: string } | null;
   /** Epoch ms used as the table's time sort key (resolved time, falling back to submit time). */
   sortTimeMs: number;
+  /** i18n key for a system / access-rule decider in the "Approved by" column; null when a human decided. */
+  approverLabelKey: string | null;
+  /** The human decider's display name (name → email → id) for the "Approved by" column; null otherwise. */
+  approverName: string | null;
 };
+
+/**
+ * Resolve who decided a request for the audit log's "Approved by" column. A system / access-rule
+ * decision (no human approver) yields an i18n key; a human decision yields the approver's display
+ * name, falling back to email then the raw id so the cell is never blank. A still-pending row yields
+ * neither. Mirrors the My Requests resolver. Exported for tests.
+ */
+export function resolveApprover(
+  item: Pick<
+    AccessRequestDetailsResponse,
+    "status" | "approverId" | "approverName" | "approverEmail"
+  >,
+): Pick<FlatHistoryRow, "approverLabelKey" | "approverName"> {
+  if (item.status === AccessRequestStatus.Pending) {
+    return { approverLabelKey: null, approverName: null };
+  }
+  if (item.approverId == null) {
+    return { approverLabelKey: "pamResolverAccessRule", approverName: null };
+  }
+  return {
+    approverLabelKey: null,
+    approverName: item.approverName || item.approverEmail || item.approverId,
+  };
+}
 
 /** An approved request that has not produced a lease yet: the requester may still start it. */
 export function isAwaitingStart(item: AccessRequestDetailsResponse): boolean {
@@ -202,6 +230,7 @@ export function flattenHistory(
         statusLabel: historyStatusLabelFor(bucket, item),
         relTime: historyRelTimeFor(item, bucket, now),
         sortTimeMs: resolvedOrSubmittedMs(item),
+        ...resolveApprover(item),
       };
     }),
   );
