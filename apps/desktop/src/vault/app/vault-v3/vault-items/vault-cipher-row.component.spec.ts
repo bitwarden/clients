@@ -169,4 +169,67 @@ describe("VaultCipherRowComponent", () => {
       expect(copyBtn).toBeTruthy();
     });
   });
+
+  describe("batch bar checkbox", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("cipher", createLoginCipher());
+      fixture.componentRef.setInput("disabled", false);
+    });
+
+    it("does not render when showBatchBar is false", () => {
+      fixture.componentRef.setInput("showBatchBar", false);
+
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).toBeNull();
+    });
+
+    it("renders when showBatchBar is true", () => {
+      fixture.componentRef.setInput("showBatchBar", true);
+
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).not.toBeNull();
+    });
+
+    it("sets aria-label to the cipher name", () => {
+      fixture.componentRef.setInput("showBatchBar", true);
+
+      fixture.detectChanges();
+
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+
+      expect(checkbox.getAttribute("aria-label")).toBe("Test Login");
+    });
+
+    it("reflects the selected state on the checkbox", () => {
+      fixture.componentRef.setInput("showBatchBar", true);
+      fixture.componentRef.setInput("selected", true);
+
+      fixture.detectChanges();
+
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+      expect(checkbox.checked).toBe(true);
+    });
+
+    it("emits checkboxChange when the checkbox changes", () => {
+      fixture.componentRef.setInput("showBatchBar", true);
+
+      fixture.detectChanges();
+
+      const spy = jest.spyOn((fixture.componentInstance as any).checkboxChange, "emit");
+
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+
+      checkbox.dispatchEvent(new Event("change"));
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
 });

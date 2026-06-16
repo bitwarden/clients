@@ -1,0 +1,35 @@
+<bit-simple-dialog>
+  <span bitDialogTitle>
+    {{ (permanent ? "permanentlyDeleteSelected" : "deleteSelected") | i18n }}
+  </span>
+  <span bitDialogContent>
+    @if (!permanent) {
+      <ng-container>
+        @if (cipherIds?.length || unassignedCiphers?.length) {
+          <span>
+            {{ "deleteSelectedItemsDesc" | i18n: cipherIds.length + unassignedCiphers.length }}
+          </span>
+        }
+        @if (collections?.length) {
+          <span>
+            {{ "deleteSelectedCollectionsDesc" | i18n: collections.length }}
+          </span>
+        }
+        {{ "deleteSelectedConfirmation" | i18n }}
+      </ng-container>
+    }
+    @if (permanent) {
+      <ng-container>
+        {{
+          "permanentlyDeleteSelectedItemsDesc" | i18n: cipherIds.length + unassignedCiphers.length
+        }}
+      </ng-container>
+    }
+  </span>
+  <ng-container bitDialogFooter>
+    <button bitButton type="submit" buttonType="danger" [bitAction]="submit">
+      {{ (permanent ? "permanentlyDelete" : "delete") | i18n }}
+    </button>
+    <button bitButton type="button" (click)="cancel()">{{ "cancel" | i18n }}</button>
+  </ng-container>
+</bit-simple-dialog>

@@ -42,4 +42,7 @@
     (onAddFolder)="addFolder()"
     (onAddItemDialog)="openAddItemDialog()"
   />
+  @if (vaultBatchBarFeatureFlag()) {
+    <bit-vault-batch-action />
+  }
 </div>
