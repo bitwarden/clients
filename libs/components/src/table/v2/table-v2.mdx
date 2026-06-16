@@ -13,7 +13,7 @@ per-row cell markup. The table renders a CSS-grid layout of ARIA-role elements
 become the grid items, and column widths map to grid tracks.
 
 A table is configured by a single `TableModel`, bound via `[table]`. The model composes the focused
-sub-models — data, columns, search, filters, and (optional) selection — so a table is built and
+concerns — data, columns, filtering, and optional selection / pagination — so a table is built and
 bound once.
 
 Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and isn't being migrated
@@ -67,11 +67,12 @@ exposes:
 | `table.data`             | Row data, as a `Signal<T[]>`.                                     |
 | `table.columns`          | Typed column refs, e.g. `table.columns.email`, for `*bitCellDef`. |
 | `table.displayedColumns` | The ordered list of shown columns, as a `WritableSignal`.         |
-| `table.search`           | Search term and matcher.                                          |
-| `table.filters`          | Facet definitions, applied state, and matcher.                    |
+| `table.filterValues`     | The filter chips' combined value, keyed by chip `key`.            |
+| `table.filtered`         | Rows passing the active filters — the rendered/selection scope.   |
 | `table.selection`        | Selection state — present only when `selection` is configured.    |
 
-Filtering and sorting are applied internally; there's no exposed data source.
+Sorting is applied internally; there's no exposed data source. Filtering is contributed by projected
+filter chips rather than configured here — see [Filtering](#filtering).
 
 Construct it with one config object. `displayedColumns` is required; the rest are optional:
 
@@ -79,7 +80,6 @@ Construct it with one config object. `displayedColumns` is required; the rest ar
 const table = new TableModel<User, "actions">({
   data: users,
   displayedColumns: ["name", "email", "actions"],
-  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
   selection: { multiple: true, canSelect: (user) => user.canManage },
 });
 ```
@@ -338,58 +338,73 @@ comes from the column's `sortFn`, so the state stays serializable.
 
 ## Filtering
 
-Configure filtering with a top-level `search` matcher and/or `filters` facet definitions. They
-become the model's `search` and `filters` sub-models; the table composes both into the rendered set
-internally, re-filtering reactively — you never touch a data source:
+Filtering works like a reactive form. Filter chips (`bit-filter-chip` / `bit-filter-toggle`)
+projected into the toolbar each declare a `key` and own their selection; the `bitTableFilter` bridge
+registers them, and the table collects their values into **`table.filterValues()`** — a
+`{ key: value }` object, like a `FormGroup`'s `.value`. You provide one **`filter(row, values)`**;
+the table applies it to derive `table.filtered`, which drives the rendered rows, select-all scope,
+the paginator count, and a "no matches" empty state. No per-chip state, no `ngModel`.
 
 ```ts
-const table = new TableModel<Member>({
+type Filters = { type?: ItemType; favorites?: boolean };
+
+const table = new TableModel<Member, "actions", Filters>({
   data: members,
-  displayedColumns: ["name", "role"],
-  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
-  filters: [
-    { id: "role:admin", label: "Admin", predicate: (r) => r.role === "admin" },
-    { id: "role:user", label: "User", predicate: (r) => r.role === "user" },
-  ],
+  displayedColumns: ["name", "type"],
+  filter: (row, f) => (!f.type || row.type === f.type) && (!f.favorites || row.favorite),
+  filters: { type: "login" }, // initial selection — seeds the matching chips
 });
 ```
 
-Apply facets with `table.filters.apply(id)` (also `remove`, `toggle`, `clear`); the search box
-writes the `table.search.term` signal for you. Applied facets are surfaced as value-only
-`AppliedFilter` (`{ id, label }`) for the toolbar — the predicate logic stays in the definitions,
-keyed off `id`. Omit a facet's `predicate` for server-side filtering and read
-`table.filters.applied()` to build your query. The toolbar is the UI for this state — see
-[Toolbar](#toolbar).
+```html
+<bit-table-v2 [table]="table">
+  <bit-table-toolbar>
+    <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+      <bit-filter-option [value]="'login'">Login</bit-filter-option>
+    </bit-filter-chip>
+    <bit-filter-toggle
+      key="favorites"
+      label="Favorites"
+      icon="bwi-star"
+      bitTableFilter
+    ></bit-filter-toggle>
+  </bit-table-toolbar>
+  <bit-column>...</bit-column>
+</bit-table-v2>
+```
+
+The chip owns its menu UI and value; the bridge wires it to the table via the `FILTER_HOST` token,
+so the chip never depends on the table type and works outside a table too. For **server-side**
+filtering, omit `filter` and read `filterValues()` to build your query (feed pre-filtered rows to
+`data`). See the [Filter Menu](?path=/docs/component-library-filter-menu--docs) for composing the
+chips (sections, in-menu search, and a radio + checkbox group in one chip, which nests under the
+chip's key).
 
 ## Toolbar
 
-`<bit-table-toolbar>`, projected into the table, renders inside the chrome above the header row and
-owns the applied-filters row (clear-all, count, dismissible chips). A `<bit-search>` goes in its own
-slot (rendered first, on the left) and binds to the model's `search` automatically — the table
-provides it as a `SEARCH_CONSUMER`, so the search needs no `ngModel` or output binding. Other left
-controls use `slot="start"`; actions use `slot="end"`:
+`<bit-table-toolbar>`, projected into the table, renders inside the chrome above the header row. It
+lays out in two rows: a `<bit-search>` and any `slot="end"` controls share the top row, and the
+filter chips get their own row beneath. The filter row is the unit that collapses into a single
+trigger + dialog on small screens (responsive view). The toolbar holds no filter state of its own —
+chips register with the table via `bitTableFilter`.
 
 ```html
 <bit-table-v2 [table]="table">
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
-    <button slot="start" bitButton buttonType="secondary" [bitMenuTriggerFor]="filterMenu">
-      Filters
-    </button>
-    <button slot="end" bit-chip-action label="Add" startIcon="bwi-plus"></button>
+    <button slot="end" bitButton buttonType="primary">New</button>
+    <bit-filter-chip key="type" placeholderText="Type" bitTableFilter>...</bit-filter-chip>
+    <bit-filter-divider></bit-filter-divider>
+    <bit-filter-toggle
+      key="favorites"
+      label="Favorites"
+      icon="bwi-star"
+      bitTableFilter
+    ></bit-filter-toggle>
   </bit-table-toolbar>
   <bit-column>...</bit-column>
 </bit-table-v2>
-
-<bit-menu #filterMenu>
-  <button bitMenuItem (click)="table.filters.apply('role:admin')">Admin</button>
-  <button bitMenuItem (click)="table.filters.apply('role:user')">User</button>
-</bit-menu>
 ```
-
-The Filters menu calls `table.filters.apply(id)`; the toolbar renders each applied facet as a
-dismissible chip and handles removal and clear-all. Any component implementing `SearchConsumer` (not
-just the table) gets the same automatic `<bit-search>` wiring.
 
 ## Selection
 

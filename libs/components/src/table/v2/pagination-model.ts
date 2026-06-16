@@ -21,7 +21,7 @@ export type PaginationConfig = {
 
 /**
  * Pagination state and transitions for `bit-table-v2`, a consumer-constructed
- * sub-model parallel to {@link SortModel}/{@link FiltersModel}/{@link TableSelectionModel}.
+ * sub-model parallel to {@link SortModel}/{@link TableSelectionModel}.
  * Holds the current page and page size in signals; the table reads {@link currentPage}
  * to slice its rendered rows (client mode) and `bit-table-paginator` renders the controls.
  *

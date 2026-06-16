@@ -1,13 +1,13 @@
 import { computed, Signal, signal, WritableSignal } from "@angular/core";
 
+import { FilterControl } from "../../filter-menu/filter-tokens";
+
 import { ColumnName, ColumnRefs, createColumnRefs } from "./column";
-import { FilterDefinition, FiltersModel } from "./filters-model";
 import { PaginationConfig, PaginationModel } from "./pagination-model";
-import { SearchModel } from "./search-model";
 import { SortModel, SortState } from "./sort-model";
 import { TableSelectionModel } from "./table-selection-model";
 
-export type TableModelConfig<T, S extends string, F extends string = string> = {
+export type TableModelConfig<T, S extends string = never, F = Record<string, unknown>> = {
   /** Row data as a signal. Pass a writable signal and update it to change rows reactively. */
   data?: Signal<T[]>;
   /** Loading state. When `true`, the table shows skeleton rows. e.g. a resource's `isLoading`. */
@@ -20,10 +20,14 @@ export type TableModelConfig<T, S extends string, F extends string = string> = {
    * {@link TableModel.displayedColumns}.
    */
   displayedColumns: readonly ColumnName<T, S>[];
-  /** How free-text search matches a row. Omit to disable search — see {@link SearchModel}. */
-  search?: (row: T, term: string) => boolean;
-  /** Available filter facets, applied by id — see {@link FiltersModel}. */
-  filters?: FilterDefinition<T, F>[];
+  /**
+   * Client-side row test, given a row and the chips' combined value object
+   * ({@link TableModel.filterValues}). Omit for server-side filtering — read
+   * `filterValues` to build a query and feed pre-filtered rows to {@link data}.
+   */
+  filter?: (row: T, values: Partial<F>) => boolean;
+  /** Initial filter values, keyed by chip `key`; seeds the matching chips on init. */
+  filters?: Partial<F>;
   /** Row selection. Omit for a non-selectable table (no checkbox column). */
   selection?: { multiple?: boolean; initial?: T[]; canSelect?: (row: T) => boolean };
   /** Pagination. Omit for an unpaginated table (no paginator state) — see {@link PaginationModel}. */
@@ -33,26 +37,30 @@ export type TableModelConfig<T, S extends string, F extends string = string> = {
 /**
  * The single construct a `bit-table-v2` is configured with, passed via
  * `[table]`. A thin facade composing the focused pieces — {@link data},
- * {@link columns}, {@link search}, {@link filters}, and optional
- * {@link selection} — so a table is built and bound once instead of wiring
- * several inputs. The model owns filtering ({@link filtered}) and sort state
- * ({@link sort}); the table component renders them, applying each column's sort
- * comparator and the registry/grid layout.
+ * {@link columns}, optional {@link selection}, and optional {@link pagination} —
+ * so a table is built and bound once instead of wiring several inputs. The model
+ * owns sort state ({@link sort}) and the rendered set ({@link filtered}).
+ *
+ * Filtering follows a form-group model: filter chips (`bit-filter-chip` /
+ * `bit-filter-toggle`) projected into the table register their keyed values, the
+ * model collects them into {@link filterValues} (a `{ key: value }` object), and
+ * applies the consumer's {@link TableModelConfig.filter} to derive {@link filtered}.
+ * The consumer never wires per-chip state.
  *
  * @example
  * ```ts
- * const table = new TableModel<Member, "actions">({
+ * type Filters = { type?: ItemType; favorites?: boolean };
+ * const table = new TableModel<Member, "actions", Filters>({
  *   data: members, // Signal<Member[]>
  *   displayedColumns: ["name", "email", "actions"],
- *   search: (r, t) => r.name.toLowerCase().includes(t.toLowerCase()),
+ *   filter: (row, f) => (!f.type || row.type === f.type) && (!f.favorites || row.favorite),
+ *   filters: { type: "login" }, // initial
  *   selection: { multiple: true },
  * });
- * table.columns.name;        // typed column ref
- * table.filters.apply("...");
- * table.selection?.toggle(row);
+ * table.filterValues(); // { type: "login", ... }
  * ```
  */
-export class TableModel<T, S extends string = never, F extends string = string> {
+export class TableModel<T, S extends string = never, F = Record<string, unknown>> {
   /** Current row data. The table filters and sorts it for display. */
   readonly data: Signal<T[]>;
 
@@ -76,17 +84,50 @@ export class TableModel<T, S extends string = never, F extends string = string> 
    */
   readonly displayedColumns: WritableSignal<readonly ColumnName<T, S>[]>;
 
-  /** Free-text search state and matcher. */
-  readonly search: SearchModel<T>;
+  /** The consumer's client-side row test, applied with {@link filterValues}. */
+  private readonly filterFn?: (row: T, values: Partial<F>) => boolean;
 
-  /** Facet-filter definitions, applied state, and matcher. */
-  readonly filters: FiltersModel<T, F>;
+  /** Initial filter values to seed chips with; consumed once by the table component. */
+  readonly initialFilters?: Partial<F>;
+
+  /** Registered filter chips (from projection), the source of {@link filterValues}. */
+  private readonly _filters = signal<readonly FilterControl[]>([]);
+
+  /** Registered filter chips, exposed for the table component's initial-value seeding. */
+  readonly filterControls = this._filters.asReadonly();
 
   /**
-   * Rows passing both {@link search} and {@link filters} (pre-sort). The render
-   * set the table sorts and displays, and the scope for select-all.
+   * The chips' combined value, keyed by each chip's `key` — like a `FormGroup`'s
+   * `.value`. Drives {@link filter} and is what you read for a server query.
    */
-  readonly filtered: Signal<T[]>;
+  readonly filterValues: Signal<Partial<F>> = computed(() => {
+    const values: Record<string, unknown> = {};
+    for (const control of this._filters()) {
+      values[control.key()] = control.value();
+    }
+    return values as Partial<F>;
+  });
+
+  /**
+   * Rows passing {@link TableModelConfig.filter} given {@link filterValues}
+   * (pre-sort). The render set the table sorts and displays, and the scope for
+   * select-all and the paginator count. With no `filter` configured this is
+   * {@link data} unchanged.
+   */
+  readonly filtered: Signal<T[]> = computed(() => {
+    const filter = this.filterFn;
+    const data = this.data();
+    if (!filter) {
+      return data;
+    }
+    const values = this.filterValues();
+    return data.filter((row) => filter(row, values));
+  });
+
+  /** How many chips currently have a selection — for an "N filters applied" affordance. */
+  readonly appliedCount: Signal<number> = computed(
+    () => this._filters().filter((f) => f.active()).length,
+  );
 
   /** Selection state, present only when configured. */
   readonly selection?: TableSelectionModel<T>;
@@ -100,11 +141,8 @@ export class TableModel<T, S extends string = never, F extends string = string> 
     this.sort = new SortModel<ColumnName<T, S>>(config.sort);
     this.columns = createColumnRefs<T, S>();
     this.displayedColumns = signal(config.displayedColumns);
-    this.search = new SearchModel<T>(config.search);
-    this.filters = new FiltersModel<T, F>(config.filters ?? []);
-    this.filtered = computed(() =>
-      this.data().filter((row) => this.search.matches(row) && this.filters.matches(row)),
-    );
+    this.filterFn = config.filter;
+    this.initialFilters = config.filters;
     if (config.selection) {
       this.selection = new TableSelectionModel<T>({
         multiple: config.selection.multiple,
@@ -121,5 +159,19 @@ export class TableModel<T, S extends string = never, F extends string = string> 
         computed(() => this.filtered().length),
       );
     }
+  }
+
+  /**
+   * Registers a filter chip. Called by {@link BitTableFilterDirective} when a chip
+   * is projected into the table; its value lands in {@link filterValues}. Not a
+   * stable external API.
+   */
+  registerFilter(control: FilterControl): void {
+    this._filters.update((filters) => [...filters, control]);
+  }
+
+  /** @see {@link registerFilter} */
+  unregisterFilter(control: FilterControl): void {
+    this._filters.update((filters) => filters.filter((f) => f !== control));
   }
 }

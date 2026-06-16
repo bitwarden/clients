@@ -1,0 +1,50 @@
+<bit-chip-content size="large">
+  <button
+    bit-chip-content
+    [endIcon]="active() ? undefined : menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
+    type="button"
+    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-ps-2 tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
+    [class.tw-cursor-not-allowed]="disabled()"
+    [bitMenuTriggerFor]="menu"
+    [disabled]="disabled()"
+    [title]="displayLabel()"
+    #menuTrigger="menuTrigger"
+  >
+    <span class="tw-block tw-min-w-0 tw-truncate">{{ displayLabel() }}</span>
+  </button>
+  <bit-berry slot="end" [value]="committedCount()"></bit-berry>
+  @if (active()) {
+    <button
+      bit-chip-dismiss-button
+      slot="end"
+      class="tw-relative tw-bottom-[1px]"
+      type="button"
+      [attr.aria-label]="'removeItem' | i18n: displayLabel()"
+      [disabled]="disabled()"
+      (click)="clear()"
+    ></button>
+  }
+</bit-chip-content>
+
+<bit-menu #menu (closed)="onMenuClosed()">
+  <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
+    @if (showSearch()) {
+      <div class="tw-px-2 tw-pb-1">
+        <bit-search [ngModel]="searchTerm()" (ngModelChange)="setSearchTerm($event)"></bit-search>
+      </div>
+    }
+    <div class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto tw-py-1">
+      <ng-content></ng-content>
+      @if (noResults()) {
+        <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
+      }
+    </div>
+    @if (multiple() && active()) {
+      <div class="tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-px-2 tw-pt-2">
+        <button bitButton buttonType="secondary" size="small" type="button" (click)="clear()">
+          {{ "clear" | i18n }}
+        </button>
+      </div>
+    }
+  </div>
+</bit-menu>

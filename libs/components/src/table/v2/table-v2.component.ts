@@ -12,6 +12,8 @@ import {
   TrackByFunction,
   booleanAttribute,
   computed,
+  contentChild,
+  effect,
   forwardRef,
   inject,
   input,
@@ -21,8 +23,9 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { FilterControl } from "../../filter-menu/filter-tokens";
 import { NoItemsComponent } from "../../no-items/no-items.component";
-import { SEARCH_CONSUMER, SearchConsumer } from "../../search/search-consumer";
+import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { SortDirection, SortFn } from "../table-data-source";
 
@@ -31,11 +34,15 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
+import { FILTER_HOST, FilterHost } from "./filter-host";
 import { SortModel } from "./sort-model";
 import { TableModel } from "./table-model";
 
 /** Grid track width for the internal selection (checkbox) column. */
 const SELECTION_COLUMN_WIDTH = "40px";
+
+/** The `filterValues` key a projected `bit-search`'s term is adopted under. */
+const SEARCH_FILTER_KEY = "search";
 
 /** Reads a column's value for default sorting, coercing numeric strings to numbers. */
 function sortAccessor<T>(row: T, column: string): string | number {
@@ -119,7 +126,9 @@ function sortRows<T>(
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: SEARCH_CONSUMER, useExisting: forwardRef(() => BitTableV2Component) }],
+  // Filter chips projected into the table register against this host via the
+  // `bitTableFilter` bridge; the table folds their predicates into `filtered`.
+  providers: [{ provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) }],
   host: {
     // In `fill` mode the host becomes a flex column that fills its parent's
     // height, so the table can hand a bounded height down to its scroll region.
@@ -129,12 +138,12 @@ function sortRows<T>(
     "[class.tw-min-h-0]": "fill()",
   },
 })
-export class BitTableV2Component<T = unknown> implements AfterContentInit, SearchConsumer {
+export class BitTableV2Component<T = unknown> implements AfterContentInit, FilterHost {
   /**
-   * The single construct that configures the table — data, columns, search,
-   * filters, and optional selection — see {@link TableModel}. Also the source of
-   * the typed `table.columns.*` references bound to `*bitCellDef`. Defaults to an
-   * empty model, so manual-mode tables need not bind it.
+   * The single construct that configures the table — data, columns, and optional
+   * selection / pagination — see {@link TableModel}. Also the source of the typed
+   * `table.columns.*` references bound to `*bitCellDef`. Defaults to an empty
+   * model, so manual-mode tables need not bind it.
    */
   readonly table = input(new TableModel<T>({ displayedColumns: [] }));
 
@@ -178,12 +187,62 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Searc
   /** Whether the model is loading — shows skeleton rows in place of data. */
   protected readonly loading = computed(() => this.table().loading());
 
+  /** Registers a projected filter chip. Called by the `bitTableFilter` bridge. */
+  registerFilter(control: FilterControl): void {
+    this.table().registerFilter(control);
+  }
+
+  /** @see {@link registerFilter} */
+  unregisterFilter(control: FilterControl): void {
+    this.table().unregisterFilter(control);
+  }
+
+  /** Chips already seeded from `initialFilters`, so each is seeded at most once. */
+  private readonly seeded = new WeakSet<FilterControl>();
+
   /**
-   * The {@link SearchConsumer} surface a projected `<bit-search>` binds to —
-   * the model's `search.term` signal, forwarded along.
+   * A `bit-search` projected anywhere into the table (e.g. its toolbar). Adopted
+   * automatically as a `search` filter — no bridge directive — so its term joins
+   * {@link TableModel.filterValues} under {@link SEARCH_FILTER_KEY}.
    */
-  get searchTerm() {
-    return this.table().search.term;
+  private readonly search = contentChild(SearchComponent, { descendants: true });
+
+  constructor() {
+    // Adopt a projected `bit-search` as a `search` filter control. The search
+    // owns its term (as a CVA); we only mirror it into `filterValues` and write
+    // back for seeding/clear. Re-registers if the search or model changes.
+    effect((onCleanup) => {
+      const search = this.search();
+      if (!search) {
+        return;
+      }
+      const control: FilterControl = {
+        key: signal(SEARCH_FILTER_KEY),
+        value: search.value,
+        active: computed(() => (search.value() ?? "") !== ""),
+        setValue: (value) => search.writeValue((value as string) ?? ""),
+      };
+      const model = this.table();
+      model.registerFilter(control);
+      onCleanup(() => model.unregisterFilter(control));
+    });
+
+    // Seed chips from the model's initial filter values as they register and
+    // their keys resolve. Each chip is seeded once; later user edits aren't undone.
+    effect(() => {
+      const initial = this.table().initialFilters as Record<string, unknown> | undefined;
+      const controls = this.table().filterControls();
+      if (!initial) {
+        return;
+      }
+      for (const control of controls) {
+        const key = control.key();
+        if (key && key in initial && !this.seeded.has(control)) {
+          this.seeded.add(control);
+          control.setValue(initial[key]);
+        }
+      }
+    });
   }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
@@ -289,6 +348,13 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Searc
   protected readonly isEmpty = computed(
     () => this.hasColumns() && !this.loading() && this.rows().length === 0,
   );
+
+  /**
+   * Whether the empty state is the result of filtering rather than there being
+   * no data — there are rows, but active filters excluded them all. Lets the
+   * default empty state show a "no matches" message distinct from "no items".
+   */
+  protected readonly noMatches = computed(() => this.isEmpty() && this.table().data().length > 0);
 
   /**
    * Pixel height for the virtual-scroll viewport: the rows' natural height

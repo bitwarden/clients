@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { userEvent } from "storybook/test";
@@ -10,12 +10,10 @@ import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.componen
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
-import { ChipActionComponent } from "../../chips";
-import { countries } from "../../form/countries";
+import { FilterMenuModule } from "../../filter-menu";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
-import { MenuModule } from "../../menu";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
@@ -29,13 +27,13 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
+import { BitTableFilterDirective } from "./bit-table-filter.directive";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import { TableModel } from "./table-model";
 import { BitTableV2Component } from "./table-v2.component";
 
 type DemoRow = { id: number; name: string; other: string };
 type UsersRow = { id: number; name: string; email: string; starred: boolean };
-type Country = { value: string; name: string };
 
 @Component({
   selector: "demo-status-column",
@@ -56,14 +54,112 @@ class DemoStatusColumnComponent {
   readonly table = input.required<TableModel<DemoRow>>();
 }
 
+type VaultRow = {
+  id: number;
+  name: string;
+  type: "login" | "card" | "note";
+  vault: "mine" | "acme";
+  collectionIds: string[];
+  favorite: boolean;
+};
+
+const VAULT_ROWS: VaultRow[] = [
+  { id: 1, name: "Acme", type: "login", vault: "acme", collectionIds: ["eng"], favorite: true },
+  { id: 2, name: "Amazon", type: "login", vault: "mine", collectionIds: [], favorite: false },
+  { id: 3, name: "Apple ID", type: "login", vault: "mine", collectionIds: [], favorite: true },
+  {
+    id: 4,
+    name: "Chase Bank",
+    type: "card",
+    vault: "acme",
+    collectionIds: ["ops"],
+    favorite: false,
+  },
+  {
+    id: 5,
+    name: "Corporate amex",
+    type: "card",
+    vault: "acme",
+    collectionIds: ["ops", "eng"],
+    favorite: true,
+  },
+  { id: 6, name: "Datadog", type: "login", vault: "acme", collectionIds: ["eng"], favorite: false },
+  {
+    id: 7,
+    name: "Docusign",
+    type: "login",
+    vault: "acme",
+    collectionIds: ["ops"],
+    favorite: false,
+  },
+  {
+    id: 8,
+    name: "Recovery codes",
+    type: "note",
+    vault: "mine",
+    collectionIds: ["personal"],
+    favorite: false,
+  },
+  {
+    id: 9,
+    name: "Wifi password",
+    type: "note",
+    vault: "acme",
+    collectionIds: ["pm"],
+    favorite: false,
+  },
+];
+
+const VAULTS = [
+  { id: "mine", name: "My vault" },
+  { id: "acme", name: "Acme corporation" },
+] as const;
+
+const COLLECTION_ORGS = [
+  {
+    name: "Acme corporation",
+    collections: [
+      { id: "eng", name: "Engineering" },
+      { id: "ops", name: "Operations" },
+      { id: "pm", name: "Project management" },
+      { id: "infra", name: "Infrastructure" },
+      { id: "monitoring", name: "Monitoring" },
+      { id: "security", name: "Security" },
+      { id: "design", name: "Design" },
+      { id: "marketing", name: "Marketing" },
+      { id: "sales", name: "Sales" },
+    ],
+  },
+  {
+    name: "My vault",
+    collections: [
+      { id: "personal", name: "Personal" },
+      { id: "finance", name: "Finance" },
+      { id: "travel", name: "Travel" },
+    ],
+  },
+];
+
+type VaultFilters = {
+  search?: string;
+  type?: VaultRow["type"];
+  vault?: string[];
+  collection?: string[];
+  favorite?: boolean;
+};
+
 /**
- * Demonstrates the integrated toolbar + filter flow. A single `TableModel`
- * configures the table — data plus the top-level `search` matcher and `filters`
- * facet definitions. The projected `<bit-search>` binds to it automatically; the
- * Filters menu applies facets by id; the toolbar renders the applied chips.
+ * Filtering with the form-group model: each chip declares a `key`, owns its own
+ * selection, and the table collects them into `table.filterValues()` (a
+ * `{ key: value }` object). The model's `filter` reads that object — no per-chip
+ * state or `ngModel`. `filters` seeds the initial selection.
+ *
+ * Shows the range of menu content: a radio group (Type), a checkbox group
+ * (Vault), a checkbox group with in-menu search + collapsible sections
+ * (Collections), and a toggle (Favorites).
  */
 @Component({
-  selector: "demo-toolbar-table",
+  selector: "demo-filterable-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BitTableV2Component,
@@ -72,64 +168,119 @@ class DemoStatusColumnComponent {
     BitHeaderCellComponent,
     BitCellComponent,
     BitTableToolbarComponent,
-    ButtonModule,
-    ChipActionComponent,
-    LayoutComponent,
-    MenuModule,
+    BitTableFilterDirective,
+    FilterMenuModule,
     SearchModule,
+    ButtonModule,
+    LayoutComponent,
   ],
   template: `
     <bit-layout>
-      <bit-table-v2 [table]="table" [virtualRowHeight]="64" maxHeight="400px">
+      <bit-table-v2 [table]="table">
         <bit-table-toolbar>
-          <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
-          <button
-            slot="start"
-            type="button"
-            bitButton
-            buttonType="secondary"
-            startIcon="bwi-filter"
-            [endIcon]="filterTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
-            [bitMenuTriggerFor]="filterMenu"
-            #filterTrigger="menuTrigger"
-          >
-            Filters
-          </button>
-          <button
-            slot="end"
-            type="button"
-            bit-chip-action
-            label="Add"
-            startIcon="bwi-plus"
-          ></button>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button bitButton buttonType="primary" type="button" slot="end">New</button>
+
+          <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+            @for (option of typeOptions(); track option.value) {
+              <bit-filter-option [value]="option.value" [count]="option.count">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-chip>
+
+          <bit-filter-divider></bit-filter-divider>
+
+          <bit-filter-chip key="vault" placeholderText="Vault" multiple bitTableFilter>
+            @for (option of vaultOptions(); track option.value) {
+              <bit-filter-option [value]="option.value" [count]="option.count">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-chip>
+
+          <bit-filter-chip key="collection" placeholderText="Collections" multiple bitTableFilter>
+            @for (org of collectionOrgs(); track org.name) {
+              <bit-filter-section [label]="org.name" collapsible>
+                @for (collection of org.collections; track collection.id) {
+                  <bit-filter-option [value]="collection.id" [count]="collection.count">
+                    {{ collection.name }}
+                  </bit-filter-option>
+                }
+              </bit-filter-section>
+            }
+          </bit-filter-chip>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            bitTableFilter
+          ></bit-filter-toggle>
         </bit-table-toolbar>
+
         <bit-column sortable defaultSort="asc">
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
         <bit-column sortable width="120px">
-          <bit-header-cell>Value</bit-header-cell>
-          <bit-cell *bitCellDef="table.columns.value; let row">{{ row.value }}</bit-cell>
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     </bit-layout>
-
-    <bit-menu #filterMenu>
-      <button type="button" bitMenuItem (click)="table.filters.apply('range:a-m')">A–M</button>
-      <button type="button" bitMenuItem (click)="table.filters.apply('range:n-z')">N–Z</button>
-    </bit-menu>
   `,
 })
-class DemoToolbarTableComponent {
-  protected readonly table = new TableModel<Country>({
-    data: signal(countries.slice(0, 100)),
-    displayedColumns: ["name", "value"],
-    search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
-    filters: [
-      { id: "range:a-m", label: "A–M", predicate: (row) => row.name.toLowerCase() < "n" },
-      { id: "range:n-z", label: "N–Z", predicate: (row) => row.name.toLowerCase() >= "n" },
-    ],
+class DemoFilterableTableComponent {
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = new TableModel<VaultRow, never, VaultFilters>({
+    data: this.data,
+    displayedColumns: ["name", "type", "vault"],
+    filter: (row, f) =>
+      (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+      (f.type == null || row.type === f.type) &&
+      (!f.vault?.length || f.vault.includes(row.vault)) &&
+      (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+      (!f.favorite || row.favorite),
   });
+
+  protected readonly typeOptions = computed(() =>
+    (["login", "card", "note"] as const)
+      .map((value) => ({
+        value,
+        label: value,
+        count: this.data().filter((r) => r.type === value).length,
+      }))
+      .filter((option) => option.count > 0),
+  );
+
+  protected readonly vaultOptions = computed(() =>
+    VAULTS.map((vault) => ({
+      value: vault.id,
+      label: vault.name,
+      count: this.data().filter((r) => r.vault === vault.id).length,
+    })),
+  );
+
+  /** Collections grouped by org, with live counts. The in-menu search narrows them automatically. */
+  protected readonly collectionOrgs = computed(() => {
+    const rows = this.data();
+    return COLLECTION_ORGS.map((org) => ({
+      name: org.name,
+      collections: org.collections.map((c) => ({
+        ...c,
+        count: rows.filter((r) => r.collectionIds.includes(c.id)).length,
+      })),
+    }));
+  });
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
 }
 
 export default {
@@ -149,7 +300,7 @@ export default {
         BitCellLoadingDirective,
         SkeletonTextComponent,
         DemoStatusColumnComponent,
-        DemoToolbarTableComponent,
+        DemoFilterableTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
@@ -181,11 +332,13 @@ export default {
               clearFilters: "Clear all filters",
               filtersApplied: (count) => `${count} filters applied`,
               nothingToShow: "Nothing to show",
+              noMatchingItems: "No matching items",
               selectAllRows: "Select all rows",
               selectRow: "Select row",
               showingItemRange: (start, end, total) => `Showing ${start} - ${end} of ${total}`,
               rowsPerPage: "Rows per page",
               rowsPerPageOption: (count) => `${count} rows per page`,
+              itemCount: (count) => `${count} items`,
               previousPage: "Previous page",
               nextPage: "Next page",
               goToPage: "Go to page",
@@ -447,48 +600,15 @@ export const FillPage: Story = {
   }),
 };
 
-const filterTable = new TableModel<Country>({
-  data: signal(countries.slice(0, 100)),
-  displayedColumns: ["name", "value"],
-  search: (row, term) => row.name.toLowerCase().includes(term.toLowerCase()),
-});
-
+/**
+ * Filtering with projected filter chips. A radio chip and a toggle chip register
+ * with the table via `bitTableFilter`; the table composes their predicates into
+ * the rendered rows and shows a "no matching items" state when they exclude
+ * everything. See [Filter menu](?path=/docs/component-library-filter-menu--docs).
+ */
 export const Filterable: Story = {
   render: () => ({
-    props: { table: filterTable },
-    template: `
-      <bit-layout>
-        <bit-table-v2 [table]="table" [virtualRowHeight]="64" maxHeight="400px">
-          <bit-table-toolbar>
-            <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
-          </bit-table-toolbar>
-          <bit-column sortable defaultSort="asc">
-            <bit-header-cell>Name</bit-header-cell>
-            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
-          </bit-column>
-          <bit-column sortable width="120px">
-            <bit-header-cell>Value</bit-header-cell>
-            <bit-cell *bitCellDef="table.columns.value; let row">{{ row.value }}</bit-cell>
-          </bit-column>
-        </bit-table-v2>
-      </bit-layout>
-    `,
-  }),
-};
-
-/**
- * `<bit-table-toolbar>` renders inside the chrome above the header row and owns
- * the applied-filters row. A `<bit-search>` goes in its own slot and binds to
- * the table model's `filter` automatically; other left controls (a Filters
- * menu) use `slot="start"`, actions use `slot="end"`. Picking from the menu
- * calls `table.filters.apply(id)`, which the toolbar renders as a value-only
- * chip and the model folds into the row test the table applies. The
- * Filters trigger is a stateless `bitButton` + `bit-menu` with a chevron
- * `endIcon` that flips with the menu's open state. See `DemoToolbarTableComponent`.
- */
-export const WithToolbar: Story = {
-  render: () => ({
-    template: `<demo-toolbar-table></demo-toolbar-table>`,
+    template: `<demo-filterable-table></demo-filterable-table>`,
   }),
 };
 

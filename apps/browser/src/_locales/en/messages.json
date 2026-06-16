@@ -2526,6 +2526,15 @@
       }
     }
   },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "previousPage": {
     "message": "Previous page"
   },
@@ -2534,6 +2543,9 @@
   },
   "goToPage": {
     "message": "Go to page"
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
   },
   "selected": {
     "message": "Selected"

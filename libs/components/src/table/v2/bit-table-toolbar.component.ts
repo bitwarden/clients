@@ -1,46 +1,48 @@
-import { ChangeDetectionStrategy, Component, computed, forwardRef, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChildren,
+  inject,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ChipComponent } from "../../chips";
-import { IconButtonModule } from "../../icon-button";
+import { FILTER_CONTROL } from "../../filter-menu/filter-tokens";
 
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
- * Header toolbar for `bit-table-v2`, rendered inside the table chrome above the
- * header row. It's a view over the table's filter state, found via DI: it
- * renders the applied-filters row and handles chip dismissal and clear-all —
- * holding no filter state of its own.
+ * Toolbar for `bit-table-v2`, rendered inside the table chrome above the header
+ * row. Project a `<bit-search>` (its own slot), filter chips (`bit-filter-chip` /
+ * `bit-filter-toggle`), and arbitrary controls via `slot="end"`; they lay out in
+ * a wrapping row.
  *
- * A `<bit-search>` is projected into its own slot (rendered first, on the left)
- * and wires to the table's search term automatically. Other left controls (e.g.
- * a Filters menu) use `slot="start"`; actions use `slot="end"`. Append filter
- * chips from those controls by applying facets on the table model's `filters`;
- * the applied-filters row and removal are handled here.
+ * Filter chips register their values with the table directly via the
+ * `bitTableFilter` bridge — the toolbar doesn't own filter state. It does observe
+ * its projected filters (by their shared `FILTER_CONTROL` contract) to surface
+ * {@link appliedCount}, which drives the responsive collapse: on small screens the
+ * chip row folds into a single trigger + dialog, with the count shown as a berry.
  */
 @Component({
   selector: "bit-table-toolbar",
   templateUrl: "./bit-table-toolbar.component.html",
-  imports: [IconButtonModule, ChipComponent, I18nPipe],
+  imports: [I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
   },
 })
 export class BitTableToolbarComponent {
-  private readonly tableComponent = inject(
-    forwardRef(() => BitTableV2Component),
-    { optional: true },
-  );
+  /** The table this toolbar is projected into; the source of the item count. */
+  protected readonly table = inject(BitTableV2Component, { optional: true });
 
-  protected readonly applied = computed(() => this.tableComponent?.table().filters.applied() ?? []);
+  /** The projected filter chips/toggles, matched by their shared `FILTER_CONTROL`. */
+  private readonly filters = contentChildren(FILTER_CONTROL, { descendants: true });
 
-  protected remove(id: string): void {
-    this.tableComponent?.table().filters.remove(id);
-  }
+  /** How many projected filters currently have a selection — the trigger's berry count. */
+  readonly appliedCount = computed(() => this.filters().filter((f) => f.active()).length);
 
-  protected clear(): void {
-    this.tableComponent?.table().filters.clear();
-  }
+  /** Rows matching the active filters — shown as the "N items" count on the filter row. */
+  protected readonly itemCount = computed(() => this.table?.table().filtered().length ?? 0);
 }

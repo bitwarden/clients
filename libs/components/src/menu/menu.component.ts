@@ -39,4 +39,16 @@ export class MenuComponent {
       }
     });
   }
+
+  /**
+   * Closes the menu only when a menu item is activated. Clicks on other projected
+   * content — e.g. a filter chip's checkboxes, search field, or section headers
+   * (`role="menuitemcheckbox"` / `"menuitemradio"` / plain controls) — leave the
+   * menu open. `bitMenuItem` always carries `role="menuitem"`.
+   */
+  protected onContentClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement | null)?.closest('[role="menuitem"]')) {
+      this.closed.emit();
+    }
+  }
 }

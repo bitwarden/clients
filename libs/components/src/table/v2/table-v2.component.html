@@ -91,7 +91,9 @@
         -->
         <ng-content select="[slot=empty]">
           <bit-no-items>
-            <span slot="title">{{ "nothingToShow" | i18n }}</span>
+            <span slot="title">{{
+              (noMatches() ? "noMatchingItems" : "nothingToShow") | i18n
+            }}</span>
           </bit-no-items>
         </ng-content>
       } @else if (isVirtualized()) {
