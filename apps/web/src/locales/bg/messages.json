@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Изпращане на напомняния"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Все още не сте отбелязали нито едно приложение като важно. Започнете като прегледате приложенията си."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Когато отбележите някое приложение като важно, то ще се появи тук."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Внасяне на данни"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Ако нямате данни за внасяне, вместо това може да създадете ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "нов елемент",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "нов елемент за вписване",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": ".",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": ". Може да трябва да почакате администратора на Вашата организация да потвърди членството Ви.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Грешка при внасянето"
   },
@@ -3582,11 +3565,17 @@
   "year": {
     "message": "година"
   },
+  "years": {
+    "message": "години"
+  },
   "yr": {
     "message": "година"
   },
   "month": {
     "message": "месец"
+  },
+  "months": {
+    "message": "месеца"
   },
   "monthAbbr": {
     "message": "мес.",
@@ -3670,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Абонаментът е прекратен."
   },
+  "churnOfferTitle": {
+    "message": "Специално предложение, преди да си тръгнете"
+  },
+  "churnOfferPreamble": {
+    "message": "Ако се откажете сега, ще продължите да имате достъп до"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". Но, тъй като сте клиент от доста време, бихме искали първо да Ви предложим нещо."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Предлагаме Ви $DISCOUNT$ отстъпка от абонамента",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "Като благодарност за това, че сте клиент на Битуорден от много време, бихме искали да Ви предложим $DISCOUNT$ отстъпка от за следващия период от $DURATION$, при който ползвате услугата.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Останете и ще получите $DISCOUNT$ отстъпка",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Прекратяване на абонамента"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Всичко е готово!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Вашата отстъпка от $DISCOUNT$ беше приложена към следващия период от $DURATION$, при който ползвате услугата.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ отстъпка за $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Никога не изтича"
   },
@@ -3693,6 +3763,9 @@
   },
   "discount": {
     "message": "отстъпка"
+  },
+  "discountApplied": {
+    "message": "Отстъпката е приложена"
   },
   "discountExpiredOnPurchase": {
     "message": "Отстъпката е изтекла. Моля, прегледайте крайната цена в количката си и опитайте отново."
@@ -8312,6 +8385,9 @@
   "iconsUrl": {
     "message": "Адрес на сървъра за иконки"
   },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
+  },
   "environmentSaved": {
     "message": "Адресите на средата са запазени"
   },
@@ -10184,9 +10260,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Създаване на регистрация"
-  },
   "createSecret": {
     "message": "Създаване на тайна"
   },
@@ -10209,8 +10282,45 @@
   "getStarted": {
     "message": "Първи стъпки"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Първи стъпки с Управлението на тайни"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Изпълнете тези стъпки, за да започнете да управлявате тайните на екипа си"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Създаване на машинен акаунт"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Организиране на тайните в проекти"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Създаване на проект"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Внасяне на съществуващи тайни от друг инструмент"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Съхраняване на пароли, сертификати и ключове за ППИ"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Създаване на тайна"
+  },
   "complete": {
     "message": "Завършено: $COMPLETED$/$TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "Завършено: $COMPLETED$ от $TOTAL$",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10974,38 @@
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
+  "getStartedWithYourVault": {
+    "message": "Първи стъпки с трезора"
+  },
+  "onboardingChecklistSubtitle": {
+    "message": "Изпълнете тези стъпки, за да защитите личните си данни и да извлечете най-голяма полза от Битуорден"
+  },
+  "dismissThisChecklist": {
+    "message": "Отхвърляне на този списък"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Създаване на акаунт"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Внасяне на паролите"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
     "message": "Инсталиране на разширението за браузъра"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Използвайте разширението, за да можете лесно да запазвате данни за вписване и да попълвате формуляри, без да отваряте уеб приложението."
+  "onboardingImportDataSubtitle": {
+    "message": "Спестете време като внесете данните си от друг управител на пароли. Можете и да добавите ръчно записи в трезора си."
+  },
+  "onboardingImportCta": {
+    "message": "Внасяне на паролите"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Закачете разширението в браузъра си. Това ще Ви помогне да се вписвате по-бързо и да запазвате паролите си по-лесно."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Инсталиране на добавката"
+  },
+  "completed": {
+    "message": "Завършено"
   },
   "projectAccessUpdated": {
     "message": "Достъпът до проекта е актуализиран"
@@ -12680,6 +12817,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Цената на Вашия абонамент е се увеличи на $PRICE$ за потребител на месец, считано от $DATE$. Функционалностите в плана, както и всякакви налични отстъпки, ще си останат същите.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Цената на Вашия абонамент е се увеличи на $PRICE$ за потребител на месец (таксувано годишно), считано от $DATE$. Функционалностите в плана, както и всякакви налични отстъпки, ще си останат същите.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Известие за увеличение на цената"
+  },
   "restartOrganizationSubscription": {
     "message": "Абонаментът на организацията е рестартиран"
   },
@@ -14084,12 +14252,76 @@
   "backToEditing": {
     "message": "Назад към редактирането"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Изображение за трезора"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Създайте и добавете персонализирано изображение, което всички членове на организацията да виждат в трезорите си след вписване."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Политиката за единствена организация трябва да бъде включена преди активирането на тази политика."
+  },
+  "enableBanner": {
+    "message": "Включване на изображението"
+  },
+  "createBannerMessage": {
+    "message": "Създаване на съобщение за изображението"
+  },
+  "header": {
+    "message": "Заглавка"
+  },
+  "maximumOfXCharacters": {
+    "message": "Най-много $COUNT$ знака",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Въведете $NAME$ с дължина под $COUNT$ знака.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Създайте $NAME$ с дължина не-повече от $COUNT$ знака.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Трябва да въведете заглавка, за да създадете бутон."
+  },
+  "enterADescription": {
+    "message": "Въведете описание."
+  },
+  "button": {
+    "message": "Бутон"
+  },
+  "showAfterEveryLogin": {
+    "message": "Показване след всяко вписване"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Потребителите ще виждат това съобщение след като се впишат, дори да го отхвърлят."
+  },
   "sendHasUnsavedEdits": {
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {

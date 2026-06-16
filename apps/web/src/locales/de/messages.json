@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Erinnerungen senden"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Du hast noch keine kritischen Anwendungen markiert. Überprüfe Anwendungen, um loszulegen."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Sobald du Anwendungen als kritisch markierst, werden sie hier angezeigt."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Daten importieren"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Wenn du keine Daten zu importieren hast, kannst du stattdessen ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "einen neuen Eintrag",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "neue Zugangsdaten",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " erstellen.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " erstellen. Möglicherweise musst du warten, bis dein Administrator die Mitgliedschaft in deiner Organisation bestätigt.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Importfehler"
   },
@@ -3582,11 +3565,17 @@
   "year": {
     "message": "Jahr"
   },
+  "years": {
+    "message": "Jahre"
+  },
   "yr": {
     "message": "Jahr"
   },
   "month": {
     "message": "Monat"
+  },
+  "months": {
+    "message": "Monate"
   },
   "monthAbbr": {
     "message": "Monat",
@@ -3670,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Das Abonnement wurde gekündigt."
   },
+  "churnOfferTitle": {
+    "message": "Sonderangebot bevor du gehst"
+  },
+  "churnOfferPreamble": {
+    "message": "Wenn du jetzt kündigst, bleibt dein Zugang bestehen bis zum"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". Da du jedoch ein langjähriger Kunde bist, möchten wir dir zunächst etwas anbieten."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Erhalte $DISCOUNT$ Rabatt auf dein Abonnement",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "Als Dankeschön dafür, dass du schon so lange Bitwarden-Kunde bist, möchten wir dir einen Rabatt in Höhe von $DISCOUNT$ für eine Dauer von $DURATION$ anbieten.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Bleib bei uns und erhalte $DISCOUNT$ Rabatt",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Abonnement kündigen"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Du bist bereit!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Dein Rabatt in Höhe von $DISCOUNT$ wurde für die Dauer von $DURATION$ angerechnet.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ Rabatt für $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Läuft nie ab"
   },
@@ -3693,6 +3763,9 @@
   },
   "discount": {
     "message": "Rabatt"
+  },
+  "discountApplied": {
+    "message": "Rabatt angewendet"
   },
   "discountExpiredOnPurchase": {
     "message": "Rabatt abgelaufen. Bitte überprüfe den Warenkorb und versuche es erneut."
@@ -8312,6 +8385,9 @@
   "iconsUrl": {
     "message": "URL des Icons-Servers"
   },
+  "sendUrl": {
+    "message": "Server-URL senden"
+  },
   "environmentSaved": {
     "message": "URLs der Umgebung gespeichert"
   },
@@ -10184,9 +10260,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Ein Konto erstellen"
-  },
   "createSecret": {
     "message": "Geheimnis erstellen"
   },
@@ -10209,8 +10282,45 @@
   "getStarted": {
     "message": "Loslegen"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Erste Schritte mit dem Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Befolge diese Schritte, um mit der Verwaltung der Geheimnisse deines Teams zu beginnen"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Gerätekonto erstellen"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organisiere deine Geheimnisse in Projekten"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Projekt erstellen"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bestehende Geheimnisse aus einer anderen Anwendung importieren"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Passwörter, Zertifikate und API-Schlüssel speichern"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Geheimnis erstellen"
+  },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ abgeschlossen",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ von $TOTAL$ abgeschlossen",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10864,11 +10974,38 @@
     "message": "Detaillierte Anleitungen auf unserer Hilfeseite unter",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
+  "getStartedWithYourVault": {
+    "message": "Erste Schritte mit deinem Tresor"
+  },
+  "onboardingChecklistSubtitle": {
+    "message": "Befolge diese Schritte, um deine persönlichen Daten zu schützen und Bitwarden optimal zu nutzen"
+  },
+  "dismissThisChecklist": {
+    "message": "Diese Checkliste schließen"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Dein Konto erstellen"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Passwörter importieren"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
     "message": "Browser-Erweiterung installieren"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Verwende die Erweiterung, um schnell Zugangsdaten zu speichern und Formulare automatisch auszufüllen, ohne die Web-App zu öffnen."
+  "onboardingImportDataSubtitle": {
+    "message": "Spar Zeit, indem du Daten aus einem anderen Passwort-Manager importierst. Du kannst Einträge auch manuell zu deinem Tresor hinzufügen."
+  },
+  "onboardingImportCta": {
+    "message": "Passwörter importieren"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Füge die Erweiterung zu deinem Browser hinzu. So kannst du dich schneller anmelden und deine Passwörter problemlos speichern."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Erweiterung installieren"
+  },
+  "completed": {
+    "message": "Abgeschlossen"
   },
   "projectAccessUpdated": {
     "message": "Projektzugriff aktualisiert"
@@ -12680,6 +12817,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Dein Abonnementpreis erhöht sich ab dem $DATE$ auf $PRICE$ pro Benutzerplatz und Monat. Die Funktionen deines Tarifs und alle bestehenden Rabatte bleiben unverändert.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Dein Abonnementpreis erhöht sich ab dem $DATE$ auf $PRICE$ pro Benutzerplatz und Monat (jährliche Abrechnung). Die Funktionen deines Tarifs und alle bestehenden Rabatte bleiben unverändert.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Preisänderungsmitteilung"
+  },
   "restartOrganizationSubscription": {
     "message": "Organisations-Abonnement neu gestartet"
   },
@@ -14084,12 +14252,76 @@
   "backToEditing": {
     "message": "Zurück zur Bearbeitung"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Tresor-Banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Erstelle und veröffentliche ein individuelles Banner, das alle Mitglieder der Organisation nach der Anmeldung auf ihrer Tresor-Seite sehen."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Die Richtlinie für einzelne Organisationen muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
+  },
+  "enableBanner": {
+    "message": "Banner aktivieren"
+  },
+  "createBannerMessage": {
+    "message": "Eine Banner-Meldung erstellen"
+  },
+  "header": {
+    "message": "Überschrift"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximal $COUNT$ Zeichen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Gib eine $NAME$ unter $COUNT$ Zeichen ein.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Erstelle einen $NAME$ mit unter $COUNT$ Zeichen.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Du musst eine Überschrift eingeben, um einen Button zu erstellen."
+  },
+  "enterADescription": {
+    "message": "Gib eine Beschreibung ein."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Nach jeder Anmeldung anzeigen"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Die Benutzer sehen die Meldung nach jeder Anmeldung, auch wenn sie sie schließen."
+  },
   "sendHasUnsavedEdits": {
     "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
