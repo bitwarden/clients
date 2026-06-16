@@ -114,7 +114,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       userKey,
     );
 
-    const request = UpdateTempPasswordRequest.newConstructorWithHint(
+    const request = new UpdateTempPasswordRequest(
       newAuthenticationData,
       newUnlockData,
       passwordInputResult.newPasswordHint,

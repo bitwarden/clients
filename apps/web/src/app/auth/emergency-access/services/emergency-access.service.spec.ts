@@ -361,7 +361,7 @@ describe("EmergencyAccessService", () => {
       await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
-      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
+      const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
       expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
         masterPassword,
@@ -387,7 +387,7 @@ describe("EmergencyAccessService", () => {
       await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
-      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
+      const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledTimes(1);
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(

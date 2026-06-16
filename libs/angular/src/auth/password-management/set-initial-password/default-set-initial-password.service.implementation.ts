@@ -13,7 +13,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -75,8 +75,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ): Promise<void> {
     const {
-      newMasterKey,
-      newServerMasterKeyHash,
       newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
@@ -97,6 +95,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (userType == null) {
       throw new Error("userType not found. Could not set password.");
     }
+
+    const newMasterKey = await this.keyService.makeMasterKey(newPassword, salt, kdfConfig);
 
     const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
       newMasterKey,
@@ -155,13 +155,27 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
-    const request = new SetPasswordRequest(
-      newServerMasterKeyHash,
-      masterKeyEncryptedUserKey[1].encryptedString,
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        masterKeyEncryptedUserKey[0],
+      );
+
+    const request = new SetInitialPasswordRequest(
+      authenticationData,
+      unlockData,
       newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig,
     );
 
     await this.masterPasswordApiService.setPassword(request);
@@ -210,7 +224,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnrollOld(
+        authenticationData.masterPasswordAuthenticationHash,
+        orgId,
+        userId,
+      );
     }
   }
 
@@ -250,7 +268,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+    const request = new UpdateTdeOffboardingPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,
@@ -390,7 +408,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = SetPasswordRequest.newConstructor(
+    const request = new SetInitialPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,

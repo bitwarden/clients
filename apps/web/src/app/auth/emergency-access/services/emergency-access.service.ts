@@ -342,7 +342,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
         grantorUserKey,
       );
 
-    const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
+    const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
     await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
