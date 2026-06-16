@@ -33,13 +33,6 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
-  /**
-   * Where to render content from the route's `outlet: "secondary"` router outlet. Defaults to "main".
-   *
-   * "main" places the secondary content beneath the main card.
-   * "footer" places it inside the footer.
-   */
-  secondaryContentLocation?: SecondaryContentLocationType;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -161,7 +154,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       firstChildRouteData["hideFooter"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.hideFooter;
     this.secondaryContentLocation =
       firstChildRouteData["secondaryContentLocation"] ??
-      EXTENSION_ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
+      ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
 
     // Cache the route-data payload so resetToCachedRouteData() can later restore it.
     this.extensionAnonLayoutWrapperDataService.cacheRouteData(

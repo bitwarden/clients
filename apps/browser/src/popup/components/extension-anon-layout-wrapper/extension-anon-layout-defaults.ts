@@ -21,5 +21,4 @@ export const EXTENSION_ANON_LAYOUT_DEFAULTS: Required<
   showBackButton: false,
   showLogo: true,
   hideFooter: false,
-  secondaryContentLocation: "main",
 };

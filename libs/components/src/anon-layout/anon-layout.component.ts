@@ -64,10 +64,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
   );
   readonly heroTextAlignment = input<HeroTextAlignmentType>(ANON_LAYOUT_DEFAULTS.heroTextAlignment);
-  // Note: `secondaryContentLocation`'s default value lives in `EXTENSION_ANON_LAYOUT_DEFAULTS`
-  // (extension-only field). Kept hardcoded here because the base layout component cannot import
-  // from `apps/browser/...` without an upward dependency.
-  readonly secondaryContentLocation = input<SecondaryContentLocationType>("main");
+  readonly secondaryContentLocation = input<SecondaryContentLocationType>(
+    ANON_LAYOUT_DEFAULTS.secondaryContentLocation,
+  );
 
   protected readonly footerLayoutClasses = computed(() =>
     this.secondaryContentLocation() === "footer" ? "tw-grid tw-gap-6" : "",

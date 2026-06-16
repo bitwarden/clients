@@ -15,7 +15,7 @@ import {
 
 import { ANON_LAYOUT_DEFAULTS } from "./anon-layout-defaults";
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent } from "./anon-layout.component";
+import { AnonLayoutComponent, SecondaryContentLocationType } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
   /**
    * The optional title of the page.
@@ -76,6 +76,13 @@ export interface AnonLayoutWrapperData {
    * Hides the background illustration. Defaults to false.
    */
   hideBackgroundIllustration?: boolean;
+  /**
+   * Where to render content from the route's `outlet: "secondary"` router outlet. Defaults to "main".
+   *
+   * "main" places the secondary content beneath the main card.
+   * "footer" places it inside the footer.
+   */
+  secondaryContentLocation?: SecondaryContentLocationType;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -98,6 +105,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected contentVerticalPadding?: ContentVerticalPaddingType;
   protected footerVerticalPadding?: ContentVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
+  protected secondaryContentLocation?: SecondaryContentLocationType;
 
   constructor(
     private router: Router,
@@ -165,6 +173,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
       firstChildRouteData["footerVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.footerVerticalPadding;
     this.heroTextAlignment =
       firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
+    this.secondaryContentLocation =
+      firstChildRouteData["secondaryContentLocation"] ??
+      ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
 
     // Cache the route-data payload so resetToCachedRouteData() can later restore it.
     this.anonLayoutWrapperDataService.cacheRouteData(
@@ -229,6 +240,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
     if (data.heroTextAlignment !== undefined) {
       this.heroTextAlignment = data.heroTextAlignment;
     }
+    if (data.secondaryContentLocation !== undefined) {
+      this.secondaryContentLocation = data.secondaryContentLocation;
+    }
 
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
     // when setting the page data from a service
@@ -257,5 +271,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.contentVerticalPadding = undefined;
     this.footerVerticalPadding = undefined;
     this.heroTextAlignment = undefined;
+    this.secondaryContentLocation = undefined;
   }
 }
