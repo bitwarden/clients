@@ -28,6 +28,7 @@ import {
   TrendWidgetData,
   TrendWidgetViewType,
 } from "../../activity/trend-widget/trend-widget.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { emptyTrendData } from "../testing/story-fixtures";
 
@@ -46,6 +47,24 @@ type MockAccessIntelligenceDataService = {
   loading$: BehaviorSubject<boolean>;
   ciphers$: BehaviorSubject<CipherView[]>;
   initializeForOrganization$: jest.Mock;
+};
+
+const mockCoachmarkService = {
+  activeStepId: jest.fn(),
+  currentStepNumber: jest.fn(),
+  totalSteps: jest.fn(),
+  isRunning: jest.fn(),
+  requiredTabIndex: jest.fn(),
+  tourCompleted$: jest.fn(),
+  startTour: jest.fn(),
+  goToNextStep: jest.fn(),
+  goToPreviousStep: jest.fn(),
+  skipTour: jest.fn(),
+  completeTour: jest.fn(),
+  getStepConfig: jest.fn(),
+  getStepTitle: jest.fn(),
+  getStepDescription: jest.fn(),
+  getStepLearnMoreUrl: jest.fn(),
 };
 
 type MockRiskOverTimeService = {
@@ -120,6 +139,7 @@ describe("ActivityTabComponent", () => {
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
         { provide: RiskOverTimeService, useValue: mockRiskOverTimeService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
