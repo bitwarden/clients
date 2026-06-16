@@ -32,7 +32,9 @@
             aria-hidden="true"
           />
         }
-        <div class="tw-flex tw-justify-between tw-flex-col tw-gap-3 @3xl:tw-flex-row tw-w-full">
+        <div
+          class="tw-flex tw-justify-between tw-flex-col tw-gap-3 @3xl:tw-flex-row tw-pe-6 @3xl:tw-pe-0 tw-w-full"
+        >
           <div>
             <div
               class="!tw-text-sm @3xl:!tw-text-lg tw-text-main tw-font-medium @3xl:!tw-leading-6"
@@ -57,6 +59,16 @@
                 [label]="'close' | i18n"
                 class="tw-hidden @3xl:tw-block"
               ></button>
+              <div class="tw-absolute tw-end-2 tw-top-3 tw-block @3xl:tw-hidden">
+                <button
+                  type="button"
+                  bitIconButton="bwi-close"
+                  buttonType="primaryGhost"
+                  size="small"
+                  (click)="onDismiss()"
+                  [label]="'close' | i18n"
+                ></button>
+              </div>
             }
           </div>
         </div>
