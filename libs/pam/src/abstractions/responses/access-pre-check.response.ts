@@ -6,8 +6,8 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
  * - `human`: submitting creates a pending request that an approver must resolve.
  */
 export const AccessApprovalMode = Object.freeze({
-  Automatic: "automatic",
-  Human: "human",
+  Automatic: 0,
+  Human: 1,
 } as const);
 export type AccessApprovalMode = (typeof AccessApprovalMode)[keyof typeof AccessApprovalMode];
 

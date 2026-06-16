@@ -38,7 +38,7 @@ function preCheck(
 function automaticEnvelope() {
   return new AccessRequestResultResponse({
     Object: "accessRequest",
-    ApprovalMode: "automatic",
+    ApprovalMode: AccessApprovalMode.Automatic,
     Request: {
       Object: "leaseRequest",
       Id: "req-1",
@@ -57,7 +57,7 @@ function automaticEnvelope() {
 function humanEnvelope() {
   return new AccessRequestResultResponse({
     Object: "accessRequest",
-    ApprovalMode: "human",
+    ApprovalMode: AccessApprovalMode.Human,
     Request: {
       Object: "leaseRequest",
       Id: "req-1",
@@ -87,7 +87,7 @@ describe("CipherLeaseBannerComponent", () => {
     state: CipherAccessState = {},
     flagOn = true,
     getAccessPreCheck: () => Promise<AccessPreCheckResponse> = () =>
-      Promise.resolve(preCheck("automatic")),
+      Promise.resolve(preCheck(AccessApprovalMode.Automatic)),
     inputs: { partialData?: string; leaseGated?: boolean } = { partialData: '{"Name":"n"}' },
   ) => {
     pamApi = {
@@ -240,7 +240,7 @@ describe("CipherLeaseBannerComponent", () => {
   });
 
   describe("human outcome", () => {
-    beforeEach(() => setup({}, true, () => Promise.resolve(preCheck("human"))));
+    beforeEach(() => setup({}, true, () => Promise.resolve(preCheck(AccessApprovalMode.Human))));
 
     it("renders the window pickers (no duration select) when expanded", async () => {
       await expandForm();
@@ -299,7 +299,7 @@ describe("CipherLeaseBannerComponent", () => {
 
   describe("fold-out shaping", () => {
     it("collapses without shaping when a lease already covers the cipher (raced)", async () => {
-      setup({}, true, () => Promise.resolve(preCheck("automatic", true)));
+      setup({}, true, () => Promise.resolve(preCheck(AccessApprovalMode.Automatic, true)));
 
       await expandForm();
 

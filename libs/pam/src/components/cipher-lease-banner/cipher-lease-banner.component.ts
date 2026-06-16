@@ -135,6 +135,8 @@ export class CipherLeaseBannerComponent implements OnInit {
   protected readonly requestFormExpanded = signal(false);
 
   // Inline request-access form state, populated when the fold-out opens.
+  /** Exposed so the template can branch on the approval workflow by name. */
+  protected readonly AccessApprovalMode = AccessApprovalMode;
   /** Approval workflow resolved by the pre-check; `null` until the fold-out lands it. */
   protected readonly requestMode = signal<AccessApprovalMode | null>(null);
   protected readonly loadingRequestForm = signal(false);
@@ -165,7 +167,6 @@ export class CipherLeaseBannerComponent implements OnInit {
     },
     { validators: [endAfterStartValidator, windowWithinMaxDurationValidator] },
   );
-
 
   /** Inert snapshot for non-PAM ciphers — mirrors the service's 404 fallback. */
   private readonly emptyAccessState: CipherAccessState = {};

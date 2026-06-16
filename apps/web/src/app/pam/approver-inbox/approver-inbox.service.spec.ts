@@ -2,7 +2,12 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
-import { AccessRequestDetailsResponse, AccessDecisionRequest, PamApiService } from "@bitwarden/pam";
+import {
+  AccessRequestDetailsResponse,
+  AccessDecisionRequest,
+  AccessDecisionVerdict,
+  PamApiService,
+} from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
@@ -162,7 +167,7 @@ describe("ApproverInboxService", () => {
 
       await service.decideAccessRequest(
         "target",
-        new AccessDecisionRequest({ verdict: "approve" }),
+        new AccessDecisionRequest({ verdict: AccessDecisionVerdict.Approve }),
       );
 
       expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);
@@ -177,7 +182,10 @@ describe("ApproverInboxService", () => {
       await service.load();
 
       await expect(
-        service.decideAccessRequest("target", new AccessDecisionRequest({ verdict: "deny" })),
+        service.decideAccessRequest(
+          "target",
+          new AccessDecisionRequest({ verdict: AccessDecisionVerdict.Deny }),
+        ),
       ).rejects.toThrow("server down");
 
       const rows = await firstValueFrom(service.requests$);
@@ -191,7 +199,7 @@ describe("ApproverInboxService", () => {
 
       await service.decideAccessRequest(
         "missing",
-        new AccessDecisionRequest({ verdict: "approve" }),
+        new AccessDecisionRequest({ verdict: AccessDecisionVerdict.Approve }),
       );
 
       expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);

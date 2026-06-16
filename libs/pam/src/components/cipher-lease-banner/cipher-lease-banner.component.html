@@ -134,16 +134,16 @@
 
       @if (loadingRequestForm()) {
         <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
-      } @else if (requestMode(); as approvalMode) {
+      } @else if (requestMode() !== null) {
         <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
-          @if (approvalMode === "automatic") {
+          @if (requestMode() === AccessApprovalMode.Automatic) {
             {{ "requestAccessModalAutomaticDescription" | i18n }}
           } @else {
             {{ "requestAccessModalHumanDescription" | i18n }}
           }
         </p>
 
-        @if (approvalMode === "automatic") {
+        @if (requestMode() === AccessApprovalMode.Automatic) {
           <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
             <bit-form-field>
               <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
@@ -234,7 +234,7 @@
         </p>
       }
 
-      @if (requestMode()) {
+      @if (requestMode() !== null) {
         <div class="tw-mt-4 tw-flex tw-justify-end">
           <button
             type="button"

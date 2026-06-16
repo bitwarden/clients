@@ -6,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
-import { AccessDecisionRequest } from "@bitwarden/pam";
+import { AccessDecisionRequest, AccessDecisionVerdict } from "@bitwarden/pam";
 
 import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 import { ApproverInboxService } from "./approver-inbox.service";
@@ -53,7 +53,9 @@ export class ApprovalsTabComponent {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          event.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
+          event.verdict === AccessDecisionVerdict.Approve
+            ? "pamInboxApprovedToast"
+            : "pamInboxDeniedToast",
         ),
       });
     } catch (e) {

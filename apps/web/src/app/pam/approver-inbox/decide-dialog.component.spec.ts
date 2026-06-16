@@ -80,7 +80,7 @@ describe("DecideDialogComponent", () => {
   };
 
   it("renders the request summary (item, requester, reason)", () => {
-    const fixture = setup("approve");
+    const fixture = setup(AccessDecisionVerdict.Approve);
     const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
     expect(text).toContain("GCP Console");
     expect(text).toContain("in Infrastructure");
@@ -90,7 +90,7 @@ describe("DecideDialogComponent", () => {
   });
 
   it("closes with a trimmed comment on confirm", () => {
-    const fixture = setup("approve");
+    const fixture = setup(AccessDecisionVerdict.Approve);
     const textarea = fixture.nativeElement.querySelector("textarea") as HTMLTextAreaElement;
     textarea.value = "  looks good  ";
     textarea.dispatchEvent(new Event("input"));
@@ -104,7 +104,7 @@ describe("DecideDialogComponent", () => {
   });
 
   it("closes with an undefined comment when the textarea is blank", () => {
-    const fixture = setup("approve");
+    const fixture = setup(AccessDecisionVerdict.Approve);
     (
       fixture.nativeElement.querySelector("#pam-decide-dialog_button_confirm") as HTMLButtonElement
     ).click();
@@ -113,7 +113,7 @@ describe("DecideDialogComponent", () => {
   });
 
   it("closes with undefined (no result) on cancel", () => {
-    const fixture = setup("deny");
+    const fixture = setup(AccessDecisionVerdict.Deny);
     (
       fixture.nativeElement.querySelector("#pam-decide-dialog_button_cancel") as HTMLButtonElement
     ).click();
@@ -122,7 +122,7 @@ describe("DecideDialogComponent", () => {
   });
 
   it("uses the deny title + button when denying", () => {
-    const fixture = setup("deny");
+    const fixture = setup(AccessDecisionVerdict.Deny);
     const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
     expect(text).toContain("Deny access request");
     const confirm = fixture.nativeElement.querySelector(
