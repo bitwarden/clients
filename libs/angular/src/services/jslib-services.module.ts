@@ -120,6 +120,8 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/organization-invite/default-organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -137,8 +139,6 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
-import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/default-organization-invite.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
@@ -224,8 +224,6 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
-import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -265,7 +263,6 @@ import { SystemService } from "@bitwarden/common/platform/abstractions/system.se
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
-import { IpcSessionRepository } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -989,6 +986,7 @@ const safeProviders: SafeProvider[] = [
       SecurityStateService,
       KdfConfigService,
       AccountCryptographicStateService,
+      V2UpgradeTokenStateService,
     ],
   }),
   safeProvider({
@@ -1002,7 +1000,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       RegisterSdkService,
       AccountCryptographicStateService,
-      PinStateServiceAbstraction,
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
@@ -1012,6 +1009,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       StateServiceAbstraction,
       BiometricStateService,
+      V2UpgradeTokenStateService,
     ],
   }),
   safeProvider({
@@ -1024,7 +1022,6 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultVaultTimeoutSettingsService,
     deps: [
       AccountServiceAbstraction,
-      PinStateServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       KeyService,
       TokenServiceAbstraction,
@@ -1193,8 +1190,6 @@ const safeProviders: SafeProvider[] = [
       WebPushConnectionService,
       AuthRequestAnsweringService,
       ConfigService,
-      InternalPolicyService,
-      InternalNewPolicyService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
     ],
@@ -1560,14 +1555,9 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: PinStateServiceAbstraction,
-    useClass: PinStateService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
     provide: PinServiceAbstraction,
     useClass: PinService,
-    deps: [EncryptService, LogService, KeyService, SdkService, PinStateServiceAbstraction],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: WebAuthnLoginPrfKeyServiceAbstraction,
@@ -1759,7 +1749,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationInviteService,
     useClass: DefaultOrganizationInviteService,
-    deps: [],
+    deps: [
+      ApiServiceAbstraction,
+      AuthServiceAbstraction,
+      KeyService,
+      EncryptService,
+      PolicyApiServiceAbstraction,
+      InternalPolicyService,
+      LogService,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      I18nServiceAbstraction,
+      GlobalStateProvider,
+    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,
@@ -2044,11 +2046,6 @@ const safeProviders: SafeProvider[] = [
     provide: NewDeviceVerificationComponentService,
     useClass: DefaultNewDeviceVerificationComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: IpcSessionRepository,
-    useClass: IpcSessionRepository,
-    deps: [StateProvider],
   }),
   safeProvider({
     provide: KeyConnectorApiService,
