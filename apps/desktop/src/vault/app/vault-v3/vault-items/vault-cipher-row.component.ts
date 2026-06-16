@@ -18,6 +18,7 @@ import {
   MenuTriggerForDirective,
   TableModule,
   LinkModule,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -52,10 +53,11 @@ interface CopyFieldConfig {
     GetOrgNameFromIdPipe,
     IconComponent,
     LinkModule,
+    IconModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
   protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
@@ -175,8 +177,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
 
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
-
   /**
    * Returns the list of copyable fields based on cipher type.
    * Used to render copy menu items dynamically.
@@ -245,6 +245,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
           { field: "middleNameLicense", title: "copyMiddleName" },
           { field: "lastNameLicense", title: "copyLastName" },
           { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
+      case CipherType.SshKey:
+        return [
+          { field: "privateKey", title: "copyPrivateKey" },
+          { field: "publicKey", title: "copyPublicKey" },
+          { field: "keyFingerprint", title: "copyFingerprint" },
         ];
       default:
         return [];

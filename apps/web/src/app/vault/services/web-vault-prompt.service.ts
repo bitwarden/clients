@@ -8,6 +8,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
@@ -27,6 +28,7 @@ export class WebVaultPromptService {
   private vaultItemTransferService = inject(VaultItemsTransferService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
+  private configService = inject(ConfigService);
   private autoConfirmService = inject(AutomaticUserConfirmationService);
   private organizationService = inject(OrganizationService);
   private dialogService = inject(DialogService);
@@ -48,17 +50,22 @@ export class WebVaultPromptService {
   async conditionallyPromptUser() {
     const userId = await firstValueFrom(this.userId$);
 
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+
+    this.checkForAutoConfirm();
+
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return;
+    }
+
     if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
       return;
     }
 
-    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
-
     await this.welcomeDialogService.conditionallyShowWelcomeDialog();
 
     await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
-
-    this.checkForAutoConfirm();
   }
 
   private openAutoConfirmFeatureDialog(organization: Organization) {

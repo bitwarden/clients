@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL сервера значков"
   },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
+  },
   "environmentSaved": {
     "message": "URL окружения сохранены"
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Скопировать код безопасности",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
   },
   "cardNumber": {
     "message": "номер карты"
@@ -3882,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
+  },
   "inputTrimValidator": {
     "message": "Введенные данные не должны содержать только пробелы.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4947,6 +4962,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Тайм-аут сессии контролируется приложением для компьютера"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ не установлен. Пожалуйста, установите $BROWSER$ перед импортом паролей из него.",
     "placeholders": {
@@ -5134,6 +5152,9 @@
   "bankAccount": {
     "message": "Банковский счет"
   },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
+  },
   "bankName": {
     "message": "Название банка"
   },
@@ -5208,7 +5229,7 @@
     "message": "Скопировать номер водительского удостоверения"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Скопировать номер паспорта"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -5248,10 +5269,6 @@
   },
   "sendHasUnsavedEdits": {
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Сохранить изменения Send не удалось",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -5331,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Категории водительского удостоверения"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }
