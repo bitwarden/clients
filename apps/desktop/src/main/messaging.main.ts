@@ -68,15 +68,7 @@ export class MessagingMain {
           }
         }
         break;
-      case "showTray":
-        this.main.trayMain.showTray();
-        break;
-      case "removeTray":
-        this.main.trayMain.removeTray();
-        break;
       case "hideToTray":
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.trayMain.hideToTray();
         break;
       case "addOpenAtLogin":
@@ -86,7 +78,7 @@ export class MessagingMain {
         this.removeOpenAtLogin();
         break;
       case "setFocus":
-        this.setFocus();
+        await this.setFocus();
         break;
       case "getWindowIsFocused":
         this.windowIsFocused();
@@ -131,7 +123,7 @@ export class MessagingMain {
   private addOpenAtLogin() {
     if (process.platform === "linux") {
       if (isFlatpak()) {
-        autostart.setAutostart(true, [AUTOSTART_FLAG]).catch((e) => {});
+        autostart.setAutostart(true, ["bitwarden.sh", AUTOSTART_FLAG, "%U"]).catch((e) => {});
       } else if (isSnapStore()) {
         this.updateSnapAutostartExec();
       } else {
@@ -218,8 +210,8 @@ export class MessagingMain {
     return path.join(app.getPath("home"), ".config", "autostart", "bitwarden.desktop");
   }
 
-  private setFocus() {
-    this.main.trayMain.restoreFromTray();
+  private async setFocus() {
+    await this.main.trayMain.restoreFromTray();
     this.main.windowMain.win.focusOnWebView();
   }
 

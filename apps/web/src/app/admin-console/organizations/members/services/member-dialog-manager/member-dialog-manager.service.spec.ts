@@ -24,6 +24,7 @@ import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/b
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
+import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import {
   MemberDialogComponent,
   MemberDialogResult,
@@ -159,7 +160,7 @@ describe("MemberDialogManagerService", () => {
       const result = await service.openEditDialog(mockUser, mockOrganization, mockBillingMetadata);
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        MemberDialogComponent,
+        EditMemberDialogComponent,
         expect.objectContaining({
           data: {
             kind: "Edit",
@@ -184,14 +185,14 @@ describe("MemberDialogManagerService", () => {
         mockUser,
         mockOrganization,
         mockBillingMetadata,
-        MemberDialogTab.AccountRecovery,
+        MemberDialogTab.Collections,
       );
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        MemberDialogComponent,
+        EditMemberDialogComponent,
         expect.objectContaining({
           data: expect.objectContaining({
-            initialTab: 0, // MemberDialogTab.AccountRecovery is 0
+            initialTab: MemberDialogTab.Collections,
           }),
         }),
       );
