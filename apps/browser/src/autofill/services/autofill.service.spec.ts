@@ -5,7 +5,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
-import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
@@ -1863,6 +1866,95 @@ describe("AutofillService", () => {
         expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
         expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("generateTargetedFillScript", () => {
+    const buildTargetedPageDetails = (fields: AutofillField[]) =>
+      createAutofillPageDetailsMock({ fields });
+
+    const buildTargetedField = (overrides: Partial<AutofillField>) =>
+      createAutofillFieldMock({
+        targeted: true,
+        ...overrides,
+      });
+
+    it("skips newPassword fields for a normal Login cipher fill (avoids leaking current password)", async () => {
+      const newPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "stored-password", uris: [] });
+      options.inlineMenuFillType = CipherType.Login;
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([newPasswordField]),
+        options,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("fills newPassword fields with the cipher password when inlineMenuFillType is PasswordGeneration", async () => {
+      const newPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const confirmNewPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_1",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "generated-pass", uris: [] });
+      options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([newPasswordField, confirmNewPasswordField]),
+        options,
+      );
+
+      expect(result).not.toBeNull();
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        newPasswordField,
+        "generated-pass",
+      );
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        confirmNewPasswordField,
+        "generated-pass",
+      );
+    });
+
+    it("fills the current-password field via the standard mapping even on a PasswordGeneration fill", async () => {
+      const passwordField = buildTargetedField({
+        opid: "targeted_field_0_password_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.password,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "stored-password", uris: [] });
+      options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([passwordField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        passwordField,
+        "stored-password",
+      );
     });
   });
 
