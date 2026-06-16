@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { ANON_LAYOUT_DEFAULTS } from "../anon-layout";
-
 import { ContentVerticalPaddingType } from "./landing-content.component";
+import { LANDING_FOOTER_VERTICAL_PADDING_DEFAULT } from "./landing-defaults";
 
 /**
  * Footer component for landing pages.
@@ -37,7 +36,7 @@ export class LandingFooterComponent {
    * "compact" reduces the vertical padding.
    */
   readonly footerVerticalPadding = input<ContentVerticalPaddingType>(
-    ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
+    LANDING_FOOTER_VERTICAL_PADDING_DEFAULT,
   );
 
   protected readonly paddingClasses = computed(() =>

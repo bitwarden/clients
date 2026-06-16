@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { ANON_LAYOUT_DEFAULTS } from "../anon-layout";
+import { LANDING_CONTENT_VERTICAL_PADDING_DEFAULT } from "./landing-defaults";
 
 export const LandingContentMaxWidth = ["md", "lg", "xl", "2xl", "3xl", "4xl"] as const;
 
@@ -57,7 +57,7 @@ export class LandingContentComponent {
    * "compact" reduces the vertical padding.
    */
   readonly contentVerticalPadding = input<ContentVerticalPaddingType>(
-    ANON_LAYOUT_DEFAULTS.contentVerticalPadding,
+    LANDING_CONTENT_VERTICAL_PADDING_DEFAULT,
   );
 
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
