@@ -1,3 +1,5 @@
+import { app } from "electron";
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -6,11 +8,12 @@ import {
   IpcCommunicationBackend,
   IncomingMessage,
   OutgoingMessage,
+  ipcRegisterDiscoverHandler,
 } from "@bitwarden/sdk-internal";
 
 import { SafariIpcMain } from "./safari-ipc.main";
 
-/** Envelope serialized over the buffered Safari socket. Payloads are opaque (SDK-encrypted). */
+/** Envelope serialized over the buffered Safari XPC service. Payloads are opaque (SDK-encrypted). */
 interface SafariIpcEnvelope {
   destination: unknown;
   source?: unknown;
@@ -49,6 +52,9 @@ export class MainIpcService extends IpcService {
       this.safariIpcMain.setMessageHandler((raw) => this.receive(raw));
 
       await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
+
+      // Respond to DiscoverRequests from other endpoints (e.g. the browser extension).
+      await ipcRegisterDiscoverHandler(this.client, { version: app.getVersion() });
     } catch (e) {
       this.logService.error("[IPC] Safari IPC initialization failed", e);
     }

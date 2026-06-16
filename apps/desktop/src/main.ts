@@ -421,9 +421,10 @@ export class Main {
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
 
-          // Safari cannot use native messaging hosts; it talks to the desktop over a buffered
-          // socket in the shared App Group container (macOS only).
-          if (process.platform === "darwin") {
+          // Safari cannot use native messaging hosts; it talks to the desktop over an app-group
+          // XPC service. Only the sandboxed Mac App Store build can vend that service, and it is
+          // the only build that ships the Safari extension.
+          if (isMacAppStore()) {
             await this.safariIpcMain.listen();
           }
         } catch (err) {

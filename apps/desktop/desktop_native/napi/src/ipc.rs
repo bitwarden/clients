@@ -124,7 +124,7 @@ pub mod ipc {
         ) -> napi::Result<Self> {
             #[cfg(target_os = "macos")]
             {
-                let (send, mut recv) = tokio::sync::mpsc::channel::<String>(32);
+                let (send, mut recv) = tokio::sync::mpsc::unbounded_channel::<String>();
                 tokio::spawn(async move {
                     while let Some(message) = recv.recv().await {
                         callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
@@ -166,15 +166,15 @@ pub mod ipc {
             #[cfg(target_os = "macos")]
             {
                 self.server.enqueue(message);
-                Ok(())
             }
             #[cfg(not(target_os = "macos"))]
             {
                 let _ = message;
-                Err(napi::Error::from_reason(
+                return Err(napi::Error::from_reason(
                     "Safari IPC server is only supported on macOS",
-                ))
+                ));
             }
+            Ok(())
         }
     }
 }

@@ -1825,6 +1825,7 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
     await this.ipcService.init();
+    (window as any).discover = () => (this.ipcService as IpcBackgroundService).discover();
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
       await this.sharedUnlockLeaderService.start();
     }

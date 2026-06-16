@@ -33,6 +33,7 @@ memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
 rsa = "=0.9.6"
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 sha2 = "=0.10.9"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
@@ -62,7 +63,6 @@ core-foundation = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 homedir = { workspace = true }
 secmem-proc = { workspace = true }
-serde_json = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 
@@ -70,7 +70,6 @@ security-framework-sys = { workspace = true, optional = true }
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
-serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
     "Foundation",

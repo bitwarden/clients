@@ -4,7 +4,10 @@
 //! no long-lived process, so the desktop app cannot push messages to it. Instead, this server
 //! buffers messages destined for the extension and lets the extension drain them by polling.
 //!
-//! Connections are short-lived. Each frame is a JSON [`Request`]:
+//! The transport is an app-group XPC Mach service (vended by [`desktop_objc::SafariXpcListener`]).
+//! It only works when the desktop app is sandboxed (the Mac App Store build), which is the only
+//! build that ships the Safari extension. Each request is a JSON [`Request`] carried in the XPC
+//! message's `req` field, and the JSON response is returned in the reply's `res` field:
 //! - `{"op":"send","payload":"..."}` forwards an extension -> desktop payload to the consumer
 //!   channel and replies `{"ok":true}`.
 //! - `{"op":"receive"}` drains the outbound (desktop -> extension) queue and replies
@@ -13,57 +16,23 @@
 use std::{
     collections::VecDeque,
     error::Error,
-    path::PathBuf,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 
-use anyhow::Result;
-use futures::{SinkExt, StreamExt, TryFutureExt};
-use interprocess::local_socket::{tokio::prelude::*, GenericFilePath, ListenerOptions};
+use desktop_objc::SafariXpcListener;
 use serde::{Deserialize, Serialize};
-use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    sync::mpsc,
-};
-use tokio_util::sync::CancellationToken;
-use tracing::{error, info};
+use tokio::sync::mpsc;
+use tracing::error;
 
 /// The application group identifier shared between the desktop app, the `desktop_proxy`, and the
-/// Safari web extension. Used to locate sockets in a shared container that a sandboxed Safari
-/// extension can reach.
+/// Safari web extension. Used as the prefix for the app-group XPC Mach service that a sandboxed
+/// Safari extension can reach.
 pub const APP_GROUP_ID: &str = "LTZ2PFU5D6.com.bitwarden.desktop";
 
-/// Endpoint name for the buffered Safari IPC socket. Must match the Safari extension's
-/// `BufferedSocketClient.socketName` (`s.bw-safari`).
-const SOCKET_NAME: &str = "bw-safari";
-
-/// Path to an IPC socket inside the shared App Group container.
-///
-/// Unlike [`crate::ipc::path`], this always resolves to the App Group container on macOS regardless
-/// of whether the current process is sandboxed. This is required for the Safari buffered socket: a
-/// sandboxed Safari web extension can only reach the shared Group Container, while the (potentially
-/// unsandboxed, non-MAS) desktop app must agree on the same location.
-fn app_group_path(name: &str) -> PathBuf {
-    let mut home = dirs::home_dir().expect("Could not find user home directory");
-
-    // If the process is sandboxed, the home dir points inside Library/Containers/...; strip
-    // back to the user's home so we can reach the shared Group Containers directory.
-    if let Some(position) = home
-        .components()
-        .position(|c| c.as_os_str() == "Containers")
-    {
-        while home.components().count() > position - 1 {
-            home.pop();
-        }
-    }
-
-    let dir = home.join(format!("Library/Group Containers/{APP_GROUP_ID}"));
-
-    // The directory might not exist, so create it
-    let _ = std::fs::create_dir_all(&dir);
-    dir.join(format!("s.{name}"))
-}
+/// Name of the app-group XPC Mach service the Safari extension connects to. Must be prefixed with
+/// [`APP_GROUP_ID`] and match the Safari extension's `XpcClient.serviceName`.
+const SERVICE_NAME: &str = "LTZ2PFU5D6.com.bitwarden.desktop.safari";
 
 /// The maximum number of outbound (desktop → extension) messages buffered while the extension is
 /// not polling (e.g. its service worker has been terminated). Past this, the oldest messages are
@@ -74,7 +43,7 @@ const OUTBOUND_QUEUE_CAPACITY: usize = 128;
 /// How long an outbound message stays in the buffer before it is considered stale and evicted.
 const OUTBOUND_TTL: Duration = Duration::from_secs(60);
 
-/// A request issued by the Safari extension over a buffered-server connection.
+/// A request issued by the Safari extension over the XPC connection.
 #[derive(Debug, Deserialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
 enum Request {
@@ -144,66 +113,35 @@ impl OutboundQueue {
 
 type Outbound = Arc<Mutex<OutboundQueue>>;
 
-/// Buffered IPC server that the Safari web extension polls.
+/// Buffered IPC server that the Safari web extension polls over app-group XPC.
 pub struct SafariIpcServer {
-    /// The path that the server is listening on.
-    pub path: PathBuf,
-    cancel_token: CancellationToken,
     outbound: Outbound,
+    /// The XPC listener. Dropping it cancels the Mach service; held in an `Option` so [`stop`] can
+    /// release it eagerly (otherwise a subsequent `start` could not re-register the same Mach
+    /// service name).
+    listener: Mutex<Option<SafariXpcListener>>,
 }
 
 impl SafariIpcServer {
-    /// Create and start the buffered IPC server without blocking.
+    /// Create and start the buffered XPC server without blocking.
     ///
-    /// The socket is always created inside the shared App Group container so that the sandboxed
-    /// Safari web extension can reach it.
-    pub fn start(inbound_send: mpsc::Sender<String>) -> Result<Self, Box<dyn Error>> {
-        let path = app_group_path(SOCKET_NAME);
-        let cancel_token = CancellationToken::new();
+    /// The listener registers an app-group Mach service so the sandboxed Safari web extension can
+    /// reach it.
+    pub fn start(inbound_send: mpsc::UnboundedSender<String>) -> Result<Self, Box<dyn Error>> {
         let outbound: Outbound = Arc::new(Mutex::new(OutboundQueue::new(
             OUTBOUND_QUEUE_CAPACITY,
             OUTBOUND_TTL,
         )));
 
-        // If the unix socket file already exists, we get an error when trying to bind to it, so
-        // we remove it first.
-        if path.exists() {
-            info!(
-                "Removing existing buffered IPC socket at: {}",
-                path.display()
-            );
-            std::fs::remove_file(path.clone())?;
-        }
-
-        let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
-        let opts = ListenerOptions::new().name(name);
-        let Ok(listener) = opts.create_tokio() else {
-            info!(
-                "Failed to create buffered IPC listener for path: {}",
-                path.display()
-            );
-            return Err(format!(
-                "Failed to create buffered IPC listener for path: {}",
-                path.display()
-            )
-            .into());
-        };
-        info!(
-            "Safari IPC server bound and listening at: {}",
-            path.display()
-        );
-
-        tokio::spawn(listen_incoming(
-            listener,
-            inbound_send.clone(),
-            outbound.clone(),
-            cancel_token.clone(),
-        ));
+        let outbound_cb = outbound.clone();
+        let listener = SafariXpcListener::start(
+            SERVICE_NAME,
+            Box::new(move |bytes: &[u8]| handle_request(bytes, &inbound_send, &outbound_cb)),
+        )?;
 
         Ok(SafariIpcServer {
-            path,
-            cancel_token,
             outbound,
+            listener: Mutex::new(Some(listener)),
         })
     }
 
@@ -213,94 +151,23 @@ impl SafariIpcServer {
         queue.push(message, Instant::now());
     }
 
-    /// Stop the buffered IPC server.
+    /// Stop the buffered XPC server, cancelling the Mach service.
     pub fn stop(&self) {
-        self.cancel_token.cancel();
+        // Dropping the listener cancels the Mach service.
+        *self.listener.lock().expect("listener mutex poisoned") = None;
     }
 }
 
-impl Drop for SafariIpcServer {
-    fn drop(&mut self) {
-        self.stop();
-    }
-}
-
-async fn listen_incoming(
-    listener: LocalSocketListener,
-    inbound_send: mpsc::Sender<String>,
-    outbound: Outbound,
-    cancel_token: CancellationToken,
-) {
-    loop {
-        tokio::select! {
-            _ = cancel_token.cancelled() => {
-                info!("Buffered IPC server cancelled.");
-                break;
-            },
-
-            msg = listener.accept() => {
-                match msg {
-                    Ok(client_stream) => {
-                        let future = handle_connection(
-                            client_stream,
-                            inbound_send.clone(),
-                            outbound.clone(),
-                            cancel_token.clone(),
-                        );
-                        tokio::spawn(future.map_err(|e| {
-                            error!(error = %e, "Error handling buffered connection")
-                        }));
-                    },
-                    Err(e) => {
-                        error!(error = %e, "Error accepting buffered connection");
-                        break;
-                    },
-                }
-            }
-        }
-    }
-}
-
-async fn handle_connection(
-    client_stream: impl AsyncRead + AsyncWrite + Unpin,
-    inbound_send: mpsc::Sender<String>,
-    outbound: Outbound,
-    cancel_token: CancellationToken,
-) -> Result<(), Box<dyn Error>> {
-    let mut framed = crate::ipc::internal_ipc_codec(client_stream);
-
-    loop {
-        tokio::select! {
-            _ = cancel_token.cancelled() => break,
-
-            result = framed.next() => {
-                match result {
-                    None => break, // Client disconnected.
-                    Some(Err(e)) => {
-                        error!(error = %e, "Error reading from Safari client");
-                        break;
-                    },
-                    Some(Ok(bytes)) => {
-                        let response = handle_request(&bytes, &inbound_send, &outbound).await;
-                        framed.send(response.into()).await?;
-                    },
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
-
-async fn handle_request(
+/// Handle a single Safari request. Runs synchronously on the XPC listener's dispatch queue.
+fn handle_request(
     bytes: &[u8],
-    inbound_send: &mpsc::Sender<String>,
+    inbound_send: &mpsc::UnboundedSender<String>,
     outbound: &Outbound,
 ) -> Vec<u8> {
     match serde_json::from_slice::<Request>(bytes) {
         Ok(Request::Send { payload }) => {
             // Best-effort forward to the desktop. Failure means the consumer is gone.
-            let ok = inbound_send.send(payload).await.is_ok();
+            let ok = inbound_send.send(payload).is_ok();
             serde_json::to_vec(&SendResponse { ok }).unwrap_or_default()
         }
         Ok(Request::Receive) => {
@@ -377,5 +244,46 @@ mod tests {
 
         // "old" expired and was evicted, so "a" and "b" both fit without dropping.
         assert_eq!(q.drain(later), vec!["a".to_string(), "b".to_string()]);
+    }
+
+    #[test]
+    fn handle_request_send_forwards_payload_and_acks() {
+        let (tx, mut rx) = mpsc::unbounded_channel::<String>();
+        let outbound: Outbound = Arc::new(Mutex::new(OutboundQueue::new(8, OUTBOUND_TTL)));
+
+        let response = handle_request(br#"{"op":"send","payload":"hello"}"#, &tx, &outbound);
+
+        assert_eq!(response, br#"{"ok":true}"#);
+        assert_eq!(rx.try_recv().unwrap(), "hello".to_string());
+    }
+
+    #[test]
+    fn handle_request_receive_drains_buffered_messages() {
+        let (tx, _rx) = mpsc::unbounded_channel::<String>();
+        let outbound: Outbound = Arc::new(Mutex::new(OutboundQueue::new(8, OUTBOUND_TTL)));
+        {
+            let mut q = outbound.lock().unwrap();
+            q.push("one".into(), Instant::now());
+            q.push("two".into(), Instant::now());
+        }
+
+        let response = handle_request(br#"{"op":"receive"}"#, &tx, &outbound);
+
+        assert_eq!(response, br#"{"messages":["one","two"]}"#);
+        // The queue is emptied by the drain.
+        assert!(outbound.lock().unwrap().drain(Instant::now()).is_empty());
+    }
+
+    #[test]
+    fn handle_request_rejects_malformed_input() {
+        let (tx, _rx) = mpsc::unbounded_channel::<String>();
+        let outbound: Outbound = Arc::new(Mutex::new(OutboundQueue::new(8, OUTBOUND_TTL)));
+
+        // Both invalid JSON and an empty body (NULL request data) reply with ok=false.
+        assert_eq!(
+            handle_request(b"not json", &tx, &outbound),
+            br#"{"ok":false}"#
+        );
+        assert_eq!(handle_request(b"", &tx, &outbound), br#"{"ok":false}"#);
     }
 }

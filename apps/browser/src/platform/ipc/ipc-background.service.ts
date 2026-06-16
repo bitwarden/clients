@@ -7,8 +7,11 @@ import {
   IncomingMessage,
   OutgoingMessage,
   ipcRegisterDiscoverHandler,
+  ipcRequestDiscover,
   IpcClient,
   IpcSessionRepository,
+  Endpoint,
+  DiscoverResponse,
 } from "@bitwarden/sdk-internal";
 
 import { SafariApp } from "../../browser/safariApp";
@@ -153,6 +156,14 @@ export class IpcBackgroundService extends IpcService {
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
+  }
+
+  /**
+   * Sends a DiscoverRequest to the given destination and returns its response.
+   * Defaults to the desktop main process.
+   */
+  async discover(destination: Endpoint = "DesktopMain"): Promise<DiscoverResponse> {
+    return ipcRequestDiscover(this.client, destination);
   }
 
   private async sendToDesktopViaSafari(message: OutgoingMessage): Promise<void> {

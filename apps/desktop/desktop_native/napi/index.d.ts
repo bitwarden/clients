@@ -201,7 +201,10 @@ export declare namespace ipc {
     static listen(callback: (error: null | Error, message: string) => void): SafariIpcServer
     /** Stop the buffered IPC server. */
     stop(): void
-    /** Buffer a message to send to the Safari extension. The safari extension will poll the desktop app to collect the message. */
+    /**
+     * Buffer a message to send to the Safari extension. The safari extension will poll the
+     * desktop app to collect the message.
+     */
     enqueue(message: string): void
   }
   export interface IpcMessage {

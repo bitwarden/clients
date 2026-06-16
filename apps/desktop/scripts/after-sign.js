@@ -15,7 +15,9 @@ async function run(context) {
   const appName = context.packager.appInfo.productFilename;
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
-  const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
+  // The Safari extension talks to the desktop over an app-group XPC service, which only the
+  // sandboxed Mac App Store build can vend. Only bundle it into the MAS build.
+  const copySafariExtension = ["mas"].includes(context.electronPlatformName);
   const isMasDevBuild =
     context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
   const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName) || isMasDevBuild;
