@@ -81,6 +81,17 @@ const nativeMessaging = {
   },
 };
 
+const safariIpc = {
+  /** Buffer a desktop → Safari-extension message for delivery on the extension's next poll. */
+  enqueue: (message: string) => {
+    ipcRenderer.send("safariIpc.enqueue", message);
+  },
+  /** Subscribe to extension → desktop messages drained from the buffered socket. */
+  onMessage: (callback: (message: string) => void) => {
+    ipcRenderer.on("safariIpc.message", (_event, message: string) => callback(message));
+  },
+};
+
 const ephemeralStore = {
   setEphemeralValue: (key: string, value: string): Promise<void> =>
     ipcRenderer.invoke("setEphemeralValue", { key, value }),
@@ -178,6 +189,7 @@ export default {
   clipboard,
   powermonitor,
   nativeMessaging,
+  safariIpc,
   crypto,
   ephemeralStore,
   localhostCallbackService,

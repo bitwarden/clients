@@ -375,6 +375,37 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 ],
             ]
             break
+        case "sendMessage":
+            // Transport verb: forward an extension → desktop payload to the buffered desktop
+            // socket. The payload is opaque (end-to-end encrypted by the SDK IPC layer).
+            let payloadString = message?["data"] as? String ?? ""
+            DispatchQueue.global(qos: .userInitiated).async {
+                var ok = false
+                let request: [String: Any] = ["op": "send", "payload": payloadString]
+                if let requestData = try? JSONSerialization.data(withJSONObject: request),
+                   let responseData = BufferedSocketClient.sendRequest(requestData),
+                   let parsed = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any] {
+                    ok = parsed["ok"] as? Bool ?? false
+                }
+                response.userInfo = [ SFExtensionMessageKey: [ "ok": ok ] ]
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+            }
+            return
+        case "receiveMessage":
+            // Transport verb: drain buffered desktop → extension messages by polling.
+            DispatchQueue.global(qos: .userInitiated).async {
+                var messages: [String] = []
+                let request: [String: Any] = ["op": "receive"]
+                if let requestData = try? JSONSerialization.data(withJSONObject: request),
+                   let responseData = BufferedSocketClient.sendRequest(requestData),
+                   let parsed = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+                   let msgs = parsed["messages"] as? [String] {
+                    messages = msgs
+                }
+                response.userInfo = [ SFExtensionMessageKey: [ "messages": messages ] ]
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+            }
+            return
         default:
             return
         }
@@ -404,6 +435,117 @@ func jsonDeserialize<T: Decodable>(json: String?) -> T? {
         return obj
     } catch _ {
         return nil
+    }
+}
+
+/// Client for the desktop app's buffered Safari IPC socket.
+///
+/// The socket lives in the shared App Group container so this sandboxed extension can reach it.
+/// Frames are length-delimited with a 4-byte little-endian length prefix, matching the desktop's
+/// `LengthDelimitedCodec` (native endian; macOS is little-endian). All payloads are opaque.
+enum BufferedSocketClient {
+    /// Shared App Group identifier; must match the desktop app, the desktop proxy, and the Rust
+    /// `app_group_path` helper.
+    static let appGroupId = "LTZ2PFU5D6.com.bitwarden.desktop"
+    /// Socket endpoint name; must match the desktop's `NativeBufferedIpcServer.listen` name.
+    static let socketName = "s.bw-safari"
+    /// Maximum frame size, matching the desktop's `NATIVE_MESSAGING_BUFFER_SIZE`.
+    static let maxFrameLength = 1024 * 1024
+
+    /// Resolve the socket path inside the shared App Group container.
+    static func socketPath() -> String? {
+        guard let container = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
+            os_log(.error, "[BufferedSocketClient] App Group container URL is nil for group %{public}@ — is the app group entitlement provisioned for the extension?", appGroupId)
+            return nil
+        }
+        return container.appendingPathComponent(socketName).path
+    }
+
+    /// Send one length-delimited request and return the response payload. Blocking; call off the
+    /// main thread. Returns `nil` on any connection or protocol error.
+    static func sendRequest(_ payload: Data) -> Data? {
+        guard let path = socketPath() else { return nil }
+        guard payload.count <= maxFrameLength else {
+            os_log(.error, "[BufferedSocketClient] Payload too large: %d bytes", payload.count)
+            return nil
+        }
+        os_log(.default, "[BufferedSocketClient] Connecting to socket at %{public}@", path)
+
+        let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+        if fd < 0 {
+            os_log(.error, "[BufferedSocketClient] socket() failed: errno %d (%{public}@)", errno, String(cString: strerror(errno)))
+            return nil
+        }
+        defer { close(fd) }
+
+        var addr = sockaddr_un()
+        addr.sun_family = sa_family_t(AF_UNIX)
+        let pathBytes = path.utf8CString
+        // sun_path is a fixed-size buffer (104 bytes on Darwin); the path must fit including its
+        // null terminator.
+        if pathBytes.count > MemoryLayout.size(ofValue: addr.sun_path) {
+            os_log(.error, "[BufferedSocketClient] Socket path too long (%d bytes, max %d)", pathBytes.count, MemoryLayout.size(ofValue: addr.sun_path))
+            return nil
+        }
+        withUnsafeMutablePointer(to: &addr.sun_path) { rawPtr in
+            rawPtr.withMemoryRebound(to: CChar.self, capacity: pathBytes.count) { dst in
+                pathBytes.withUnsafeBufferPointer { src in
+                    dst.update(from: src.baseAddress!, count: pathBytes.count)
+                }
+            }
+        }
+
+        let connected = withUnsafePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                connect(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
+            }
+        }
+        if connected < 0 {
+            os_log(.error, "[BufferedSocketClient] connect() failed: errno %d (%{public}@) — is the desktop app running and listening at this path?", errno, String(cString: strerror(errno)))
+            return nil
+        }
+        os_log(.default, "[BufferedSocketClient] Connected successfully")
+
+        // Write the 4-byte little-endian length prefix followed by the payload.
+        var lengthLE = UInt32(payload.count).littleEndian
+        let header = Data(bytes: &lengthLE, count: 4)
+        if !writeAll(fd, header) || !writeAll(fd, payload) { return nil }
+
+        // Read the response length prefix, then exactly that many bytes.
+        guard let lengthData = readExactly(fd, 4) else { return nil }
+        let responseLength = lengthData.withUnsafeBytes { UInt32(littleEndian: $0.load(as: UInt32.self)) }
+        if responseLength > UInt32(maxFrameLength) { return nil }
+        return readExactly(fd, Int(responseLength))
+    }
+
+    private static func writeAll(_ fd: Int32, _ data: Data) -> Bool {
+        data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Bool in
+            guard let base = raw.baseAddress else { return data.isEmpty }
+            var total = 0
+            while total < data.count {
+                let n = write(fd, base + total, data.count - total)
+                if n <= 0 { return false }
+                total += n
+            }
+            return true
+        }
+    }
+
+    private static func readExactly(_ fd: Int32, _ count: Int) -> Data? {
+        if count == 0 { return Data() }
+        var buffer = Data(count: count)
+        let ok = buffer.withUnsafeMutableBytes { (raw: UnsafeMutableRawBufferPointer) -> Bool in
+            guard let base = raw.baseAddress else { return false }
+            var total = 0
+            while total < count {
+                let n = read(fd, base + total, count - total)
+                if n <= 0 { return false }
+                total += n
+            }
+            return true
+        }
+        return ok ? buffer : nil
     }
 }
 

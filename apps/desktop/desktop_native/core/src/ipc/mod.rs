@@ -5,8 +5,15 @@ use std::vec;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 
+pub mod buffered_server;
 pub mod client;
 pub mod server;
+
+/// The application group identifier shared between the desktop app, the `desktop_proxy`, and the
+/// Safari web extension. Used to locate sockets in a shared container that a sandboxed Safari
+/// extension can reach.
+#[cfg(target_os = "macos")]
+pub const APP_GROUP_ID: &str = "LTZ2PFU5D6.com.bitwarden.desktop";
 
 /// The maximum size of a message that can be sent over IPC.
 /// According to the documentation, the maximum size sent to the browser is 1MB.
@@ -105,6 +112,43 @@ pub fn path(name: &str) -> std::path::PathBuf {
         // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);
         path_dir.join(format!("s.{name}"))
+    }
+}
+
+/// Path to an IPC socket inside the shared App Group container.
+///
+/// Unlike [`path`], this always resolves to the App Group container on macOS regardless of whether
+/// the current process is sandboxed. This is required for the Safari buffered socket: a sandboxed
+/// Safari web extension can only reach the shared Group Container, while the (potentially
+/// unsandboxed, non-MAS) desktop app must agree on the same location.
+pub fn app_group_path(name: &str) -> std::path::PathBuf {
+    #[cfg(target_os = "macos")]
+    {
+        let mut home = dirs::home_dir().expect("Could not find user home directory");
+
+        // If the process is sandboxed, the home dir points inside Library/Containers/...; strip
+        // back to the user's home so we can reach the shared Group Containers directory.
+        if let Some(position) = home
+            .components()
+            .position(|c| c.as_os_str() == "Containers")
+        {
+            while home.components().count() > position - 1 {
+                home.pop();
+            }
+        }
+
+        let dir = home.join(format!("Library/Group Containers/{APP_GROUP_ID}"));
+
+        // The directory might not exist, so create it
+        let _ = std::fs::create_dir_all(&dir);
+        dir.join(format!("s.{name}"))
+    }
+
+    // On non-macOS platforms there is no Safari extension; fall back to the normal path so the
+    // crate still compiles. This path is not expected to be used.
+    #[cfg(not(target_os = "macos"))]
+    {
+        path(name)
     }
 }
 

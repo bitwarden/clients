@@ -106,4 +106,76 @@ pub mod ipc {
                 .map(|u| u32::try_from(u).unwrap_or_default())
         }
     }
+
+    /// Buffered IPC server for the Safari web extension.
+    ///
+    /// Unlike [`NativeIpcServer`], which relays messages over a persistent connection, this server
+    /// buffers messages destined for the extension and lets the extension drain them by polling.
+    /// This is required because Safari's native component is a stateless, per-request handler that
+    /// the desktop cannot push to.
+    #[napi]
+    pub struct NativeBufferedIpcServer {
+        server: desktop_core::ipc::buffered_server::BufferedServer,
+    }
+
+    #[napi]
+    impl NativeBufferedIpcServer {
+        /// Create and start the buffered IPC server without blocking.
+        ///
+        /// @param name The endpoint name to listen on. The socket is always created inside the
+        /// shared App Group container so the sandboxed Safari extension can reach it. @param
+        /// callback This function will be called whenever an extension → desktop message is
+        /// received.
+        #[allow(clippy::unused_async)] // FIXME: Remove unused async!
+        #[napi(factory)]
+        pub async fn listen(
+            name: String,
+            #[napi(ts_arg_type = "(error: null | Error, message: string) => void")]
+            callback: ThreadsafeFunction<String>,
+        ) -> napi::Result<Self> {
+            let (send, mut recv) = tokio::sync::mpsc::channel::<String>(32);
+            tokio::spawn(async move {
+                while let Some(message) = recv.recv().await {
+                    callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
+                }
+            });
+
+            let paths = vec![desktop_core::ipc::app_group_path(&name)];
+
+            let server =
+                desktop_core::ipc::buffered_server::BufferedServer::start(paths.clone(), send)
+                    .map_err(|e| {
+                        napi::Error::from_reason(format!(
+                            "Error listening to buffered server - Path: {paths:?} - Error: {e:?}"
+                        ))
+                    })?;
+
+            Ok(NativeBufferedIpcServer { server })
+        }
+
+        /// Return the paths to the buffered IPC server.
+        #[napi]
+        pub fn get_paths(&self) -> Vec<String> {
+            self.server
+                .paths
+                .iter()
+                .filter_map(|p| p.to_string_lossy().into_owned().into())
+                .collect()
+        }
+
+        /// Stop the buffered IPC server.
+        #[napi]
+        pub fn stop(&self) -> napi::Result<()> {
+            self.server.stop();
+            Ok(())
+        }
+
+        /// Buffer a desktop → extension message to be delivered on the extension's next receive
+        /// poll.
+        #[napi]
+        pub fn enqueue(&self, message: String) -> napi::Result<()> {
+            self.server.enqueue(message);
+            Ok(())
+        }
+    }
 }
