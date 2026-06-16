@@ -349,6 +349,7 @@ describe("OrganizationSubscriptionCloudComponent.subscriptionLineItems (discount
 
     expect(item.amount).toBe(7); // per-unit price stays at full value
     expect(item.discountedTotal).toBe(55);
+    expect(item.discounted).toBe(true);
   });
 
   it("subtracts a fixed amount-off from a single-seat annual line total (1 x $72 - $15 = $57)", () => {
@@ -398,6 +399,21 @@ describe("OrganizationSubscriptionCloudComponent.subscriptionLineItems (discount
     // $15 consumed entirely by the first line (10 x $7 - $15 = $55); the second line is untouched.
     expect(first.discountedTotal).toBe(55);
     expect(second.discountedTotal).toBe(20);
+    // The fully-consumed second line was not reduced, so it must not render a strikethrough/qualifier.
+    expect(first.discounted).toBe(true);
+    expect(second.discounted).toBe(false);
+  });
+
+  it("marks a line the discount does not apply to as not discounted", () => {
+    setup({ active: true, amountOff: 15, appliesTo: ["prod_seats"] }, [
+      lineItem({ productId: "prod_seats", amount: 7, quantity: 10 }),
+      lineItem({ productId: "prod_storage", amount: 4, quantity: 5 }),
+    ]);
+
+    const [first, second] = component.subscriptionLineItems;
+
+    expect(first.discounted).toBe(true); // reduced to $55
+    expect(second.discounted).toBe(false); // product-scoped out, stays at full $20
   });
 
   it("leaves the line total at full value when there is no discount", () => {
@@ -406,6 +422,7 @@ describe("OrganizationSubscriptionCloudComponent.subscriptionLineItems (discount
     const [item] = component.subscriptionLineItems;
 
     expect(item.discountedTotal).toBe(70);
+    expect(item.discounted).toBe(false);
   });
 });
 

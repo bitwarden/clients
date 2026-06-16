@@ -232,6 +232,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       originalAmount: lineItem.amount,
       amount: this.discountPrice(lineItem.amount, lineItem.productId),
       discountedTotal: discountedTotals[index],
+      // True only when this line's total was actually reduced. A fixed amount-off consumed in full by
+      // earlier lines leaves later lines undiscounted, so they must not render a strikethrough/qualifier.
+      discounted: discountedTotals[index] < lineItem.quantity * lineItem.amount,
       quantity: lineItem.quantity,
       interval: lineItem.interval,
       sponsoredSubscriptionItem: lineItem.sponsoredSubscriptionItem,

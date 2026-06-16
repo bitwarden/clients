@@ -64,19 +64,14 @@
                         {{ i.discountedTotal | currency: "$" }} /
                         {{ i.interval | i18n }}
                       </span>
-                      <span
-                        *ngIf="
-                          (customerDiscount?.percentOff || customerDiscount?.amountOff) &&
-                          discountAppliesToProduct(i.productId)
-                        "
-                        class="tw-line-through !tw-text-muted"
+                      <span *ngIf="i.discounted" class="tw-line-through !tw-text-muted"
                         >{{ i.quantity * i.originalAmount | currency: "$" }} /
                         {{ i.interval | i18n }}</span
                       >
                       <span
                         *ngIf="
-                          (customerDiscount?.durationInMonths != null || customerDiscount?.end) &&
-                          discountAppliesToProduct(i.productId)
+                          i.discounted &&
+                          (customerDiscount?.durationInMonths != null || customerDiscount?.end)
                         "
                         class="tw-text-sm !tw-text-muted"
                       >
