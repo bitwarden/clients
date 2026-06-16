@@ -11,6 +11,7 @@ import {
   DefaultPamApiService,
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
+  AccessDecisionVerdict,
   AccessEventService,
   AccessLeaseExtensionRequest,
   AccessLeaseResponse,
@@ -343,7 +344,7 @@ export class MockPamApiService extends DefaultPamApiService {
     if (existing.status !== "pending") {
       return existing;
     }
-    if (request.verdict === "approve") {
+    if (request.verdict === AccessDecisionVerdict.Approve) {
       // Approval issues an approved request — no lease is minted here. The requester
       // activates it via activateLease. An extension instead extends its parent in
       // place. The mock has no approver identity wired in, so approverId

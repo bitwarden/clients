@@ -6,7 +6,7 @@ import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, I18nMockService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
+import { AccessDecisionVerdict, AccessRequestDetailsResponse } from "@bitwarden/pam";
 
 import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 
@@ -156,7 +156,9 @@ describe("ApprovalsComponent", () => {
     await fixture.whenStable();
 
     expect(dialogService.open).toHaveBeenCalledTimes(1);
-    expect(events).toEqual([expect.objectContaining({ verdict: "approve", comment: "ok" })]);
+    expect(events).toEqual([
+      expect.objectContaining({ verdict: AccessDecisionVerdict.Approve, comment: "ok" }),
+    ]);
     expect(events[0].request.id).toBe("other");
   });
 

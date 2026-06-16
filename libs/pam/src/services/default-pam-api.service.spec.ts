@@ -6,9 +6,10 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 
 import { AccessEventService } from "../abstractions/access-event.service";
 import { AccessCondition } from "../abstractions/access-rule";
+import { AccessApprovalMode } from "../abstractions/responses/access-pre-check.response";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
-import { AccessDecisionRequest } from "./requests/access-decision.request";
+import { AccessDecisionRequest, AccessDecisionVerdict } from "./requests/access-decision.request";
 import { AccessLeaseExtensionRequest } from "./requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "./requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "./requests/access-request-create.request";
@@ -34,7 +35,7 @@ describe("DefaultPamApiService", () => {
       apiService.send.mockResolvedValue({
         Object: "accessPreCheck",
         CipherId: "cipher-1",
-        ApprovalMode: "human",
+        ApprovalMode: AccessApprovalMode.Human,
       });
 
       const result = await service.getAccessPreCheck("cipher-1");
@@ -47,7 +48,7 @@ describe("DefaultPamApiService", () => {
         true,
       );
       expect(result.cipherId).toBe("cipher-1");
-      expect(result.approvalMode).toBe("human");
+      expect(result.approvalMode).toBe(AccessApprovalMode.Human);
     });
   });
 
@@ -55,7 +56,7 @@ describe("DefaultPamApiService", () => {
     it("POSTs /ciphers/{id}/lease with a duration body on the automatic path", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        ApprovalMode: "automatic",
+        ApprovalMode: AccessApprovalMode.Automatic,
         Request: {
           Object: "leaseRequest",
           Id: "req-1",
@@ -80,7 +81,7 @@ describe("DefaultPamApiService", () => {
         true,
         true,
       );
-      expect(result.approvalMode).toBe("automatic");
+      expect(result.approvalMode).toBe(AccessApprovalMode.Automatic);
       expect(result.request).not.toBeNull();
       expect(result.request?.id).toBe("req-1");
       expect(result.request?.status).toBe("approved");
@@ -90,7 +91,7 @@ describe("DefaultPamApiService", () => {
     it("POSTs /ciphers/{id}/lease with a window body on the human path", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        ApprovalMode: "human",
+        ApprovalMode: AccessApprovalMode.Human,
         Lease: null,
         Request: {
           Object: "leaseRequest",
@@ -120,7 +121,7 @@ describe("DefaultPamApiService", () => {
         true,
         true,
       );
-      expect(result.approvalMode).toBe("human");
+      expect(result.approvalMode).toBe(AccessApprovalMode.Human);
       expect(result.request).not.toBeNull();
       expect(result.request?.id).toBe("req-1");
       expect(result.request?.status).toBe("pending");
@@ -131,7 +132,7 @@ describe("DefaultPamApiService", () => {
     it("pumps mutations$ after a successful automatic lease", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        ApprovalMode: "automatic",
+        ApprovalMode: AccessApprovalMode.Automatic,
         Lease: {
           Object: "lease",
           Id: "lease-1",
@@ -159,7 +160,7 @@ describe("DefaultPamApiService", () => {
     it("pumps mutations$ after a successful human request", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
-        ApprovalMode: "human",
+        ApprovalMode: AccessApprovalMode.Human,
         Lease: null,
         Request: {
           Object: "leaseRequest",
@@ -289,7 +290,7 @@ describe("DefaultPamApiService", () => {
   describe("decideAccessRequest", () => {
     it("POSTs /access-requests/{id}/decision and wraps the response", async () => {
       apiService.send.mockResolvedValue({ Id: "req-1", Status: "approved" });
-      const req = new AccessDecisionRequest({ verdict: "approve" });
+      const req = new AccessDecisionRequest({ verdict: AccessDecisionVerdict.Approve });
 
       const result = await service.decideAccessRequest("req-1", req);
 

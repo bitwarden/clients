@@ -9,7 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
+import { AccessDecisionVerdict, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
@@ -170,7 +170,7 @@ describe("ApprovalsTabComponent", () => {
     expect(pamApiService.decideAccessRequest).toHaveBeenCalledTimes(1);
     expect(pamApiService.decideAccessRequest).toHaveBeenCalledWith(
       "target",
-      expect.objectContaining({ verdict: "approve" }),
+      expect.objectContaining({ verdict: AccessDecisionVerdict.Approve }),
     );
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "success", message: "Approved" }),
