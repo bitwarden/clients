@@ -12,6 +12,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant, DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -48,6 +49,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected logService: LogService,
   ) {
     super(
       cipherService,
@@ -67,7 +69,11 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   async setCiphers() {
+    this.logService.info(`[WeakPasswordsReport] Loading ciphers for report`);
+
     const allCiphers = await this.getAllCiphers();
+    this.logService.info(`[WeakPasswordsReport] Loaded ${allCiphers.length} ciphers for report`);
+
     this.weakPasswordCiphers = [];
     this.filterStatus = [0];
     this.findWeakPasswords(allCiphers);
@@ -100,13 +106,29 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   protected findWeakPasswords(ciphers: CipherView[]): void {
+    const loginCiphers = ciphers.filter((c) => c.type === CipherType.Login);
+    this.logService.info(`[WeakPasswordsReport] Analyzing ${loginCiphers.length} logins`);
+
+    this.logService.info(
+      `[WeakPasswordsReport] Checking passwords against user inputs and common patterns`,
+    );
     ciphers.forEach((ciph) => {
       const row = this.determineWeakPasswordScore(ciph);
       if (row != null) {
         this.weakPasswordCiphers.push(row);
       }
     });
+
+    this.logService.info(
+      `[WeakPasswordsReport] Found ${this.weakPasswordCiphers.length} weak passwords`,
+    );
+
+    this.logService.info(`[WeakPasswordsReport] Filtering ciphers by organization`);
     this.filterCiphersByOrg(this.weakPasswordCiphers);
+
+    this.logService.info(
+      `[WeakPasswordsReport] Finished loading report with ${this.ciphers.length} ciphers to display`,
+    );
   }
 
   protected determineWeakPasswordScore(ciph: CipherView): ReportResult | null {
