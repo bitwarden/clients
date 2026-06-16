@@ -25,7 +25,7 @@ export class SafariIpcMain {
       this.ipcServer.stop();
     }
 
-    this.ipcServer = ipc.SafariIpcServer.listen((error, message) => {
+    this.ipcServer = await ipc.SafariIpcServer.listen((error, message) => {
       if (error != null) {
         this.logService.warning("[SafariIPC] error:", error);
         return;
