@@ -43,18 +43,22 @@ import {
   DialogRef,
   DialogService,
   IconComponent,
+  PopoverModule,
   TabsModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { NewAdminWelcomeDialogComponent } from "../../onboarding/new-admin-welcome-dialog.component";
 import { PostImportModalDialogComponent } from "../../onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
+import { NewApplicationsDialogV2Component } from "../activity-tab/new-applications-dialog-v2/new-applications-dialog-v2.component";
 import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
 import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
 import { CriticalApplicationsTabComponent } from "../critical-applications-tab/critical-applications-tab.component";
@@ -77,6 +81,7 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
+    AccessIntelligenceCoachmarkComponent,
     ActivityTabComponent,
     AllApplicationsTabComponent,
     ApplicationsTabComponent,
@@ -89,6 +94,7 @@ type ProgressStep = ReportProgress | null;
     JslibModule,
     HeaderModule,
     PageLoadingComponent,
+    PopoverModule,
     TabsModule,
     ReportLoadingComponent,
     DevMenuComponent,
@@ -170,6 +176,18 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected readonly isDevMode = signal<boolean>(isDevMode());
 
+  protected readonly monitorActivityOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorActivity",
+  );
+
+  protected readonly criticalApplicationsOpen = computed(
+    () => this.coachmarkService.activeStepId() === "criticalApplications",
+  );
+
+  protected readonly runReportOpen = computed(
+    () => this.coachmarkService.activeStepId() === "runReport",
+  );
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -180,6 +198,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
     private readonly injector: Injector,
+    private readonly coachmarkService: AccessIntelligenceCoachmarkService,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -220,14 +239,35 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
     effect(() => {
       // determine if we need to begin the post import tour
-      // to be launched when report generation is complete
-      // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import
+      // wait for the report generation to complete (but only if we came via the post Import flow, indicated by mustBeginPostImportTour)
+      // when report generation is complete (i.e. this.currentProgressStep() is null)
+      // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import)
       if (this.currentProgressStep() === null && this.mustBeginPostImportTour()) {
         this.mustBeginPostImportTour.set(false);
 
         // open the dialog only after the rendering of the report is complete
         afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
       }
+    });
+
+    effect(() => {
+      // coachmarks are running, so set tab index to the coachmark's required tab
+      const tabIndex = this.coachmarkService.requiredTabIndex();
+      if (tabIndex !== null && tabIndex !== this.tabIndex()) {
+        this.tabIndex.set(tabIndex);
+      }
+    });
+
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const report = this.report();
+      if (!report) {
+        return;
+      }
+      NewApplicationsDialogV2Component.open(this.dialogService, {
+        newApplications: report.getNewApplications(),
+        organizationId: this.organizationId(),
+        hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
+      });
     });
   }
 
@@ -499,6 +539,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         this.dialogService,
         this.organizationId(),
       );
+    }
+  }
+
+  protected async beginCoachmarksTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await this.coachmarkService.startTour(this.organizationId());
     }
   }
 }
