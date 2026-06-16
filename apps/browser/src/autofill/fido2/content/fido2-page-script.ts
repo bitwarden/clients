@@ -1,3 +1,4 @@
+import { currentlyInSandboxedIframe } from "../../../autofill/utils";
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
 import { MessageTypes } from "./messaging/message";
@@ -17,6 +18,15 @@ import { Messenger } from "./messaging/messenger";
         globalContext.document.location.hostname === "localhost"));
 
   if (!shouldExecuteContentScript) {
+    return;
+  }
+
+  // Match the fido2 content script's sandbox bail. Without this, the page-script
+  // override would still hijack navigator.credentials.{create,get} in frames where
+  // the content script has already returned early — leaving requests with no other
+  // end of the messenger to receive them. Bailing here lets the native browser API
+  // handle WebAuthn in those frames instead.
+  if (currentlyInSandboxedIframe()) {
     return;
   }
 
@@ -120,7 +130,7 @@ import { Messenger } from "./messaging/messenger";
         return await browserCredentials.create(options);
       }
 
-      throw error;
+      throw rehydrateDOMException(error);
     }
   }
 
@@ -209,7 +219,7 @@ import { Messenger } from "./messaging/messenger";
         return await browserCredentials.get(options);
       }
 
-      throw error;
+      throw rehydrateDOMException(error);
     }
   }
 
@@ -217,6 +227,27 @@ import { Messenger } from "./messaging/messenger";
     options?: CredentialCreationOptions | CredentialRequestOptions,
   ): options is CredentialCreationOptions | CredentialRequestOptions {
     return options != null && "publicKey" in options;
+  }
+
+  /**
+   * Errors thrown from the content-script messenger handler cross the page/isolated
+   * world boundary as JSON, which strips DOMException's prototype. Reconstruct a
+   * real DOMException so callers that check `instanceof DOMException` or `.code`
+   * see what the native browser API would throw. Scoped to `NotAllowedError` —
+   * the only DOMException name our gate produces.
+   */
+  function rehydrateDOMException(error: unknown): unknown {
+    if (
+      error != null &&
+      typeof error === "object" &&
+      "name" in error &&
+      (error as { name: unknown }).name === "NotAllowedError" &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      return new DOMException((error as { message: string }).message, "NotAllowedError");
+    }
+    return error;
   }
 
   /**
