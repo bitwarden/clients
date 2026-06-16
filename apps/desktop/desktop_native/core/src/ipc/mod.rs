@@ -5,6 +5,8 @@ use std::vec;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 
+#[cfg(target_os = "macos")]
+pub mod safari_ipc_server;
 pub mod client;
 pub mod server;
 

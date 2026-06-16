@@ -19,7 +19,7 @@ import {
 } from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -45,10 +45,12 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { MainIpcService } from "./main/main-ipc.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SafariIpcMain } from "./main/safari-ipc.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
@@ -94,6 +96,7 @@ export class Main {
   trayMain: TrayMain;
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
+  safariIpcMain: SafariIpcMain;
   clipboardMain: ClipboardMain;
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
@@ -324,6 +327,8 @@ export class Main {
       app.getAppPath(),
     );
 
+    this.safariIpcMain = new SafariIpcMain(this.logService);
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -349,9 +354,12 @@ export class Main {
       this.logService,
       this.windowMain,
     );
-    this.ipcService = new NoopIpcService(this.logService);
+
+    // Will be replaced by an implementation that does both native messaging and safari ipc
+    this.ipcService = new MainIpcService(this.logService, this.safariIpcMain);
 
     app.on("will-quit", () => {
+      this.safariIpcMain.stop();
       this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
     });
@@ -412,6 +420,12 @@ export class Main {
           // Start native messaging when shared unlock is enabled at runtime
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
+
+          // Safari cannot use native messaging hosts; it talks to the desktop over a buffered
+          // socket in the shared App Group container (macOS only).
+          if (process.platform === "darwin") {
+            await this.safariIpcMain.listen();
+          }
         } catch (err) {
           this.logService.error("Error while setting up native messaging:", err);
         }

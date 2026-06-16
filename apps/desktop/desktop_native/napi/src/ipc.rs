@@ -106,4 +106,52 @@ pub mod ipc {
                 .map(|u| u32::try_from(u).unwrap_or_default())
         }
     }
+
+    /// Ipc server for talking to the safari extension
+    #[cfg(target_os = "macos")]
+    #[napi]
+    pub struct SafariIpcServer {
+        server: desktop_core::ipc::safari_ipc_server::SafariIpcServer,
+    }
+
+    #[cfg(target_os = "macos")]
+    #[napi]
+    impl SafariIpcServer {
+        /// Create and start the buffered IPC server without blocking.
+        #[napi(factory)]
+        pub fn listen(
+            #[napi(ts_arg_type = "(error: null | Error, message: string) => void")]
+            callback: ThreadsafeFunction<String>,
+        ) -> napi::Result<Self> {
+            let (send, mut recv) = tokio::sync::mpsc::channel::<String>(32);
+            tokio::spawn(async move {
+                while let Some(message) = recv.recv().await {
+                    callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
+                }
+            });
+
+            let server = desktop_core::ipc::safari_ipc_server::SafariIpcServer::start(send)
+                .map_err(|e| {
+                    napi::Error::from_reason(format!(
+                        "Error listening to buffered server - Error: {e:?}"
+                    ))
+                })?;
+
+            Ok(SafariIpcServer { server })
+        }
+
+        /// Stop the buffered IPC server.
+        #[napi]
+        pub fn stop(&self) -> napi::Result<()> {
+            self.server.stop();
+            Ok(())
+        }
+
+        /// Buffer a message to send to the Safari extension. The safari extension will poll the desktop app to collect the message.
+        #[napi]
+        pub fn enqueue(&self, message: String) -> napi::Result<()> {
+            self.server.enqueue(message);
+            Ok(())
+        }
+    }
 }
