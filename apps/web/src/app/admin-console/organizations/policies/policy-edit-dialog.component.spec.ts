@@ -132,4 +132,32 @@ describe("PolicyEditDialogComponent", () => {
       expect(component.saveDisabled()).toBe(true);
     });
   });
+
+  describe("load()", () => {
+    it("defaults to enabled: true for SendControls when no policy exists (404)", async () => {
+      policyApiService.getPolicy.mockRejectedValue({ statusCode: 404 });
+
+      (component as any).data = {
+        ...dialogData,
+        policy: { ...dialogData.policy, type: PolicyType.SendControls },
+      };
+
+      const result = await component.load();
+
+      expect(result.enabled).toBe(true);
+    });
+
+    it("defaults to enabled: false for other policy types when no policy exists (404)", async () => {
+      policyApiService.getPolicy.mockRejectedValue({ statusCode: 404 });
+
+      (component as any).data = {
+        ...dialogData,
+        policy: { ...dialogData.policy, type: PolicyType.ResetPassword },
+      };
+
+      const result = await component.load();
+
+      expect(result.enabled).toBe(false);
+    });
+  });
 });

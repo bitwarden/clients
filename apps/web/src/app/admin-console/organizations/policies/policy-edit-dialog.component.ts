@@ -228,9 +228,11 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         this.data.policy.type,
       );
     } catch (e: any) {
-      // No policy exists yet, instantiate an empty one
+      // No policy exists yet, instantiate an empty one.
+      // SendControls defaults to enabled for new organizations.
       if (e.statusCode === 404) {
-        return new PolicyResponse({ Enabled: false });
+        const defaultEnabled = this.data.policy.type === PolicyType.SendControls;
+        return new PolicyResponse({ Enabled: defaultEnabled });
       } else {
         throw e;
       }

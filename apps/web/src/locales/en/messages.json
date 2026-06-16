@@ -5842,7 +5842,7 @@
     "message": "Allowed domains"
   },
   "allowedDomainsHint": {
-    "message": "If entering multiple domains, separate with commas"
+    "message": "Separate domains with a comma."
   },
   "enterAllowedDomainsToGenerateInviteLink": {
     "message": "Enter allowed domains to generate an invite link"
@@ -6958,14 +6958,24 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendControls": {
-    "message": "Send controls"
+    "message": "Manage Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendControlsPolicyDesc": {
-    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
-    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+    "message": "Manage how members use Send. Admins and owners are exempt from this policy.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  "sendControlsFormDescription": {
+    "message": "Manage how members use Send.",
+    "description": "Short description shown in the Send Controls policy edit form, below the policy heading. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "enableSend": {
+    "message": "Enable Send",
+    "description": "Label for the toggle that enables or disables the Send Controls policy. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "domainsFilledFromClaimedDomains": {
+    "message": "This was filled in using claimed domains. Separate domains with a comma.",
+    "description": "Hint shown in the allowed domains field when domains were autopopulated from the organization's claimed/verified domains."
   },
   "sendOptions": {
     "message": "Send options",
