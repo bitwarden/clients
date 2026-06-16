@@ -147,7 +147,8 @@ pub mod ipc {
             Ok(())
         }
 
-        /// Buffer a message to send to the Safari extension. The safari extension will poll the desktop app to collect the message.
+        /// Buffer a message to send to the Safari extension. The safari extension will poll the
+        /// desktop app to collect the message.
         #[napi]
         pub fn enqueue(&self, message: String) -> napi::Result<()> {
             self.server.enqueue(message);

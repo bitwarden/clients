@@ -135,7 +135,10 @@ impl OutboundQueue {
 
     fn drain(&mut self, now: Instant) -> Vec<String> {
         self.evict_expired(now);
-        self.messages.drain(..).map(|(_, payload)| payload).collect()
+        self.messages
+            .drain(..)
+            .map(|(_, payload)| payload)
+            .collect()
     }
 }
 
@@ -165,7 +168,10 @@ impl SafariIpcServer {
         // If the unix socket file already exists, we get an error when trying to bind to it, so
         // we remove it first.
         if path.exists() {
-            info!("Removing existing buffered IPC socket at: {}", path.display());
+            info!(
+                "Removing existing buffered IPC socket at: {}",
+                path.display()
+            );
             std::fs::remove_file(path.clone())?;
         }
 
@@ -176,9 +182,16 @@ impl SafariIpcServer {
                 "Failed to create buffered IPC listener for path: {}",
                 path.display()
             );
-            return   Err(format!("Failed to create buffered IPC listener for path: {}", path.display()).into());
+            return Err(format!(
+                "Failed to create buffered IPC listener for path: {}",
+                path.display()
+            )
+            .into());
         };
-        info!("Safari IPC server bound and listening at: {}", path.display());
+        info!(
+            "Safari IPC server bound and listening at: {}",
+            path.display()
+        );
 
         tokio::spawn(listen_incoming(
             listener,

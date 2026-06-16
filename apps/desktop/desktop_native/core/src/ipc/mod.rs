@@ -5,9 +5,9 @@ use std::vec;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 
+pub mod client;
 #[cfg(target_os = "macos")]
 pub mod safari_ipc_server;
-pub mod client;
 pub mod server;
 
 /// The maximum size of a message that can be sent over IPC.
