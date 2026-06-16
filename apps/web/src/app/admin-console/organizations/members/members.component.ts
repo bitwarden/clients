@@ -53,7 +53,7 @@ import {
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
 import {
   MemberDialogManagerService,

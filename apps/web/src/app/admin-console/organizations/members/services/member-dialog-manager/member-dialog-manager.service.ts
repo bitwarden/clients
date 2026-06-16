@@ -15,8 +15,10 @@ import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
-import { AccountRecoveryDialogResultType } from "../../components/account-recovery/account-recovery-dialog.component";
+import {
+  AccountRecoveryDialogResultType,
+  AccountRecoveryDialogV2Component,
+} from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
