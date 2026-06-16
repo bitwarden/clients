@@ -9,7 +9,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -17,7 +16,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
-import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
@@ -218,29 +216,12 @@ describe("MemberDialogManagerService", () => {
       twoFactorEnabled: false,
     };
 
-    it("should open the v1 dialog when AdminResetTwoFactor flag is off", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+    it("should open the account recovery dialog", async () => {
       const mockDialogRef = { closed: of("recovered") };
       dialogService.open.mockReturnValue(mockDialogRef as any);
 
       const result = await service.openAccountRecoveryDialog(mockUser, mockOrganization);
 
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.AdminResetTwoFactor);
-      expect(dialogService.open).toHaveBeenCalledWith(
-        AccountRecoveryDialogComponent,
-        expect.objectContaining({ data: expectedData }),
-      );
-      expect(result).toBe("recovered");
-    });
-
-    it("should open the v2 dialog when AdminResetTwoFactor flag is on", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-      const mockDialogRef = { closed: of("recovered") };
-      dialogService.open.mockReturnValue(mockDialogRef as any);
-
-      const result = await service.openAccountRecoveryDialog(mockUser, mockOrganization);
-
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.AdminResetTwoFactor);
       expect(dialogService.open).toHaveBeenCalledWith(
         AccountRecoveryDialogV2Component,
         expect.objectContaining({ data: expectedData }),
