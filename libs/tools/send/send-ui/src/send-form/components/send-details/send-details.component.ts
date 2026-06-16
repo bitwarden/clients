@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, OnInit, input, output, effect, PipeTransform, Pipe } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  input,
+  output,
+  effect,
+  PipeTransform,
+  Pipe,
+  inject,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -11,13 +20,14 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { map, switchMap, tap } from "rxjs";
+import { combineLatest, map, startWith, switchMap, tap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -33,7 +43,9 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CopyClickDirective,
+  Option,
 } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFormService } from "../../abstractions/send-form.service";
@@ -62,11 +74,6 @@ export const DatePreset = Object.freeze({
 
 /** A preset duration (in hours) for deletion. */
 export type DatePreset = (typeof DatePreset)[keyof typeof DatePreset];
-
-export interface DatePresetSelectOption {
-  name: string;
-  value: DatePreset | string;
-}
 
 const namesByDatePreset = new Map<DatePreset, keyof typeof DatePreset>(
   Object.entries(DatePreset).map(([k, v]) => [v as DatePreset, k as keyof typeof DatePreset]),
@@ -142,9 +149,17 @@ export class SendDetailsComponent implements OnInit {
 
   readonly openPasswordGenerator = output<void>();
 
-  customDeletionDateOption: DatePresetSelectOption | null = null;
-  datePresetOptions: DatePresetSelectOption[] = [];
+  datePresetOptions: Option<DatePreset | string>[] = [
+    { label: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
+    { label: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
+    { label: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
+    { label: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
+    { label: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
+    { label: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
+    { label: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+  ];
   passwordRemoved = false;
+  policyAllowedDomains: string[] | null = null;
 
   hasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -152,21 +167,56 @@ export class SendDetailsComponent implements OnInit {
     ),
   );
 
-  availableAuthTypes$ = this.hasPremium$.pipe(
-    map((hasPremium) => {
-      if (!hasPremium) {
-        return sendAuthTypes.filter((t) => t.value !== AuthType.Email);
-      }
-      return sendAuthTypes;
+  private sendPolicyService = inject(SendPolicyService);
+
+  availableAuthTypes$ = combineLatest([
+    this.hasPremium$,
+    this.sendPolicyService.whoCanAccess$,
+  ]).pipe(
+    map(([hasPremium, whoCanAccess]) => {
+      const anyAuthTypeAllowed = whoCanAccess === WhoCanAccessType.Any || whoCanAccess === null;
+      /** Show the email auth type if the feature flag is enabled AND EITHER
+       * 1. There is an enterprise policy that mandates the email auth type
+       * 2. There are no policies dictating required auth types
+       * 3. The Send currently uses the email auth type */
+      const originalSendView = this.sendFormService.originalSendView();
+      const includeEmail =
+        hasPremium &&
+        (whoCanAccess === WhoCanAccessType.SpecificPeople ||
+          anyAuthTypeAllowed ||
+          originalSendView?.authType === AuthType.Email);
+      /** Show the password auth type if EITHER
+       * 1. There is an enterprise policy that mandates the password auth type
+       * 2. There are no policies dictating required auth types
+       * 3. The Send currently uses the password auth type */
+      const includePassword =
+        whoCanAccess === WhoCanAccessType.PasswordProtected ||
+        anyAuthTypeAllowed ||
+        originalSendView?.authType === AuthType.Password;
+      /** Show the "Anyone with the link" auth type if EITHER
+       * 1. There are no enterprise policies that dictate required auth types
+       * 2. The Send currently uses the "Anyone with the link" auth type */
+      const includeAny = anyAuthTypeAllowed || originalSendView?.authType === AuthType.None;
+      return sendAuthTypes.filter(
+        (at) =>
+          (includeEmail && at.value === AuthType.Email) ||
+          (includePassword && at.value === AuthType.Password) ||
+          (includeAny && at.value === AuthType.None),
+      );
     }),
   );
 
   sendDetailsForm = this.formBuilder.group({
-    name: new FormControl("", Validators.required),
-    selectedDeletionDatePreset: new FormControl(DatePreset.SevenDays || "", Validators.required),
-    authType: AuthType.None as AuthType,
-    password: [null as string],
-    emails: [null as string],
+    name: new FormControl(this.sendFormService.updatedSendView()?.name ?? "", Validators.required),
+    selectedDeletionDatePreset: new FormControl<DatePreset | string>(
+      this.sendFormService.updatedSendView()?.deletionDate?.toString() ?? DatePreset.SevenDays,
+      Validators.required,
+    ),
+    authType: new FormControl<AuthType>(
+      this.sendFormService.updatedSendView()?.authType ?? AuthType.None,
+    ),
+    password: new FormControl(this.originalHadPassword ? "************" : null),
+    emails: new FormControl(this.sendFormService.updatedSendView()?.emails?.join(", ") ?? null),
   });
 
   get originalHadPassword(): boolean {
@@ -182,13 +232,7 @@ export class SendDetailsComponent implements OnInit {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     protected sendFormService: SendFormService,
   ) {
-    effect(() => {
-      if (!this.editing()) {
-        if (this.sendFormService.originalSendView()) {
-          this.initializeFormFromOriginal(this.sendFormService.originalSendView());
-        }
-      }
-    });
+    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
     // When we change editing state we want to update the password field's disabled status
     effect(() => {
       if (this.editing() && this.originalHadPassword) {
@@ -197,6 +241,7 @@ export class SendDetailsComponent implements OnInit {
         this.sendDetailsForm.get("password").enable();
       }
     });
+
     this.sendDetailsForm.valueChanges
       .pipe(
         tap((value) => {
@@ -226,7 +271,10 @@ export class SendDetailsComponent implements OnInit {
 
     this.sendDetailsForm
       .get("authType")
-      .valueChanges.pipe(takeUntilDestroyed())
+      .valueChanges.pipe(
+        startWith(this.sendFormService.updatedSendView()?.authType ?? AuthType.None),
+        takeUntilDestroyed(),
+      )
       .subscribe((type) => {
         const emailsControl = this.sendDetailsForm.get("emails");
         const passwordControl = this.sendDetailsForm.get("password");
@@ -259,6 +307,18 @@ export class SendDetailsComponent implements OnInit {
         passwordControl.updateValueAndValidity();
       });
 
+    this.sendPolicyService.allowedDomains$
+      .pipe(takeUntilDestroyed())
+      .subscribe((allowedDomains) => {
+        const emailsControl = this.sendDetailsForm.get("emails");
+        if (allowedDomains && allowedDomains.length > 0) {
+          this.policyAllowedDomains = allowedDomains;
+        } else {
+          this.policyAllowedDomains = null;
+        }
+        emailsControl.updateValueAndValidity();
+      });
+
     const emailsControl = this.sendDetailsForm.get("emails");
     emailsControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       if (typeof value === "string" && value.length >= 2500) {
@@ -270,37 +330,29 @@ export class SendDetailsComponent implements OnInit {
       }
     });
 
+    effect(() => {
+      if (!this.editing()) {
+        if (this.sendFormService.originalSendView()) {
+          this.initializeFormFromOriginal(this.sendFormService.originalSendView());
+        }
+      }
+    });
+
     this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
   }
 
   async ngOnInit() {
-    this.setupDeletionDatePresets();
+    const updatedSendView = this.sendFormService.updatedSendView();
 
-    if (this.sendFormService.originalSendView()) {
-      this.sendDetailsForm.patchValue({
-        name: this.sendFormService.originalSendView().name,
-        selectedDeletionDatePreset: this.sendFormService
-          .originalSendView()
-          ?.deletionDate.toString(),
-        password: this.originalHadPassword ? "************" : null,
-        authType: this.sendFormService.originalSendView()?.authType,
-        emails: this.sendFormService.originalSendView()?.emails?.join(", ") ?? null,
+    if (this.originalHadPassword) {
+      this.sendDetailsForm.get("password")?.disable();
+    }
+
+    if (updatedSendView.deletionDate) {
+      this.datePresetOptions.unshift({
+        label: this.datePipe.transform(updatedSendView.deletionDate, "short"),
+        value: updatedSendView.deletionDate.toString(),
       });
-
-      if (this.originalHadPassword) {
-        this.sendDetailsForm.get("password")?.disable();
-      }
-
-      if (this.sendFormService.originalSendView()?.deletionDate) {
-        this.customDeletionDateOption = {
-          name: this.datePipe.transform(
-            this.sendFormService.originalSendView()?.deletionDate,
-            "short",
-          ),
-          value: this.sendFormService.originalSendView()?.deletionDate.toString(),
-        };
-        this.datePresetOptions.unshift(this.customDeletionDateOption);
-      }
     }
 
     if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
@@ -316,20 +368,6 @@ export class SendDetailsComponent implements OnInit {
       authType: originalSendView.authType,
       emails: originalSendView.emails?.join(", ") ?? null,
     });
-  }
-
-  setupDeletionDatePresets() {
-    const defaultSelections: DatePresetSelectOption[] = [
-      { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
-      { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
-      { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
-      { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
-      { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
-      { name: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
-      { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
-    ];
-
-    this.datePresetOptions = defaultSelections;
   }
 
   get formattedDeletionDate(): string {
@@ -363,7 +401,27 @@ export class SendDetailsComponent implements OnInit {
       }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidEmails = nonEmptyEmails.filter((e: string) => !emailRegex.test(e));
-      return invalidEmails.length > 0 ? { multipleEmails: true } : null;
+      if (invalidEmails.length > 0) {
+        return { multipleEmails: true };
+      }
+
+      if (this.policyAllowedDomains && this.policyAllowedDomains.length > 0) {
+        const disallowedEmails = nonEmptyEmails.filter((email: string) => {
+          const domain = email.split("@")[1]?.toLowerCase();
+          return !this.policyAllowedDomains.includes(domain);
+        });
+        if (disallowedEmails.length > 0) {
+          return {
+            domainNotAllowed: {
+              value: control.value,
+              domains: this.policyAllowedDomains.join(", "),
+              message: this.i18nService.t("domainNotAllowed", this.policyAllowedDomains.join(", ")),
+            },
+          };
+        }
+      }
+
+      return null;
     };
   }
 
@@ -401,7 +459,6 @@ export class SendDetailsComponent implements OnInit {
         authType: AuthType.None,
         password: null,
       });
-      this.sendDetailsForm.get("password")?.enable();
     }
   };
 }

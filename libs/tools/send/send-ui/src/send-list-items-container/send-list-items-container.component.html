@@ -16,30 +16,37 @@
         type="button"
       >
         <div slot="start" class="tw-justify-start">
-          <i
-            *ngIf="send.type === sendType.Text"
-            class="bwi bwi-lg bwi-file-text tw-text-muted tw-w-6"
-          ></i>
-          <i
-            *ngIf="send.type === sendType.File"
-            class="bwi bwi-lg bwi-file tw-text-muted tw-w-6"
-          ></i>
+          @if (send.type === sendType.Text) {
+            <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted tw-w-6" />
+          }
+          @if (send.type === sendType.File) {
+            <bit-icon name="bwi-file" class="bwi-lg tw-text-muted tw-w-6" />
+          }
         </div>
         {{ send.name }}
         <div slot="default-trailing" class="tw-flex tw-gap-2 tw-relative tw-z-10">
           @if (send.authType !== authType.None) {
-            @let titleKey =
-              send.authType === authType.Email ? "emailProtected" : "passwordProtected";
-            <i class="bwi bwi-lock" appA11yTitle="{{ titleKey | i18n }}" aria-hidden="true"></i>
-            <span class="tw-sr-only">{{ titleKey | i18n }}</span>
+            <bit-icon
+              name="bwi-lock"
+              [bitTooltip]="
+                (send.authType === authType.Email ? 'emailProtected' : 'passwordProtected') | i18n
+              "
+            ></bit-icon>
+          }
+          @if (send.disabled) {
+            <bit-icon
+              name="bwi-exclamation-triangle"
+              [bitTooltip]="'sendNotCompliantWithYourOrgsPolicy' | i18n"
+            ></bit-icon>
+          }
+          @if (send.expired) {
+            <bit-icon name="bwi-clock" [bitTooltip]="'expired' | i18n"></bit-icon>
           }
           @if (send.maxAccessCountReached) {
-            <i
-              class="bwi bwi-exclamation-triangle"
-              appA11yTitle="{{ 'maxAccessCountReached' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+            <bit-icon
+              name="bwi-exclamation-triangle"
+              [bitTooltip]="'maxAccessCountReached' | i18n"
+            ></bit-icon>
           }
         </div>
         <span slot="secondary">
