@@ -166,6 +166,7 @@ pub mod ipc {
             #[cfg(target_os = "macos")]
             {
                 self.server.enqueue(message);
+                Ok(())
             }
             #[cfg(not(target_os = "macos"))]
             {
@@ -174,7 +175,6 @@ pub mod ipc {
                     "Safari IPC server is only supported on macOS",
                 ));
             }
-            Ok(())
         }
     }
 }
