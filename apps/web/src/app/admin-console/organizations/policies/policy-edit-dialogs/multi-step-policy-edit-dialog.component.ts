@@ -3,13 +3,11 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  DestroyRef,
   Inject,
   Signal,
   ViewContainerRef,
   WritableSignal,
   computed,
-  inject,
   signal,
   viewChild,
 } from "@angular/core";
@@ -19,7 +17,6 @@ import { filter, map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -54,11 +51,6 @@ export class MultiStepPolicyEditDialogComponent
     "policyForm",
     { read: ViewContainerRef },
   );
-
-  private readonly multiStepDestroyRef = inject(DestroyRef);
-  private readonly authService = inject(AuthService);
-  private readonly accountService2 = inject(AccountService);
-  private readonly discardGuardEnabled = signal(false);
 
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
@@ -110,15 +102,7 @@ export class MultiStepPolicyEditDialogComponent
     );
   }
 
-  private isFormDirty(): boolean {
-    const component = this.policyComponent();
-    if (!component) {
-      return false;
-    }
-    return component.enabled.dirty || (component.data?.dirty ?? false);
-  }
-
-  private readonly discardDialogOptions = {
+  protected override readonly discardDialogOptions = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
     type: "danger" as const,
@@ -127,7 +111,7 @@ export class MultiStepPolicyEditDialogComponent
     cancelButtonText: { key: "backToEditing" },
   };
 
-  private setupDiscardGuard(): void {
+  protected override async setupDiscardGuard(): Promise<void> {
     this.discardGuardEnabled.set(true);
     this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
       if (result || !this.isFormDirty()) {
@@ -140,7 +124,7 @@ export class MultiStepPolicyEditDialogComponent
       return confirmed;
     };
 
-    this.accountService2.activeAccount$
+    this.accountService.activeAccount$
       .pipe(
         switchMap((account) => {
           if (account?.id == null) {
@@ -150,7 +134,7 @@ export class MultiStepPolicyEditDialogComponent
             .authStatusFor$(account.id)
             .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
         }),
-        takeUntilDestroyed(this.multiStepDestroyRef),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         this.discardGuardEnabled.set(false);
@@ -193,7 +177,7 @@ export class MultiStepPolicyEditDialogComponent
     this.policySteps.set(component.policySteps ?? []);
 
     if (this.dialogRef.isDrawer) {
-      this.setupDiscardGuard();
+      await this.setupDiscardGuard();
     }
   }
 

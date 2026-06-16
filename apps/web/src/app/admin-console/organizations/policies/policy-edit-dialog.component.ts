@@ -60,8 +60,8 @@ export type PolicyEditDialogResult = "saved";
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly authService = inject(AuthService);
+  protected readonly destroyRef = inject(DestroyRef);
+  protected readonly authService = inject(AuthService);
   private readonly cdkDialogRef = inject(CdkDialogRef);
   private readonly configService = inject(ConfigService);
 
@@ -70,7 +70,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly _saveDisabled = signal(true);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
-  private readonly discardGuardEnabled = signal(false);
+  protected readonly discardGuardEnabled = signal(false);
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -78,7 +78,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
-    private readonly accountService: AccountService,
+    protected readonly accountService: AccountService,
     private readonly policyApiService: PolicyApiServiceAbstraction,
     protected readonly i18nService: I18nService,
     private readonly cdr: ChangeDetectorRef,
@@ -93,7 +93,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return this.data.policy;
   }
 
-  private isFormDirty(): boolean {
+  protected isFormDirty(): boolean {
     const component = this.policyComponent();
     if (!component) {
       return false;
@@ -101,7 +101,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return component.enabled.dirty || (component.data?.dirty ?? false);
   }
 
-  private readonly discardDialogOptions = {
+  protected readonly discardDialogOptions = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
     type: "danger" as const,
