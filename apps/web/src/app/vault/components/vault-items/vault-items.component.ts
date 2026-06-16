@@ -291,21 +291,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
-    if (
-      this.selection.selected.length === 0 ||
-      !this.userCanArchive ||
-      hasCollectionsSelected ||
-      this.showBulkTrashOptions
-    ) {
+    const selectedCiphers = this.selection.selected.filter((item) => item.cipher !== undefined);
+    if (selectedCiphers.length === 0 || !this.userCanArchive || this.showBulkTrashOptions) {
       return false;
     }
 
     return (
       this.userCanArchive &&
-      !this.selection.selected.find(
-        (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-      )
+      !selectedCiphers.find((item) => item.cipher && item.cipher.archivedDate)
     );
   }
 
@@ -315,9 +308,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return false;
     }
 
-    return !this.selection.selected.find(
-      (item) => !item.cipher?.archivedDate || item.cipher?.organizationId,
-    );
+    return !this.selection.selected.find((item) => !item.cipher?.archivedDate);
   }
 
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.

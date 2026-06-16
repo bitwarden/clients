@@ -1,4 +1,3 @@
-import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -89,7 +88,6 @@ export class MultiStepPolicyEditDialogComponent
     toastService: ToastService,
     keyService: KeyService,
     dialogService: DialogService,
-    cdkDialogRef: CdkDialogRef,
     configService: ConfigService,
     authService: AuthService,
   ) {
@@ -104,7 +102,6 @@ export class MultiStepPolicyEditDialogComponent
       toastService,
       keyService,
       dialogService,
-      cdkDialogRef,
       configService,
       authService,
     );
