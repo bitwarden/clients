@@ -280,20 +280,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  putOrganizationUserResetPassword(
-    organizationId: string,
-    id: string,
-    request: OrganizationUserResetPasswordRequest,
-  ): Promise<void> {
-    return this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/reset-password",
-      request,
-      true,
-      false,
-    );
-  }
-
   putOrganizationUserRecoverAccount(
     organizationId: string,
     id: string,

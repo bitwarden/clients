@@ -15,11 +15,10 @@ import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
 import {
-  AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
-} from "../../components/account-recovery/account-recovery-dialog.component";
+  AccountRecoveryDialogV2Component,
+} from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
@@ -112,31 +111,16 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
   ): Promise<AccountRecoveryDialogResultType> {
-    const adminResetTwoFactorEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.AdminResetTwoFactor,
-    );
-
-    const dialogRef = adminResetTwoFactorEnabled
-      ? AccountRecoveryDialogV2Component.open(this.dialogService, {
-          data: {
-            name: this.userNamePipe.transform(user),
-            email: user.email,
-            organizationId: organization.id as OrganizationId,
-            organizationUserId: user.id,
-            organizationUserType: user.type,
-            twoFactorEnabled: user.twoFactorEnabled,
-          },
-        })
-      : AccountRecoveryDialogComponent.open(this.dialogService, {
-          data: {
-            name: this.userNamePipe.transform(user),
-            email: user.email,
-            organizationId: organization.id as OrganizationId,
-            organizationUserId: user.id,
-            organizationUserType: user.type,
-            twoFactorEnabled: user.twoFactorEnabled,
-          },
-        });
+    const dialogRef = AccountRecoveryDialogV2Component.open(this.dialogService, {
+      data: {
+        name: this.userNamePipe.transform(user),
+        email: user.email,
+        organizationId: organization.id as OrganizationId,
+        organizationUserId: user.id,
+        organizationUserType: user.type,
+        twoFactorEnabled: user.twoFactorEnabled,
+      },
+    });
 
     const result = await lastValueFrom(dialogRef.closed);
     return result ?? AccountRecoveryDialogResultType.Ok;
