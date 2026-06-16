@@ -108,13 +108,12 @@ pub mod ipc {
     }
 
     /// Ipc server for talking to the safari extension
-    #[cfg(target_os = "macos")]
     #[napi]
     pub struct SafariIpcServer {
+        #[cfg(target_os = "macos")]
         server: desktop_core::ipc::safari_ipc_server::SafariIpcServer,
     }
 
-    #[cfg(target_os = "macos")]
     #[napi]
     impl SafariIpcServer {
         /// Create and start the buffered IPC server without blocking.
@@ -123,27 +122,39 @@ pub mod ipc {
             #[napi(ts_arg_type = "(error: null | Error, message: string) => void")]
             callback: ThreadsafeFunction<String>,
         ) -> napi::Result<Self> {
-            let (send, mut recv) = tokio::sync::mpsc::channel::<String>(32);
-            tokio::spawn(async move {
-                while let Some(message) = recv.recv().await {
-                    callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
-                }
-            });
+            #[cfg(target_os = "macos")]
+            {
+                let (send, mut recv) = tokio::sync::mpsc::channel::<String>(32);
+                tokio::spawn(async move {
+                    while let Some(message) = recv.recv().await {
+                        callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
+                    }
+                });
 
-            let server = desktop_core::ipc::safari_ipc_server::SafariIpcServer::start(send)
-                .map_err(|e| {
-                    napi::Error::from_reason(format!(
-                        "Error listening to buffered server - Error: {e:?}"
-                    ))
-                })?;
+                let server = desktop_core::ipc::safari_ipc_server::SafariIpcServer::start(send)
+                    .map_err(|e| {
+                        napi::Error::from_reason(format!(
+                            "Error listening to buffered server - Error: {e:?}"
+                        ))
+                    })?;
 
-            Ok(SafariIpcServer { server })
+                Ok(SafariIpcServer { server })
+            }
+            #[cfg(not(target_os = "macos"))]
+            {
+                Err(napi::Error::from_reason(
+                    "Safari IPC server is only supported on macOS",
+                ))
+            }
         }
 
         /// Stop the buffered IPC server.
         #[napi]
         pub fn stop(&self) -> napi::Result<()> {
-            self.server.stop();
+            #[cfg(target_os = "macos")]
+            {
+                self.server.stop();
+            }
             Ok(())
         }
 
@@ -151,7 +162,10 @@ pub mod ipc {
         /// desktop app to collect the message.
         #[napi]
         pub fn enqueue(&self, message: String) -> napi::Result<()> {
-            self.server.enqueue(message);
+            #[cfg(target_os = "macos")]
+            {
+                self.server.enqueue(message);
+            }
             Ok(())
         }
     }
