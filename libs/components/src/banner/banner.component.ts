@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
 import { outputFromObservable } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
@@ -37,7 +38,7 @@ const bannerColors: Record<BannerVariant, string> = {
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  imports: [IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
+  imports: [NgTemplateOutlet, IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
   host: {
     // Account for bit-layout's padding
     class:
@@ -100,11 +101,5 @@ export class BannerComponent implements OnInit {
     return this.icon() ?? defaultIcon[this.variant()];
   });
 
-  protected readonly alignClass = computed(() =>
-    this.showActions() ? "tw-items-start" : "tw-items-center @3xl:tw-justify-center",
-  );
-
-  protected readonly bannerClass = computed(
-    () => `${this.alignClass()} ${bannerColors[this.variant()]}`,
-  );
+  protected readonly bannerClass = computed(() => bannerColors[this.variant()]);
 }
