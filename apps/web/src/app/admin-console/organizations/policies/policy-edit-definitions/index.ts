@@ -3,6 +3,7 @@ export { SendControlsPolicy } from "./send-controls.component";
 export { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
 export { MasterPasswordPolicy } from "./master-password.component";
+export { MasterPasswordPolicyV2 } from "./master-password-v2.component";
 export {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,

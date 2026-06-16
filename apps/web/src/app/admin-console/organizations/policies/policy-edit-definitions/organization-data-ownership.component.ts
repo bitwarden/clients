@@ -3,14 +3,10 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom, startWith } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { getById } from "@bitwarden/common/platform/misc";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { EncString } from "@bitwarden/sdk-internal";
 
@@ -56,7 +52,6 @@ export class OrganizationDataOwnershipPolicyComponent
     private readonly i18nService: I18nService,
     private readonly encryptService: EncryptService,
     private readonly formBuilder: FormBuilder,
-    private readonly organizationService: OrganizationService,
   ) {
     super();
 
@@ -88,14 +83,8 @@ export class OrganizationDataOwnershipPolicyComponent
   override async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
-    const orgId = this.policyResponse()?.organizationId as OrganizationId | undefined;
-    if (orgId) {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const org = await firstValueFrom(
-        this.organizationService.organizations$(userId).pipe(getById(orgId)),
-      );
-      this.useMyItems.set(org?.useMyItems ?? false);
-    }
+    const org = await firstValueFrom(this.organization$);
+    this.useMyItems.set(org?.useMyItems ?? false);
 
     if (this.enabled.value && this.useMyItems()) {
       this.data.controls.enableIndividualItemsTransfer.enable();

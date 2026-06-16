@@ -1,8 +1,9 @@
 import { Directive, OnInit, Signal, inject, input, signal } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Observable, firstValueFrom, of, switchMap } from "rxjs";
+import { Observable, defer, firstValueFrom, of, switchMap } from "rxjs";
 import { Constructor } from "type-fest";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -12,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
@@ -107,14 +109,22 @@ export abstract class BasePolicyEditDefinition {
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
+  protected readonly accountService = inject(AccountService);
+  protected readonly organizationServcie = inject(OrganizationService);
+  protected readonly keyService = inject(KeyService);
+  protected readonly policyApiService = inject(PolicyApiServiceAbstraction);
+
   readonly policyResponse = input<PolicyStatusResponse | undefined>(undefined);
   readonly policy = input<BasePolicyEditDefinition | undefined>(undefined);
   readonly currentStep = input<Signal<number>>(signal(0));
   readonly organizationId = input<string | undefined>(undefined);
-
-  protected readonly accountService = inject(AccountService);
-  protected readonly keyService = inject(KeyService);
-  protected readonly policyApiService = inject(PolicyApiServiceAbstraction);
+  readonly organization$ = defer(() =>
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationServcie.organizations$(userId)),
+      getById(this.organizationId() ?? this.policyResponse()?.organizationId),
+    ),
+  );
 
   /**
    * Whether the policy is enabled.
