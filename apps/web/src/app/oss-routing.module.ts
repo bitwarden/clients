@@ -668,10 +668,8 @@ const routes: Routes = [
         path: "pam/approver-inbox",
         data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
         canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
-        loadComponent: () =>
-          import("./pam/approver-inbox/approver-inbox.component").then(
-            (m) => m.ApproverInboxComponent,
-          ),
+        loadChildren: () =>
+          import("./pam/approver-inbox/approver-inbox.routes").then((m) => m.approverInboxRoutes),
       },
       {
         path: "leasing/requests/:id",

@@ -66,6 +66,11 @@ export const Empty: Story = {
   args: { requests: [] },
 };
 
+// The empty state shown to a viewer who manages no leasing collections, so can never approve.
+export const EmptyNoApprover: Story = {
+  args: { requests: [], hasManagerCollections: false },
+};
+
 export const Populated: Story = {
   args: {
     requests: [

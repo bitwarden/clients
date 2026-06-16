@@ -1,32 +1,15 @@
-<app-header [title]="'pamInboxTitle' | i18n"></app-header>
+<app-header [title]="'pamInboxTitle' | i18n">
+  <bit-tab-nav-bar slot="tabs" [label]="'pamInboxTitle' | i18n">
+    <bit-tab-link route="approvals" [berryValue]="pendingApprovalsCount()">{{
+      "pamTabApprovals" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="my-requests" [berryValue]="myPendingCount()">{{
+      "pamTabMyRequests" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="audit-log">{{ "pamTabAuditLog" | i18n }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
 
-<p class="tw-m-0 tw--mt-6 tw-mb-4 tw-text-muted">{{ "pamInboxSubtitle" | i18n }}</p>
+<p class="tw-m-0 tw-mb-4 tw-text-muted">{{ "pamInboxSubtitle" | i18n }}</p>
 
-<bit-tab-group [label]="'pamInboxTitle' | i18n">
-  <bit-tab [label]="'pamTabApprovals' | i18n" [berryValue]="requests().length">
-    <app-pam-approvals
-      [requests]="requests()"
-      [currentUserId]="currentUserId()"
-      [now]="renderedAt()"
-      [loading]="loading()"
-      [hasManagerCollections]="hasManagerCollections()"
-      (decide)="onDecide($event)"
-    ></app-pam-approvals>
-  </bit-tab>
-
-  <bit-tab [label]="'pamTabMyRequests' | i18n" [berryValue]="myPendingCount()">
-    <app-pam-my-access-requests-list></app-pam-my-access-requests-list>
-  </bit-tab>
-
-  <bit-tab [label]="'pamTabAuditLog' | i18n">
-    <app-pam-audit-log
-      [items]="auditItems()"
-      [managedIds]="managedIds()"
-      [now]="renderedAt()"
-      [revoking]="revoking()"
-      [cancelling]="cancelling()"
-      (revoke)="onRevoke($event)"
-      (cancelApproval)="onCancelApproval($event)"
-    ></app-pam-audit-log>
-  </bit-tab>
-</bit-tab-group>
+<router-outlet></router-outlet>
