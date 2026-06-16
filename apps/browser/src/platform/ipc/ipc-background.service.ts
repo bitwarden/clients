@@ -163,7 +163,6 @@ export class IpcBackgroundService extends IpcService {
       payload: [...message.payload],
       topic: message.topic,
     };
-    console.log("[IPC] Sending message to desktop via Safari:", envelope);
     await SafariApp.sendMessageToApp("sendMessage", JSON.stringify(envelope));
   }
 
