@@ -62,9 +62,9 @@ core-foundation = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 homedir = { workspace = true }
 secmem-proc = { workspace = true }
-serde_json = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
+serde_json = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 pin-project = { workspace = true }
