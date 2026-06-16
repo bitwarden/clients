@@ -31,6 +31,7 @@ export class ApproverInboxService {
   private readonly _history$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
+  private readonly _renderedAt$ = new BehaviorSubject<Date>(new Date());
 
   /**
    * Collection names back-fill reactively from local vault state (see
@@ -43,6 +44,11 @@ export class ApproverInboxService {
     this.nameResolver.applyCollectionNames$(this._history$);
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
+  /**
+   * Snapshot of "now" stamped on every successful load, so the routed Approvals and Audit log tabs
+   * render elapsed/relative-time fields against one consistent reference clock.
+   */
+  readonly renderedAt$: Observable<Date> = this._renderedAt$.asObservable();
   readonly badgeCount$: Observable<number> = this._requests$.pipe(
     map((rows) => rows.length),
     distinctUntilChanged(),
@@ -67,6 +73,7 @@ export class ApproverInboxService {
       await this.nameResolver.resolveDisplayNames([...actionable, ...history]);
       this._requests$.next(sortInbox(actionable));
       this._history$.next(history);
+      this._renderedAt$.next(new Date());
     } catch (e) {
       this._loadError$.next(e);
       throw e;
