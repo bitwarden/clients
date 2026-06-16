@@ -1,12 +1,12 @@
-import { Component, ChangeDetectionStrategy, Inject, signal, computed } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Inject, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { ActiveSendIcon } from "@bitwarden/assets/svg";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DIALOG_DATA, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -16,20 +16,16 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendSuccessDrawerDialogComponent {
+  readonly AuthType = AuthType;
   readonly sendLink = signal<string>("");
-  activeSendIcon = ActiveSendIcon;
-
-  // Computed property to get the dialog title based on send type
-  readonly dialogTitle = computed(() => {
-    return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";
-  });
+  readonly activeSendIcon = ActiveSendIcon;
 
   constructor(
-    @Inject(DIALOG_DATA) public send: SendView,
-    private environmentService: EnvironmentService,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
+    @Inject(DIALOG_DATA) readonly send: SendView,
+    private readonly environmentService: EnvironmentService,
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly toastService: ToastService,
   ) {
     void this.initLink();
   }

@@ -23,7 +23,9 @@ type Handler = (
  * handling aborts and exceptions across separate execution contexts.
  */
 export class Messenger {
-  private messageEventListener: ((event: MessageEvent<MessageWithMetadata>) => void) | null = null;
+  private messageEventListener:
+    | ((event: MessageEvent<MessageWithMetadata>) => void | Promise<void>)
+    | null = null;
   private onDestroy = new EventTarget();
 
   /**
@@ -58,12 +60,6 @@ export class Messenger {
     this.broadcastChannel.addEventListener(this.messageEventListener);
   }
 
-  private stripMetadata({ SENDER, senderId, ...message }: MessageWithMetadata): Message {
-    void SENDER;
-    void senderId;
-    return message;
-  }
-
   /**
    * Sends a request to the content script and returns the response.
    * AbortController signals will be forwarded to the content script.
@@ -78,9 +74,7 @@ export class Messenger {
 
     try {
       const promise = new Promise<Message>((resolve) => {
-        localPort.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
-          resolve(this.stripMetadata(event.data));
-        };
+        localPort.onmessage = (event: MessageEvent<MessageWithMetadata>) => resolve(event.data);
       });
 
       const abortListener = () =>
@@ -112,6 +106,15 @@ export class Messenger {
 
   private createMessageEventListener() {
     return async (event: MessageEvent<MessageWithMetadata>) => {
+      // Reject when in a sandboxed iframe with an opaque origin. window.origin can be null/undefined or the
+      // literal string "null" (truthy), so we check both to avoid accepting messages from that context.
+      if (!window.origin || String(window.origin).toLowerCase() === "null") {
+        return;
+      }
+      if (!event.isTrusted) {
+        return;
+      }
+
       const windowOrigin = window.location.origin;
       if (event.origin !== windowOrigin || !this.handler) {
         return;
@@ -135,9 +138,7 @@ export class Messenger {
 
       try {
         const handlerResponse = await this.handler(message, abortController);
-        if (handlerResponse !== undefined) {
-          port.postMessage({ ...handlerResponse, SENDER });
-        }
+        port.postMessage({ ...handlerResponse, SENDER });
       } catch (error) {
         port.postMessage({
           SENDER,

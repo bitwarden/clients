@@ -51,10 +51,13 @@ export default {
                 weCouldNotProcessYourPayment:
                   "We could not process your payment. Please update your payment method or contact the support team for assistance.",
                 contactSupportShort: "Contact Support",
-                yourSubscriptionHasExpired:
-                  "Your subscription has expired. Please contact the support team for assistance.",
+                yourSubscriptionIsExpired:
+                  "Your subscription is expired. Please resubscribe to continue using premium features.",
+                yourSubscriptionIsCanceled:
+                  "Your subscription is canceled. Please resubscribe to continue using premium features.",
                 yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
                 reinstateSubscription: "Reinstate subscription",
+                resubscribe: "Resubscribe",
                 upgradeYourPlan: "Upgrade your plan",
                 premiumShareEvenMore:
                   "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise.",
@@ -81,6 +84,7 @@ export default {
                 secretsManager: "Secrets Manager",
                 additionalStorageGb: "Additional storage (GB)",
                 additionalServiceAccountsV2: "Additional machine accounts",
+                callout: "Callout",
               };
               return translations[key] || key;
             },
@@ -103,7 +107,7 @@ export const Active: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -131,7 +135,7 @@ export const ActiveWithUpgrade: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -157,7 +161,7 @@ export const Trial: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -185,7 +189,7 @@ export const TrialWithUpgrade: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -212,7 +216,7 @@ export const Incomplete: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -239,7 +243,7 @@ export const IncompleteExpired: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -266,7 +270,7 @@ export const PastDue: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -293,7 +297,7 @@ export const PendingCancellation: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -320,7 +324,7 @@ export const Unpaid: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -346,7 +350,7 @@ export const Canceled: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -372,32 +376,33 @@ export const Enterprise: Story = {
         passwordManager: {
           seats: {
             quantity: 5,
-            name: "members",
+            translationKey: "members",
             cost: 7,
           },
           additionalStorage: {
             quantity: 2,
-            name: "additionalStorageGB",
+            translationKey: "additionalStorageGB",
             cost: 0.5,
           },
         },
         secretsManager: {
           seats: {
             quantity: 3,
-            name: "members",
+            translationKey: "members",
             cost: 13,
           },
           additionalServiceAccounts: {
             quantity: 5,
-            name: "additionalServiceAccountsV2",
+            translationKey: "additionalServiceAccountsV2",
             cost: 1,
           },
         },
-        discount: {
-          type: DiscountTypes.PercentOff,
-          active: true,
-          value: 0.25,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 25,
+          },
+        ],
         cadence: "monthly",
         estimatedTax: 6.4,
       },

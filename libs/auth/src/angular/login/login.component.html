@@ -16,6 +16,7 @@
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
+        id="email"
         type="email"
         formControlName="email"
         bitInput
@@ -65,7 +66,7 @@
           [addTooltipToDescribedby]="ssoRequired"
           [disabled]="ssoRequired"
         >
-          <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
+          <bit-icon name="bwi-passkey" class="tw-mr-1"></bit-icon>
           {{ "logInWithPasskey" | i18n }}
         </button>
       </ng-container>
@@ -78,7 +79,7 @@
         [buttonType]="ssoRequired ? 'primary' : 'secondary'"
         (click)="handleSsoClick()"
       >
-        <i class="bwi bwi-provider tw-mr-1" aria-hidden="true"></i>
+        <bit-icon name="bwi-provider" class="tw-mr-1"></bit-icon>
         {{ "useSingleSignOn" | i18n }}
       </button>
     </div>
@@ -88,7 +89,14 @@
     <!-- Master Password input -->
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <input
+        id="masterPassword"
+        type="password"
+        autocomplete="current-password"
+        formControlName="masterPassword"
+        bitInput
+        #masterPasswordInputRef
+      />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
@@ -114,7 +122,7 @@
           buttonType="secondary"
           (click)="startAuthRequestLogin()"
         >
-          <i class="bwi bwi-mobile" aria-hidden="true"></i>
+          <bit-icon name="bwi-mobile"></bit-icon>
           {{ "loginWithDevice" | i18n }}
         </button>
       </ng-container>

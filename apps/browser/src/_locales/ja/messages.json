@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "パスキーでログイン"
   },
+  "unlockWithPasskey": {
+    "message": "パスキーでロック解除"
+  },
   "useSingleSignOn": {
     "message": "シングルサインオンを使用する"
   },
@@ -164,6 +167,18 @@
   "copyPassportNumber": {
     "message": "パスポート番号をコピー"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "国民識別番号をコピー"
+  },
+  "copyFirstName": {
+    "message": "名前をコピー"
+  },
+  "copyMiddleName": {
+    "message": "ミドルネームをコピー"
+  },
+  "copyLastName": {
+    "message": "姓をコピー"
+  },
   "copyLicenseNumber": {
     "message": "免許証番号をコピー"
   },
@@ -199,17 +214,22 @@
     "message": "入力",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "自動入力"
+  "autofillNoun": {
+    "message": "自動入力",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "自動入力",
+    "description": "Verb"
   },
   "autoFillLogin": {
-    "message": "自動入力ログイン"
+    "message": "ログイン自動入力"
   },
   "autoFillCard": {
-    "message": "自動入力カード"
+    "message": "カード自動入力"
   },
   "autoFillIdentity": {
-    "message": "自動入力 ID"
+    "message": "ID 自動入力"
   },
   "fillVerificationCode": {
     "message": "認証コードを入力"
@@ -282,7 +302,7 @@
     "message": "コードを送信"
   },
   "codeSent": {
-    "message": "確認コードを送信しました。"
+    "message": "確認コードを送信しました"
   },
   "verificationCode": {
     "message": "認証コード"
@@ -373,6 +393,9 @@
   "save": {
     "message": "保存"
   },
+  "saveAndFill": {
+    "message": "保存して入力"
+  },
   "move": {
     "message": "移動"
   },
@@ -437,7 +460,7 @@
     "message": "同期"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "今すぐ同期"
   },
   "lastSync": {
     "message": "前回の同期："
@@ -570,23 +593,29 @@
   "noItemsInArchiveDesc": {
     "message": "アーカイブされたアイテムはここに表示され、通常の検索結果および自動入力の候補から除外されます。"
   },
-  "itemWasSentToArchive": {
-    "message": "アイテムはアーカイブに送信されました"
+  "itemArchiveToast": {
+    "message": "アイテムをアーカイブしました"
   },
-  "itemUnarchived": {
-    "message": "アイテムはアーカイブから解除されました"
+  "itemUnarchivedToast": {
+    "message": "アイテムのアーカイブを解除しました"
   },
   "archiveItem": {
     "message": "アイテムをアーカイブ"
   },
-  "archiveItemConfirmDesc": {
-    "message": "アーカイブされたアイテムはここに表示され、通常の検索結果および自動入力の候補から除外されます。このアイテムをアーカイブしますか？"
+  "archiveItemDialogContent": {
+    "message": "アーカイブされると、このアイテムは検索結果と自動入力の候補から除外されます。"
+  },
+  "archived": {
+    "message": "アーカイブ済み"
+  },
+  "unarchiveAndSave": {
+    "message": "アーカイブを解除して保存"
   },
   "upgradeToUseArchive": {
     "message": "アーカイブを使用するにはプレミアムメンバーシップが必要です。"
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "アイテムをリストアしました"
   },
   "edit": {
     "message": "編集"
@@ -687,23 +716,33 @@
   "unlockMethods": {
     "message": "ロック解除オプション"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "保管庫のタイムアウト動作を変更するには、ロック解除方法を設定してください。"
-  },
   "unlockMethodNeeded": {
     "message": "設定でロック解除方法をセットアップ"
   },
   "sessionTimeoutHeader": {
     "message": "セッションタイムアウト"
   },
-  "vaultTimeoutHeader": {
-    "message": "保管庫のタイムアウト"
-  },
   "otherOptions": {
     "message": "その他のオプション"
   },
   "rateExtension": {
     "message": "拡張機能の評価"
+  },
+  "troubleshooting": {
+    "message": "トラブルシューティング"
+  },
+  "experiencingAnIssue": {
+    "message": "問題が発生していますか？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "ダウンロードして診断レポートを共有してください。"
+  },
+  "bitwardenSupport": {
+    "message": "共有先：Bitwarden サポート",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "ダウンロード"
   },
   "browserNotSupportClipboard": {
     "message": "お使いのブラウザはクリップボードへのコピーに対応していません。手動でコピーしてください"
@@ -812,7 +851,7 @@
     "message": "スリープ時"
   },
   "onRestart": {
-    "message": "ブラウザ再起動時"
+    "message": "ブラウザー再起動時"
   },
   "never": {
     "message": "なし"
@@ -886,6 +925,9 @@
   },
   "invalidVerificationCode": {
     "message": "認証コードが間違っています"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "無効なメールアドレスか認証コードです"
   },
   "valueCopied": {
     "message": "$VALUE$ をコピーしました",
@@ -978,6 +1020,12 @@
   "no": {
     "message": "いいえ"
   },
+  "noAuth": {
+    "message": "リンクを知っている全員"
+  },
+  "anyOneWithPassword": {
+    "message": "あなたが設定したパスワードを知っている全員"
+  },
   "location": {
     "message": "場所"
   },
@@ -988,7 +1036,7 @@
     "message": "名前は必須項目です。"
   },
   "addedFolder": {
-    "message": "フォルダを追加しました"
+    "message": "フォルダーを追加しました"
   },
   "twoStepLoginConfirmation": {
     "message": "2段階認証を使うと、ログイン時にセキュリティキーや認証アプリ、SMS、電話やメールでの認証を必要にすることでアカウントをさらに安全に出来ます。2段階認証は bitwarden.com ウェブ保管庫で有効化できます。ウェブサイトを開きますか？"
@@ -1044,10 +1092,10 @@
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
-    "message": "追加されたアイテム"
+    "message": "アイテムを追加しました"
   },
   "editedItem": {
-    "message": "編集されたアイテム"
+    "message": "アイテムを保存しました"
   },
   "savedWebsite": {
     "message": "保存されたウェブサイト"
@@ -1065,7 +1113,7 @@
     "message": "このアイテムを削除しますか？"
   },
   "deletedItem": {
-    "message": "削除済みのアイテム"
+    "message": "アイテムをごみ箱に移動しました"
   },
   "overwritePassword": {
     "message": "パスワードを上書き"
@@ -1089,7 +1137,7 @@
     "message": "検索の種類"
   },
   "noneFolder": {
-    "message": "フォルダなし",
+    "message": "フォルダーなし",
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
@@ -1136,6 +1184,15 @@
     "message": "選択した時間が経過した後、自動的にクリップボードを消去します。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "クリップボードの設定を更新しました"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "クリップボードのタイムアウトはデフォルトに設定されており、セキュリティ強化のために5分に更新されました。"
+  },
+  "jumpToSetting": {
+    "message": "設定へ移動"
+  },
   "notificationAddDesc": {
     "message": "このパスワードを Bitwarden に保存しますか？"
   },
@@ -1143,7 +1200,7 @@
     "message": "保存"
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "$ITEMNAME$を表示、新しいウィンドウで開く",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1152,11 +1209,11 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "New Item, opens in new window",
+    "message": "新しいアイテム、新しいウィンドウで開く",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "保存する前に編集",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
@@ -1173,15 +1230,15 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "Bitwarden に保存しました。",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "Bitwarden で更新しました。",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "$ITEMTYPE$を選択、 $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1201,7 +1258,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "このログイン情報を保存するにはロック解除してください",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
@@ -1221,7 +1278,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "これであなたと $ORGANIZATION$ をより安全にするためのステップを完了しました。",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1230,7 +1287,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "$ORGANIZATION$ をより安全にしていただき、ありがとうございます。更新するべきパスワードがあと $TASK_COUNT$ 個あります。",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1242,7 +1299,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "次のパスワードを変更する",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -1254,10 +1311,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "パスワード変更後は、新しいパスワードでログインする必要があります。他のデバイスのアクティブなセッションは、1時間以内にログアウトされます。"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "アカウントの復旧を完了するには、マスターパスワードを変更してください。"
   },
   "enableChangedPasswordNotification": {
     "message": "既存のログイン情報の更新を尋ねる"
@@ -1288,6 +1345,18 @@
   },
   "additionalOptions": {
     "message": "追加オプション"
+  },
+  "enableFillAssist": {
+    "message": "入力補助を使用する"
+  },
+  "turnOnFillAssist": {
+    "message": "入力アシストをオンにする"
+  },
+  "enableFillAssistDescription": {
+    "message": "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。この機能を使用してもデータが収集されたり保存されることはありません。"
+  },
+  "aboutFillAssist": {
+    "message": "入力アシストについて"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -1326,19 +1395,19 @@
     "message": "エクスポート元"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "エクスポート",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "エクスポート",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "インポート",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "インポート",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1426,7 +1495,7 @@
     "message": "暗号化設定を更新する"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "新しく推奨される暗号化設定により、アカウントのセキュリティが向上します。今すぐ更新するには、マスターパスワードを入力してください。"
   },
   "confirmIdentityToContinue": {
     "message": "続行するには本人確認を行ってください"
@@ -1471,13 +1540,13 @@
     "message": "添付ファイルを保存しました。"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "暗号化を修正"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "このファイルは古い暗号化方法を使用しています。"
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "添付ファイルを更新しました"
   },
   "file": {
     "message": "ファイル"
@@ -1489,7 +1558,7 @@
     "message": "ファイルを選択してください。"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "アイテムを移行しました"
   },
   "maxFileSize": {
     "message": "最大ファイルサイズ: 500 MB"
@@ -1535,6 +1604,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey、Duo などのプロプライエタリな2段階認証オプション。"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "プレミアム サブスクリプションが終了しました"
+  },
+  "archivePremiumRestart": {
+    "message": "アーカイブへのアクセスを回復するには、プレミアムサブスクリプションを再開してください。再開する前にアーカイブ済みアイテムの詳細を編集すると、そのアイテムは保管庫に戻されます。"
+  },
+  "restartPremium": {
+    "message": "プレミアムを再開"
   },
   "ppremiumSignUpReports": {
     "message": "保管庫を安全に保つための、パスワードやアカウントの健全性、データ侵害に関するレポート"
@@ -1733,6 +1811,9 @@
   "iconsUrl": {
     "message": "アイコンのサーバー URL"
   },
+  "sendUrl": {
+    "message": "サーバーの URL を送信"
+  },
   "environmentSaved": {
     "message": "環境 URL を保存しました。"
   },
@@ -1744,13 +1825,13 @@
     "message": "自動入力の候補"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "自動入力候補を簡単に見つける"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "ブラウザの自動入力設定をオフにして、Bitwarden と競合しないようにしてください。"
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "$BROWSER$ の自動入力を無効化",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1762,10 +1843,43 @@
     "message": "自動入力をオフにする"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "自動入力の確認"
   },
   "confirmAutofillDesc": {
     "message": "このサイトは保存されたログイン情報と一致しません。ログイン情報を入力する前に、信頼できるサイトであることを確認してください。"
+  },
+  "loginNeverMatchTitle": {
+    "message": "ログイン情報が一致しません"
+  },
+  "loginNeverMatchDesc": {
+    "message": "このサイトは保存されたログイン情報と一致しません。自動入力する前に信頼できるサイトにいることを確認してください。"
+  },
+  "uriMatchRule": {
+    "message": "URI 一致ルール"
+  },
+  "neverMatch": {
+    "message": "一致しない"
+  },
+  "loginHasNoSiteSaved": {
+    "message": "ログイン情報にサイトが保存されていません"
+  },
+  "siteDoesntMatch": {
+    "message": "サイトが一致しません"
+  },
+  "loginNoSiteDesc": {
+    "message": "このログイン情報にはまだサイトが保存されていません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "loginSingleSiteDesc": {
+    "message": "このサイトはこのログイン情報に保存したサイトと一致しません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "loginMultipleSitesDesc": {
+    "message": "このサイトはこのログイン情報に保存したサイトと一致しません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "autofillAndSaveThisSite": {
+    "message": "このサイトを自動入力して保存"
+  },
+  "autofillOnly": {
+    "message": "自動入力のみ"
   },
   "showInlineMenuLabel": {
     "message": "フォームフィールドに自動入力の候補を表示する"
@@ -1777,10 +1891,10 @@
     "message": "現在のウェブサイト"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "このウェブサイトを自動入力して追加"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "追加せずに自動入力"
   },
   "doNotAutofill": {
     "message": "自動入力しない"
@@ -1801,7 +1915,7 @@
     "message": "競合を避けるために、ブラウザーのパスワード管理設定をオフにしてください。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "ブラウザーの設定を編集してください。"
+    "message": "ブラウザの設定を編集"
   },
   "autofillOverlayVisibilityOff": {
     "message": "オフ",
@@ -1911,7 +2025,7 @@
     "message": "認証コードを確認するためにポップアップの外をクリックすると、このポップアップが閉じてしまいます。閉じてしまわないよう、新しいウインドウでこのポップアップを開きますか？"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "ウェブサイトのアイコンを表示し、パスワード変更 URL を取得する"
   },
   "cardholderName": {
     "message": "カードの名義人名"
@@ -1922,11 +2036,32 @@
   "brand": {
     "message": "ブランド"
   },
+  "birthDay": {
+    "message": "誕生日"
+  },
+  "birthMonth": {
+    "message": "誕生月"
+  },
+  "birthYear": {
+    "message": "誕生年"
+  },
+  "expirationDay": {
+    "message": "有効期限日"
+  },
   "expirationMonth": {
     "message": "有効期限月"
   },
   "expirationYear": {
     "message": "有効期限年"
+  },
+  "issueDay": {
+    "message": "発行日"
+  },
+  "issueMonth": {
+    "message": "発行月"
+  },
+  "issueYear": {
+    "message": "発行年"
   },
   "monthly": {
     "message": "月"
@@ -2021,10 +2156,58 @@
   "passportNumber": {
     "message": "パスポート番号"
   },
+  "dateOfBirth": {
+    "message": "生年月日"
+  },
+  "sex": {
+    "message": "性別"
+  },
+  "copySex": {
+    "message": "性別をコピー"
+  },
+  "birthPlace": {
+    "message": "出生地"
+  },
+  "copyBirthPlace": {
+    "message": "出生地をコピー"
+  },
+  "nationality": {
+    "message": "国籍"
+  },
+  "copyNationality": {
+    "message": "国籍をコピー"
+  },
+  "issuingCountry": {
+    "message": "発行国"
+  },
+  "copyIssuingCountry": {
+    "message": "発行国をコピー"
+  },
+  "passportType": {
+    "message": "パスポートの種類"
+  },
+  "copyPassportType": {
+    "message": "パスポートの種類をコピー"
+  },
+  "nationalIdentificationNumber": {
+    "message": "国民識別番号"
+  },
+  "issuingAuthority": {
+    "message": "発行機関"
+  },
+  "copyIssuingAuthority": {
+    "message": "発行機関/事務所をコピー"
+  },
+  "issueDate": {
+    "message": "発行日"
+  },
   "licenseNumber": {
     "message": "免許証番号"
   },
   "email": {
+    "message": "メールアドレス"
+  },
+  "emails": {
     "message": "メールアドレス"
   },
   "phone": {
@@ -2075,8 +2258,68 @@
   "typeSshKey": {
     "message": "SSH 鍵"
   },
+  "bankAccount": {
+    "message": "銀行口座"
+  },
+  "bankAccountDetails": {
+    "message": "銀行口座の詳細"
+  },
   "typeNote": {
     "message": "メモ"
+  },
+  "typeBankAccount": {
+    "message": "銀行口座"
+  },
+  "typeLoginSubtitle": {
+    "message": "ウェブサイトまたはアプリ"
+  },
+  "typeCardSubtitle": {
+    "message": "クレジットまたはデビットカード"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人情報"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要なテキスト"
+  },
+  "typeSshKeySubtitle": {
+    "message": "サーバーのログイントークン"
+  },
+  "folderSubtitle": {
+    "message": "アイテムを整理する"
+  },
+  "collectionSubtitle": {
+    "message": "共有アイテムを整理する"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "銀行の詳細"
+  },
+  "typePassport": {
+    "message": "パスポート"
+  },
+  "passportDetails": {
+    "message": "パスポートの詳細"
+  },
+  "passportAdded": {
+    "message": "パスポートを追加しました"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行文書"
+  },
+  "typeDriversLicense": {
+    "message": "免許証"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "運転免許証または ID"
+  },
+  "driversLicenseDetails": {
+    "message": "免許証の詳細"
+  },
+  "issuingState": {
+    "message": "発行都道府県"
+  },
+  "licenseClass": {
+    "message": "免許種別"
   },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
@@ -2098,12 +2341,24 @@
     "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "新しい Send テキスト",
+  "newItemHeaderBankAccount": {
+    "message": "新しい銀行口座",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "新しい免許証",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "新しいパスポート",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "新規テキスト",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "新しい Send ファイル",
+  "newItemHeaderFileSendV2": {
+    "message": "新規ファイル",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2126,12 +2381,24 @@
     "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send テキストを編集",
+  "editItemHeaderBankAccount": {
+    "message": "銀行口座を編集",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "免許証を編集",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "パスポートを編集",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "テキストを編集",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send ファイルを編集",
+  "editItemHeaderFileSendV2": {
+    "message": "ファイルを編集",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2153,6 +2420,21 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "銀行口座を表示",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "免許証を表示",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "パスポートを表示",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "追加するアイテムを選択"
   },
   "passwordHistory": {
     "message": "パスワードの履歴"
@@ -2208,6 +2490,31 @@
   "clear": {
     "message": "消去する",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "選択中"
+  },
+  "bulkActionsBar": {
+    "message": "一括操作"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ 個のアイテムを選択しました。一括操作バーが画面下部に表示されています。$SHORTCUTBINDING$ を押すと、一括操作バーにフォーカスが切り替わります。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "選択を解除しました"
+  },
+  "additionalActions": {
+    "message": "追加のアクション"
   },
   "checkPassword": {
     "message": "パスワードが漏洩していないか確認する"
@@ -2342,6 +2649,30 @@
   "weakMasterPasswordDesc": {
     "message": "設定されたマスターパスワードの強度は脆弱です。Bitwarden アカウントを適切に保護するために、強力なマスターパスワード（またはパスフレーズ）を使用すべきです。本当にこのマスターパスワードを使用しますか？"
   },
+  "rotateAccountEncKey": {
+    "message": "アカウントの暗号化キーをローテーションする"
+  },
+  "rotateEncKeyTitle": {
+    "message": "暗号化キーをローテーションする"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "暗号化キーをローテーションしてよろしいですか？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "暗号化キーの更新後は、モバイルアプリやブラウザ拡張機能など現在利用中のすべての Bitwarden アプリで再ログインが必要となります。再ログインしないと(新しい暗号化キーをダウンロードすると)データが破損する可能性があります。自動的にログアウトを試みますが、遅延することがあります。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "保存済みのアカウント制限付きエクスポートは無効になります。"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "暗号化キーのローテーションを行う前に、保管庫内の古い添付ファイルを修正する必要があります。"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "暗号化キーのローテーションによる影響"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "組織ポリシーの要件を満たすためにマスターパスワードが必要です:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2432,8 +2763,8 @@
   "vaultTimeoutAction": {
     "message": "保管庫タイムアウト時のアクション"
   },
-  "vaultTimeoutAction1": {
-    "message": "タイムアウト時のアクション"
+  "showAtRiskPasswordNotifications": {
+    "message": "リスクの高いパスワードの通知を表示する"
   },
   "lock": {
     "message": "ロック",
@@ -2453,13 +2784,16 @@
     "message": "このアイテムを完全に削除してもよろしいですか？"
   },
   "permanentlyDeletedItem": {
-    "message": "完全に削除されたアイテム"
+    "message": "アイテムを完全に削除しました"
+  },
+  "archivedItemRestored": {
+    "message": "アーカイブされたアイテムを復元しました"
   },
   "restoreItem": {
     "message": "アイテムをリストア"
   },
   "restoredItem": {
-    "message": "リストアされたアイテム"
+    "message": "アイテムをリストアしました"
   },
   "alreadyHaveAccount": {
     "message": "すでにアカウントをお持ちですか？"
@@ -2501,7 +2835,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "このページが Bitwarden の動作に干渉しています。安全対策として、Bitwarden のインラインメニューを一時的に無効化しました。"
   },
   "setMasterPassword": {
     "message": "マスターパスワードを設定"
@@ -2606,7 +2940,7 @@
     "message": "デスクトップアプリにこれが表示されていることを確認してください: "
   },
   "desktopIntegrationDisabledTitle": {
-    "message": "ブラウザ統合が有効になっていません"
+    "message": "ブラウザー統合が有効になっていません"
   },
   "desktopIntegrationDisabledDesc": {
     "message": "Bitwarden デスクトップアプリでブラウザ統合が有効になっていません。デスクトップアプリの設定で有効にしてください。"
@@ -2645,13 +2979,13 @@
     "message": "生体認証が有効になっていません"
   },
   "biometricsNotEnabledDesc": {
-    "message": "ブラウザ生体認証を利用するには、まず設定でデスクトップ生体認証を有効にする必要があります。"
+    "message": "ブラウザーの生体認証を利用するには、まず設定でデスクトップ生体認証を有効にする必要があります。"
   },
   "biometricsNotSupportedTitle": {
     "message": "生体認証に対応していません"
   },
   "biometricsNotSupportedDesc": {
-    "message": "このデバイスではブラウザの生体認証に対応していません。"
+    "message": "このデバイスではブラウザーの生体認証に対応していません。"
   },
   "biometricsNotUnlockedTitle": {
     "message": "ユーザーがロックまたはログアウトしました"
@@ -2671,18 +3005,6 @@
   "biometricsFailedDesc": {
     "message": "生体認証を完了できません。マスターパスワードを使うかログアウトしてください。それでも直らない場合は、Bitwarden サポートまでお問い合わせください。"
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "権限が提供されていません"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bitwarden デスクトップアプリとの通信許可がなければ、ブラウザ拡張機能で生体認証を利用できません。もう一度やり直してください。"
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "権限リクエストエラー"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "この操作はサイドバーでは行えません。ポップアップまたはポップアウトでやり直してください。"
-  },
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人の保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
   },
@@ -2693,10 +3015,10 @@
     "message": "組織のポリシーにより、個々の保管庫へのアイテムのインポートがブロックされました。"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "カードアイテムタイプをインポートできません"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "組織によって設定された1つ以上のポリシーによって、保管庫にカード情報をインポートできなくなります。"
   },
   "domainsTitle": {
     "message": "ドメイン",
@@ -2713,9 +3035,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden はこれらのドメインのログイン情報を保存するよう尋ねません。変更を有効にするにはページを更新する必要があります。"
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden はログインしているすべてのアカウントで、これらのドメインのログイン情報を保存するよう要求しません。 変更を有効にするにはページを更新する必要があります。"
   },
   "blockedDomainsDesc": {
     "message": "自動入力やその他の関連機能はこれらのウェブサイトには提供されません。変更を反映するにはページを更新する必要があります。"
@@ -2789,8 +3108,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+  "atRiskNavigatePromptV2": {
+    "message": "このサイトのパスワードは危険です。 $ORGANIZATION$ はアカウント設定に移動して変更するよう要求しています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2829,6 +3148,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "危険な状態にあるログイン情報の一覧表示の例"
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Bitwarden 保管庫ページのレイアウト図。"
   },
   "generatePasswordSlideDesc": {
     "message": "Bitwarden の自動入力メニューで、強力で一意なパスワードをすぐに生成しましょう。",
@@ -3002,10 +3324,6 @@
   "custom": {
     "message": "カスタム"
   },
-  "sendPasswordDescV3": {
-    "message": "受信者がこの Send にアクセスするための任意のパスワードを追加します。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "新しい Send を作成",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3057,6 +3375,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ 時間",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "この Send リンクをコピーして共有してください。リンクを知っているすべての人が、今後 $TIME$ Send を利用できます。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "この Send リンクをコピーして共有してください。この Send は、リンクと設定したパスワードを知っているすべての人が、今後 $TIME$ 利用できます。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "この Send リンクをコピーして共有してください。指定した相手は、今後 $TIME$ 表示できます。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send リンクをコピーしました",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3065,28 +3422,8 @@
     "message": "編集済みの Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "拡張機能をポップアウトしますか？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "ファイル Send を作成するには、拡張機能を新しいウィンドウでポップアウト表示する必要があります。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "ファイルを選択するには、可能な場合サイドバーで拡張子を開くか、このバナーをクリックして新しいウィンドウにポップアップしてください。"
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox を使用してファイルを選択するには、サイドバーで開くか、このバナーをクリックして新しいウィンドウで開いてください。"
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari を使用してファイルを選択するには、このバナーをクリックして新しいウィンドウで開いてください。"
-  },
   "popOut": {
     "message": "ポップアウト"
-  },
-  "sendFileCalloutHeader": {
-    "message": "はじめる前に"
   },
   "expirationDateIsInvalid": {
     "message": "入力された有効期限は正しくありません。"
@@ -3181,9 +3518,6 @@
   },
   "minutes": {
     "message": "分"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "タイムアウトオプションにエンタープライズポリシー要件を適用しました"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "あなたの組織ポリシーは保管庫のタイムアウトに影響を与えています。最大保管庫のタイムアウト時間は $HOURS$ 時間 $MINUTES$ 分です。",
@@ -3295,33 +3629,18 @@
   "exportingPersonalVaultTitle": {
     "message": "個人保管庫のエクスポート"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ に関連付けられた個人の保管庫アイテムのみがエクスポートされます。組織の保管庫アイテムは含まれません。 保管庫アイテム情報のみがエクスポートされ、関連する添付ファイルはエクスポートされません。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ に関連付けられた個人用保管庫のアイテムのみが、添付ファイルを含めてエクスポートされます。組織用保管庫のアイテムは含まれません。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "組織保管庫のエクスポート"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ に関連付けられた組織保管庫のみがエクスポートされます。個々の保管庫または他の組織にあるアイテムは含まれません。",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "個人の保管庫のアイテムのみがエクスポートされます。"
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "$ORGANIZATION$ の保管庫に関連付けられたアイテムのみがエクスポートされます。個人の保管庫内のアイテムはエクスポートされません。",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3335,7 +3654,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "$ORGANIZATION$ に関連付けられた組織の保管庫のみがエクスポートされます。自分のアイテムコレクションは含まれません。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3345,6 +3664,12 @@
   },
   "error": {
     "message": "エラー"
+  },
+  "prfUnlockFailed": {
+    "message": "パスキーでロックを解除できませんでした。もう一度お試しいただくか、別のロック解除方法を使用してください。"
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "ロック解除に使用できる PRF 対応パスキーがありません。まずパスキーでログインしてください。"
   },
   "decryptionError": {
     "message": "復号エラー"
@@ -3699,6 +4024,24 @@
   "loginStatus": {
     "message": "ログイン状態"
   },
+  "recentlyActive": {
+    "message": "最近アクティブ"
+  },
+  "recentlyActiveToday": {
+    "message": "今日"
+  },
+  "recentlyActivePast7Days": {
+    "message": "過去7日間"
+  },
+  "recentlyActivePast14Days": {
+    "message": "過去14日間"
+  },
+  "recentlyActivePast30Days": {
+    "message": "過去30日間"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30日以上前"
+  },
   "masterPasswordChanged": {
     "message": "マスターパスワードが保存されました"
   },
@@ -3981,13 +4324,13 @@
     "message": "組織は信頼されていません"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "アカウントのセキュリティ保護のため、このユーザーに緊急アクセスを許可しており、かつ表示されているフィンガープリントが相手のアカウントのものと一致する場合にのみ確認してください"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "アカウントのセキュリティ保護のため、自分がこの組織のメンバーであり、アカウント復旧が有効になっていて、下に表示されているフィンガープリントが組織のフィンガープリントと一致する場合にのみ続行してください。"
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "この組織には、あなたをアカウント復旧に登録するエンタープライズポリシーがあります。登録すると、組織の管理者があなたのパスワードを変更できるようになります。この組織に心当たりがあり、下に表示されているフィンガープリントフレーズが組織のフィンガープリントと一致する場合にのみ続行してください。"
   },
   "trustUser": {
     "message": "ユーザーを信頼"
@@ -4057,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1つ以上のメールアドレスが無効です"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "メール受信者リストは2,500文字を超えることはできません。続行するには1つ以上の受信者を削除してください。"
+  },
   "inputTrimValidator": {
     "message": "値を空白のみにしないでください。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4122,12 +4468,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "ページ読み込み時の自動入力はデフォルトの設定を使うよう設定しました。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "自動入力できません"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "OK"
@@ -4354,6 +4694,9 @@
   "chooseFile": {
     "message": "ファイルを選択"
   },
+  "chooseFileSentenceCase": {
+    "message": "ファイルを選択"
+  },
   "noFileChosen": {
     "message": "ファイルが選択されていません"
   },
@@ -4381,6 +4724,21 @@
   },
   "exportSuccess": {
     "message": "保管庫データをエクスポートしました"
+  },
+  "exportError": {
+    "message": "保管庫データのエクスポート中にエラーが発生しました"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。"
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "パスキー"
@@ -4581,15 +4939,15 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「正規表現」は、認証情報が流出するリスクが高まる高度なオプションです。",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「次で始まる」は、認証情報が流出するリスクが高まる高度なオプションです。",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "一致検出の詳細",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -4721,6 +5079,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "その他のオプション"
+  },
   "moreOptionsTitle": {
     "message": "その他のオプション - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4793,6 +5154,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "値が入力されていません",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "コピーする値がありません"
   },
@@ -4808,38 +5173,56 @@
   "copyAddress": {
     "message": "住所をコピー"
   },
+  "myItems": {
+    "message": "マイアイテム"
+  },
   "adminConsole": {
     "message": "管理コンソール"
   },
   "admin": {
-    "message": "Admin"
+    "message": "管理者"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "ユーザーの自動確認"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "このデバイスがロック解除済みの間、保留中のユーザーを自動確認します"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "ユーザーの自動確認で時間を節約"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "これにより、組織のデータセキュリティに影響が及ぶ可能性があります。 "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "リスクについて学ぶ"
+  },
+  "autoConfirmSetup": {
+    "message": "新規ユーザーを自動確認"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "このデバイスがロック解除済みの間、新規ユーザーは自動確認されます。"
+  },
+  "autoConfirmSetupHint": {
+    "message": "潜在的なセキュリティリスクとは何ですか？"
+  },
+  "autoConfirmEnabled": {
+    "message": "自動確認をオンにしました"
+  },
+  "availableNow": {
+    "message": "現在利用可能"
   },
   "accountSecurity": {
     "message": "アカウントのセキュリティ"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "フィッシングブロッカー"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "フィッシングの検出"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "フィッシングの疑いがあるサイトにアクセスする前に警告を表示"
   },
   "notifications": {
     "message": "通知"
@@ -4953,6 +5336,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "添付ファイルをダウンロード"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden をダウンロード"
   },
@@ -4969,7 +5355,7 @@
     "message": "デスクトップアプリを入手"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "ブラウザーを使わずに保管庫にアクセスし、デスクトップアプリとブラウザー拡張機能の両方でロック解除をすばやく行えるように、生体認証によるロック解除を設定します。"
   },
   "downloadFromBitwardenNow": {
     "message": "bitwarden.com から今すぐダウンロード"
@@ -4987,7 +5373,7 @@
     "message": "プレミアム"
   },
   "unlockFeaturesWithPremium": {
-    "message": "Unlock reporting, emergency access, and more security features with Premium."
+    "message": "プレミアムならレポート、緊急アクセスなどのセキュリティ機能を使えます。"
   },
   "freeOrgsCannotUseAttachments": {
     "message": "無料の組織は添付ファイルを使用できません"
@@ -5092,14 +5478,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "一致検出 $WEBSITE$を非表示",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "一致検出を表示"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "一致検出を非表示"
   },
   "autoFillOnPageLoad": {
     "message": "ページ読み込み時に自動入力する"
@@ -5455,13 +5838,13 @@
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
   },
   "unlockVault": {
-    "message": "Unlock your vault in seconds"
+    "message": "保管庫を数秒でロック解除"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "ロック解除とタイムアウトの設定をカスタマイズして、保管庫にすばやくアクセスできます。"
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "PIN のロックを解除"
   },
   "unlockWithBiometricSet": {
     "message": "生体認証でロック解除を設定しました"
@@ -5637,6 +6020,9 @@
   "extraWide": {
     "message": "エクストラワイド"
   },
+  "narrow": {
+    "message": "絞り込む"
+  },
   "sshKeyWrongPassword": {
     "message": "入力されたパスワードが間違っています。"
   },
@@ -5683,13 +6069,13 @@
     "message": "危険なパスワードの変更"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "このログインはリスクが高く、ウェブサイトが設定されていません。セキュリティを強化するには、Webサイトを追加してパスワードを変更してください。"
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "脆弱なパスワードです。"
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "今すぐ変更"
   },
   "missingWebsite": {
     "message": "ウェブサイトがありません"
@@ -5734,7 +6120,7 @@
     "message": "既存のパスワードをインポート"
   },
   "emptyVaultNudgeBody": {
-    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+    "message": "インポーターを使用すると、ログイン情報を手動で追加せずに Bitwarden にすばやく転送できます。"
   },
   "emptyVaultNudgeButton": {
     "message": "今すぐインポート"
@@ -5755,15 +6141,15 @@
     "message": "このサイトに進む (非推奨)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "このサイトは次のリストで見つかりました: ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": "個人情報や機密情報を盗むために使われる既知のフィッシングサイトをまとめたオープンソースのリストです。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "フィッシング検出について詳しく見る"
   },
   "protectedBy": {
     "message": "$PRODUCT$ によって保護されています",
@@ -5775,19 +6161,19 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "現在のページにアイテムを自動入力"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "よく使うアイテムをお気に入りに追加して簡単にアクセス"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "保管庫で別の項目を検索"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "自動入力で時間を節約"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "次を追加すると、",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5797,27 +6183,27 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "このログインが自動入力候補として表示されます。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "シームレスなオンライン決済"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "カードを使って、支払いフォームを安全かつ正確に簡単に自動入力できます。"
   },
   "newIdentityNudgeTitle": {
     "message": "アカウント作成を簡素化"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "ID を使用すると、長い登録フォームや連絡先フォームをすばやく自動入力できます。"
   },
   "newNoteNudgeTitle": {
     "message": "機密データを安全に保管"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "メモを使用すると、銀行口座や保険の詳細情報などの機密データを安全に保存できます。"
   },
   "newSshNudgeTitle": {
     "message": "開発者フレンドリーの SSH アクセス"
@@ -5841,22 +6227,22 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "ログインを安全に保つのに役立ちます。",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "「パスワードを生成」ボタンをクリックすると、強力で一意のパスワードを簡単に作成でき、ログインを安全に保つのに役立ちます。",
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
     "message": "この設定について"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden は、保存されたログイン URI を使用して、どのアイコンまたはパスワード変更 URL を使用するかを判断し、使いやすさを向上させます。このサービスの利用時に、情報が収集または保存されることはありません。"
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "このページを表示する権限がありません。別のアカウントでログインしてください。"
   },
   "wasmNotSupported": {
     "message": "WebAssembly はお使いのブラウザでサポートされていないか、有効になっていません。WebAssembly は Bitwarden アプリを使用するために必要です。",
@@ -5871,15 +6257,19 @@
   "next": {
     "message": "次へ"
   },
+  "breadcrumbs": {
+    "message": "パンくずリスト",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "パンくずリストをさらに表示",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "キーコネクターのドメインを確認"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "リスクが高いログインの保護が完了しました！"
   },
   "upgradeNow": {
     "message": "今すぐアップグレード"
@@ -5894,25 +6284,25 @@
     "message": "緊急アクセス"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "漏洩監視"
   },
   "andMoreFeatures": {
     "message": "などなど！"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "高度なオンラインセキュリティ"
   },
   "upgradeToPremium": {
     "message": "プレミアムにアップグレード"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "高度なセキュリティ機能を有効化"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "プレミアムサブスクリプションにより、安全性と管理性を高めるためのツールをさらに利用できます"
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "プレミアムを詳しく見る"
   },
   "loadingVault": {
     "message": "保管庫の読み込み中"
@@ -5921,7 +6311,7 @@
     "message": "保管庫が読み込まれました"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "この設定は、組織のポリシーによって無効化されています。",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
@@ -5930,53 +6320,56 @@
   "cardNumberLabel": {
     "message": "カード番号"
   },
+  "errorCannotDecrypt": {
+    "message": "エラー: 復号できません"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "あなたの組織では、Bitwarden へのログインにマスターパスワードを使用しなくなりました。続行するには、組織とドメインを確認してください。"
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "ログインして続行"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "続行しない"
   },
   "domain": {
-    "message": "Domain"
+    "message": "ドメイン"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "このドメインにはアカウントの暗号化キーが保存されるため、信頼できることを確認してください。不明な場合は、管理者に確認してください。"
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "ログインするには組織を確認してください"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "組織を確認しました"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "ドメインを確認しました"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "組織を確認しない場合、組織へのアクセス権が取り消されます。"
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "今すぐ退出"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "ログインするにはドメインを確認してください"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "ログインを続行するには、このドメインを確認してください。"
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "ログインを続行するには、組織とドメインを確認してください。"
   },
   "sessionTimeoutSettingsAction": {
     "message": "タイムアウト時のアクション"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "この設定は組織によって管理されています。"
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "組織により、最大セッションタイムアウトが $HOURS$ 時間 $MINUTES$ 分に設定されています。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5989,16 +6382,16 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Your organization has set the default session timeout to Immediately."
+    "message": "組織により、既定のセッションタイムアウトが「即時」に設定されています。"
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "組織により、既定のセッションタイムアウトが「システムロック時」に設定されています。"
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On browser restart."
+    "message": "組織により、既定のセッションタイムアウトが「ブラウザー再起動時」に設定されています。"
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "最大タイムアウトは $HOURS$ 時間 $MINUTES$ 分以下にしてください",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6011,25 +6404,37 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "ブラウザ再起動時"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "タイムアウト時の動作を変更するには、ロック解除方法を設定してください"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden デスクトップアプリで管理されています。編集するにはデスクトップアプリを開いてください。"
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% 完了",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "アップグレード"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "本当に退出しますか？"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "拒否すると個人のアイテムはアカウントに残りますが、共有アイテムや組織の機能にアクセスできなくなります。"
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "アクセスを取り戻すには管理者に連絡してください。"
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ を退出する",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6038,10 +6443,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "保管庫を管理するにはどうすればよいですか？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "アイテムを $ORGANIZATION$ に転送",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6049,25 +6454,238 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ は、セキュリティとコンプライアンスのためにすべてのアイテムを組織が所有することを必要としています。",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
+  },
+  "transferItemsToOrganizationAction": {
+    "message": "転送を承認するボタンを押すとアイテムの所有権を譲渡します。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "アイテムの転送に関するヘルプ記事を開く"
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "転送を承認する"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "拒否する"
   },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+  "items": {
+    "message": "アイテム"
+  },
+  "searchResults": {
+    "message": "検索結果"
+  },
+  "simplifiedAutofill": {
+    "message": "シンプルな自動入力"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "提案された自動入力項目をクリックすると、詳細を表示する代わりに入力します。詳細メニューからアイテムを表示できます。"
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "シンプルな自動入力のポップオーバーを開く"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "サイドナビのサイズを変更"
+  },
+  "whoCanView": {
+    "message": "表示できる人"
+  },
+  "specificPeople": {
+    "message": "特定の人"
+  },
+  "emailVerificationDesc": {
+    "message": "この Send リンクを共有した後、各個人はこの Send を表示するためにコードを使用してメールアドレスを認証する必要があります。"
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "コンマで区切ると複数のメールアドレスを入力できます。"
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Bitwarden アプリをダウンロード"
+  },
+  "emailProtected": {
+    "message": "メールアドレス保護"
+  },
+  "sendPasswordHelperText": {
+    "message": "この Send を表示するには、各個人がパスワードを入力する必要があります",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "ユーザー認証に失敗しました。"
+  },
+  "sharedUnlock": {
+    "message": "共有ロック解除"
+  },
+  "sharedUnlockDescription": {
+    "message": "Bitwarden アプリを同期させてください。有効にすると、ロック解除状態はこのデバイスのすべてのアプリで共有されます。 異なるブラウザ間で同期するためにデスクトップアプリが必要です。"
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Bitwarden アプリを同期させてください。有効にすると、ロック解除状態は Safari の Bitwarden ウェブ保管庫で共有されます。"
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Bitwarden アプリを同期させてください。有効にすると、ロック解除状態は Bitwarden デスクトップアプリで共有されます。"
+  },
+  "enterMonth": {
+    "message": "月を入力してください。"
+  },
+  "enterDay": {
+    "message": "日を入力してください。"
+  },
+  "enterYear": {
+    "message": "年を入力してください。"
+  },
+  "invalidDay": {
+    "message": "正しい日を入力してください。"
+  },
+  "invalidYear": {
+    "message": "正しい年を入力してください。"
+  },
+  "searchDriversLicense": {
+    "message": "免許証を検索"
+  },
+  "bankName": {
+    "message": "銀行名"
+  },
+  "nameOnAccount": {
+    "message": "口座名義"
+  },
+  "bankAccountType": {
+    "message": "口座種別"
+  },
+  "bankAccountTypeCompany": {
+    "message": "ビジネス"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "個人"
+  },
+  "accountNumber": {
+    "message": "口座番号"
+  },
+  "bankRoutingNumber": {
+    "message": "ルーティングナンバー",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "支店/機関番号"
+  },
+  "swiftCode": {
+    "message": "SWIFT コード"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "銀行の連絡先"
+  },
+  "searchBankAccount": {
+    "message": "銀行口座を検索"
+  },
+  "searchPassport": {
+    "message": "パスポートを検索"
+  },
+  "copyAccountNumber": {
+    "message": "口座番号をコピー"
+  },
+  "copyRoutingNumber": {
+    "message": "ルーティングナンバーをコピー"
+  },
+  "copyPin": {
+    "message": "暗証番号をコピー"
+  },
+  "copyIban": {
+    "message": "IBAN をコピー"
+  },
+  "copyNameOnAccount": {
+    "message": "口座名義をコピー"
+  },
+  "copyBranchNumber": {
+    "message": "支店番号をコピー"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT コードをコピー"
+  },
+  "bankAccountTypeChecking": {
+    "message": "当座"
+  },
+  "bankAccountTypeSavings": {
+    "message": "普通"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "入金証明書"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "限度額"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "投資/証券取引"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "短期市場"
+  },
+  "bankAccountTypeOther": {
+    "message": "その他"
+  },
+  "downloadFailed": {
+    "message": "ダウンロードできませんでした。"
+  },
+  "more": {
+    "message": "詳細"
+  },
+  "maxAccessCount": {
+    "message": "最大アクセス数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "受信者に自分のメールアドレスを表示しない"
+  },
+  "viewTextSendHeader": {
+    "message": "テキストを表示"
+  },
+  "viewFileSendHeader": {
+    "message": "ファイルを表示"
+  },
+  "sendCreated": {
+    "message": "Send を作成しました",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "数値を入力してください"
+  },
+  "integerInputError": {
+    "message": "整数を入力してください"
+  },
+  "sideNavigation": {
+    "message": "サイドバーナビゲーション"
+  },
+  "skipLink": {
+    "message": "リンクをスキップ"
+  },
+  "callout": {
+    "message": "吹き出し",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "プログレスバー",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "複数のコレクションに含まれるアイテムは、マイアイテムにインポートできません"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "アイテムを保存できません。アイテムを保存するには組織に確認する必要があります。"
   }
 }

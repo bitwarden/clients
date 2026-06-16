@@ -1,4 +1,4 @@
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { Response } from "../../../models/response";
 import { TemplateResponse } from "../../../models/response/template.response";

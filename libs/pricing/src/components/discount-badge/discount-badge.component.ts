@@ -14,7 +14,7 @@ import { Maybe } from "../../types/maybe";
   imports: [CommonModule, BadgeModule],
 })
 export class DiscountBadgeComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   readonly discount = input<Maybe<Discount>>(null);
 
@@ -23,7 +23,7 @@ export class DiscountBadgeComponent {
     if (!discount) {
       return false;
     }
-    return discount.active && discount.value > 0;
+    return discount.value > 0;
   });
 
   readonly label = computed<Maybe<string>>(() => {

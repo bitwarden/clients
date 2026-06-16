@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -11,8 +11,10 @@ import { KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
@@ -39,12 +41,6 @@ import {
 export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {
   deserializer: (masterKey) => SymmetricCryptoKey.fromJSON(masterKey) as MasterKey,
   clearOn: ["lock", "logout"],
-});
-
-/** Disk since master key hash is used for unlock */
-const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "masterKeyHash", {
-  deserializer: (masterKeyHash) => masterKeyHash,
-  clearOn: ["logout"],
 });
 
 /** Disk to persist through lock */
@@ -101,9 +97,46 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
     assertNonNullish(userId, "userId");
-    return this.accountService.accounts$.pipe(
-      map((accounts) => accounts[userId].email),
-      map((email) => this.emailToSalt(email)),
+
+    // Note: We can't use the config service as an abstraction here because it creates a circular dependency: ConfigService -> ConfigApiService -> ApiService -> VaultTimeoutSettingsService -> KeyService -> MP service.
+    return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$.pipe(
+      map((serverConfig) =>
+        getFeatureFlagValue(serverConfig, FeatureFlag.PM31088_MasterPasswordServiceEmitSalt),
+      ),
+      switchMap((enabled) =>
+        iif(
+          () => enabled,
+          this.masterPasswordUnlockData$(userId).pipe(
+            switchMap((unlockData) => {
+              if (unlockData != null) {
+                return of(unlockData.salt);
+              }
+              // No unlock data. Determine whether this is a hydration failure
+              // or a user who legitimately has no master password yet
+              // (e.g., TDE offboarding).
+              return from(this.userHasMasterPassword(userId)).pipe(
+                switchMap((hasMp) => {
+                  if (hasMp) {
+                    throw new Error("Master password unlock data not found for user.");
+                  }
+                  // TODO: PM-32059 — Edge case: user does not have a master password (e.g., TDE offboarding).
+                  // When salt is disconnected from email (Stage 3), part of that should involve a "generateSalt"
+                  // function that TDE offboarding deliberately calls; it should not be a side-effect of retrieving
+                  // the user's salt.
+                  return this.accountService.accounts$.pipe(
+                    map((accounts) => accounts[userId].email),
+                    map((email) => this.emailToSalt(email)),
+                  );
+                }),
+              );
+            }),
+          ),
+          this.accountService.accounts$.pipe(
+            map((accounts) => accounts[userId].email),
+            map((email) => this.emailToSalt(email)),
+          ),
+        ),
+      ),
     );
   }
 
@@ -112,13 +145,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("User ID is required.");
     }
     return this.stateProvider.getUser(userId, MASTER_KEY).state$;
-  }
-
-  masterKeyHash$(userId: UserId): Observable<string> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    return this.stateProvider.getUser(userId, MASTER_KEY_HASH).state$;
   }
 
   forceSetPasswordReason$(userId: UserId): Observable<ForceSetPasswordReason> {
@@ -160,27 +186,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("User ID is required.");
     }
     await this.stateProvider.getUser(userId, MASTER_KEY).update((_) => null);
-  }
-
-  async setMasterKeyHash(masterKeyHash: string, userId: UserId): Promise<void> {
-    if (masterKeyHash == null) {
-      throw new Error("Master key hash is required.");
-    }
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => masterKeyHash, {
-      shouldUpdate: (previousValue) => previousValue !== masterKeyHash,
-    });
-  }
-
-  async clearMasterKeyHash(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => null, {
-      shouldUpdate: (previousValue) => previousValue !== null,
-    });
   }
 
   async setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
@@ -337,9 +342,33 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       .update(() => masterPasswordUnlockData.toJSON());
   }
 
+  async clearMasterPasswordUnlockData(userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
+
+    await this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).update(() => null);
+  }
+
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
     assertNonNullish(userId, "userId");
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
+  }
+
+  async setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(password, "password");
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      masterPasswordUnlockData.salt,
+      masterPasswordUnlockData.kdf,
+    )) as MasterKey;
+
+    await this.setMasterKey(masterKey, userId);
   }
 }

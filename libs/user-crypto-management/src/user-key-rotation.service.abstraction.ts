@@ -1,0 +1,57 @@
+import { KeyRotationMethod, PublicKey, UpgradeTokenAction } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
+
+/**
+ * Result of the trust verification process.
+ */
+export type TrustVerificationResult = {
+  wasTrustDenied: boolean;
+  trustedOrganizationPublicKeys: PublicKey[];
+  trustedEmergencyAccessUserPublicKeys: PublicKey[];
+};
+
+/**
+ * Abstraction for the user key rotation service.
+ * Provides functionality to rotate user keys and verify trust for organizations
+ * and emergency access users.
+ */
+export abstract class UserKeyRotationService {
+  /**
+   * Rotates the user key using the SDK, re-encrypting all required data with the new key.
+   * @param currentMasterPassword The current master password
+   * @param newMasterPassword The new master password
+   * @param hint Optional hint for the new master password
+   * @param userId The user account ID
+   */
+  abstract changePasswordAndRotateUserKey(
+    currentMasterPassword: string,
+    newMasterPassword: string,
+    hint: string | undefined,
+    userId: UserId,
+  ): Promise<boolean>;
+
+  /**
+   * Rotates the user key and associated encrypted data using the SDK without a master password change.
+   * For master password based key rotations the master password should be confirmed by proof of decryption prior to calling this method.
+   * @param keyRotationMethod The method to use for key rotation.
+   * @param upgradeTokenAction The action to take for creating an upgrade token if needed for the key rotation.
+   * For manual rotations the expected value is "Skip". "CreateIfNeeded" is expected for background migrations upgrading user from v1 to v2.
+   * @param userId The ID of the user.
+   * @returns True if the key rotation was successful, false if the user denied trust.
+   * @throws If the SDK call fails or the SDK is not available.
+   */
+  abstract rotateUserKey(
+    keyRotationMethod: KeyRotationMethod,
+    upgradeTokenAction: UpgradeTokenAction,
+    userId: UserId,
+  ): Promise<boolean>;
+
+  /**
+   * Verifies the trust of organizations and emergency access users by prompting the user.
+   * Since organizations and emergency access grantees are not signed, manual trust prompts
+   * are required to verify that the server does not inject public keys.
+   * @param user The user account
+   * @returns TrustVerificationResult containing whether trust was denied and the trusted public keys
+   */
+  abstract verifyTrust(userId: UserId): Promise<TrustVerificationResult>;
+}

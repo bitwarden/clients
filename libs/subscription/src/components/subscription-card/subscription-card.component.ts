@@ -11,29 +11,35 @@ import {
   TypographyModule,
   CalloutTypes,
   ButtonType,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type PlanCardAction =
-  | "contact-support"
-  | "manage-invoices"
-  | "reinstate-subscription"
-  | "update-payment"
-  | "upgrade-plan";
+export const SubscriptionCardActions = {
+  ContactSupport: "contact-support",
+  ManageInvoices: "manage-invoices",
+  ReinstateSubscription: "reinstate-subscription",
+  Resubscribe: "resubscribe",
+  UpdatePayment: "update-payment",
+  UpgradePlan: "upgrade-plan",
+} as const;
+
+export type SubscriptionCardAction =
+  (typeof SubscriptionCardActions)[keyof typeof SubscriptionCardActions];
 
 type Badge = { text: string; variant: BadgeVariant };
 
 type Callout = Maybe<{
   title: string;
   type: CalloutTypes;
-  icon?: string;
+  icon?: BitwardenIcon;
   description: string;
   callsToAction?: {
     text: string;
     buttonType: ButtonType;
-    action: PlanCardAction;
+    action: SubscriptionCardAction;
   }[];
 }>;
 
@@ -53,8 +59,8 @@ type Callout = Maybe<{
   ],
 })
 export class SubscriptionCardComponent {
-  private datePipe = inject(DatePipe);
-  private i18nService = inject(I18nService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly i18nService = inject(I18nService);
 
   protected readonly dateFormat = "MMM. d, y";
 
@@ -64,7 +70,7 @@ export class SubscriptionCardComponent {
 
   readonly showUpgradeButton = input<boolean>(false);
 
-  readonly callToActionClicked = output<PlanCardAction>();
+  readonly callToActionClicked = output<SubscriptionCardAction>();
 
   readonly badge = computed<Badge>(() => {
     const subscription = this.subscription();
@@ -136,12 +142,12 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("updatePayment"),
               buttonType: "unstyled",
-              action: "update-payment",
+              action: SubscriptionCardActions.UpdatePayment,
             },
             {
               text: this.i18nService.t("contactSupportShort"),
               buttonType: "unstyled",
-              action: "contact-support",
+              action: SubscriptionCardActions.ContactSupport,
             },
           ],
         };
@@ -150,12 +156,12 @@ export class SubscriptionCardComponent {
         return {
           title: this.i18nService.t("expired"),
           type: "danger",
-          description: this.i18nService.t("yourSubscriptionHasExpired"),
+          description: this.i18nService.t("yourSubscriptionIsExpired"),
           callsToAction: [
             {
-              text: this.i18nService.t("contactSupportShort"),
+              text: this.i18nService.t("resubscribe"),
               buttonType: "unstyled",
-              action: "contact-support",
+              action: SubscriptionCardActions.Resubscribe,
             },
           ],
         };
@@ -172,7 +178,7 @@ export class SubscriptionCardComponent {
               {
                 text: this.i18nService.t("reinstateSubscription"),
                 buttonType: "unstyled",
-                action: "reinstate-subscription",
+                action: SubscriptionCardActions.ReinstateSubscription,
               },
             ],
           };
@@ -183,13 +189,13 @@ export class SubscriptionCardComponent {
         return {
           title: this.i18nService.t("upgradeYourPlan"),
           type: "info",
-          icon: "bwi-gem",
+          icon: "bwi-diamond",
           description: this.i18nService.t("premiumShareEvenMore"),
           callsToAction: [
             {
               text: this.i18nService.t("upgradeNow"),
               buttonType: "unstyled",
-              action: "upgrade-plan",
+              action: SubscriptionCardActions.UpgradePlan,
             },
           ],
         };
@@ -208,13 +214,24 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("manageInvoices"),
               buttonType: "unstyled",
-              action: "manage-invoices",
+              action: SubscriptionCardActions.ManageInvoices,
             },
           ],
         };
       }
       case SubscriptionStatuses.Canceled: {
-        return null;
+        return {
+          title: this.i18nService.t("canceled"),
+          type: "danger",
+          description: this.i18nService.t("yourSubscriptionIsCanceled"),
+          callsToAction: [
+            {
+              text: this.i18nService.t("resubscribe"),
+              buttonType: "unstyled",
+              action: SubscriptionCardActions.Resubscribe,
+            },
+          ],
+        };
       }
       case SubscriptionStatuses.Unpaid: {
         return {
@@ -225,7 +242,7 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("manageInvoices"),
               buttonType: "unstyled",
-              action: "manage-invoices",
+              action: SubscriptionCardActions.ManageInvoices,
             },
           ],
         };

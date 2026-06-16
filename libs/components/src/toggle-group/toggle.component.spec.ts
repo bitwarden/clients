@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DebugElement, signal } from "@angul
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
-import { BadgeModule } from "../badge";
+import { BerryComponent } from "../berry";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleGroupModule } from "./toggle-group.module";
@@ -48,41 +48,60 @@ describe("Toggle", () => {
 });
 
 describe("Toggle with badge content", () => {
-  let fixtureWithBadge: ComponentFixture<TestComponentWithBadgeComponent>;
-  let badgeContainers: DebugElement[];
+  let fixtureWithBerry: ComponentFixture<TestComponentWithBerryComponent>;
+  let berryContainers: DebugElement[];
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestComponentWithBadgeComponent],
+      imports: [TestComponentWithBerryComponent],
     });
 
     await TestBed.compileComponents();
-    fixtureWithBadge = TestBed.createComponent(TestComponentWithBadgeComponent);
-    fixtureWithBadge.detectChanges();
-    badgeContainers = fixtureWithBadge.debugElement.queryAll(By.css(".tw-shrink-0"));
+    fixtureWithBerry = TestBed.createComponent(TestComponentWithBerryComponent);
+    fixtureWithBerry.detectChanges();
+    berryContainers = fixtureWithBerry.debugElement.queryAll(By.css(".tw-shrink-0"));
   });
 
-  it("should hide badge container when no badge content is projected", () => {
-    // First toggle has no badge
-    expect(badgeContainers[0].nativeElement.hidden).toBe(true);
+  it("should hide berry container when no berry content is projected", () => {
+    // First toggle has no berry
+    expect(berryContainers[0].nativeElement.hidden).toBe(true);
 
-    // Second toggle has a badge
-    expect(badgeContainers[1].nativeElement.hidden).toBe(false);
+    // Second toggle has a berry
+    expect(berryContainers[1].nativeElement.hidden).toBe(false);
 
-    // Third toggle has no badge
-    expect(badgeContainers[2].nativeElement.hidden).toBe(true);
+    // Third toggle has no berry
+    expect(berryContainers[2].nativeElement.hidden).toBe(true);
   });
 
-  it("should show badge container when badge content is projected", () => {
-    const badgeElement = fixtureWithBadge.debugElement.query(By.css("[bitBadge]"));
-    expect(badgeElement).toBeTruthy();
-    expect(badgeElement.nativeElement.textContent.trim()).toBe("2");
+  it("should show berry container when berry content is projected", () => {
+    const berryElement = fixtureWithBerry.debugElement.query(By.css("bit-berry"));
+    expect(berryElement).toBeTruthy();
+    expect(berryElement.nativeElement.textContent.trim()).toBe("2");
   });
 
-  it("should render badge content correctly", () => {
-    const badges = fixtureWithBadge.debugElement.queryAll(By.css("[bitBadge]"));
-    expect(badges.length).toBe(1);
-    expect(badges[0].nativeElement.textContent.trim()).toBe("2");
+  it("should render berry content correctly", () => {
+    const berryies = fixtureWithBerry.debugElement.queryAll(By.css("bit-berry"));
+    expect(berryies.length).toBe(1);
+    expect(berryies[0].nativeElement.textContent.trim()).toBe("2");
+  });
+
+  it("should set berry variant to 'primary' when toggle is not selected", () => {
+    // value=1 toggle has the berry, but selected=0, so berry should be primary
+    const berryComponent = fixtureWithBerry.debugElement.query(By.directive(BerryComponent))
+      .componentInstance as BerryComponent;
+    expect(berryComponent.variant()).toBe("primary");
+  });
+
+  it("should set berry variant to 'contrast' when toggle is selected", () => {
+    const toggleGroup = fixtureWithBerry.debugElement.query(By.directive(ToggleGroupComponent))
+      .componentInstance as ToggleGroupComponent;
+
+    toggleGroup.onInputInteraction(1); // select the toggle that has the berry
+    fixtureWithBerry.detectChanges();
+
+    const berryComponent = fixtureWithBerry.debugElement.query(By.directive(BerryComponent))
+      .componentInstance as BerryComponent;
+    expect(berryComponent.variant()).toBe("contrast");
   });
 });
 
@@ -106,13 +125,13 @@ class TestComponent {
   template: `
     <bit-toggle-group [(selected)]="selected">
       <bit-toggle [value]="0">Zero</bit-toggle>
-      <bit-toggle [value]="1">One <span bitBadge variant="info">2</span></bit-toggle>
+      <bit-toggle [value]="1">One <bit-berry [value]="2"></bit-berry></bit-toggle>
       <bit-toggle [value]="2">Two</bit-toggle>
     </bit-toggle-group>
   `,
-  imports: [ToggleGroupModule, BadgeModule],
+  imports: [ToggleGroupModule, BerryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TestComponentWithBadgeComponent {
+class TestComponentWithBerryComponent {
   readonly selected = signal(0);
 }

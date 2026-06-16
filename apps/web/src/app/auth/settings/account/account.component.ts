@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,7 +15,6 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 import { ChangeEmailComponent } from "./change-email.component";
 import { DangerZoneComponent } from "./danger-zone.component";
 import { DeauthorizeSessionsComponent } from "./deauthorize-sessions.component";
-import { DeleteAccountDialogComponent } from "./delete-account-dialog.component";
 import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
@@ -43,6 +43,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private organizationService: OrganizationService,
+    private accountDeletionService: AccountDeletionService,
   ) {}
 
   async ngOnInit() {
@@ -84,8 +85,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   };
 
   deleteAccount = async () => {
-    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
-    await lastValueFrom(dialogRef.closed);
+    await this.accountDeletionService.openDeleteAccountFlow();
   };
 
   setNewDeviceLoginProtection = async () => {

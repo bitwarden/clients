@@ -17,7 +17,7 @@ export class AdminAuthRequestStorable {
   toJSON() {
     return {
       id: this.id,
-      privateKey: Utils.fromBufferToByteString(this.privateKey),
+      privateKey: Utils.fromArrayToByteString(this.privateKey),
     };
   }
 

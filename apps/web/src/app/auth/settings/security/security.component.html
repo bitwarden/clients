@@ -1,8 +1,6 @@
 <app-header>
   <bit-tab-nav-bar slot="tabs">
-    @if (consolidatedSessionTimeoutComponent$ | async) {
-      <bit-tab-link route="session-timeout">{{ "sessionTimeoutHeader" | i18n }}</bit-tab-link>
-    }
+    <bit-tab-link route="session-timeout">{{ "sessionTimeoutHeader" | i18n }}</bit-tab-link>
     @if (showChangePassword) {
       <bit-tab-link [route]="changePasswordRoute">{{ "masterPassword" | i18n }}</bit-tab-link>
     }

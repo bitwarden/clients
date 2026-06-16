@@ -32,12 +32,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { OrganizationFilter } from "@bitwarden/vault";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
 import { LinkSsoService } from "../../../../auth/core/services";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
-import { OrganizationFilter } from "../shared/models/vault-filter.type";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -183,7 +183,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("unlinkedSso"),
       });
 
-      await this.removeEmailFromSsoRequiredCacheIfPresent();
+      await this.removeUserFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
@@ -210,13 +210,16 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("leftOrganization"),
       });
 
-      await this.removeEmailFromSsoRequiredCacheIfPresent();
+      await this.removeUserFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
   }
 
-  private async removeEmailFromSsoRequiredCacheIfPresent() {
+  /**
+   * Remove the user from the cached list of users who must authenticate via SSO (if an entry is present for the user)
+   */
+  private async removeUserFromSsoRequiredCacheIfPresent() {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     if (!activeAccount) {
@@ -224,7 +227,10 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(activeAccount.email);
+    await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(
+      activeAccount.email,
+      activeAccount.id,
+    );
   }
 
   async toggleResetPasswordEnrollment(org: Organization) {

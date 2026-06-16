@@ -1,12 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { currentlyInSandboxedIframe } from "../../../autofill/utils";
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
 import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 (function (globalContext) {
-  if (globalContext.document.currentScript) {
+  if (globalContext.document.currentScript?.parentNode) {
     globalContext.document.currentScript.parentNode.removeChild(
       globalContext.document.currentScript,
     );
@@ -19,6 +18,15 @@ import { Messenger } from "./messaging/messenger";
         globalContext.document.location.hostname === "localhost"));
 
   if (!shouldExecuteContentScript) {
+    return;
+  }
+
+  // Match the fido2 content script's sandbox bail. Without this, the page-script
+  // override would still hijack navigator.credentials.{create,get} in frames where
+  // the content script has already returned early — leaving requests with no other
+  // end of the messenger to receive them. Bailing here lets the native browser API
+  // handle WebAuthn in those frames instead.
+  if (currentlyInSandboxedIframe()) {
     return;
   }
 
@@ -86,7 +94,7 @@ import { Messenger } from "./messaging/messenger";
    */
   async function createWebAuthnCredential(
     options?: CredentialCreationOptions,
-  ): Promise<Credential> {
+  ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.create(options);
     }
@@ -106,18 +114,23 @@ import { Messenger } from "./messaging/messenger";
         options?.signal,
       );
 
-      if (response.type !== MessageTypes.CredentialCreationResponse) {
+      if (response.type !== MessageTypes.CredentialCreationResponse || !response.result) {
         throw new Error("Something went wrong.");
       }
 
       return WebauthnUtils.mapCredentialRegistrationResult(response.result);
     } catch (error) {
-      if (error && error.fallbackRequested && fallbackSupported) {
+      if (
+        fallbackSupported &&
+        error instanceof Object &&
+        "fallbackRequested" in error &&
+        error.fallbackRequested
+      ) {
         await waitForFocus();
         return await browserCredentials.create(options);
       }
 
-      throw error;
+      throw rehydrateDOMException(error);
     }
   }
 
@@ -127,7 +140,9 @@ import { Messenger } from "./messaging/messenger";
    * @param options Options for creating new credentials.
    * @returns Promise that resolves to the new credential object.
    */
-  async function getWebAuthnCredential(options?: CredentialRequestOptions): Promise<Credential> {
+  async function getWebAuthnCredential(
+    options?: CredentialRequestOptions,
+  ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.get(options);
     }
@@ -153,7 +168,7 @@ import { Messenger } from "./messaging/messenger";
             internalAbortController.signal,
           );
           internalAbortController.signal.removeEventListener("abort", abortListener);
-          if (response.type !== MessageTypes.CredentialGetResponse) {
+          if (response.type !== MessageTypes.CredentialGetResponse || !response.result) {
             throw new Error("Something went wrong.");
           }
 
@@ -176,7 +191,7 @@ import { Messenger } from "./messaging/messenger";
       abortSignal.removeEventListener("abort", abortListener);
       internalAbortControllers.forEach((controller) => controller.abort());
 
-      return response;
+      return response ?? null;
     }
 
     try {
@@ -188,23 +203,51 @@ import { Messenger } from "./messaging/messenger";
         options?.signal,
       );
 
-      if (response.type !== MessageTypes.CredentialGetResponse) {
+      if (response.type !== MessageTypes.CredentialGetResponse || !response.result) {
         throw new Error("Something went wrong.");
       }
 
       return WebauthnUtils.mapCredentialAssertResult(response.result);
     } catch (error) {
-      if (error && error.fallbackRequested && fallbackSupported) {
+      if (
+        fallbackSupported &&
+        error instanceof Object &&
+        "fallbackRequested" in error &&
+        error.fallbackRequested
+      ) {
         await waitForFocus();
         return await browserCredentials.get(options);
       }
 
-      throw error;
+      throw rehydrateDOMException(error);
     }
   }
 
-  function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestOptions) {
-    return options && "publicKey" in options;
+  function isWebauthnCall(
+    options?: CredentialCreationOptions | CredentialRequestOptions,
+  ): options is CredentialCreationOptions | CredentialRequestOptions {
+    return options != null && "publicKey" in options;
+  }
+
+  /**
+   * Errors thrown from the content-script messenger handler cross the page/isolated
+   * world boundary as JSON, which strips DOMException's prototype. Reconstruct a
+   * real DOMException so callers that check `instanceof DOMException` or `.code`
+   * see what the native browser API would throw. Scoped to `NotAllowedError` —
+   * the only DOMException name our gate produces.
+   */
+  function rehydrateDOMException(error: unknown): unknown {
+    if (
+      error != null &&
+      typeof error === "object" &&
+      "name" in error &&
+      (error as { name: unknown }).name === "NotAllowedError" &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      return new DOMException((error as { message: string }).message, "NotAllowedError");
+    }
+    return error;
   }
 
   /**
@@ -217,7 +260,7 @@ import { Messenger } from "./messaging/messenger";
    */
   async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
     try {
-      if (globalContext.top.document.hasFocus()) {
+      if (globalContext.top?.document.hasFocus()) {
         return;
       }
     } catch {
@@ -225,9 +268,14 @@ import { Messenger } from "./messaging/messenger";
       return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
     }
 
+    if (!globalContext.top) {
+      return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
+    }
+
+    const topWindow = globalContext.top;
     const focusPromise = new Promise<void>((resolve) => {
       focusListenerHandler = () => resolve();
-      globalContext.top.addEventListener("focus", focusListenerHandler);
+      topWindow.addEventListener("focus", focusListenerHandler);
     });
 
     const timeoutPromise = new Promise<void>((_, reject) => {
@@ -248,7 +296,7 @@ import { Messenger } from "./messaging/messenger";
   }
 
   function clearWaitForFocus() {
-    globalContext.top.removeEventListener("focus", focusListenerHandler);
+    globalContext.top?.removeEventListener("focus", focusListenerHandler);
     if (waitForFocusTimeout) {
       globalContext.clearTimeout(waitForFocusTimeout);
     }

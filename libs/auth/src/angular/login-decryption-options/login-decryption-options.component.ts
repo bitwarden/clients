@@ -34,11 +34,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import {
-  SignedPublicKey,
-  SignedSecurityState,
-  WrappedSigningKey,
-} from "@bitwarden/common/key-management/types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -58,6 +53,7 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
+  IconModule,
   DialogService,
   FormFieldModule,
   ToastService,
@@ -84,6 +80,7 @@ enum State {
     ButtonModule,
     CheckboxModule,
     CommonModule,
+    IconModule,
     FormFieldModule,
     JslibModule,
     ReactiveFormsModule,
@@ -320,23 +317,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         // Set account cryptography state
         await this.accountCryptographicStateService.setAccountCryptographicState(
           register_result.account_cryptographic_state,
-          userId,
-        );
-        // Legacy individual states
-        await this.keyService.setPrivateKey(
-          register_result.account_cryptographic_state.V2.private_key,
-          userId,
-        );
-        await this.keyService.setSignedPublicKey(
-          register_result.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
-          userId,
-        );
-        await this.keyService.setUserSigningKey(
-          register_result.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
-          userId,
-        );
-        await this.securityStateService.setAccountSecurityState(
-          register_result.account_cryptographic_state.V2.security_state as SignedSecurityState,
           userId,
         );
 

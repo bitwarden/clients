@@ -1,5 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 export class ProviderUserConfirmRequest {
-  key: string;
+  protected key: string;
+
+  constructor(key: string) {
+    this.key = key;
+  }
 }

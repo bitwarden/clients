@@ -10,6 +10,7 @@ import {
   LoginUriView as LoginListUriView,
 } from "@bitwarden/sdk-internal";
 
+import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { CardView } from "../models/view/card.view";
@@ -129,12 +130,18 @@ export class CipherViewLikeUtils {
         return CipherType.SecureNote;
       case cipher.type === "sshKey":
         return CipherType.SshKey;
+      case cipher.type === "bankAccount":
+        return CipherType.BankAccount;
+      case cipher.type === "passport":
+        return CipherType.Passport;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
         return CipherType.Card;
       case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      case cipher.type === "driversLicense":
+        return CipherType.DriversLicense;
       default:
         throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
@@ -234,15 +241,23 @@ export class CipherViewLikeUtils {
     // `CipherListView` instances do not contain the values to be copied, but rather a list of copyable fields.
     // When the copy action is performed on a `CipherListView`, the full cipher will need to be decrypted.
     if (this.isCipherListView(cipher)) {
+      // For login ciphers, cross-check against the decrypted data available in LoginListView
+      // when possible. The SDK's copyableFields can report fields as copyable even when
+      // the decrypted value is empty.
+      if (this.getType(cipher) === CipherType.Login) {
+        const login = this.getLogin(cipher);
+        if (copyField === "username") {
+          return !!login?.username;
+        }
+      }
+
       let _copyField = copyField;
 
-      if (_copyField === "username" && this.getType(cipher) === CipherType.Login) {
-        _copyField = "usernameLogin";
-      } else if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
+      if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
         _copyField = "usernameIdentity";
       }
 
-      return cipher.copyableFields.includes(copyActionToCopyableFieldMap[_copyField]);
+      return cipher.copyableFields?.includes(copyActionToCopyableFieldMap[_copyField]) ?? false;
     }
 
     // When the full cipher is available, check the specific field
@@ -271,6 +286,36 @@ export class CipherViewLikeUtils {
         return !!cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return !!cipher.sshKey?.keyFingerprint;
+      case "nameOnAccount":
+        return !!cipher.bankAccount?.nameOnAccount;
+      case "accountNumber":
+        return !!cipher.bankAccount?.accountNumber;
+      case "routingNumber":
+        return !!cipher.bankAccount?.routingNumber;
+      case "branchNumber":
+        return !!cipher.bankAccount?.branchNumber;
+      case "pin":
+        return !!cipher.bankAccount?.pin;
+      case "iban":
+        return !!cipher.bankAccount?.iban;
+      case "swiftCode":
+        return !!cipher.bankAccount?.swiftCode;
+      case "firstNameLicense":
+        return !!cipher.driversLicense?.firstName;
+      case "middleNameLicense":
+        return !!cipher.driversLicense?.middleName;
+      case "lastNameLicense":
+        return !!cipher.driversLicense?.lastName;
+      case "licenseNumber":
+        return !!cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
+      case "givenName":
+        return !!cipher.passport?.givenName;
+      case "surname":
+        return !!cipher.passport?.surname;
       default:
         return false;
     }
@@ -289,6 +334,71 @@ export class CipherViewLikeUtils {
    */
   static decryptionFailure = (cipher: CipherViewLike): boolean => {
     return "decryptionFailure" in cipher ? cipher.decryptionFailure : false;
+  };
+
+  /**
+   * Returns the notes from the cipher.
+   *
+   * @param cipher - The cipher to extract notes from (either `CipherView` or `CipherListView`)
+   * @returns The notes string if present, or `undefined` if not set
+   */
+  static getNotes = (cipher: CipherViewLike): string | undefined => {
+    return cipher.notes;
+  };
+
+  /**
+   * Returns the fields from the cipher.
+   *
+   * @param cipher - The cipher to extract fields from (either `CipherView` or `CipherListView`)
+   * @returns Array of field objects with `name` and `value` properties, `undefined` if not set
+   */
+  static getFields = (
+    cipher: CipherViewLike,
+  ): { name?: string | null; value?: string | undefined }[] | undefined => {
+    if (this.isCipherListView(cipher)) {
+      return cipher.fields;
+    }
+    return cipher.fields;
+  };
+
+  /**
+   * Returns attachment filenames from the cipher.
+   *
+   * @param cipher - The cipher to extract attachment names from (either `CipherView` or `CipherListView`)
+   * @returns Array of attachment filenames, `undefined` if attachments are not present
+   */
+  static getAttachmentNames = (cipher: CipherViewLike): string[] | undefined => {
+    if (this.isCipherListView(cipher)) {
+      return cipher.attachmentNames;
+    }
+
+    return cipher.attachments
+      ?.map((a) => a.fileName)
+      .filter((name): name is string => name != null);
+  };
+
+  /**
+   * Extracts hostname from a login URI.
+   *
+   * @param uri - The URI object (either `LoginUriView` class or `LoginListUriView`)
+   * @returns The hostname if available, `undefined` otherwise
+   *
+   * @remarks
+   * - For `LoginUriView` (CipherView): Uses the built-in `hostname` getter
+   * - For `LoginListUriView` (CipherListView): Computes hostname using `Utils.getHostname()`
+   * - Returns `undefined` for RegularExpression match types or when hostname cannot be extracted
+   */
+  static getUriHostname = (uri: LoginListUriView | LoginUriView): string | undefined => {
+    if ("hostname" in uri && typeof uri.hostname !== "undefined") {
+      return uri.hostname ?? undefined;
+    }
+
+    if (uri.match !== UriMatchStrategy.RegularExpression && uri.uri) {
+      const hostname = Utils.getHostname(uri.uri);
+      return hostname === "" ? undefined : hostname;
+    }
+
+    return undefined;
   };
 }
 
@@ -309,6 +419,21 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+  nameOnAccount: "BankAccountNameOnAccount",
+  accountNumber: "BankAccountAccountNumber",
+  routingNumber: "BankAccountRoutingNumber",
+  branchNumber: "BankAccountBranchNumber",
+  pin: "BankAccountPin",
+  iban: "BankAccountIban",
+  swiftCode: "BankAccountSwift",
+  firstNameLicense: "DriversLicenseFirstName",
+  middleNameLicense: "DriversLicenseMiddleName",
+  lastNameLicense: "DriversLicenseLastName",
+  licenseNumber: "DriversLicenseLicenseNumber",
+  givenName: "PassportGivenName",
+  surname: "PassportSurname",
+  passportNumber: "PassportPassportNumber",
+  nationalIdentificationNumber: "PassportNationalIdentificationNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

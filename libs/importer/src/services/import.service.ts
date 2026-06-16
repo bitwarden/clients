@@ -4,12 +4,11 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService, CollectionWithIdRequest } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionWithIdRequest,
   CollectionView,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
@@ -21,17 +20,19 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
-import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
+import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
+  ArcCsvImporter,
   AscendoCsvImporter,
   AvastCsvImporter,
   AvastJsonImporter,
@@ -56,7 +57,7 @@ import {
   KeePass2XmlImporter,
   KeePassXCsvImporter,
   KeeperCsvImporter,
-  // KeeperJsonImporter,
+  KeeperJsonImporter,
   LastPassCsvImporter,
   LogMeOnceCsvImporter,
   MSecureCsvImporter,
@@ -257,6 +258,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "arccsv":
+        return new ArcCsvImporter();
       case "edgecsv":
       case "chromecsv":
       case "operacsv":
@@ -283,8 +286,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new OnePasswordMacCsvImporter();
       case "keepercsv":
         return new KeeperCsvImporter();
-      // case "keeperjson":
-      //   return new KeeperJsonImporter();
+      case "keeperjson":
+        return new KeeperJsonImporter();
       case "passworddragonxml":
         return new PasswordDragonXmlImporter();
       case "enpasscsv":
@@ -383,17 +386,8 @@ export class ImportService implements ImportServiceAbstraction {
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
-    if (importResult.folders != null) {
-      for (let i = 0; i < importResult.folders.length; i++) {
-        const f = await this.folderService.encrypt(importResult.folders[i], userKey);
-        request.folders.push(new FolderWithIdRequest(f));
-      }
-    }
-    if (importResult.folderRelationships != null) {
-      importResult.folderRelationships.forEach((r) =>
-        request.folderRelationships.push(new KvpRequest(r[0], r[1])),
-      );
-    }
+    await this.addFolders(request, importResult, userKey);
+
     return await this.importApiService.postImportCiphers(request);
   }
 
@@ -415,6 +409,10 @@ export class ImportService implements ImportServiceAbstraction {
       request.ciphers.push(new CipherRequest(encryptedCipher));
     }
 
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    await this.addFolders(request, importResult, userKey);
+
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;
@@ -428,6 +426,24 @@ export class ImportService implements ImportServiceAbstraction {
       );
     }
     return await this.importApiService.postImportOrganizationCiphers(organizationId, request);
+  }
+
+  private async addFolders(
+    request: ImportCiphersRequest | ImportOrganizationCiphersRequest,
+    importResult: ImportResult,
+    userKey: UserKey,
+  ) {
+    if (importResult.folders != null) {
+      for (let i = 0; i < importResult.folders.length; i++) {
+        const f = await this.folderService.encrypt(importResult.folders[i], userKey);
+        request.folders.push(new FolderWithOptionalIdRequest(f));
+      }
+    }
+    if (importResult.folderRelationships != null) {
+      importResult.folderRelationships.forEach((r) =>
+        request.folderRelationships.push(new KvpRequest(r[0], r[1])),
+      );
+    }
   }
 
   private badData(c: CipherView) {
@@ -507,16 +523,42 @@ export class ImportService implements ImportServiceAbstraction {
         }
       });
 
-      // My Items collections do not support collection nesting.
-      // Flatten all ciphers from nested collections into the import target.
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
+        // For individual vault export files we preserve any existing folders
+        if (importResult.folders.length > 0) {
+          for (let i = 0; i < importResult.ciphers.length; i++) {
+            const cipherFolderIndex = importResult.folders.findIndex(
+              (f) => f.id === importResult.ciphers[i].folderId,
+            );
+            if (cipherFolderIndex !== -1) {
+              importResult.folderRelationships.push([i, cipherFolderIndex]);
+            }
+          }
+          // For organization vault export files we turn any collections into folders.
+          // Ciphers can only have one folder (for now) so bail if any have multiple collections
+        } else {
+          if (
+            importResult.ciphers.some(
+              (_c, c_idx) =>
+                importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
+            )
+          ) {
+            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
+          }
+          importResult.folders = importResult.collections.map((c) => {
+            const f = new FolderView();
+            f.name = c.name;
+            return f;
+          });
+          importResult.folderRelationships = importResult.collectionRelationships.map((c) => [
+            c[0],
+            c[1],
+          ]);
+        }
+        // In either case set target collection to My Items...
         importResult.collections = [importTarget];
-
-        const flattenRelationships: CollectionRelationship[] = [];
-        importResult.ciphers.forEach((c, index) => {
-          flattenRelationships.push([index, 0]);
-        });
-        importResult.collectionRelationships = flattenRelationships;
+        // ...and set the collection relationships accordingly
+        importResult.collectionRelationships = importResult.ciphers.map((_c, idx) => [idx, 0]);
         return;
       }
 

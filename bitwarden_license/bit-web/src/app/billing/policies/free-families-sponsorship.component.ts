@@ -4,13 +4,16 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   name = "freeFamiliesSponsorship";
   description = "freeFamiliesSponsorshipPolicyDesc";
-  type = PolicyType.FreeFamiliesSponsorshipPolicy;
+  type = PolicyType.FreeFamiliesSponsorship;
+  category = PolicyCategory.VaultManagement;
+  priority = 60;
   component = FreeFamiliesSponsorshipPolicyComponent;
 }
 

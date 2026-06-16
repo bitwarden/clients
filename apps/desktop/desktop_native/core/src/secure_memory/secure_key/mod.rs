@@ -8,7 +8,7 @@
 //! The implementations include DPAPI on Windows, `keyctl` on Linux, and `memfd_secret` on Linux,
 //! and a fallback implementation using mlock.
 
-use tracing::info;
+use tracing::{debug, info, warn};
 
 mod crypto;
 #[cfg(target_os = "windows")]
@@ -19,9 +19,7 @@ mod keyctl;
 mod memfd_secret;
 mod mlock;
 
-pub use crypto::EncryptedMemory;
-
-use crate::secure_memory::secure_key::crypto::DecryptionError;
+pub use crypto::{DecryptionError, EncryptedMemory};
 
 /// An ephemeral key that is protected using a platform mechanism. It is generated on construction
 /// freshly, and can be used to encrypt and decrypt segments of memory. Since the key is ephemeral,
@@ -142,7 +140,9 @@ impl SecureKeyContainer for CrossPlatformSecureKeyContainer {
 }
 
 fn get_env_forced_container() -> Option<CrossPlatformSecureKeyContainer> {
-    let env_var = std::env::var("SECURE_KEY_CONTAINER_BACKEND");
+    const ENV_VAR_SECURE_KEY_CONTAINER_BACKEND: &str = "SECURE_KEY_CONTAINER_BACKEND";
+    let env_var = std::env::var(ENV_VAR_SECURE_KEY_CONTAINER_BACKEND);
+
     match env_var.as_deref() {
         #[cfg(target_os = "windows")]
         Ok("dpapi") => {
@@ -173,10 +173,25 @@ fn get_env_forced_container() -> Option<CrossPlatformSecureKeyContainer> {
                 mlock::MlockSecureKeyContainer::from_key(crypto::MemoryEncryptionKey::new()),
             ))
         }
-        _ => {
-            info!(
-                "{} is not a valid secure key container backend, using automatic selection",
-                env_var.unwrap_or_default()
+        Ok(env_var) => {
+            warn!(
+                env_var,
+                "is not a valid secure key container backend, using automatic selection"
+            );
+            None
+        }
+        Err(std::env::VarError::NotPresent) => {
+            debug!(
+                env_var = ENV_VAR_SECURE_KEY_CONTAINER_BACKEND,
+                "is not set, using automatic selection"
+            );
+            None
+        }
+        Err(error) => {
+            warn!(
+                %error,
+                env_var = ENV_VAR_SECURE_KEY_CONTAINER_BACKEND,
+                "failed to read environment variable, using automatic selection"
             );
             None
         }

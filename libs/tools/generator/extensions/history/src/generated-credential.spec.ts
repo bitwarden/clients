@@ -1,4 +1,8 @@
-import { Type } from "@bitwarden/generator-core";
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
+import { Algorithm, Type } from "@bitwarden/generator-core";
 
 import { GeneratedCredential } from ".";
 
@@ -27,10 +31,32 @@ describe("GeneratedCredential", () => {
 
       expect(result.generationDate).toEqual(new Date(100));
     });
+
+    it("assigns algorithm when provided", () => {
+      const result = new GeneratedCredential(
+        "example",
+        Type.password,
+        new Date(100),
+        Algorithm.passphrase,
+      );
+
+      expect(result.algorithm).toEqual(Algorithm.passphrase);
+    });
+
+    it("leaves algorithm undefined when omitted", () => {
+      const result = new GeneratedCredential("example", Type.password, new Date(100));
+
+      expect(result.algorithm).toBeUndefined();
+    });
   });
 
   it("toJSON converts from a credential into a JSON object", () => {
-    const credential = new GeneratedCredential("example", Type.password, new Date(100));
+    const credential = new GeneratedCredential(
+      "example",
+      Type.password,
+      new Date(100),
+      Algorithm.passphrase,
+    );
 
     const result = credential.toJSON();
 
@@ -38,6 +64,7 @@ describe("GeneratedCredential", () => {
       credential: "example",
       category: Type.password,
       generationDate: 100,
+      algorithm: Algorithm.passphrase,
     });
   });
 
@@ -46,6 +73,7 @@ describe("GeneratedCredential", () => {
       credential: "example",
       category: Type.password,
       generationDate: 100,
+      algorithm: Algorithm.passphrase,
     };
 
     const result = GeneratedCredential.fromJSON(jsonValue);
@@ -55,6 +83,20 @@ describe("GeneratedCredential", () => {
       credential: "example",
       category: Type.password,
       generationDate: new Date(100),
+      algorithm: Algorithm.passphrase,
     });
+  });
+
+  it("fromJSON works with legacy data that has no algorithm", () => {
+    const jsonValue = {
+      credential: "example",
+      category: Type.password,
+      generationDate: 100,
+    } as any;
+
+    const result = GeneratedCredential.fromJSON(jsonValue);
+
+    expect(result).toBeInstanceOf(GeneratedCredential);
+    expect(result.algorithm).toBeUndefined();
   });
 });

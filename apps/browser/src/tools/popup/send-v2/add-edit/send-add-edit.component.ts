@@ -1,20 +1,20 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject, signal, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  ButtonComponent,
   ButtonModule,
   DialogService,
   IconButtonModule,
@@ -25,15 +25,17 @@ import {
   DefaultSendFormConfigService,
   SendFormConfig,
   SendFormConfigService,
+  SendFormComponent,
+  SendFormGenerationService,
   SendFormMode,
   SendFormModule,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
-import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dialog/send-file-popout-dialog-container.component";
+import { BrowserSendFormGenerationService } from "../services/browser-send-form-generation.service";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -70,21 +72,22 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",
-  providers: [{ provide: SendFormConfigService, useClass: DefaultSendFormConfigService }],
+  providers: [
+    { provide: SendFormConfigService, useClass: DefaultSendFormConfigService },
+    { provide: SendFormGenerationService, useClass: BrowserSendFormGenerationService },
+  ],
   imports: [
     CommonModule,
     SearchModule,
-    JslibModule,
+    I18nPipe,
     FormsModule,
     ButtonModule,
     IconButtonModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopupFooterComponent,
-    SendFilePopoutDialogContainerComponent,
     SendFormModule,
     AsyncActionsModule,
-    PopupBackBrowserDirective,
   ],
 })
 export class SendAddEditComponent {
@@ -97,6 +100,15 @@ export class SendAddEditComponent {
    * The configuration for the send form.
    */
   config: SendFormConfig;
+
+  /**
+   * Whether the Send is actively being edited
+   */
+  protected readonly editing = signal(false);
+
+  private sendFormGenerationService = inject(SendFormGenerationService);
+  private readonly sendFormComponent = viewChild(SendFormComponent);
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
 
   constructor(
     private route: ActivatedRoute,
@@ -117,6 +129,7 @@ export class SendAddEditComponent {
   async onSendCreated(send: SendView) {
     await this.router.navigate(["/send-created"], {
       queryParams: { sendId: send.id },
+      replaceUrl: true,
     });
     return;
   }
@@ -124,8 +137,10 @@ export class SendAddEditComponent {
   /**
    * Handles the event when the send is updated.
    */
-  async onSendUpdated(_: SendView) {
-    await this.router.navigate(["/tabs/send"]);
+  async onSendUpdated(updatedSendView: SendView) {
+    await this.router.navigate(["/edit-send"], {
+      queryParams: { sendId: updatedSendView.id, type: updatedSendView.type },
+    });
   }
 
   deleteSend = async () => {
@@ -160,6 +175,16 @@ export class SendAddEditComponent {
   };
 
   /**
+   * Opens the password generator dialog and sets the generated value on the password field.
+   */
+  async openGenerator() {
+    const password = await this.sendFormGenerationService.generatePassword();
+    if (password) {
+      this.sendFormComponent()?.sendDetailsComponent()?.setGeneratedPassword(password);
+    }
+  }
+
+  /**
    * Subscribes to the route query parameters and builds the configuration based on the parameters.
    */
   subscribeToParams(): void {
@@ -184,6 +209,7 @@ export class SendAddEditComponent {
       )
       .subscribe((config) => {
         this.config = config;
+        this.editing.set(config.mode === "add");
         this.headerText = this.getHeaderText(config.mode, config.sendType);
       });
   }
@@ -195,11 +221,46 @@ export class SendAddEditComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
-    const isEditMode = mode === "edit" || mode === "partial-edit";
+    let sendAction: "view" | "edit" | "add" = "add";
+    if (!this.editing()) {
+      sendAction = "view";
+    } else if (mode === "edit" || mode === "partial-edit") {
+      sendAction = "edit";
+    }
     const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+      [SendType.Text]: {
+        view: "viewTextSendHeader",
+        edit: "editItemHeaderTextSendV2",
+        add: "newItemHeaderTextSendV2",
+      },
+      [SendType.File]: {
+        view: "viewFileSendHeader",
+        edit: "editItemHeaderFileSendV2",
+        add: "newItemHeaderFileSendV2",
+      },
     };
-    return this.i18nService.t(translation[type]);
+    return this.i18nService.t(translation[type][sendAction]);
+  }
+
+  protected editSend() {
+    this.editing.set(true);
+    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+  }
+
+  protected async onCancelClick() {
+    if (this.config.mode === "add") {
+      await this.router.navigate(["tabs/send"]);
+    } else {
+      this.editing.set(false);
+      this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+    }
+  }
+
+  protected async onBackClick() {
+    if (this.config.mode === "add" || !this.editing()) {
+      await this.router.navigate(["tabs/send"]);
+    } else {
+      await this.onCancelClick();
+    }
   }
 }

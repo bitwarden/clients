@@ -1,23 +1,29 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
   input,
   OnInit,
   output,
+  signal,
 } from "@angular/core";
 
+import { SendAccessToken } from "@bitwarden/common/auth/send-access";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import {
+  AnonLayoutWrapperDataService,
+  SpinnerComponent,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
@@ -28,23 +34,29 @@ import { SendAccessTextComponent } from "./send-access-text.component";
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule],
+  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
   readonly id = input.required<string>();
   readonly key = input.required<string>();
-  readonly sendResponse = input<SendAccessResponse | null>(null);
-  readonly accessRequest = input<SendAccessRequest>(new SendAccessRequest());
+  readonly accessToken = input<SendAccessToken | null>(null);
 
   authRequired = output<void>();
 
-  send: SendAccessView | null = null;
+  readonly send = signal<SendAccessView | null>(null);
+  readonly expirationDate = computed<Date | null>(() => this.send()?.expirationDate ?? null);
+  readonly creatorIdentifier = computed<string | null>(
+    () => this.send()?.creatorIdentifier ?? null,
+  );
+  readonly hideEmail = computed<boolean>(
+    () => this.send() != null && this.creatorIdentifier() == null,
+  );
+  readonly loading = signal<boolean>(false);
+  readonly unavailable = signal<boolean>(false);
+  readonly error = signal<boolean>(false);
+
   sendType = SendType;
-  loading = true;
-  unavailable = false;
-  error = false;
-  hideEmail = false;
   decKey!: SymmetricCryptoKey;
 
   constructor(
@@ -53,50 +65,39 @@ export class SendViewComponent implements OnInit {
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
-    private cdRef: ChangeDetectorRef,
   ) {}
 
-  get expirationDate() {
-    if (this.send == null || this.send.expirationDate == null) {
-      return null;
-    }
-    return this.send.expirationDate;
-  }
-
-  get creatorIdentifier() {
-    if (this.send == null || this.send.creatorIdentifier == null) {
-      return null;
-    }
-    return this.send.creatorIdentifier;
-  }
-
-  async ngOnInit() {
-    await this.load();
+  ngOnInit() {
+    this.layoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "sendAccessContentTitle" },
+    });
+    void this.load();
   }
 
   private async load() {
-    this.unavailable = false;
-    this.error = false;
-    this.hideEmail = false;
-    this.loading = true;
-
-    let response = this.sendResponse();
+    this.loading.set(true);
+    this.unavailable.set(false);
+    this.error.set(false);
 
     try {
-      if (!response) {
-        response = await this.sendApiService.postSendAccess(this.id(), this.accessRequest());
+      const accessToken = this.accessToken();
+      if (!accessToken) {
+        this.authRequired.emit();
+        return;
       }
-
+      const response = await this.sendApiService.postSendAccessV2(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
       this.decKey = await this.keyService.makeSendKey(keyArray);
-      this.send = await sendAccess.decrypt(this.decKey);
+      const decSend = await sendAccess.decrypt(this.decKey);
+      this.send.set(decSend);
     } catch (e) {
+      this.send.set(null);
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {
           this.authRequired.emit();
         } else if (e.statusCode === 404) {
-          this.unavailable = true;
+          this.unavailable.set(true);
         } else if (e.statusCode === 400) {
           this.toastService.showToast({
             variant: "error",
@@ -104,28 +105,23 @@ export class SendViewComponent implements OnInit {
             message: e.message,
           });
         } else {
-          this.error = true;
+          this.error.set(true);
         }
       } else {
-        this.error = true;
+        this.error.set(true);
       }
+    } finally {
+      this.loading.set(false);
     }
 
-    this.loading = false;
-    this.hideEmail =
-      this.creatorIdentifier == null && !this.loading && !this.unavailable && !response;
-
-    this.hideEmail = this.send != null && this.creatorIdentifier == null;
-
-    if (this.creatorIdentifier != null) {
+    const creatorIdentifier = this.creatorIdentifier();
+    if (creatorIdentifier != null) {
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
         pageSubtitle: {
           key: "sendAccessCreatorIdentifier",
-          placeholders: [this.creatorIdentifier],
+          placeholders: [creatorIdentifier],
         },
       });
     }
-
-    this.cdRef.markForCheck();
   }
 }

@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const ReportExposedPasswords = svgIcon`
+export const ReportExposedPasswords = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0.7 2.4 79.3 77.2">
     <path class="tw-fill-illustration-bg-primary" d="M17.6 26.8a4.8 4.8 0 0 1 4.8-4.8h52.8a4.8 4.8 0 0 1 4.8 4.8v33.6a4.8 4.8 0 0 1-4.8 4.8H22.4a4.8 4.8 0 0 1-4.8-4.8V26.8Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M75.2 23.6H22.4a3.2 3.2 0 0 0-3.2 3.2v33.6a3.2 3.2 0 0 0 3.2 3.2h52.8a3.2 3.2 0 0 0 3.2-3.2V26.8a3.2 3.2 0 0 0-3.2-3.2ZM22.4 22a4.8 4.8 0 0 0-4.8 4.8v33.6a4.8 4.8 0 0 0 4.8 4.8h52.8a4.8 4.8 0 0 0 4.8-4.8V26.8a4.8 4.8 0 0 0-4.8-4.8H22.4Z" clip-rule="evenodd"/>

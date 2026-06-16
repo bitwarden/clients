@@ -1,4 +1,4 @@
-import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -50,6 +50,19 @@ export abstract class CipherAuthorizationService {
    * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can clone the cipher.
    */
   abstract canCloneCipher$: (
+    cipher: CipherLike,
+    isAdminConsoleAction?: boolean,
+  ) => Observable<boolean>;
+
+  /**
+   * Determines if the user can edit the specified cipher.
+   *
+   * @param {CipherLike} cipher - The cipher object to evaluate for edit permissions.
+   * @param {boolean} isAdminConsoleAction - Optional. A flag indicating if the action is being performed from the admin console.
+   *
+   * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can edit the cipher.
+   */
+  abstract canEditCipher$: (
     cipher: CipherLike,
     isAdminConsoleAction?: boolean,
   ) => Observable<boolean>;
@@ -119,6 +132,29 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
   }
 
   /**
+   *
+   * {@link CipherAuthorizationService.canEditCipher$}
+   */
+  canEditCipher$(cipher: CipherLike, isAdminConsoleAction: boolean = false): Observable<boolean> {
+    return this.organization$(cipher).pipe(
+      map((organization) => {
+        if (isAdminConsoleAction) {
+          // If the user is an admin, they can edit an unassigned cipher
+          if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+            return organization?.canEditUnassignedCiphers === true;
+          }
+
+          if (organization?.canEditAllCiphers) {
+            return true;
+          }
+        }
+
+        return !!cipher.edit;
+      }),
+    );
+  }
+
+  /**
    * {@link CipherAuthorizationService.canCloneCipher$}
    */
   canCloneCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
@@ -145,7 +181,6 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           map((allCollections) => allCollections.some((collection) => collection.manage)),
         );
       }),
-      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 }

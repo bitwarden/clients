@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const GearIcon = svgIcon`
+export const GearIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4.8 6 110.4 107.52">
     <path class="tw-fill-illustration-bg-primary" d="M59.64 84.96c12.924 0 23.4-10.316 23.4-23.04 0-12.725-10.476-23.04-23.4-23.04-12.923 0-23.4 10.315-23.4 23.04 0 12.724 10.477 23.04 23.4 23.04Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M59.64 40.08c-12.278 0-22.2 9.795-22.2 21.84 0 12.044 9.922 21.84 22.2 21.84 12.278 0 22.2-9.796 22.2-21.84 0-12.045-9.922-21.84-22.2-21.84Zm-24.6 21.84c0-13.405 11.031-24.24 24.6-24.24s24.6 10.835 24.6 24.24c0 13.405-11.031 24.24-24.6 24.24s-24.6-10.835-24.6-24.24Z" clip-rule="evenodd"/>

@@ -35,7 +35,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { enableAccountSwitching } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -74,7 +73,6 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>> =
     new QueryList();
 
-  accountSwitcherEnabled = false;
   dataIsPristine = true;
   isLoading = false;
   excludedDomainsState: string[] = [];
@@ -95,9 +93,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     private toastService: ToastService,
     private formBuilder: FormBuilder,
     private popupRouterCacheService: PopupRouterCacheService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+  ) {}
 
   get domainForms() {
     return this.domainListForm.get("domains") as FormArray;

@@ -67,17 +67,18 @@ import { SubscriptionCardComponent, BitwardenSubscription } from "@bitwarden/sub
 
 ### Outputs
 
-| Output                | Type             | Description                                                |
-| --------------------- | ---------------- | ---------------------------------------------------------- |
-| `callToActionClicked` | `PlanCardAction` | Emitted when a user clicks an action button in the callout |
+| Output                | Type                     | Description                                                |
+| --------------------- | ------------------------ | ---------------------------------------------------------- |
+| `callToActionClicked` | `SubscriptionCardAction` | Emitted when a user clicks an action button in the callout |
 
-**PlanCardAction Type:**
+**SubscriptionCardAction Type:**
 
 ```typescript
-type PlanCardAction =
+type SubscriptionCardAction =
   | "contact-support"
   | "manage-invoices"
   | "reinstate-subscription"
+  | "resubscribe"
   | "update-payment"
   | "upgrade-plan";
 ```
@@ -279,7 +280,7 @@ Payment issue expired, subscription has been suspended:
 </billing-subscription-card>
 ```
 
-**Actions available:** Contact Support
+**Actions available:** Resubscribe
 
 ### Past Due
 
@@ -370,7 +371,7 @@ Subscription that has been canceled:
 </billing-subscription-card>
 ```
 
-**Note:** Canceled subscriptions display no callout or actions.
+**Actions available:** Resubscribe
 
 ### Enterprise
 

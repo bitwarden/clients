@@ -3,16 +3,14 @@
 import { Component, Inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
-import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -21,22 +19,9 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { BulkDeleteDialogParams, BulkDeleteDialogResult } from "@bitwarden/vault";
 
-export interface BulkDeleteDialogParams {
-  cipherIds?: string[];
-  permanent?: boolean;
-  organization?: Organization;
-  organizations?: Organization[];
-  collections?: CollectionView[];
-  unassignedCiphers?: string[];
-}
-
-export const BulkDeleteDialogResult = {
-  Deleted: "deleted",
-  Canceled: "canceled",
-} as const;
-
-type BulkDeleteDialogResult = UnionOfValues<typeof BulkDeleteDialogResult>;
+export { BulkDeleteDialogParams, BulkDeleteDialogResult };
 
 /**
  * Strongly typed helper to open a BulkDeleteDialog
@@ -65,9 +50,9 @@ export const openBulkDeleteDialog = (
 export class BulkDeleteDialogComponent {
   cipherIds: string[];
   permanent = false;
-  organization: Organization;
-  organizations: Organization[];
-  collections: CollectionView[];
+  organization: BulkDeleteDialogParams["organization"];
+  organizations: BulkDeleteDialogParams["organizations"];
+  collections: BulkDeleteDialogParams["collections"];
   unassignedCiphers: string[];
 
   constructor(
@@ -79,6 +64,7 @@ export class BulkDeleteDialogComponent {
     private collectionService: CollectionService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private syncService: SyncService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
@@ -147,15 +133,26 @@ export class BulkDeleteDialogComponent {
   }
 
   private async deleteCiphersAdmin(ciphers: string[]): Promise<any> {
-    const deleteRequest = new CipherBulkDeleteRequest(ciphers, this.organization.id);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.permanent) {
-      return await this.apiService.deleteManyCiphersAdmin(deleteRequest);
+      await this.cipherService.deleteManyWithServer(ciphers, userId, true, this.organization.id);
     } else {
-      return await this.apiService.putDeleteManyCiphersAdmin(deleteRequest);
+      await this.cipherService.softDeleteManyWithServer(
+        ciphers,
+        userId,
+        true,
+        this.organization.id,
+      );
     }
   }
 
-  private async deleteCollections(): Promise<any> {
+  private async deleteCollections(): Promise<void> {
+    // Deleting collections will alter the underlying ciphers, perform a full sync
+    // to ensure the vault has the most up to date cipher data.
+    const fullSync = async () => {
+      await this.syncService.fullSync(true);
+    };
+
     // From org vault
     if (this.organization) {
       if (this.collections.some((c) => !c.canDelete(this.organization))) {
@@ -166,10 +163,12 @@ export class BulkDeleteDialogComponent {
         });
         return;
       }
-      return await this.apiService.deleteManyCollections(
+      await this.apiService.deleteManyCollections(
         this.organization.id,
         this.collections.map((c) => c.id),
       );
+      await fullSync();
+      return;
       // From individual vault, so there can be multiple organizations
     } else if (this.organizations && this.collections) {
       const deletePromises: Promise<any>[] = [];
@@ -188,11 +187,13 @@ export class BulkDeleteDialogComponent {
           this.apiService.deleteManyCollections(organization.id, orgCollectionIds),
         );
       }
-      return await Promise.all(deletePromises);
+      await Promise.all(deletePromises);
+      await fullSync();
+      return;
     }
   }
 
   private close(result: BulkDeleteDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 }

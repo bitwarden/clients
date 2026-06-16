@@ -1,5 +1,5 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
@@ -42,10 +42,12 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
+/**
+ * @deprecated along with `setInitialPassword()` deprecation
+ */
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
-  newLocalMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
   orgSsoIdentifier: string;
@@ -55,10 +57,39 @@ export interface SetInitialPasswordCredentials {
   salt: MasterPasswordSalt;
 }
 
-export interface SetInitialPasswordTdeOffboardingCredentials {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
+export interface SetInitialPasswordTdeUserWithPermissionCredentials {
+  newPassword: string;
+  salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
   newPasswordHint: string;
+  orgSsoIdentifier: string;
+  orgId: OrganizationId;
+  resetPasswordAutoEnroll: boolean;
+}
+
+export interface SetInitialPasswordTdeOffboardingCredentials {
+  newPassword: string;
+  salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
+  newPasswordHint: string;
+}
+
+/**
+ * Credentials required to initialize a just-in-time (JIT) provisioned user with a master password.
+ */
+export interface InitializeJitPasswordCredentials {
+  /** Hint for the new master password */
+  newPasswordHint: string;
+  /** SSO identifier for the organization */
+  orgSsoIdentifier: string;
+  /** Organization ID */
+  orgId: OrganizationId;
+  /** Whether to auto-enroll the user in account recovery (reset password) */
+  resetPasswordAutoEnroll: boolean;
+  /** The new master password */
+  newPassword: string;
+  /** Master password salt (typically the user's email) */
+  salt: MasterPasswordSalt;
 }
 
 /**
@@ -69,6 +100,8 @@ export interface SetInitialPasswordTdeOffboardingCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
+   *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
@@ -84,12 +117,36 @@ export abstract class SetInitialPasswordService {
   ) => Promise<void>;
 
   /**
+   * Sets an initial password for an existing authed TDE user who has been given the
+   * Manage Account Recovery permission:
+   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
+   *
+   * @param credentials An object of the credentials needed to set the initial password
+   * @throws If any property on the `credentials` object not found, or if userKey is not found
+   */
+  abstract setInitialPasswordTdeUserWithPermission: (
+    credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
+    userId: UserId,
+  ) => Promise<void>;
+
+  /**
+   * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
+   * @param credentials The credentials needed to initialize the JIT password user
+   * @param userId The account userId
+   */
+  abstract initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void>;
+
+  /**
    * Sets an initial password for a user who logs in after their org offboarded from
    * trusted device encryption and is now a master-password-encryption org:
    * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
    *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param credentials An object of the credentials needed to set the initial password
    * @param userId the account `userId`
+   * @throws if `userId`, `userKey`, or necessary credentials are not found
    */
   abstract setInitialPasswordTdeOffboarding: (
     credentials: SetInitialPasswordTdeOffboardingCredentials,

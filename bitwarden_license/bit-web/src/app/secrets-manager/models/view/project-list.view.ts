@@ -9,4 +9,5 @@ export class ProjectListView {
   read: boolean;
   write: boolean;
   linkable: boolean;
+  decryptionError: boolean = false;
 }

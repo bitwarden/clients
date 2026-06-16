@@ -1,4 +1,4 @@
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 
 import { SelectionReadOnly } from "../selection-read-only";
 

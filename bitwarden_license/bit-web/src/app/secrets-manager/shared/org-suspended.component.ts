@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { map, concatMap, firstValueFrom } from "rxjs";
 
-import { Icon, DeactivatedOrg } from "@bitwarden/assets/svg";
+import { BitSvg, DeactivatedOrg } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -23,7 +23,7 @@ export class OrgSuspendedComponent {
     private route: ActivatedRoute,
   ) {}
 
-  protected DeactivatedOrg: Icon = DeactivatedOrg;
+  protected DeactivatedOrg: BitSvg = DeactivatedOrg;
   protected organizationName$ = this.route.params.pipe(
     concatMap(async (params) => {
       const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));

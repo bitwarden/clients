@@ -1,6 +1,9 @@
 import { mock } from "jest-mock-extended";
 
+import { LogService } from "@bitwarden/logging";
+
 import { BrowserApi } from "./browser-api";
+import { ExtensionInstallType } from "./extension-install-type";
 
 type ChromeSettingsGet = chrome.types.ChromeSetting<boolean>["get"];
 
@@ -26,6 +29,186 @@ describe("BrowserApi", () => {
       const result = BrowserApi.isManifestVersion(2);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("getInstallType", () => {
+    let originalIsWebExtensionsApi: boolean;
+    let originalIsChromeApi: boolean;
+
+    beforeEach(() => {
+      originalIsWebExtensionsApi = BrowserApi.isWebExtensionsApi;
+      originalIsChromeApi = BrowserApi.isChromeApi;
+    });
+
+    afterEach(() => {
+      BrowserApi.isWebExtensionsApi = originalIsWebExtensionsApi;
+      BrowserApi.isChromeApi = originalIsChromeApi;
+      delete (global.chrome as any).management;
+      delete (global as any).browser;
+    });
+
+    it.each([
+      ["admin", ExtensionInstallType.Admin],
+      ["development", ExtensionInstallType.Development],
+      ["normal", ExtensionInstallType.Normal],
+      ["sideload", ExtensionInstallType.Sideload],
+      ["other", ExtensionInstallType.Other],
+    ])("returns %s when chrome.management.getSelf reports it", async (raw, expected) => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({ installType: raw }),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(expected);
+    });
+
+    it("prefers browser.management.getSelf when isWebExtensionsApi is true", async () => {
+      BrowserApi.isWebExtensionsApi = true;
+      const browserGetSelf = jest.fn().mockResolvedValue({ installType: "admin" });
+      const chromeGetSelf = jest.fn().mockResolvedValue({ installType: "normal" });
+      (global as any).browser = { management: { getSelf: browserGetSelf } };
+      (global.chrome as any).management = { getSelf: chromeGetSelf };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Admin);
+      expect(browserGetSelf).toHaveBeenCalled();
+      expect(chromeGetSelf).not.toHaveBeenCalled();
+    });
+
+    it("returns Unknown when management.getSelf rejects", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockRejectedValue(new Error("not available")),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when the result has no installType", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({}),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when chrome.management is absent", async () => {
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when neither chrome nor browser is available", async () => {
+      BrowserApi.isWebExtensionsApi = false;
+      BrowserApi.isChromeApi = false;
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+  });
+
+  describe("senderIsInternal", () => {
+    const EXTENSION_ORIGIN = "chrome-extension://id";
+
+    beforeEach(() => {
+      jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue(`${EXTENSION_ORIGIN}/`);
+    });
+
+    it("returns false when sender is undefined", () => {
+      const result = BrowserApi.senderIsInternal(undefined);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when sender has no origin", () => {
+      const result = BrowserApi.senderIsInternal({ id: "abc" } as any);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when the extension URL cannot be determined", () => {
+      jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue("");
+
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN });
+
+      expect(result).toBe(false);
+    });
+
+    it.each([
+      ["an external origin", "https://evil.com"],
+      ["a subdomain of the extension origin", "chrome-extension://id.evil.com"],
+      ["a file: URL (opaque origin)", "file:///home/user/page.html"],
+      ["a data: URL (opaque origin)", "data:text/html,<h1>hi</h1>"],
+    ])("returns false when sender origin is %s", (_, senderOrigin) => {
+      const result = BrowserApi.senderIsInternal({ origin: senderOrigin });
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when sender is from a non-top-level frame", () => {
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 });
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when sender origin matches and no frameId is present (popup)", () => {
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN });
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when sender origin matches and frameId is 0 (top-level frame)", () => {
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 0 });
+
+      expect(result).toBe(true);
+    });
+
+    it("calls logger.warning when sender has no origin", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({} as any, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("no origin"));
+    });
+
+    it("calls logger.warning when the extension URL cannot be determined", () => {
+      jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue("");
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN }, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("extension URL"));
+    });
+
+    it("calls logger.warning when origin does not match", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: "https://evil.com" }, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("does not match"));
+    });
+
+    it("calls logger.warning when sender is from a non-top-level frame", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 }, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("top-level frame"));
+    });
+
+    it("calls logger.info when sender is confirmed internal", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN }, logger);
+
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("internal"));
     });
   });
 
@@ -220,20 +403,320 @@ describe("BrowserApi", () => {
   });
 
   describe("isPopupOpen", () => {
-    it("returns true if the popup is open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValue([window]);
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
+      beforeEach(() => {
+        (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+      });
 
-      const result = await BrowserApi.isPopupOpen();
+      afterEach(() => {
+        delete (chrome.runtime as any).getContexts;
+      });
 
-      expect(result).toBe(true);
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false when no POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "TAB", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
     });
 
-    it("returns false if the popup is not open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValue([]);
+    describe("when MV2, falls back to getExtensionViews", () => {
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+      });
 
-      const result = await BrowserApi.isPopupOpen();
+      it("returns true if the popup is open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([window]);
 
-      expect(result).toBe(false);
+        expect(await BrowserApi.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false if the popup is not open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
+
+      it("ignores getContexts even when available (Firefox MV2 background page bug)", async () => {
+        // Firefox 128+ exposes getContexts in MV2, but classifies the persistent
+        // background page as contextType "POPUP". Without the MV3 guard, this would
+        // cause isPopupOpen() to always return true and prevent vault timeout.
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/background.html" },
+          ]);
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+
+        delete (chrome.runtime as any).getContexts;
+      });
+    });
+  });
+
+  describe("isAnyPopupOrPopoutOpen", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
+      beforeEach(() => {
+        (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+      });
+
+      afterEach(() => {
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns true when a TAB context with uilocation=popout exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+          },
+        ]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns false when only non-popout TAB contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "TAB", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+    });
+
+    describe("when MV2, falls back to getExtensionViews", () => {
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+      });
+
+      it("returns true if the popup is open", async () => {
+        chrome.extension.getViews = jest.fn().mockImplementation((props) => {
+          return props?.type === "popup" ? [window] : [];
+        });
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns true if a popout tab is open", async () => {
+        const popoutWindow = {
+          location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+        };
+        chrome.extension.getViews = jest.fn().mockImplementation((props) => {
+          return props?.type === "tab" ? [popoutWindow] : [];
+        });
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns false if neither popup nor popout is open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+
+      it("returns false if only a non-popout tab is open", async () => {
+        const tabWindow = {
+          location: { href: "chrome-extension://id/popup/index.html" },
+        };
+        chrome.extension.getViews = jest.fn().mockImplementation((props) => {
+          return props?.type === "tab" ? [tabWindow] : [];
+        });
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+    });
+  });
+
+  describe("isAnyViewFocused", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
+      beforeEach(() => {
+        (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+      });
+
+      afterEach(() => {
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns true when a SIDE_PANEL context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "SIDE_PANEL", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns true when a popout TAB context has a focused window", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+            windowId: 1,
+          },
+        ]);
+        chrome.windows.get = jest
+          .fn()
+          .mockImplementation((_id, _opts, cb) => cb({ focused: true }));
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns false when a popout TAB context has an unfocused window", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+            windowId: 1,
+          },
+        ]);
+        chrome.windows.get = jest
+          .fn()
+          .mockImplementation((_id, _opts, cb) => cb({ focused: false }));
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+      });
+    });
+
+    describe("when MV2, falls back to getExtensionViews", () => {
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("ignores getContexts even when available (Firefox MV2 background page bug)", async () => {
+        // Firefox 128+ exposes getContexts in MV2, but classifies the persistent
+        // background page as contextType "POPUP". Without the MV3 guard, this would
+        // cause isAnyViewFocused() to permanently return true and block vault timeout.
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/background.html" },
+          ]);
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("returns false if no views are open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+      });
+
+      it("returns true if the main popup is open", async () => {
+        const mainPopupView = {
+          location: { href: "chrome-extension://id/popup/index.html" },
+        };
+        chrome.extension.getViews = jest
+          .fn()
+          .mockReturnValueOnce([mainPopupView])
+          .mockReturnValueOnce([]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns true if a focused popout tab view is open", async () => {
+        const popoutView = {
+          location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+          document: { hasFocus: jest.fn().mockReturnValue(true) },
+        };
+        chrome.extension.getViews = jest
+          .fn()
+          .mockReturnValueOnce([])
+          .mockReturnValueOnce([popoutView]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns false if only an unfocused popout tab view is open", async () => {
+        const popoutView = {
+          location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+          document: { hasFocus: jest.fn().mockReturnValue(false) },
+        };
+        chrome.extension.getViews = jest
+          .fn()
+          .mockReturnValueOnce([])
+          .mockReturnValueOnce([popoutView]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+      });
+
+      it("returns true if a sidebar tab view is open", async () => {
+        const sidebarView = {
+          location: { href: "chrome-extension://id/popup/index.html?uilocation=sidebar" },
+          document: { hasFocus: jest.fn().mockReturnValue(false) },
+        };
+        chrome.extension.getViews = jest
+          .fn()
+          .mockReturnValueOnce([])
+          .mockReturnValueOnce([sidebarView]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns true if main popup is open alongside an unfocused popout", async () => {
+        const mainPopupView = {
+          location: { href: "chrome-extension://id/popup/index.html" },
+        };
+        const popoutView = {
+          location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+          document: { hasFocus: jest.fn().mockReturnValue(false) },
+        };
+        chrome.extension.getViews = jest
+          .fn()
+          .mockReturnValueOnce([mainPopupView])
+          .mockReturnValueOnce([popoutView]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
+      });
     });
   });
 
@@ -698,4 +1181,70 @@ describe("BrowserApi", () => {
       );
     },
   );
+
+  describe("isSidePanelApiSupported", () => {
+    it("returns true when chrome.sidePanel is defined", () => {
+      (chrome as any).sidePanel = {};
+
+      expect(BrowserApi.isSidePanelApiSupported).toBe(true);
+
+      delete (chrome as any).sidePanel;
+    });
+
+    it("returns false when chrome.sidePanel is undefined", () => {
+      const original = (chrome as any).sidePanel;
+      delete (chrome as any).sidePanel;
+
+      expect(BrowserApi.isSidePanelApiSupported).toBe(false);
+
+      if (original !== undefined) {
+        (chrome as any).sidePanel = original;
+      }
+    });
+  });
+
+  describe("openSidePanel", () => {
+    it("calls chrome.sidePanel.open with the provided tabId when the API is supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const openSpy = jest.fn().mockResolvedValue(undefined);
+      (chrome as any).sidePanel = { open: openSpy };
+
+      await BrowserApi.openSidePanel({ tabId: 42 });
+
+      expect(openSpy).toHaveBeenCalledWith({ tabId: 42 });
+    });
+
+    it("returns without calling chrome.sidePanel.open when the API is not supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+      const openSpy = jest.fn();
+      (chrome as any).sidePanel = { open: openSpy };
+
+      await BrowserApi.openSidePanel({ tabId: 42 });
+
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setSidePanelOptions", () => {
+    it("calls chrome.sidePanel.setOptions with the provided options when the API is supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const setOptionsSpy = jest.fn().mockResolvedValue(undefined);
+      (chrome as any).sidePanel = { setOptions: setOptionsSpy };
+      const options = { path: "sidepanel.html", enabled: true, tabId: 1 };
+
+      await BrowserApi.setSidePanelOptions(options);
+
+      expect(setOptionsSpy).toHaveBeenCalledWith(options);
+    });
+
+    it("returns without calling chrome.sidePanel.setOptions when the API is not supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+      const setOptionsSpy = jest.fn();
+      (chrome as any).sidePanel = { setOptions: setOptionsSpy };
+
+      await BrowserApi.setSidePanelOptions({ path: "sidepanel.html" });
+
+      expect(setOptionsSpy).not.toHaveBeenCalled();
+    });
+  });
 });

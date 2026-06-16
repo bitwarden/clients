@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const BrowserExtensionIcon = svgIcon`
+export const BrowserExtensionIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 14.58 100 75">
     <path class="tw-fill-illustration-bg-secondary" d="M0 20.833a6.25 6.25 0 0 1 6.25-6.25h87.5a6.25 6.25 0 0 1 6.25 6.25v62.5a6.25 6.25 0 0 1-6.25 6.25H6.25A6.25 6.25 0 0 1 0 83.333v-62.5Z"/>
     <path class="tw-fill-illustration-tertiary" d="M14.583 52.084a4.167 4.167 0 0 1 4.167-4.167h65.625a4.167 4.167 0 0 1 4.166 4.167v6.25a4.167 4.167 0 0 1-4.166 4.166H18.75a4.167 4.167 0 0 1-4.167-4.166v-6.25Z"/>

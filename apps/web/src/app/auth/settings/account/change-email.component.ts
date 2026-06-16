@@ -2,18 +2,16 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
-import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
@@ -39,14 +37,12 @@ export class ChangeEmailComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private apiService: ApiService,
     private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
-    private keyService: KeyService,
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
-    private kdfConfigService: KdfConfigService,
     private toastService: ToastService,
+    private changeEmailService: ChangeEmailService,
   ) {}
 
   async ngOnInit() {
@@ -79,53 +75,25 @@ export class ChangeEmailComponent implements OnInit {
     const newEmail = step1Value.newEmail?.trim().toLowerCase();
     const masterPassword = step1Value.masterPassword;
 
-    if (newEmail == null || masterPassword == null) {
-      throw new Error("Missing email or password");
-    }
-
-    const existingHash = await this.keyService.hashMasterKey(
-      masterPassword,
-      await this.keyService.getOrDeriveMasterKey(masterPassword, this.userId),
-    );
+    const ctx = "Could not update email.";
+    assertNonNullish(newEmail, "email", ctx);
+    assertNonNullish(masterPassword, "password", ctx);
 
     if (!this.tokenSent) {
-      const request = new EmailTokenRequest();
-      request.newEmail = newEmail;
-      request.masterPasswordHash = existingHash;
-      await this.apiService.postEmailToken(request);
+      await this.changeEmailService.requestEmailToken(masterPassword, newEmail, this.userId);
       this.activateStep2();
     } else {
       const token = this.formGroup.value.token;
       if (token == null) {
         throw new Error("Missing token");
       }
-      const request = new EmailRequest();
-      request.token = token;
-      request.newEmail = newEmail;
-      request.masterPasswordHash = existingHash;
 
-      const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
-      if (kdfConfig == null) {
-        throw new Error("Missing kdf config");
-      }
-      const newMasterKey = await this.keyService.makeMasterKey(masterPassword, newEmail, kdfConfig);
-      request.newMasterPasswordHash = await this.keyService.hashMasterKey(
+      await this.changeEmailService.confirmEmailChange(
         masterPassword,
-        newMasterKey,
+        newEmail,
+        token,
+        this.userId,
       );
-
-      const userKey = await firstValueFrom(this.keyService.userKey$(this.userId));
-      if (userKey == null) {
-        throw new Error("Can't find UserKey");
-      }
-      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
-      const encryptedUserKey = newUserKey[1]?.encryptedString;
-      if (encryptedUserKey == null) {
-        throw new Error("Missing Encrypted User Key");
-      }
-      request.key = encryptedUserKey;
-
-      await this.apiService.postEmail(request);
       this.reset();
       this.toastService.showToast({
         variant: "success",

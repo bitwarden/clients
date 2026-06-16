@@ -13,6 +13,7 @@ export type AutofillExtensionMessage = {
   subFrameUrl?: string;
   subFrameId?: string;
   pageDetailsUrl?: string;
+  showAnimations?: boolean;
   ciphers?: any;
   isInlineMenuHidden?: boolean;
   overlayElement?: AutofillOverlayElementType;
@@ -21,6 +22,7 @@ export type AutofillExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   addNewCipherType?: CipherType;
   ignoreFieldFocus?: boolean;
+  iframeTargetedFields?: { selector: string; fieldType: string }[];
   data?: {
     direction?: "previous" | "next" | "current";
     forceCloseInlineMenu?: boolean;
@@ -33,7 +35,10 @@ export type AutofillExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
+  collectAutofillTriage: () => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
+  applyTargetedFields: ({ message }: AutofillExtensionMessageParam) => void;
+  clearTargetingRulesCache: () => void;
 };
 
 export interface AutofillInit {

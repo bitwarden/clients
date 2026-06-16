@@ -1,8 +1,7 @@
-import { CdkVirtualScrollableElement } from "@angular/cdk/scrolling";
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { filter, skip, Subscription } from "rxjs";
+import { filter, fromEvent, Subscription } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -31,24 +30,25 @@ export class VaultPopupScrollPositionService {
   }
 
   /** Scrolls the user to the stored scroll position and starts tracking scroll of the page. */
-  start(virtualScrollElement: CdkVirtualScrollableElement) {
+  start(scrollElement: HTMLElement) {
     if (this.hasScrollPosition()) {
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(() => {
-        virtualScrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
+        scrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
       });
     }
 
     this.scrollSubscription?.unsubscribe();
 
     // Skip the first scroll event to avoid settings the scroll from the above `scrollTo` call
-    this.scrollSubscription = virtualScrollElement
-      ?.elementScrolled()
-      .pipe(skip(1))
-      .subscribe(() => {
-        const offset = virtualScrollElement.measureScrollOffset("top");
-        this.scrollPosition = offset;
-      });
+    let skipped = false;
+    this.scrollSubscription = fromEvent(scrollElement, "scroll").subscribe(() => {
+      if (!skipped) {
+        skipped = true;
+        return;
+      }
+      this.scrollPosition = scrollElement.scrollTop;
+    });
   }
 
   /** Stops the scroll listener from updating the stored location. */

@@ -1,24 +1,24 @@
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncString } from "../models/enc-string";
 
 export abstract class EncryptService {
   /**
-   * A temporary init method to make the encrypt service listen to feature-flag changes.
-   * This will be removed once the feature flag has been rolled out.
-   */
-  abstract init(configService: ConfigService): void;
-
-  /**
    * Encrypts a string to an EncString
+   *
+   * @deprecated NOTE: For new use-cases, prefer using the DataEnvelope inside the SDK instead. This
+   * is both safer and more maintainable.
+   *
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    */
   abstract encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString>;
   /**
    * Encrypts bytes to an EncString
+   *
+   * @deprecated NOTE: You probably do not want to encrypt raw bytes. Please contact the Key-Management team if you think
+   * you need to.
+   *
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
@@ -137,6 +137,9 @@ export abstract class EncryptService {
    * Encapsulates a symmetric key with an asymmetric public key
    * Note: This does not establish sender authenticity
    * @see {@link https://en.wikipedia.org/wiki/Key_encapsulation_mechanism}
+   *
+   * @deprecated NOTE: You probably do not want to use this. Please contact the Key-Management team if you think you need to.
+   *
    * @param sharedKey - The symmetric key that is to be shared
    * @param encapsulationKey - The encapsulation key (public key) of the receiver that the key is shared with
    */
@@ -157,13 +160,6 @@ export abstract class EncryptService {
     encryptedSharedKey: EncString,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey>;
-
-  /**
-   * @deprecated Use @see {@link decapsulateKeyUnsigned} instead
-   * @param data - The ciphertext to decrypt
-   * @param privateKey - The privateKey to decrypt with
-   */
-  abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
 
   /**
    * Generates a base64-encoded hash of the given value

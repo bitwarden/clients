@@ -30,6 +30,8 @@ full).
   - [Large Storage Pool (1TB)](#large-storage-pool-1tb)
   - [Small Storage Pool (1GB)](#small-storage-pool-1gb)
   - [Actions Disabled](#actions-disabled)
+  - [Add Storage Disabled](#add-storage-disabled)
+  - [Remove Storage Disabled](#remove-storage-disabled)
 - [Features](#features)
 - [Do's and Don'ts](#dos-and-donts)
 - [Accessibility](#accessibility)
@@ -53,10 +55,11 @@ import { StorageCardComponent, Storage } from "@bitwarden/subscription";
 
 ### Inputs
 
-| Input                   | Type      | Description                                                            |
-| ----------------------- | --------- | ---------------------------------------------------------------------- |
-| `storage`               | `Storage` | **Required.** Storage data including available, used, and readable     |
-| `callsToActionDisabled` | `boolean` | Optional. Disables both action buttons when true. Defaults to `false`. |
+| Input                   | Type      | Description                                                              |
+| ----------------------- | --------- | ------------------------------------------------------------------------ |
+| `storage`               | `Storage` | **Required.** Storage data including available, used, and readable       |
+| `addStorageDisabled`    | `boolean` | Optional. Disables add storage button when true. Defaults to `false`.    |
+| `removeStorageDisabled` | `boolean` | Optional. Disables remove storage button when true. Defaults to `false`. |
 
 ### Outputs
 
@@ -93,7 +96,8 @@ The component automatically adapts its appearance based on storage usage:
 Key behaviors:
 
 - Progress bar color changes from blue (primary) to red (danger) when full
-- Remove storage button is disabled when storage is full
+- Button disabled states are controlled independently via `addStorageDisabled` and
+  `removeStorageDisabled` inputs
 - Title changes to "Storage full" when at capacity
 - Description provides context-specific messaging
 
@@ -123,7 +127,7 @@ Storage with no files uploaded:
   [storage]="{
     available: 5,
     used: 0,
-    readableUsed: '0 GB'
+    readableUsed: '0 GB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -141,7 +145,7 @@ Storage with partial usage (50%):
   [storage]="{
     available: 5,
     used: 2.5,
-    readableUsed: '2.5 GB'
+    readableUsed: '2.5 GB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -159,15 +163,15 @@ Storage at full capacity with disabled remove button:
   [storage]="{
     available: 5,
     used: 5,
-    readableUsed: '5 GB'
+    readableUsed: '5 GB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
 </billing-storage-card>
 ```
 
-**Note:** When storage is full, the "Remove storage" button is disabled and the progress bar turns
-red.
+**Note:** When storage is full, the progress bar turns red. Button disabled states are controlled
+independently via the `addStorageDisabled` and `removeStorageDisabled` inputs.
 
 ### Low Usage (10%)
 
@@ -180,7 +184,7 @@ Minimal storage usage:
   [storage]="{
     available: 5,
     used: 0.5,
-    readableUsed: '500 MB'
+    readableUsed: '500 MB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -198,7 +202,7 @@ Substantial storage usage:
   [storage]="{
     available: 5,
     used: 3.75,
-    readableUsed: '3.75 GB'
+    readableUsed: '3.75 GB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -216,7 +220,7 @@ Storage approaching capacity:
   [storage]="{
     available: 5,
     used: 4.75,
-    readableUsed: '4.75 GB'
+    readableUsed: '4.75 GB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -234,7 +238,7 @@ Enterprise-level storage allocation:
   [storage]="{
     available: 1000,
     used: 734,
-    readableUsed: '734 GB'
+    readableUsed: '734 GB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -252,7 +256,7 @@ Minimal storage allocation:
   [storage]="{
     available: 1,
     used: 0.8,
-    readableUsed: '800 MB'
+    readableUsed: '800 MB',
   }"
   (callToActionClicked)="handleAction($event)"
 >
@@ -270,16 +274,57 @@ Storage card with action buttons disabled (useful during async operations):
   [storage]="{
     available: 5,
     used: 2.5,
-    readableUsed: '2.5 GB'
+    readableUsed: '2.5 GB',
   }"
-  [callsToActionDisabled]="true"
+  [addStorageDisabled]="true"
+  [removeStorageDisabled]="true"
   (callToActionClicked)="handleAction($event)"
 >
 </billing-storage-card>
 ```
 
-**Note:** Use `callsToActionDisabled` to prevent user interactions during async operations like
-adding or removing storage.
+**Note:** Use `addStorageDisabled` and `removeStorageDisabled` independently to control button
+states during async operations like adding or removing storage.
+
+### Add Storage Disabled
+
+Storage card with only the add button disabled:
+
+<Canvas of={StorageCardStories.AddStorageDisabled} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 2.5,
+    readableUsed: '2.5 GB',
+  }"
+  [addStorageDisabled]="true"
+  [removeStorageDisabled]="false"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Remove Storage Disabled
+
+Storage card with only the remove button disabled:
+
+<Canvas of={StorageCardStories.RemoveStorageDisabled} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 2.5,
+    readableUsed: '2.5 GB',
+  }"
+  [addStorageDisabled]="false"
+  [removeStorageDisabled]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
 
 ## Features
 
@@ -304,13 +349,14 @@ adding or removing storage.
 - Use human-readable format strings (e.g., "2.5 GB", "500 MB") for `readableUsed`
 - Keep `used` value less than or equal to `available` under normal circumstances
 - Update storage data in real-time when user adds or removes storage
-- Disable UI interactions when storage operations are in progress
+- Use `addStorageDisabled` and `removeStorageDisabled` to control button states during operations
 - Show loading states during async storage operations
+- Control button states independently based on business logic
 
 ### ❌ Don't
 
-- Omit the `readableUsed` field - it's required for display
-- Use inconsistent units between `available` and `used` (both should be in GB)
+- Omit the `readableUsed` field - it's required
+- Use inconsistent units between `available` and `used` (all should be in GB)
 - Allow negative values for storage amounts
 - Ignore the `callToActionClicked` events - they require handling
 - Display inaccurate or stale storage information

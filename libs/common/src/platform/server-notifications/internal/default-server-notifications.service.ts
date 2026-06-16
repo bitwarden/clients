@@ -15,8 +15,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
@@ -24,10 +23,12 @@ import { trackedMerge } from "@bitwarden/common/platform/misc";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import {
   LogOutNotification,
   NotificationResponse,
+  PremiumStatusChangedNotification,
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
@@ -49,6 +50,7 @@ export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
 export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
   NotificationType.AuthRequest,
+  NotificationType.AutoConfirmMember,
 ]);
 
 export class DefaultServerNotificationsService implements ServerNotificationsService {
@@ -69,7 +71,8 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly webPushConnectionService: WebPushConnectionService,
     private readonly authRequestAnsweringService: AuthRequestAnsweringService,
     private readonly configService: ConfigService,
-    private readonly policyService: InternalPolicyService,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
@@ -228,12 +231,22 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         const noLogoutOnKdfChange = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
         );
+        const noLogoutOnKeyUpgradeRotation = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKeyUpgradeRotation),
+        );
         if (
           noLogoutOnKdfChange &&
           logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
         ) {
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout KDF change",
+          );
+        } else if (
+          noLogoutOnKeyUpgradeRotation &&
+          logOutNotification.reason === PushNotificationLogOutReasonType.KeyRotation
+        ) {
+          this.logService.info(
+            "[Notifications Service] Skipping logout due to no logout key rotation",
           );
         } else {
           await this.logoutCallback("logoutNotification", userId);
@@ -290,8 +303,32 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         });
         break;
       case NotificationType.SyncPolicy:
-        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
+        // TODO (PM-38875): this should compare against local data and only fetch the specific
+        // policy if required. For now just force a sync.
+        await this.syncService.fullSync(true);
         break;
+      case NotificationType.AutoConfirmMember:
+        await this.autoConfirmService.autoConfirmUser(
+          notification.payload.userId,
+          notification.payload.targetUserId,
+          notification.payload.targetOrganizationUserId,
+          notification.payload.organizationId,
+        );
+        break;
+      case NotificationType.PremiumStatusChanged: {
+        const premiumPayload = notification.payload as PremiumStatusChangedNotification;
+        const hasPremiumFromAnyOrganization = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(
+            premiumPayload.userId as UserId,
+          ),
+        );
+        await this.billingAccountProfileStateService.setHasPremium(
+          premiumPayload.premium,
+          hasPremiumFromAnyOrganization,
+          premiumPayload.userId as UserId,
+        );
+        break;
+      }
       default:
         break;
     }

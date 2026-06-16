@@ -10,13 +10,16 @@ import { BrowserApi } from "./browser-api";
  * Value represents width in pixels
  */
 export const PopupWidthOptions = Object.freeze({
-  default: 380,
-  wide: 480,
-  "extra-wide": 600,
+  default: 480,
+  wide: 600,
+  narrow: 380,
 });
 
 type PopupWidthOptions = typeof PopupWidthOptions;
 export type PopupWidthOption = keyof PopupWidthOptions;
+
+/** localStorage key used to cache the user's configured popup width. */
+export const POPUP_WIDTH_STORAGE_KEY = "bw-popup-width";
 
 export default class BrowserPopupUtils {
   /**
@@ -35,6 +38,15 @@ export default class BrowserPopupUtils {
    */
   static inPopout(win: Window): boolean {
     return BrowserPopupUtils.urlContainsSearchParams(win, "uilocation", "popout");
+  }
+
+  /**
+   * Identifies if the popup is within the Chrome Side Panel.
+   *
+   * @param win - The passed window object.
+   */
+  static inSidePanel(win: Window): boolean {
+    return BrowserPopupUtils.urlContainsSearchParams(win, "uilocation", "sidepanel");
   }
 
   /**
@@ -140,20 +152,32 @@ export default class BrowserPopupUtils {
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
       focused: true,
-      width: Math.max(
-        PopupWidthOptions.default,
-        typeof document === "undefined" ? PopupWidthOptions.default : document.body.clientWidth,
-      ),
+      width: await BrowserPopupUtils.getPopupWidth(),
       height: 630,
     };
     const offsetRight = 15;
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
+
+    // On Wayland, browser window coordinates are not being precisely reported. This is
+    // particularly troublesome for multi-monitor configurations, where the popup can be placed
+    // far enough outside the visible area that the browser refuses to create the window and emits
+    // an error: Invalid value for bounds. Bounds must be at least 50% within visible screen space.
+    // It is acceptable that this heuristic may fire for X11 sessions.
+    const operatingSystemIsLinux = (await BrowserApi.getPlatformInfo()).os === "linux";
+    const coordsMaybeNotPrecise = senderWindow.left === 0 && senderWindow.top === 0;
+    const canPositionWindow = !(operatingSystemIsLinux && coordsMaybeNotPrecise);
+    const positionOptions = canPositionWindow
+      ? {
+          left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
+          top: senderWindow.top + offsetTop,
+        }
+      : {};
+
     const popoutWindowOptions = {
-      left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
-      top: senderWindow.top + offsetTop,
       ...defaultPopoutWindowOptions,
+      ...positionOptions,
       ...windowOptions,
       url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
     };
@@ -168,29 +192,8 @@ export default class BrowserPopupUtils {
     ) {
       return;
     }
-    const platform = await BrowserApi.getPlatformInfo();
-    const isMacOS = platform.os === "mac";
-    const isFullscreen = senderWindow.state === "fullscreen";
-    const isFullscreenAndMacOS = isFullscreen && isMacOS;
-    //macOS specific handling for improved UX when sender in fullscreen aka green button;
-    if (isFullscreenAndMacOS) {
-      await BrowserApi.updateWindowProperties(senderWindow.id, {
-        state: "maximized",
-      });
 
-      //wait for macOS animation to finish
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-
-    const newWindow = await BrowserApi.createWindow(popoutWindowOptions);
-
-    if (isFullscreenAndMacOS) {
-      await BrowserApi.updateWindowProperties(newWindow.id, {
-        focused: true,
-      });
-    }
-
-    return newWindow;
+    return await BrowserApi.createWindow(popoutWindowOptions);
   }
 
   /**
@@ -235,16 +238,35 @@ export default class BrowserPopupUtils {
   }
 
   /**
-   * Waits for all browser action popups to close, polling up to the specified timeout.
-   * Used before extension reload to prevent zombie popups with invalidated contexts.
+   * Closes the current popup or popout window from inside that window.
+   *
+   * @param win - The passed window object.
+   */
+  static async closeCurrentPopupOrPopout(win: Window): Promise<void> {
+    if (BrowserPopupUtils.inPopup(win)) {
+      BrowserApi.closePopup(win);
+      return;
+    }
+
+    if (BrowserPopupUtils.inPopout(win)) {
+      const currentWindow = await BrowserApi.getWindow();
+      if (currentWindow?.id != null) {
+        await BrowserApi.removeWindow(currentWindow.id);
+      }
+    }
+  }
+
+  /**
+   * Waits for the toolbar popup and any popout windows to close, polling up to the specified
+   * timeout. Used before extension reload to prevent zombie views with invalidated contexts.
    *
    * @param timeoutMs - Maximum time to wait in milliseconds. Defaults to 1 second.
-   * @returns Promise that resolves when all popups are closed or timeout is reached.
+   * @returns Promise that resolves when all popup/popout views are closed or timeout is reached.
    */
   static async waitForAllPopupsClose(timeoutMs = 1000): Promise<void> {
     await firstValueFrom(
       interval(100).pipe(
-        switchMap(() => BrowserApi.isPopupOpen()),
+        switchMap(() => BrowserApi.isAnyPopupOrPopoutOpen()),
         takeWhile((isOpen) => isOpen, true),
         filter((isOpen) => !isOpen),
         timeout({
@@ -253,6 +275,47 @@ export default class BrowserPopupUtils {
         }),
       ),
     );
+  }
+
+  /**
+   * Returns the configured popup window width in pixels.
+   *
+   * Reads the user's stored width preference from localStorage when available (popup context),
+   * falls back to chrome.storage.local for background/service-worker contexts, and finally
+   * falls back to the default width.
+   */
+  private static async getPopupWidth(): Promise<number> {
+    // Popup context: localStorage is synchronously available
+    if (typeof localStorage !== "undefined") {
+      const storedWidth = localStorage.getItem(POPUP_WIDTH_STORAGE_KEY);
+      if (storedWidth != null && storedWidth in PopupWidthOptions) {
+        return PopupWidthOptions[storedWidth as PopupWidthOption];
+      }
+    }
+
+    // Background/service-worker context: read from chrome.storage.local
+    // Key format is derived from the state framework: global_<stateDefinitionName>_<keyName>
+    // Values are stored with a serialization wrapper: { "__json__": true, value: '"narrow"' }
+    const chromeStorageKey = "global_popupStyle_popup-width";
+    try {
+      const result = await chrome.storage.local.get(chromeStorageKey);
+      let storedWidth = result[chromeStorageKey];
+      // Deserialize the state framework's serialization wrapper if present
+      if (
+        storedWidth != null &&
+        storedWidth["__json__"] === true &&
+        typeof storedWidth.value === "string"
+      ) {
+        storedWidth = JSON.parse(storedWidth.value);
+      }
+      if (storedWidth != null && storedWidth in PopupWidthOptions) {
+        return PopupWidthOptions[storedWidth as PopupWidthOption];
+      }
+    } catch {
+      // Ignore storage errors and fall through to the default
+    }
+
+    return PopupWidthOptions.default;
   }
 
   /**

@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
@@ -115,15 +117,22 @@ export class TrashListItemsContainerComponent {
   }
 
   async restore(cipher: PopupCipherViewLike) {
+    let toastMessage;
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.restoreWithServer(cipher.id as string, activeUserId);
+
+      if (cipher.archivedDate) {
+        toastMessage = this.i18nService.t("archivedItemRestored");
+      } else {
+        toastMessage = this.i18nService.t("restoredItem");
+      }
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
     } catch (e) {
       this.logService.error(e);

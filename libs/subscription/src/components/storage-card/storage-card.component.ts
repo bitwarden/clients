@@ -5,27 +5,40 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   ButtonModule,
   CardComponent,
-  ProgressModule,
+  ProgressBarComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Storage } from "../../types/storage";
 
-export type StorageCardAction = "add-storage" | "remove-storage";
+export const StorageCardActions = {
+  AddStorage: "add-storage",
+  RemoveStorage: "remove-storage",
+} as const;
+
+export type StorageCardAction = (typeof StorageCardActions)[keyof typeof StorageCardActions];
 
 @Component({
   selector: "billing-storage-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./storage-card.component.html",
-  imports: [CommonModule, ButtonModule, CardComponent, ProgressModule, TypographyModule, I18nPipe],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    CardComponent,
+    ProgressBarComponent,
+    TypographyModule,
+    I18nPipe,
+  ],
 })
 export class StorageCardComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   readonly storage = input.required<Storage>();
 
-  readonly callsToActionDisabled = input<boolean>(false);
+  readonly addStorageDisabled = input<boolean>(false);
+  readonly removeStorageDisabled = input<boolean>(false);
 
   readonly callToActionClicked = output<StorageCardAction>();
 
@@ -41,7 +54,7 @@ export class StorageCardComponent {
     if (storage.available === 0) {
       return 0;
     }
-    return Math.min((storage.used / storage.available) * 100, 100);
+    return (storage.used / storage.available) * 100;
   });
 
   readonly title = computed<string>(() => {
@@ -64,5 +77,5 @@ export class StorageCardComponent {
     return this.isFull() ? "danger" : "primary";
   });
 
-  readonly canRemoveStorage = computed<boolean>(() => !this.isFull());
+  protected readonly actions = StorageCardActions;
 }

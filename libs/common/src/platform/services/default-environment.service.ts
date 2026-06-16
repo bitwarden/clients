@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { distinctUntilChanged, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { distinctUntilChanged, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -32,6 +32,7 @@ export class EnvironmentUrls {
   events: string = null;
   webVault: string = null;
   keyConnector: string = null;
+  send: string = null;
 }
 
 class EnvironmentState {
@@ -95,6 +96,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.com",
       events: "https://events.bitwarden.com",
       scim: "https://scim.bitwarden.com",
+      send: "https://send.bitwarden.com",
     },
   },
   {
@@ -109,6 +111,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.eu",
       events: "https://events.bitwarden.eu",
       scim: "https://scim.bitwarden.eu",
+      send: "https://send.bitwarden.eu",
     },
   },
 ];
@@ -153,23 +156,40 @@ export class DefaultEnvironmentService implements EnvironmentService {
       .getGlobal(GLOBAL_ENVIRONMENT_KEY)
       .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
+    // The current environment emitted by environment$ can come from two sources: the "global" environment,
+    // which represents the environment used by the application before a user authenticates, and the "user" environment,
+    // which represents the environment of an authenticated account using the application.
+    // We preference the user environment, only falling back to the global environment if a user is not logged in.
+    // However, there does exist the possibility that - due to timing of state updates - the active userId state may
+    // be cleared after the user environment state.
+    // To handle this, we fall back to the global state as a last resort, if the user state is not set.
+    const globalEnvState$ = this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
     this.environment$ = account$.pipe(
       switchMap((userId) => {
-        const t = userId
-          ? this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$
-          : this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
-        return t;
+        if (!userId) {
+          return globalEnvState$;
+        }
+        return this.stateProvider
+          .getUser(userId, USER_ENVIRONMENT_KEY)
+          .state$.pipe(
+            switchMap((userState) => (userState != null ? of(userState) : globalEnvState$)),
+          );
       }),
       map((state) => {
         return this.buildEnvironment(state?.region, state?.urls);
       }),
     );
+    const globalCloudRegionState$ = this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$;
     this.cloudWebVaultUrl$ = account$.pipe(
       switchMap((userId) => {
-        const t = userId
-          ? this.stateProvider.getUser(userId, USER_CLOUD_REGION_KEY).state$
-          : this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$;
-        return t;
+        if (!userId) {
+          return globalCloudRegionState$;
+        }
+        return this.stateProvider
+          .getUser(userId, USER_CLOUD_REGION_KEY)
+          .state$.pipe(
+            switchMap((userState) => (userState != null ? of(userState) : globalCloudRegionState$)),
+          );
       }),
       map((region) => {
         if (region != null) {
@@ -223,6 +243,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
       urls.notifications = formatUrl(urls.notifications);
       urls.events = formatUrl(urls.events);
       urls.keyConnector = formatUrl(urls.keyConnector);
+      urls.send = formatUrl(urls.send);
       urls.scim = null;
 
       await this.globalState.update(() => ({
@@ -236,6 +257,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
           notifications: urls.notifications,
           events: urls.events,
           keyConnector: urls.keyConnector,
+          send: urls.send,
         },
       }));
 
@@ -357,6 +379,7 @@ abstract class UrlEnvironment implements Environment {
       events: this.urls.events,
       keyConnector: this.urls.keyConnector,
       scim: this.urls.scim,
+      send: this.urls.send,
     };
   }
 
@@ -403,9 +426,15 @@ abstract class UrlEnvironment implements Environment {
   }
 
   getSendUrl() {
-    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
-      ? "https://send.bitwarden.com/#"
-      : this.getWebVaultUrl() + "/#/send/";
+    if (this.urls.send != null) {
+      return this.urls.send + "/#/";
+    }
+
+    const webVaultUrl = this.getWebVaultUrl();
+    if (webVaultUrl === "https://vault.bitwarden.com") {
+      return "https://send.bitwarden.com/#/";
+    }
+    return webVaultUrl + "/#/send/";
   }
 
   /**

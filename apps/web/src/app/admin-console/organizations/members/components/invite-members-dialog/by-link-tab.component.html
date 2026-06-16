@@ -1,0 +1,75 @@
+<p bitTypography="body1">
+  {{ "inviteByLinkDesc" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/help/managing-users/#add-new-members"
+    target="_blank"
+    rel="noreferrer"
+    endIcon="bwi-external-link"
+  >
+    {{ "learnMore" | i18n }}
+  </a>
+</p>
+
+<bit-form-field class="tw-flex-1">
+  <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
+  <input bitInput type="text" [formControl]="form.controls.domains" data-testid="allowedDomains" />
+  <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
+  <button
+    type="button"
+    bitButton
+    bitFormButton
+    buttonType="primary"
+    [bitAction]="save"
+    [disabled]="domainsEmpty()"
+    [bitTooltip]="domainsEmpty() ? ('mustEnterAtLeastOneDomain' | i18n) : ''"
+    tooltipPosition="left-center"
+    slot="inline-end"
+    data-testid="saveDomains"
+  >
+    {{ "save" | i18n }}
+  </button>
+</bit-form-field>
+
+@let inviteLink = inviteLink$ | async;
+@if (inviteLink == null) {
+  <bit-callout type="info">
+    <strong>
+      {{ "enterAllowedDomainsToGenerateInviteLink" | i18n }}
+    </strong>
+  </bit-callout>
+} @else {
+  @let inviteLinkUrl = inviteLinkUrl$ | async;
+  @if (inviteLinkUrl) {
+    <bit-form-field>
+      <bit-label>{{ "inviteLink" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        readonly
+        [value]="inviteLinkUrl"
+        [class.tw-select-none]="domainsEmpty()"
+        data-testid="inviteLink"
+      />
+      <button
+        type="button"
+        bitSuffix
+        bitIconButton="bwi-refresh"
+        [label]="'regenerateInviteLink' | i18n"
+        [bitAction]="refreshLink"
+        [disabled]="domainsEmpty()"
+      ></button>
+      <button
+        type="button"
+        bitSuffix
+        bitIconButton="bwi-clone"
+        [label]="'copyLink' | i18n"
+        [bitAction]="copyLink"
+        [disabled]="domainsEmpty() || form.dirty"
+      ></button>
+      <bit-hint>{{
+        "lastGenerated" | i18n: (inviteLink.creationDate | date: "shortDate")
+      }}</bit-hint>
+    </bit-form-field>
+  }
+}

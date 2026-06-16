@@ -109,6 +109,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     {
       test: /\.[cm]?js$/,
+      exclude: /\.wasm\.js$/,
       use: [
         {
           loader: "babel-loader",
@@ -127,9 +128,16 @@ module.exports.buildConfig = function buildConfig(params) {
   ];
 
   const requiredPlugins = [
+    new webpack.SourceMapDevToolPlugin({
+      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
+      filename: "[file].map",
+    }),
     new webpack.DefinePlugin({
       "process.env": {
         ENV: JSON.stringify(ENV),
+        BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS: JSON.stringify(
+          process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS === "true",
+        ),
       },
     }),
     new webpack.EnvironmentPlugin({
@@ -200,10 +208,6 @@ module.exports.buildConfig = function buildConfig(params) {
     new webpack.ProvidePlugin({
       process: "process/browser.js",
     }),
-    new webpack.SourceMapDevToolPlugin({
-      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
-      filename: "[file].map",
-    }),
     ...requiredPlugins,
   ];
 
@@ -264,7 +268,7 @@ module.exports.buildConfig = function buildConfig(params) {
         __dirname,
         "src/platform/ipc/content/ipc-content-script.ts",
       ),
-      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bar.ts"),
+      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bootstrap-bar.ts"),
       "overlay/menu-button": path.resolve(
         __dirname,
         "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
@@ -371,6 +375,9 @@ module.exports.buildConfig = function buildConfig(params) {
       webassemblyModuleFilename: "assets/[modulehash].wasm",
       path: params.outputPath,
       clean: true,
+      environment: {
+        asyncFunction: true,
+      },
     },
     module: {
       rules: moduleRules,
@@ -426,6 +433,18 @@ module.exports.buildConfig = function buildConfig(params) {
           template: path.resolve(__dirname, "src/platform/offscreen-document/index.html"),
           filename: "offscreen-document/index.html",
           chunks: ["offscreen-document/offscreen-document"],
+        }),
+      );
+    }
+
+    // Chrome-only: side panel placeholder page (disabled by default, enabled per-tab for triage)
+    if (browser === "chrome") {
+      mainConfig.plugins.push(
+        new HtmlWebpackPlugin({
+          template: path.resolve(__dirname, "src/sidepanel-disabled.html"),
+          filename: "sidepanel-disabled.html",
+          chunks: [],
+          inject: false,
         }),
       );
     }

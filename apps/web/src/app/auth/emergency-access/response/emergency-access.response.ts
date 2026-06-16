@@ -61,6 +61,7 @@ export class EmergencyAccessTakeoverResponse extends BaseResponse {
   kdfIterations: number;
   kdfMemory?: number;
   kdfParallelism?: number;
+  salt?: string;
 
   constructor(response: any) {
     super(response);
@@ -70,6 +71,7 @@ export class EmergencyAccessTakeoverResponse extends BaseResponse {
     this.kdfIterations = this.getResponseProperty("KdfIterations");
     this.kdfMemory = this.getResponseProperty("KdfMemory");
     this.kdfParallelism = this.getResponseProperty("KdfParallelism");
+    this.salt = this.getResponseProperty("Salt");
   }
 }
 

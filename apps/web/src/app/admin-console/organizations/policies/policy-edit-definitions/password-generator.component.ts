@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { UntypedFormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { BehaviorSubject, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -11,11 +11,14 @@ import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
   type = PolicyType.PasswordGenerator;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = PasswordGeneratorPolicyComponent;
 }
 
@@ -26,8 +29,6 @@ export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
-  // these properties forward the application default settings to the UI
-  // for HTML attribute bindings
   protected readonly minLengthMin =
     BuiltIn.password.profiles[Profile.account].constraints.default.length.min;
   protected readonly minLengthMax =
@@ -45,7 +46,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   protected readonly minNumberWordsMax =
     BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.max;
 
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     overridePasswordType: [null],
     minLength: [null, [Validators.min(this.minLengthMin), Validators.max(this.minLengthMax)]],
     useUpper: [null],
@@ -62,12 +63,10 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
     includeNumber: [null],
   });
 
-  overridePasswordTypeOptions: { name: string; value: string }[];
+  readonly overridePasswordTypeOptions: { name: string; value: string }[];
 
-  // These subjects cache visibility of the sub-options for passwords
-  // and passphrases; without them policy controls don't show up at all.
-  private showPasswordPolicies = new BehaviorSubject<boolean>(true);
-  private showPassphrasePolicies = new BehaviorSubject<boolean>(true);
+  private readonly showPasswordPolicies = new BehaviorSubject<boolean>(true);
+  private readonly showPassphrasePolicies = new BehaviorSubject<boolean>(true);
 
   /** Emits `true` when the password policy options should be displayed */
   get showPasswordPolicies$() {
@@ -80,7 +79,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   }
 
   constructor(
-    private formBuilder: UntypedFormBuilder,
+    private readonly formBuilder: FormBuilder,
     i18nService: I18nService,
   ) {
     super();

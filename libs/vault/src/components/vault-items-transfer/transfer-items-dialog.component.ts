@@ -10,6 +10,7 @@ import {
   DialogService,
   ButtonModule,
   DialogModule,
+  IconModule,
   LinkModule,
   TypographyModule,
   CenterPositionStrategy,
@@ -35,7 +36,7 @@ export type TransferItemsDialogResultType = UnionOfValues<typeof TransferItemsDi
 @Component({
   templateUrl: "./transfer-items-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DialogModule, LinkModule, TypographyModule, JslibModule],
+  imports: [ButtonModule, DialogModule, IconModule, LinkModule, TypographyModule, JslibModule],
 })
 export class TransferItemsDialogComponent {
   private readonly params = inject<TransferItemsDialogParams>(DIALOG_DATA);
@@ -45,11 +46,11 @@ export class TransferItemsDialogComponent {
   protected readonly organizationName = this.params.organizationName;
 
   protected acceptTransfer() {
-    this.dialogRef.close(TransferItemsDialogResult.Accepted);
+    void this.dialogRef.close(TransferItemsDialogResult.Accepted);
   }
 
   protected decline() {
-    this.dialogRef.close(TransferItemsDialogResult.Declined);
+    void this.dialogRef.close(TransferItemsDialogResult.Declined);
   }
 
   protected openLearnMore(e: Event) {

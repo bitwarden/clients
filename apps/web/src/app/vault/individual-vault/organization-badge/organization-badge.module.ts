@@ -1,12 +1,15 @@
 import { NgModule } from "@angular/core";
 
+import { ChipActionComponent } from "@bitwarden/components";
+import { OrganizationNameBadgeComponent } from "@bitwarden/vault";
+
 import { SharedModule } from "../../../shared/shared.module";
 
-import { OrganizationNameBadgeComponent } from "./organization-name-badge.component";
-
+/**
+ * @deprecated Use `OrganizationNameBadgeComponent` directly since it is now standalone.
+ */
 @NgModule({
-  imports: [SharedModule],
-  declarations: [OrganizationNameBadgeComponent],
+  imports: [SharedModule, OrganizationNameBadgeComponent, ChipActionComponent],
   exports: [OrganizationNameBadgeComponent],
 })
 export class OrganizationBadgeModule {}

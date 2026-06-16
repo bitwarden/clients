@@ -9,6 +9,12 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -56,6 +62,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   /**
@@ -270,7 +277,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantee.
    * @param id emergency access id
    * @param masterPassword new master password
-   * @param email email address of grantee (must be consistent or login will fail)
+   * @param email email address of grantor (must be consistent or login will fail)
    * @param activeUserId the user id of the active user
    */
   async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
@@ -303,24 +310,39 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       case KdfType.Argon2id:
         config = new Argon2KdfConfig(
           takeoverResponse.kdfIterations,
-          takeoverResponse.kdfMemory,
-          takeoverResponse.kdfParallelism,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
         );
         break;
     }
 
-    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
+    // Prefer server-provided salt from the takeover response.
+    // Falls back to email-derived salt for backward compatibility with servers
+    // that don't yet include Salt in the response (PM-31636).
+    //
+    // TODO: PM-32059 — When salt is fully disconnected from email (Stage 3),
+    // the email fallback will be removed and server salt becomes mandatory.
+    const salt: MasterPasswordSalt =
+      typeof takeoverResponse.salt === "string"
+        ? (takeoverResponse.salt as MasterPasswordSalt)
+        : this.masterPasswordService.emailToSalt(email);
 
-    const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        masterPassword,
+        config,
+        salt,
+      );
 
-    if (encKey == null || !encKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found");
-    }
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        masterPassword,
+        config,
+        salt,
+        grantorUserKey,
+      );
 
-    const request = new EmergencyAccessPasswordRequest();
-    request.newMasterPasswordHash = masterKeyHash;
-    request.key = encKey[1].encryptedString;
+    const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
 
     await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
@@ -399,7 +421,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(
-          (pk) => Utils.fromBufferToHex(pk) === Utils.fromBufferToHex(details.publicKey),
+          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
         ) == null
       ) {
         this.logService.info(

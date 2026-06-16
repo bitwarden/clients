@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -7,11 +7,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 import { VaultCarouselComponent } from "./carousel.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-test-carousel-slide",
   imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <vault-carousel label="Storybook Demo">
       <vault-carousel-slide label="First Slide">
@@ -93,12 +92,71 @@ describe("VaultCarouselComponent", () => {
     const backButton = fixture.debugElement.queryAll(By.css("button"))[0];
 
     middleSlideButton.nativeElement.click();
-    await new Promise((r) => setTimeout(r, 100)); // Give time for the DOM to update.
-
+    fixture.detectChanges();
     jest.spyOn(component.slideChange, "emit");
 
     backButton.nativeElement.click();
 
     expect(component.slideChange.emit).toHaveBeenCalledWith(0);
+  });
+});
+
+@Component({
+  selector: "app-test-carousel-hide-arrows",
+  imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <vault-carousel [hideArrows]="true" label="No Arrows Test">
+      <vault-carousel-slide label="Slide 1"><p>Content 1</p></vault-carousel-slide>
+      <vault-carousel-slide label="Slide 2"><p>Content 2</p></vault-carousel-slide>
+      <div carouselActions>
+        <button type="button" data-testid="action-btn">Custom Action</button>
+      </div>
+    </vault-carousel>
+  `,
+})
+class TestCarouselHideArrowsComponent {}
+
+describe("VaultCarouselComponent with hideArrows", () => {
+  let fixture: ComponentFixture<TestCarouselHideArrowsComponent>;
+  let carouselComponent: VaultCarouselComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TestCarouselHideArrowsComponent);
+    fixture.detectChanges();
+    carouselComponent = fixture.debugElement.query(
+      By.directive(VaultCarouselComponent),
+    ).componentInstance;
+  });
+
+  it("hides navigation arrow buttons when hideArrows is true", () => {
+    const iconButtons = fixture.debugElement.queryAll(By.css("[bitIconButton]"));
+    expect(iconButtons.length).toBe(0);
+  });
+
+  it("renders carouselActions slot content", () => {
+    const actionBtn = fixture.debugElement.query(By.css("[data-testid='action-btn']"));
+    expect(actionBtn).not.toBeNull();
+  });
+
+  it("nextSlide advances to the next slide", () => {
+    const slideChangeSpy = jest.spyOn(carouselComponent.slideChange, "emit");
+    carouselComponent.nextSlide();
+    fixture.detectChanges();
+    expect(slideChangeSpy).toHaveBeenCalledWith(1);
+  });
+
+  it("prevSlide goes back to the previous slide after advancing", () => {
+    carouselComponent.nextSlide();
+    fixture.detectChanges();
+    const slideChangeSpy = jest.spyOn(carouselComponent.slideChange, "emit");
+    carouselComponent.prevSlide();
+    fixture.detectChanges();
+    expect(slideChangeSpy).toHaveBeenCalledWith(0);
   });
 });

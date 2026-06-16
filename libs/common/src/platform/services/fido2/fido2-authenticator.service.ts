@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { filter, firstValueFrom, map, timeout } from "rxjs";
 
+import { PureCrypto } from "@bitwarden/sdk-internal";
+
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
 import { CipherId } from "../../../types/guid";
@@ -25,6 +27,7 @@ import {
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
@@ -127,11 +130,11 @@ export class Fido2AuthenticatorService<
       let keyPair: CryptoKeyPair;
       let userVerified = false;
       let credentialId: string;
-      let pubKeyDer: ArrayBuffer;
+      let pubKeyDer: Uint8Array<ArrayBuffer>;
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.name,
-        userHandle: Fido2Utils.bufferToString(params.userEntity.id),
+        userHandle: Fido2Utils.arrayToString(params.userEntity.id),
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });
@@ -147,7 +150,7 @@ export class Fido2AuthenticatorService<
 
       try {
         keyPair = await createKeyPair();
-        pubKeyDer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+        pubKeyDer = new Uint8Array(await crypto.subtle.exportKey("spki", keyPair.publicKey));
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(getUserId),
         );
@@ -187,9 +190,7 @@ export class Fido2AuthenticatorService<
         if (Utils.isNullOrEmpty(cipher.login.username)) {
           cipher.login.username = fido2Credential.userName;
         }
-        const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
-        await this.cipherService.updateWithServer(reencrypted);
-        await this.cipherService.clearCache(activeUserId);
+        await this.cipherService.updateWithServer(cipher, activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -328,9 +329,7 @@ export class Fido2AuthenticatorService<
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );
-          const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
-          await this.cipherService.updateWithServer(encrypted);
-          await this.cipherService.clearCache(activeUserId);
+          await this.cipherService.updateWithServer(selectedCipher, activeUserId);
         }
 
         const authenticatorData = await generateAuthData({
@@ -351,7 +350,7 @@ export class Fido2AuthenticatorService<
           authenticatorData,
           selectedCredential: {
             id: parseCredentialId(selectedCredentialId),
-            userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
+            userHandle: Fido2Utils.stringToArray(selectedFido2Credential.userHandle),
           },
           signature,
         };
@@ -489,15 +488,17 @@ async function createKeyView(
     throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
   }
 
-  const pkcs8Key = await crypto.subtle.exportKey("pkcs8", keyValue);
+  await SdkLoadService.Ready; // Required for PureCrypto.new_guid()
+
+  const pkcs8Key = new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyValue));
   const fido2Credential = new Fido2CredentialView();
-  fido2Credential.credentialId = Utils.newGuid();
+  fido2Credential.credentialId = PureCrypto.new_guid();
   fido2Credential.keyType = "public-key";
   fido2Credential.keyAlgorithm = "ECDSA";
   fido2Credential.keyCurve = "P-256";
-  fido2Credential.keyValue = Fido2Utils.bufferToString(pkcs8Key);
+  fido2Credential.keyValue = Fido2Utils.arrayToString(pkcs8Key);
   fido2Credential.rpId = params.rpEntity.id;
-  fido2Credential.userHandle = Fido2Utils.bufferToString(params.userEntity.id);
+  fido2Credential.userHandle = Fido2Utils.arrayToString(params.userEntity.id);
   fido2Credential.userName = params.userEntity.name;
   fido2Credential.counter = 0;
   fido2Credential.rpName = params.rpEntity.name;
@@ -511,7 +512,7 @@ async function createKeyView(
 async function getPrivateKeyFromFido2Credential(
   fido2Credential: Fido2CredentialView,
 ): Promise<CryptoKey> {
-  const keyBuffer = Fido2Utils.stringToBuffer(fido2Credential.keyValue);
+  const keyBuffer = Fido2Utils.stringToArray(fido2Credential.keyValue);
   return await crypto.subtle.importKey(
     "pkcs8",
     new Uint8Array(keyBuffer),
@@ -537,7 +538,10 @@ async function generateAuthData(params: AuthDataParams) {
   const authData: Array<number> = [];
 
   const rpIdHash = new Uint8Array(
-    await crypto.subtle.digest({ name: "SHA-256" }, Utils.fromByteStringToArray(params.rpId)),
+    await crypto.subtle.digest(
+      { name: "SHA-256" },
+      Utils.fromByteStringToArray(params.rpId) as BufferSource,
+    ),
   );
   authData.push(...rpIdHash);
 

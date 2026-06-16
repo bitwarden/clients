@@ -11,6 +11,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -51,7 +52,7 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
-  imports: [ItemModule, HeaderModule, PremiumBadgeComponent, SharedModule],
+  imports: [ItemModule, HeaderModule, PremiumBadgeComponent, TwoFactorIconComponent, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   organizationId: string;
@@ -215,7 +216,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = authComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            authComp.close();
+            void authComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Authenticator);
           });
         break;
@@ -254,7 +255,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            duoComp.close();
+            void duoComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Duo);
           });
         break;
@@ -274,7 +275,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = emailComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            emailComp.close();
+            void emailComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Email);
           });
         break;
@@ -292,7 +293,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = webAuthnComp.componentInstance.onUpdated
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            webAuthnComp.close();
+            void webAuthnComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.WebAuthn);
           });
         break;

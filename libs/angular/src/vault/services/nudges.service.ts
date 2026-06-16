@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, shareReplay } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -12,11 +12,10 @@ import {
   NewItemNudgeService,
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
-  AutoConfirmNudgeService,
   NoOpNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
-import { AUTOFILL_NUDGE_SERVICE } from "./nudge-injection-tokens";
+import { AUTOFILL_NUDGE_SERVICE, AUTO_CONFIRM_NUDGE_SERVICE } from "./nudge-injection-tokens";
 
 export type NudgeStatus = {
   hasBadgeDismissed: boolean;
@@ -63,12 +62,21 @@ export class NudgesService {
   // NoOp service that always returns dismissed
   private noOpNudgeService = inject(NoOpNudgeService);
 
-  // Optional Browser-specific service provided via injection token (not all clients have autofill)
+  // Client specific services (optional, via injection tokens)
+  // These services require platform-specific features and fallback to NoOpNudgeService if not provided
+
   private autofillNudgeService = inject(AUTOFILL_NUDGE_SERVICE, { optional: true });
+  private autoConfirmNudgeService = inject(AUTO_CONFIRM_NUDGE_SERVICE, { optional: true });
 
   /**
    * Custom nudge services to use for specific nudge types
    * Each nudge type can have its own service to determine when to show the nudge
+   *
+   * NOTE: If a custom nudge service requires client specific services/features:
+   *  1. The custom nudge service must be provided via injection token and marked as optional.
+   *  2. The custom nudge service must be manually registered with that token in the client(s).
+   *
+   *  See the README.md in the custom-nudge-services folder for more details on adding custom nudges.
    * @private
    */
   private customNudgeServices: Partial<Record<NudgeType, SingleNudgeService>> = {
@@ -84,7 +92,7 @@ export class NudgesService {
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
     [NudgeType.NewNoteItemStatus]: this.newItemNudgeService,
     [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
-    [NudgeType.AutoConfirmNudge]: inject(AutoConfirmNudgeService),
+    [NudgeType.AutoConfirmNudge]: this.autoConfirmNudgeService ?? this.noOpNudgeService,
   };
 
   /**
@@ -157,10 +165,7 @@ export class NudgesService {
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)
         .nudgeStatus$(nudge, userId)
-        .pipe(
-          map((status) => !status?.hasBadgeDismissed),
-          shareReplay({ refCount: false, bufferSize: 1 }),
-        );
+        .pipe(map((status) => !status?.hasBadgeDismissed));
     });
 
     return combineLatest(nudgeTypesWithBadge$).pipe(

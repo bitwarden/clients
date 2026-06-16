@@ -1,37 +1,33 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
+import { SendAccessToken } from "@bitwarden/common/auth/send-access";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-access-file",
   templateUrl: "send-access-file.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendAccessFileComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() send: SendAccessView;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() decKey: SymmetricCryptoKey;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() accessRequest: SendAccessRequest;
+  readonly send = input<SendAccessView | null>(null);
+  readonly decKey = input<SymmetricCryptoKey | null>(null);
+  readonly accessToken = input<SendAccessToken | null>(null);
+
   constructor(
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -41,13 +37,14 @@ export class SendAccessFileComponent {
   ) {}
 
   protected download = async () => {
-    if (this.send == null || this.decKey == null) {
+    const accessToken = this.accessToken();
+    if (this.send() == null || this.decKey() == null || !accessToken) {
       return;
     }
 
-    const downloadData = await this.sendApiService.getSendFileDownloadData(
-      this.send,
-      this.accessRequest,
+    const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+      this.send(),
+      accessToken,
     );
 
     if (Utils.isNullOrWhitespace(downloadData.url)) {
@@ -71,10 +68,10 @@ export class SendAccessFileComponent {
 
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey());
       this.fileDownloadService.download({
-        fileName: this.send.file.fileName,
-        blobData: decBuf,
+        fileName: this.send().file.fileName,
+        blobData: decBuf as BlobPart,
         downloadMethod: "save",
       });
       // FIXME: Remove when updating file. Eslint update

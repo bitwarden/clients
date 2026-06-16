@@ -1,7 +1,8 @@
-import { combineLatest, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -24,6 +25,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     private sdkService: SdkService,
     private apiService: ApiService,
     private configService: ConfigService,
+    private accountCryptographyStateService: AccountCryptographicStateService,
   ) {}
 
   async regenerateIfNeeded(userId: UserId): Promise<void> {
@@ -40,9 +42,8 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       }
     } catch (error) {
       this.logService.error(
-        "[UserAsymmetricKeyRegeneration] An error occurred: " +
-          error +
-          " Skipping regeneration for the user.",
+        "[UserAsymmetricKeyRegeneration] An error occurred. Skipping regeneration for the user.",
+        error,
       );
     }
   }
@@ -66,13 +67,28 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       return false;
     }
 
-    const [userKeyEncryptedPrivateKey, publicKeyResponse] = await firstValueFrom(
-      combineLatest([
-        this.keyService.userEncryptedPrivateKey$(userId),
-        this.apiService.getUserPublicKey(userId),
-      ]),
+    const userKeyEncryptedPrivateKey = await firstValueFrom(
+      this.keyService.userEncryptedPrivateKey$(userId),
     );
 
+    let publicKeyResponse = null;
+    try {
+      publicKeyResponse = await this.apiService.getUserPublicKey(userId);
+    } catch (e) {
+      if ((e as any)?.statusCode !== 404) {
+        throw e;
+      }
+    }
+
+    // If a user doesn't have a keypair at all, attempt to create one. We have a subset of old users in this state.
+    if (!userKeyEncryptedPrivateKey && !publicKeyResponse) {
+      this.logService.info(
+        "[UserAsymmetricKeyRegeneration] User has no asymmetric keys, attempting to create a new keypair.",
+      );
+      return true;
+    }
+
+    // If the user has one but not the other, something is wrong so log a warning and skip regeneration.
     if (!userKeyEncryptedPrivateKey || !publicKeyResponse) {
       this.logService.warning(
         "[UserAsymmetricKeyRegeneration] User's asymmetric key initialization data is unavailable, skipping regeneration.",
@@ -123,7 +139,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     return false;
   }
 
-  async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<void> {
+  async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<boolean> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
       throw new Error("User key not found");
@@ -152,19 +168,28 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
         this.logService.info(
           "[UserAsymmetricKeyRegeneration] Regeneration not supported for this user at this time.",
         );
+        return false;
       } else {
         this.logService.error(
-          "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server: " +
-            error,
+          "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server.",
+          error,
         );
+        return false;
       }
-      return;
     }
 
-    await this.keyService.setPrivateKey(makeKeyPairResponse.userKeyEncryptedPrivateKey, userId);
+    await this.accountCryptographyStateService.setAccountCryptographicState(
+      {
+        V1: {
+          private_key: makeKeyPairResponse.userKeyEncryptedPrivateKey,
+        },
+      },
+      userId,
+    );
     this.logService.info(
       "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
     );
+    return true;
   }
 
   private async userKeyCanDecrypt(userKey: UserKey, userId: UserId): Promise<boolean> {
@@ -188,7 +213,8 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       return true;
     } catch (error) {
       this.logService.error(
-        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error.",
+        error,
       );
       return false;
     }

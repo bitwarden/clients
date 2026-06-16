@@ -9,6 +9,7 @@
   <ng-container *ngIf="sub && !loading">
     <app-subscription-status
       [organizationSubscriptionResponse]="sub"
+      [hideCallout]="isResellerOrganizationOwnerExempt"
       (reinstatementRequested)="reinstate()"
       *ngIf="!userOrg.isFreeOrg"
     ></app-subscription-status>
@@ -60,7 +61,7 @@
                         "
                         class="tw-line-through !tw-text-muted"
                         >{{ i.quantity * i.originalAmount | currency: "$" }} /
-                        {{ "year" | i18n }}</span
+                        {{ i.interval | i18n }}</span
                       >
                     </div>
                   </ng-template>
@@ -81,6 +82,9 @@
         </bit-table>
       </div>
     </ng-container>
+
+    <app-organization-scheduled-price-increase-warning [organization]="userOrg">
+    </app-organization-scheduled-price-increase-warning>
 
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-mt-5">
@@ -160,7 +164,9 @@
         <p bitTypography="body1">
           {{ "subscriptionStorage" | i18n: sub.maxStorageGb || 0 : sub.storageName || "0 MB" }}
         </p>
-        <bit-progress [barWidth]="storagePercentage" bgColor="success"></bit-progress>
+        <bit-progress-bar [value]="storagePercentage" variant="success">
+          <bit-hint slot="start">{{ storagePercentage }}%</bit-hint>
+        </bit-progress-bar>
         <ng-container
           *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
         >
@@ -242,7 +248,7 @@
     <ng-template #organizationIsNotManagedByConsolidatedBillingMSP>
       <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
         <div class="tw-size-56 tw-content-center">
-          <bit-icon [icon]="gearIcon" aria-hidden="true"></bit-icon>
+          <bit-svg [content]="gearIcon" aria-hidden="true"></bit-svg>
         </div>
         <p class="tw-font-medium">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
         <p>{{ "billingContactProviderForAssistance" | i18n }}</p>

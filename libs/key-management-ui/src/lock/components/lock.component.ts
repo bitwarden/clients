@@ -6,7 +6,7 @@ import {
   BehaviorSubject,
   filter,
   firstValueFrom,
-  interval,
+  timer,
   mergeMap,
   Subject,
   switchMap,
@@ -25,7 +25,6 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -51,6 +50,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   UnlockOption,
@@ -60,6 +60,7 @@ import {
 } from "../services/lock-component.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -98,6 +99,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
     MasterPasswordLockComponent,
     TooltipDirective,
   ],
@@ -149,7 +151,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   constructor(
     private accountService: AccountService,
-    private pinService: PinServiceAbstraction,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -176,6 +177,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // desktop deps
     private broadcasterService: BroadcasterService,
+    private unlockService: UnlockService,
   ) {}
 
   async ngOnInit() {
@@ -197,10 +199,11 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnlockOptionsChanges() {
-    interval(1000)
+    timer(0, 1000)
       .pipe(
         mergeMap(async () => {
-          if (this.activeAccount?.id != null) {
+          // Only perform polling after the component has loaded. This prevents multiple sources setting the default active unlock option on initialization.
+          if (this.loading === false && this.activeAccount?.id != null) {
             const prevBiometricsEnabled = this.unlockOptions?.biometrics.enabled;
 
             this.unlockOptions = await firstValueFrom(
@@ -208,7 +211,6 @@ export class LockComponent implements OnInit, OnDestroy {
             );
 
             if (this.activeUnlockOption == null) {
-              this.loading = false;
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
             } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
@@ -273,19 +275,18 @@ export class LockComponent implements OnInit, OnDestroy {
       this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
     );
 
-    const canUseBiometrics = [
-      BiometricsStatus.Available,
-      ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
-    ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
-    if (
-      !this.unlockOptions?.masterPassword.enabled &&
-      !this.unlockOptions?.pin.enabled &&
-      !canUseBiometrics
-    ) {
-      // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
-      this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
-      await this.logoutService.logout(activeAccount.id);
-      return;
+    // The canUseBiometrics query is an expensive operation. Only call if both PIN and master password unlock are unavailable.
+    if (!this.unlockOptions?.masterPassword.enabled && !this.unlockOptions?.pin.enabled) {
+      const canUseBiometrics = [
+        BiometricsStatus.Available,
+        ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
+      ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
+      if (!canUseBiometrics) {
+        // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
+        this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
+        await this.logoutService.logout(activeAccount.id);
+        return;
+      }
     }
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
@@ -381,6 +382,14 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   };
 
+  async swapUnlockOption(unlockOption: UnlockOptionValue): Promise<void> {
+    this.activeUnlockOption = unlockOption;
+
+    if (unlockOption === UnlockOption.Biometrics) {
+      await this.unlockViaBiometrics();
+    }
+  }
+
   async logOut() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
@@ -397,33 +406,33 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockViaBiometrics(): Promise<void> {
-    this.unlockingViaBiometrics = true;
-
-    if (
-      this.unlockOptions == null ||
-      !this.unlockOptions.biometrics.enabled ||
-      this.activeAccount == null
-    ) {
-      this.unlockingViaBiometrics = false;
+    if (this.unlockingViaBiometrics) {
       return;
     }
 
+    this.unlockingViaBiometrics = true;
+
     try {
+      if (
+        this.unlockOptions == null ||
+        !this.unlockOptions.biometrics.enabled ||
+        this.activeAccount == null
+      ) {
+        return;
+      }
+
       await this.biometricStateService.setUserPromptCancelled();
-      const userKey = await this.biometricService.unlockWithBiometricsForUser(
-        this.activeAccount.id,
-      );
+
+      await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
+      const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
 
       // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
       }
-
-      this.unlockingViaBiometrics = false;
     } catch (e) {
       // Cancelling is a valid action.
       if (e instanceof Error && e.message === "canceled") {
-        this.unlockingViaBiometrics = false;
         return;
       }
 
@@ -453,11 +462,21 @@ export class LockComponent implements OnInit, OnDestroy {
 
       if (confirmed) {
         // try again
+        this.unlockingViaBiometrics = false;
         await this.unlockViaBiometrics();
+        return;
       }
-
+    } finally {
       this.unlockingViaBiometrics = false;
     }
+  }
+
+  async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
+    await this.setUserKeyAndContinue(userKey);
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
   private validatePin(): boolean {
@@ -483,13 +502,10 @@ export class LockComponent implements OnInit, OnDestroy {
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
     try {
-      const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
-
-      if (userKey) {
-        await this.setUserKeyAndContinue(userKey);
-        return; // successfully unlocked
-      }
-
+      await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
+      const userKey = await this.keyService.getUserKey(this.activeAccount.id);
+      await this.setUserKeyAndContinue(userKey!);
+    } catch {
       // Failure state: invalid PIN or failed decryption
       this.invalidPinAttempts++;
 
@@ -507,12 +523,6 @@ export class LockComponent implements OnInit, OnDestroy {
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("invalidPin"),
-      });
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("unexpectedError"),
       });
     }
   }
@@ -547,7 +557,6 @@ export class LockComponent implements OnInit, OnDestroy {
     this.logService.mark("Vault unlocked");
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
-    await this.pinService.userUnlocked(this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
@@ -603,11 +612,17 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
-    const startSync = new Date().getTime();
-    // TODO: This should probably not be blocking
-    await this.syncService.fullSync(false);
-    this.logService.info(`[LockComponent] Sync took ${new Date().getTime() - startSync}ms`);
+    if (this.platformUtilsService.getClientType() == ClientType.Web) {
+      const startSync = performance.now();
+
+      // Web does not cache vault data and would be in a unusable state when unlocked.
+      await this.syncService.fullSync(true);
+
+      this.logService.measure(startSync, "KeyManagement", "LockComponent", "sync complete");
+    } else {
+      // On non-web clients, we start a sync in the background, but to not block by it
+      void this.syncService.fullSync(false);
+    }
 
     const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking

@@ -6,7 +6,9 @@ import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/logging";
 
 import { OrganizationUserView } from "../../../core";
 import { UserStatusPipe } from "../../pipes";
@@ -16,9 +18,13 @@ import { MemberExportService } from "./member-export.service";
 describe("MemberExportService", () => {
   let service: MemberExportService;
   let i18nService: MockProxy<I18nService>;
+  let fileDownloadService: MockProxy<FileDownloadService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     i18nService = mock<I18nService>();
+    fileDownloadService = mock<FileDownloadService>();
+    logService = mock<LogService>();
 
     // Setup common i18n translations
     i18nService.t.mockImplementation((key: string) => {
@@ -44,9 +50,12 @@ describe("MemberExportService", () => {
         custom: "Custom",
         // Boolean states
         enabled: "Enabled",
+        optionEnabled: "Enabled",
         disabled: "Disabled",
         enrolled: "Enrolled",
         notEnrolled: "Not Enrolled",
+        // Error messages
+        noMembersToExport: "No members to export",
       };
       return translations[key] || key;
     });
@@ -54,6 +63,8 @@ describe("MemberExportService", () => {
     TestBed.configureTestingModule({
       providers: [
         MemberExportService,
+        { provide: FileDownloadService, useValue: fileDownloadService },
+        { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
         UserTypePipe,
         UserStatusPipe,
@@ -88,8 +99,18 @@ describe("MemberExportService", () => {
         } as OrganizationUserView,
       ];
 
-      const csvData = service.getMemberExport(members);
+      const result = service.getMemberExport(members);
 
+      expect(result.success).toBe(true);
+      expect(result.error).toBeUndefined();
+      expect(fileDownloadService.download).toHaveBeenCalledTimes(1);
+
+      const downloadCall = fileDownloadService.download.mock.calls[0][0];
+      expect(downloadCall.fileName).toContain("org-members");
+      expect(downloadCall.fileName).toContain(".csv");
+      expect(downloadCall.blobOptions).toEqual({ type: "text/plain" });
+
+      const csvData = downloadCall.blobData as string;
       expect(csvData).toContain("Email,Name,Status,Role,Two-step Login,Account Recovery");
       expect(csvData).toContain("user1@example.com");
       expect(csvData).toContain("User One");
@@ -114,8 +135,12 @@ describe("MemberExportService", () => {
         } as OrganizationUserView,
       ];
 
-      const csvData = service.getMemberExport(members);
+      const result = service.getMemberExport(members);
 
+      expect(result.success).toBe(true);
+      expect(fileDownloadService.download).toHaveBeenCalled();
+
+      const csvData = fileDownloadService.download.mock.calls[0][0].blobData as string;
       expect(csvData).toContain("user@example.com");
       // Empty name is represented as an empty field in CSV
       expect(csvData).toContain("user@example.com,,Confirmed");
@@ -135,17 +160,23 @@ describe("MemberExportService", () => {
         } as OrganizationUserView,
       ];
 
-      const csvData = service.getMemberExport(members);
+      const result = service.getMemberExport(members);
 
+      expect(result.success).toBe(true);
+      expect(fileDownloadService.download).toHaveBeenCalled();
+
+      const csvData = fileDownloadService.download.mock.calls[0][0].blobData as string;
       expect(csvData).toContain("user@example.com");
       expect(csvData).toBeDefined();
     });
 
     it("should handle empty members array", () => {
-      const csvData = service.getMemberExport([]);
+      const result = service.getMemberExport([]);
 
-      // When array is empty, papaparse returns an empty string
-      expect(csvData).toBe("");
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toBe("No members to export");
+      expect(fileDownloadService.download).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Directive, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import {
   BehaviorSubject,
   Subject,
@@ -9,23 +9,20 @@ import {
   from,
   switchMap,
   takeUntil,
-  combineLatest,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 @Directive()
 export class SendComponent implements OnInit, OnDestroy {
@@ -70,6 +67,8 @@ export class SendComponent implements OnInit, OnDestroy {
     this._searchText$.next(value);
   }
 
+  private sendPolicyService = inject(SendPolicyService);
+
   constructor(
     protected sendService: SendService,
     protected i18nService: I18nService,
@@ -77,8 +76,7 @@ export class SendComponent implements OnInit, OnDestroy {
     protected environmentService: EnvironmentService,
     protected ngZone: NgZone,
     protected searchService: SearchService,
-    protected policyService: PolicyService,
-    private logService: LogService,
+    protected logService: LogService,
     protected sendApiService: SendApiService,
     protected dialogService: DialogService,
     protected toastService: ToastService,
@@ -86,23 +84,15 @@ export class SendComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToUser) => {
         this.disableSend = policyAppliesToUser;
       });
 
-    combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
+    this._searchText$
       .pipe(
-        switchMap(([searchText, userId]) =>
-          from(this.searchService.isSearchable(userId, searchText)),
-        ),
+        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {

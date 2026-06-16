@@ -7,11 +7,11 @@
         region == currentRegion ? 'javascript:void(0)' : region.urls.webVault + routeAndParams
       "
     >
-      <i
-        class="bwi bwi-fw bwi-sm bwi-check"
-        aria-hidden="true"
+      <bit-icon
+        name="bwi-check"
+        class="bwi-fw bwi-sm"
         [style.visibility]="region == currentRegion ? 'visible' : 'hidden'"
-      ></i>
+      ></bit-icon>
       {{ region.domain }}
     </a>
   </bit-menu>
@@ -19,7 +19,7 @@
     {{ "accessing" | i18n }}:
     <a [routerLink]="[]" [bitMenuTriggerFor]="environmentOptions">
       <b class="tw-text-primary-600 tw-font-medium">{{ currentRegion?.domain }}</b>
-      <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
+      <bit-icon name="bwi-angle-down" class="bwi-fw bwi-sm"></bit-icon>
     </a>
   </div>
 </div>

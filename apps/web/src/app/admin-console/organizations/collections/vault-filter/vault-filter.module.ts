@@ -1,8 +1,8 @@
 import { NgModule } from "@angular/core";
 
 import { SearchModule } from "@bitwarden/components";
+import { VaultFilterServiceAbstraction } from "@bitwarden/vault";
 
-import { VaultFilterService as VaultFilterServiceAbstraction } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultFilterSharedModule } from "../../../../vault/individual-vault/vault-filter/shared/vault-filter-shared.module";
 
 import { VaultFilterComponent } from "./vault-filter.component";

@@ -12,6 +12,8 @@ export const SubscriptionStatuses = {
   Unpaid: "unpaid",
 } as const;
 
+export type SubscriptionStatus = (typeof SubscriptionStatuses)[keyof typeof SubscriptionStatuses];
+
 type HasCart = {
   cart: Cart;
 };

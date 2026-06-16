@@ -18,7 +18,6 @@ import {
 
 import {
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -26,6 +25,7 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -355,7 +355,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       ),
     });
 
-    this.dialogRef.close(GroupAddEditDialogResultType.Saved);
+    await this.dialogRef.close(GroupAddEditDialogResultType.Saved);
   };
 
   delete = async () => {
@@ -379,7 +379,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("deletedGroupId", this.group.name),
     });
-    this.dialogRef.close(GroupAddEditDialogResultType.Deleted);
+    await this.dialogRef.close(GroupAddEditDialogResultType.Deleted);
   };
 }
 

@@ -1,44 +1,47 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { BehaviorSubject, firstValueFrom, map, switchMap, tap } from "rxjs";
-
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { pin } from "@bitwarden/common/tools/rx";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  TypographyModule,
   AsyncActionsModule,
   ButtonModule,
   CardComponent,
   CheckboxModule,
-  DialogService,
   FormFieldModule,
   IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
-  ToastService,
-  TypographyModule,
+  SelectModule,
 } from "@bitwarden/components";
-import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import { SendPolicyService } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-options",
   templateUrl: "./send-options.component.html",
+  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,
@@ -47,156 +50,122 @@ import { SendFormContainer } from "../../send-form-container";
     CommonModule,
     FormFieldModule,
     IconButtonModule,
-    JslibModule,
+    I18nPipe,
     ReactiveFormsModule,
     SectionComponent,
     SectionHeaderComponent,
+    SelectModule,
     TypographyModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendOptionsComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true })
-  config: SendFormConfig;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  originalSendView: SendView;
-  disableHideEmail = false;
-  passwordRemoved = false;
-  sendOptionsForm = this.formBuilder.group({
-    maxAccessCount: [null as number],
-    accessCount: [null as number],
-    notes: [null as string],
-    password: [null as string],
-    hideEmail: [false as boolean],
+  protected readonly sendFormService = inject(SendFormService);
+  private readonly sendPolicyService = inject(SendPolicyService);
+  private readonly i18nService = inject(I18nService);
+
+  readonly editing = input<boolean>(false);
+
+  readonly sendOptionsForm = new FormGroup({
+    maxAccessCount: new FormControl(null, [this.isIntegerValidator(), Validators.min(1)]),
+    accessCount: new FormControl(0),
+    notes: new FormControl(""),
+    hideEmail: new FormControl(false),
   });
 
-  get hasPassword(): boolean {
-    return this.originalSendView && this.originalSendView.password !== null;
-  }
+  readonly anyOptionFieldVisible = computed(
+    () => this.maxAccessCountVisible() || this.hideEmailVisible() || this.privateNoteVisible(),
+  );
+
+  readonly maxAccessCountVisible = computed(
+    () => this.editing() || this.sendFormService.originalSendView()?.maxAccessCount != null,
+  );
 
   get shouldShowCount(): boolean {
-    return this.config.mode === "edit" && this.sendOptionsForm.value.maxAccessCount !== null;
-  }
-
-  get viewsLeft() {
-    return String(
-      this.sendOptionsForm.value.maxAccessCount
-        ? this.sendOptionsForm.value.maxAccessCount - this.sendOptionsForm.value.accessCount
-        : 0,
+    return (
+      this.sendFormService.sendFormConfig.mode === "edit" &&
+      this.sendOptionsForm.value.maxAccessCount !== null
     );
   }
 
-  constructor(
-    private sendFormContainer: SendFormContainer,
-    private dialogService: DialogService,
-    private sendApiService: SendApiService,
-    private formBuilder: FormBuilder,
-    private policyService: PolicyService,
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private generatorService: CredentialGeneratorService,
-    private accountService: AccountService,
-  ) {
-    this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
+  readonly showAccessCount = computed(
+    () => this.sendFormService.originalSendView()?.maxAccessCount != null,
+  );
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
-        takeUntilDestroyed(),
-      )
-      .subscribe((disableHideEmail) => {
-        this.disableHideEmail = disableHideEmail;
-      });
+  readonly viewsLeft = computed(() => {
+    const maxAccessCount = this.sendFormService.originalSendView()?.maxAccessCount ?? 0;
+    const accessCount = this.sendFormService.originalSendView()?.accessCount ?? 0;
+    return (maxAccessCount - accessCount).toString();
+  });
 
-    this.sendOptionsForm.valueChanges
-      .pipe(
-        tap((value) => {
-          if (Utils.isNullOrWhitespace(value.password)) {
-            value.password = null;
-          }
-        }),
-        takeUntilDestroyed(),
-      )
-      .subscribe((value) => {
-        this.sendFormContainer.patchSend((send) => {
-          Object.assign(send, {
-            maxAccessCount: value.maxAccessCount,
-            accessCount: value.accessCount,
-            password: value.password,
-            hideEmail: value.hideEmail,
-            notes: value.notes,
-          });
-          return send;
+  private readonly _hideEmailDisabledByPolicy = toSignal(this.sendPolicyService.disableHideEmail$);
+  readonly hideEmailVisible = computed(
+    () =>
+      !this._hideEmailDisabledByPolicy() &&
+      (this.editing() || this.sendFormService.originalSendView()?.hideEmail),
+  );
+
+  readonly hideEmailDisabled = computed(() => !this.editing());
+
+  readonly privateNoteVisible = computed(
+    () => this.editing() || this.sendFormService.originalSendView()?.notes?.length > 0,
+  );
+
+  constructor() {
+    this.sendFormService.registerChildForm("sendOptionsForm", this.sendOptionsForm);
+
+    effect(() => {
+      if (!this.editing() && this.sendFormService.originalSendView()) {
+        this.sendOptionsForm.patchValue({
+          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount,
+          accessCount: this.sendFormService.originalSendView()?.accessCount,
+          hideEmail: this.sendFormService.originalSendView()?.hideEmail,
+          notes: this.sendFormService.originalSendView()?.notes,
+        });
+      }
+    });
+
+    effect(() => {
+      if (this.hideEmailDisabled()) {
+        this.sendOptionsForm.get("hideEmail").disable({ emitEvent: false });
+      } else {
+        this.sendOptionsForm.get("hideEmail").enable({ emitEvent: false });
+      }
+    });
+
+    this.sendOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const value = this.sendOptionsForm.getRawValue();
+      this.sendFormService.patchSend((send) => {
+        return Object.assign(send, {
+          maxAccessCount: value.maxAccessCount === "" ? null : value.maxAccessCount,
+          accessCount: value.accessCount,
+          hideEmail: value.hideEmail,
+          notes: value.notes,
         });
       });
+    });
   }
 
-  generatePassword = async () => {
-    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send", type: Type.password });
-    const account$ = this.accountService.activeAccount$.pipe(
-      pin({ name: () => "send-options.component", distinct: (p, c) => p.id === c.id }),
-    );
-    const generatedCredential = await firstValueFrom(
-      this.generatorService.generate$({ on$, account$ }),
-    );
-
-    this.sendOptionsForm.patchValue({
-      password: generatedCredential.credential,
-    });
-  };
-
-  removePassword = async () => {
-    if (!this.originalSendView || !this.originalSendView.password) {
-      return;
-    }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return false;
-    }
-
-    this.passwordRemoved = true;
-
-    await this.sendApiService.removePassword(this.originalSendView.id);
-
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("removedPassword"),
-    });
-
-    this.originalSendView.password = null;
-    this.sendOptionsForm.patchValue({
-      password: null,
-    });
-    this.sendOptionsForm.get("password")?.enable();
-  };
-
   ngOnInit() {
-    if (this.sendFormContainer.originalSendView) {
-      this.sendOptionsForm.patchValue({
-        maxAccessCount: this.sendFormContainer.originalSendView.maxAccessCount,
-        accessCount: this.sendFormContainer.originalSendView.accessCount,
-        password: this.hasPassword ? "************" : null, // 12 masked characters as a placeholder
-        hideEmail: this.sendFormContainer.originalSendView.hideEmail,
-        notes: this.sendFormContainer.originalSendView.notes,
-      });
-    }
-    if (this.hasPassword) {
-      this.sendOptionsForm.get("password")?.disable();
-    }
-
-    if (!this.config.areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendOptionsForm.disable();
     }
+  }
+
+  isIntegerValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      if (control.value == null || control.value == "") {
+        return null;
+      }
+      const numVal = Number.parseFloat(control.value);
+      if (isNaN(numVal)) {
+        return { numberValidation: { message: this.i18nService.t("numericInputError") } };
+      }
+      const intVal = Number.parseInt(control.value);
+      if (numVal !== intVal) {
+        return { numberValidation: { message: this.i18nService.t("integerInputError") } };
+      }
+      return null;
+    };
   }
 }

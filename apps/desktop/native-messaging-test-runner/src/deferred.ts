@@ -4,8 +4,8 @@
 // while allowing an unrelated event to fulfill it elsewhere.
 export default class Deferred<T> {
   private promise: Promise<T>;
-  private resolver: (T?) => void;
-  private rejecter: (Error?) => void;
+  private resolver!: (value?: T) => void;
+  private rejecter!: (reason?: Error) => void;
 
   constructor() {
     this.promise = new Promise<T>((resolve, reject) => {

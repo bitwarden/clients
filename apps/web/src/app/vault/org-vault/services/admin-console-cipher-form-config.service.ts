@@ -16,9 +16,12 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { CipherFormConfig, CipherFormConfigService, CipherFormMode } from "@bitwarden/vault";
-
-import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
+import {
+  CipherFormConfig,
+  CipherFormConfigService,
+  CipherFormMode,
+  RoutedVaultFilterService,
+} from "@bitwarden/vault";
 
 /** Admin Console implementation of the `CipherFormConfigService`. */
 @Injectable()
@@ -50,7 +53,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
       this.organizationService.organizations$(userId).pipe(
         map((orgs) => {
           return orgs.filter(
-            (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
+            (o) => o.isMember && o.status === OrganizationUserStatusType.Confirmed,
           );
         }),
       ),

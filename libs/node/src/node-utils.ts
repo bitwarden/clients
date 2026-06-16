@@ -30,7 +30,7 @@ export class NodeUtils {
   }
 
   // https://stackoverflow.com/a/31394257
-  static bufferToArrayBuffer(buf: Buffer): ArrayBuffer {
+  static bufferToArrayBuffer(buf: Buffer<ArrayBuffer>): ArrayBuffer {
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   }
 }

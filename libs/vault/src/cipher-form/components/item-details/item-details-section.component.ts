@@ -6,13 +6,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -20,11 +21,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BadgeComponent,
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
@@ -46,6 +46,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
   templateUrl: "./item-details-section.component.html",
   imports: [
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -54,7 +55,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
-    BadgeComponent,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {
@@ -68,7 +68,6 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected readonly showArchiveBadge = computed(() => {
     return (
-      this.cipherArchiveService.hasArchiveFlagEnabled$ &&
       this.originalCipherView()?.isArchived &&
       this.platformUtilsService.getClientType() === ClientType.Desktop
     );
@@ -151,7 +150,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     private accountService: AccountService,
     private policyService: PolicyService,
     private platformUtilsService: PlatformUtilsService,
-    private cipherArchiveService: CipherArchiveService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges
@@ -211,7 +209,12 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.allowPersonalOwnership ? null : this.organizations[0].id;
+    // Default to personal ownership if permitted or if there are no other alternatives
+    // (in which case the top level component will show an error toast on submit)
+    if (this.allowPersonalOwnership || this.organizations.length === 0) {
+      return null;
+    }
+    return this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -220,10 +223,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     );
 
     this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
-      throw new Error("No organizations available for ownership.");
-    }
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
@@ -238,7 +237,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         collectionIds: [],
         favorite: false,
       });
-      await this.updateCollectionOptions(this.initialValues?.collectionIds);
+      await this.updateCollectionOptions(this.initialValues?.collectionIds ?? []);
     }
 
     this.setFormState();
@@ -472,7 +471,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       return;
     }
 
-    if (startingSelection.filter(Boolean).length > 0) {
+    if (startingSelection?.filter(Boolean).length > 0) {
       collectionsControl.setValue(
         this.collectionOptions.filter((c) => startingSelection.includes(c.id as CollectionId)),
       );

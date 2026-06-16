@@ -41,7 +41,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
   private buttonElement?: HTMLElement;
+  private buttonIframe?: AutofillInlineMenuButtonIframe;
   private listElement?: HTMLElement;
+  private listIframe?: AutofillInlineMenuListIframe;
   private htmlMutationObserver: MutationObserver;
   private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
@@ -264,18 +266,19 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       this.buttonElement.setAttribute("popover", "manual");
-      new AutofillInlineMenuButtonIframe(this.buttonElement);
+      this.buttonIframe = new AutofillInlineMenuButtonIframe(this.buttonElement);
 
       return this.buttonElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
+    const self = this;
     globalThis.customElements?.define(
       customElementName,
       class extends HTMLElement {
         constructor() {
           super();
-          new AutofillInlineMenuButtonIframe(this);
+          self.buttonIframe = new AutofillInlineMenuButtonIframe(this);
         }
       },
     );
@@ -293,18 +296,19 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       this.listElement.setAttribute("popover", "manual");
-      new AutofillInlineMenuListIframe(this.listElement);
+      this.listIframe = new AutofillInlineMenuListIframe(this.listElement);
 
       return this.listElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
+    const self = this;
     globalThis.customElements?.define(
       customElementName,
       class extends HTMLElement {
         constructor() {
           super();
-          new AutofillInlineMenuListIframe(this);
+          self.listIframe = new AutofillInlineMenuListIframe(this);
         }
       },
     );
@@ -347,14 +351,28 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   /**
    * Sets up mutation observers to verify that the page `html` and `body` attributes
    * are not altered in a way that would impact safe display of the inline menu.
+   *
+   * Only attributes that directly affect the computed opacity/visibility of the inline
+   * menu container are observed. This minimizes calls to `getComputedStyle` (indirectly
+   * via `checkPageRisks`), which blocks layout and freezes the browser.
    */
   private observePageAttributes() {
+    // FIXME: find a more efficient means to monitor attribute changes so that indirect
+    // uses of attributes can be monitored without impacting the layout hot path.
+    const attributeFilter = ["style", "hidden", "popover", "width", "height"];
+
     if (document.documentElement) {
-      this.htmlMutationObserver?.observe(document.documentElement, { attributes: true });
+      this.htmlMutationObserver?.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter,
+      });
     }
 
     if (document.body) {
-      this.bodyMutationObserver?.observe(document.body, { attributes: true });
+      this.bodyMutationObserver?.observe(document.body, {
+        attributes: true,
+        attributeFilter,
+      });
     }
   }
 
@@ -778,5 +796,13 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.closeInlineMenu();
     this.clearPersistentLastChildOverrideTimeout();
     this.unobservePageAttributes();
+    this.unobserveCustomElements();
+    this.unobserveContainerElement();
+    if (this.mutationObserverIterationsResetTimeout) {
+      clearTimeout(this.mutationObserverIterationsResetTimeout);
+      this.mutationObserverIterationsResetTimeout = null;
+    }
+    this.buttonIframe?.destroy();
+    this.listIframe?.destroy();
   }
 }

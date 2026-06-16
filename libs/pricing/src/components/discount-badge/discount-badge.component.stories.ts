@@ -40,7 +40,6 @@ export const PercentDiscount: Story = {
   args: {
     discount: {
       type: DiscountTypes.PercentOff,
-      active: true,
       value: 20,
     } as Discount,
   },
@@ -54,7 +53,6 @@ export const PercentDiscountDecimal: Story = {
   args: {
     discount: {
       type: DiscountTypes.PercentOff,
-      active: true,
       value: 0.15, // 15% in decimal format
     } as Discount,
   },
@@ -68,7 +66,6 @@ export const AmountDiscount: Story = {
   args: {
     discount: {
       type: DiscountTypes.AmountOff,
-      active: true,
       value: 10.99,
     } as Discount,
   },
@@ -82,22 +79,7 @@ export const LargeAmountDiscount: Story = {
   args: {
     discount: {
       type: DiscountTypes.AmountOff,
-      active: true,
       value: 99.99,
-    } as Discount,
-  },
-};
-
-export const InactiveDiscount: Story = {
-  render: (args) => ({
-    props: args,
-    template: `<billing-discount-badge [discount]="discount"></billing-discount-badge>`,
-  }),
-  args: {
-    discount: {
-      type: DiscountTypes.PercentOff,
-      active: false,
-      value: 20,
     } as Discount,
   },
 };

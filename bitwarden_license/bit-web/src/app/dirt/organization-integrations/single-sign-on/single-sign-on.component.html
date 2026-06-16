@@ -1,0 +1,12 @@
+@let integrationsList = integrations();
+<section class="tw-mb-9">
+  <h2 bitTypography="h2">{{ "singleSignOn" | i18n }}</h2>
+  <p bitTypography="body1">
+    {{ "ssoDescStart" | i18n }}
+    <a bitLink routerLink="../settings/sso" class="tw-lowercase">{{ "singleSignOn" | i18n }}</a>
+    {{ "ssoDescEnd" | i18n }}
+  </p>
+  <app-integration-grid
+    [integrations]="integrationsList | filterIntegrations: IntegrationType.SSO"
+  ></app-integration-grid>
+</section>

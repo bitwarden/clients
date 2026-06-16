@@ -9,8 +9,29 @@ export type DiscountType = (typeof DiscountTypes)[keyof typeof DiscountTypes];
 
 export type Discount = {
   type: DiscountType;
-  active: boolean;
   value: number;
+};
+
+/**
+ * Calculates the discount amount in currency.
+ *
+ * For `PercentOff`, values < 1 are treated as decimal multipliers (e.g., 0.25 = 25%),
+ * while values >= 1 are treated as whole-number percentages (e.g., 25 = 25%).
+ * This convention matches the server's discount model.
+ */
+export const getAmount = (discount: Discount, baseAmount: number): number => {
+  switch (discount.type) {
+    case DiscountTypes.PercentOff: {
+      const percentage = discount.value < 1 ? discount.value : discount.value / 100;
+      return Math.round(baseAmount * percentage * 100) / 100;
+    }
+    case DiscountTypes.AmountOff:
+      return discount.value;
+    default: {
+      const _exhaustive: never = discount.type;
+      throw new Error(`Unhandled discount type: ${_exhaustive}`);
+    }
+  }
 };
 
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {

@@ -3,11 +3,11 @@
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
@@ -18,6 +18,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   constructor(
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   getOrgNameFromOrgInvite(): Promise<string | null> {
@@ -38,9 +39,18 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     providerInviteToken?: string,
     providerUserId?: string,
   ): Promise<void> {
-    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
-      passwordInputResult.newMasterKey,
+    const ctx = "Could not finish registration.";
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+
+    const newMasterKey = await this.keyService.makeMasterKey(
+      passwordInputResult.newPassword,
+      passwordInputResult.salt,
+      passwordInputResult.kdfConfig,
     );
+
+    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(newMasterKey);
 
     if (!newUserKey || !newEncUserKey) {
       throw new Error("User key could not be created");
@@ -48,9 +58,9 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     const userAsymmetricKeys = await this.keyService.makeKeyPair(newUserKey);
 
     const registerRequest = await this.buildRegisterRequest(
+      newUserKey,
       email,
       passwordInputResult,
-      newEncUserKey.encryptedString,
       userAsymmetricKeys,
       emailVerificationToken,
       orgSponsoredFreeFamilyPlanToken,
@@ -64,9 +74,9 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   }
 
   protected async buildRegisterRequest(
+    newUserKey: UserKey,
     email: string,
     passwordInputResult: PasswordInputResult,
-    encryptedUserKey: EncryptedString,
     userAsymmetricKeys: [string, EncString],
     emailVerificationToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string, // web only
@@ -80,14 +90,26 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       userAsymmetricKeys[1].encryptedString,
     );
 
+    const masterPasswordAuthentication =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        passwordInputResult.newPassword,
+        passwordInputResult.kdfConfig,
+        passwordInputResult.salt,
+      );
+
+    const masterPasswordUnlock = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      passwordInputResult.newPassword,
+      passwordInputResult.kdfConfig,
+      passwordInputResult.salt,
+      newUserKey,
+    );
+
     const registerFinishRequest = new RegisterFinishRequest(
       email,
-      passwordInputResult.newServerMasterKeyHash,
       passwordInputResult.newPasswordHint,
-      encryptedUserKey,
       userAsymmetricKeysRequest,
-      passwordInputResult.kdfConfig.kdfType,
-      passwordInputResult.kdfConfig.iterations,
+      masterPasswordAuthentication,
+      masterPasswordUnlock,
     );
 
     if (emailVerificationToken) {

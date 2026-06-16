@@ -3,8 +3,9 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 import { mockAccountInfoWith } from "../../../../spec";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -35,7 +36,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
-  let policyService: MockProxy<InternalPolicyService>;
+  let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let userAccounts$: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -129,7 +131,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
 
-    policyService = mock<InternalPolicyService>();
+    autoConfirmService = mock<AutomaticUserConfirmationService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
     defaultServerNotificationsService = new DefaultServerNotificationsService(
       mock<LogService>(),
@@ -144,7 +147,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
-      policyService,
+      autoConfirmService,
+      billingAccountProfileStateService,
     );
   });
 

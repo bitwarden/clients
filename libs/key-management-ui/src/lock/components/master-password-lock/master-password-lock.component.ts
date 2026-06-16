@@ -1,13 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  model,
-  OnDestroy,
-  OnInit,
-  output,
-} from "@angular/core";
+import { Component, computed, inject, input, OnDestroy, OnInit, output } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
@@ -15,7 +6,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -26,16 +16,14 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
-import {
-  UnlockOption,
-  UnlockOptions,
-  UnlockOptionValue,
-} from "../../services/lock-component.service";
+import { UnlockOptions } from "../../services/lock-component.service";
+import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -49,19 +37,18 @@ import {
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
   ],
 })
 export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly accountService = inject(AccountService);
-  private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly messageListener = inject(MessageListener);
-  UnlockOption = UnlockOption;
-
-  readonly activeUnlockOption = model.required<UnlockOptionValue>();
+  private readonly unlockService = inject(UnlockService);
+  private readonly keyService = inject(KeyService);
 
   readonly unlockOptions = input.required<UnlockOptions>();
   readonly biometricUnlockBtnText = input.required<string>();
@@ -76,6 +63,9 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   });
 
   successfulUnlock = output<{ userKey: UserKey; masterPassword: string }>();
+  swapToBiometrics = output<void>();
+  swapToPin = output<void>();
+  prfUnlockSuccess = output<UserKey>();
   logOut = output<void>();
 
   protected showPassword = false;
@@ -126,11 +116,15 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     activeUserId: UserId,
   ): Promise<void> {
     try {
-      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        masterPassword,
-        activeUserId,
-      );
-      this.successfulUnlock.emit({ userKey, masterPassword });
+      await this.unlockService.unlockWithMasterPassword(activeUserId, masterPassword);
+      const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+      if (!userKey) {
+        this.logService.error(
+          "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
+        );
+        throw Error("Failed to retrieve user key");
+      }
+      this.successfulUnlock.emit({ userKey: userKey, masterPassword });
     } catch (error) {
       this.logService.error(
         "[MasterPasswordLockComponent] Failed to unlock via master password",
@@ -142,5 +136,9 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("invalidMasterPassword"),
       });
     }
+  }
+
+  onPrfUnlockSuccess(userKey: UserKey): void {
+    this.prfUnlockSuccess.emit(userKey);
   }
 }

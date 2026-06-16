@@ -11,8 +11,8 @@
     bitButton
     buttonType="secondary"
     (click)="newProjectEvent.emit()"
+    startIcon="bwi-plus"
   >
-    <i class="bwi bwi-plus" aria-hidden="true"></i>
     {{ "newProject" | i18n }}
   </button>
 </bit-no-items>
@@ -21,15 +21,13 @@
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0" *ngIf="showMenus">
-        <label class="!tw-mb-0 tw-flex tw-w-fit tw-gap-2 !tw-font-medium !tw-text-muted">
-          <input
-            type="checkbox"
-            (change)="$event ? toggleAll() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          />
-          {{ "all" | i18n }}
-        </label>
+        <input
+          type="checkbox"
+          (change)="$event ? toggleAll() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [attr.aria-label]="'selectAll' | i18n"
+        />
       </th>
       <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
       <th bitCell bitSortable="revisionDate" *ngIf="showMenus">{{ "lastEdited" | i18n }}</th>
@@ -41,7 +39,7 @@
         <button
           type="button"
           bitIconButton="bwi-ellipsis-v"
-          buttonType="main"
+          buttonType="primaryGhost"
           [bitMenuTriggerFor]="tableMenu"
           [label]="'options' | i18n"
           *ngIf="showMenus"
@@ -62,19 +60,36 @@
         <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
           <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
           <div>
+            <span
+              *ngIf="project.decryptionError"
+              class="tw-cursor-pointer tw-text-warning tw-underline"
+              role="button"
+              tabindex="0"
+              [title]="'clickToRenameProject' | i18n"
+              [attr.aria-label]="'clickToRenameProject' | i18n"
+              (click)="editProjectEvent.emit(project.id); $event.stopPropagation()"
+              (keydown.enter)="editProjectEvent.emit(project.id); $event.stopPropagation()"
+              (keydown.space)="
+                editProjectEvent.emit(project.id); $event.stopPropagation(); $event.preventDefault()
+              "
+            >
+              {{ project.name }}
+              <i class="bwi bwi-pencil-square tw-ml-1" aria-hidden="true"></i>
+            </span>
             <a
-              *ngIf="project.linkable"
+              *ngIf="!project.decryptionError && project.linkable"
               bitLink
               [routerLink]="['/sm', project.organizationId, 'projects', project.id]"
-              >{{ project.name }}</a
             >
-            <span *ngIf="!project.linkable">{{ project.name }}</span>
+              {{ project.name }}
+            </a>
+            <span *ngIf="!project.decryptionError && !project.linkable">{{ project.name }}</span>
             <div class="tw-text-sm tw-text-muted tw-block">
               {{ project.id }}
               <button
                 type="button"
                 bitIconButton="bwi-clone"
-                buttonType="main"
+                buttonType="primaryGhost"
                 size="small"
                 [label]="'copyUuid' | i18n"
                 (click)="copyProjectUuidToClipboard(project.id)"
@@ -90,7 +105,7 @@
         <button
           type="button"
           bitIconButton="bwi-ellipsis-v"
-          buttonType="main"
+          buttonType="primaryGhost"
           [bitMenuTriggerFor]="projectMenu"
           [label]="'options' | i18n"
           *ngIf="showMenus"
@@ -119,9 +134,15 @@
           <i class="bwi bwi-fw bwi-billing" aria-hidden="true"></i>
           <span> {{ "viewEvents" | i18n }} </span>
         </button>
-        <button *ngIf="project.write" type="button" bitMenuItem (click)="deleteProject(project.id)">
-          <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
-          <span class="tw-text-danger">{{ "deleteProject" | i18n }}</span>
+        <button
+          *ngIf="project.write"
+          type="button"
+          bitMenuItem
+          variant="danger"
+          (click)="deleteProject(project.id)"
+        >
+          <bit-icon fixedWidth name="bwi-trash" slot="start" />
+          {{ "deleteProject" | i18n }}
         </button>
       </bit-menu>
     </tr>
@@ -129,8 +150,8 @@
 </bit-table>
 
 <bit-menu #tableMenu>
-  <button type="button" bitMenuItem (click)="bulkDeleteProjects()">
-    <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
-    <span class="tw-text-danger">{{ "deleteProjects" | i18n }}</span>
+  <button type="button" bitMenuItem variant="danger" (click)="bulkDeleteProjects()">
+    <bit-icon fixedWidth name="bwi-trash" slot="start" />
+    {{ "deleteProjects" | i18n }}
   </button>
 </bit-menu>

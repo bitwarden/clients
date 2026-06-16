@@ -9,6 +9,7 @@
   <app-upgrade-payment
     [selectedPlanId]="selectedPlan()"
     [account]="account()"
+    [fromMarketing]="fromMarketing()"
     (goBack)="previousStep()"
     (complete)="onComplete($event)"
   />

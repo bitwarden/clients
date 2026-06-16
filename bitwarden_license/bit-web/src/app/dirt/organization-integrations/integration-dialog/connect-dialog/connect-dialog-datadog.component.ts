@@ -7,6 +7,11 @@ import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integration
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import {
+  IntegrationDialogResultStatus,
+  IntegrationDialogResultStatusType,
+} from "../integration-dialog-result-status";
+
 export type DatadogConnectDialogParams = {
   settings: Integration;
 };
@@ -16,16 +21,8 @@ export interface DatadogConnectDialogResult {
   url: string;
   apiKey: string;
   service: string;
-  success: DatadogConnectDialogResultStatusType | null;
+  success: IntegrationDialogResultStatusType | null;
 }
-
-export const DatadogConnectDialogResultStatus = {
-  Edited: "edit",
-  Delete: "delete",
-} as const;
-
-export type DatadogConnectDialogResultStatusType =
-  (typeof DatadogConnectDialogResultStatus)[keyof typeof DatadogConnectDialogResultStatus];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -73,14 +70,18 @@ export class ConnectDatadogDialogComponent implements OnInit {
     return !!this.datadogConfig;
   }
 
+  get urlHelperLinkText(): string {
+    return this.connectInfo.settings.urlHelperLinkText ?? "";
+  }
+
   submit = async (): Promise<void> => {
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
       return;
     }
-    const result = this.getDatadogConnectDialogResult(DatadogConnectDialogResultStatus.Edited);
+    const result = this.getDatadogConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
 
     return;
   };
@@ -95,13 +96,13 @@ export class ConnectDatadogDialogComponent implements OnInit {
     });
 
     if (confirmed) {
-      const result = this.getDatadogConnectDialogResult(DatadogConnectDialogResultStatus.Delete);
-      this.dialogRef.close(result);
+      const result = this.getDatadogConnectDialogResult(IntegrationDialogResultStatus.Delete);
+      await this.dialogRef.close(result);
     }
   };
 
   private getDatadogConnectDialogResult(
-    status: DatadogConnectDialogResultStatusType,
+    status: IntegrationDialogResultStatusType,
   ): DatadogConnectDialogResult {
     const formJson = this.formGroup.getRawValue();
 
@@ -117,7 +118,7 @@ export class ConnectDatadogDialogComponent implements OnInit {
 
 export function openDatadogConnectDialog(
   dialogService: DialogService,
-  config: DialogConfig<DatadogConnectDialogParams, DialogRef<DatadogConnectDialogResult>>,
+  config: DialogConfig<DatadogConnectDialogParams, DatadogConnectDialogResult>,
 ) {
   return dialogService.open<DatadogConnectDialogResult>(ConnectDatadogDialogComponent, config);
 }

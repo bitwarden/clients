@@ -7,12 +7,11 @@
 
   <!-- Progress Bar -->
   <div class="tw-mb-4">
-    <bit-progress
-      [barWidth]="percentageUsed()"
-      [bgColor]="progressBarColor()"
-      [showText]="false"
-      size="small"
-    ></bit-progress>
+    <bit-progress-bar
+      [value]="percentageUsed()"
+      [variant]="progressBarColor()"
+      [hideStartHint]="true"
+    />
   </div>
 
   <!-- Action Buttons -->
@@ -21,8 +20,8 @@
       bitButton
       buttonType="secondary"
       type="button"
-      [disabled]="callsToActionDisabled()"
-      (click)="callToActionClicked.emit('add-storage')"
+      [disabled]="addStorageDisabled()"
+      (click)="callToActionClicked.emit(actions.AddStorage)"
     >
       {{ "addStorage" | i18n }}
     </button>
@@ -30,8 +29,8 @@
       bitButton
       buttonType="secondary"
       type="button"
-      [disabled]="callsToActionDisabled() || !canRemoveStorage()"
-      (click)="callToActionClicked.emit('remove-storage')"
+      [disabled]="removeStorageDisabled()"
+      (click)="callToActionClicked.emit(actions.RemoveStorage)"
     >
       {{ "removeStorage" | i18n }}
     </button>

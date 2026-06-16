@@ -82,7 +82,7 @@ describe("EnvironmentService", () => {
         notifications: "https://notifications.bitwarden.com",
         events: "https://events.bitwarden.com",
         scim: "https://scim.bitwarden.com/v2",
-        send: "https://send.bitwarden.com/#",
+        send: "https://send.bitwarden.com",
       },
     },
     {
@@ -95,7 +95,7 @@ describe("EnvironmentService", () => {
         notifications: "https://notifications.bitwarden.eu",
         events: "https://events.bitwarden.eu",
         scim: "https://scim.bitwarden.eu/v2",
-        send: "https://vault.bitwarden.eu/#/send/",
+        send: "https://send.bitwarden.eu",
       },
     },
   ];
@@ -117,7 +117,7 @@ describe("EnvironmentService", () => {
         expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
         expect(env.getEventsUrl()).toBe(expectedUrls.events);
         expect(env.getScimUrl()).toBe(expectedUrls.scim);
-        expect(env.getSendUrl()).toBe(expectedUrls.send);
+        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
         expect(env.getKeyConnectorUrl()).toBe(undefined);
         expect(env.isCloud()).toBe(true);
         expect(env.getUrls()).toEqual({
@@ -131,9 +131,54 @@ describe("EnvironmentService", () => {
           events: expectedUrls.events,
           scim: expectedUrls.scim.replace("/v2", ""),
           keyConnector: undefined,
+          send: expectedUrls.send,
         });
       },
     );
+
+    describe("logout race condition: USER_ENVIRONMENT_KEY cleared before activeAccountId$ switches to null", () => {
+      // The race: background clears USER_ENVIRONMENT_KEY ("logout" state event) before
+      // the popup's activeAccountId$ receives the null emission from accountService.clean().
+      // If the USER_ENVIRONMENT_KEY clear propagates first, environment$ watches USER state while
+      // setEnvironment() writes only to GLOBAL, causing the selector to fall back to the default (US) immediately.
+
+      it("falls back to global when user environment state is cleared mid-logout", async () => {
+        setGlobalData(Region.EU, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        // Storage event arrives: USER_ENVIRONMENT_KEY = null (logout cleared it)
+        // but activeAccountId$ still emits testUser (account not yet cleaned up)
+        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
+        await awaitAsync();
+
+        const env = await firstValueFrom(sut.environment$);
+        // Without fix: null USER state → buildEnvironment(null, null) → US (default)
+        // With fix: falls back to GLOBAL → EU
+        expect(env.getRegion()).toBe(Region.EU);
+      });
+
+      it("reflects setEnvironment call when user environment state is null mid-logout", async () => {
+        // GLOBAL is US (never explicitly set to EU on this context)
+        // USER was EU (seeded at login time)
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        // Race: USER_ENVIRONMENT_KEY clear arrives before activeAccountId$ → null
+        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
+        await awaitAsync();
+
+        // User clicks EU in the environment selector → setEnvironment(EU) → writes GLOBAL
+        // Without fix: environment$ watches USER state (which is null and defaults to US) and ignores GLOBAL write and the value stays US
+        // With fix: environment$ falls back to GLOBAL, so setEnvironment(EU) updates GLOBAL and emits EU
+        await sut.setEnvironment(Region.EU);
+        await awaitAsync();
+
+        const env = await firstValueFrom(sut.environment$);
+        expect(env.getRegion()).toBe(Region.EU);
+      });
+    });
 
     it("returns user data", async () => {
       const globalEnvironmentUrls = new EnvironmentUrls();
@@ -168,7 +213,24 @@ describe("EnvironmentService", () => {
         notifications: null,
         scim: null,
         webVault: null,
+        send: null,
       });
+    });
+
+    it("getSendUrl falls back to webVault when only webVault is configured (regression)", async () => {
+      // Regression: self-hosted user sets only webVault (no base, no send).
+      // getSendUrl() must use the self-hosted webVault, not the Bitwarden cloud send URL.
+      const userEnvironmentUrls = new EnvironmentUrls();
+      userEnvironmentUrls.webVault = "https://vault.myserver.com";
+      setUserData(Region.SelfHosted, userEnvironmentUrls);
+
+      await switchUser(testUser);
+
+      const env = await firstValueFrom(sut.environment$);
+
+      expect(env.getWebVaultUrl()).toBe("https://vault.myserver.com");
+      // Must NOT return "https://send.bitwarden.com/#/" (cloud fallback)
+      expect(env.getSendUrl()).toBe("https://vault.myserver.com/#/send/");
     });
   });
 
@@ -185,7 +247,7 @@ describe("EnvironmentService", () => {
       expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
       expect(env.getEventsUrl()).toBe(expectedUrls.events);
       expect(env.getScimUrl()).toBe(expectedUrls.scim);
-      expect(env.getSendUrl()).toBe(expectedUrls.send);
+      expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
       expect(env.getKeyConnectorUrl()).toBe(undefined);
       expect(env.isCloud()).toBe(true);
       expect(env.getUrls()).toEqual({
@@ -199,6 +261,7 @@ describe("EnvironmentService", () => {
         events: expectedUrls.events,
         scim: expectedUrls.scim.replace("/v2", ""),
         keyConnector: undefined,
+        send: expectedUrls.send,
       });
     });
 
@@ -236,6 +299,7 @@ describe("EnvironmentService", () => {
         keyConnector: "https://global-key-connector.example.com",
         notifications: null,
         scim: null,
+        send: null,
       });
     });
   });
@@ -260,6 +324,7 @@ describe("EnvironmentService", () => {
         scim: null,
         events: null,
         keyConnector: null,
+        send: null,
       });
     });
 
@@ -290,6 +355,7 @@ describe("EnvironmentService", () => {
         scim: null,
         events: null,
         keyConnector: null,
+        send: null,
       });
       expect(env.getScimUrl()).toBe("https://vault.example.com/scim/v2");
     });
@@ -300,6 +366,19 @@ describe("EnvironmentService", () => {
       const data = await firstValueFrom(sut.environment$);
 
       expect(data.getRegion()).toBe(Region.US);
+    });
+
+    it("normalizes a blank send url to null", async () => {
+      await sut.setEnvironment(Region.SelfHosted, {
+        base: "base.example.com",
+        send: "", // empty string from the dialog — should be normalized to null
+      });
+      await awaitAsync();
+
+      const env = await firstValueFrom(sut.environment$);
+
+      // A blank send URL should fall back through base, not persist as "" causing getSendUrl() to return "/#/"
+      expect(env.getSendUrl()).toBe("https://base.example.com/#/send/");
     });
   });
 

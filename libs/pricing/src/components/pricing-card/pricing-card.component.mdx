@@ -39,7 +39,7 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 | Input         | Type                                                                                                             | Description                                                                                                                                             |
 | ------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tagline`     | `string`                                                                                                         | **Required.** Descriptive text below title (max 2 lines)                                                                                                |
-| `price`       | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }`                                    | **Optional.** Price information. If omitted, no price is shown                                                                                          |
+| `price`       | `{ amount: number; cadence: "month" \| "monthly" \| "year" \| "annually"; showPerUser?: boolean }`               | **Optional.** Price information. If omitted, no price is shown                                                                                          |
 | `button`      | `{ type: ButtonType; text: string; disabled?: boolean; icon?: { type: string; position: "before" \| "after" } }` | **Optional.** Button configuration with optional icon. If omitted, no button is shown. Icon uses `bwi-*` classes, position defaults to "after"          |
 | `features`    | `string[]`                                                                                                       | **Optional.** List of features with checkmarks                                                                                                          |
 | `activeBadge` | `{ text: string; variant?: BadgeVariant }`                                                                       | **Optional.** Active plan badge using proper Badge component, positioned on the same line as title, aligned to the right. If omitted, no badge is shown |
@@ -178,6 +178,58 @@ For coming soon or unavailable plans:
   [price]="{ amount: 50, cadence: 'monthly' }"
   [button]="{ text: 'Coming Soon', type: 'secondary', disabled: true }"
   [features]="enterpriseFeatures"
+>
+</billing-pricing-card>
+```
+
+### With Button Icons
+
+Add icons to buttons for enhanced visual communication:
+
+<Canvas of={PricingCardStories.WithButtonIcon} />
+
+```html
+<!-- Icon after text (default) -->
+<billing-pricing-card
+  title="Premium Plan"
+  tagline="Upgrade for advanced features"
+  [price]="{ amount: 10, cadence: 'monthly' }"
+  [button]="{ 
+    text: 'Upgrade Now', 
+    type: 'primary', 
+    icon: { type: 'bwi-external-link', position: 'after' } 
+  }"
+  [features]="premiumFeatures"
+>
+</billing-pricing-card>
+
+<!-- Icon before text -->
+<billing-pricing-card
+  title="Business Plan"
+  tagline="Add more features to your plan"
+  [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+  [button]="{ 
+    text: 'Add Features', 
+    type: 'secondary', 
+    icon: { type: 'bwi-plus', position: 'before' } 
+  }"
+  [features]="businessFeatures"
+>
+</billing-pricing-card>
+```
+
+### Active Plan Badge
+
+Show which plan is currently active:
+
+<Canvas of={PricingCardStories.ActivePlan} />
+
+```html
+<billing-pricing-card
+  title="Free Plan"
+  tagline="Your current plan with essential features"
+  [features]="freeFeatures"
+  [activeBadge]="{ text: 'Active plan' }"
 >
 </billing-pricing-card>
 ```

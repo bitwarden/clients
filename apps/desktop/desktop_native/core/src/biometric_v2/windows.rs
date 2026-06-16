@@ -28,7 +28,11 @@
 //! userspace processes. Therefore, to circumvent the security measure, the attacker would need to
 //! create a fake Windows-Hello prompt, and get the user to confirm it.
 
-use std::sync::{atomic::AtomicBool, Arc};
+use std::{
+    collections::HashMap,
+    sync::{atomic::AtomicBool, Arc},
+    time::{Duration, Instant},
+};
 
 use aes::cipher::KeyInit;
 use anyhow::{anyhow, Result};
@@ -61,6 +65,7 @@ use crate::{
     secure_memory::*,
 };
 
+const AUTHENTICATE_AVAILABLE_CACHE_TTL: Duration = Duration::from_secs(30);
 const KEYCHAIN_SERVICE_NAME: &str = "BitwardenBiometricsV2";
 const CREDENTIAL_NAME: &HSTRING = h!("BitwardenBiometricsV2");
 const CHALLENGE_LENGTH: usize = 16;
@@ -79,14 +84,25 @@ pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
     secure_memory: Arc<Mutex<crate::secure_memory::dpapi::DpapiSecretKVStore>>,
+    // Cache whether a keychain entry exists for a user to avoid excessive keychain lookups
+    // (Windows audit event 5379). Key = user_id, Value = true (entry exists) or false (no
+    // entry). If user_id not in map = cache miss.
+    // Updated on enroll (true) and unenroll (false).
+    has_keychain_entry_cache: Arc<Mutex<HashMap<String, bool>>>,
+    // Cache the result of authenticate_available() with a TTL to avoid
+    // repeated NGC vault reads (Windows audit event 5382).
+    authenticate_available_cache: Arc<Mutex<Option<(bool, Instant)>>>,
 }
 
 impl BiometricLockSystem {
+    /// Creates a new instance of the Windows biometric lock system.
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(
                 crate::secure_memory::dpapi::DpapiSecretKVStore::new(),
             )),
+            has_keychain_entry_cache: Arc::new(Mutex::new(HashMap::new())),
+            authenticate_available_cache: Arc::new(Mutex::new(None)),
         }
     }
 }
@@ -103,16 +119,38 @@ impl super::BiometricTrait for BiometricLockSystem {
     }
 
     async fn authenticate_available(&self) -> Result<bool> {
-        match UserConsentVerifier::CheckAvailabilityAsync()?.await? {
+        {
+            let cache = self.authenticate_available_cache.lock().await;
+            if let Some((cached_result, cached_at)) = *cache {
+                // Only use cached value if it was `true` (available).
+                // Never cache `false` so that newly connected devices (e.g. YubiKey)
+                // are detected on the next poll without delay.
+                if cached_result && cached_at.elapsed() < AUTHENTICATE_AVAILABLE_CACHE_TTL {
+                    return Ok(true);
+                }
+            }
+        } // Release lock before the async Windows API call
+
+        let result = matches!(
+            UserConsentVerifier::CheckAvailabilityAsync()?.await?,
             UserConsentVerifierAvailability::Available
-            | UserConsentVerifierAvailability::DeviceBusy => Ok(true),
-            _ => Ok(false),
-        }
+                | UserConsentVerifierAvailability::DeviceBusy
+        );
+
+        *self.authenticate_available_cache.lock().await = Some((result, std::time::Instant::now()));
+        Ok(result)
     }
 
-    async fn unenroll(&self, user_id: &str) -> Result<()> {
+    async fn unenroll(&self, user_id: &String) -> Result<()> {
         self.secure_memory.lock().await.remove(user_id);
-        delete_keychain_entry(user_id).await
+        delete_keychain_entry(user_id).await?;
+
+        self.has_keychain_entry_cache
+            .lock()
+            .await
+            .insert(user_id.clone(), false);
+
+        Ok(())
     }
 
     async fn enroll_persistent(&self, user_id: &str, key: &[u8]) -> Result<()> {
@@ -138,7 +176,13 @@ impl super::BiometricTrait for BiometricLockSystem {
                 wrapped_key,
             },
         )
-        .await
+        .await?;
+
+        self.has_keychain_entry_cache
+            .lock()
+            .await
+            .insert(user_id.to_string(), true);
+        Ok(())
     }
 
     async fn provide_key(&self, user_id: &str, key: &[u8]) {
@@ -148,7 +192,7 @@ impl super::BiometricTrait for BiometricLockSystem {
             .put(user_id.to_string(), key);
     }
 
-    async fn unlock(&self, user_id: &str, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
+    async fn unlock(&self, user_id: &String, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
         // Allow restoring focus to the previous window (browser)
         let previous_active_window = super::windows_focus::get_active_window();
         let _focus_scopeguard = scopeguard::guard((), |_| {
@@ -164,8 +208,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         if secure_memory.has(user_id) {
             if windows_hello_authenticate("Unlock your vault".to_string()).await? {
                 secure_memory
-                    .get(user_id)
-                    .clone()
+                    .get(user_id)?
                     .ok_or_else(|| anyhow!("No key found for user"))
             } else {
                 Err(anyhow!("Authentication failed"))
@@ -186,15 +229,24 @@ impl super::BiometricTrait for BiometricLockSystem {
         }
     }
 
-    async fn unlock_available(&self, user_id: &str) -> Result<bool> {
+    async fn unlock_available(&self, user_id: &String) -> Result<bool> {
         let secure_memory = self.secure_memory.lock().await;
         let has_key =
-            secure_memory.has(user_id) || has_keychain_entry(user_id).await.unwrap_or(false);
+            secure_memory.has(user_id) || self.has_persistent(user_id).await.unwrap_or(false);
         Ok(has_key && self.authenticate_available().await.unwrap_or(false))
     }
 
     async fn has_persistent(&self, user_id: &str) -> Result<bool> {
-        Ok(get_keychain_entry(user_id).await.is_ok())
+        // Check if we have a cached value for this user (either true or false)
+        let mut cache = self.has_keychain_entry_cache.lock().await;
+        if let Some(&has_entry) = cache.get(user_id) {
+            return Ok(has_entry);
+        }
+
+        // Cache miss: check keychain and cache the result for this user
+        let has_entry = has_keychain_entry(user_id).await.unwrap_or(false);
+        cache.insert(user_id.to_string(), has_entry);
+        Ok(has_entry)
     }
 }
 
@@ -435,7 +487,7 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn test_double_unenroll() {
-        let user_id = "test_user";
+        let user_id = String::from("test_user");
         let mut key = [0u8; XCHACHA20POLY1305_KEY_LENGTH];
         rand::fill(&mut key);
 
@@ -443,34 +495,34 @@ mod tests {
 
         println!("Enrolling user");
         windows_hello_lock_system
-            .enroll_persistent(user_id, &key)
+            .enroll_persistent(&user_id, &key)
             .await
             .unwrap();
         assert!(windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
 
         println!("Unlocking user");
         let key_after_unlock = windows_hello_lock_system
-            .unlock(user_id, Vec::new())
+            .unlock(&user_id, Vec::new())
             .await
             .unwrap();
         assert_eq!(key_after_unlock, key);
 
         println!("Unenrolling user");
-        windows_hello_lock_system.unenroll(user_id).await.unwrap();
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
         assert!(!windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
 
         println!("Unenrolling user again");
 
         // This throws PASSWORD_NOT_FOUND but our code should handle that and not throw.
-        windows_hello_lock_system.unenroll(user_id).await.unwrap();
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
         assert!(!windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
     }
@@ -478,7 +530,7 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn test_enroll_unlock_unenroll() {
-        let user_id = "test_user";
+        let user_id = String::from("test_user");
         let mut key = [0u8; XCHACHA20POLY1305_KEY_LENGTH];
         rand::fill(&mut key);
 
@@ -486,25 +538,25 @@ mod tests {
 
         println!("Enrolling user");
         windows_hello_lock_system
-            .enroll_persistent(user_id, &key)
+            .enroll_persistent(&user_id, &key)
             .await
             .unwrap();
         assert!(windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
 
         println!("Unlocking user");
         let key_after_unlock = windows_hello_lock_system
-            .unlock(user_id, Vec::new())
+            .unlock(&user_id, Vec::new())
             .await
             .unwrap();
         assert_eq!(key_after_unlock, key);
 
         println!("Unenrolling user");
-        windows_hello_lock_system.unenroll(user_id).await.unwrap();
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
         assert!(!windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
     }

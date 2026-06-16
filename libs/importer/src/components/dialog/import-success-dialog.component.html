@@ -4,7 +4,7 @@
   </span>
 
   <div bitDialogContent>
-    <span>{{ "importSuccessNumberOfItems" | i18n: this.data.ciphers.length }}</span>
+    <span>{{ "importSuccessNumberOfItems" | i18n: data.importResult.ciphers.length }}</span>
     <bit-table [dataSource]="dataSource">
       <ng-container header>
         <tr>
@@ -25,8 +25,21 @@
   </div>
 
   <ng-container bitDialogFooter>
-    <button bitButton bitDialogClose buttonType="primary" type="button">
-      {{ "ok" | i18n }}
-    </button>
+    @if (hasReturnDestination) {
+      <button
+        data-testid="return-button"
+        bitButton
+        buttonType="primary"
+        type="button"
+        endIcon="bwi-arrow-right"
+        (click)="navigateBack()"
+      >
+        {{ data.returnLabel }}
+      </button>
+    } @else {
+      <button data-testid="ok-button" bitButton bitDialogClose buttonType="primary" type="button">
+        {{ "ok" | i18n }}
+      </button>
+    }
   </ng-container>
 </bit-dialog>

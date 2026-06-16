@@ -69,6 +69,9 @@ export class DesktopLockComponentService implements LockComponentService {
             enabled: biometricsStatus == BiometricsStatus.Available,
             biometricsStatus: biometricsStatus,
           },
+          prf: {
+            enabled: false,
+          },
         };
 
         return unlockOpts;

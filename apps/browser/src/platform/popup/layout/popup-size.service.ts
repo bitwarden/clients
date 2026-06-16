@@ -7,7 +7,9 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
+import { BrowserApi } from "../../browser/browser-api";
 import BrowserPopupUtils, {
+  POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOption,
   PopupWidthOptions,
 } from "../../browser/browser-popup-utils";
@@ -23,7 +25,7 @@ const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK
  **/
 @Injectable({ providedIn: "root" })
 export class PopupSizeService {
-  private static readonly LocalStorageKey = "bw-popup-width";
+  private static readonly LocalStorageKey = POPUP_WIDTH_STORAGE_KEY;
   private readonly state = inject(GlobalStateProvider).get(POPUP_WIDTH_KEY_DEF);
 
   readonly width$: Observable<PopupWidthOption> = this.state.state$.pipe(
@@ -37,7 +39,7 @@ export class PopupSizeService {
   /** Begin listening for state changes */
   async init() {
     this.width$.subscribe((width: PopupWidthOption) => {
-      PopupSizeService.setStyle(width);
+      void PopupSizeService.setStyle(width);
       localStorage.setItem(PopupSizeService.LocalStorageKey, width);
     });
   }
@@ -77,20 +79,61 @@ export class PopupSizeService {
     }
   }
 
-  private static setStyle(width: PopupWidthOption) {
-    if (!BrowserPopupUtils.inPopup(window)) {
-      return;
-    }
+  private static async setStyle(width: PopupWidthOption) {
+    const isInTab = await BrowserPopupUtils.isInTab();
     const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
 
-    document.body.style.minWidth = `${pxWidth}px`;
+    if (BrowserPopupUtils.inPopout(window)) {
+      const currentWindow = await BrowserApi.getCurrentWindow();
+      if (currentWindow.id != null) {
+        await BrowserApi.updateWindowProperties(currentWindow.id, { width: pxWidth });
+      }
+      return;
+    }
+
+    if (!BrowserPopupUtils.inPopup(window) || isInTab) {
+      return;
+    }
+
+    document.body.style.width = `${pxWidth}px`;
   }
 
   /**
    * To keep the popup size from flickering on bootstrap, we store the width in `localStorage` so we can quickly & synchronously reference it.
    **/
   static initBodyWidthFromLocalStorage() {
-    const storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
-    this.setStyle(storedValue as any);
+    let storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
+
+    // Migrate old width option keys that no longer exist
+    const migratedValue = PopupSizeService.migrateOldWidthOption(storedValue);
+    if (migratedValue !== storedValue && migratedValue != null) {
+      storedValue = migratedValue;
+      localStorage.setItem(PopupSizeService.LocalStorageKey, storedValue);
+    }
+
+    void this.setStyle(PopupSizeService.toPopupWidthOption(migratedValue));
+  }
+
+  /**
+   * Maps old popup width option keys to their new equivalents.
+   * Old "wide" (480px) is now "default", and old "extraWide" (600px) is now "wide".
+   */
+  private static migrateOldWidthOption(value: string | null): string | null {
+    if (value === "extraWide") {
+      return "wide";
+    }
+    return value;
+  }
+
+  private static isPopupWidthOption(value: string | null): value is PopupWidthOption {
+    return value != null && value in PopupWidthOptions;
+  }
+
+  private static toPopupWidthOption(value: string | null): PopupWidthOption {
+    const migrated = PopupSizeService.migrateOldWidthOption(value);
+    if (PopupSizeService.isPopupWidthOption(migrated)) {
+      return migrated;
+    }
+    return "default";
   }
 }

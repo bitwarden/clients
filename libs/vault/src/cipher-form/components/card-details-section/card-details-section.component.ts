@@ -6,9 +6,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -158,6 +157,7 @@ export class CardDetailsSectionComponent implements OnInit {
     this.cardDetailsForm.patchValue({
       cardholderName: this.initialValues?.cardholderName ?? existingCard.cardholderName,
       number: this.initialValues?.number ?? existingCard.number,
+      brand: this.initialValues?.brand ?? existingCard.brand,
       expMonth: this.initialValues?.expMonth ?? existingCard.expMonth,
       expYear: this.initialValues?.expYear ?? existingCard.expYear,
       code: this.initialValues?.code ?? existingCard.code,

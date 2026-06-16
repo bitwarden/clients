@@ -1,15 +1,8 @@
-import {
-  Directive,
-  HostListener,
-  InjectionToken,
-  Inject,
-  Optional,
-  input,
-  computed,
-} from "@angular/core";
+import { Directive, HostListener, Inject, Optional, input, computed } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 import { ToastService, ToastVariant } from "../";
 
@@ -20,7 +13,7 @@ export interface CopyClickListener {
   onCopy(value: string): void;
 }
 
-export const COPY_CLICK_LISTENER = new InjectionToken<CopyClickListener>("CopyClickListener");
+export const COPY_CLICK_LISTENER = new SafeInjectionToken<CopyClickListener>("CopyClickListener");
 
 @Directive({
   selector: "[appCopyClick]",

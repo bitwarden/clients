@@ -7,12 +7,12 @@ import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
 import {
   CollectionAdminService,
   OrganizationUserApiService,
-  CollectionView,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -145,7 +145,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       message: this.i18nService.t("editedCollections"),
     });
 
-    this.dialogRef.close(BulkCollectionsDialogResult.Saved);
+    await this.dialogRef.close(BulkCollectionsDialogResult.Saved);
   };
 
   static open(dialogService: DialogService, config: DialogConfig<BulkCollectionsDialogParams>) {

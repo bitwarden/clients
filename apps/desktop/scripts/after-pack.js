@@ -37,18 +37,15 @@ async function run(context) {
 
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
-    const is_mas_dev = context.targets.some((e) => e.name === "mas-dev");
 
     let id;
 
     // Only use the Bitwarden Identities on CI
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
-        id = is_mas_dev
-          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
-          : "3rd Party Mac Developer Application: Bitwarden Inc";
+        id = "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
-        id = "Developer ID Application: 8bit Solutions LLC";
+        id = "Developer ID Application: Bitwarden Inc";
       }
       // Locally, use the first valid code signing identity, unless CSC_NAME is set
     } else if (process.env.CSC_NAME) {

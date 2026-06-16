@@ -1,6 +1,4 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
+import { CollectionDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
 
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
@@ -18,6 +16,7 @@ export class SyncResponse extends BaseResponse {
   ciphers: CipherResponse[] = [];
   domains?: DomainsResponse;
   policies?: PolicyResponse[] = [];
+  policiesNew?: PolicyResponse[];
   sends: SendResponse[] = [];
   userDecryption?: UserDecryptionResponse;
 
@@ -52,6 +51,11 @@ export class SyncResponse extends BaseResponse {
     const policies = this.getResponseProperty("Policies");
     if (policies != null) {
       this.policies = policies.map((p: any) => new PolicyResponse(p));
+    }
+
+    const policiesNew = this.getResponseProperty("PoliciesNew");
+    if (policiesNew != null) {
+      this.policiesNew = policiesNew.map((p: any) => new PolicyResponse(p));
     }
 
     const sends = this.getResponseProperty("Sends");

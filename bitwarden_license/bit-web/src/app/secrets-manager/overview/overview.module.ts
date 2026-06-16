@@ -1,9 +1,10 @@
 import { NgModule } from "@angular/core";
 
 import { BannerModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
-import { OnboardingModule } from "@bitwarden/web-vault/app/shared/components/onboarding/onboarding.module";
+import { OnboardingTaskComponent } from "@bitwarden/web-vault/app/vault/components/onboarding/onboarding-task.component";
+import { OnboardingComponent } from "@bitwarden/web-vault/app/vault/components/onboarding/onboarding.component";
 
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 
@@ -15,10 +16,11 @@ import { SectionComponent } from "./section.component";
   imports: [
     SecretsManagerSharedModule,
     OverviewRoutingModule,
-    OnboardingModule,
+    OnboardingComponent,
+    OnboardingTaskComponent,
     BannerModule,
     OrganizationFreeTrialWarningComponent,
-    OrganizationWarningsModule,
+    I18nPipe,
   ],
   declarations: [OverviewComponent, SectionComponent],
   providers: [],

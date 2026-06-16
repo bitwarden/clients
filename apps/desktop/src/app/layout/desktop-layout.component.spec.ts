@@ -2,13 +2,16 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { DialogService, NavigationModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 
-import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
+import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
 
@@ -19,6 +22,20 @@ import { DesktopLayoutComponent } from "./desktop-layout.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockSendFiltersNavComponent {}
+
+@Component({
+  selector: "app-vault-filter",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockVaultFiltersNavComponent {}
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -56,11 +73,15 @@ describe("DesktopLayoutComponent", () => {
           provide: DialogService,
           useValue: mock<DialogService>(),
         },
+        {
+          provide: SendPolicyService,
+          useValue: { disableSend$: of(false) },
+        },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {
-        remove: { imports: [SendFiltersNavComponent] },
-        add: { imports: [MockSendFiltersNavComponent] },
+        remove: { imports: [SendFiltersNavComponent, VaultFilterComponent] },
+        add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
       })
       .compileComponents();
 
@@ -92,5 +113,12 @@ describe("DesktopLayoutComponent", () => {
     const sendFiltersNav = compiled.querySelector("app-send-filters-nav");
 
     expect(sendFiltersNav).toBeTruthy();
+  });
+
+  it("renders vault filters navigation component", () => {
+    const compiled = fixture.nativeElement;
+    const vaultFiltersNav = compiled.querySelector("app-vault-filter");
+
+    expect(vaultFiltersNav).toBeTruthy();
   });
 });

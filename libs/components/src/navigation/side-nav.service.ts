@@ -1,21 +1,10 @@
-import { inject, Injectable } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  BehaviorSubject,
-  Observable,
-  combineLatest,
-  fromEvent,
-  map,
-  startWith,
-  debounceTime,
-  first,
-} from "rxjs";
+import { computed, inject, Injectable, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
 
 import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 
-import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
-
-type CollapsePreference = "open" | "closed" | null;
+import { getRootFontSizePx } from "../shared";
 
 const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
   deserializer: (s) => s,
@@ -32,16 +21,27 @@ export class SideNavService {
 
   private rootFontSizePx: number;
 
-  private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
-  open$ = this._open$.asObservable();
+  /**
+   * Whether the side navigation is open or closed.
+   */
+  readonly open = signal(false);
 
-  private isLargeScreen$ = media(`(min-width: ${BREAKPOINTS.md}px)`);
-  private _userCollapsePreference$ = new BehaviorSubject<CollapsePreference>(null);
-  userCollapsePreference$ = this._userCollapsePreference$.asObservable();
+  /**
+   * Whether the nav is in push mode (occupies its own grid column).
+   * Set by LayoutComponent via ResizeObserver.
+   */
+  readonly isPushMode = signal(false);
 
-  isOverlay$ = combineLatest([this.open$, this.isLargeScreen$]).pipe(
-    map(([open, isLargeScreen]) => open && !isLargeScreen),
-  );
+  /**
+   * True when the nav is open but not in push mode — it overlays the content.
+   */
+  readonly isOverlay = computed(() => this.open() && !this.isPushMode());
+
+  /**
+   * Explicit user preference for open/closed state, set when the user manually
+   * toggles the nav. Null means no preference (auto-open when push mode allows).
+   */
+  readonly userCollapsePreference = signal<"open" | "closed" | null>(null);
 
   /**
    * Local component state width
@@ -50,6 +50,9 @@ export class SideNavService {
    */
   private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
   readonly width$ = this._width$.asObservable();
+
+  /** Current nav width as a signal, for use in grid column calculations. */
+  readonly widthRem = toSignal(this.width$, { initialValue: this.DEFAULT_OPEN_WIDTH });
 
   /**
    * State provider width
@@ -64,19 +67,7 @@ export class SideNavService {
 
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
-    this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
-
-    // Handle open/close state
-    combineLatest([this.isLargeScreen$, this.userCollapsePreference$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([isLargeScreen, userCollapsePreference]) => {
-        if (!isLargeScreen) {
-          this.setClose();
-        } else if (userCollapsePreference !== "closed") {
-          // Auto-open when user hasn't set preference (null) or prefers open
-          this.setOpen();
-        }
-      });
+    this.rootFontSizePx = getRootFontSizePx();
 
     // Initialize the resizable width from state provider
     this.widthState$.pipe(first()).subscribe((width: number) => {
@@ -89,31 +80,12 @@ export class SideNavService {
     });
   }
 
-  get open() {
-    return this._open$.getValue();
-  }
-
-  setOpen() {
-    this._open$.next(true);
-  }
-
-  setClose() {
-    this._open$.next(false);
-  }
-
   /**
    * Toggle the open/close state of the side nav
    */
   toggle() {
-    const curr = this._open$.getValue();
-    // Store user's preference based on what state they're toggling TO
-    this._userCollapsePreference$.next(curr ? "closed" : "open");
-
-    if (curr) {
-      this.setClose();
-    } else {
-      this.setOpen();
-    }
+    this.userCollapsePreference.set(this.open() ? "closed" : "open");
+    this.open.set(!this.open());
   }
 
   /**

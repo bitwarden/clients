@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" pageTitle="{{ 'autofill' | i18n }}" showBackButton>
+  <popup-header slot="header" pageTitle="{{ 'autofillNoun' | i18n }}" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
@@ -8,14 +8,38 @@
   <div class="tw-bg-background-alt">
     @if (showSpotlightNudge$ | async) {
       <div class="tw-mb-6">
-        <bit-spotlight
+        <bit-callout
           [title]="'autofillSpotlightTitle' | i18n"
-          [subtitle]="'autofillSpotlightDesc' | i18n"
-          [buttonText]="spotlightButtonText"
-          (onDismiss)="dismissSpotlight()"
-          (onButtonClick)="disableBrowserAutofillSettingsFromNudge($event)"
-          [buttonIcon]="spotlightButtonIcon"
-        ></bit-spotlight>
+          [icon]="null"
+          (dismiss)="dismissSpotlight()"
+        >
+          {{ "autofillSpotlightDesc" | i18n }}
+          <button
+            slot="end"
+            bitButton
+            type="button"
+            buttonType="primary"
+            [endIcon]="browserClientIsUnknown ? 'bwi-external-link' : undefined"
+            (click)="disableBrowserAutofillSettingsFromNudge($event)"
+          >
+            {{ spotlightButtonText }}
+          </button>
+        </bit-callout>
+      </div>
+    }
+    @if (showClipboardNotificationThisSession) {
+      <div class="tw-mb-4">
+        <bit-callout type="info" [title]="'clipboardSettingUpdated' | i18n">
+          <p>{{ "clipboardSettingUpdatedMessage" | i18n }}</p>
+          <button
+            bitButton
+            buttonType="primary"
+            type="button"
+            (click)="dismissClipboardNotification()"
+          >
+            {{ "jumpToSetting" | i18n }}
+          </button>
+        </bit-callout>
       </div>
     }
     <bit-section>
@@ -221,6 +245,20 @@
           <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
+          @if (fillAssistFeatureEnabled$ | async) {
+            <bit-form-control>
+              <input
+                formControlName="enableFillAssist"
+                bitCheckbox
+                id="fill-assist"
+                type="checkbox"
+              />
+              <bit-label for="fill-assist">
+                {{ "turnOnFillAssist" | i18n }}
+                <autofill-fill-assist-popover></autofill-fill-assist-popover>
+              </bit-label>
+            </bit-form-control>
+          }
           <bit-form-control>
             <input
               formControlName="enableContextMenuItem"
@@ -234,7 +272,10 @@
             <input formControlName="enableAutoTotpCopy" bitCheckbox id="totp" type="checkbox" />
             <bit-label for="totp">{{ "enableAutoTotpCopy" | i18n }}</bit-label>
           </bit-form-control>
-          <bit-form-field [disableMargin]="isDefaultUriMatchDisabledByPolicy">
+          <bit-form-field
+            id="clearClipboardField"
+            [disableMargin]="isDefaultUriMatchDisabledByPolicy"
+          >
             <bit-label for="clearClipboard">{{ "clearClipboard" | i18n }}</bit-label>
             <bit-select
               formControlName="clearClipboard"

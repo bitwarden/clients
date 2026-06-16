@@ -3,6 +3,8 @@
 import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
@@ -30,7 +32,6 @@ import {
   Fido2ClientService as Fido2ClientServiceAbstraction,
   PublicKeyCredentialParam,
   UserRequestedFallbackAbortReason,
-  UserVerification,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
@@ -63,6 +64,9 @@ export class Fido2ClientService<
       MAX: 600000,
     },
   };
+  protected readonly relatedOriginChecksEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.WebAuthnRelatedOrigins,
+  );
 
   constructor(
     private authenticator: Fido2AuthenticatorService<ParentWindowReference>,
@@ -83,6 +87,14 @@ export class Fido2ClientService<
     const isUserLoggedIn =
       (await this.authService.getAuthStatus()) !== AuthenticationStatus.LoggedOut;
     if (!isUserLoggedIn) {
+      return false;
+    }
+
+    const blockedInteractionsUris = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+    const isBlockedDomain = blockedInteractionsUris != null && hostname in blockedInteractionsUris;
+    if (isBlockedDomain) {
       return false;
     }
 
@@ -126,7 +138,7 @@ export class Fido2ClientService<
       throw new DOMException("Invalid 'sameOriginWithAncestors' value", "NotAllowedError");
     }
 
-    const userId = Fido2Utils.stringToBuffer(params.user.id);
+    const userId = Fido2Utils.stringToArray(params.user.id);
     if (userId.byteLength < 1 || userId.byteLength > 64) {
       this.logService?.warning(
         `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.byteLength})`,
@@ -143,7 +155,13 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rp.id, params.origin)) {
+    if (
+      !(await isValidRpId(
+        params.rp.id,
+        params.origin,
+        await firstValueFrom(this.relatedOriginChecksEnabled$),
+      ))
+    ) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rp.id}; origin = ${params.origin}`,
       );
@@ -185,7 +203,7 @@ export class Fido2ClientService<
     const makeCredentialParams = mapToMakeCredentialParams({
       params,
       credTypesAndPubKeyAlgs,
-      clientDataHash,
+      clientDataHash: new Uint8Array(clientDataHash),
     });
 
     // Set timeout before invoking authenticator
@@ -195,7 +213,7 @@ export class Fido2ClientService<
     }
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.authenticatorSelection?.userVerification,
+      makeCredentialParams.requireUserVerification,
       params.timeout,
     );
 
@@ -245,11 +263,11 @@ export class Fido2ClientService<
     timeoutSubscription?.unsubscribe();
 
     return {
-      credentialId: Fido2Utils.bufferToString(makeCredentialResult.credentialId),
-      attestationObject: Fido2Utils.bufferToString(makeCredentialResult.attestationObject),
-      authData: Fido2Utils.bufferToString(makeCredentialResult.authData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
-      publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
+      credentialId: Fido2Utils.arrayToString(makeCredentialResult.credentialId),
+      attestationObject: Fido2Utils.arrayToString(makeCredentialResult.attestationObject),
+      authData: Fido2Utils.arrayToString(makeCredentialResult.authData),
+      clientDataJSON: Fido2Utils.arrayToString(clientDataJSONBytes),
+      publicKey: Fido2Utils.arrayToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
       transports: ["internal", "hybrid"],
       extensions: { credProps },
@@ -282,7 +300,13 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rpId, params.origin)) {
+    if (
+      !(await isValidRpId(
+        params.rpId,
+        params.origin,
+        await firstValueFrom(this.relatedOriginChecksEnabled$),
+      ))
+    ) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
       );
@@ -309,6 +333,25 @@ export class Fido2ClientService<
     }
 
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    if (
+      params.allowedCredentials.length > 0 &&
+      params.allowedCredentials.every(
+        (c) =>
+          c.transports != null && c.transports.length > 0 && !c.transports.includes("internal"),
+      )
+    ) {
+      // Spec reference: https://www.w3.org/TR/webauthn-3/#sctn-discover-from-external-source step 20.
+      // The spec says the client should determine if "no authenticator will become available" by
+      // examining transports. Since Bitwarden is an internal-only authenticator, if all
+      // allowCredentials entries specify only non-internal transports, we cannot satisfy the
+      // request. We throw FallbackRequestedError (instead of the spec's NotAllowedError) to let
+      // the browser's native WebAuthn handler contact the hardware authenticator.
+      this.logService?.info(
+        `[Fido2Client] All allowCredentials entries specify non-internal transports only — falling back to browser.`,
+      );
+      throw new FallbackRequestedError();
+    }
+
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
@@ -318,7 +361,7 @@ export class Fido2ClientService<
 
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.userVerification,
+      getAssertionParams.requireUserVerification,
       params.timeout,
     );
 
@@ -367,7 +410,7 @@ export class Fido2ClientService<
     params: AssertCredentialParams,
     tab: ParentWindowReference,
     abortController: AbortController,
-    clientDataJSONBytes: Uint8Array,
+    clientDataJSONBytes: Uint8Array<ArrayBuffer>,
   ): Promise<AssertCredentialResult> {
     let getAssertionResult;
     let assumeUserPresence = false;
@@ -397,8 +440,8 @@ export class Fido2ClientService<
         break;
       }
 
-      params.allowedCredentialIds = [
-        Fido2Utils.bufferToString(guidToRawFormat(requestResult.credentialId)),
+      params.allowedCredentials = [
+        { id: Fido2Utils.arrayToString(guidToRawFormat(requestResult.credentialId)) },
       ];
       assumeUserPresence = true;
 
@@ -425,29 +468,29 @@ export class Fido2ClientService<
 
   private generateAssertCredentialResult(
     getAssertionResult: Fido2AuthenticatorGetAssertionResult,
-    clientDataJSONBytes: Uint8Array,
+    clientDataJSONBytes: Uint8Array<ArrayBuffer>,
   ): AssertCredentialResult {
     return {
-      authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
-      credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
+      authenticatorData: Fido2Utils.arrayToString(getAssertionResult.authenticatorData),
+      clientDataJSON: Fido2Utils.arrayToString(clientDataJSONBytes),
+      credentialId: Fido2Utils.arrayToString(getAssertionResult.selectedCredential.id),
       userHandle:
         getAssertionResult.selectedCredential.userHandle !== undefined
-          ? Fido2Utils.bufferToString(getAssertionResult.selectedCredential.userHandle)
+          ? Fido2Utils.arrayToString(getAssertionResult.selectedCredential.userHandle)
           : undefined,
-      signature: Fido2Utils.bufferToString(getAssertionResult.signature),
+      signature: Fido2Utils.arrayToString(getAssertionResult.signature),
     };
   }
 
   private setAbortTimeout = (
     abortController: AbortController,
-    userVerification?: UserVerification,
+    requireUserVerification: boolean,
     timeout?: number,
   ): Subscription => {
     let clampedTimeout: number;
 
     const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
-    if (userVerification === "required") {
+    if (requireUserVerification) {
       timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
       clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
     } else {
@@ -473,11 +516,11 @@ function mapToMakeCredentialParams({
 }: {
   params: CreateCredentialParams;
   credTypesAndPubKeyAlgs: PublicKeyCredentialParam[];
-  clientDataHash: ArrayBuffer;
+  clientDataHash: Uint8Array<ArrayBuffer>;
 }): Fido2AuthenticatorMakeCredentialsParams {
   const excludeCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
     params.excludeCredentials?.map((credential) => ({
-      id: Fido2Utils.stringToBuffer(credential.id),
+      id: Fido2Utils.stringToArray(credential.id),
       transports: credential.transports,
       type: credential.type,
     })) ?? [];
@@ -509,7 +552,7 @@ function mapToMakeCredentialParams({
       name: params.rp.name,
     },
     userEntity: {
-      id: Fido2Utils.stringToBuffer(params.user.id),
+      id: Fido2Utils.stringToArray(params.user.id),
       displayName: params.user.displayName,
       name: params.user.name,
     },
@@ -530,8 +573,8 @@ function mapToGetAssertionParams({
   assumeUserPresence?: boolean;
 }): Fido2AuthenticatorGetAssertionParams {
   const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
-    params.allowedCredentialIds.map((id) => ({
-      id: Fido2Utils.stringToBuffer(id),
+    params.allowedCredentials.map((c) => ({
+      id: Fido2Utils.stringToArray(c.id),
       type: "public-key",
     }));
 

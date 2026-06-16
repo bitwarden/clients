@@ -2,12 +2,11 @@
   <div>
     <img src="../../images/logo-dark@2x.png" class="logo" alt="Bitwarden" />
     <p class="tw-text-center tw-my-4">
-      <i
-        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin bwi-2x tw-text-muted"
+        [ariaLabel]="'loading' | i18n"
+      ></bit-icon>
     </p>
   </div>
 </div>

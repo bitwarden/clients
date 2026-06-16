@@ -31,7 +31,7 @@
           bitButton
           buttonType="secondary"
           block
-          (click)="activeUnlockOption = UnlockOption.Pin"
+          (click)="swapUnlockOption(UnlockOption.Pin)"
         >
           {{ "unlockWithPin" | i18n }}
         </button>
@@ -43,11 +43,13 @@
           bitButton
           buttonType="secondary"
           block
-          (click)="activeUnlockOption = UnlockOption.MasterPassword"
+          (click)="swapUnlockOption(UnlockOption.MasterPassword)"
         >
           {{ "unlockWithMasterPassword" | i18n }}
         </button>
       </ng-container>
+
+      <bit-unlock-via-prf (unlockSuccess)="onPrfUnlockSuccess($event)"></bit-unlock-via-prf>
 
       <button type="button" bitButton block (click)="logOut()">
         {{ "logOut" | i18n }}
@@ -94,7 +96,7 @@
             buttonType="secondary"
             [disabled]="!biometricsAvailable"
             block
-            (click)="activeUnlockOption = UnlockOption.Biometrics"
+            (click)="swapUnlockOption(UnlockOption.Biometrics)"
           >
             <span> {{ biometricUnlockBtnText | i18n }}</span>
           </button>
@@ -107,11 +109,16 @@
             bitFormButton
             buttonType="secondary"
             block
-            (click)="activeUnlockOption = UnlockOption.MasterPassword"
+            (click)="swapUnlockOption(UnlockOption.MasterPassword)"
           >
             {{ "unlockWithMasterPassword" | i18n }}
           </button>
         </ng-container>
+
+        <bit-unlock-via-prf
+          [formButton]="true"
+          (unlockSuccess)="onPrfUnlockSuccess($event)"
+        ></bit-unlock-via-prf>
 
         <button type="button" bitButton bitFormButton block (click)="logOut()">
           {{ "logOut" | i18n }}
@@ -123,10 +130,12 @@
   <!-- MP Unlock -->
   @if (unlockOptions.masterPassword.enabled && activeUnlockOption === UnlockOption.MasterPassword) {
     <bit-master-password-lock
-      [(activeUnlockOption)]="activeUnlockOption"
       [unlockOptions]="unlockOptions"
       [biometricUnlockBtnText]="biometricUnlockBtnText"
       (successfulUnlock)="successfulMasterPasswordUnlock($event)"
+      (swapToBiometrics)="swapUnlockOption(UnlockOption.Biometrics)"
+      (swapToPin)="swapUnlockOption(UnlockOption.Pin)"
+      (prfUnlockSuccess)="onPrfUnlockSuccess($event)"
       (logOut)="logOut()"
     ></bit-master-password-lock>
   }

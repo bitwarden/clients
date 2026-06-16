@@ -1,4 +1,6 @@
 {
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+
   "extraMetadata": {
     "name": "bitwarden-beta"
   },
@@ -30,8 +32,10 @@
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
+    "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js"
+      "sign": "./sign.js",
+      "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [
       {
@@ -59,7 +63,6 @@
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
     "backgroundColor": "#175DDC",
-    "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",

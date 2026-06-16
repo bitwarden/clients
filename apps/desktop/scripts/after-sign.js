@@ -16,7 +16,9 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName); // Disabled for mas builds
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName) || isMasDevBuild;
 
   let shouldResign = false;
 
@@ -31,7 +33,6 @@ async function run(context) {
         fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-      shouldResign = true;
     }
   }
 
@@ -79,7 +80,7 @@ async function run(context) {
     if (process.env.APP_STORE_CONNECT_TEAM_ISSUER) {
       const appleApiIssuer = process.env.APP_STORE_CONNECT_TEAM_ISSUER;
       const appleApiKey = process.env.APP_STORE_CONNECT_AUTH_KEY_PATH;
-      const appleApiKeyId = process.env.APP_STORE_CONNECT_AUTH_KEY;
+      const appleApiKeyId = process.env.APP_STORE_CONNECT_AUTH_KEY_ID;
       return await notarize({
         tool: "notarytool",
         appPath: appPath,

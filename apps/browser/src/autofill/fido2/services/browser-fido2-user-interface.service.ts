@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   EmptyError,
@@ -79,7 +77,7 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
   | {
       type: typeof BrowserFido2MessageTypes.PickCredentialResponse;
-      cipherId?: string;
+      cipherId: string;
       userVerified: boolean;
     }
   | {
@@ -364,6 +362,9 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         ),
       ),
     );
+
+    // Defensive measure in case an existing notification appeared before the passkey popout
+    await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
 
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,

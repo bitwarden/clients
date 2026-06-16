@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const RegistrationCheckEmailIcon = svgIcon`
+export const RegistrationCheckEmailIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="3.33 0.87 76.36 76.8">
     <path class="tw-fill-illustration-bg-primary" d="M3.333 33.298a5 5 0 0 1 1.745-3.794L37.287 1.87a4.167 4.167 0 0 1 5.426 0l32.21 27.634a5 5 0 0 1 1.744 3.794v41.035a3.333 3.333 0 0 1-3.334 3.334H6.667a3.333 3.333 0 0 1-3.334-3.334V33.299Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M75 74.334V33.297c0-.972-.425-1.896-1.163-2.53L41.627 3.136a2.5 2.5 0 0 0-3.255 0L6.162 30.769A3.333 3.333 0 0 0 5 33.299v41.035C5 75.254 5.746 76 6.667 76h66.666c.92 0 1.667-.746 1.667-1.666ZM5.078 29.504a5 5 0 0 0-1.745 3.794v41.035a3.333 3.333 0 0 0 3.334 3.334h66.666a3.333 3.333 0 0 0 3.334-3.334V33.299a5 5 0 0 0-1.745-3.794L42.713 1.87a4.167 4.167 0 0 0-5.426 0L5.077 29.504Z" clip-rule="evenodd"/>

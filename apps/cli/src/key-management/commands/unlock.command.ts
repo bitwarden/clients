@@ -7,11 +7,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { KeyService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
@@ -22,7 +21,6 @@ import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.comman
 export class UnlockCommand {
   constructor(
     private accountService: AccountService,
-    private keyService: KeyService,
     private cryptoFunctionService: CryptoFunctionService,
     private logService: ConsoleLogService,
     private keyConnectorService: KeyConnectorService,
@@ -31,7 +29,7 @@ export class UnlockCommand {
     private logout: () => Promise<void>,
     private i18nService: I18nService,
     private encryptedMigrator: EncryptedMigrator,
-    private masterPasswordUnlockService: MasterPasswordUnlockService,
+    private unlockService: UnlockService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -52,12 +50,7 @@ export class UnlockCommand {
     const userId = activeAccount.id;
 
     try {
-      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        password,
-        userId,
-      );
-
-      await this.keyService.setUserKey(userKey, userId);
+      await this.unlockService.unlockWithMasterPassword(userId, password);
     } catch (e) {
       return Response.error(e.message);
     }

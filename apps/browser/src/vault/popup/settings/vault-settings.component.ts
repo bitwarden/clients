@@ -1,0 +1,147 @@
+import { CommonModule } from "@angular/common";
+import { Component, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { Router, RouterModule } from "@angular/router";
+import { firstValueFrom, map, switchMap } from "rxjs";
+
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import {
+  BerryComponent,
+  SpinnerComponent,
+  ItemModule,
+  ToastOptions,
+  ToastService,
+} from "@bitwarden/components";
+
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../../../autofill/services/targeting-rules-data.service";
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  templateUrl: "vault-settings.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    RouterModule,
+    PopupPageComponent,
+    PopupHeaderComponent,
+    PopOutComponent,
+    ItemModule,
+    BerryComponent,
+    PremiumBadgeComponent,
+    SpinnerComponent,
+  ],
+  providers: [
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
+  ],
+})
+export class VaultSettingsComponent implements OnInit, OnDestroy {
+  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+
+  lastSync = "--";
+  syncLoading = false;
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected readonly userCanArchive = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
+  );
+
+  protected readonly userHasArchivedItems = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.cipherArchiveService.archivedCiphers$(userId).pipe(map((c) => c.length > 0)),
+      ),
+    ),
+  );
+
+  protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.nudgeService.showNudgeBadge$(NudgeType.VaultSettingsImportNudge, userId),
+    ),
+  );
+
+  constructor(
+    private router: Router,
+    private syncService: SyncService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
+    private nudgeService: NudgesService,
+    private accountService: AccountService,
+    private cipherArchiveService: CipherArchiveService,
+    private messagingService: MessagingService,
+  ) {}
+
+  async ngOnInit() {
+    await this.setLastSync();
+  }
+
+  async ngOnDestroy(): Promise<void> {
+    // When a user navigates away from the page, dismiss the empty vault import nudge
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.nudgeService.dismissNudge(NudgeType.VaultSettingsImportNudge, userId);
+  }
+
+  async import() {
+    await this.router.navigate(["/import"]);
+  }
+
+  async sync() {
+    this.syncLoading = true;
+    let toastConfig: ToastOptions;
+
+    try {
+      const success = await this.syncService.fullSync(true);
+      if (success) {
+        await this.setLastSync();
+        this.messagingService.send(FORCE_TARGETING_RULES_UPDATE_COMMAND);
+        toastConfig = {
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("syncingComplete"),
+        };
+      } else {
+        toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
+      }
+      this.toastService.showToast(toastConfig);
+    } finally {
+      this.syncLoading = false;
+    }
+  }
+
+  private async setLastSync() {
+    const last = await this.syncService.getLastSync();
+    if (last != null) {
+      this.lastSync = last.toLocaleDateString() + " " + last.toLocaleTimeString();
+    } else {
+      this.lastSync = this.i18nService.t("never");
+    }
+  }
+
+  /**
+   * When a user can archive or has previously archived items, route them to
+   * the archive page. Otherwise, prompt them to upgrade to premium.
+   */
+  async conditionallyRouteToArchive(event: Event) {
+    event.preventDefault();
+    const premiumBadge = this.premiumBadgeComponent();
+    if (this.userCanArchive() || this.userHasArchivedItems()) {
+      await this.router.navigate(["/archive"]);
+    } else if (premiumBadge) {
+      await premiumBadge.promptForPremium(event);
+    }
+  }
+}
