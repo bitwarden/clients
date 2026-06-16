@@ -118,7 +118,8 @@ pub mod ipc {
     impl SafariIpcServer {
         /// Create and start the buffered IPC server without blocking.
         #[napi(factory)]
-        pub fn listen(
+        #[allow(clippy::unused_async)]
+        pub async fn listen(
             #[napi(ts_arg_type = "(error: null | Error, message: string) => void")]
             callback: ThreadsafeFunction<String>,
         ) -> napi::Result<Self> {
