@@ -90,7 +90,9 @@ class Options {
       passedOptions?.length,
       DefaultPasswordGenerationOptions.length,
     );
-    this.type = passedOptions?.passphrase ? "passphrase" : "password";
+    this.type = CliUtils.convertBooleanOption(passedOptions?.passphrase)
+      ? "passphrase"
+      : "password";
     this.separator = CliUtils.convertStringOption(
       passedOptions?.separator,
       DefaultPassphraseGenerationOptions.wordSeparator,
