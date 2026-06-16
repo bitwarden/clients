@@ -33,6 +33,7 @@ export enum FeatureFlag {
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  AutofillQualificationEngine = "autofill-qualification-engine",
 
   /* Desktop Native */
   WindowsDesktopAutotype = "windows-desktop-autotype",
@@ -140,6 +141,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
+  [FeatureFlag.AutofillQualificationEngine]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */

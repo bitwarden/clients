@@ -111,6 +111,18 @@ export default class AutofillField {
    * The `maxLength` attribute for the field
    */
   maxLength?: number | null;
+  /**
+   * The HTML `pattern` attribute for the field, if present
+   */
+  pattern?: string | null;
+  /**
+   * The HTML `inputmode` attribute for the field, if present
+   */
+  inputMode?: string | null;
+  /**
+   * The HTML `required` boolean attribute
+   */
+  required?: boolean;
 
   dataSetValues?: string;
 

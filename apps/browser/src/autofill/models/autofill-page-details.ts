@@ -21,4 +21,10 @@ export default class AutofillPageDetails {
   fields!: AutofillField[];
   /** Non-null asserted. */
   collectedTimestamp!: number;
+
+  /**
+   * The HTML `lang` attribute on the document root, if present. Useful for keyword
+   * localisation in downstream classifiers.
+   */
+  htmlLang?: string | null;
 }

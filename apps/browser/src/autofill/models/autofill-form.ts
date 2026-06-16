@@ -39,4 +39,10 @@ export default class AutofillForm {
    * (closest first).
    */
   htmlAncestorHeadings!: string[];
+
+  /**
+   * Text content of the form's submit buttons (`button[type=submit]`, `input[type=submit]`,
+   * and untyped `button` elements). Empty array when none present.
+   */
+  submitButtonText?: string[];
 }

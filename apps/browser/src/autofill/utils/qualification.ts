@@ -25,7 +25,7 @@ const autofillFormKeywordsCache: WeakMap<
  * Produces the full lowercased value, tokens split on non-alphanumeric characters (after
  * hyphen removal), and tokens split after additional space removal (e.g. "user id" → "userid").
  */
-function tokenizeValue(value: string): Set<string> {
+export function tokenizeValue(value: string): Set<string> {
   const keywordsSet = new Set<string>();
   let keywordEl = value.toLowerCase();
   keywordsSet.add(keywordEl);
