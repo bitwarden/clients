@@ -66,8 +66,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     if (
-      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
-      this.platformUtilsService.isSafari()
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) &&
+      !this.platformUtilsService.isSafari()
     ) {
       if (!this.nativeMessagingBackground().connected) {
         return false;
@@ -91,8 +91,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     if (
-      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
-      this.platformUtilsService.isSafari()
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) &&
+      !this.platformUtilsService.isSafari()
     ) {
       if (!this.nativeMessagingBackground().connected) {
         return BiometricsStatus.DesktopDisconnected;
@@ -120,8 +120,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     if (
-      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
-      this.platformUtilsService.isSafari()
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) &&
+      !this.platformUtilsService.isSafari()
     ) {
       if (!this.nativeMessagingBackground().connected) {
         return null;
@@ -187,8 +187,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     if (
-      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
-      this.platformUtilsService.isSafari()
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) &&
+      !this.platformUtilsService.isSafari()
     ) {
       if (!this.nativeMessagingBackground().connected) {
         return BiometricsStatus.DesktopDisconnected;
