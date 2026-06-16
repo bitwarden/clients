@@ -72,7 +72,6 @@ describe("ApplicationsTabComponent", () => {
     };
 
     mockDrawerStateService = {
-      openDrawer: jest.fn(),
       toggleDrawer: jest.fn(),
       closeDrawer: jest.fn(),
       drawerState: signal(null) as any,

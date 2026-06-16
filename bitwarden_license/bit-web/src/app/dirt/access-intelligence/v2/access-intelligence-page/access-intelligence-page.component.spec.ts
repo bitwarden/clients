@@ -112,9 +112,14 @@ describe("AccessIntelligencePageComponent", () => {
     drawerStateSignal = signal<DrawerState>({ open: false, type: DrawerType.None, invokerId: "" });
     mockDrawerStateService = {
       drawerState: drawerStateSignal,
-      openDrawer: jest.fn((type: DrawerType, invokerId: string) =>
-        drawerStateSignal.set({ open: true, type, invokerId }),
-      ),
+      toggleDrawer: jest.fn((type: DrawerType, invokerId: string) => {
+        const current = drawerStateSignal();
+        if (current.open && current.type === type && current.invokerId === invokerId) {
+          drawerStateSignal.set({ open: false, type: DrawerType.None, invokerId: "" });
+        } else {
+          drawerStateSignal.set({ open: true, type, invokerId });
+        }
+      }),
       closeDrawer: jest.fn(() =>
         drawerStateSignal.set({ open: false, type: DrawerType.None, invokerId: "" }),
       ),
@@ -447,7 +452,7 @@ describe("AccessIntelligencePageComponent", () => {
 
     it("resets drawer state when the dialog closes so the same drawer can reopen", fakeAsync(() => {
       // Open the org at-risk members drawer
-      mockDrawerStateService.openDrawer(DrawerType.OrgAtRiskMembers, "org-card");
+      mockDrawerStateService.toggleDrawer(DrawerType.OrgAtRiskMembers, "org-card");
       fixture.detectChanges();
       tick();
 
@@ -465,7 +470,7 @@ describe("AccessIntelligencePageComponent", () => {
 
       // Re-clicking the same button reopens the drawer (the bug: nothing happened until a
       // different drawer was opened first)
-      mockDrawerStateService.openDrawer(DrawerType.OrgAtRiskMembers, "org-card");
+      mockDrawerStateService.toggleDrawer(DrawerType.OrgAtRiskMembers, "org-card");
       fixture.detectChanges();
       tick();
 

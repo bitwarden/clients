@@ -106,7 +106,6 @@ describe("ActivityTabComponent", () => {
     };
 
     mockDrawerStateService = {
-      openDrawer: jest.fn(),
       toggleDrawer: jest.fn(),
       closeDrawer: jest.fn(),
     } as any;
