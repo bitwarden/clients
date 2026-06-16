@@ -2,15 +2,14 @@ import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -35,7 +34,6 @@ describe("WebLoginComponentService", () => {
   let service: WebLoginComponentService;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let logService: MockProxy<LogService>;
-  let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let internalPolicyService: MockProxy<InternalPolicyService>;
   let routerService: MockProxy<RouterService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
@@ -50,7 +48,6 @@ describe("WebLoginComponentService", () => {
   beforeEach(() => {
     organizationInviteService = mock<OrganizationInviteService>();
     logService = mock<LogService>();
-    policyApiService = mock<PolicyApiServiceAbstraction>();
     internalPolicyService = mock<InternalPolicyService>();
     routerService = mock<RouterService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -67,7 +64,6 @@ describe("WebLoginComponentService", () => {
         { provide: DefaultLoginComponentService, useClass: WebLoginComponentService },
         { provide: OrganizationInviteService, useValue: organizationInviteService },
         { provide: LogService, useValue: logService },
-        { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
         { provide: InternalPolicyService, useValue: internalPolicyService },
         { provide: RouterService, useValue: routerService },
         { provide: CryptoFunctionService, useValue: cryptoFunctionService },
@@ -88,7 +84,7 @@ describe("WebLoginComponentService", () => {
 
   describe("getOrgPoliciesFromOrgInvite", () => {
     const mockEmail = "test@example.com";
-    const orgInvite: OrganizationInvite = {
+    const orgInvite = new OrganizationInvite({
       organizationId: "org-id",
       token: "token",
       email: mockEmail,
@@ -97,7 +93,7 @@ describe("WebLoginComponentService", () => {
       orgSsoIdentifier: "sso-id",
       orgUserHasExistingUser: false,
       organizationName: "org-name",
-    };
+    });
 
     it("returns undefined if organization invite is null", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
@@ -105,12 +101,11 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("logs an error if getPoliciesByToken throws an error", async () => {
-      const error = new Error("Test error");
+    it("returns undefined if getInvitePolicies returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      policyApiService.getPoliciesByToken.mockRejectedValue(error);
-      await service.getOrgPoliciesFromOrgInvite(mockEmail);
-      expect(logService.error).toHaveBeenCalledWith(error);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+      expect(result).toBeUndefined();
     });
 
     it.each([
@@ -125,7 +120,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
@@ -161,7 +156,7 @@ describe("WebLoginComponentService", () => {
 
         // Assert
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
-        expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
       });
 
       it("should log an error and return undefined", async () => {
