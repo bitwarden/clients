@@ -3,6 +3,8 @@ import {
   AccessLeaseResponse,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
+  Decision,
+  findHumanDecision,
 } from "@bitwarden/pam";
 
 /** Max items rendered per section (no pagination). */
@@ -88,35 +90,36 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 /**
  * Resolve who actioned a request.
  *
- * The API surfaces `approverId = null` for system / access-rule decisions and a
- * user id for human decisions, with the approver's name/email denormalized
- * alongside it. For a human decision we show the name, falling back to the email,
- * then the raw id if the server could not resolve the user (e.g. a deleted
- * account) — so the column is never blank.
+ * The API surfaces the request's decision log. A system / access-rule decision has
+ * `deciderKind: "automatic"` (no approver identity); a human decision carries the
+ * approver's name/email alongside the id. For a human decision we show the name,
+ * falling back to the email, then the raw id if the server could not resolve the
+ * user (e.g. a deleted account) — so the column is never blank.
  *
  * Returns an i18n key for system decisions (translated in the template) and a
  * display name for human decisions, keeping localization out of the row model.
  * Exported for tests.
  */
 export function resolveResolver(
-  response: Pick<
-    AccessRequestDetailsResponse,
-    "status" | "approverId" | "approverName" | "approverEmail"
-  >,
+  status: AccessRequestStatus,
+  human: Decision | undefined,
 ): Pick<MyRequestRow, "resolverLabelKey" | "resolverName"> {
-  if (response.status === AccessRequestStatus.Pending) {
+  // Show the human decider's name; a still-pending request shows neither, and an automatic
+  // (access-rule) decision — or no human decision — shows the access-rule label.
+  if (status === AccessRequestStatus.Pending) {
     return { resolverLabelKey: null, resolverName: null };
   }
-  if (response.approverId == null) {
+  if (human == null) {
     return { resolverLabelKey: "pamResolverAccessRule", resolverName: null };
   }
   return {
     resolverLabelKey: null,
-    resolverName: response.approverName || response.approverEmail || response.approverId,
+    resolverName: human.name || human.email || human.id,
   };
 }
 
 export function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
+  const human = findHumanDecision(response.decisions);
   return {
     id: response.id,
     cipherId: response.cipherId,
@@ -132,8 +135,8 @@ export function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
     requestedNotAfter:
       response.requestedNotAfter == null ? null : new Date(response.requestedNotAfter),
     requestedTtlSeconds: response.requestedTtlSeconds,
-    ...resolveResolver(response),
-    approverComment: response.approverComment,
+    ...resolveResolver(response.status, human),
+    approverComment: human?.comment ?? null,
     activationDeadline:
       response.activationDeadline == null ? null : new Date(response.activationDeadline),
   };

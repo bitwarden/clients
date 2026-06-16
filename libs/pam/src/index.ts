@@ -15,7 +15,12 @@ export {
   AccessRequestStatus,
   AccessRequestResponse,
 } from "./abstractions/responses/access-request.response";
-export { AccessRequestDetailsResponse } from "./abstractions/responses/access-request-details.response";
+export {
+  AccessRequestDetailsResponse,
+  Decision,
+} from "./abstractions/responses/access-request-details.response";
+export { AccessDecisionVerdict } from "./abstractions/access-decision-verdict";
+export { AccessDeciderKind } from "./abstractions/access-decider-kind";
 export {
   AccessLeaseStatus,
   AccessLeaseResponse,
@@ -34,10 +39,7 @@ export { DefaultPamApiService } from "./services/default-pam-api.service";
 export { DefaultAccessEventService } from "./services/default-access-event.service";
 export { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";
 export { AccessRequestCreateRequest } from "./services/requests/access-request-create.request";
-export {
-  AccessDecisionVerdict,
-  AccessDecisionRequest,
-} from "./services/requests/access-decision.request";
+export { AccessDecisionRequest } from "./services/requests/access-decision.request";
 export { AccessLeaseExtensionRequest } from "./services/requests/access-lease-extension.request";
 export { AccessLeaseRevokeRequest } from "./services/requests/access-lease-revoke.request";
 export { AccessRuleRequest, accessRuleToRequest } from "./services/requests/access-rule.request";
@@ -60,6 +62,7 @@ export {
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRemaining } from "./helpers/format-remaining";
+export { findHumanDecision } from "./helpers/find-human-decision";
 export { formatRelativeTime, elapsedKey } from "./helpers/relative-time";
 export {
   MAX_LEASE_DURATION_SECONDS,

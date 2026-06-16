@@ -4,12 +4,13 @@ import { firstValueFrom, Subject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
+import { AccessDecisionVerdict } from "../abstractions/access-decision-verdict";
 import { AccessEventService } from "../abstractions/access-event.service";
 import { AccessCondition } from "../abstractions/access-rule";
 import { AccessApprovalMode } from "../abstractions/responses/access-pre-check.response";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
-import { AccessDecisionRequest, AccessDecisionVerdict } from "./requests/access-decision.request";
+import { AccessDecisionRequest } from "./requests/access-decision.request";
 import { AccessLeaseExtensionRequest } from "./requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "./requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "./requests/access-request-create.request";

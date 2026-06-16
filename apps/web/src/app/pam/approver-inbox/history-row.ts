@@ -1,7 +1,9 @@
 import {
   AccessRequestDetailsResponse,
-  AccessLeaseStatus,
   AccessRequestStatus,
+  AccessLeaseStatus,
+  Decision,
+  findHumanDecision,
   formatRemaining,
 } from "@bitwarden/pam";
 
@@ -26,6 +28,8 @@ export type FlatHistoryRow = {
   approverLabelKey: string | null;
   /** The human decider's display name (name → email → id) for the "Approved by" column; null otherwise. */
   approverName: string | null;
+  /** The deciding approver's comment, if any. */
+  approverComment: string | null;
 };
 
 /**
@@ -35,20 +39,20 @@ export type FlatHistoryRow = {
  * neither. Mirrors the My Requests resolver. Exported for tests.
  */
 export function resolveApprover(
-  item: Pick<
-    AccessRequestDetailsResponse,
-    "status" | "approverId" | "approverName" | "approverEmail"
-  >,
+  status: AccessRequestStatus,
+  human: Decision | undefined,
 ): Pick<FlatHistoryRow, "approverLabelKey" | "approverName"> {
-  if (item.status === AccessRequestStatus.Pending) {
+  // The "Approved by" column names a human decider; a still-pending request shows neither, and an
+  // automatic (access-rule) decision — or no human decision at all — shows the access-rule label.
+  if (status === AccessRequestStatus.Pending) {
     return { approverLabelKey: null, approverName: null };
   }
-  if (item.approverId == null) {
+  if (human == null) {
     return { approverLabelKey: "pamResolverAccessRule", approverName: null };
   }
   return {
     approverLabelKey: null,
-    approverName: item.approverName || item.approverEmail || item.approverId,
+    approverName: human.name || human.email || human.id,
   };
 }
 
@@ -211,6 +215,7 @@ export function flattenHistory(
   return groupHistory(items, now).flatMap(({ bucket, items: bucketItems }) =>
     bucketItems.map((item): FlatHistoryRow => {
       const actionable = canActOn(item);
+      const human = findHumanDecision(item.decisions);
       return {
         item,
         bucket,
@@ -230,7 +235,8 @@ export function flattenHistory(
         statusLabel: historyStatusLabelFor(bucket, item),
         relTime: historyRelTimeFor(item, bucket, now),
         sortTimeMs: resolvedOrSubmittedMs(item),
-        ...resolveApprover(item),
+        approverComment: human?.comment ?? null,
+        ...resolveApprover(item.status, human),
       };
     }),
   );

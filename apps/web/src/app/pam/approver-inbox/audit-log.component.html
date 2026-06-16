@@ -62,9 +62,9 @@
                 &nbsp;·&nbsp;{{ row.relTime.key | i18n: row.relTime.value }}
               </span>
             }
-            @if (row.item.approverComment) {
+            @if (row.approverComment) {
               <div class="tw-mt-0.5 tw-text-xs tw-text-muted tw-italic">
-                {{ row.item.approverComment }}
+                {{ row.approverComment }}
               </div>
             }
           </td>

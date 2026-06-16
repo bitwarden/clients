@@ -39,10 +39,27 @@ function item(
     Reason: "Quarterly access review",
     SubmittedAt: new Date(now - 5 * 60 * 60_000).toISOString(),
     ResolvedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
-    ApproverId: hasApprover ? (overrides.approverId ?? "approver-1") : null,
-    ApproverName: hasApprover ? (overrides.approverName ?? "Dana Approver") : null,
-    ApproverEmail: hasApprover ? "dana@example.com" : null,
-    ApproverComment: overrides.comment ?? null,
+    // The decision log: a human decision carries the approver; an access-rule case (approverId: null)
+    // is an automatic decision with no approver identity.
+    Decisions: [
+      hasApprover
+        ? {
+            DeciderKind: "human",
+            Id: overrides.approverId ?? "approver-1",
+            Name: overrides.approverName ?? "Dana Approver",
+            Email: "dana@example.com",
+            Comment: overrides.comment ?? null,
+            Verdict: (overrides.status ?? "denied") === "denied" ? 1 : 0,
+            DecidedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
+          }
+        : {
+            DeciderKind: "automatic",
+            Id: null,
+            Comment: overrides.comment ?? null,
+            Verdict: (overrides.status ?? "denied") === "denied" ? 1 : 0,
+            DecidedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
+          },
+    ],
     ProducedLeaseId: overrides.producedLeaseId ?? null,
     ProducedLeaseStatus: overrides.producedLeaseStatus ?? null,
     CipherName: overrides.cipherName ?? "Datadog API key",
