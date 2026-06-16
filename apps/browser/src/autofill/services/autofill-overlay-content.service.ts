@@ -51,7 +51,7 @@ import { EventSecurity } from "../utils/event-security";
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  SubFrameDataFromWindowMessage,
+  SubFrameOffsetWindowMessageData,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
@@ -1578,7 +1578,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param message - The message object from the extension.
    */
   private getSubFrameOffsetsFromWindowMessage(message: any) {
-    const subFrameData: SubFrameDataFromWindowMessage = {
+    // `postMessage` accepts `any` message, which disables typechecking, so typecheck it early
+    const subFrameData: SubFrameOffsetWindowMessageData = {
       frameId: message.subFrameId,
       left: 0,
       top: 0,

@@ -3,7 +3,7 @@ import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
-import type { SubFrameDataFromWindowMessage } from "../services/abstractions/autofill-overlay-content.service";
+import type { SubFrameOffsetWindowMessageData } from "../services/abstractions/autofill-overlay-content.service";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -586,22 +586,22 @@ export function areKeyValuesNull<T extends Record<string, any>>(
 }
 
 /**
- * Type guard for the untrusted `data` of a `calculateSubFramePositioning` window
- * message. Validates the shape of `subFrameData` and rejects any payload that
- * carries a `url`: the field is intentionally excluded from
- * `SubFrameDataFromWindowMessage` and must not cross the frame boundary, so a
- * message containing one is dropped rather than relayed onward.
+ * Validates the shape of `subFrameData` and rejects any payload that carries a
+ * `url`. This is the *receive*-side counterpart to the *send*-side
+ * `SubFrameOffsetWindowMessageData` type: that type stops our own code from
+ * constructing a leaky payload at compile time, but any frame can post arbitrary
+ * data, so inbound messages must be validated at runtime before they are trusted.
  *
- * @param data - The untrusted `data` property of the window message event.
+ * @param value - The untrusted `data` property of the window message event.
  */
 export function isSubFramePositioningMessageData(
-  data: unknown,
-): data is { subFrameData: SubFrameDataFromWindowMessage } {
-  if (typeof data !== "object" || data === null || !("subFrameData" in data)) {
+  value: unknown,
+): value is { subFrameData: SubFrameOffsetWindowMessageData } {
+  if (typeof value !== "object" || value === null || !("subFrameData" in value)) {
     return false;
   }
 
-  const { subFrameData } = data as { subFrameData: unknown };
+  const { subFrameData } = value as { subFrameData: unknown };
   if (typeof subFrameData !== "object" || subFrameData === null || "url" in subFrameData) {
     return false;
   }

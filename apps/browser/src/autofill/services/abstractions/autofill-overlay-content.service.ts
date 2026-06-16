@@ -5,8 +5,23 @@ import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
-// Omit `url` so that messages don't leak it across frame boundaries
-export type SubFrameDataFromWindowMessage = Omit<NonNullable<SubFrameOffsetData>, "url"> & {
+/**
+ * Payload posted between frames to accumulate a sub frame's offset as it is
+ * relayed up the frame tree. `subFrameDepth`
+ *
+ * This type guards the *send* side at compile time: the runtime counterpart for
+ * untrusted inbound messages is `isSubFramePositioningMessageData` in `../utils`.
+ */
+export type SubFrameOffsetWindowMessageData = Omit<NonNullable<SubFrameOffsetData>, "url"> & {
+  /**
+   * Forbid `url`. This protects against leaking a frame's location to every
+   * ancestor frame when posted with a `"*"` target origin.
+   */
+  url?: never;
+
+  /** tracks how many frames the message has traversed so the relay can stop at
+   * `MAX_SUB_FRAME_DEPTH` rather than walk an unbounded chain.
+   */
   subFrameDepth: number;
 };
 
