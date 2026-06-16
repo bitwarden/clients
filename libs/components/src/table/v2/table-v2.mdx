@@ -1,4 +1,4 @@
-import { Meta, Story, Primary } from "@storybook/addon-docs/blocks";
+import { Meta, Canvas, Primary } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./table-v2.stories";
 
@@ -67,9 +67,11 @@ exposes:
 | `table.data`             | Row data, as a `Signal<T[]>`.                                     |
 | `table.columns`          | Typed column refs, e.g. `table.columns.email`, for `*bitCellDef`. |
 | `table.displayedColumns` | The ordered list of shown columns, as a `WritableSignal`.         |
+| `table.sort`             | Active sort state and transitions — `current`, `toggle`.          |
 | `table.filterValues`     | The filter chips' combined value, keyed by chip `key`.            |
 | `table.filtered`         | Rows passing the active filters — the rendered/selection scope.   |
 | `table.selection`        | Selection state — present only when `selection` is configured.    |
+| `table.pagination`       | Pagination state — present only when `pagination` is configured.  |
 
 Sorting is applied internally; there's no exposed data source. Filtering is contributed by projected
 filter chips rather than configured here — see [Filtering](#filtering).
@@ -380,13 +382,33 @@ filtering, omit `filter` and read `filterValues()` to build your query (feed pre
 chips (sections, in-menu search, and a radio + checkbox group in one chip, which nests under the
 chip's key).
 
+<Canvas of={stories.Filterable} />
+
+### Search
+
+A `<bit-search>` projected into the table (typically the toolbar) is adopted automatically as a
+filter under the `search` key — no `bitTableFilter`, no `ngModel`. Its term lands in
+`filterValues().search`; read it in your `filter` alongside the chip keys:
+
+```ts
+filter: (row, f) =>
+  (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+  (!f.type || row.type === f.type),
+```
+
 ## Toolbar
 
 `<bit-table-toolbar>`, projected into the table, renders inside the chrome above the header row. It
-lays out in two rows: a `<bit-search>` and any `slot="end"` controls share the top row, and the
-filter chips get their own row beneath. The filter row is the unit that collapses into a single
-trigger + dialog on small screens (responsive view). The toolbar holds no filter state of its own —
-chips register with the table via `bitTableFilter`.
+lays out in two rows:
+
+- **Top row** — the `<bit-search>` (capped at ~400px in its slot) and any `slot="end"` controls
+  (buttons, etc., right-aligned).
+- **Filter row** — the filter chips, with a live "N items" count of the filtered rows at the end.
+  Group related chips with a `<bit-filter-divider>`. This row is the unit that collapses into a
+  single trigger + dialog on small screens (responsive view).
+
+The toolbar holds no filter state of its own: chips register with the table via `bitTableFilter`,
+and a projected `<bit-search>` is auto-adopted as the `search` filter (see [Search](#search) above).
 
 ```html
 <bit-table-v2 [table]="table">
