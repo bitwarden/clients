@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  TemplateRef,
   computed,
   effect,
   forwardRef,
@@ -13,7 +14,7 @@ import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { BitwardenIcon } from "../shared/icon";
 
-import { FILTER_CONTROL, FilterControl } from "./filter-tokens";
+import { FILTER_CONTROL, FILTER_PRESENTER, FilterControl, FilterPresenter } from "./filter-tokens";
 
 /**
  * A single on/off filter chip — no menu. Use it when a filter is one element
@@ -32,10 +33,13 @@ import { FILTER_CONTROL, FilterControl } from "./filter-tokens";
   templateUrl: "./filter-toggle.component.html",
   imports: [ChipContentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterToggleComponent) }],
+  providers: [
+    { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterToggleComponent) },
+    { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterToggleComponent) },
+  ],
   hostDirectives: [{ directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth"] }],
 })
-export class FilterToggleComponent implements FilterControl {
+export class FilterToggleComponent implements FilterControl, FilterPresenter {
   /** The chip's key — the property its boolean value occupies in the host's `filterValues`. */
   readonly key = input.required<string>();
 
@@ -55,6 +59,12 @@ export class FilterToggleComponent implements FilterControl {
   /** Whether the toggle is on. */
   readonly active = computed(() => this._value());
 
+  /** @see FilterPresenter.summary — a toggle has no per-option summary. */
+  readonly summary = computed(() => "");
+
+  /** @see FilterPresenter.optionsTemplate — a toggle has no drill-in; it flips in place. */
+  readonly optionsTemplate = computed<TemplateRef<unknown> | undefined>(() => undefined);
+
   /** The displayed icon — the filled variant while active, when one is conventionally available. */
   protected readonly displayIcon = computed<BitwardenIcon | undefined>(() => {
     const icon = this.icon();
@@ -70,11 +80,17 @@ export class FilterToggleComponent implements FilterControl {
     effect(() => this.baseChip.selectedState.set(this._value()));
   }
 
-  protected toggle(): void {
+  /** Flips the toggle. Wired to the chip click and the responsive dialog's row. */
+  flip(): void {
     if (this.disabled()) {
       return;
     }
     this._value.update((v) => !v);
+  }
+
+  /** @see FilterPresenter.clear */
+  clear(): void {
+    this._value.set(false);
   }
 
   setValue(value: unknown): void {

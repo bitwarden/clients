@@ -9,11 +9,33 @@
     <div class="tw-flex tw-min-w-0 tw-flex-1 tw-max-w-[25rem]">
       <ng-content select="bit-search"></ng-content>
     </div>
+    <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
+    @if (!isLargeScreen()) {
+      <div class="tw-relative tw-flex-none">
+        <button
+          type="button"
+          bitIconButton="bwi-sliders"
+          buttonType="secondary"
+          [label]="'filters' | i18n"
+          (click)="openFilterDialog()"
+        ></button>
+        @if (appliedCount()) {
+          <bit-berry
+            class="tw-pointer-events-none tw-absolute tw-end-0 tw-top-0"
+            [value]="appliedCount()"
+          ></bit-berry>
+        }
+      </div>
+    }
     <div class="tw-flex tw-items-center tw-gap-2 tw-ms-auto">
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
-  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+  <!--
+    Desktop filter row: the projected chips and the item count. Hidden (not removed)
+    below md so the chips stay instantiated to back the dialog and the chips below.
+  -->
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" [class.tw-hidden]="!isLargeScreen()">
     <ng-content select="bit-filter-chip, bit-filter-toggle, bit-filter-divider"></ng-content>
     @if (table) {
       <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-muted">
@@ -21,4 +43,19 @@
       </span>
     }
   </div>
+  <!--
+    Below md, a second row of just the active filters — dismissible chips that clear
+    on click. Rendered only when there's at least one (no empty row, no item count).
+  -->
+  @if (!isLargeScreen() && activeFilters().length) {
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+      @for (filter of activeFilters(); track filter.key()) {
+        <bit-chip
+          [label]="appliedLabel(filter)"
+          (click)="filter.clear()"
+          (dismissed)="filter.clear()"
+        ></bit-chip>
+      }
+    </div>
+  }
 </div>

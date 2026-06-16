@@ -55,6 +55,7 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
+              all: "All",
               removeItem: (name) => `Remove ${name}`,
               noMatchingItems: "No matching items",
               search: "Search",

@@ -8,7 +8,7 @@
     [disabled]="disabled()"
     [attr.aria-pressed]="active()"
     [title]="label()"
-    (click)="toggle()"
+    (click)="flip()"
   >
     <span class="tw-block tw-min-w-0 tw-truncate">{{ label() }}</span>
   </button>

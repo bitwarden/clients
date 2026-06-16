@@ -10,6 +10,7 @@ import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.componen
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
+import { DialogModule } from "../../dialog";
 import { FilterMenuModule } from "../../filter-menu";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { LayoutComponent, PageComponent } from "../../layout";
@@ -309,9 +310,18 @@ export default {
         PageComponent,
         TypographyModule,
         SearchModule,
+        DialogModule,
         RouterTestingModule,
       ],
+    }),
+    applicationConfig({
       providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
+        // Provided at the application (root) level so dialogs opened via DialogService —
+        // which root their injector at the app injector, not the story module — resolve it.
         {
           provide: I18nService,
           useFactory: () =>
@@ -339,19 +349,17 @@ export default {
               rowsPerPage: "Rows per page",
               rowsPerPageOption: (count) => `${count} rows per page`,
               itemCount: (count) => `${count} items`,
+              all: "All",
+              filter: "Filter",
+              filters: "Filters",
+              done: "Done",
+              clearAll: "Clear all",
+              filtersSelected: (count) => `${count} selected`,
               previousPage: "Previous page",
               nextPage: "Next page",
               goToPage: "Go to page",
               selectPlaceholder: "-- Select --",
             }),
-        },
-      ],
-    }),
-    applicationConfig({
-      providers: [
-        {
-          provide: GlobalStateProvider,
-          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),

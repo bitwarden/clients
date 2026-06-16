@@ -2,33 +2,34 @@ import {
   ChangeDetectionStrategy,
   Component,
   booleanAttribute,
-  computed,
   contentChildren,
+  forwardRef,
   input,
   linkedSignal,
 } from "@angular/core";
 
-import { BerryComponent } from "../berry/berry.component";
-import { IconComponent } from "../icon";
-
 import { FilterOptionComponent } from "./filter-option.component";
+import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
 /**
- * A labelled section within a `bit-filter-chip` menu, grouping related options
- * (e.g. a collection's children, or one org's collections). When `collapsible`,
- * the header toggles the section's content open/closed. It hides itself entirely
- * when the in-menu search has hidden all of its options, so no empty headers linger.
+ * A labelled group of options within a `bit-filter-chip` menu (e.g. one org's
+ * collections). Like `bit-filter-option`, it's **declarative**: it holds the label,
+ * collapse state, and its child options; the chip renders the header (with a
+ * selected-count berry and, when `collapsible`, a toggle) and the option rows. Its
+ * {@link open} state is shared across the popover and the dialog, so collapsing in one
+ * is reflected in the other.
  */
 @Component({
   selector: "bit-filter-section",
-  templateUrl: "./filter-section.component.html",
-  imports: [IconComponent, BerryComponent],
+  template: `<ng-content></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    "[hidden]": "empty()",
-  },
+  // Never shown directly; only instantiates its options. The chip renders the header/rows.
+  host: { class: "tw-hidden" },
+  providers: [{ provide: FILTER_ENTRY, useExisting: forwardRef(() => FilterSectionComponent) }],
 })
-export class FilterSectionComponent {
+export class FilterSectionComponent implements FilterEntry {
+  readonly kind = "section" as const;
+
   /** The section header text. */
   readonly label = input.required<string>();
 
@@ -38,25 +39,15 @@ export class FilterSectionComponent {
   /** Whether the section starts expanded (only meaningful when collapsible). */
   readonly expanded = input(true, { transform: booleanAttribute });
 
-  private readonly options = contentChildren(FilterOptionComponent, { descendants: true });
+  /** This section's options; the chip renders their rows under the header. */
+  readonly options = contentChildren(FilterOptionComponent, { descendants: true });
 
-  /** All projected options hidden (by the in-menu search) — the section has nothing to show. */
-  protected readonly empty = computed(() => {
-    const options = this.options();
-    return options.length > 0 && options.every((o) => o.hidden());
-  });
+  /** Open state, seeded from `expanded` and thereafter driven by the chip's header. */
+  readonly open = linkedSignal(() => this.expanded());
 
-  /** How many of the section's options are selected — shown as a header berry. */
-  protected readonly selectedCount = computed(
-    () => this.options().filter((o) => o.selected()).length,
-  );
-
-  /** Open state, seeded from `expanded` and thereafter driven by the header. */
-  protected readonly open = linkedSignal(() => this.expanded());
-
-  protected toggle(): void {
+  toggle(): void {
     if (this.collapsible()) {
-      this.open.update((o) => !o);
+      this.open.update((isOpen) => !isOpen);
     }
   }
 }

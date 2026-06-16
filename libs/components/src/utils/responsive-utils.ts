@@ -1,3 +1,5 @@
+import { DestroyRef, Signal, inject, signal } from "@angular/core";
+
 /**
  * Breakpoint definitions in pixels matching Tailwind CSS default breakpoints.
  * These values must stay in sync with tailwind.config.base.js theme.extend configuration.
@@ -24,4 +26,22 @@ export const isAtOrLargerThanBreakpoint = (size: keyof typeof BREAKPOINTS): bool
   }
   const query = `(min-width: ${BREAKPOINTS[size]}px)`;
   return window.matchMedia(query).matches;
+};
+
+/**
+ * Reactive form of {@link isAtOrLargerThanBreakpoint}: a signal that tracks whether
+ * the viewport is at or larger than `size`, updating as the media query changes.
+ * Must be called in an injection context (cleans up its listener on destroy).
+ */
+export const isAtOrLargerThanBreakpointSignal = (
+  size: keyof typeof BREAKPOINTS,
+): Signal<boolean> => {
+  const matches = signal(isAtOrLargerThanBreakpoint(size));
+  if (typeof window !== "undefined" && window.matchMedia) {
+    const query = window.matchMedia(`(min-width: ${BREAKPOINTS[size]}px)`);
+    const listener = (event: MediaQueryListEvent) => matches.set(event.matches);
+    query.addEventListener("change", listener);
+    inject(DestroyRef).onDestroy(() => query.removeEventListener("change", listener));
+  }
+  return matches.asReadonly();
 };
